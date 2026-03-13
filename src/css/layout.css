@@ -18,11 +18,18 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 2.5rem 2.75rem;
+  padding: 2rem 2.75rem 2.5rem;
   max-width: 500px;
   width: 100%;
   box-shadow: var(--shadow-lg);
   animation: slideUp .4s cubic-bezier(.4,0,.2,1);
+}
+
+.welcome-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
 }
 
 @keyframes slideUp {
