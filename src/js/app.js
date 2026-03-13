@@ -7,11 +7,20 @@
   'use strict';
 
   /* ─── DOM CACHE ─────────────────────────────────── */
+  const homeScreen    = document.getElementById('home-screen');
   const welcomeScreen = document.getElementById('welcome-screen');
   const appShell      = document.getElementById('app');
   const sidebar       = document.getElementById('sidebar');
   const paramList     = document.getElementById('param-list');
   const derivedList   = document.getElementById('derived-list');
+
+  /* ─── SCREEN NAVIGATION ──────────────────────────── */
+  function showScreen(name) {
+    homeScreen   .classList.toggle('hidden', name !== 'home');
+    welcomeScreen.classList.toggle('hidden', name !== 'welcome');
+    appShell     .classList.toggle('hidden', name !== 'app');
+    if (name !== 'home') window.scrollTo(0, 0);
+  }
 
   /* ─── UTILITIES ─────────────────────────────────── */
   window.showToast = function (msg, type = 'info', duration = 3000) {
@@ -52,7 +61,7 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ─── THEME ─────────────────────────────────────── */
+  /* ─── THEME — event delegation (works for ALL screens) ── */
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next    = current === 'dark' ? 'light' : 'dark';
@@ -63,30 +72,46 @@
   function initTheme() {
     const saved = localStorage.getItem('uc_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-
-    const btnMain    = document.getElementById('btn-theme');
-    const btnWelcome = document.getElementById('btn-theme-welcome');
-    if (btnMain)    btnMain.addEventListener('click', toggleTheme);
-    if (btnWelcome) btnWelcome.addEventListener('click', toggleTheme);
+    /* Single delegated listener — catches buttons on ALL screens */
+    document.addEventListener('click', e => {
+      if (e.target.closest('.theme-toggle')) toggleTheme();
+    });
   }
 
-  /* ─── LANGUAGE ───────────────────────────────────── */
+  /* ─── LANGUAGE — event delegation ───────────────── */
   function initLang() {
     i18n.apply();
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        i18n.setLang(btn.dataset.lang);
-        // Re-render everything
-        Table.render();
-        TypeB.render();
-        Results.render();
-        renderSidebar();
-      });
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.lang-btn');
+      if (!btn || !btn.dataset.lang) return;
+      i18n.setLang(btn.dataset.lang);
+      Table.render();
+      TypeB.render();
+      Results.render();
+      renderSidebar();
     });
+  }
+
+  /* ─── HOME PAGE ─────────────────────────────────── */
+  function initHome() {
+    document.getElementById('btn-home-start').addEventListener('click',  () => showScreen('welcome'));
+    document.getElementById('btn-home-start2').addEventListener('click', () => showScreen('welcome'));
+    /* Formula cycling animation */
+    const items = document.querySelectorAll('.fc-item');
+    const dots  = document.querySelectorAll('.fc-dot');
+    let cur = 0;
+    setInterval(() => {
+      items[cur].classList.remove('active');
+      dots[cur].classList.remove('active');
+      cur = (cur + 1) % items.length;
+      items[cur].classList.add('active');
+      dots[cur].classList.add('active');
+    }, 2800);
   }
 
   /* ─── WELCOME SCREEN ────────────────────────────── */
   function initWelcome() {
+    document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'));
     const btnStart = document.getElementById('btn-start');
     btnStart.addEventListener('click', startSession);
 
@@ -129,9 +154,7 @@
       loadPreset(preset);
     }
 
-    welcomeScreen.classList.add('hidden');
-    appShell.classList.remove('hidden');
-
+    showScreen('app');
     renderSidebar();
     Table.render();
     TypeB.render();
@@ -267,8 +290,7 @@
     document.getElementById('btn-reset').addEventListener('click', () => {
       if (confirm('Start a new session? All data will be cleared.')) {
         appState.reset();
-        appShell.classList.add('hidden');
-        welcomeScreen.classList.remove('hidden');
+        showScreen('home');
       }
     });
 
@@ -334,6 +356,7 @@
   function bootstrap() {
     initTheme();
     initLang();
+    initHome();
     initWelcome();
     initSidebar();
     initTabs();
@@ -349,8 +372,7 @@
     // If there's existing state, resume session
     const state = appState.get();
     if (state.params.length && Object.keys(state.measurements).length) {
-      welcomeScreen.classList.add('hidden');
-      appShell.classList.remove('hidden');
+      showScreen('app');
       renderSidebar();
       detectDerived();
     }

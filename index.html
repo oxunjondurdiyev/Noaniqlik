@@ -13,22 +13,248 @@
 <body>
 
 <!-- ══════════════════════════════════════════════════
+     HOME / LANDING PAGE
+══════════════════════════════════════════════════ -->
+<div id="home-screen">
+
+  <!-- Landing topbar -->
+  <nav class="landing-nav">
+    <div class="landing-nav-inner">
+      <a class="landing-brand" href="#">
+        <svg width="28" height="28" viewBox="0 0 56 56" fill="none">
+          <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="app_name">UncertaintyCalc</span>
+      </a>
+      <div class="landing-nav-right">
+        <div class="lang-switcher">
+          <button class="lang-btn" data-lang="uz">UZ</button>
+          <button class="lang-btn" data-lang="ru">RU</button>
+          <button class="lang-btn active" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn theme-toggle" title="Toggle theme">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline btn-sm" href="https://github.com/oxunjondurdiyev/Noaniqlik" target="_blank" rel="noopener" data-i18n="home_hero_github">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Stats strip -->
+  <div class="landing-stats">
+    <div class="landing-stats-inner">
+      <div class="lstat"><span class="lstat-num">12</span><span class="lstat-label" data-i18n="home_stat_formulas">GUM Formulas</span></div>
+      <div class="lstat"><span class="lstat-num">9</span><span class="lstat-label" data-i18n="home_stat_presets">Lab Presets</span></div>
+      <div class="lstat"><span class="lstat-num">3</span><span class="lstat-label" data-i18n="home_stat_langs">Languages</span></div>
+      <div class="lstat"><span class="lstat-num">4</span><span class="lstat-label" data-i18n="home_stat_dist">Distributions</span></div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="landing-hero">
+    <div class="landing-hero-inner">
+      <div class="landing-hero-text">
+        <div class="landing-badge-row">
+          <span class="lbadge">ISO/IEC 17025:2017</span>
+          <span class="lbadge">GUM:2008</span>
+          <span class="lbadge lbadge-green">Free &amp; Open Source</span>
+        </div>
+        <h1 class="landing-h1" data-i18n="home_hero_title">Professional Measurement Uncertainty Calculator</h1>
+        <p class="landing-sub" data-i18n="home_hero_sub">Fully compliant with ISO/IEC 17025:2017 and GUM:2008 — the global gold standards for calibration laboratories.</p>
+        <div class="landing-cta-row">
+          <button class="btn btn-primary btn-xl" id="btn-home-start" data-i18n="home_hero_cta">Open Calculator</button>
+          <a class="btn btn-outline btn-lg" href="https://github.com/oxunjondurdiyev/Noaniqlik" target="_blank" rel="noopener" data-i18n="home_hero_github">GitHub</a>
+        </div>
+      </div>
+      <div class="landing-hero-formula">
+        <p class="formula-cycling-label" data-i18n="home_formula_label">Core formula (GUM 5.1):</p>
+        <div class="formula-cycling" id="formula-cycle">
+          <div class="fc-item active">u<sub>A</sub> = s(x) / √n</div>
+          <div class="fc-item">u<sub>B</sub> = a / √3</div>
+          <div class="fc-item">u<sub>c</sub> = √[ u<sub>A</sub>² + Σ(c<sub>i</sub>·u<sub>Bi</sub>)² ]</div>
+          <div class="fc-item">U = k · u<sub>c</sub> &nbsp;&nbsp;(k=2 → 95%)</div>
+        </div>
+        <div class="fc-dots" id="fc-dots">
+          <span class="fc-dot active"></span>
+          <span class="fc-dot"></span>
+          <span class="fc-dot"></span>
+          <span class="fc-dot"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="landing-section">
+    <div class="landing-container">
+      <h2 class="landing-section-title" data-i18n="home_feat_heading">Everything a Metrologist Needs</h2>
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3 data-i18n="home_f1_title">Type A Analysis</h3>
+          <p data-i18n="home_f1_desc">Automatic statistical evaluation: mean, standard deviation, and standard uncertainty of the mean.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-orange">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <h3 data-i18n="home_f2_title">Type B Distributions</h3>
+          <p data-i18n="home_f2_desc">Four distributions from GUM 4.3: rectangular, normal, triangular, U-shape.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <h3 data-i18n="home_f3_title">Combined Uncertainty</h3>
+          <p data-i18n="home_f3_desc">Law of propagation with sensitivity coefficients. Welch-Satterthwaite effective degrees of freedom.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          </div>
+          <h3 data-i18n="home_f4_title">ISO/IEC 17025 Report</h3>
+          <p data-i18n="home_f4_desc">Printable uncertainty budget table — ready to attach to calibration certificates.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3 data-i18n="home_f5_title">Three Languages</h3>
+          <p data-i18n="home_f5_desc">Full interface in Uzbek, Russian and English. Language preference saved automatically.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-yellow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+          </div>
+          <h3 data-i18n="home_f6_title">9 Lab Presets</h3>
+          <p data-i18n="home_f6_desc">Mass, volume, density, voltage, resistance, power, length, area and temperature.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="landing-section landing-section-alt">
+    <div class="landing-container">
+      <h2 class="landing-section-title" data-i18n="home_how_heading">Three Steps to Your Result</h2>
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3 data-i18n="home_s1_title">Enter Data</h3>
+          <p data-i18n="home_s1_desc">Set the number of measurements and parameters. Load a preset or start from scratch.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3 data-i18n="home_s2_title">Analyse</h3>
+          <p data-i18n="home_s2_desc">The calculator evaluates Type A statistics and guides you through each Type B uncertainty source.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3 data-i18n="home_s3_title">Print Report</h3>
+          <p data-i18n="home_s3_desc">Get a complete ISO/IEC 17025-formatted uncertainty budget — ready to sign and archive.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Standards -->
+  <section class="landing-section">
+    <div class="landing-container">
+      <h2 class="landing-section-title" data-i18n="home_std_heading">Built on Authoritative Standards</h2>
+      <div class="standards-grid">
+        <div class="std-card">
+          <div class="std-code">GUM:2008</div>
+          <div class="std-full">JCGM 100:2008</div>
+          <p data-i18n="home_std_gum">Guide to the Expression of Uncertainty in Measurement</p>
+        </div>
+        <div class="std-card">
+          <div class="std-code">ISO/IEC 17025</div>
+          <div class="std-full">2017 edition</div>
+          <p data-i18n="home_std_iso">General Requirements for Testing and Calibration Laboratories</p>
+        </div>
+        <div class="std-card">
+          <div class="std-code">EURACHEM</div>
+          <div class="std-full">CG4 3rd edition</div>
+          <p data-i18n="home_std_eu">Quantifying Uncertainty in Analytical Measurement</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About developer -->
+  <section class="landing-section landing-section-alt">
+    <div class="landing-container">
+      <h2 class="landing-section-title" data-i18n="home_about_heading">About the Developer</h2>
+      <div class="about-card">
+        <div class="about-avatar">OD</div>
+        <div class="about-body">
+          <div class="about-name" data-i18n="home_about_name">Oxunjon Durdiyev</div>
+          <div class="about-role" data-i18n="home_about_role">Metrologist &amp; Software Developer · Uzbekistan</div>
+          <p class="about-desc" data-i18n="home_about_desc">This tool was created to make rigorous measurement uncertainty analysis accessible to every laboratory — from research institutes to small calibration workshops.</p>
+          <div class="about-open" data-i18n="home_about_open">Open source · Free to use · MIT License</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Collaboration -->
+  <section class="landing-section">
+    <div class="landing-container">
+      <div class="collab-card">
+        <h2 data-i18n="home_collab_heading">Open for Collaboration</h2>
+        <p data-i18n="home_collab_desc">Are you a metrologist, laboratory manager, or developer? Contributions, feature requests and feedback are warmly welcome.</p>
+        <div class="collab-btns">
+          <a class="btn btn-primary btn-lg" href="https://github.com/oxunjondurdiyev/Noaniqlik" target="_blank" rel="noopener" data-i18n="home_collab_btn">Contribute on GitHub</a>
+          <span class="text-muted text-sm" data-i18n="home_collab_contact">or reach out directly</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="landing-cta-section">
+    <div class="landing-container" style="text-align:center">
+      <button class="btn btn-primary btn-xl" id="btn-home-start2" data-i18n="home_hero_cta">Open Calculator</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="landing-container landing-footer-inner">
+      <span data-i18n="home_footer_by">Developed by Oxunjon Durdiyev</span>
+      <span data-i18n="home_footer_std">ISO/IEC 17025:2017 · GUM:2008</span>
+      <span data-i18n="home_footer_open">Open Source</span>
+    </div>
+  </footer>
+
+</div><!-- /#home-screen -->
+
+<!-- ══════════════════════════════════════════════════
      WELCOME SCREEN
 ══════════════════════════════════════════════════ -->
-<div id="welcome-screen" class="overlay-screen">
+<div id="welcome-screen" class="overlay-screen hidden">
   <div class="welcome-card">
 
     <!-- Welcome screen top controls -->
     <div class="welcome-controls">
-      <div class="lang-switcher">
-        <button class="lang-btn" data-lang="uz">UZ</button>
-        <button class="lang-btn" data-lang="ru">RU</button>
-        <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="btn btn-ghost btn-sm" id="btn-back-home" data-i18n="btn_back_home">← Back</button>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <div class="lang-switcher">
+          <button class="lang-btn" data-lang="uz">UZ</button>
+          <button class="lang-btn" data-lang="ru">RU</button>
+          <button class="lang-btn active" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn theme-toggle" title="Toggle theme">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
       </div>
-      <button class="icon-btn theme-toggle" id="btn-theme-welcome" title="Toggle theme">
-        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
     </div>
 
     <div class="welcome-logo">
