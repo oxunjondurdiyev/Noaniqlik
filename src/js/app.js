@@ -112,8 +112,19 @@
   /* ─── WELCOME SCREEN ────────────────────────────── */
   function initWelcome() {
     document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'));
-    const btnStart = document.getElementById('btn-start');
-    btnStart.addEventListener('click', startSession);
+    document.getElementById('btn-start').addEventListener('click', startSession);
+
+    // Stepper +/- buttons
+    document.querySelectorAll('.wf-step-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inp   = document.getElementById(btn.dataset.target);
+        const delta = parseInt(btn.dataset.delta, 10);
+        const min   = parseInt(inp.min, 10) || 1;
+        const max   = parseInt(inp.max, 10) || 999;
+        const cur   = parseInt(inp.value, 10) || (min);
+        inp.value   = Math.min(max, Math.max(min, cur + delta));
+      });
+    });
 
     // Preset select on welcome
     document.getElementById('inp-preset').addEventListener('change', (e) => {
