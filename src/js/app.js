@@ -54,20 +54,20 @@
 
   /* ─── THEME ─────────────────────────────────────── */
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next    = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('uc_theme', next);
-    appState.set({ theme: next });
   }
 
   function initTheme() {
     const saved = localStorage.getItem('uc_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    appState.set({ theme: saved });
 
-    document.getElementById('btn-theme').addEventListener('click', toggleTheme);
-    document.getElementById('btn-theme-welcome').addEventListener('click', toggleTheme);
+    const btnMain    = document.getElementById('btn-theme');
+    const btnWelcome = document.getElementById('btn-theme-welcome');
+    if (btnMain)    btnMain.addEventListener('click', toggleTheme);
+    if (btnWelcome) btnWelcome.addEventListener('click', toggleTheme);
   }
 
   /* ─── LANGUAGE ───────────────────────────────────── */

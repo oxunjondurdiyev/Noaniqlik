@@ -23,6 +23,7 @@
   width: 100%;
   box-shadow: var(--shadow-lg);
   animation: slideUp .4s cubic-bezier(.4,0,.2,1);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 
 .welcome-controls {

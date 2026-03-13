@@ -54,20 +54,20 @@
         <label data-i18n="label_preset">Load preset</label>
         <select id="inp-preset">
           <option value="" data-i18n="opt_none">— None —</option>
-          <optgroup label="Mass &amp; Volume">
-            <option value="mass">Mass measurement</option>
-            <option value="volume">Volume measurement</option>
-            <option value="density">Density (derived)</option>
+          <optgroup data-i18n-label="preset_group_mass_vol" label="Mass &amp; Volume">
+            <option value="mass"        data-i18n="preset_mass">Mass measurement</option>
+            <option value="volume"      data-i18n="preset_volume">Volume measurement</option>
+            <option value="density"     data-i18n="preset_density">Density (ρ = m/V)</option>
           </optgroup>
-          <optgroup label="Electrical">
-            <option value="voltage">DC Voltage</option>
-            <option value="resistance">Resistance</option>
-            <option value="power">Electrical Power (derived)</option>
+          <optgroup data-i18n-label="preset_group_elec" label="Electrical">
+            <option value="voltage"     data-i18n="preset_voltage">DC Voltage</option>
+            <option value="resistance"  data-i18n="preset_resistance">Resistance</option>
+            <option value="power"       data-i18n="preset_power">Electrical Power (P = U·I)</option>
           </optgroup>
-          <optgroup label="Dimensional">
-            <option value="length">Length</option>
-            <option value="area">Area (derived)</option>
-            <option value="temperature">Temperature</option>
+          <optgroup data-i18n-label="preset_group_dim" label="Dimensional">
+            <option value="length"      data-i18n="preset_length">Length</option>
+            <option value="area"        data-i18n="preset_area">Area (A = L×W)</option>
+            <option value="temperature" data-i18n="preset_temperature">Temperature</option>
           </optgroup>
         </select>
       </div>
@@ -152,21 +152,21 @@
       <div class="sidebar-section">
         <h3 class="sidebar-heading" data-i18n="sidebar_presets">Presets</h3>
         <select id="sidebar-preset" class="w-full">
-          <option value="">— Load Preset —</option>
-          <optgroup label="Mass &amp; Volume">
-            <option value="mass">Mass</option>
-            <option value="volume">Volume</option>
-            <option value="density">Density</option>
+          <option value="" data-i18n="opt_load_preset">— Load Preset —</option>
+          <optgroup data-i18n-label="preset_group_mass_vol" label="Mass &amp; Volume">
+            <option value="mass"        data-i18n="preset_mass">Mass measurement</option>
+            <option value="volume"      data-i18n="preset_volume">Volume measurement</option>
+            <option value="density"     data-i18n="preset_density">Density (ρ = m/V)</option>
           </optgroup>
-          <optgroup label="Electrical">
-            <option value="voltage">Voltage</option>
-            <option value="resistance">Resistance</option>
-            <option value="power">Power</option>
+          <optgroup data-i18n-label="preset_group_elec" label="Electrical">
+            <option value="voltage"     data-i18n="preset_voltage">DC Voltage</option>
+            <option value="resistance"  data-i18n="preset_resistance">Resistance</option>
+            <option value="power"       data-i18n="preset_power">Electrical Power (P = U·I)</option>
           </optgroup>
-          <optgroup label="Dimensional">
-            <option value="length">Length</option>
-            <option value="area">Area</option>
-            <option value="temperature">Temperature</option>
+          <optgroup data-i18n-label="preset_group_dim" label="Dimensional">
+            <option value="length"      data-i18n="preset_length">Length</option>
+            <option value="area"        data-i18n="preset_area">Area (A = L×W)</option>
+            <option value="temperature" data-i18n="preset_temperature">Temperature</option>
           </optgroup>
         </select>
       </div>

@@ -91,6 +91,20 @@ const TRANSLATIONS = {
     toast_calc_done:   'Calculation complete!',
     toast_need_data:   'Please enter measurement data first.',
     toast_need_typeb:  'Add at least one Type B component.',
+
+    opt_load_preset:        '— Load Preset —',
+    preset_group_mass_vol:  'Mass & Volume',
+    preset_group_elec:      'Electrical',
+    preset_group_dim:       'Dimensional',
+    preset_mass:            'Mass measurement',
+    preset_volume:          'Volume measurement',
+    preset_density:         'Density (ρ = m/V)',
+    preset_voltage:         'DC Voltage',
+    preset_resistance:      'Resistance',
+    preset_power:           'Electrical Power (P = U·I)',
+    preset_length:          'Length',
+    preset_area:            'Area (A = L×W)',
+    preset_temperature:     'Temperature',
   },
 
   ru: {
@@ -181,6 +195,20 @@ const TRANSLATIONS = {
     toast_calc_done:   'Расчёт завершён!',
     toast_need_data:   'Сначала введите данные измерений.',
     toast_need_typeb:  'Добавьте хотя бы один компонент типа B.',
+
+    opt_load_preset:        '— Загрузить пресет —',
+    preset_group_mass_vol:  'Масса и объём',
+    preset_group_elec:      'Электрические',
+    preset_group_dim:       'Геометрические',
+    preset_mass:            'Измерение массы',
+    preset_volume:          'Измерение объёма',
+    preset_density:         'Плотность (ρ = m/V)',
+    preset_voltage:         'Напряжение постоянного тока',
+    preset_resistance:      'Сопротивление',
+    preset_power:           'Электрическая мощность (P = U·I)',
+    preset_length:          'Длина',
+    preset_area:            'Площадь (A = L×W)',
+    preset_temperature:     'Температура',
   },
 
   uz: {
@@ -271,6 +299,20 @@ const TRANSLATIONS = {
     toast_calc_done:   'Hisoblash yakunlandi!',
     toast_need_data:   'Avval o\'lchash ma\'lumotlarini kiriting.',
     toast_need_typeb:  'Kamida bitta B-tip komponent qo\'shing.',
+
+    opt_load_preset:        '— Sozlamani yuklash —',
+    preset_group_mass_vol:  'Massa va hajm',
+    preset_group_elec:      'Elektr',
+    preset_group_dim:       'Geometrik',
+    preset_mass:            'Massani o\'lchash',
+    preset_volume:          'Hajmni o\'lchash',
+    preset_density:         'Zichlik (ρ = m/V)',
+    preset_voltage:         'O\'zgarmas kuchlanish',
+    preset_resistance:      'Qarshilik',
+    preset_power:           'Elektr quvvat (P = U·I)',
+    preset_length:          'Uzunlik',
+    preset_area:            'Yuza (A = L×W)',
+    preset_temperature:     'Harorat',
   }
 };
 
@@ -295,6 +337,10 @@ class I18n {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       el.textContent = this.t(key);
+    });
+    // optgroup label="..." attributes
+    document.querySelectorAll('[data-i18n-label]').forEach(el => {
+      el.label = this.t(el.getAttribute('data-i18n-label'));
     });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
       el.placeholder = this.t(el.getAttribute('data-i18n-placeholder'));
