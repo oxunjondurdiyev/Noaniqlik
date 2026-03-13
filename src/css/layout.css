@@ -1,0 +1,320 @@
+/* ═══════════════════════════════════════════════════════════════
+   LAYOUT.CSS — App shell, topbar, sidebar, main content
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── OVERLAY SCREEN (Welcome) ──────────────────────── */
+.overlay-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.welcome-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2.75rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp .4s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.welcome-logo {
+  margin-bottom: 1.25rem;
+}
+
+.welcome-title {
+  font-size: 1.5rem;
+  margin-bottom: .35rem;
+  line-height: 1.3;
+}
+
+.welcome-sub {
+  color: var(--text-muted);
+  font-size: .85rem;
+  margin-bottom: 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .03em;
+}
+
+/* ─── APP SHELL ─────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── TOPBAR ────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  padding: 0 1.25rem;
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--topbar-border);
+  flex-shrink: 0;
+  gap: 1rem;
+  z-index: 100;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-weight: 600;
+  font-size: .95rem;
+  color: var(--text);
+}
+
+/* ─── MAIN LAYOUT ───────────────────────────────────── */
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── SIDEBAR ───────────────────────────────────────── */
+.sidebar {
+  width: 260px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition: width var(--transition), transform var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-section {
+  padding: 1.1rem 1.1rem .9rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-heading {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--text-muted);
+  margin-bottom: .75rem;
+}
+
+/* ─── CONTENT AREA ──────────────────────────────────── */
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── TAB BAR ───────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  padding: .8rem 1.4rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: .875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ─── TAB PANELS ────────────────────────────────────── */
+.tab-panel {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.tab-panel.active {
+  display: flex;
+}
+
+/* ─── PANEL HEADER / FOOTER ─────────────────────────── */
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem .75rem;
+  border-bottom: 1px solid var(--border-light);
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.panel-title { margin-bottom: .15rem; }
+.panel-sub   { font-size: .82rem; }
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+}
+
+.panel-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  display: flex;
+  gap: .75rem;
+}
+
+/* ─── TABLE SCROLL ──────────────────────────────────── */
+.table-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem 1.5rem;
+}
+
+/* ─── PARAM LIST ────────────────────────────────────── */
+.param-list {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  margin-bottom: .6rem;
+}
+
+.param-item {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.param-item input {
+  flex: 1;
+  min-width: 0;
+  font-size: .85rem;
+}
+
+.param-item .btn-icon-remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: .2rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+}
+
+.param-item .btn-icon-remove:hover { color: var(--danger); }
+
+/* ─── TYPEB COMPONENTS ──────────────────────────────── */
+.typeb-components {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+/* ─── RESULTS CONTENT ───────────────────────────────── */
+.results-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+/* ─── EMPTY STATE ───────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  height: 220px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ─── RESPONSIVE ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { width: 0; position: fixed; height: 100vh; top: 54px; z-index: 200; }
+  .sidebar.open { width: 260px; box-shadow: var(--shadow-lg); }
+  .topbar { padding: 0 .75rem; }
+  .panel-header { padding: 1rem; }
+  .table-scroll { padding: .75rem; }
+}
+
+/* ─── TYPE A SUMMARY ────────────────────────────────── */
+.type-a-summary {
+  padding: .75rem 1.5rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+/* ─── TYPEB SUMMARY ─────────────────────────────────── */
+.typeb-summary {
+  padding: .75rem 1.5rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+/* ─── DERIVED LIST ──────────────────────────────────── */
+.derived-list {
+  font-size: .83rem;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.derived-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem .5rem;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: .8rem;
+}

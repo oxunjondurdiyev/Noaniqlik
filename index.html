@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Measurement Uncertainty Calculator | ISO/IEC 17025:2017</title>
+  <link rel="stylesheet" href="src/css/theme.css" />
+  <link rel="stylesheet" href="src/css/layout.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     WELCOME SCREEN
+══════════════════════════════════════════════════ -->
+<div id="welcome-screen" class="overlay-screen">
+  <div class="welcome-card">
+    <div class="welcome-logo">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 class="welcome-title" data-i18n="welcome_title">Measurement Uncertainty Calculator</h1>
+    <p class="welcome-sub" data-i18n="welcome_subtitle">ISO/IEC 17025:2017 · GUM:2008 Compliant</p>
+    <div class="welcome-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="label_n">Number of measurements (n)</label>
+          <input type="number" id="inp-n" min="2" max="100" value="10" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="label_p">Number of parameters (p)</label>
+          <input type="number" id="inp-p" min="1" max="20" value="1" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="label_preset">Load preset</label>
+        <select id="inp-preset">
+          <option value="" data-i18n="opt_none">— None —</option>
+          <optgroup label="Mass &amp; Volume">
+            <option value="mass">Mass measurement</option>
+            <option value="volume">Volume measurement</option>
+            <option value="density">Density (derived)</option>
+          </optgroup>
+          <optgroup label="Electrical">
+            <option value="voltage">DC Voltage</option>
+            <option value="resistance">Resistance</option>
+            <option value="power">Electrical Power (derived)</option>
+          </optgroup>
+          <optgroup label="Dimensional">
+            <option value="length">Length</option>
+            <option value="area">Area (derived)</option>
+            <option value="temperature">Temperature</option>
+          </optgroup>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-start" data-i18n="btn_start">
+        Start Calculation →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MAIN APP SHELL
+══════════════════════════════════════════════════ -->
+<div id="app" class="app-shell hidden">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" id="btn-sidebar-toggle" title="Toggle sidebar">
+        <svg width="18" height="18" viewBox="0 0 18 18"><rect y="3" width="18" height="2" rx="1" fill="currentColor"/><rect y="8" width="18" height="2" rx="1" fill="currentColor"/><rect y="13" width="18" height="2" rx="1" fill="currentColor"/></svg>
+      </button>
+      <span class="topbar-brand">
+        <svg width="22" height="22" viewBox="0 0 56 56" fill="none">
+          <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="app_name">UncertaintyCalc</span>
+      </span>
+    </div>
+    <div class="topbar-right">
+      <!-- Language Switcher -->
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="uz">UZ</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn active" data-lang="en">EN</button>
+      </div>
+      <!-- Theme Toggle -->
+      <button class="icon-btn theme-toggle" id="btn-theme" title="Toggle theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="btn btn-outline btn-sm" id="btn-reset" data-i18n="btn_new">New Session</button>
+      <button class="btn btn-primary btn-sm" id="btn-print" data-i18n="btn_report">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Report
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-heading" data-i18n="sidebar_session">Session</h3>
+        <div class="form-group">
+          <label data-i18n="label_n">Measurements (n)</label>
+          <div class="input-with-btn">
+            <input type="number" id="sidebar-n" min="2" max="100" value="10" />
+            <button class="btn btn-sm btn-outline" id="btn-apply-n" data-i18n="btn_apply">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-heading" data-i18n="sidebar_params">Parameters</h3>
+        <div id="param-list" class="param-list"></div>
+        <button class="btn btn-sm btn-ghost w-full" id="btn-add-param">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="btn_add_param">Add Parameter</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-heading" data-i18n="sidebar_derived">Derived Quantities</h3>
+        <div id="derived-list" class="derived-list">
+          <p class="text-muted text-sm" data-i18n="derived_hint">Detected from parameters</p>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-heading" data-i18n="sidebar_presets">Presets</h3>
+        <select id="sidebar-preset" class="w-full">
+          <option value="">— Load Preset —</option>
+          <optgroup label="Mass &amp; Volume">
+            <option value="mass">Mass</option>
+            <option value="volume">Volume</option>
+            <option value="density">Density</option>
+          </optgroup>
+          <optgroup label="Electrical">
+            <option value="voltage">Voltage</option>
+            <option value="resistance">Resistance</option>
+            <option value="power">Power</option>
+          </optgroup>
+          <optgroup label="Dimensional">
+            <option value="length">Length</option>
+            <option value="area">Area</option>
+            <option value="temperature">Temperature</option>
+          </optgroup>
+        </select>
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- TAB BAR -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="data" data-i18n="tab_data">Data Entry</button>
+        <button class="tab-btn" data-tab="typeb" data-i18n="tab_typeb">Type B</button>
+        <button class="tab-btn" data-tab="results" data-i18n="tab_results">Results</button>
+      </div>
+
+      <!-- TAB: DATA ENTRY -->
+      <div class="tab-panel active" id="tab-data">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title" data-i18n="data_title">Measurement Data</h2>
+            <p class="panel-sub text-muted" data-i18n="data_sub">Enter your observed values for each measurement</p>
+          </div>
+          <div class="panel-actions">
+            <button class="btn btn-sm btn-ghost" id="btn-fill-sample" data-i18n="btn_sample">Fill Sample Data</button>
+            <button class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="measurement-table">
+            <thead id="table-head"></thead>
+            <tbody id="table-body"></tbody>
+            <tfoot id="table-foot"></tfoot>
+          </table>
+        </div>
+        <div class="type-a-summary" id="type-a-summary"></div>
+        <div class="panel-footer">
+          <button class="btn btn-primary" id="btn-calc-typea" data-i18n="btn_calc_a">
+            Calculate Type A Uncertainty →
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB: TYPE B -->
+      <div class="tab-panel" id="tab-typeb">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title" data-i18n="typeb_title">Type B Uncertainty</h2>
+            <p class="panel-sub text-muted" data-i18n="typeb_sub">Add uncertainty components from certificates, specifications, or experience</p>
+          </div>
+          <button class="btn btn-sm btn-outline" id="btn-add-typeb">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-i18n="btn_add_component">Add Component</span>
+          </button>
+        </div>
+        <div id="typeb-components" class="typeb-components"></div>
+        <div class="typeb-summary" id="typeb-summary"></div>
+        <div class="panel-footer">
+          <button class="btn btn-primary" id="btn-calc-combined" data-i18n="btn_calc_combined">
+            Calculate Combined Uncertainty →
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB: RESULTS -->
+      <div class="tab-panel" id="tab-results">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title" data-i18n="results_title">Uncertainty Budget</h2>
+            <p class="panel-sub text-muted" data-i18n="results_sub">Combined and expanded uncertainty per ISO/IEC 17025:2017</p>
+          </div>
+        </div>
+
+        <div id="results-content" class="results-content">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <p data-i18n="results_empty">Complete Type A and Type B calculations first</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     PRINT REPORT (hidden, for print only)
+══════════════════════════════════════════════════ -->
+<div id="print-report" class="print-only"></div>
+
+<!-- SCRIPTS -->
+<script src="src/data/presets.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/state.js"></script>
+<script src="src/js/calc.js"></script>
+<script src="src/js/table.js"></script>
+<script src="src/js/typeB.js"></script>
+<script src="src/js/report.js"></script>
+<script src="src/js/app.js"></script>
+</body>
+</html>

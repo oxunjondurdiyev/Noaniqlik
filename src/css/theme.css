@@ -1,0 +1,154 @@
+/* ═══════════════════════════════════════════════════════════════
+   THEME.CSS — Dark / Light mode variables
+   ISO/IEC 17025 Measurement Uncertainty Calculator
+═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Accent */
+  --accent:          #4f8ef7;
+  --accent-hover:    #3a7ae8;
+  --accent-light:    rgba(79, 142, 247, 0.12);
+  --accent-border:   rgba(79, 142, 247, 0.35);
+
+  /* Success / Warning / Danger */
+  --success:         #34c77b;
+  --success-light:   rgba(52, 199, 123, 0.12);
+  --warning:         #f5a623;
+  --warning-light:   rgba(245, 166, 35, 0.12);
+  --danger:          #e8495a;
+  --danger-light:    rgba(232, 73, 90, 0.12);
+
+  /* Transitions */
+  --transition:      0.22s cubic-bezier(.4,0,.2,1);
+  --radius:          10px;
+  --radius-sm:       6px;
+  --radius-lg:       16px;
+
+  /* Shadows */
+  --shadow-sm:       0 1px 3px rgba(0,0,0,.18);
+  --shadow:          0 4px 16px rgba(0,0,0,.22);
+  --shadow-lg:       0 12px 40px rgba(0,0,0,.32);
+}
+
+/* ─── DARK THEME (default) ─────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:              #1e2235;
+  --bg-secondary:    #252a40;
+  --bg-tertiary:     #2d3350;
+  --bg-hover:        #333a56;
+  --bg-card:         #252a40;
+  --bg-input:        #1a1f32;
+
+  --border:          #3a4060;
+  --border-light:    #2d3350;
+
+  --text:            #e4e8f5;
+  --text-secondary:  #a8b3cc;
+  --text-muted:      #6b7899;
+
+  --sidebar-bg:      #1a1f32;
+  --topbar-bg:       #1a1f32;
+  --topbar-border:   #2d3350;
+
+  --table-header:    #2d3350;
+  --table-row-alt:   rgba(255,255,255,0.025);
+  --table-border:    #2d3350;
+
+  --scrollbar-track: #1a1f32;
+  --scrollbar-thumb: #3a4060;
+}
+
+/* ─── LIGHT THEME ───────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:              #f5f7fa;
+  --bg-secondary:    #ffffff;
+  --bg-tertiary:     #eef0f5;
+  --bg-hover:        #e8ecf4;
+  --bg-card:         #ffffff;
+  --bg-input:        #ffffff;
+
+  --border:          #dde1ec;
+  --border-light:    #eaecf4;
+
+  --text:            #1a2038;
+  --text-secondary:  #4a5578;
+  --text-muted:      #8891a8;
+
+  --sidebar-bg:      #ffffff;
+  --topbar-bg:       #ffffff;
+  --topbar-border:   #e4e8f0;
+
+  --table-header:    #eef0f7;
+  --table-row-alt:   rgba(0,0,0,0.022);
+  --table-border:    #dde1ec;
+
+  --scrollbar-track: #f0f2f8;
+  --scrollbar-thumb: #c8cede;
+}
+
+/* ─── BASE RESET ────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  transition: background var(--transition), color var(--transition);
+  min-height: 100vh;
+}
+
+/* ─── SCROLLBARS ────────────────────────────────────── */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── THEME TOGGLE ICON LOGIC ───────────────────────── */
+[data-theme="dark"]  .icon-moon { display: none; }
+[data-theme="dark"]  .icon-sun  { display: block; }
+[data-theme="light"] .icon-sun  { display: none; }
+[data-theme="light"] .icon-moon { display: block; }
+
+/* ─── TYPOGRAPHY ────────────────────────────────────── */
+h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.02em; }
+h2 { font-size: 1.2rem;  font-weight: 600; }
+h3 { font-size: .9rem;   font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+
+.text-muted    { color: var(--text-muted); }
+.text-secondary{ color: var(--text-secondary); }
+.text-sm       { font-size: .82rem; }
+.text-xs       { font-size: .75rem; }
+.mono          { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+/* ─── UTILITY ───────────────────────────────────────── */
+.hidden  { display: none !important; }
+.w-full  { width: 100%; }
+.flex    { display: flex; }
+.items-center { align-items: center; }
+.gap-2   { gap: 0.5rem; }
+.gap-3   { gap: 0.75rem; }
+
+/* ─── PRINT ─────────────────────────────────────────── */
+@media print {
+  .app-shell, .topbar, #welcome-screen { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white; color: black; font-size: 11pt; }
+}
+.print-only { display: none; }
