@@ -61,7 +61,12 @@ const TypeB = (() => {
             <path d="M8 21h8M12 17v4"/>
           </svg>
           <p class="text-muted text-sm">${i18n.t('typeb_sub')}</p>
+          <button class="btn btn-primary btn-sm" id="btn-add-typeb-empty">
+            + ${i18n.t('btn_add_component')}
+          </button>
         </div>`;
+      const btnEmpty = el.querySelector('#btn-add-typeb-empty');
+      if (btnEmpty) btnEmpty.addEventListener('click', addComponent);
       sumEl.innerHTML = '';
       return;
     }
@@ -121,7 +126,7 @@ const TypeB = (() => {
         </div>
         <div class="form-group">
           <label>${i18n.t('label_half_width')} (a)</label>
-          <input type="number" step="any" value="${comp.halfWidth}"
+          <input type="text" inputmode="decimal" value="${comp.halfWidth}"
             data-id="${comp.id}" data-field="halfWidth" />
         </div>
         <div class="form-group">
@@ -134,7 +139,7 @@ const TypeB = (() => {
         </div>
         <div class="form-group">
           <label>${i18n.t('label_sensitivity')} (c_i)</label>
-          <input type="number" step="any" value="${ci}"
+          <input type="text" inputmode="decimal" value="${ci}"
             data-id="${comp.id}" data-field="sensitivity" />
         </div>
         <div class="form-group">
@@ -180,7 +185,7 @@ const TypeB = (() => {
     const field = e.target.dataset.field;
     let val     = e.target.value;
 
-    if (field === 'halfWidth' || field === 'sensitivity') val = parseFloat(val) || 0;
+    if (field === 'halfWidth' || field === 'sensitivity') val = parseFloat(val.replace(',', '.')) || 0;
 
     appState.updateTypeBComponent(id, { [field]: val });
   }

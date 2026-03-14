@@ -69,7 +69,7 @@ const Table = (() => {
       const paramInputs = state.params.map(p => {
         const vals = state.measurements[p] || Array(n).fill('');
         const v = vals[i] !== undefined ? vals[i] : '';
-        return `<td><input type="number" step="any" class="meas-input"
+        return `<td><input type="text" inputmode="decimal" class="meas-input"
           data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}" /></td>`;
       }).join('');
 
@@ -109,7 +109,7 @@ const Table = (() => {
         <td class="cell-num">${ta ? fmtOrDash(ta.s2) : '—'}</td>
       </tr>
       <tr>
-        <td class="text-muted">${i18n.t('foot_std')} (s)</td>
+        <td class="text-muted">${i18n.t('foot_std')}</td>
         ${state.params.map(p => {
           const r = state.typeA[p];
           return `<td class="cell-num mono">${r ? fmtOrDash(r.s) : '—'}</td>`;
@@ -135,7 +135,7 @@ const Table = (() => {
   function onCellChange(e) {
     const param = e.target.dataset.param;
     const idx   = parseInt(e.target.dataset.idx, 10);
-    const val   = e.target.value;
+    const val   = e.target.value.replace(',', '.');
 
     const state = appState.get();
     const vals  = [...(state.measurements[param] || Array(state.n).fill(''))];
