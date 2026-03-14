@@ -31,10 +31,7 @@ const Table = (() => {
   }
 
   function renderParamTabs() {
-    // If there are multiple params, show tabs above the table (re-use tab-bar pattern)
     const state = appState.get();
-    // Only one param view at a time for clarity — param selector is in sidebar
-    // but we still need to know which param is active
     _currentParam = _currentParam || state.params[0];
   }
 
@@ -45,10 +42,7 @@ const Table = (() => {
     const body  = document.getElementById('table-body');
     const foot  = document.getElementById('table-foot');
 
-    // Build header rows — one column per param
-    const paramCols = state.params.map(p =>
-      `<th>${escHtml(p)}</th>`
-    ).join('');
+    const paramCols = state.params.map(p => `<th>${escHtml(p)}</th>`).join('');
 
     head.innerHTML = `
       <tr>
@@ -58,19 +52,17 @@ const Table = (() => {
         <th class="cell-num">${i18n.t('col_dev2')}</th>
       </tr>`;
 
-    // Get type A results for first param (for deviation display)
     const primaryParam = state.params[0];
     const ta = state.typeA[primaryParam];
-    const values0 = state.measurements[primaryParam] || Array(n).fill('');
 
-    // Build body rows
     let rows = '';
     for (let i = 0; i < n; i++) {
       const paramInputs = state.params.map(p => {
         const vals = state.measurements[p] || Array(n).fill('');
         const v = vals[i] !== undefined ? vals[i] : '';
         return `<td><input type="text" inputmode="decimal" class="meas-input"
-          data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}" /></td>`;
+          data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}"
+          autocomplete="off" autocorrect="off" spellcheck="false" /></td>`;
       }).join('');
 
       let devCell  = '<td class="cell-num text-muted">—</td>';
@@ -95,7 +87,7 @@ const Table = (() => {
 
     // Footer stats
     const fmtOrDash = v => (v !== null && v !== undefined && !isNaN(v)) ? Calc.fmt(v) : '—';
-    const footStats = state.params.map((p, pi) => {
+    const footStats = state.params.map(p => {
       const ta2 = state.typeA[p];
       if (!ta2) return `<td class="cell-num text-muted">—</td>`;
       return `<td class="cell-num mono">${fmtOrDash(ta2.mean)}</td>`;
@@ -127,19 +119,76 @@ const Table = (() => {
 
     // Attach input listeners
     body.querySelectorAll('.meas-input').forEach(inp => {
-      inp.addEventListener('change', onCellChange);
-      inp.addEventListener('input', onCellChange);
+      inp.addEventListener('keydown', onCellKeyDown);
+      inp.addEventListener('input',   onCellInput);
+      inp.addEventListener('change',  onCellChange);
     });
   }
 
+  /* Replace comma → period in real-time without saving to state (no re-render) */
+  function onCellInput(e) {
+    const inp = e.target;
+    if (inp.value.includes(',')) {
+      const pos = inp.selectionStart;
+      inp.value = inp.value.replace(',', '.');
+      inp.setSelectionRange(pos, pos);
+    }
+  }
+
+  /* Save on blur */
   function onCellChange(e) {
-    const param = e.target.dataset.param;
-    const idx   = parseInt(e.target.dataset.idx, 10);
-    const val   = e.target.value.replace(',', '.');
+    saveCell(e.target);
+  }
+
+  /* Enter / ArrowDown / ArrowUp → save + move focus */
+  function onCellKeyDown(e) {
+    const inp    = e.target;
+    const state  = appState.get();
+    const param  = inp.dataset.param;
+    const row    = parseInt(inp.dataset.idx, 10);
+    const params = state.params;
+    const col    = params.indexOf(param);
+
+    let targetRow = row;
+    let targetCol = col;
+
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      targetRow = row + 1;
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      targetRow = row - 1;
+    } else if (e.key === 'Tab') {
+      // Browser handles Tab navigation; just save current cell first
+      saveCell(inp);
+      return;
+    } else {
+      return;
+    }
+
+    if (targetRow < 0 || targetRow >= state.n) return;
+
+    saveCell(inp);
+
+    const targetParam = params[targetCol];
+    setTimeout(() => {
+      const next = document.querySelector(
+        `.meas-input[data-param="${CSS.escape(targetParam)}"][data-idx="${targetRow}"]`
+      );
+      if (next) { next.focus(); next.select(); }
+    }, 0);
+  }
+
+  /* Save a single cell to state; skip if value unchanged (avoids needless re-render) */
+  function saveCell(inp) {
+    const param = inp.dataset.param;
+    const idx   = parseInt(inp.dataset.idx, 10);
+    const val   = inp.value.replace(',', '.');
 
     const state = appState.get();
     const vals  = [...(state.measurements[param] || Array(state.n).fill(''))];
-    vals[idx]   = val;
+    if (String(vals[idx]) === val) return;
+    vals[idx] = val;
     appState.setMeasurements(param, vals);
   }
 
@@ -148,9 +197,7 @@ const Table = (() => {
     const el    = document.getElementById('type-a-summary');
     if (!el) return;
 
-    const results = state.params
-      .map(p => state.typeA[p])
-      .filter(Boolean);
+    const results = state.params.map(p => state.typeA[p]).filter(Boolean);
 
     if (results.length === 0) {
       el.innerHTML = '';
@@ -182,9 +229,8 @@ const Table = (() => {
     const state = appState.get();
     const n     = state.n;
     state.params.forEach(p => {
-      // Generate normally-distributed-ish sample data
       const mean   = 10 + Math.random() * 90;
-      const spread = mean * 0.005; // 0.5% spread typical for lab measurements
+      const spread = mean * 0.005;
       const vals   = Array.from({ length: n }, () =>
         parseFloat((mean + (Math.random() - 0.5) * 2 * spread).toFixed(6))
       );
