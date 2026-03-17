@@ -98,12 +98,12 @@
 }
 
 html {
-  font-size: 15px;
+  font-size: 16px;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
@@ -127,14 +127,14 @@ body {
 [data-theme="light"] .icon-moon { display: block; }
 
 /* ─── TYPOGRAPHY ────────────────────────────────────── */
-h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.02em; }
-h2 { font-size: 1.2rem;  font-weight: 600; }
-h3 { font-size: .9rem;   font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+h1 { font-size: 1.9rem;  font-weight: 700; letter-spacing: -.02em; }
+h2 { font-size: 1.3rem;  font-weight: 600; }
+h3 { font-size: .95rem;  font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
 
 .text-muted    { color: var(--text-muted); }
 .text-secondary{ color: var(--text-secondary); }
-.text-sm       { font-size: .82rem; }
-.text-xs       { font-size: .75rem; }
+.text-sm       { font-size: .875rem; }
+.text-xs       { font-size: .8rem; }
 .mono          { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
 
 /* ─── UTILITY ───────────────────────────────────────── */
@@ -147,8 +147,32 @@ h3 { font-size: .9rem;   font-weight: 600; text-transform: uppercase; letter-spa
 
 /* ─── PRINT ─────────────────────────────────────────── */
 @media print {
-  .app-shell, .topbar, #welcome-screen { display: none !important; }
-  .print-only { display: block !important; }
-  body { background: white; color: black; font-size: 11pt; }
+  /* Invoice bosilganda faqat invoice ko'rinsin */
+  body > *:not(#invoice-modal) { display: none !important; }
+  #invoice-modal {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+  .invoice-modal {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+  }
+  .invoice-modal-header { display: none !important; }
+  .invoice-content {
+    padding: 0 !important;
+  }
+  .inv-doc {
+    font-size: 10pt !important;
+  }
+  .inv-header { border-bottom-color: #2563eb !important; }
+  .inv-table th { background: #2563eb !important; color: #fff !important; }
+  .inv-party { background: #f8faff !important; }
+  body { background: white; color: black; }
 }
 .print-only { display: none; }

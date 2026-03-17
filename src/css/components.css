@@ -8,9 +8,9 @@
   align-items: center;
   justify-content: center;
   gap: .4rem;
-  padding: .55rem 1.1rem;
+  padding: .6rem 1.2rem;
   border-radius: var(--radius-sm);
-  font-size: .875rem;
+  font-size: .95rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -68,9 +68,9 @@
 }
 
 /* Sizes */
-.btn-sm  { padding: .35rem .8rem;  font-size: .8rem; }
-.btn-lg  { padding: .75rem 1.6rem; font-size: 1rem; }
-.btn-xl  { padding: .9rem 2rem;    font-size: 1.05rem; }
+.btn-sm  { padding: .4rem .9rem;   font-size: .85rem; }
+.btn-lg  { padding: .8rem 1.7rem;  font-size: 1.05rem; }
+.btn-xl  { padding: .95rem 2.1rem; font-size: 1.1rem; }
 
 /* Icon button */
 .icon-btn {
@@ -118,7 +118,7 @@
 }
 
 .form-group label {
-  font-size: .82rem;
+  font-size: .875rem;
   font-weight: 500;
   color: var(--text-secondary);
 }
@@ -132,8 +132,8 @@ textarea {
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: inherit;
-  font-size: .875rem;
-  padding: .5rem .75rem;
+  font-size: .95rem;
+  padding: .55rem .8rem;
   width: 100%;
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
@@ -175,15 +175,15 @@ select {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: .85rem;
+  font-size: .9rem;
 }
 
 .data-table th {
   background: var(--table-header);
-  padding: .65rem .85rem;
+  padding: .7rem .9rem;
   text-align: left;
   font-weight: 600;
-  font-size: .78rem;
+  font-size: .82rem;
   text-transform: uppercase;
   letter-spacing: .06em;
   color: var(--text-secondary);
