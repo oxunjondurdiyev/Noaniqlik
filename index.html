@@ -653,6 +653,10 @@
 <div id="print-report" class="print-only"></div>
 
 <!-- SCRIPTS -->
+<!-- Firebase SDK (Firestore uchun) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="src/js/firebase-config.js"></script>
 <script src="src/js/db.js"></script>
 <script src="src/js/auth.js"></script>
 <script src="src/data/presets.js"></script>
@@ -796,11 +800,20 @@
         inn, phone, firstName, lastName,
         login, password: pwd, employeeCount: empCount,
       });
-      hideAuthScreen();
-      updateTopbar(AuthManager.getSession());
-      if (confirm('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!\nAdmin panelga o\'tasizmi?')) {
-        location.href = 'admin.html';
-      }
+      // Ro'yxatdan o'tgandan keyin sessiya ochilmaydi — aktivatsiya kerak
+      showErr('reg-error', '');
+      alert(
+        'Muvaffaqiyatli ro\'yxatdan o\'tdingiz!\n\n' +
+        'Hisobingiz hozir "kutilmoqda" holatida.\n' +
+        'To\'lovni amalga oshirgach, admin hisobingizni aktivlashtiradi.\n' +
+        'Shundan so\'ng login va parolingiz bilan kirishingiz mumkin.'
+      );
+      // Ro'yxatdan o'tish formini tozalash va login tabga o'tish
+      ['reg-inn','reg-phone','reg-firstname','reg-lastname','reg-login','reg-pwd','reg-pwd2','reg-empcount'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.querySelector('[data-auth-tab="login"]').click();
     } catch (e) {
       showErr('reg-error', e.message);
     } finally {

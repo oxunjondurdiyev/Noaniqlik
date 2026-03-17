@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Admin — UncertaintyCalc</title>
+  <link rel="stylesheet" href="src/css/theme.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="stylesheet" href="src/css/auth.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── Login ekrani ── */
+    .sa-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sa-login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+    }
+    .sa-login-card h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: .25rem;
+    }
+    .sa-login-card p { color: var(--text-muted); font-size: .85rem; margin-bottom: 1.5rem; }
+
+    /* ── Dashboard ── */
+    .sa-page { display: none; min-height: 100vh; }
+    .sa-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .sa-brand { display: flex; align-items: center; gap: .6rem; font-weight: 600; font-size: .95rem; }
+    .sa-content { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ── Stats ── */
+    .sa-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .sa-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+    }
+    .sa-stat-value { display: block; font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+    .sa-stat-label { font-size: .78rem; color: var(--text-muted); margin-top: .2rem; }
+
+    /* ── Pullik yozuv ── */
+    .sa-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .sa-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sa-card-title { font-weight: 600; }
+
+    /* ── Real-time indikator ── */
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .75rem;
+      color: var(--success, #22c55e);
+    }
+    .live-dot::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--success, #22c55e);
+      animation: pulse-dot 1.5s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(.7); }
+    }
+
+    /* ── Jadval ── */
+    .org-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .org-table th {
+      text-align: left;
+      padding: .7rem 1rem;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .org-table td {
+      padding: .8rem 1rem;
+      border-bottom: 1px solid var(--border-light, rgba(255,255,255,.06));
+      vertical-align: middle;
+    }
+    .org-table tr:last-child td { border-bottom: none; }
+    .org-table tr:hover td { background: var(--hover, rgba(255,255,255,.03)); }
+
+    .org-name { font-weight: 500; }
+    .org-meta { font-size: .75rem; color: var(--text-muted); }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .25rem .65rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 500;
+    }
+    .status-badge.active   { background: rgba(34,197,94,.15);  color: #22c55e; }
+    .status-badge.inactive { background: rgba(239,68,68,.15);  color: #ef4444; }
+    .status-badge.pending  { background: rgba(234,179,8,.15);  color: #eab308; }
+    .status-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ── To'lov badge ── */
+    .pay-badge {
+      display: inline-block;
+      padding: .2rem .5rem;
+      border-radius: 6px;
+      font-size: .72rem;
+    }
+    .pay-badge.paid    { background: rgba(34,197,94,.15); color: #22c55e; }
+    .pay-badge.pending { background: rgba(234,179,8,.15); color: #eab308; }
+
+    /* ── Amallar ── */
+    .action-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .btn-activate   { background: rgba(34,197,94,.15); color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+    .btn-activate:hover { background: rgba(34,197,94,.25); }
+    .btn-deactivate { background: rgba(239,68,68,.12); color: #ef4444; border: 1px solid rgba(239,68,68,.3); }
+    .btn-deactivate:hover { background: rgba(239,68,68,.22); }
+    .btn-pay-confirm { background: rgba(234,179,8,.12); color: #eab308; border: 1px solid rgba(234,179,8,.3); }
+    .btn-pay-confirm:hover { background: rgba(234,179,8,.22); }
+
+    /* ── Bo'sh holat ── */
+    .sa-empty {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+    .sa-empty svg { display: block; margin: 0 auto 1rem; opacity: .4; }
+
+    /* ── Filter qatori ── */
+    .filter-row {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      padding: .75rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .filter-row input {
+      flex: 1;
+      min-width: 200px;
+      padding: .45rem .75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: .85rem;
+    }
+    .filter-btn {
+      padding: .4rem .85rem;
+      border-radius: 8px;
+      font-size: .78rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: .15s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ── Yangi yozuv animatsiyasi ── */
+    @keyframes row-flash {
+      0%   { background: rgba(99,102,241,.18); }
+      100% { background: transparent; }
+    }
+    .row-new td { animation: row-flash 2s ease forwards; }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN EKRANI ══════════════════════════════════════ -->
+<div class="sa-login-wrap" id="sa-login-screen">
+  <div class="sa-login-card">
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.25rem">
+      <svg width="28" height="28" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span style="font-weight:700;font-size:1rem">UncertaintyCalc</span>
+    </div>
+    <h1>Super Admin</h1>
+    <p>Faqat vakolatli xodimlar uchun</p>
+
+    <div class="auth-error" id="sa-login-error"></div>
+
+    <div class="auth-group">
+      <label>Login</label>
+      <input type="text" id="sa-login-inp" placeholder="superadmin" autocomplete="username" />
+    </div>
+    <div class="auth-group">
+      <label>Parol</label>
+      <input type="password" id="sa-pwd-inp" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn btn-primary w-full" id="sa-btn-login" style="margin-top:.5rem">Kirish →</button>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════ -->
+<div class="sa-page" id="sa-dashboard">
+
+  <header class="sa-topbar">
+    <div class="sa-brand">
+      <svg width="22" height="22" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Super Admin Panel
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span class="live-dot">Real-time</span>
+      <a href="index.html" class="btn btn-sm btn-ghost">← Kalkulyator</a>
+      <button class="btn btn-sm btn-ghost" id="sa-btn-logout">Chiqish</button>
+      <button class="icon-btn" id="sa-btn-theme" title="Mavzu">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="sa-content">
+
+    <!-- Statistika -->
+    <div class="sa-stats" id="sa-stats-row">
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-total">—</span><span class="sa-stat-label">Jami tashkilotlar</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-active">—</span><span class="sa-stat-label">Faol (aktiv)</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-pending">—</span><span class="sa-stat-label">To'lov kutilmoqda</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-today">—</span><span class="sa-stat-label">Bugun ro'yxatdan o'tdi</span></div>
+    </div>
+
+    <!-- Tashkilotlar jadvali -->
+    <div class="sa-card">
+      <div class="sa-card-header">
+        <span class="sa-card-title">Ro'yxatdan o'tgan tashkilotlar</span>
+        <span class="live-dot" id="update-label">Yangilanmoqda…</span>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-row">
+        <input type="text" id="sa-search" placeholder="Ism, INN yoki login bo'yicha qidirish…" />
+        <button class="filter-btn active" data-filter="all">Barchasi</button>
+        <button class="filter-btn" data-filter="active">Faol</button>
+        <button class="filter-btn" data-filter="inactive">Nofaol</button>
+        <button class="filter-btn" data-filter="pending">Kutilmoqda</button>
+      </div>
+
+      <!-- Jadval -->
+      <div style="overflow-x:auto">
+        <table class="org-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tashkilot / Ism</th>
+              <th>INN</th>
+              <th>Telefon</th>
+              <th>Tarif</th>
+              <th>To'lov</th>
+              <th>Holat</th>
+              <th>Sana</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody id="sa-org-tbody">
+            <tr><td colspan="9" class="sa-empty">Yuklanmoqda…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="src/js/firebase-config.js"></script>
+<script src="src/js/db.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   SUPER ADMIN PANEL — bosh kontroller
+══════════════════════════════════════════════════════════ */
+(function () {
+
+  const SA_SESSION_KEY = 'uc_sa_session';
+  const $ = id => document.getElementById(id);
+
+  /* ─── Mavzu ──────────────────────────────────────────── */
+  const savedTheme = localStorage.getItem('uc_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  $('sa-btn-theme').addEventListener('click', () => {
+    const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('uc_theme', next);
+  });
+
+  /* ─── Session ────────────────────────────────────────── */
+  function isSaLoggedIn() {
+    return localStorage.getItem(SA_SESSION_KEY) === 'true';
+  }
+  function setSaSession()   { localStorage.setItem(SA_SESSION_KEY, 'true'); }
+  function clearSaSession() { localStorage.removeItem(SA_SESSION_KEY); }
+
+  /* ─── Login ──────────────────────────────────────────── */
+  function showDashboard() {
+    $('sa-login-screen').style.display = 'none';
+    $('sa-dashboard').style.display = 'block';
+    startRealtime();
+  }
+
+  function showLogin() {
+    $('sa-login-screen').style.display = 'flex';
+    $('sa-dashboard').style.display = 'none';
+  }
+
+  function showLoginErr(msg) {
+    const el = $('sa-login-error');
+    el.textContent = msg;
+    el.classList.toggle('visible', !!msg);
+  }
+
+  async function doLogin() {
+    const login = $('sa-login-inp').value.trim();
+    const pwd   = $('sa-pwd-inp').value;
+    showLoginErr('');
+
+    if (!login || !pwd) { showLoginErr('Login va parolni kiriting'); return; }
+
+    if (
+      typeof SUPER_ADMIN === 'undefined' ||
+      login !== SUPER_ADMIN.login ||
+      pwd   !== SUPER_ADMIN.password
+    ) {
+      showLoginErr('Login yoki parol noto\'g\'ri');
+      return;
+    }
+
+    setSaSession();
+    showDashboard();
+  }
+
+  $('sa-btn-login').addEventListener('click', doLogin);
+  [$('sa-login-inp'), $('sa-pwd-inp')].forEach(inp =>
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
+  );
+
+  $('sa-btn-logout').addEventListener('click', () => {
+    clearSaSession();
+    if (unsubscribeFn) unsubscribeFn();
+    showLogin();
+  });
+
+  /* ─── Boshlang'ich holat ─────────────────────────────── */
+  if (isSaLoggedIn()) {
+    showDashboard();
+  } else {
+    showLogin();
+  }
+
+  /* ──────────────────────────────────────────────────────
+     REAL-TIME DASHBOARD
+  ────────────────────────────────────────────────────── */
+
+  let allOrgs       = [];
+  let unsubscribeFn = null;
+  let activeFilter  = 'all';
+  let searchQuery   = '';
+
+  function startRealtime() {
+    if (unsubscribeFn) unsubscribeFn();
+
+    unsubscribeFn = DB.onOrgsSnapshot(orgs => {
+      allOrgs = orgs;
+      updateStats(orgs);
+      renderTable();
+      $('update-label').textContent = 'Yangilandi: ' + new Date().toLocaleTimeString('uz-UZ');
+    });
+  }
+
+  /* ─── Statistika ─────────────────────────────────────── */
+  function updateStats(orgs) {
+    const today = new Date().toISOString().slice(0, 10);
+    $('stat-total').textContent   = orgs.length;
+    $('stat-active').textContent  = orgs.filter(o => o.active === true).length;
+    $('stat-pending').textContent = orgs.filter(o => o.active !== true && o.paymentStatus !== 'paid').length;
+    $('stat-today').textContent   = orgs.filter(o => o.registeredAt === today).length;
+  }
+
+  /* ─── Jadval render ──────────────────────────────────── */
+  function renderTable() {
+    let list = allOrgs;
+
+    // Filter
+    if (activeFilter === 'active')   list = list.filter(o => o.active === true);
+    if (activeFilter === 'inactive') list = list.filter(o => o.active === false && o.paymentStatus === 'paid');
+    if (activeFilter === 'pending')  list = list.filter(o => o.active !== true  && o.paymentStatus !== 'paid');
+
+    // Qidiruv
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(o =>
+        (o.fullName || '').toLowerCase().includes(q) ||
+        (o.inn || '').includes(q) ||
+        (o.login || '').toLowerCase().includes(q) ||
+        (o.phone || '').includes(q)
+      );
+    }
+
+    const tbody = $('sa-org-tbody');
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9">
+        <div class="sa-empty">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Tashkilot topilmadi
+        </div></td></tr>`;
+      return;
+    }
+
+    const planNames = { basic: "Boshlang'ich", standard: 'Standart', pro: 'Pro' };
+
+    tbody.innerHTML = list.map((org, i) => {
+      const isActive    = org.active === true;
+      const isPaid      = org.paymentStatus === 'paid';
+      const statusClass = isActive ? 'active' : (isPaid ? 'inactive' : 'pending');
+      const statusLabel = isActive ? 'Faol' : (isPaid ? 'Nofaol' : 'Kutilmoqda');
+
+      return `
+        <tr id="org-row-${esc(org.id)}">
+          <td class="org-meta">${i + 1}</td>
+          <td>
+            <div class="org-name">${esc(org.fullName)}</div>
+            <div class="org-meta" style="font-family:'JetBrains Mono',monospace">${esc(org.login)}</div>
+          </td>
+          <td class="org-meta" style="font-family:'JetBrains Mono',monospace">${esc(org.inn)}</td>
+          <td class="org-meta">${esc(org.phone)}</td>
+          <td class="org-meta">${esc(planNames[org.plan] || org.plan)}</td>
+          <td>
+            <span class="pay-badge ${isPaid ? 'paid' : 'pending'}">
+              ${isPaid ? '✓ To\'langan' : '⏳ Kutilmoqda'}
+            </span>
+          </td>
+          <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+          <td class="org-meta">${esc(org.registeredAt || '—')}</td>
+          <td>
+            <div class="action-row">
+              ${!isPaid ? `
+                <button class="btn btn-xs btn-pay-confirm" onclick="confirmPayment('${esc(org.id)}')">
+                  To'lov tasdiqlash
+                </button>` : ''}
+              ${!isActive ? `
+                <button class="btn btn-xs btn-activate" onclick="activateOrg('${esc(org.id)}')">
+                  Aktivlashtirish
+                </button>` : `
+                <button class="btn btn-xs btn-deactivate" onclick="deactivateOrg('${esc(org.id)}')">
+                  Bloklash
+                </button>`}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  /* ─── XSS himoyasi ───────────────────────────────────── */
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ─── Filter tugmalari ───────────────────────────────── */
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderTable();
+    });
+  });
+
+  $('sa-search').addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    renderTable();
+  });
+
+  /* ──────────────────────────────────────────────────────
+     AMALLAR
+  ────────────────────────────────────────────────────── */
+
+  /** To'lovni tasdiqlash (paymentStatus → 'paid') */
+  window.confirmPayment = async function(orgId) {
+    if (!confirm('To\'lovni tasdiqlaysizmi? Holat "To\'langan" ga o\'zgaradi.')) return;
+    try {
+      const org = await DB.get('organizations', orgId);
+      if (!org) return;
+      org.paymentStatus = 'paid';
+      org.paidAt = new Date().toISOString().slice(0, 10);
+      await DB.put('organizations', org);
+    } catch (e) {
+      alert('Xato: ' + e.message);
+    }
+  };
+
+  /** Tashkilotni aktivlashtirish */
+  window.activateOrg = async function(orgId) {
+    if (!confirm('Tashkilotni aktivlashtirasizmi? Ular tizimga kira oladi.')) return;
+    try {
+      const org = await DB.get('organizations', orgId);
+      if (!org) return;
+      org.active = true;
+      org.activatedAt = new Date().toISOString().slice(0, 10);
+      await DB.put('organizations', org);
+      flashRow(orgId);
+    } catch (e) {
+      alert('Xato: ' + e.message);
+    }
+  };
+
+  /** Tashkilotni bloklash */
+  window.deactivateOrg = async function(orgId) {
+    if (!confirm('Tashkilotni bloklaysizmi? Ular tizimga kira olmaydi.')) return;
+    try {
+      const org = await DB.get('organizations', orgId);
+      if (!org) return;
+      org.active = false;
+      await DB.put('organizations', org);
+    } catch (e) {
+      alert('Xato: ' + e.message);
+    }
+  };
+
+  /** Yangi yozuv uchun qisqa animatsiya */
+  function flashRow(orgId) {
+    const row = document.getElementById('org-row-' + orgId);
+    if (row) { row.classList.add('row-new'); setTimeout(() => row.classList.remove('row-new'), 2200); }
+  }
+
+})();
+</script>
+</body>
+</html>
