@@ -11,12 +11,13 @@
 ═══════════════════════════════════════════════════════════════ */
 
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+  apiKey:            "AIzaSyBEmoNy6GlhvHgEe4vRY2-yk4i0PFOE8B8",
+  authDomain:        "noaniqlikbazasi.firebaseapp.com",
+  projectId:         "noaniqlikbazasi",
+  storageBucket:     "noaniqlikbazasi.firebasestorage.app",
+  messagingSenderId: "1067966242269",
+  appId:             "1:1067966242269:web:b0845d1805662e35c02a34",
+  measurementId:     "G-JZN02J00YG",
 };
 
 /* ─── SUPER-ADMIN KIRISH MA'LUMOTLARI ──────────────────────
