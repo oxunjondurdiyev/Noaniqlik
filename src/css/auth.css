@@ -230,6 +230,38 @@
   display: block;
 }
 
+/* ─── PAROL KO'RISH ─────────────────────────────────── */
+.pwd-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pwd-wrap input {
+  flex: 1;
+  padding-right: 2.5rem;
+}
+
+.pwd-eye {
+  position: absolute;
+  right: .65rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+}
+
+.pwd-eye:hover { color: var(--accent); }
+
+.pwd-eye .eye-off { display: none; }
+.pwd-eye.visible .eye-on  { display: none; }
+.pwd-eye.visible .eye-off { display: block; }
+
 /* ─── DIVIDER ───────────────────────────────────────── */
 .auth-divider {
   display: flex;
