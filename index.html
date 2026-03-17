@@ -39,12 +39,8 @@
         <div class="auth-panel active" id="auth-panel-login">
           <div class="auth-error" id="login-error"></div>
           <div class="auth-group">
-            <label>Tashkilot INN (9 raqam)</label>
-            <input type="text" id="login-inn" inputmode="numeric" maxlength="9" placeholder="123456789" autocomplete="off" />
-          </div>
-          <div class="auth-group">
             <label>Login</label>
-            <input type="text" id="login-user" placeholder="admin yoki xodim logini" autocomplete="username" />
+            <input type="text" id="login-user" placeholder="sizning loginингиз" autocomplete="username" />
           </div>
           <div class="auth-group">
             <label>Parol</label>
@@ -61,42 +57,75 @@
         <!-- ── RO'YXATDAN O'TISH ── -->
         <div class="auth-panel" id="auth-panel-register">
           <div class="auth-error" id="reg-error"></div>
-          <div class="auth-group">
-            <label>Tashkilot INN (9 raqam)</label>
-            <div class="inn-row">
-              <input type="text" id="reg-inn" inputmode="numeric" maxlength="9" placeholder="123456789" autocomplete="off" />
-              <button class="btn btn-outline" id="btn-inn-lookup">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Qidirish
-              </button>
+
+          <!-- Qator 1: INN + Telefon -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="auth-group" style="margin:0">
+              <label>INN <span class="text-muted text-xs">(9 raqam)</span></label>
+              <input type="text" id="reg-inn" inputmode="numeric" maxlength="9"
+                placeholder="123456789" autocomplete="off" />
+            </div>
+            <div class="auth-group" style="margin:0">
+              <label>Telefon raqam</label>
+              <input type="tel" id="reg-phone" placeholder="+998901234567" autocomplete="tel" />
             </div>
           </div>
-          <div class="org-preview" id="org-preview">
-            <div class="org-preview-name" id="org-preview-name"></div>
-            <div class="org-preview-meta" id="org-preview-meta"></div>
-            <div class="org-preview-source" id="org-preview-source"></div>
+          <div style="height:.75rem"></div>
+
+          <!-- Qator 2: Ism + Familya -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="auth-group" style="margin:0">
+              <label>Ism</label>
+              <input type="text" id="reg-firstname" placeholder="Ahmad" autocomplete="given-name" />
+            </div>
+            <div class="auth-group" style="margin:0">
+              <label>Familya</label>
+              <input type="text" id="reg-lastname" placeholder="Karimov" autocomplete="family-name" />
+            </div>
           </div>
+          <div style="height:.75rem"></div>
+
+          <!-- Login tavsiyasi -->
           <div class="auth-group">
-            <label>Tashkilot nomi (tekshiring / to'ldiring)</label>
-            <input type="text" id="reg-name" placeholder="LLC Texnologiya" autocomplete="off" />
+            <label>
+              Login
+              <span class="text-muted text-xs" style="font-weight:400;margin-left:.35rem">
+                (ism/familyadan avtomatik tavsiya qilinadi)
+              </span>
+            </label>
+            <div class="inn-row">
+              <input type="text" id="reg-login" placeholder="a.karimov"
+                autocomplete="username" style="font-family:'JetBrains Mono',monospace" />
+              <button class="btn btn-outline btn-sm" id="btn-suggest-login" title="Qayta tavsiya qilish">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+              </button>
+            </div>
+            <div id="login-check-msg" style="font-size:.75rem;margin-top:.3rem"></div>
           </div>
+
+          <!-- Parol -->
           <div class="auth-group">
-            <label>Mas'ul shaxs to'liq ismi</label>
-            <input type="text" id="reg-admin-name" placeholder="Karimov Ahmad Aliyevich" autocomplete="name" />
-          </div>
-          <div class="auth-group">
-            <label>Admin paroli (8+ belgi)</label>
+            <label>Parol <span class="text-muted text-xs">(6+ belgi)</span></label>
             <input type="password" id="reg-pwd" placeholder="••••••••" autocomplete="new-password" />
           </div>
           <div class="auth-group">
             <label>Parolni tasdiqlang</label>
             <input type="password" id="reg-pwd2" placeholder="••••••••" autocomplete="new-password" />
           </div>
+
+          <!-- Xodimlar soni -->
           <div class="auth-group">
-            <label>Tarif tanlang</label>
-            <div class="plan-grid" id="plan-grid"></div>
+            <label>Tashkilotda nechta xodim platforma ishlatadi?</label>
+            <input type="number" id="reg-empcount" min="1" max="999" value="1"
+              placeholder="Masalan: 5" />
           </div>
-          <button class="btn btn-primary w-full btn-lg" id="btn-do-register">Ro'yxatdan o'tish →</button>
+
+          <button class="btn btn-primary w-full btn-lg" id="btn-do-register">
+            Ro'yxatdan o'tish →
+          </button>
           <div class="auth-divider">yoki</div>
           <p class="text-muted text-sm" style="text-align:center">
             Allaqachon ro'yxatdan o'tganmisiz?
@@ -615,6 +644,7 @@
 <div id="print-report" class="print-only"></div>
 
 <!-- SCRIPTS -->
+<script src="src/js/db.js"></script>
 <script src="src/js/auth.js"></script>
 <script src="src/data/presets.js"></script>
 <script src="src/js/i18n.js"></script>
@@ -631,8 +661,8 @@
 ════════════════════════════════════════════════════ */
 (function () {
 
-  /* ─── Yordamchi ──────────────────────────────────── */
-  function $(id) { return document.getElementById(id); }
+  const $ = id => document.getElementById(id);
+
   function showErr(id, msg) {
     const el = $(id);
     el.textContent = msg;
@@ -642,122 +672,81 @@
   /* ─── Sessiya tekshiruvi ──────────────────────────── */
   function bootApp() {
     const session = AuthManager.getSession();
-    if (!session) {
-      showAuthScreen();
-    } else {
-      hideAuthScreen();
-      updateTopbar(session);
-    }
+    if (!session) { showAuthScreen(); } else { hideAuthScreen(); updateTopbar(session); }
   }
 
-  function showAuthScreen() {
-    $('auth-screen').style.display = 'flex';
-    renderPlanGrid();
-  }
-
-  function hideAuthScreen() {
-    $('auth-screen').style.display = 'none';
-  }
+  function showAuthScreen() { $('auth-screen').style.display = 'flex'; }
+  function hideAuthScreen()  { $('auth-screen').style.display = 'none'; }
 
   function updateTopbar(session) {
-    const badge = $('topbar-user-badge');
     if (session) {
-      const org = AuthManager.getOrg(session.inn);
       $('topbar-user-name').textContent = session.name || session.login;
-      $('topbar-user-role').textContent  = session.role === 'admin' ? 'Admin' : 'Xodim';
-      badge.style.display = 'flex';
-      $('btn-topbar-logout').style.display = '';
-      if (session.role === 'admin') {
-        $('btn-admin-link').style.display = '';
-      }
+      $('topbar-user-role').textContent = session.role === 'admin' ? 'Admin' : 'Xodim';
+      $('topbar-user-badge').style.display   = 'flex';
+      $('btn-topbar-logout').style.display   = '';
+      $('btn-admin-link').style.display      = session.role === 'admin' ? '' : 'none';
     } else {
-      badge.style.display = 'none';
-      $('btn-topbar-logout').style.display = 'none';
-      $('btn-admin-link').style.display = 'none';
+      $('topbar-user-badge').style.display   = 'none';
+      $('btn-topbar-logout').style.display   = 'none';
+      $('btn-admin-link').style.display      = 'none';
     }
   }
 
   /* ─── Tab almashtirish ────────────────────────────── */
   document.querySelectorAll('.auth-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const tab = btn.dataset.authTab;
       document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
-      $('auth-panel-' + tab).classList.add('active');
-      showErr('login-error', '');
-      showErr('reg-error', '');
+      $('auth-panel-' + btn.dataset.authTab).classList.add('active');
+      showErr('login-error', ''); showErr('reg-error', '');
     });
   });
 
   $('link-to-register').addEventListener('click', e => {
-    e.preventDefault();
-    document.querySelector('[data-auth-tab="register"]').click();
+    e.preventDefault(); document.querySelector('[data-auth-tab="register"]').click();
   });
-
   $('link-to-login').addEventListener('click', e => {
-    e.preventDefault();
-    document.querySelector('[data-auth-tab="login"]').click();
+    e.preventDefault(); document.querySelector('[data-auth-tab="login"]').click();
   });
 
-  /* ─── Tarif tanlash gridi ─────────────────────────── */
-  let selectedPlan = 'basic';
-
-  function renderPlanGrid() {
-    const grid = $('plan-grid');
-    if (!grid) return;
-    grid.innerHTML = Object.entries(AuthManager.PLANS).map(([key, p]) => `
-      <div class="plan-option">
-        <input type="radio" name="plan" id="plan-${key}" value="${key}" ${key === selectedPlan ? 'checked' : ''} />
-        <label class="plan-label" for="plan-${key}">
-          <span class="plan-name">${p.name}</span>
-          <span class="plan-price">${(p.priceMonthly/1000).toFixed(0)}K <span class="plan-price-sub">UZS/oy</span></span>
-          <span class="plan-limit">${p.maxUsers === -1 ? 'Cheksiz' : p.maxUsers + ' xodimgacha'}</span>
-        </label>
-      </div>`).join('');
-
-    grid.querySelectorAll('input[name="plan"]').forEach(r => {
-      r.addEventListener('change', () => { selectedPlan = r.value; });
-    });
+  /* ─── Login tavsiyasi ─────────────────────────────── */
+  async function updateLoginSuggestion() {
+    const firstName = $('reg-firstname').value.trim();
+    const lastName  = $('reg-lastname').value.trim();
+    if (!firstName && !lastName) return;
+    const base      = AuthManager.suggestLogin(firstName, lastName);
+    const unique    = await AuthManager.findUniqueLogin(base);
+    $('reg-login').value = unique;
+    checkLoginAvailability();
   }
 
-  /* ─── INN qidirish ────────────────────────────────── */
-  $('btn-inn-lookup').addEventListener('click', async () => {
-    const inn = $('reg-inn').value.trim();
-    showErr('reg-error', '');
-    const btn = $('btn-inn-lookup');
-    btn.disabled = true;
-    btn.textContent = '…';
-    try {
-      const data = await AuthManager.lookupINN(inn);
-      $('org-preview-name').textContent = data.name;
-      $('org-preview-meta').textContent  =
-        [data.director ? 'Rahbar: ' + data.director : '', data.address].filter(Boolean).join(' · ');
-      $('org-preview-source').textContent =
-        data.source === 'mock'
-          ? '⚠ Demo ma\'lumot — produksiyada org.info.uz\'dan yuklab olinadi'
-          : '✓ org.info.uz\'dan yuklandi';
-      $('org-preview').classList.add('visible');
-      $('reg-name').value = data.name;
-    } catch (e) {
-      showErr('reg-error', e.message);
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Qidirish`;
-    }
+  async function checkLoginAvailability() {
+    const login = $('reg-login').value.trim().toLowerCase();
+    const msg   = $('login-check-msg');
+    if (!login) { msg.textContent = ''; return; }
+    const taken = await DB.isLoginTaken(login);
+    msg.textContent = taken ? '✗ Bu login band' : '✓ Bu login bo\'sh';
+    msg.style.color = taken ? 'var(--danger)' : 'var(--success)';
+  }
+
+  $('reg-firstname').addEventListener('input', updateLoginSuggestion);
+  $('reg-lastname').addEventListener('input', updateLoginSuggestion);
+  $('reg-login').addEventListener('input', checkLoginAvailability);
+  $('btn-suggest-login').addEventListener('click', e => {
+    e.preventDefault(); updateLoginSuggestion();
   });
 
   /* ─── KIRISH ──────────────────────────────────────── */
   async function doLogin() {
     showErr('login-error', '');
-    const inn  = $('login-inn').value.trim();
     const user = $('login-user').value.trim();
     const pwd  = $('login-pwd').value;
-    if (!inn || !user || !pwd) { showErr('login-error', 'Barcha maydonlarni to\'ldiring'); return; }
+    if (!user || !pwd) { showErr('login-error', 'Login va parolni kiriting'); return; }
     const btn = $('btn-do-login');
     btn.disabled = true; btn.textContent = 'Kirilmoqda…';
     try {
-      await AuthManager.login(inn, user, pwd);
+      await AuthManager.login(user, pwd);
       hideAuthScreen();
       updateTopbar(AuthManager.getSession());
     } catch (e) {
@@ -768,27 +757,24 @@
   }
 
   $('btn-do-login').addEventListener('click', doLogin);
-  [$('login-inn'), $('login-user'), $('login-pwd')].forEach(inp => {
+  [$('login-user'), $('login-pwd')].forEach(inp => {
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   });
 
   /* ─── RO'YXATDAN O'TISH ───────────────────────────── */
   $('btn-do-register').addEventListener('click', async () => {
     showErr('reg-error', '');
-    const inn       = $('reg-inn').value.trim();
-    const name      = $('reg-name').value.trim();
-    const adminName = $('reg-admin-name').value.trim();
-    const pwd       = $('reg-pwd').value;
-    const pwd2      = $('reg-pwd2').value;
+    const inn        = $('reg-inn').value.trim();
+    const phone      = $('reg-phone').value.trim();
+    const firstName  = $('reg-firstname').value.trim();
+    const lastName   = $('reg-lastname').value.trim();
+    const login      = $('reg-login').value.trim().toLowerCase();
+    const pwd        = $('reg-pwd').value;
+    const pwd2       = $('reg-pwd2').value;
+    const empCount   = $('reg-empcount').value;
 
-    if (!inn || !name || !adminName || !pwd) {
+    if (!inn || !phone || !firstName || !lastName || !login || !pwd) {
       showErr('reg-error', 'Barcha maydonlarni to\'ldiring'); return;
-    }
-    if (!/^\d{9}$/.test(inn)) {
-      showErr('reg-error', 'INN 9 ta raqamdan iborat bo\'lishi kerak'); return;
-    }
-    if (pwd.length < 8) {
-      showErr('reg-error', 'Parol kamida 8 belgidan iborat bo\'lishi kerak'); return;
     }
     if (pwd !== pwd2) {
       showErr('reg-error', 'Parollar mos kelmaydi'); return;
@@ -797,11 +783,13 @@
     const btn = $('btn-do-register');
     btn.disabled = true; btn.textContent = 'Saqlanmoqda…';
     try {
-      const org = await AuthManager.register({ inn, name, adminName, adminPassword: pwd, plan: selectedPlan });
+      await AuthManager.register({
+        inn, phone, firstName, lastName,
+        login, password: pwd, employeeCount: empCount,
+      });
       hideAuthScreen();
       updateTopbar(AuthManager.getSession());
-      // Admin panelga yo'naltirish
-      if (confirm('Ro\'yxatdan o\'tdingiz! Admin panelga o\'tasizmi?')) {
+      if (confirm('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!\nAdmin panelga o\'tasizmi?')) {
         location.href = 'admin.html';
       }
     } catch (e) {
