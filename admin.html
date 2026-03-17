@@ -341,11 +341,15 @@ document.getElementById('btn-add-emp').addEventListener('click', async () => {
   }
 });
 
-/* ─── XODIMNI O'CHIRISH ─────────────────────────────── */
+/* ─── XODIMNI BAZADAN O'CHIRISH ──────────────────────── */
 async function removeEmp(empId) {
-  if (!confirm('Ushbu xodimni o\'chirishni tasdiqlaysizmi?')) return;
-  await AuthManager.deactivateEmployee(empId);
-  render();
+  if (!confirm('Ushbu xodimni bazadan butunlay o\'chirishni tasdiqlaysizmi?\nBu amalni qaytarib bo\'lmaydi.')) return;
+  try {
+    await AuthManager.deleteEmployee(empId);
+    render();
+  } catch (e) {
+    alert('Xato: ' + e.message);
+  }
 }
 
 /* ─── ISHGA TUSHIRISH ────────────────────────────────── */

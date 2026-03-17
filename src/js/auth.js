@@ -206,12 +206,17 @@ const AuthManager = (() => {
     return emp;
   }
 
-  /* ─── XODIMNI O'CHIRISH ──────────────────────────── */
+  /* ─── XODIMNI FAOLSIZLASHTIRISH ─────────────────── */
   async function deactivateEmployee(empId) {
     const emp = await DB.get('employees', empId);
     if (!emp) return;
     emp.active = false;
     await DB.put('employees', emp);
+  }
+
+  /* ─── XODIMNI BAZADAN BUTUNLAY O'CHIRISH ─────────── */
+  async function deleteEmployee(empId) {
+    await DB.remove('employees', empId);
   }
 
   /* ─── TASHKILOT XODIMLARI ────────────────────────── */
@@ -255,6 +260,7 @@ const AuthManager = (() => {
     clearSession,
     addEmployee,
     deactivateEmployee,
+    deleteEmployee,
     getOrgEmployees,
     upgradePlan,
     getClickUrl,
