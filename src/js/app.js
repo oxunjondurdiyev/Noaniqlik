@@ -6,6 +6,61 @@
 (function () {
   'use strict';
 
+  /* ─── TRIAL MANAGER ─────────────────────────────── */
+  const FREE_LIMIT = 7;
+  const TRIAL_KEY  = 'uc_trial_count';
+
+  function getTrialCount() {
+    return parseInt(localStorage.getItem(TRIAL_KEY) || '0', 10);
+  }
+  function incrementTrial() {
+    localStorage.setItem(TRIAL_KEY, getTrialCount() + 1);
+  }
+  function isTrialActive() {
+    const session = window.AuthManager && window.AuthManager.getSession();
+    if (session) return true;
+    return getTrialCount() < FREE_LIMIT;
+  }
+
+  function showPaywall() {
+    const modal = document.getElementById('trial-paywall');
+    if (!modal) return;
+    // Progressni yangilash
+    const used      = Math.min(getTrialCount(), FREE_LIMIT);
+    const dotsEl    = modal.querySelector('.paywall-dots');
+    if (dotsEl) {
+      dotsEl.innerHTML = Array.from({ length: FREE_LIMIT }, (_, i) =>
+        `<span class="pdot ${i < used ? 'filled' : ''}"></span>`
+      ).join('');
+    }
+    modal.style.display = 'flex';
+  }
+
+  function hidePaywall() {
+    const modal = document.getElementById('trial-paywall');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function updateTrialBanner() {
+    const banner  = document.getElementById('trial-banner');
+    if (!banner) return;
+    const session = window.AuthManager && window.AuthManager.getSession();
+    if (session) { banner.style.display = 'none'; return; }
+
+    const used      = getTrialCount();
+    const remaining = FREE_LIMIT - used;
+
+    banner.style.display = '';
+    if (remaining <= 0) {
+      banner.className = 'trial-banner trial-danger';
+      banner.innerHTML = `⛔ Bepul hisoblash tugadi — davom etish uchun ro'yxatdan o'ting.`;
+    } else {
+      banner.className = `trial-banner ${remaining <= 2 ? 'trial-warn' : 'trial-info'}`;
+      banner.innerHTML =
+        `🆓 Bepul sinash: <b>${used}/${FREE_LIMIT}</b> — <b>${remaining} ta</b> qoldi`;
+    }
+  }
+
   /* ─── DOM CACHE ─────────────────────────────────── */
   const homeScreen    = document.getElementById('home-screen');
   const welcomeScreen = document.getElementById('welcome-screen');
@@ -113,6 +168,7 @@
   function initWelcome() {
     document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'));
     document.getElementById('btn-start').addEventListener('click', startSession);
+    updateTrialBanner();
 
     // Stepper +/- buttons
     document.querySelectorAll('.wf-step-btn').forEach(btn => {
@@ -139,6 +195,18 @@
   }
 
   function startSession() {
+    // ─ Trial tekshiruvi ─────────────────────────────
+    const session = window.AuthManager && window.AuthManager.getSession();
+    if (!session) {
+      if (!isTrialActive()) {
+        showPaywall();
+        return;
+      }
+      incrementTrial();
+      updateTrialBanner();
+    }
+    // ────────────────────────────────────────────────
+
     const n       = Math.max(2, parseInt(document.getElementById('inp-n').value, 10) || 10);
     const p       = Math.max(1, parseInt(document.getElementById('inp-p').value, 10) || 1);
     const preset  = document.getElementById('inp-preset').value;
@@ -363,6 +431,26 @@
     renderDerived(derived);
   }
 
+  /* ─── PAYWALL MODAL tugmalari ────────────────────── */
+  function initPaywall() {
+    const modal = document.getElementById('trial-paywall');
+    if (!modal) return;
+
+    modal.querySelector('#paywall-btn-register').addEventListener('click', () => {
+      hidePaywall();
+      showScreen('home');
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.querySelector('[data-auth-tab="register"]').click();
+    });
+
+    modal.querySelector('#paywall-btn-login').addEventListener('click', () => {
+      hidePaywall();
+      showScreen('home');
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.querySelector('[data-auth-tab="login"]').click();
+    });
+  }
+
   /* ─── BOOTSTRAP ─────────────────────────────────── */
   function bootstrap() {
     initTheme();
@@ -371,6 +459,7 @@
     initWelcome();
     initSidebar();
     initTabs();
+    initPaywall();
     Table.init();
     TypeB.init();
     Results.init();

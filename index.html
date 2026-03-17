@@ -487,6 +487,9 @@
         </div>
       </div>
 
+      <!-- Trial banner -->
+      <div id="trial-banner" class="trial-banner trial-info" style="display:none"></div>
+
       <button class="btn btn-primary wf-start-btn" id="btn-start" data-i18n="btn_start">
         Start Calculation →
       </button>
@@ -681,6 +684,69 @@
      PRINT REPORT (hidden, for print only)
 ══════════════════════════════════════════════════ -->
 <div id="print-report" class="print-only"></div>
+
+<!-- ══════════════════════════════════════════════════
+     PAYWALL MODAL
+══════════════════════════════════════════════════ -->
+<div id="trial-paywall" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)"></div>
+  <div style="position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;max-width:420px;width:90%;text-align:center;z-index:1">
+    <div style="font-size:3rem;margin-bottom:.75rem">🔒</div>
+    <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:.5rem">Bepul sinash tugadi</h2>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:1.25rem;line-height:1.65">
+      Siz <strong>7 ta</strong> bepul hisoblashdan foydalandingiz.<br>
+      Cheklanmagan foydalanish uchun ro'yxatdan o'ting va to'lov qiling.
+    </p>
+
+    <!-- Progress dots -->
+    <div style="display:flex;justify-content:center;gap:.4rem;margin-bottom:1.5rem">
+      <div class="paywall-dots" style="display:flex;gap:.4rem"></div>
+    </div>
+
+    <!-- Nima olasiz -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:.85rem 1rem;text-align:left;font-size:.82rem;margin-bottom:1.5rem">
+      <div style="font-weight:600;margin-bottom:.5rem;font-size:.85rem">Ro'yxatdan o'tib olasiz:</div>
+      <div style="display:flex;flex-direction:column;gap:.35rem;color:var(--text-muted)">
+        <span>✅ Cheksiz hisoblashlar</span>
+        <span>✅ Xodimlar boshqaruvi</span>
+        <span>✅ Barcha tarif rejalari</span>
+        <span>✅ ISO/IEC 17025 hisobotlar</span>
+      </div>
+    </div>
+
+    <button id="paywall-btn-register" class="btn btn-primary w-full" style="margin-bottom:.5rem;font-size:.95rem;padding:.7rem">
+      Ro'yxatdan o'tish →
+    </button>
+    <button id="paywall-btn-login" class="btn btn-outline w-full" style="font-size:.88rem">
+      Hisobim bor — Kirish
+    </button>
+  </div>
+</div>
+
+<style>
+/* ── Trial banner ── */
+.trial-banner {
+  margin-top: 1rem;
+  padding: .5rem .85rem;
+  border-radius: 8px;
+  font-size: .8rem;
+  text-align: center;
+  border: 1px solid transparent;
+}
+.trial-info   { background: rgba(79,142,247,.12); color: var(--accent); border-color: rgba(79,142,247,.25); }
+.trial-warn   { background: rgba(234,179,8,.12);  color: #eab308;       border-color: rgba(234,179,8,.3); }
+.trial-danger { background: rgba(239,68,68,.12);  color: #ef4444;       border-color: rgba(239,68,68,.3); }
+
+/* ── Paywall dots ── */
+.pdot {
+  display: inline-block;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .2s;
+}
+.pdot.filled { background: var(--accent); }
+</style>
 
 <!-- SCRIPTS -->
 <!-- Firebase SDK (Firestore uchun) -->
