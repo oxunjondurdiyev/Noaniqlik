@@ -13,7 +13,7 @@ const TRANSLATIONS = {
     home_hero_title:   'Professional Measurement Uncertainty Calculator',
     home_hero_sub:     'Fully compliant with ISO/IEC\u00a017025:2017 and GUM:2008 — the global gold standards for calibration laboratories.',
     home_hero_cta:     'Open Calculator',
-    home_hero_github:  'View on GitHub',
+    home_hero_github:  '',
     home_formula_label:'Core formula (GUM\u00a05.1):',
 
     /* Home page — features */
@@ -54,10 +54,10 @@ const TRANSLATIONS = {
     home_about_open:   'Open source · Free to use · MIT License',
 
     /* Home page — collaboration */
-    home_collab_heading:'Open for Collaboration',
-    home_collab_desc:  'Are you a metrologist, laboratory manager, or developer? Contributions, feature requests and feedback are warmly welcome. Let\'s make uncertainty analysis easier for everyone.',
-    home_collab_btn:   'Contribute on GitHub',
-    home_collab_contact:'or reach out directly',
+    home_collab_heading:'Contact Us',
+    home_collab_desc:  'Do you have questions, suggestions or need support? Feel free to reach out to us directly.',
+    home_collab_btn:   'Tel: +998 94 125 15 01',
+    home_collab_contact:'Telegram: @oxunjon_durdiyev',
 
     /* Home page — stats strip */
     home_stat_formulas:'GUM Formulas',
@@ -184,7 +184,7 @@ const TRANSLATIONS = {
     home_hero_title:   'Профессиональный калькулятор неопределённости измерений',
     home_hero_sub:     'Полностью соответствует ISO/IEC\u00a017025:2017 и GUM:2008 — международным стандартам для калибровочных лабораторий.',
     home_hero_cta:     'Открыть калькулятор',
-    home_hero_github:  'GitHub',
+    home_hero_github:  '',
     home_formula_label:'Основная формула (GUM\u00a05.1):',
 
     home_feat_heading: 'Всё необходимое метрологу',
@@ -220,10 +220,10 @@ const TRANSLATIONS = {
     home_about_desc:   'Этот инструмент создан для того, чтобы сделать строгий анализ неопределённости измерений доступным каждой лаборатории — от научно-исследовательских институтов до небольших калибровочных мастерских.',
     home_about_open:   'Открытый исходный код · Бесплатно · Лицензия MIT',
 
-    home_collab_heading:'Открыт для сотрудничества',
-    home_collab_desc:  'Вы метролог, руководитель лаборатории или разработчик? Вклад в проект, запросы функций и отзывы всегда приветствуются.',
-    home_collab_btn:   'Внести вклад на GitHub',
-    home_collab_contact:'или связаться напрямую',
+    home_collab_heading:'Связаться с нами',
+    home_collab_desc:  'Есть вопросы, предложения или нужна поддержка? Свяжитесь с нами напрямую.',
+    home_collab_btn:   'Тел: +998 94 125 15 01',
+    home_collab_contact:'Telegram: @oxunjon_durdiyev',
 
     home_stat_formulas:'Формулы GUM',
     home_stat_presets: 'Пресетов',
@@ -345,7 +345,7 @@ const TRANSLATIONS = {
     home_hero_title:   'Professional o\'lchov noaniqligini hisoblash',
     home_hero_sub:     'ISO/IEC\u00a017025:2017 va GUM:2008 ga to\'liq mos — butun dunyo kalibrlash laboratoriyalarining oltin standarti.',
     home_hero_cta:     'Kalkulyatorni ochish',
-    home_hero_github:  'GitHub',
+    home_hero_github:  '',
     home_formula_label:'Asosiy formula (GUM\u00a05.1):',
 
     home_feat_heading: 'Metrologga kerak bo\'lgan hamma narsa',
@@ -381,10 +381,10 @@ const TRANSLATIONS = {
     home_about_desc:   'Bu vosita har bir laboratoriyada — ilmiy-tadqiqot institutlaridan tortib kichik kalibrlash ustaxonalarigacha — o\'lchov noaniqligini professional darajada tahlil qilishni ta\'minlash maqsadida yaratilgan.',
     home_about_open:   'Ochiq manba · Bepul · MIT litsenziyasi',
 
-    home_collab_heading:'Hamkorlikka tayyor',
-    home_collab_desc:  'Siz metrologmisiz, laboratoriya rahbarimisiz yoki dasturchimisiz? Loyihaga hissa qo\'shish, funksiya so\'rovlari va fikr-mulohazalar doimo xush kelibdi.',
-    home_collab_btn:   'GitHub\'da ishtirok etish',
-    home_collab_contact:'yoki to\'g\'ridan-to\'g\'ri bog\'lanish',
+    home_collab_heading:'Aloqa uchun',
+    home_collab_desc:  'Savollaringiz, takliflaringiz yoki yordam kerakmi? Biz bilan to\'g\'ridan-to\'g\'ri bog\'laning.',
+    home_collab_btn:   'Tel: +998 94 125 15 01',
+    home_collab_contact:'Telegram: @oxunjon_durdiyev',
 
     home_stat_formulas:'GUM Formulalar',
     home_stat_presets: 'Sozlama',
