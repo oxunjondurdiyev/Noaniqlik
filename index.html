@@ -28,7 +28,7 @@
     </div>
 
     <div class="auth-card">
-      <div class="auth-tabs">
+      <div class="auth-tabs" id="auth-tabs-row">
         <button class="auth-tab-btn active" data-auth-tab="login">Kirish</button>
         <button class="auth-tab-btn" data-auth-tab="register">Ro'yxatdan o'tish</button>
       </div>
@@ -55,6 +55,36 @@
             Tashkilotingiz hali ro'yxatdan o'tmadimi?
             <a href="#" style="color:var(--accent)" id="link-to-register">Ro'yxatdan o'tish</a>
           </p>
+        </div>
+
+        <!-- ── TO'LOV KUTILMOQDA ── -->
+        <div class="auth-panel" id="auth-panel-pending" style="text-align:center">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">✅</div>
+          <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:.4rem">Ro'yxatdan o'tdingiz!</h3>
+          <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem">
+            Hisobingizni faollashtirish uchun to'lovni amalga oshiring. To'lovdan keyin superadmin hisobingizni tekshirib aktivlashtiradi.
+          </p>
+
+          <div id="pending-org-info" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;text-align:left;font-size:.82rem;margin-bottom:1.25rem">
+            <!-- JS tomonidan to'ldiriladi -->
+          </div>
+
+          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.6rem;text-align:left">To'lov tizimini tanlang:</p>
+          <div style="display:flex;gap:.6rem;margin-bottom:1rem">
+            <button id="pending-btn-click" class="btn w-full" style="background:#00AAFF;color:#fff;border-color:#00AAFF">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Click
+            </button>
+            <button id="pending-btn-payme" class="btn w-full" style="background:#1AC46A;color:#fff;border-color:#1AC46A">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Payme
+            </button>
+          </div>
+
+          <p class="text-muted text-xs" style="margin-bottom:1rem">
+            To'lovdan so'ng superadmin hisobingizni aktivlashtiradi. Keyin login qilishingiz mumkin.
+          </p>
+          <button class="btn btn-outline w-full" id="pending-to-login">← Kirishga o'tish</button>
         </div>
 
         <!-- ── RO'YXATDAN O'TISH ── -->
@@ -712,8 +742,46 @@
       document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       $('auth-panel-' + btn.dataset.authTab).classList.add('active');
+      $('auth-tabs-row').style.display = '';
       showErr('login-error', ''); showErr('reg-error', '');
     });
+  });
+
+  /* ─── To'lov kutilmoqda paneli ───────────────────── */
+  function showPendingPanel(org) {
+    document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+    $('auth-tabs-row').style.display = 'none';
+    $('auth-panel-pending').classList.add('active');
+
+    const plan = AuthManager.PLANS[org.plan || 'basic'];
+    const txId = 'ORG_' + org.id + '_' + Date.now();
+
+    $('pending-org-info').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:.4rem">
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:var(--text-muted)">Ism</span>
+          <span style="font-weight:500">${org.fullName}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:var(--text-muted)">Login</span>
+          <span style="font-family:monospace">${org.login}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:var(--text-muted)">Tarif</span>
+          <span>${plan.name} — ${(plan.priceMonthly/1000).toFixed(0)}K UZS/oy</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:var(--text-muted)">To'lov holati</span>
+          <span style="color:#eab308">⏳ Kutilmoqda</span>
+        </div>
+      </div>`;
+
+    $('pending-btn-click').onclick  = () => window.open(AuthManager.getClickUrl(plan.priceMonthly, txId), '_blank');
+    $('pending-btn-payme').onclick  = () => window.open(AuthManager.getPaymeUrl(plan.priceMonthly, txId), '_blank');
+  }
+
+  $('pending-to-login').addEventListener('click', () => {
+    document.querySelector('[data-auth-tab="login"]').click();
   });
 
   $('link-to-register').addEventListener('click', e => {
@@ -796,24 +864,19 @@
     const btn = $('btn-do-register');
     btn.disabled = true; btn.textContent = 'Saqlanmoqda…';
     try {
-      await AuthManager.register({
+      const registeredOrg = await AuthManager.register({
         inn, phone, firstName, lastName,
         login, password: pwd, employeeCount: empCount,
       });
       // Ro'yxatdan o'tgandan keyin sessiya ochilmaydi — aktivatsiya kerak
       showErr('reg-error', '');
-      alert(
-        'Muvaffaqiyatli ro\'yxatdan o\'tdingiz!\n\n' +
-        'Hisobingiz hozir "kutilmoqda" holatida.\n' +
-        'To\'lovni amalga oshirgach, admin hisobingizni aktivlashtiradi.\n' +
-        'Shundan so\'ng login va parolingiz bilan kirishingiz mumkin.'
-      );
-      // Ro'yxatdan o'tish formini tozalash va login tabga o'tish
-      ['reg-inn','reg-phone','reg-firstname','reg-lastname','reg-login','reg-pwd','reg-pwd2','reg-empcount'].forEach(id => {
-        const el = document.getElementById(id);
+      // Formni tozalash
+      ['reg-inn','reg-phone','reg-firstname','reg-lastname','reg-login','reg-pwd','reg-pwd2','reg-empcount'].forEach(fid => {
+        const el = document.getElementById(fid);
         if (el) el.value = '';
       });
-      document.querySelector('[data-auth-tab="login"]').click();
+      // To'lov kutilmoqda panelini ko'rsatish
+      showPendingPanel(registeredOrg);
     } catch (e) {
       showErr('reg-error', e.message);
     } finally {

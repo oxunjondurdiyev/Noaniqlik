@@ -91,10 +91,10 @@ const DB = (() => {
   function onOrgsSnapshot(callback) {
     return getDb()
       .collection('organizations')
-      .orderBy('registeredAt', 'desc')
       .onSnapshot(
         snap => {
           const orgs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          orgs.sort((a, b) => (b.registeredAt || '').localeCompare(a.registeredAt || ''));
           callback(orgs);
         },
         err => console.error('[Firestore] onOrgsSnapshot xatosi:', err)
