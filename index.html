@@ -203,6 +203,7 @@
           <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
         <a class="btn btn-outline btn-sm" href="https://github.com/oxunjondurdiyev/Noaniqlik" target="_blank" rel="noopener" data-i18n="home_hero_github">GitHub</a>
+        <button class="btn btn-sm btn-ghost" id="btn-nav-login" style="display:none">Kirish</button>
       </div>
     </div>
   </nav>
@@ -781,7 +782,23 @@
   /* ─── Sessiya tekshiruvi ──────────────────────────── */
   function bootApp() {
     const session = AuthManager.getSession();
-    if (!session) { showAuthScreen(); } else { hideAuthScreen(); updateTopbar(session); }
+    if (session) {
+      hideAuthScreen();
+      updateTopbar(session);
+      $('btn-nav-login') && ($('btn-nav-login').style.display = 'none');
+    } else {
+      // Tekin 7 ta hisoblash — landing page ko'rinadi
+      $('btn-nav-login') && ($('btn-nav-login').style.display = '');
+    }
+  }
+
+  /* ─── Nav login tugmasi ───────────────────────────── */
+  const navLoginBtn = $('btn-nav-login');
+  if (navLoginBtn) {
+    navLoginBtn.addEventListener('click', () => {
+      showAuthScreen();
+      document.querySelector('[data-auth-tab="login"]').click();
+    });
   }
 
   function showAuthScreen() { $('auth-screen').style.display = 'flex'; }
@@ -953,8 +970,9 @@
   /* ─── CHIQISH ─────────────────────────────────────── */
   $('btn-topbar-logout').addEventListener('click', () => {
     AuthManager.clearSession();
-    showAuthScreen();
+    hideAuthScreen();
     updateTopbar(null);
+    $('btn-nav-login') && ($('btn-nav-login').style.display = '');
   });
 
   /* ─── PAROL KO'RISH TUGMASI ──────────────────────── */
