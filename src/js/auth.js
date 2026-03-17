@@ -171,7 +171,7 @@ const AuthManager = (() => {
   }
 
   /* ─── XODIM QO'SHISH ─────────────────────────────── */
-  async function addEmployee(orgId, { name, role }) {
+  async function addEmployee(orgId, { name, role, phone }) {
     const org = await DB.get('organizations', orgId);
     if (!org) throw new Error('Tashkilot topilmadi');
 
@@ -193,8 +193,9 @@ const AuthManager = (() => {
       orgId,
       name:         name.trim(),
       role:         (role || '').trim(),
+      phone:        (phone || '').trim(),
       login:        empLogin,
-      rawPwd,        // Produksiyada SMS/email orqali yuboring, bu yerda saqlanmasin
+      rawPwd,
       passwordHash: await hashPwd(rawPwd),
       createdAt:    new Date().toISOString().slice(0, 10),
       active:       true,

@@ -105,8 +105,12 @@
       <!-- Xodim qo'shish -->
       <div class="add-emp-form">
         <div class="form-group">
-          <label>Xodim to'liq ismi</label>
+          <label>To'liq ism familya</label>
           <input type="text" id="inp-emp-name" placeholder="Ahmad Karimov" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Telefon raqami</label>
+          <input type="tel" id="inp-emp-phone" placeholder="+998901234567" autocomplete="off" />
         </div>
         <div class="form-group">
           <label>Lavozim (ixtiyoriy)</label>
@@ -275,7 +279,7 @@ function renderEmployees(org, emps) {
   wrap.innerHTML = `
     <table class="emp-table">
       <thead><tr>
-        <th>#</th><th>Ism</th><th>Lavozim</th>
+        <th>#</th><th>Ism</th><th>Telefon</th><th>Lavozim</th>
         <th>Login</th><th>Parol</th><th>Sana</th><th>Holat</th><th></th>
       </tr></thead>
       <tbody>
@@ -283,6 +287,7 @@ function renderEmployees(org, emps) {
         <tr>
           <td class="text-muted text-sm">${i + 1}</td>
           <td><strong>${esc(e.name)}</strong></td>
+          <td class="text-muted text-sm">${esc(e.phone || '—')}</td>
           <td class="text-muted text-sm">${esc(e.role || '—')}</td>
           <td>
             <div class="cred-box">
@@ -303,7 +308,7 @@ function renderEmployees(org, emps) {
           </td>
           <td>
             ${e.active
-              ? `<button class="btn btn-sm btn-danger" onclick="removeEmp(${e.id})">O'chirish</button>`
+              ? `<button class="btn btn-sm btn-danger" onclick="removeEmp('${esc(e.id)}')">O'chirish</button>`
               : ''}
           </td>
         </tr>`).join('')}
@@ -314,17 +319,19 @@ function renderEmployees(org, emps) {
 /* ─── XODIM QO'SHISH ─────────────────────────────────── */
 document.getElementById('btn-add-emp').addEventListener('click', async () => {
   const name  = document.getElementById('inp-emp-name').value.trim();
+  const phone = document.getElementById('inp-emp-phone').value.trim();
   const role  = document.getElementById('inp-emp-role').value.trim();
   const errEl = document.getElementById('emp-add-error');
   errEl.style.display = 'none';
-  if (!name) { errEl.textContent = 'Xodim ismini kiriting'; errEl.style.display = 'block'; return; }
+  if (!name) { errEl.textContent = 'Xodim ism familyasini kiriting'; errEl.style.display = 'block'; return; }
 
   const btn = document.getElementById('btn-add-emp');
   btn.disabled = true; btn.textContent = 'Qo\'shilmoqda…';
   try {
-    await AuthManager.addEmployee(session.orgId, { name, role });
-    document.getElementById('inp-emp-name').value = '';
-    document.getElementById('inp-emp-role').value = '';
+    await AuthManager.addEmployee(session.orgId, { name, phone, role });
+    document.getElementById('inp-emp-name').value  = '';
+    document.getElementById('inp-emp-phone').value = '';
+    document.getElementById('inp-emp-role').value  = '';
     render();
   } catch (e) {
     errEl.textContent = e.message; errEl.style.display = 'block';
