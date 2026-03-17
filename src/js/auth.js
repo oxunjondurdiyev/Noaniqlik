@@ -120,18 +120,13 @@ const AuthManager = (() => {
       plan:          'basic',
       planExpiry:    new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
       registeredAt:  new Date().toISOString().slice(0, 10),
+      active:        false,   // ← to'lovdan keyin super-admin aktivlashtiradi
+      paymentStatus: 'pending',
     };
 
     const id = await DB.add('organizations', org);
     org.id = id;
-
-    setSession({
-      role:    'admin',
-      orgId:   id,
-      login:   org.login,
-      name:    org.fullName,
-    });
-
+    // Sessiya OCHMAYDI — to'lov va aktivatsiyadan keyin login qilish mumkin
     return org;
   }
 
@@ -145,6 +140,9 @@ const AuthManager = (() => {
     // Tashkilot admin tekshiruvi
     const org = await DB.getByIndex('organizations', 'login', lower);
     if (org && org.passwordHash === hash) {
+      if (org.active === false) {
+        throw new Error('Hisobingiz hali aktivlanmagan. To\'lovni amalga oshiring va admin bilan bog\'laning.');
+      }
       setSession({
         role:  'admin',
         orgId: org.id,
