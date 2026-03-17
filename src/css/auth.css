@@ -549,7 +549,7 @@
 /* ─── ADD EMPLOYEE FORM ──────────────────────────────── */
 .add-emp-form {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1.4fr 1fr 1fr auto;
   gap: .75rem;
   align-items: end;
   padding: 1rem 1.5rem;
@@ -623,6 +623,9 @@
 }
 
 /* ─── RESPONSIVE ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .add-emp-form { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 640px) {
   .auth-body { padding: 1.25rem 1.25rem 1.5rem; }
   .plan-grid { grid-template-columns: 1fr; }

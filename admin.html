@@ -105,22 +105,22 @@
       <!-- Xodim qo'shish -->
       <div class="add-emp-form">
         <div class="form-group">
-          <label>To'liq ism familya</label>
+          <label>To'liq ism familya <span style="color:var(--danger)">*</span></label>
           <input type="text" id="inp-emp-name" placeholder="Ahmad Karimov" autocomplete="off" />
         </div>
         <div class="form-group">
-          <label>Telefon raqami</label>
-          <input type="tel" id="inp-emp-phone" placeholder="+998901234567" autocomplete="off" />
+          <label>Telefon raqami <span style="color:var(--danger)">*</span></label>
+          <input type="tel" id="inp-emp-phone" placeholder="+998 90 123 45 67" autocomplete="off" />
         </div>
         <div class="form-group">
-          <label>Lavozim (ixtiyoriy)</label>
+          <label>Lavozim <span style="color:var(--danger)">*</span></label>
           <input type="text" id="inp-emp-role" placeholder="Metrologiya mutaxassisi" autocomplete="off" />
         </div>
         <div class="form-group">
           <label>&nbsp;</label>
           <button class="btn btn-primary" id="btn-add-emp">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Qo'shish
+            + Qo'shish
           </button>
         </div>
       </div>
@@ -224,7 +224,7 @@ function renderOrgInfo(org) {
     <div class="org-info-item"><label>Login</label><span style="font-family:monospace">${esc(org.login)}</span></div>
     <div class="org-info-item"><label>INN</label><span>${esc(org.inn)}</span></div>
     <div class="org-info-item"><label>Telefon</label><span>${esc(org.phone)}</span></div>
-    <div class="org-info-item"><label>Kutilayotgan xodimlar</label><span>${esc(org.employeeCount)}</span></div>`;
+    <div class="org-info-item"><label>Xodimlar soni (kutilgan)</label><span>${esc(org.employeeCount)}</span></div>`;
 }
 
 function renderSubscription(org) {
@@ -316,6 +316,17 @@ function renderEmployees(org, emps) {
     </table>`;
 }
 
+/* ─── TELEFON VALIDATSIYA ─────────────────────────────── */
+function validatePhone(raw) {
+  // Faqat raqamlarni olish
+  const digits = raw.replace(/[\s\-\(\)]/g, '');
+  // +998XXXXXXXXX | 998XXXXXXXXX | 0XXXXXXXXX
+  if (/^\+998\d{9}$/.test(digits)) return digits;
+  if (/^998\d{9}$/.test(digits))   return '+' + digits;
+  if (/^0\d{9}$/.test(digits))     return '+998' + digits.slice(1);
+  return null;
+}
+
 /* ─── XODIM QO'SHISH ─────────────────────────────────── */
 document.getElementById('btn-add-emp').addEventListener('click', async () => {
   const name  = document.getElementById('inp-emp-name').value.trim();
@@ -323,21 +334,45 @@ document.getElementById('btn-add-emp').addEventListener('click', async () => {
   const role  = document.getElementById('inp-emp-role').value.trim();
   const errEl = document.getElementById('emp-add-error');
   errEl.style.display = 'none';
-  if (!name) { errEl.textContent = 'Xodim ism familyasini kiriting'; errEl.style.display = 'block'; return; }
+
+  // ── Validatsiya ──────────────────────────────────────
+  if (!name) {
+    errEl.textContent = '❌ Ism familyani kiriting';
+    errEl.style.display = 'block'; return;
+  }
+  if (name.trim().split(/\s+/).length < 2) {
+    errEl.textContent = '❌ Ism va familyani to\'liq kiriting (masalan: Ahmad Karimov)';
+    errEl.style.display = 'block'; return;
+  }
+  if (!phone) {
+    errEl.textContent = '❌ Telefon raqamini kiriting';
+    errEl.style.display = 'block'; return;
+  }
+  const normalizedPhone = validatePhone(phone);
+  if (!normalizedPhone) {
+    errEl.textContent = '❌ Telefon formati noto\'g\'ri. Masalan: +998901234567 yoki 0901234567';
+    errEl.style.display = 'block'; return;
+  }
+  if (!role) {
+    errEl.textContent = '❌ Lavozimni kiriting';
+    errEl.style.display = 'block'; return;
+  }
+  // ────────────────────────────────────────────────────
 
   const btn = document.getElementById('btn-add-emp');
-  btn.disabled = true; btn.textContent = 'Qo\'shilmoqda…';
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Qo'shilmoqda…`;
   try {
-    await AuthManager.addEmployee(session.orgId, { name, phone, role });
+    await AuthManager.addEmployee(session.orgId, { name, phone: normalizedPhone, role });
     document.getElementById('inp-emp-name').value  = '';
     document.getElementById('inp-emp-phone').value = '';
     document.getElementById('inp-emp-role').value  = '';
     render();
   } catch (e) {
-    errEl.textContent = e.message; errEl.style.display = 'block';
+    errEl.textContent = '❌ ' + e.message; errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Qo'shish`;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Qo'shish`;
   }
 });
 
