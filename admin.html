@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — UncertaintyCalc</title>
+  <link rel="stylesheet" href="src/css/theme.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="stylesheet" href="src/css/auth.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="admin-page">
+
+  <!-- TOPBAR -->
+  <header class="admin-topbar">
+    <a class="admin-brand" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>UncertaintyCalc · Admin</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <div class="user-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div>
+          <div class="user-badge-name" id="topbar-name">—</div>
+          <div class="user-badge-role">Admin</div>
+        </div>
+      </div>
+      <a href="index.html" class="btn btn-sm btn-ghost">← Kalkulyator</a>
+      <button class="btn btn-sm btn-ghost" id="btn-logout">Chiqish</button>
+      <button class="icon-btn theme-toggle" id="btn-theme" title="Mavzu">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="admin-content">
+
+    <!-- STATISTIKA -->
+    <div class="admin-stats" id="stats-row"></div>
+
+    <!-- TASHKILOT MA'LUMOTLARI -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">Tashkilot ma'lumotlari</span>
+        <span class="text-muted text-sm" id="org-inn-badge"></span>
+      </div>
+      <div class="admin-card-body">
+        <div class="org-info-grid" id="org-info-grid"></div>
+      </div>
+    </div>
+
+    <!-- OBUNA -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">Obuna va tarif</span>
+        <span class="plan-badge" id="current-plan-badge"></span>
+      </div>
+      <div class="admin-card-body">
+        <div class="subscription-row">
+          <span class="plan-expiry" id="plan-expiry-text"></span>
+        </div>
+
+        <!-- Tarif o'zgartirish -->
+        <div style="margin-top:1.25rem">
+          <p class="text-muted text-sm" style="margin-bottom:.85rem">Tarifni o'zgartirish:</p>
+          <div class="plan-upgrade-grid" id="plan-upgrade-grid"></div>
+        </div>
+
+        <!-- To'lov -->
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-light)">
+          <p class="text-muted text-sm" style="margin-bottom:.75rem">To'lov tizimi orqali obunani yangilash:</p>
+          <div class="payment-row">
+            <button class="btn btn-click" id="btn-pay-click">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Click orqali to'lash
+            </button>
+            <button class="btn btn-payme" id="btn-pay-payme">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Payme orqali to'lash
+            </button>
+          </div>
+          <p class="text-muted text-xs" style="margin-top:.6rem">
+            * To'lovdan keyin obuna avtomatik yangilanadi. Muammo bo'lsa: support@uncertaintycalc.uz
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- XODIMLAR -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">Xodimlar</span>
+        <span class="text-muted text-sm" id="emp-count-label"></span>
+      </div>
+
+      <!-- Xodim qo'shish formasi -->
+      <div class="add-emp-form">
+        <div class="form-group">
+          <label>Xodim to'liq ismi</label>
+          <input type="text" id="inp-emp-name" placeholder="Masalan: Ahmad Karimov" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Lavozim</label>
+          <input type="text" id="inp-emp-role" placeholder="Metrologiya mutaxassisi" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" id="btn-add-emp">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Qo'shish
+          </button>
+        </div>
+      </div>
+
+      <!-- Xodimlar jadvali -->
+      <div id="emp-table-wrap">
+        <div class="admin-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <p>Hali xodim qo'shilmagan. Yuqoridagi forma orqali qo'shing.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /admin-content -->
+</div><!-- /admin-page -->
+
+<!-- SCRIPTS -->
+<script src="src/js/auth.js"></script>
+<script>
+/* ─── MAVZU ─────────────────────────────────────────── */
+(function () {
+  const saved = localStorage.getItem('uc_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
+document.getElementById('btn-theme').addEventListener('click', () => {
+  const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('uc_theme', next);
+});
+
+/* ─── AUTH TEKSHIRUVI ───────────────────────────────── */
+const session = AuthManager.getSession();
+if (!session || session.role !== 'admin') {
+  location.href = 'index.html';
+}
+
+const org = AuthManager.getOrg(session.inn);
+if (!org) { location.href = 'index.html'; }
+
+document.getElementById('topbar-name').textContent = session.name || 'Admin';
+
+/* ─── LOGOUT ─────────────────────────────────────────── */
+document.getElementById('btn-logout').addEventListener('click', () => {
+  AuthManager.clearSession();
+  location.href = 'index.html';
+});
+
+/* ─── RENDER ─────────────────────────────────────────── */
+function render() {
+  const org = AuthManager.getOrg(session.inn);
+  renderStats(org);
+  renderOrgInfo(org);
+  renderSubscription(org);
+  renderEmployees(org);
+}
+
+function renderStats(org) {
+  const activeEmps = org.employees.filter(e => e.active).length;
+  const plan = AuthManager.PLANS[org.plan];
+  const maxLabel = plan.maxUsers === -1 ? '∞' : plan.maxUsers;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="admin-stat">
+      <span class="admin-stat-value">${activeEmps}</span>
+      <span class="admin-stat-label">Faol xodimlar</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat-value">${maxLabel}</span>
+      <span class="admin-stat-label">Tarif limiti</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat-value">${plan.priceMonthly.toLocaleString('uz')} UZS</span>
+      <span class="admin-stat-label">Oylik to'lov</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat-value">${org.registeredAt}</span>
+      <span class="admin-stat-label">Ro'yxat sanasi</span>
+    </div>`;
+}
+
+function renderOrgInfo(org) {
+  document.getElementById('org-inn-badge').textContent = 'INN: ' + org.inn;
+  document.getElementById('org-info-grid').innerHTML = `
+    <div class="org-info-item"><label>Tashkilot nomi</label><span>${esc(org.name)}</span></div>
+    <div class="org-info-item"><label>Rahbar</label><span>${esc(org.director || '—')}</span></div>
+    <div class="org-info-item"><label>Manzil</label><span>${esc(org.address || '—')}</span></div>
+    <div class="org-info-item"><label>Admin</label><span>${esc(org.admin.name)}</span></div>`;
+}
+
+function renderSubscription(org) {
+  const plan = AuthManager.PLANS[org.plan];
+  document.getElementById('current-plan-badge').textContent = plan.name;
+
+  const expDate  = new Date(org.planExpiry);
+  const daysLeft = Math.ceil((expDate - Date.now()) / 86400000);
+  const expiryEl = document.getElementById('plan-expiry-text');
+  expiryEl.textContent = `Obuna tugash sanasi: ${org.planExpiry} (${daysLeft > 0 ? daysLeft + ' kun qoldi' : 'MUDDATI O\'TDI'})`;
+  expiryEl.className   = 'plan-expiry' + (daysLeft <= 0 ? ' expired' : daysLeft <= 7 ? ' soon' : '');
+
+  // Tarif tanlash
+  document.getElementById('plan-upgrade-grid').innerHTML = Object.entries(AuthManager.PLANS).map(([key, p]) => `
+    <div class="plan-upgrade-card ${org.plan === key ? 'current' : ''}" data-plan="${key}">
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-price">${p.priceMonthly.toLocaleString('uz')} <span style="font-size:.7rem;font-weight:400;color:var(--text-muted)">UZS/oy</span></div>
+      <div class="plan-limit">${p.maxUsers === -1 ? 'Cheksiz xodim' : p.maxUsers + ' xodigacha'}</div>
+      ${org.plan === key ? '<div style="font-size:.7rem;color:var(--accent);margin-top:.35rem">✓ Joriy tarif</div>' : ''}
+    </div>`).join('');
+
+  document.querySelectorAll('.plan-upgrade-card:not(.current)').forEach(card => {
+    card.addEventListener('click', () => {
+      const plan = card.dataset.plan;
+      if (confirm(`"${AuthManager.PLANS[plan].name}" tarifiga o'tishni tasdiqlaysizmi?\n(To'lovdan keyin faollashadi)`)) {
+        AuthManager.upgradePlan(session.inn, plan);
+        render();
+      }
+    });
+  });
+
+  // To'lov tugmalari
+  const amount = plan.priceMonthly;
+  const txId   = 'ORG_' + org.inn + '_' + Date.now();
+  document.getElementById('btn-pay-click').onclick = () => {
+    window.open(AuthManager.getClickUrl(amount, txId), '_blank');
+  };
+  document.getElementById('btn-pay-payme').onclick = () => {
+    window.open(AuthManager.getPaymeUrl(amount, txId), '_blank');
+  };
+}
+
+function renderEmployees(org) {
+  const wrap = document.getElementById('emp-table-wrap');
+  const active = org.employees.filter(e => e.active);
+  const plan = AuthManager.PLANS[org.plan];
+  document.getElementById('emp-count-label').textContent =
+    `${active.length} / ${plan.maxUsers === -1 ? '∞' : plan.maxUsers} xodim`;
+
+  if (org.employees.length === 0) {
+    wrap.innerHTML = `<div class="admin-empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <p>Hali xodim qo'shilmagan. Yuqoridagi forma orqali qo'shing.</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<table class="emp-table">
+    <thead><tr>
+      <th>#</th>
+      <th>Ism</th>
+      <th>Lavozim</th>
+      <th>Login</th>
+      <th>Parol</th>
+      <th>Sana</th>
+      <th>Holat</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${org.employees.map((e, i) => `
+      <tr>
+        <td class="text-muted text-sm">${i + 1}</td>
+        <td><strong>${esc(e.name)}</strong></td>
+        <td class="text-muted text-sm">${esc(e.role || '—')}</td>
+        <td>
+          <div class="cred-box">
+            <span>${esc(e.login)}</span>
+            <button class="copy-btn" onclick="copyText('${esc(e.login)}', this)" title="Nusxa olish">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </td>
+        <td>
+          <div class="cred-box">
+            <span>${esc(e.rawPwd || '••••••••')}</span>
+            ${e.rawPwd ? `<button class="copy-btn" onclick="copyText('${esc(e.rawPwd)}', this)" title="Nusxa olish">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>` : ''}
+          </div>
+        </td>
+        <td class="text-muted text-sm">${e.createdAt}</td>
+        <td>
+          <span class="status-dot ${e.active ? 'active' : 'inactive'}"></span>
+          ${e.active ? 'Faol' : 'Nofaol'}
+        </td>
+        <td>
+          ${e.active ? `<button class="btn btn-sm btn-danger" data-emp-id="${e.id}" onclick="removeEmp('${e.id}')">O'chirish</button>` : ''}
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+/* ─── XODIM QO'SHISH ─────────────────────────────────── */
+document.getElementById('btn-add-emp').addEventListener('click', async () => {
+  const name = document.getElementById('inp-emp-name').value.trim();
+  const role = document.getElementById('inp-emp-role').value.trim();
+  if (!name) { alert("Xodim ismini kiriting"); return; }
+  const btn = document.getElementById('btn-add-emp');
+  btn.disabled = true;
+  btn.textContent = 'Qo\'shilmoqda…';
+  try {
+    await AuthManager.addEmployee(session.inn, { name, role });
+    document.getElementById('inp-emp-name').value = '';
+    document.getElementById('inp-emp-role').value = '';
+    render();
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Qo'shish`;
+  }
+});
+
+/* ─── XODIMNI O'CHIRISH ─────────────────────────────── */
+function removeEmp(empId) {
+  if (!confirm("Ushbu xodimni o'chirishni tasdiqlaysizmi?")) return;
+  AuthManager.deactivateEmployee(session.inn, empId);
+  render();
+}
+
+/* ─── NUSXA OLISH ───────────────────────────────────── */
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
+    setTimeout(() => btn.innerHTML = orig, 1500);
+  });
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── ISHGA TUSHIRISH ────────────────────────────────── */
+render();
+</script>
+</body>
+</html>
