@@ -11,6 +11,12 @@ const Table = (() => {
     document.getElementById('btn-clear-data').addEventListener('click', clearData);
     document.getElementById('btn-calc-typea').addEventListener('click', calcTypeA);
 
+    // Re-render hint + placeholders when preset changes
+    ['sidebar-preset', 'inp-preset'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => render());
+    });
+
     appState.subscribe((changes, state) => {
       if (!changes || changes.params !== undefined || changes.measurements !== undefined || changes.n !== undefined) {
         render();
@@ -35,12 +41,46 @@ const Table = (() => {
     _currentParam = _currentParam || state.params[0];
   }
 
+  /* ── Hint banner: shown above table based on active preset ── */
+  function renderHintBox() {
+    const box = document.getElementById('table-hint-box');
+    if (!box) return;
+
+    // Find active preset key from sidebar or welcome select
+    const presetSel = document.getElementById('sidebar-preset') || document.getElementById('inp-preset');
+    const key = presetSel ? presetSel.value : '';
+    const preset = (window.PRESETS && key) ? window.PRESETS[key] : null;
+
+    if (!preset) { box.innerHTML = ''; return; }
+
+    const state = appState.get();
+    const paramHints = state.params.map(p => {
+      const sample = preset.sampleData && preset.sampleData[p];
+      if (!sample) return '';
+      const min = Math.min(...sample).toFixed(4);
+      const max = Math.max(...sample).toFixed(4);
+      const ex  = sample[0];
+      return `<span class="hint-param"><b>${escHtml(p)}</b>: ${escHtml(String(ex))} ${escHtml(preset.unit || '')} &nbsp;<span class="hint-range">(diapason: ${min} … ${max})</span></span>`;
+    }).filter(Boolean).join('');
+
+    box.innerHTML = `
+      <div class="table-hint">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.7"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div>
+          <strong>${escHtml(preset.name)}</strong> — quyidagi turdagi qiymatlarni kiriting:
+          <div class="hint-params">${paramHints || `Namunani to'ldirish uchun "Namuna ma'lumotlarni to'ldirish" tugmasini bosing.`}</div>
+        </div>
+      </div>`;
+  }
+
   function renderTable() {
     const state = appState.get();
     const n     = state.n;
     const head  = document.getElementById('table-head');
     const body  = document.getElementById('table-body');
     const foot  = document.getElementById('table-foot');
+
+    renderHintBox();
 
     const paramCols = state.params.map(p => `<th>${escHtml(p)}</th>`).join('');
 
@@ -55,13 +95,21 @@ const Table = (() => {
     const primaryParam = state.params[0];
     const ta = state.typeA[primaryParam];
 
+    // Get sample placeholders from active preset
+    const presetSel = document.getElementById('sidebar-preset') || document.getElementById('inp-preset');
+    const presetKey = presetSel ? presetSel.value : '';
+    const preset = (window.PRESETS && presetKey) ? window.PRESETS[presetKey] : null;
+
     let rows = '';
     for (let i = 0; i < n; i++) {
       const paramInputs = state.params.map(p => {
         const vals = state.measurements[p] || Array(n).fill('');
         const v = vals[i] !== undefined ? vals[i] : '';
+        const sampleVal = preset && preset.sampleData && preset.sampleData[p] && preset.sampleData[p][i];
+        const ph = sampleVal !== undefined ? String(sampleVal) : (preset ? String(preset.sampleData?.[p]?.[0] ?? '') : '');
         return `<td><input type="text" inputmode="decimal" class="meas-input"
           data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}"
+          placeholder="${escHtml(ph)}"
           autocomplete="off" autocorrect="off" spellcheck="false" /></td>`;
       }).join('');
 
