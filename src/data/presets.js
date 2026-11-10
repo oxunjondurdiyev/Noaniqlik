@@ -339,6 +339,68 @@ const PRESETS = {
       },
     ],
   },
+  /* ─── Calibration (multi-point) ─────────────────── */
+  // C75.QM Ilova A — KEDR-07 gas analyzer 0–20 % CH4, 4–20 mA output; Fluke 725Ex; PGS ГСО 9751-2011
+  gas_analyzer: {
+    name:    'Gas analyzer calibration (E = C̄ − Cэ)',
+    params:  ['I', 'Ce'],
+    n:       3,
+    unit:    '% об.',
+    formula: 'E = (I - 4) * 1.25 - Ce',
+    derived: [{ formula: 'E = (I − 4)·1.25 − Ce', symbol: 'E' }],
+    settings: { paired: false, P: 0.9545, kMethod: 'nu', rounding: 'up',
+                mpe: '0.04 * abs((I - 4) * 1.25)', range: '20', cmc: '' },
+    typeBComponents: [
+      { name: 'Calibrator error (Fluke 725Ex) ±(0.02 %·I + 0.002 mA)', param: 'I', halfWidth: '0.0002 * I + 0.002', distribution: 'rect', sensitivity: 1, unit: 'mA' },
+      { name: 'Calibrator resolution d',                               param: 'I', halfWidth: 0.001, distribution: 'resol', sensitivity: 1, unit: 'mA' },
+      { name: 'Reference gas mixture (PGS) value',                     param: 'Ce', halfWidth: 0.008, distribution: 'rect', sensitivity: 1, unit: '% об.' },
+    ],
+    points: [
+      { label: '0 % об. (N₂)', data: { I: [4, 4, 4], Ce: [0] },               patch: { 'Reference gas mixture (PGS) value': { halfWidth: 0.004 } } },
+      { label: '10 % об.',     data: { I: [12.01, 12.024, 12.009], Ce: [10] }, patch: { 'Reference gas mixture (PGS) value': { halfWidth: 0.008 } } },
+      { label: '19 % об.',     data: { I: [19.21, 19.22, 19.23], Ce: [19] },   patch: { 'Reference gas mixture (PGS) value': { halfWidth: 0.0152 } } },
+    ],
+  },
+
+  // MS-MK-3 — bimetal thermometer 0–100 °C, dv = 1 °C, comparison with PRT in a bath
+  thermometer: {
+    name:    'Dial thermometer calibration (Cv = Tc.a − T̄v)',
+    params:  ['Te', 'Tv', 'Ce'],
+    n:       12,
+    unit:    '°C',
+    formula: 'Cv = Te + Ce - Tv',
+    derived: [{ formula: 'Cv = Te + Ce − Tv', symbol: 'Cv' }],
+    directions: ['↑','↑','↑','↓','↓','↓','↑','↑','↑','↓','↓','↓'],
+    settings: { paired: false, P: 0.9545, kMethod: 'nu', rounding: 'up', mpe: '1', range: '', cmc: '',
+                typeA: { Tv: { method: 1, directional: true } } },
+    typeBComponents: [
+      { name: 'Reference readout resolution',     param: 'Te', halfWidth: 0.001, distribution: 'resol',  sensitivity: 1, unit: '°C' },
+      { name: 'Measuring instrument (bridge) error', param: 'Te', halfWidth: 0.01,  distribution: 'rect', sensitivity: 1, unit: '°C' },
+      { name: 'Reference drift',                  param: 'Te', halfWidth: 0.01,  distribution: 'rect',   sensitivity: 1, unit: '°C' },
+      { name: 'Bath stability',                   param: 'Te', halfWidth: 0.006, distribution: 'rect',   sensitivity: 1, unit: '°C' },
+      { name: 'Bath uniformity',                  param: 'Te', halfWidth: 0.012, distribution: 'rect',   sensitivity: 1, unit: '°C' },
+      { name: 'Immersion / heat conduction',      param: 'Te', halfWidth: 0.02,  distribution: 'rect',   sensitivity: 1, unit: '°C' },
+      { name: 'Reference certificate (Ue, k = 2)', param: 'Ce', halfWidth: 0.006, distribution: 'normal', k: 2, sensitivity: 1, unit: '°C' },
+      { name: 'Thermometer reading interpolation dv/(2·nI)', param: 'Tv', halfWidth: 0.25, distribution: 'rect', sensitivity: 1, unit: '°C' },
+    ],
+    points: [
+      { label: '10 °C', data: { Te: [10.06,10.059,10.059,10.06,10.059,10.061,10.06,10.06,10.057,10.056,10.056,10.057], Tv: [9.5,9.5,9.5,10,10,10,9.5,9.5,9.5,10,10,10], Ce: [0.004] },
+        patch: { 'Immersion / heat conduction': { halfWidth: 0.02 } } },
+      { label: '30 °C', data: { Te: [30.08,30.075,30.08,30.077,30.078,30.082,30.08,30.079,30.08,30.078,30.083,30.082], Tv: [29.5,29.5,29.5,30,30,30,30,29.5,29.5,30.5,30,30.5], Ce: [0.005] },
+        patch: { 'Immersion / heat conduction': { halfWidth: 0.03 } } },
+      { label: '50 °C', data: { Te: [50.109,50.112,50.11,50.11,50.11,50.113,50.11,50.11,50.109,50.112,50.107,50.111], Tv: [50,50,50,51,51,50.5,50,50,50,51,50.5,50.5], Ce: [0.006] },
+        patch: { 'Immersion / heat conduction': { halfWidth: 0.05 } } },
+      { label: '70 °C', data: { Te: [70.089,70.093,70.089,70.089,70.089,70.091,70.09,70.09,70.092,70.09,70.089,70.09], Tv: [70,70,70,71,71,71,70,70,70,71,71,71], Ce: [0.007] },
+        patch: { 'Immersion / heat conduction': { halfWidth: 0.07 } } },
+      { label: '90 °C', data: { Te: [90.117,90.117,90.119,90.12,90.118,90.12,90.12,90.121,90.118,90.12,90.121,90.122], Tv: [90.5,90,90.5,91.5,91,91,90.5,90.5,90.5,91,91,91], Ce: [0.008] },
+        patch: { 'Immersion / heat conduction': { halfWidth: 0.09 } } },
+    ],
+  },
 };
+
+// Points presets: first point doubles as sample data for hints/placeholders
+Object.values(PRESETS).forEach(pd => {
+  if (pd.points && !pd.sampleData) pd.sampleData = pd.points[0].data;
+});
 
 window.PRESETS = PRESETS;

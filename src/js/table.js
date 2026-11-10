@@ -19,7 +19,7 @@ const Table = (() => {
 
     appState.subscribe((changes, state) => {
       if (!changes || changes.params !== undefined || changes.measurements !== undefined || changes.n !== undefined ||
-          changes.model !== undefined) {
+          changes.model !== undefined || changes.settings !== undefined || changes.directions !== undefined) {
         render();
       }
     });
@@ -41,6 +41,16 @@ const Table = (() => {
   function renderParamTabs() {
     const state = appState.get();
     _currentParam = _currentParam || state.params[0];
+  }
+
+  /* Type A statistics of one parameter with its chosen method (↑/↓, s_p, COOMET) */
+  function taFor(state, p) {
+    const opt = ((state.settings || {}).typeA || {})[p] || {};
+    return Calc.typeAx(state.measurements[p] || [], { ...opt, dirs: state.directions || [] });
+  }
+  function anyDirectional(state) {
+    const m = (state.settings || {}).typeA || {};
+    return state.params.some(p => m[p] && m[p].directional);
   }
 
   /* Preset whose parameters match the current session (for hints/placeholders) */
@@ -91,6 +101,7 @@ const Table = (() => {
           <input type="checkbox" id="model-paired" ${paired ? 'checked' : ''} />
           <span>${i18n.t('model_paired')}</span>
         </label>` : ''}
+        ${renderMethodTable(state)}
       </div>`;
 
     const fEl = box.querySelector('#model-formula');
@@ -114,11 +125,55 @@ const Table = (() => {
         fEl.setSelectionRange(np, np);
       });
     });
+    box.querySelectorAll('[data-am]').forEach(el => {
+      el.addEventListener('change', () => {
+        const p = el.dataset.param, field = el.dataset.am;
+        const settings = appState.get('settings') || {};
+        const all = { ...(settings.typeA || {}) };
+        const cur = { method: 1, ...(all[p] || {}) };
+        if (field === 'directional') cur.directional = el.checked;
+        else if (field === 'method') cur.method = Number(el.value);
+        else cur[field] = el.value.replace(',', '.');
+        all[p] = cur;
+        appState.set({ settings: { ...settings, typeA: all }, combined: null });
+      });
+    });
     const pEl = box.querySelector('#model-paired');
     if (pEl) pEl.addEventListener('change', () => {
       appState.set({ settings: { ...(appState.get('settings') || {}), paired: pEl.checked }, combined: null });
     });
     updateModelStatus();
+  }
+
+  function renderMethodTable(state) {
+    const m = (state.settings || {}).typeA || {};
+    const rows = state.params.map(p => {
+      const o = { method: 1, ...(m[p] || {}) };
+      const ta = taFor(state, p);
+      const n = ta ? ta.n : 0;
+      const sel = [1, 2, 3].map(v =>
+        `<option value="${v}" ${o.method === v ? 'selected' : ''}>${i18n.t('am_' + v)}</option>`).join('');
+      return `<tr>
+        <td><strong>${escHtml(p)}</strong>${n === 1 ? ` <span class="text-muted text-xs">(${i18n.t('am_const')})</span>` : ''}</td>
+        <td><select data-am="method" data-param="${escHtml(p)}">${sel}</select></td>
+        <td>${o.method === 2 ? `<input type="text" inputmode="decimal" data-am="sp" data-param="${escHtml(p)}" value="${escHtml(String(o.sp ?? ''))}" placeholder="s_p" />` : '<span class="text-muted">—</span>'}</td>
+        <td>${o.method === 2 ? `<input type="text" inputmode="decimal" data-am="nup" data-param="${escHtml(p)}" value="${escHtml(String(o.nup ?? ''))}" placeholder="ν_p" />` : '<span class="text-muted">—</span>'}</td>
+        <td style="text-align:center"><input type="checkbox" data-am="directional" data-param="${escHtml(p)}" ${o.directional ? 'checked' : ''} style="width:auto" /></td>
+      </tr>`;
+    }).join('');
+    return `
+      <details class="model-methods" ${state.params.some(p => m[p] && (m[p].method > 1 || m[p].directional)) ? 'open' : ''}>
+        <summary>${i18n.t('am_title')}</summary>
+        <div class="table-scroll" style="padding:0">
+          <table class="data-table math-head am-table">
+            <thead><tr>
+              <th>${i18n.t('label_param')}</th><th>${i18n.t('am_method')}</th><th>s_p</th><th>ν_p</th><th>↑/↓</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <p class="text-muted text-xs" style="margin-top:.4rem">${i18n.t('am_hint')}</p>
+      </details>`;
   }
 
   function updateModelStatus() {
@@ -137,7 +192,7 @@ const Table = (() => {
       const env = {};
       let complete = true;
       state.params.forEach(p => {
-        const ta = Calc.typeA(state.measurements[p] || []);
+        const ta = taFor(state, p);
         if (ta) env[p] = ta.mean; else complete = false;
       });
       const y = complete ? f(env) : NaN;
@@ -192,17 +247,22 @@ const Table = (() => {
     renderHintBox();
 
     const paramCols = state.params.map(p => `<th style="text-transform:none">${escHtml(p)}</th>`).join('');
+    const dirOn = anyDirectional(state);
+    const dirs = state.directions || [];
 
     head.innerHTML = `
       <tr>
         <th>${i18n.t('col_i')}</th>
+        ${dirOn ? `<th title="${escHtml(i18n.t('dir_hint'))}">↑/↓</th>` : ''}
         ${paramCols}
         <th class="cell-num">${i18n.t('col_dev')} (${escHtml(state.params[0])})</th>
         <th class="cell-num">${i18n.t('col_dev2')}</th>
       </tr>`;
 
     const primaryParam = state.params[0];
-    const ta = state.typeA[primaryParam];
+    const ta = taFor(state, primaryParam);
+    const stats = {};
+    state.params.forEach(p => { stats[p] = taFor(state, p); });
 
     // Get sample placeholders from active preset
     const presetKey = activePresetKey();
@@ -232,8 +292,10 @@ const Table = (() => {
         }
       }
 
+      const d = dirs[i] || '';
       rows += `<tr>
         <td class="text-muted text-sm">${i + 1}</td>
+        ${dirOn ? `<td><button type="button" class="dir-btn ${d === '↑' ? 'up' : d === '↓' ? 'dn' : ''}" data-dir-idx="${i}">${d || '·'}</button></td>` : ''}
         ${paramInputs}
         ${devCell}
         ${dev2Cell}
@@ -244,34 +306,50 @@ const Table = (() => {
     // Footer stats
     const fmtOrDash = v => (v !== null && v !== undefined && !isNaN(v)) ? Calc.fmt(v) : '—';
     const footStats = state.params.map(p => {
-      const ta2 = state.typeA[p];
+      const ta2 = stats[p];
       if (!ta2) return `<td class="cell-num text-muted">—</td>`;
       return `<td class="cell-num mono">${fmtOrDash(ta2.mean)}</td>`;
     }).join('');
 
     foot.innerHTML = `
       <tr>
-        <td class="text-muted">${i18n.t('foot_mean')}</td>
+        <td class="text-muted" ${dirOn ? 'colspan="2"' : ''}>${i18n.t('foot_mean')}</td>
         ${footStats}
         <td class="cell-num">—</td>
-        <td class="cell-num">${ta ? fmtOrDash(ta.s2) : '—'}</td>
+        <td class="cell-num">${ta ? fmtOrDash(ta.sEff * ta.sEff) : '—'}</td>
       </tr>
       <tr>
-        <td class="text-muted">${i18n.t('foot_std')}</td>
+        <td class="text-muted" ${dirOn ? 'colspan="2"' : ''}>${i18n.t('foot_std')}</td>
         ${state.params.map(p => {
-          const r = state.typeA[p];
-          return `<td class="cell-num mono">${r ? fmtOrDash(r.s) : '—'}</td>`;
+          const r = stats[p];
+          return `<td class="cell-num mono">${r ? fmtOrDash(r.sEff) : '—'}</td>`;
         }).join('')}
         <td colspan="2" class="cell-num text-muted"></td>
       </tr>
       <tr>
-        <td class="text-muted">${i18n.t('foot_ua')}</td>
+        <td class="text-muted" ${dirOn ? 'colspan="2"' : ''}>${i18n.t('foot_ua')}</td>
         ${state.params.map(p => {
-          const r = state.typeA[p];
+          const r = stats[p];
           return `<td class="cell-num mono" style="color:var(--accent)">${r ? fmtOrDash(r.uA) : '—'}</td>`;
         }).join('')}
         <td colspan="2" class="cell-num text-muted"></td>
-      </tr>`;
+      </tr>
+      ${state.params.filter(p => stats[p] && stats[p].directional).map(p => {
+        const r = stats[p];
+        return `<tr><td class="text-muted" colspan="${state.params.length + (dirOn ? 4 : 3)}" style="text-transform:none">
+          ${escHtml(p)}: x̄↑ = ${Calc.fmt(r.meanUp)} (n=${r.nUp}), x̄↓ = ${Calc.fmt(r.meanDn)} (n=${r.nDn}),
+          x̄ = ${Calc.fmt(r.mean)}, ${i18n.t('dir_h')} h = ${Calc.fmt(r.h)}, ν = ${r.nu}</td></tr>`;
+      }).join('')}`;
+
+    body.querySelectorAll('.dir-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.dirIdx);
+        const cur = [...(appState.get('directions') || [])];
+        while (cur.length < appState.get('n')) cur.push('');
+        cur[i] = cur[i] === '↑' ? '↓' : cur[i] === '↓' ? '' : '↑';
+        appState.set({ directions: cur, combined: null });
+      });
+    });
 
     // Attach input listeners
     body.querySelectorAll('.meas-input').forEach(inp => {
@@ -353,7 +431,7 @@ const Table = (() => {
     const el    = document.getElementById('type-a-summary');
     if (!el) return;
 
-    const results = state.params.map(p => state.typeA[p]).filter(Boolean);
+    const results = state.params.map(p => taFor(state, p)).filter(Boolean);
 
     if (results.length === 0) {
       el.innerHTML = '';
@@ -361,7 +439,7 @@ const Table = (() => {
     }
 
     const items = state.params.map(p => {
-      const r = state.typeA[p];
+      const r = taFor(state, p);
       if (!r) return '';
       return `
         <div class="stat-item">
@@ -374,7 +452,7 @@ const Table = (() => {
         </div>
         <div class="stat-item">
           <span class="stat-label" style="text-transform:none">${escHtml(p)} — s</span>
-          <span class="stat-value">${Calc.fmt(r.s)}</span>
+          <span class="stat-value">${Calc.fmt(r.sEff)}</span>
         </div>`;
     }).join('<div style="width:1px;background:var(--border);margin:0 .5rem;"></div>');
 
@@ -407,8 +485,7 @@ const Table = (() => {
     let allOk   = true;
 
     state.params.forEach(p => {
-      const vals = state.measurements[p] || [];
-      const result = Calc.typeA(vals);
+      const result = taFor(state, p);
       if (!result) { allOk = false; return; }
       typeA[p] = result;
     });

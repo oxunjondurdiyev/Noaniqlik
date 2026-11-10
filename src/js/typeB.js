@@ -59,11 +59,25 @@ const TypeB = (() => {
     });
   }
 
-  function compStd(comp) {
-    const std  = Calc.typeB(comp.halfWidth, comp.distribution, comp.k);
+  /* Means of all inputs (needed when a half-width is written as an expression) */
+  function inputMeans(state) {
+    const m = {};
+    state.params.forEach(p => {
+      const opt = ((state.settings || {}).typeA || {})[p] || {};
+      const ta = Calc.typeAx(state.measurements[p] || [], { ...opt, dirs: state.directions || [] });
+      m[p] = ta ? ta.mean : NaN;
+    });
+    return m;
+  }
+
+  function compStd(comp, state, means) {
+    let a = 0, bad = false;
+    try { a = Calc.valueOrExpr(comp.halfWidth, state.params, means || inputMeans(state)); if (!isFinite(a)) { a = 0; bad = true; } }
+    catch (_) { bad = true; }
+    const std  = Calc.typeB(a, comp.distribution, comp.k);
     const mult = (comp.sensitivity === undefined || comp.sensitivity === '' || comp.sensitivity === null)
       ? 1 : Number(comp.sensitivity) || 0;
-    return { std, mult, u: Math.abs(mult) * std };
+    return { std, mult, u: Math.abs(mult) * std, a, bad };
   }
 
   function render() {
@@ -109,7 +123,8 @@ const TypeB = (() => {
   }
 
   function renderComponent(comp, state) {
-    const { std, mult, u } = compStd(comp);
+    const { std, mult, u, a, bad } = compStd(comp, state);
+    const isExpr = typeof comp.halfWidth === 'string' && !isFinite(Calc.toNum(comp.halfWidth)) && comp.halfWidth.trim() !== '';
     const dist = comp.distribution;
 
     const distOpts = DIST_OPTIONS.map(d =>
@@ -151,7 +166,9 @@ const TypeB = (() => {
         <div class="form-group">
           <label>${aLabel}</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.halfWidth))}"
-            data-id="${comp.id}" data-field="halfWidth" placeholder="0.0005" autocomplete="off" />
+            data-id="${comp.id}" data-field="halfWidth" placeholder="0.0005  ${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off"
+            ${bad ? 'style="border-color:var(--danger)"' : ''} />
+          ${isExpr ? `<span class="text-xs ${bad ? '' : 'text-muted'}" style="${bad ? 'color:var(--danger)' : ''}">${bad ? i18n.t('err_bad_formula') : '= ' + Calc.fmtSci(a)}</span>` : ''}
         </div>
         ${dist === 'normal' ? `
         <div class="form-group">
@@ -170,6 +187,11 @@ const TypeB = (() => {
             data-id="${comp.id}" data-field="sensitivity" autocomplete="off" />
         </div>
         <div class="form-group">
+          <label title="${escHtml(i18n.t('label_nu_hint'))}">${i18n.t('label_nu')} ⓘ</label>
+          <input type="text" inputmode="decimal" value="${escHtml(String(comp.nu ?? ''))}"
+            data-id="${comp.id}" data-field="nu" placeholder="∞" autocomplete="off" />
+        </div>
+        <div class="form-group">
           <label>${i18n.t('label_std_unc')}</label>
           <div class="formula-box" style="color:var(--accent)">
             u = ${mult !== 1 ? Calc.fmtSci(Math.abs(mult)) + ' · ' : ''}${aSym} / ${divLabel} = ${Calc.fmtSci(u)}
@@ -186,7 +208,8 @@ const TypeB = (() => {
     const items = state.params.map(p => {
       const own = state.typeB.filter(c => (state.params.includes(c.param) ? c.param : state.params[0]) === p);
       if (!own.length) return '';
-      const uB = Math.sqrt(own.reduce((s, c) => s + compStd(c).u ** 2, 0));
+      const means = inputMeans(state);
+      const uB = Math.sqrt(own.reduce((s, c) => s + compStd(c, state, means).u ** 2, 0));
       return `
         <div class="stat-item">
           <span class="stat-label" style="text-transform:none">u_B(${escHtml(p)})</span>
@@ -244,11 +267,50 @@ const TypeB = (() => {
           </table>
         </div>
         <p class="text-muted text-xs" style="margin:.4rem 0 .8rem">${i18n.t('corr_hint')}</p>` : ''}
-        <div class="form-group" style="max-width:280px">
-          <label>${i18n.t('label_P')}</label>
-          <select id="sel-coverage-p">${pOpts}</select>
+        <div class="settings-grid">
+          <div class="form-group">
+            <label>${i18n.t('label_P')}</label>
+            <select id="sel-coverage-p">${pOpts}</select>
+          </div>
+          <div class="form-group">
+            <label>${i18n.t('set_kmethod')}</label>
+            <select data-set="kMethod">
+              <option value="nu" ${settings.kMethod !== 'k2' ? 'selected' : ''}>${i18n.t('set_k_nu')}</option>
+              <option value="k2" ${settings.kMethod === 'k2' ? 'selected' : ''}>${i18n.t('set_k_2')}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>${i18n.t('set_rounding')}</label>
+            <select data-set="rounding">
+              <option value="normal" ${settings.rounding !== 'up' ? 'selected' : ''}>${i18n.t('set_round_normal')}</option>
+              <option value="up" ${settings.rounding === 'up' ? 'selected' : ''}>${i18n.t('set_round_up')}</option>
+            </select>
+          </div>
         </div>
+        <div class="model-card-title" style="margin-top:.9rem">${i18n.t('conf_title')} <span class="text-muted text-xs">ISO/IEC 17025 7.8.6 · JCGM 106 · ILAC G8</span></div>
+        <div class="settings-grid">
+          <div class="form-group">
+            <label title="${escHtml(i18n.t('set_mpe_hint'))}">${i18n.t('set_mpe')} ⓘ</label>
+            <input type="text" data-set="mpe" class="mono" value="${escHtml(String(settings.mpe ?? ''))}" placeholder="1   ${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label>${i18n.t('set_range')}</label>
+            <input type="text" inputmode="decimal" data-set="range" value="${escHtml(String(settings.range ?? ''))}" placeholder="20" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label title="${escHtml(i18n.t('set_cmc_hint'))}">CMC ⓘ</label>
+            <input type="text" inputmode="decimal" data-set="cmc" value="${escHtml(String(settings.cmc ?? ''))}" placeholder="—" autocomplete="off" />
+          </div>
+        </div>
+        <p class="text-muted text-xs">${i18n.t('conf_hint')}</p>
       </div>`;
+
+    el.querySelectorAll('[data-set]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const v = inp.value.trim().replace(/^(-?\d+),(\d+)$/, '$1.$2');
+        appState.set({ settings: { ...(appState.get('settings') || {}), [inp.dataset.set]: v }, combined: null });
+      });
+    });
 
     el.querySelectorAll('[data-cov]').forEach(inp => {
       inp.addEventListener('change', () => {
@@ -266,9 +328,15 @@ const TypeB = (() => {
     const field = e.target.dataset.field;
     let val     = e.target.value;
 
-    if (field === 'halfWidth' || field === 'sensitivity' || field === 'k') {
+    if (field === 'halfWidth') {
       const n = Calc.toNum(val);
-      val = isFinite(n) ? n : (field === 'halfWidth' ? 0 : field === 'k' ? 2 : 1);
+      val = isFinite(n) ? n : (val.trim() || 0);           // keep expressions like "0.0002*I + 0.002"
+    } else if (field === 'sensitivity' || field === 'k') {
+      const n = Calc.toNum(val);
+      val = isFinite(n) ? n : (field === 'k' ? 2 : 1);
+    } else if (field === 'nu') {
+      const n = Calc.toNum(val);
+      val = isFinite(n) && n > 0 ? n : '';
     }
 
     appState.updateTypeBComponent(id, { [field]: val });
@@ -284,16 +352,19 @@ const TypeB = (() => {
         bad_formula:  i18n.t('err_bad_formula') + (result.detail ? ': «' + result.detail + '»' : ''),
         need_data:    i18n.t('err_need_data') + ' ' + (result.detail || ''),
         formula_eval: i18n.t('err_formula_eval'),
+        bad_halfwidth: i18n.t('err_bad_halfwidth') + ': «' + (result.detail || '') + '»',
+        bad_mpe:      i18n.t('err_bad_mpe'),
       }[result.error] || i18n.t('toast_need_data');
       showToast(msg, 'error', 4500);
-      if (result.error !== 'formula_eval') switchTab('data');
+      if (!['formula_eval', 'bad_halfwidth', 'bad_mpe'].includes(result.error)) switchTab('data');
       return;
     }
 
     // Keep the Type A table in sync with what was actually used
     const typeA = {};
     state.params.forEach(p => {
-      const ta = Calc.typeA(state.measurements[p] || []);
+      const opt = ((state.settings || {}).typeA || {})[p] || {};
+      const ta = Calc.typeAx(state.measurements[p] || [], { ...opt, dirs: state.directions || [] });
       if (ta) typeA[p] = ta;
     });
 

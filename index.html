@@ -492,6 +492,10 @@
               <option value="area"        data-i18n="preset_area">Area (A = L×W)</option>
               <option value="temperature" data-i18n="preset_temperature">Temperature</option>
             </optgroup>
+          <optgroup data-i18n-label="preset_group_calib" label="Calibration (multi-point)">
+            <option value="gas_analyzer" data-i18n="preset_gas">Gas analyzer (3 points)</option>
+            <option value="thermometer"  data-i18n="preset_thermo">Dial thermometer (5 points)</option>
+          </optgroup>
           </select>
         </div>
       </div>
@@ -606,6 +610,10 @@
             <option value="area"        data-i18n="preset_area">Area (A = L×W)</option>
             <option value="temperature" data-i18n="preset_temperature">Temperature</option>
           </optgroup>
+          <optgroup data-i18n-label="preset_group_calib" label="Calibration (multi-point)">
+            <option value="gas_analyzer" data-i18n="preset_gas">Gas analyzer (3 points)</option>
+            <option value="thermometer"  data-i18n="preset_thermo">Dial thermometer (5 points)</option>
+          </optgroup>
         </select>
       </div>
     </aside>
@@ -632,14 +640,16 @@
             <button class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
           </div>
         </div>
-        <div id="model-box"></div>
-        <div id="table-hint-box"></div>
-        <div class="table-scroll">
-          <table class="data-table" id="measurement-table">
-            <thead id="table-head"></thead>
-            <tbody id="table-body"></tbody>
-            <tfoot id="table-foot"></tfoot>
-          </table>
+        <div class="data-scroll">
+          <div id="model-box"></div>
+          <div id="table-hint-box"></div>
+          <div class="table-scroll">
+            <table class="data-table" id="measurement-table">
+              <thead id="table-head"></thead>
+              <tbody id="table-body"></tbody>
+              <tfoot id="table-foot"></tfoot>
+            </table>
+          </div>
         </div>
         <div class="type-a-summary" id="type-a-summary"></div>
         <div class="panel-footer">
@@ -771,10 +781,12 @@
 <script src="src/js/auth.js"></script>
 <script src="src/data/presets.js"></script>
 <script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-ext.js"></script>
 <script src="src/js/state.js"></script>
 <script src="src/js/calc.js"></script>
 <script src="src/js/table.js"></script>
 <script src="src/js/typeB.js"></script>
+<script src="src/js/points.js"></script>
 <script src="src/js/report.js"></script>
 <script src="src/js/app.js"></script>
 

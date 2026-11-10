@@ -226,7 +226,8 @@
     }
 
     appState.set({ n, params, measurements: {}, typeA: {}, typeB: [], combined: null,
-                   model: { formula: '', unit: '' }, covB: {} });
+                   model: { formula: '', unit: '' }, covB: {},
+                   settings: { paired: true, P: 0.9545 }, directions: [], points: [], currentPoint: null });
     appState.resizeN(n);
 
     // Load preset data and type B components
@@ -245,7 +246,33 @@
     if (!pd) return;
 
     // Measurement model of the preset (multi-parameter presets define y = f(…))
-    appState.set({ model: { formula: pd.formula || '', unit: pd.unit || '' } });
+    appState.set({
+      model: { formula: pd.formula || '', unit: pd.unit || '' },
+      settings: { paired: true, P: 0.9545, ...(pd.settings ? JSON.parse(JSON.stringify(pd.settings)) : {}) },
+      directions: pd.directions ? [...pd.directions] : [],
+      points: [], currentPoint: null,
+    });
+
+    // Multi-point calibration presets: evaluate and save every point, then open the first
+    if (pd.points && pd.points.length) {
+      pd.points.forEach(pt => {
+        const m = {};
+        appState.get('params').forEach(p => {
+          const arr = Array(appState.get('n')).fill('');
+          (pt.data[p] || []).forEach((v, i) => { arr[i] = v; });
+          m[p] = arr;
+        });
+        const tb = pd.typeBComponents.map((c, i) => ({
+          ...c, ...((pt.patch || {})[c.name] || {}), id: 'tb_' + i + '_' + Math.random().toString(36).slice(2, 6),
+        }));
+        appState.set({ measurements: m, typeB: tb, typeA: {}, combined: null, currentPoint: null });
+        Points.save(pt.label);
+      });
+      const first = appState.get('points')[0];
+      if (first) Points.load(first.id);
+      if (pd.derived && pd.derived.length) renderDerived(pd.derived);
+      return;
+    }
 
     // Load sample measurement data
     if (pd.sampleData) {
@@ -266,7 +293,8 @@
       state.params.forEach(p => {
         const vals = state.measurements[p];
         if (vals && vals.length >= 2) {
-          const result = Calc.typeA(vals);
+          const opt = ((state.settings || {}).typeA || {})[p] || {};
+          const result = Calc.typeAx(vals, { ...opt, dirs: state.directions || [] });
           if (result) typeA[p] = result;
         }
       });
@@ -357,8 +385,8 @@
             typeA: {},
             typeB: [],
             combined: null,
-            model: { formula: '', unit: '' },
-            covB: {},
+            model: { formula: '', unit: '' }, covB: {},
+            settings: { paired: true, P: 0.9545 }, directions: [], points: [], currentPoint: null,
           });
           appState.resizeN(n);
           loadPreset(e.target.value);

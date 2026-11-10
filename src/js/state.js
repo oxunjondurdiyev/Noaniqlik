@@ -12,7 +12,11 @@ const DEFAULT_STATE = {
   typeB: [],              // array of TypeBComponent objects
   combined: null,         // combined uncertainty result
   model: { formula: '', unit: '' },          // measurement model y = f(x1…xN)
-  settings: { paired: true, P: 0.9545 },     // paired rows → correlation; coverage probability
+  settings: { paired: true, P: 0.9545 },     // paired, P, kMethod, rounding, mpe, range, cmc, typeA{param:{method,sp,nup,directional}}
+  directions: [],         // per-row reading direction '↑' | '↓' | '' (hysteresis)
+  points: [],             // saved calibration points [{ id, label, snapshot, result }]
+  currentPoint: null,     // id of the point being edited
+  summary: { uniformK: false },
   covB: {},               // Type B covariances between inputs: { 'a|b': value }
   theme: 'dark',
   lang: 'en',
@@ -63,7 +67,7 @@ class AppState {
   reset() {
     const theme = this._state.theme;
     const lang  = this._state.lang;
-    this._state = { ...DEFAULT_STATE, theme, lang };
+    this._state = JSON.parse(JSON.stringify({ ...DEFAULT_STATE, theme, lang }));
     this._save();
     this._notify(null);
   }
@@ -96,7 +100,8 @@ class AppState {
       for (let i = 0; i < Math.min(old.length, newN); i++) arr[i] = old[i];
       m[p] = arr;
     });
-    this.set({ n: newN, measurements: m });
+    const dirs = (this._state.directions || []).slice(0, newN);
+    this.set({ n: newN, measurements: m, directions: dirs });
   }
 
   addParam(name) {
