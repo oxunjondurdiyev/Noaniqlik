@@ -18,7 +18,8 @@ const Table = (() => {
     });
 
     appState.subscribe((changes, state) => {
-      if (!changes || changes.params !== undefined || changes.measurements !== undefined || changes.n !== undefined) {
+      if (!changes || changes.params !== undefined || changes.measurements !== undefined || changes.n !== undefined ||
+          changes.model !== undefined) {
         render();
       }
     });
@@ -32,6 +33,7 @@ const Table = (() => {
       _currentParam = state.params[0];
     }
     renderParamTabs();
+    renderModelBox();
     renderTable();
     renderTypeASummary();
   }
@@ -41,14 +43,121 @@ const Table = (() => {
     _currentParam = _currentParam || state.params[0];
   }
 
+  /* Preset whose parameters match the current session (for hints/placeholders) */
+  function activePresetKey() {
+    const params = appState.get('params');
+    const ids = ['sidebar-preset', 'inp-preset'];
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      const key = el ? el.value : '';
+      const pd = key && window.PRESETS ? window.PRESETS[key] : null;
+      if (pd && pd.params.join('|') === params.join('|')) return key;
+    }
+    return '';
+  }
+
+  /* ── Measurement model: y = f(x1…xN) ── */
+  function renderModelBox() {
+    const box = document.getElementById('model-box');
+    if (!box) return;
+    if (box.contains(document.activeElement) && document.activeElement.tagName === 'INPUT' &&
+        document.activeElement.type === 'text') { updateModelStatus(); return; }
+
+    const state = appState.get();
+    const model = state.model || {};
+    const paired = !state.settings || state.settings.paired !== false;
+    const chips = state.params.map(p => `<button type="button" class="model-chip" data-ins="${escHtml(p)}">${escHtml(p)}</button>`).join('');
+
+    box.innerHTML = `
+      <div class="model-card">
+        <div class="model-card-title">${i18n.t('model_title')} <span class="text-muted text-xs">GUM 4.1</span></div>
+        <div class="model-row">
+          <div class="form-group model-formula-group">
+            <label>${i18n.t('model_formula')}</label>
+            <input type="text" id="model-formula" class="mono" value="${escHtml(model.formula || '')}"
+              placeholder="${escHtml(i18n.t('model_ph'))}" autocomplete="off" autocorrect="off" spellcheck="false" />
+          </div>
+          <div class="form-group model-unit-group">
+            <label>${i18n.t('model_unit')}</label>
+            <input type="text" id="model-unit" value="${escHtml(model.unit || '')}" placeholder="g/cm³" autocomplete="off" />
+          </div>
+        </div>
+        <div class="model-chips">${chips}
+          <span class="text-muted text-xs">+ − × / ^ ( ) · sqrt ln log exp sin cos tan abs pi</span>
+        </div>
+        <div id="model-status" class="model-status"></div>
+        ${state.params.length > 1 ? `
+        <label class="model-check">
+          <input type="checkbox" id="model-paired" ${paired ? 'checked' : ''} />
+          <span>${i18n.t('model_paired')}</span>
+        </label>` : ''}
+      </div>`;
+
+    const fEl = box.querySelector('#model-formula');
+    const saveModel = () => {
+      const cur = appState.get('model') || {};
+      const formula = fEl.value.trim();
+      const unit = box.querySelector('#model-unit').value.trim();
+      if (cur.formula !== formula || cur.unit !== unit) appState.set({ model: { formula, unit }, combined: null });
+      updateModelStatus();
+    };
+    fEl.addEventListener('input', updateModelStatus);
+    fEl.addEventListener('change', saveModel);
+    box.querySelector('#model-unit').addEventListener('change', saveModel);
+    box.querySelectorAll('.model-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pos = fEl.selectionStart ?? fEl.value.length;
+        fEl.value = fEl.value.slice(0, pos) + btn.dataset.ins + fEl.value.slice(fEl.selectionEnd ?? pos);
+        saveModel();
+        fEl.focus();
+        const np = pos + btn.dataset.ins.length;
+        fEl.setSelectionRange(np, np);
+      });
+    });
+    const pEl = box.querySelector('#model-paired');
+    if (pEl) pEl.addEventListener('change', () => {
+      appState.set({ settings: { ...(appState.get('settings') || {}), paired: pEl.checked }, combined: null });
+    });
+    updateModelStatus();
+  }
+
+  function updateModelStatus() {
+    const el  = document.getElementById('model-status');
+    const fEl = document.getElementById('model-formula');
+    if (!el || !fEl) return;
+    const state = appState.get();
+    const { symbol, expr } = Calc.splitFormula(fEl.value);
+    if (!expr) {
+      el.className = 'model-status' + (state.params.length > 1 ? ' warn' : '');
+      el.textContent = state.params.length > 1 ? i18n.t('err_need_formula') : i18n.t('model_single');
+      return;
+    }
+    try {
+      const f = Calc.compile(expr, state.params);
+      const env = {};
+      let complete = true;
+      state.params.forEach(p => {
+        const ta = Calc.typeA(state.measurements[p] || []);
+        if (ta) env[p] = ta.mean; else complete = false;
+      });
+      const y = complete ? f(env) : NaN;
+      el.className = 'model-status ok';
+      el.textContent = '✓ ' + (symbol || 'y') + ' = ' + expr +
+        (isFinite(y) ? '  →  ' + Calc.fmtSci(y, 8) : '');
+    } catch (err) {
+      const d = String(err.message || '');
+      el.className = 'model-status err';
+      el.textContent = '✗ ' + i18n.t('err_bad_formula') + (d.startsWith('unknown:') ? ': «' + d.slice(8) + '»' : '');
+    }
+  }
+
   /* ── Hint banner: shown above table based on active preset ── */
   function renderHintBox() {
     const box = document.getElementById('table-hint-box');
     if (!box) return;
 
     // Find active preset key from sidebar or welcome select
-    const presetSel = document.getElementById('sidebar-preset') || document.getElementById('inp-preset');
-    const key = presetSel ? presetSel.value : '';
+    const key = activePresetKey();
     const preset = (window.PRESETS && key) ? window.PRESETS[key] : null;
 
     if (!preset) { box.innerHTML = ''; return; }
@@ -82,7 +191,7 @@ const Table = (() => {
 
     renderHintBox();
 
-    const paramCols = state.params.map(p => `<th>${escHtml(p)}</th>`).join('');
+    const paramCols = state.params.map(p => `<th style="text-transform:none">${escHtml(p)}</th>`).join('');
 
     head.innerHTML = `
       <tr>
@@ -96,8 +205,7 @@ const Table = (() => {
     const ta = state.typeA[primaryParam];
 
     // Get sample placeholders from active preset
-    const presetSel = document.getElementById('sidebar-preset') || document.getElementById('inp-preset');
-    const presetKey = presetSel ? presetSel.value : '';
+    const presetKey = activePresetKey();
     const preset = (window.PRESETS && presetKey) ? window.PRESETS[presetKey] : null;
 
     let rows = '';
@@ -257,15 +365,15 @@ const Table = (() => {
       if (!r) return '';
       return `
         <div class="stat-item">
-          <span class="stat-label">${escHtml(p)} — u_A</span>
+          <span class="stat-label" style="text-transform:none">${escHtml(p)} — u_A</span>
           <span class="stat-value" style="color:var(--accent)">${Calc.fmt(r.uA)}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">${escHtml(p)} — x̄</span>
+          <span class="stat-label" style="text-transform:none">${escHtml(p)} — x̄</span>
           <span class="stat-value">${Calc.fmt(r.mean)}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">${escHtml(p)} — s</span>
+          <span class="stat-label" style="text-transform:none">${escHtml(p)} — s</span>
           <span class="stat-value">${Calc.fmt(r.s)}</span>
         </div>`;
     }).join('<div style="width:1px;background:var(--border);margin:0 .5rem;"></div>');
@@ -308,6 +416,19 @@ const Table = (() => {
     if (!allOk) {
       showToast(i18n.t('toast_need_data'), 'error');
       return;
+    }
+
+    // The model must be valid before moving on
+    const { expr } = Calc.splitFormula((state.model || {}).formula);
+    if (!expr && state.params.length > 1) {
+      showToast(i18n.t('err_need_formula'), 'error');
+      const fEl = document.getElementById('model-formula');
+      if (fEl) fEl.focus();
+      return;
+    }
+    if (expr) {
+      try { Calc.compile(expr, state.params); }
+      catch (_) { showToast(i18n.t('err_bad_formula'), 'error'); return; }
     }
 
     appState.set({ typeA });

@@ -225,7 +225,8 @@
       params = Array.from({ length: p }, (_, i) => defaultNames[i] || `p${i+1}`);
     }
 
-    appState.set({ n, params, measurements: {}, typeA: {}, typeB: [], combined: null });
+    appState.set({ n, params, measurements: {}, typeA: {}, typeB: [], combined: null,
+                   model: { formula: '', unit: '' }, covB: {} });
     appState.resizeN(n);
 
     // Load preset data and type B components
@@ -242,6 +243,9 @@
   function loadPreset(key) {
     const pd = PRESETS[key];
     if (!pd) return;
+
+    // Measurement model of the preset (multi-parameter presets define y = f(…))
+    appState.set({ model: { formula: pd.formula || '', unit: pd.unit || '' } });
 
     // Load sample measurement data
     if (pd.sampleData) {
@@ -353,6 +357,8 @@
             typeA: {},
             typeB: [],
             combined: null,
+            model: { formula: '', unit: '' },
+            covB: {},
           });
           appState.resizeN(n);
           loadPreset(e.target.value);
@@ -396,37 +402,40 @@
       return;
     }
     derivedList.innerHTML = derived.map(d => `
-      <div class="derived-item">
+      <div class="derived-item" data-formula="${escHtml(d.formula)}" title="${escHtml(i18n.t('derived_apply'))}" style="cursor:pointer">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>
-        <span><strong>${escHtml(d.symbol)}</strong> = ${escHtml(d.formula)}</span>
+        <span>${escHtml(d.formula)}</span>
       </div>
     `).join('');
+
+    // Click → use as the measurement model
+    derivedList.querySelectorAll('.derived-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const cur = appState.get('model') || {};
+        appState.set({ model: { ...cur, formula: item.dataset.formula }, combined: null });
+        switchTab('data');
+      });
+    });
   }
 
   /* ─── AUTO-DETECT DERIVED QUANTITIES ────────────── */
   function detectDerived() {
     const state   = appState.get();
-    const params  = state.params.map(p => p.toLowerCase());
     const derived = [];
+    // name(x) → the parameter as the user typed it, matched case-insensitively
+    const nm  = x => state.params.find(p => p.toLowerCase() === x);
+    const has = (...xs) => xs.every(nm);
 
-    if (params.includes('m') && params.includes('v')) {
-      derived.push({ symbol: 'ρ', formula: 'ρ = m / V' });
+    if (has('m', 'v'))      derived.push({ symbol: 'ρ', formula: `ρ = ${nm('m')} / ${nm('v')}` });
+    if (has('u', 'i')) {
+      derived.push({ symbol: 'P', formula: `P = ${nm('u')} × ${nm('i')}` });
+      derived.push({ symbol: 'R', formula: `R = ${nm('u')} / ${nm('i')}` });
     }
-    if (params.includes('u') && params.includes('i')) {
-      derived.push({ symbol: 'P', formula: 'P = U × I' });
-      derived.push({ symbol: 'R', formula: 'R = U / I' });
-    }
-    if (params.includes('l') && params.includes('w')) {
-      derived.push({ symbol: 'A', formula: 'A = L × W' });
-    }
-    if (params.includes('l') && params.includes('w') && params.includes('h')) {
-      derived.push({ symbol: 'V', formula: 'V = L × W × H' });
-    }
-    if (params.includes('u') && params.includes('r')) {
-      derived.push({ symbol: 'I', formula: 'I = U / R' });
-    }
+    if (has('l', 'w'))      derived.push({ symbol: 'A', formula: `A = ${nm('l')} × ${nm('w')}` });
+    if (has('l', 'w', 'h')) derived.push({ symbol: 'V', formula: `V = ${nm('l')} × ${nm('w')} × ${nm('h')}` });
+    if (has('u', 'r'))      derived.push({ symbol: 'I', formula: `I = ${nm('u')} / ${nm('r')}` });
 
     renderDerived(derived);
   }

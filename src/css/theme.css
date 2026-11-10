@@ -147,9 +147,11 @@ h3 { font-size: .95rem;  font-weight: 600; text-transform: uppercase; letter-spa
 
 /* ─── PRINT ─────────────────────────────────────────── */
 @media print {
-  /* Invoice bosilganda faqat invoice ko'rinsin */
-  body > *:not(#invoice-modal) { display: none !important; }
-  #invoice-modal {
+  /* Hisobot rejimi: faqat #print-report; aks holda faqat invoice */
+  body.print-report-mode > *:not(#print-report) { display: none !important; }
+  body.print-report-mode #print-report { display: block !important; }
+  body:not(.print-report-mode) > *:not(#invoice-modal):not(#reg-invoice-modal) { display: none !important; }
+  #invoice-modal, #reg-invoice-modal {
     position: static !important;
     background: none !important;
     padding: 0 !important;

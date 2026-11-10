@@ -93,32 +93,22 @@ const PRESETS = {
   density: {
     name:    'Density (derived: ρ = m/V)',
     params:  ['m', 'V'],
-    n:       10,
-    unit:    'g/mL',
+    n:       5,
+    unit:    'g/cm³',
+    formula: 'ρ = m / V',
     derived: [{ formula: 'ρ = m / V', symbol: 'ρ' }],
     sampleData: {
-      m: [100.0021, 100.0018, 100.0023, 100.0019, 100.0022,
-          100.0020, 100.0024, 100.0017, 100.0021, 100.0020],
-      V: [99.972, 99.975, 99.969, 99.973, 99.976,
-          99.971, 99.974, 99.970, 99.973, 99.975],
+      m: [99.8312, 99.8741, 99.8103, 99.8655, 99.8236],
+      V: [100.02, 100.06, 99.98, 100.04, 100.00],
     },
     typeBComponents: [
-      {
-        name:         'Balance calibration',
-        param:        'm',
-        halfWidth:    0.0005,
-        distribution: 'normal',
-        sensitivity:  0.01,   // ∂ρ/∂m = 1/V ≈ 0.01
-        unit:         'g',
-      },
-      {
-        name:         'Volume calibration',
-        param:        'V',
-        halfWidth:    0.02,
-        distribution: 'triang',
-        sensitivity:  0.0001, // ∂ρ/∂V = -m/V² ≈ -0.01 (absolute)
-        unit:         'mL',
-      },
+      { name: 'Balance calibration (U, k=2)', param: 'm', halfWidth: 0.0006, distribution: 'normal', k: 2, sensitivity: 1, unit: 'g' },
+      { name: 'Balance resolution d',         param: 'm', halfWidth: 0.0001, distribution: 'resol',  sensitivity: 1, unit: 'g' },
+      { name: 'Non-linearity / eccentricity', param: 'm', halfWidth: 0.0002, distribution: 'rect',   sensitivity: 1, unit: 'g' },
+      { name: 'Glassware tolerance',          param: 'V', halfWidth: 0.1,    distribution: 'rect',   sensitivity: 1, unit: 'cm³' },
+      { name: 'Scale reading d',              param: 'V', halfWidth: 0.02,   distribution: 'resol',  sensitivity: 1, unit: 'cm³' },
+      // a = ΔT (°C); multiplier = V·γ = 100.02 × 2.1e-4 cm³/°C
+      { name: 'Temperature ±ΔT (×V·γ)',       param: 'V', halfWidth: 2,      distribution: 'rect',   sensitivity: 0.021004, unit: 'cm³' },
     ],
   },
 
@@ -212,6 +202,7 @@ const PRESETS = {
     params:  ['U', 'I'],
     n:       10,
     unit:    'W',
+    formula: 'P = U * I',
     derived: [{ formula: 'P = U × I', symbol: 'P' }],
     sampleData: {
       U: [9.9987, 9.9991, 9.9985, 9.9988, 9.9990,
@@ -225,7 +216,7 @@ const PRESETS = {
         param:        'U',
         halfWidth:    0.003,
         distribution: 'normal',
-        sensitivity:  0.5,   // ∂P/∂U = I ≈ 0.5 A
+        sensitivity:  1,
         unit:         'V',
       },
       {
@@ -233,7 +224,7 @@ const PRESETS = {
         param:        'I',
         halfWidth:    0.0002,
         distribution: 'normal',
-        sensitivity:  10,    // ∂P/∂I = U ≈ 10 V
+        sensitivity:  1,
         unit:         'A',
       },
     ],
@@ -283,6 +274,7 @@ const PRESETS = {
     params:  ['L', 'W'],
     n:       10,
     unit:    'mm²',
+    formula: 'A = L * W',
     derived: [{ formula: 'A = L × W', symbol: 'A' }],
     sampleData: {
       L: [25.003, 24.999, 25.001, 25.002, 24.998,
@@ -296,7 +288,7 @@ const PRESETS = {
         param:        'L',
         halfWidth:    0.002,
         distribution: 'normal',
-        sensitivity:  15.0,  // ∂A/∂L = W
+        sensitivity:  1,
         unit:         'mm',
       },
       {
@@ -304,7 +296,7 @@ const PRESETS = {
         param:        'W',
         halfWidth:    0.002,
         distribution: 'normal',
-        sensitivity:  25.0,  // ∂A/∂W = L
+        sensitivity:  1,
         unit:         'mm',
       },
     ],

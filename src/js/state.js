@@ -11,6 +11,9 @@ const DEFAULT_STATE = {
   typeA: {},              // { paramName: { mean, s2, s, uA } }
   typeB: [],              // array of TypeBComponent objects
   combined: null,         // combined uncertainty result
+  model: { formula: '', unit: '' },          // measurement model y = f(x1…xN)
+  settings: { paired: true, P: 0.9545 },     // paired rows → correlation; coverage probability
+  covB: {},               // Type B covariances between inputs: { 'a|b': value }
   theme: 'dark',
   lang: 'en',
 };
@@ -125,7 +128,12 @@ class AppState {
     const typeA = { ...this._state.typeA };
     typeA[newName] = typeA[oldName];
     delete typeA[oldName];
-    this.set({ params, measurements: m, typeA });
+    const typeB = this._state.typeB.map(c => c.param === oldName ? { ...c, param: newName } : c);
+    const covB = {};
+    Object.entries(this._state.covB || {}).forEach(([k, v]) => {
+      covB[k.split('|').map(x => x === oldName ? newName : x).join('|')] = v;
+    });
+    this.set({ params, measurements: m, typeA, typeB, covB, combined: null });
   }
 
   /* ── TypeB helpers ───────────────────────────────── */
