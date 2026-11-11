@@ -515,9 +515,8 @@ const Table = (() => {
     switchTab('typeb');
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape — src/ui/escape.js (' ham escape qilinadi)
+  function escHtml(s) { return window.UCEscape.escHtml(s); }
 
   return { init, render, escHtml };
 

@@ -54,7 +54,7 @@ const Results = (() => {
   function warningsHtml(r) {
     if (!r.warnings || !r.warnings.length) return '';
     return `<div class="warn-box">${r.warnings.map(w =>
-      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', w.value ?? '')}</div>`).join('')}</div>`;
+      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', escHtml(w.value ?? ''))}</div>`).join('')}</div>`;
   }
 
   /* ─── Points panel (multi-point calibration) ───── */
@@ -545,9 +545,8 @@ const Results = (() => {
 
   function isBlankCell(v) { return v === '' || v === null || v === undefined; }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape — src/ui/escape.js (' ham escape qilinadi)
+  function escHtml(s) { return window.UCEscape.escHtml(s); }
 
   return { init, render };
 

@@ -143,12 +143,12 @@ const TypeB = (() => {
     const aSym     = dist === 'normal' ? 'U' : dist === 'resol' ? 'd' : 'a';
 
     return `
-    <div class="typeb-card" data-id="${comp.id}">
+    <div class="typeb-card" data-id="${escHtml(comp.id)}">
       <div class="typeb-card-header">
-        <input type="text" value="${escHtml(comp.name)}" data-id="${comp.id}" data-field="name"
+        <input type="text" value="${escHtml(comp.name)}" data-id="${escHtml(comp.id)}" data-field="name"
           placeholder="${i18n.t('label_component')}" />
         <span class="dist-badge ${distCls}">${escHtml(comp.param || '')}</span>
-        <button class="btn btn-sm btn-danger btn-remove-tb" data-id="${comp.id}" title="Remove">
+        <button class="btn btn-sm btn-danger btn-remove-tb" data-id="${escHtml(comp.id)}" title="Remove">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -157,16 +157,16 @@ const TypeB = (() => {
       <div class="typeb-card-body">
         <div class="form-group">
           <label>${i18n.t('label_param')}</label>
-          <select data-id="${comp.id}" data-field="param">${paramOpts}</select>
+          <select data-id="${escHtml(comp.id)}" data-field="param">${paramOpts}</select>
         </div>
         <div class="form-group">
           <label>${i18n.t('label_distribution')}</label>
-          <select data-id="${comp.id}" data-field="distribution">${distOpts}</select>
+          <select data-id="${escHtml(comp.id)}" data-field="distribution">${distOpts}</select>
         </div>
         <div class="form-group">
           <label>${aLabel}</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.halfWidth))}"
-            data-id="${comp.id}" data-field="halfWidth" placeholder="0.0005  ${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off"
+            data-id="${escHtml(comp.id)}" data-field="halfWidth" placeholder="0.0005  ${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off"
             ${bad ? 'style="border-color:var(--danger)"' : ''} />
           ${isExpr ? `<span class="text-xs ${bad ? '' : 'text-muted'}" style="${bad ? 'color:var(--danger)' : ''}">${bad ? i18n.t('err_bad_formula') : '= ' + Calc.fmtSci(a)}</span>` : ''}
         </div>
@@ -174,22 +174,22 @@ const TypeB = (() => {
         <div class="form-group">
           <label>${i18n.t('label_k_cert')}</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.k || 2))}"
-            data-id="${comp.id}" data-field="k" placeholder="2" autocomplete="off" />
+            data-id="${escHtml(comp.id)}" data-field="k" placeholder="2" autocomplete="off" />
         </div>` : `
         <div class="form-group">
           <label>${i18n.t('label_unit')}</label>
           <input type="text" value="${escHtml(comp.unit || '')}"
-            data-id="${comp.id}" data-field="unit" placeholder="g, mL, V…" />
+            data-id="${escHtml(comp.id)}" data-field="unit" placeholder="g, mL, V…" />
         </div>`}
         <div class="form-group">
           <label title="${escHtml(i18n.t('label_mult_hint'))}">${i18n.t('label_mult')} ⓘ</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.sensitivity ?? 1))}"
-            data-id="${comp.id}" data-field="sensitivity" autocomplete="off" />
+            data-id="${escHtml(comp.id)}" data-field="sensitivity" autocomplete="off" />
         </div>
         <div class="form-group">
           <label title="${escHtml(i18n.t('label_nu_hint'))}">${i18n.t('label_nu')} ⓘ</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.nu ?? ''))}"
-            data-id="${comp.id}" data-field="nu" placeholder="∞" autocomplete="off" />
+            data-id="${escHtml(comp.id)}" data-field="nu" placeholder="∞" autocomplete="off" />
         </div>
         <div class="form-group">
           <label>${i18n.t('label_std_unc')}</label>
@@ -374,9 +374,8 @@ const TypeB = (() => {
     Results.render();
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape — src/ui/escape.js (' ham escape qilinadi)
+  function escHtml(s) { return window.UCEscape.escHtml(s); }
 
   /* Public API for preset loading */
   function loadPresetComponents(components) {
