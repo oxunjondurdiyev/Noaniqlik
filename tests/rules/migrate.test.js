@@ -106,6 +106,16 @@ describe('scripts/migrate-auth.js', { skip: HAS_EMU ? false : 'emulator yo\'q â€
     assert.equal(await signIn('a.valiyev@users.noaniqlikbazasi.firebaseapp.com', legacyEmp.rawPwd), false, 'eski rawPwd ishlamaydi');
   });
 
+  test('restore-backup: zaxiradan asl hujjat aynan qaytadi', async () => {
+    const { restore } = require('../../scripts/restore-backup');
+    const n = await restore(ctx, { file: report.backupFile, apply: true, collections: ['organizations'], log: () => {} });
+    assert.equal(n, 2);
+    const org = (await ctx.db.collection('organizations').doc('ORG_AUTO_1').get()).data();
+    assert.deepEqual(org, legacyOrg);
+    // keyingi testlar uchun qayta migratsiya
+    await migrate(ctx, { apply: true, outDir: path.join(tmp, 'b3'), pwDir: path.join(tmp, 'pw3'), log: () => {} });
+  });
+
   test('takroriy ishga tushirish â€” o\'zgarish yo\'q (idempotent)', async () => {
     const before = (await ctx.auth.listUsers()).users.length;
     const rep2 = await migrate(ctx, { apply: true, outDir: path.join(tmp, 'b2'), pwDir: path.join(tmp, 'pw2'), log: () => {} });

@@ -7,6 +7,13 @@
 (function (root) {
   const AUTH_I18N = {
     uz: {
+      auth_change_pwd:        "Parolni o'zgartirish",
+      auth_old_pwd:           "Joriy parol",
+      auth_new_pwd:           "Yangi parol",
+      auth_new_pwd2:          "Yangi parolni tasdiqlang",
+      auth_pwd_changed:       "Parol o'zgartirildi",
+      auth_cancel:            "Bekor qilish",
+      auth_save:              "Saqlash",
       auth_err_fill_all:      "Barcha maydonlarni to'ldiring",
       auth_err_inn:           "INN 9 ta raqamdan iborat bo'lishi kerak",
       auth_err_pwd_len:       "Parol kamida 8 belgidan iborat bo'lishi kerak",
@@ -38,6 +45,13 @@
       sa_apply_plan:          "Tarifni qo'llash: {plan}",
     },
     ru: {
+      auth_change_pwd:        "Сменить пароль",
+      auth_old_pwd:           "Текущий пароль",
+      auth_new_pwd:           "Новый пароль",
+      auth_new_pwd2:          "Подтвердите новый пароль",
+      auth_pwd_changed:       "Пароль изменён",
+      auth_cancel:            "Отмена",
+      auth_save:              "Сохранить",
       auth_err_fill_all:      "Заполните все поля",
       auth_err_inn:           "ИНН должен состоять из 9 цифр",
       auth_err_pwd_len:       "Пароль должен содержать не менее 8 символов",
@@ -69,6 +83,13 @@
       sa_apply_plan:          "Применить тариф: {plan}",
     },
     en: {
+      auth_change_pwd:        "Change password",
+      auth_old_pwd:           "Current password",
+      auth_new_pwd:           "New password",
+      auth_new_pwd2:          "Confirm new password",
+      auth_pwd_changed:       "Password changed",
+      auth_cancel:            "Cancel",
+      auth_save:              "Save",
       auth_err_fill_all:      "Fill in all fields",
       auth_err_inn:           "TIN (INN) must consist of 9 digits",
       auth_err_pwd_len:       "Password must be at least 8 characters long",

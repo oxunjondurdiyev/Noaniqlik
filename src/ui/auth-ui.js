@@ -26,8 +26,10 @@
       $('topbar-user-role').textContent = session.role === 'admin' ? 'Admin' : 'Xodim';
       $('topbar-user-badge').style.display = 'flex';
       $('btn-topbar-logout').style.display = '';
+      $('btn-change-pwd').style.display    = '';
       $('btn-admin-link').style.display    = session.role === 'admin' ? '' : 'none';
     } else {
+      $('btn-change-pwd').style.display    = 'none';
       $('topbar-user-badge').style.display = 'none';
       $('btn-topbar-logout').style.display = 'none';
       $('btn-admin-link').style.display    = 'none';
@@ -120,7 +122,7 @@
 
   /* ─── Invoice modal (avval inline onclick) ────────── */
   const invModal = $('reg-invoice-modal');
-  if (invModal) {
+  {
     invModal.addEventListener('click', e => { if (e.target === invModal) invModal.style.display = 'none'; });
     $('reg-invoice-print').addEventListener('click', () => window.print());
     $('reg-invoice-close').addEventListener('click', () => { invModal.style.display = 'none'; });
@@ -211,6 +213,34 @@
   $('btn-topbar-logout').addEventListener('click', async () => {
     await AuthManager.logout();
     hideAuthScreen();
+  });
+
+  /* ─── PAROLNI O'ZGARTIRISH ──────────────────────── */
+  const pwdModal = $('pwd-modal');
+  function closePwd() {
+    pwdModal.style.display = 'none';
+    ['pwd-old', 'pwd-new', 'pwd-new2'].forEach(id => { $(id).value = ''; });
+    showErr('pwd-error', '');
+  }
+  $('btn-change-pwd').addEventListener('click', () => { pwdModal.style.display = 'flex'; $('pwd-old').focus(); });
+  $('pwd-cancel').addEventListener('click', closePwd);
+  pwdModal.addEventListener('click', e => { if (e.target === pwdModal) closePwd(); });
+  $('pwd-save').addEventListener('click', async () => {
+    showErr('pwd-error', '');
+    const oldP = $('pwd-old').value, n1 = $('pwd-new').value, n2 = $('pwd-new2').value;
+    if (!oldP || !n1) { showErr('pwd-error', t('auth_err_fill_all')); return; }
+    if (n1 !== n2)    { showErr('pwd-error', t('auth_err_pwd_mismatch')); return; }
+    const btn = $('pwd-save');
+    btn.disabled = true;
+    try {
+      await AuthManager.changePassword(oldP, n1);
+      closePwd();
+      if (window.showToast) showToast(t('auth_pwd_changed'), 'success');
+    } catch (e) {
+      showErr('pwd-error', e.message);
+    } finally {
+      btn.disabled = false;
+    }
   });
 
   /* ─── PAROL KO'RISH TUGMASI ──────────────────────── */

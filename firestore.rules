@@ -113,7 +113,9 @@ service cloud.firestore {
           && (!('employeeCount' in d) || (d.employeeCount is int && d.employeeCount >= 1 && d.employeeCount <= 999));
       }
 
+      // orgId == uid(): ro'yxatdan o'tishda hali yo'q hujjatni tekshirish uchun
       allow get:    if isSuperAdmin()
+                    || (signedIn() && orgId == uid())
                     || (signedIn() && resource.data.ownerUid == uid())
                     || isActiveEmployeeOf(orgId);
       // Ro'yxat: super-admin — hammasi; admin — faqat where('ownerUid','==',uid).

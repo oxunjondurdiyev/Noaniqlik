@@ -101,6 +101,8 @@ describe('e2e: brauzer + emulator', { skip }, () => {
     assert.equal(await p.$$eval('#pending-org-info img', n => n.length), 0);
     await p.click('#pending-btn-bank');
     assert.equal(await p.$$eval('#reg-invoice-content img', n => n.length), 0);
+    await p.click('#reg-invoice-close');                 // avval inline onclick edi
+    assert.equal(await p.isVisible('#reg-invoice-modal'), false);
     assert.equal(await p.evaluate(() => window.__xss), undefined);
 
     const user = await admin.auth.getUserByEmail('t.karimov@' + DOMAIN);
@@ -193,6 +195,7 @@ describe('e2e: brauzer + emulator', { skip }, () => {
     assert.equal(s.role, 'employee');
     assert.equal(s.entitled, true);
 
+
     // Kalkulyator: zichlik preseti, B tur komponent nomi = XSS
     await p.click('#btn-home-start');
     await p.selectOption('#inp-preset', 'density');
@@ -212,6 +215,19 @@ describe('e2e: brauzer + emulator', { skip }, () => {
     // showToast ham matn sifatida
     await p.evaluate(x => window.showToast(x, 'info', 100), XSS);
     assert.equal(await p.$$eval('#toast-container img', n => n.length), 0);
+
+    // Vaqtinchalik parolni UI orqali almashtirish, keyin yangi parol bilan kirish
+    await p.click('#btn-change-pwd');
+    await p.fill('#pwd-old', tempPwd);
+    await p.fill('#pwd-new', 'NewPass-9876');
+    await p.fill('#pwd-new2', 'NewPass-9876');
+    await p.click('#pwd-save');
+    await p.waitForSelector('#pwd-modal', { state: 'hidden' });
+    await p.evaluate(() => AuthManager.logout());
+    const oldErr = await p.evaluate(([l, pw]) => AuthManager.login(l, pw).then(() => null, e => e.code), [empLogin, tempPwd]);
+    assert.equal(oldErr, 'auth_err_bad_credentials');
+    await p.evaluate(([l]) => AuthManager.login(l, 'NewPass-9876'), [empLogin]);
+    assert.equal(await p.evaluate(() => AuthManager.getSession().role), 'employee');
     await collectCsp(p);
     await c.close();
   });

@@ -50,13 +50,14 @@ function splitFullName(full) {
   return { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') };
 }
 
-async function ensureAuthUser(auth, login, displayName, apply, report) {
+// displayName yozilmaydi — Auth'ga qo'shimcha shaxsiy ma'lumot yo'q (DATA_RESIDENCY.md)
+async function ensureAuthUser(auth, login, apply, report) {
   const email = loginToEmail(login);
   const existing = await findUserByEmail(auth, email);
   if (existing) return { uid: existing.uid, created: false };
   if (!apply) return { uid: `(dry-run:${login})`, created: true };
   const password = genPassword();
-  const user = await auth.createUser({ email, password, displayName: displayName || undefined, emailVerified: false });
+  const user = await auth.createUser({ email, password, emailVerified: false });
   report.passwords.push({ login, password });
   return { uid: user.uid, created: true };
 }
@@ -73,10 +74,9 @@ async function migrate({ db, auth, FieldValue }, { apply = false, outDir = 'back
     if (org.ownerUid && legacyKeys.length === 0) continue;   // allaqachon ko'chirilgan
     if (!org.login) { report.warnings.push(`organizations/${id}: login yo'q — o'tkazildi`); continue; }
 
-    const name = [org.firstName, org.lastName].filter(Boolean).join(' ') || org.fullName || '';
     const { uid, created } = org.ownerUid
       ? { uid: org.ownerUid, created: false }
-      : await ensureAuthUser(auth, org.login, name, apply, report);
+      : await ensureAuthUser(auth, org.login, apply, report);
 
     const update = {};
     if (!org.ownerUid) update.ownerUid = uid;
@@ -108,7 +108,7 @@ async function migrate({ db, auth, FieldValue }, { apply = false, outDir = 'back
 
     const { uid, created } = existing
       ? { uid: existing.uid, created: false }
-      : await ensureAuthUser(auth, emp.login, emp.name, apply, report);
+      : await ensureAuthUser(auth, emp.login, apply, report);
 
     const clean = { ...emp };
     legacyKeys.forEach(k => delete clean[k]);
