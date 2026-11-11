@@ -2,9 +2,9 @@
    AUTH.JS — Autentifikatsiya va xodimlar boshqaruvi (P02)
    ─────────────────────────────────────────────────────────────
    • Parollar FAQAT Firebase Authentication'da. Mijoz kodida xesh,
-     rawPwd yoki parol saqlanmaydi (RISKS R-S2).
+     rawPwd yoki parol saqlanmaydi (RISKS R-S1, R-S3).
    • Sessiya — Firebase Auth holati (imzolangan ID token), localStorage
-     dagi uc_session emas (RISKS R-S3).
+     dagi uc_session emas (RISKS R-S4).
    • Rol va tarif holati Firestore'dagi qoidalar bilan himoyalangan
      hujjatlardan o'qiladi (firestore.rules, RISKS R-15).
    • Login → sun'iy email: login@AUTH_EMAIL_DOMAIN (firebase-config.js).

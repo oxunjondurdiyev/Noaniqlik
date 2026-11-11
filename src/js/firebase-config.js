@@ -7,7 +7,7 @@
      • Firebase Authentication — parollar faqat Google serverida;
      • API kalitini domen bilan cheklash (docs/SECURITY_SETUP.md, 6-qadam).
 
-   Bu yerda hech qanday login/parol saqlanmaydi (RISKS R-S1).
+   Bu yerda hech qanday login/parol saqlanmaydi (RISKS R-S2).
    Super-admin huquqi — Firebase Auth custom claim `superadmin: true`
    yoki `admins/{uid}` hujjati (docs/SECURITY_SETUP.md, 4-qadam).
 ═══════════════════════════════════════════════════════════════ */
@@ -56,7 +56,7 @@ const AUTH_EMAIL_DOMAIN = 'users.noaniqlikbazasi.firebaseapp.com';
 })();
 
 /* Eski (P02 dan oldingi) imzosiz sessiya kalitlari endi ishlatilmaydi.
-   Ular foydalanuvchi ma'lumoti emas — shunchaki tozalanadi (RISKS R-S3). */
+   Ular foydalanuvchi ma'lumoti emas — shunchaki tozalanadi (RISKS R-S4). */
 try {
   localStorage.removeItem('uc_session');
   localStorage.removeItem('uc_sa_session');

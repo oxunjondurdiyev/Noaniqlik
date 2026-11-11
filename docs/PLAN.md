@@ -59,6 +59,9 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P02 — Xavfsizlik, Firebase Authentication, shaxsiy ma'lumotlarni minimallashtirish (BIRINCHI)
 
+> **Holat (2026-11-11): kod bajarildi** — branch `fix/p02-security`. Konsol amallari egasida: [SECURITY_SETUP.md](SECURITY_SETUP.md). Qolgan xavflar — [RISKS.md §3 "P02 holati"](RISKS.md). Testlar: `npm test` (26), `npm run test:rules` (63, Firebase Emulator).
+> Ochiq savollar bo'yicha qo'llanilgan yechimlar (pastdagi "Ochiq savollar" bo'limi): 1 — (a) sun'iy email, Cloud Functions'siz; 2 — **ikkalasi** (qoidalar claim'ni ham, `admins/{uid}` ni ham tan oladi); 3 — Spark tarifi yetarli (Cloud Functions ishlatilmaydi; Admin SDK skriptlari egasining kompyuterida).
+
 **Maqsad:** RISKS dagi K darajali xavfsizlik muammolarini yopish. Hisoblash dvigateliga tegmaydi. Eng yomon holatdan kelib chiqiladi: Firestore "test mode"da, hammaga ochiq.
 
 - **Fayllar:**
@@ -229,5 +232,6 @@ P02 ── P01 ── P03 ─┬─ P04 ── P05 ─┬─ P06 ── P07
    - (b) **Haqiqiy email** (ixtiyoriy maydon) — email orqali tiklash ishlaydi, lekin yangi shaxsiy ma'lumot Google serverlariga yoziladi (O'RQ-547 — P15 gacha).
    - (c) **Telefon (SMS) auth** — telefon allaqachon bor, lekin SMS pullik va Firebase Blaze tarifi kerak.
    Tavsiya: (a), Cloud Functions'siz — xodim parolini tiklash uchun admin eski hisobni o'chirib yangisini yaratadi (ikkinchi app instansiyasi orqali); Auth'dagi eski hisobni o'chirish `docs/SECURITY_SETUP.md` dagi qo'lda qadam. Qaror egasida.
-2. **Super-admin:** custom claim (Admin SDK bilan bir martalik lokal skript, egasi ishga tushiradi) yoki `admins/{uid}` hujjati (faqat konsoldan yaratiladi, qoidalar uni tekshiradi). Tavsiya: `admins/{uid}` — server/skriptsiz. Qaror egasida.
+   **P02 da qo'llanildi: (a)** — `login@users.noaniqlikbazasi.firebaseapp.com`; qo'shimcha: `scripts/reset-password.js` (super-admin, o'sha login saqlanadi). Egasi boshqa variantni tanlasa — `AUTH_EMAIL_DOMAIN` va `AUTH_MIGRATION.md` o'zgaradi.
+2. **Super-admin:** custom claim (Admin SDK bilan bir martalik lokal skript, egasi ishga tushiradi) yoki `admins/{uid}` hujjati (faqat konsoldan yaratiladi, qoidalar uni tekshiradi). Tavsiya: `admins/{uid}` — server/skriptsiz. Qaror egasida. **P02 da qo'llanildi: ikkalasi qo'llab-quvvatlanadi** (`scripts/set-superadmin.js --mode claim|doc|both`).
 3. **Firebase tarifi:** Cloud Functions va Emulator'dan tashqari test uchun Blaze kerak bo'lishi mumkin. Hozirgi tarif (Spark/Blaze)?

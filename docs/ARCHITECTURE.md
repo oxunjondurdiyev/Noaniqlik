@@ -195,6 +195,8 @@ Muhim cheklovlar:
 
 ## 9. Firebase'ga yuboriladigan ma'lumotlar
 
+> **P02 dan keyin (2026-11-11):** quyidagi 9.1–9.3 — P00 audit holati (tarix uchun). Joriy holat: Firebase Authentication qo'shildi; `passwordHash`, `rawPwd`, `fullName` olib tashlandi; `organizations.ownerUid` va `requestedPlan` (texnik) qo'shildi; `employees` hujjat ID = Auth uid; `admins/{uid}` — super-admin belgisi; kirish huquqi `firestore.rules` da. Skriptlar tartibi: `vendor/firebase/9.23.0/{app,auth,firestore}-compat` → `src/ui/escape.js` → `firebase-config` → … → `i18n-auth` → `db` → `auth` → … → `src/ui/{invoice,auth-ui}.js` (index), `src/ui/admin-page.js`, `src/ui/superadmin-page.js`. To'liq maydonlar ro'yxati — [DATA_RESIDENCY.md](DATA_RESIDENCY.md), ko'chirish — [AUTH_MIGRATION.md](AUTH_MIGRATION.md).
+
 Hisoblash ma'lumotlari (o'lchashlar, byudjetlar, natijalar) Firebase'ga **yuborilmaydi** — ular faqat `localStorage` da. Firebase faqat Firestore (Auth, Analytics, Storage ishlatilmaydi; `measurementId` konfiguratsiyada bor, lekin Analytics SDK yuklanmagan).
 
 ### 9.1. `organizations` kolleksiyasi (`auth.js:275-289`, `superadmin.html:536-568`)

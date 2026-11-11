@@ -173,7 +173,7 @@
       return;
     }
 
-    // Parol ustuni olib tashlandi (RISKS R-S2). Qiymatlar data-* da, handler — delegatsiya.
+    // Parol ustuni olib tashlandi (RISKS R-S3). Qiymatlar data-* da, handler — delegatsiya.
     wrap.innerHTML = `
       <table class="emp-table">
         <thead><tr>

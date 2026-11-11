@@ -25,7 +25,7 @@ function walk(dir, exts, out = []) {
 }
 const SITE_JS = walk('src', ['.js']);
 
-test('repoda super-admin login/paroli va eski parol mexanizmi qolmagan (R-S1, R-S2)', () => {
+test('repoda super-admin login/paroli va eski parol mexanizmi qolmagan (R-S2, R-S3)', () => {
   const files = [...PAGES, ...SITE_JS];
   const banned = [/SUPER_ADMIN/, /uc_super_2024/, /rawPwd/, /passwordHash/, /hashPwd/, /uc_noaniqlik_v1/];
   for (const f of files) {
@@ -34,7 +34,7 @@ test('repoda super-admin login/paroli va eski parol mexanizmi qolmagan (R-S1, R-
   }
 });
 
-test('imzosiz localStorage sessiyasi ishlatilmaydi (R-S3)', () => {
+test('imzosiz localStorage sessiyasi ishlatilmaydi (R-S4)', () => {
   for (const f of [...PAGES, ...SITE_JS]) {
     const s = code(f);
     const hits = s.split('\n').filter(l => /uc_session|uc_sa_session/.test(l) && !/removeItem/.test(l));

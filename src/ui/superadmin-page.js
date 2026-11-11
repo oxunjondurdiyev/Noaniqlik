@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
    SUPERADMIN-PAGE.JS — super-admin paneli (superadmin.html)
    ─────────────────────────────────────────────────────────────
-   • Mijoz kodida login/parol YO'Q (RISKS R-S1). Kirish — Firebase Auth.
+   • Mijoz kodida login/parol YO'Q (RISKS R-S2). Kirish — Firebase Auth.
    • Super-admin huquqi: ID token'dagi custom claim `superadmin: true`
      yoki Firestore'dagi `admins/{uid}` hujjati. Bu sahifadagi tekshiruv
      faqat UX uchun — haqiqiy himoya firestore.rules'da (isSuperAdmin()).
-   • Sessiya — Firebase Auth holati (uc_sa_session emas, RISKS R-S3).
+   • Sessiya — Firebase Auth holati (uc_sa_session emas, RISKS R-S4).
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';

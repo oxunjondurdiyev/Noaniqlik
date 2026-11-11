@@ -8,11 +8,11 @@
 
 | ID | Xavf | Jiddiylik | Bosqich |
 |---|---|:-:|:-:|
-| R-S1 | Firestore qoidalari noma'lum / "test mode"; barcha shaxsiy ma'lumotlar ochiq bo'lishi mumkin | K | P02 |
-| R-S2 | Super-admin login/paroli mijoz kodida ochiq | K | P02 |
-| R-S3 | Xodim parollari Firestore'da ochiq matnda (`rawPwd`) | K | P02 |
-| R-S4 | Sessiya imzosiz, `localStorage` da — qo'lda yasash mumkin | K | P02 |
-| R-S5 | XSS: `showToast` va `index.html` `pending-org-info` da escape'siz `innerHTML` | Y | P02 |
+| R-S1 | Firestore qoidalari noma'lum / "test mode"; barcha shaxsiy ma'lumotlar ochiq bo'lishi mumkin | K | P02 ✅ kod (konsolda joylash — egasi) |
+| R-S2 | Super-admin login/paroli mijoz kodida ochiq | K | P02 ✅ (parol git tarixida — bekor qilish egasida) |
+| R-S3 | Xodim parollari Firestore'da ochiq matnda (`rawPwd`) | K | P02 ✅ kod (mavjudlari — migratsiyada) |
+| R-S4 | Sessiya imzosiz, `localStorage` da — qo'lda yasash mumkin | K | P02 ✅ |
+| R-S5 | XSS: `showToast` va `index.html` `pending-org-info` da escape'siz `innerHTML` | Y | P02 ✅ |
 | R-01 | Etalon Excel fayllar repoda yo'q; testlar faqat yaxlitlangan satrni tekshiradi | K | P01 |
 | R-02 | Sonli hosila qadami h; nochiziqli modelda c=0 → u_c=0 | Y | P03 |
 | R-03 | t-kvantil: ν `floor` qilinadi, ν=5000 da sakrash, `erf` approksimatsiyasi | O | P03 |
@@ -26,8 +26,8 @@
 | R-11 | Preset va test ma'lumotlari ikki joyda | O | P01 |
 | R-12 | Parser: `:` → bo'lish, `e` konstanta, birliklar yo'q | O | P03 |
 | R-13 | i18n'dan tashqari qattiq matnlar; admin sahifalari bir tilli | O | P05 |
-| R-14 | CDN skriptlar SRI'siz, CSP yo'q | O | P02 |
-| R-15 | Trial limiti va to'lov holati faqat mijoz tomonda | O | P02 |
+| R-14 | CDN skriptlar SRI'siz, CSP yo'q | O | P02 ✅ (Google Fonts qoldi) |
+| R-15 | Trial limiti va to'lov holati faqat mijoz tomonda | O | P02 qisman (anonim trial va xodim limiti — mijozda) |
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 
@@ -130,6 +130,18 @@
 ---
 
 ## 3. Xavfsizlik va shaxsiy ma'lumotlar
+
+### P02 holati (2026-11-11, branch `fix/p02-security`)
+
+| ID | Nima qilindi | Qolgan ish / qolgan xavf |
+|---|---|---|
+| R-S1 | `firestore.rules`: default rad, anonim kirish yo'q, faqat o'z tashkiloti, himoyalangan maydonlar faqat super-admin; 49 ta emulator testi (`tests/rules/`). Parol tekshiruvi Firebase Auth'da | Qoidalarni konsolga joylash (`SECURITY_SETUP.md` 6-qadam). Joylanguncha baza ochiq deb hisoblanadi. Xodimlar soni limiti qoidalarda yo'q |
+| R-S2 | `SUPER_ADMIN` olib tashlandi; super-admin = Firebase Auth + claim `superadmin` yoki `admins/{uid}` | `uc_super_2024` git tarixida — fosh bo'lgan deb hisoblanadi (10-qadam) |
+| R-S3 | `rawPwd`, `passwordHash`, `hashPwd` olib tashlandi; vaqtinchalik parol bir marta ko'rsatiladi; qoidalar bu maydonlarni rad etadi | Mavjud hujjatlardan o'chirish — `scripts/migrate-auth.js --apply`. Zaxira faylida eski parollar bor — oflayn saqlash/o'chirish |
+| R-S4 | `uc_session`/`uc_sa_session` o'rniga Firebase Auth holati; eski kalitlar tozalanadi; admin sahifalari ma'lumotni faqat qoidalar orqali oladi (e2e: soxta sessiya hech narsa bermaydi) | — |
+| R-S5 | Yagona `src/ui/escape.js` (`'` bilan), `showToast` — `textContent`, `pending-org-info` escape, inline `onclick` → listener, `comp.id`/`w.value` escape; brauzer regressiya testi (`<img src=x onerror=…>`) | `report.js`/`table.js` dagi `i18n.t()` matnlari escape'siz (ishonchli manba — lug'at) |
+| R-14 | Firebase SDK `vendor/firebase/9.23.0/` (LICENSE, SHA-256 testi), CSP `script-src 'self'`, inline skript yo'q | Google Fonts tashqi (CSP'da ruxsat); `style-src 'unsafe-inline'` (style="" atributlari ko'p) |
+| R-15 | `upgradePlan` olib tashlandi → `requestedPlan` so'rovi; huquq (`entitled`) qoidalar bilan himoyalangan `active`/`planExpiry` dan | Anonim bepul sinov (`uc_trial_count`) baribir brauzerda — hisob to'liq mijozda bajarilgani uchun serverda himoyalab bo'lmaydi (P15). `maxUsers` mijozda. Click/Payme merchant ID yo'q |
 
 ### R-S1. Firestore qoidalari (K)
 - `firestore.rules` repoda yo'q; `firebase-config.js:9` "Test mode" ni tavsiya qiladi. Test rejimi — `allow read, write: if true` (muddat bilan). Agar shunday bo'lsa, `apiKey` ochiq bo'lgani uchun (bu Firebase'da normal) **istalgan kishi** `organizations` va `employees` ni o'qiy/yoza/o'chira oladi: INN, telefon, F.I.Sh., parol xeshlari, `rawPwd`, `active`/`paymentStatus` (o'zini o'zi aktivlashtirish).
