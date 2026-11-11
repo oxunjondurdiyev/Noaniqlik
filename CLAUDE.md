@@ -34,14 +34,25 @@ Asosiy hujjatlar: [docs/PLAN.md](docs/PLAN.md) (bosqichlar), [docs/ARCHITECTURE.
 - Noaniq metrologik qarorda (manbalar bir-biriga zid bo'lsa) o'zing tanlama. Variantlarni yoz va so'ra.
 - Bosqich oxirida qisqa hisobot ber: nima qilindi, qanday tekshirildi, nima qoldi.
 
-## Joriy holat bo'yicha eslatmalar (P00, 2026-11-11)
+## Egasi qabul qilgan metrologik qarorlar
+
+- **Yaxlitlash (hisobot qatlamida):** U ko'pi bilan 2 ta qiymatli raqam; yuqoriga yaxlitlashdan keyin ham 2 ta qoladi — 0,0999 → **0,10** (0,100 emas). y — **round half away from zero** (Excel ROUND bilan mos): −0,125 → −0,13; y U ning oxirgi xonasigacha.
+- **ν_eff kasr bo'lsa:** standart qoida `floor` (Excel bilan mos); `interpolate` — ixtiyoriy laboratoriya sozlamasi. Qo'llanilgan qoida hisobotda yoziladi (Ref: JCGM 100:2008 G.4.1 Note 1).
+- Etalon nuqtalar ko'rinishi **faqat** yuqoridagi ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin; har bir bunday o'zgarish `CHANGELOG.md` da va test izohida alohida yoziladi. Boshqa har qanday farq — xato.
+- Pullik ISO standartlariga tayanadigan funksiyalar uchun test manbasi: ochiq manbalar (GTC/MSL, NIST), egasi bergan laboratoriya misollari yoki mustaqil qo'lda hisob (Excel). Manba aniq bo'lmaguncha `unverified`.
+- Brauzerlar: ES modules (2018+); eski brauzerga faqat oddiy ogohlantirish.
+
+## Joriy holat bo'yicha eslatmalar (2026-11-11)
 
 Bu bo'lim qoidalarni bekor qilmaydi — faqat ular hozir qayerda bajarilmasligini ko'rsatadi. Tegishli bosqich tugagach yangilanadi.
 
+- **Bajarish tartibi:** P02 (xavfsizlik) → P01 → P03 → … (`docs/PLAN.md`). Bosqichlarning batafsil talablari — [docs/prompts/ClaudeCode_promptlar.md](docs/prompts/ClaudeCode_promptlar.md); u faylda raqamlash boshqacha, moslik jadvali `docs/PLAN.md` da. Zid bo'lsa `docs/PLAN.md` va egasining javoblari ustun.
+- **Etalon fayllar `tests/fixtures/` da** (README bilan): `Zichlik_noaniqligi_hisobi.xlsx`, `Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx`, `Noaniqlik_hisobi_termometr_MS-MK-3.xlsx`, `Qollanma_noaniqlik_gazoanalizator_C75QM.docx`, `Qollanma_noaniqlik_termometr_MS-MK-3.docx`. Kutilgan qiymatlar faqat shulardan, **katak havolasi bilan**. `.xlsx` o'qish kutubxonasi faqat devDependency bo'lishi mumkin (saytga yuklanmaydi). Termometr kuzatuvlari — o'quv namunasi, real laboratoriya ma'lumoti emas.
+- **9 ta etalon nuqta** = zichlik 1 + gazoanalizator 3 + termometr 5. **10-test** — gazoanalizator 2-nuqta MC intervali `[−0,0111; 0,0469]` (qo'llanmadan).
+- `package.json` va `npm test` hali yo'q. Hozircha `node tests/verify-excel.js` (8 ta assert, zichlik yo'q; fayl nomi `…gazoanalizator.xlsx` fixture nomiga mos emas). P02 minimal `npm test` qo'shadi, to'liq format — P01.
 - `src/engine/` hali yo'q: dvigatel `src/js/calc.js` da (IIFE, `window.Calc` + `module.exports`). Ajratish — PLAN P03.
-- `package.json` va `npm test` hali yo'q. Hozircha: `node tests/verify-excel.js` (8 ta assert: gaz 3 + termometr 5; MC faqat konsolga). "9 ta etalon nuqta"ning 9-si egasi bilan aniqlanishi kerak (PLAN, savol 3). Test infratuzilmasi — PLAN P01.
-- Etalon Excel fayllar va qo'llanmalar repoda yo'q; kutilgan qiymatlar `tests/verify-excel.js:7-8` da.
-- `docs/references/` da hozir bor: JCGM 100:2008, JCGM 101:2008, EA-4/02 M:2022, EURACHEM/CITAC QUAM 2012, Nordtest TR 537 ed.4. **Yo'q:** JCGM 102, JCGM 106, JCGM GUM-6, ILAC P14, ILAC G8, COOMET R/GM/32 — ularga havola qilingan kod manba qo'shilmaguncha "tekshirilmagan" deb hisoblanadi.
-- Yaxlitlash hozir dvigatel ichida (`Calc.roundResult`) — qoidaga zid, P03/P05 da ko'chiriladi.
-- Ochiq kritik xavfsizlik masalalari (super-admin paroli mijoz kodida, `rawPwd`, imzosiz sessiyalar, Firestore qoidalari) — RISKS R-S1…R-S5, PLAN P02. Bu kodga tegadigan har qanday ish ularni yomonlashtirmasligi kerak.
+- Yaxlitlash hozir dvigatel ichida (`Calc.roundResult`), ROUNDUP 0,0999 → `0.100` va `Math.round` (−0,125 → −0,12) bilan — yuqoridagi qarorlarga zid; P03 da `src/report/rounding.js` ga ko'chiriladi.
+- `docs/references/` da hozir bor: JCGM 100:2008, JCGM 101:2008, EA-4/02 M:2022, EURACHEM/CITAC QUAM 2012, Nordtest TR 537 ed.4. **Egasi qo'shadi:** JCGM 102, JCGM 106, JCGM GUM-6, ILAC P14, ILAC G8, EURACHEM UfS, NIST Uncertainty Machine qo'llanmasi, COOMET R/GM/32. Qo'shilmaguncha ularga havola qilingan kod "tekshirilmagan" deb hisoblanadi.
+- Ochiq kritik xavfsizlik masalalari (super-admin paroli mijoz kodida, `rawPwd`, imzosiz sessiyalar, Firestore qoidalari) — RISKS R-S1…R-S5, PLAN P02. Firestore eng yomon holatda ("test mode", ochiq) deb hisoblanadi. Firebase konsolidagi amallarni egasi bajaradi — Claude faqat fayl va yo'riqnoma (`docs/SECURITY_SETUP.md`) tayyorlaydi.
+- Autentifikatsiya Firebase Authentication'ga o'tadi (P02). Shaxsiy ma'lumotlarni O'zbekistondagi serverga ko'chirish — P15. Ungacha yangi shaxsiy maydon qo'shilmaydi, mavjudlari minimallashtiriladi.
 - Pullik ISO/GOST standartlarini repoga joylama (`docs/references/README.md`).
