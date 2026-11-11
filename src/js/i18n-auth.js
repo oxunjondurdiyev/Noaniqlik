@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════════════════════════
+   I18N-AUTH.JS — Autentifikatsiya va xavfsizlik matnlari (P02)
+   Har bir kalit uz/ru/en da bo'lishi shart (tests/security/i18n-auth.test.js).
+   i18n.js dagi TRANSLATIONS ga qo'shiladi; i18n.js yuklanmagan
+   sahifalarda ham (Node testlari) AUTH_I18N orqali o'qiladi.
+═══════════════════════════════════════════════════════════════ */
+(function (root) {
+  const AUTH_I18N = {
+    uz: {
+      auth_err_fill_all:      "Barcha maydonlarni to'ldiring",
+      auth_err_inn:           "INN 9 ta raqamdan iborat bo'lishi kerak",
+      auth_err_pwd_len:       "Parol kamida 8 belgidan iborat bo'lishi kerak",
+      auth_err_pwd_mismatch:  "Parollar mos kelmaydi",
+      auth_err_login_format:  "Login faqat lotin harflari, raqamlar, nuqta, _ va - dan iborat bo'lsin (2–40 belgi)",
+      auth_err_login_taken:   "Bu login band — boshqa login tanlang",
+      auth_err_bad_credentials: "Login yoki parol noto'g'ri",
+      auth_err_not_active:    "Hisobingiz hali aktivlanmagan. To'lovni amalga oshiring va admin bilan bog'laning.",
+      auth_err_emp_inactive:  "Hisobingiz faolsizlantirilgan. Admin bilan bog'laning",
+      auth_err_no_profile:    "Bu hisob hech qaysi tashkilotga bog'lanmagan. Admin bilan bog'laning",
+      auth_err_too_many:      "Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring",
+      auth_err_network:       "Tarmoq xatosi. Internet aloqasini tekshiring",
+      auth_err_permission:    "Ruxsat yo'q",
+      auth_err_plan_limit:    'Tarif limiti: "{plan}" rejasida maksimal {max} ta xodim',
+      auth_err_org_not_found: "Tashkilot topilmadi",
+      auth_err_already_registered: "Bu login bilan tashkilot allaqachon ro'yxatdan o'tgan",
+      auth_err_unknown:       "Kutilmagan xato",
+      auth_pwd_hint:          "(8+ belgi)",
+      auth_old_browser:       "Brauzeringiz juda eski va bu sayt unda ishlamaydi. Iltimos, brauzerni yangilang.",
+      auth_emp_created:       "Xodim qo'shildi. Login: {login} · Vaqtinchalik parol: {pwd}",
+      auth_emp_pwd_once:      "Parol faqat hozir ko'rsatiladi va hech qayerda saqlanmaydi. Uni xodimga xavfsiz yo'l bilan bering.",
+      auth_plan_change_hint:  "Tarifni o'zgartirish so'rovi (to'lov tasdiqlangach super-admin o'zgartiradi):",
+      auth_plan_request_confirm: '"{plan}" tarifiga o\'tish so\'rovini yuborasizmi? Tarif to\'lov tasdiqlangandan keyin super-admin tomonidan o\'zgartiriladi.',
+      auth_plan_requested:    "So'ralgan tarif: {plan} — super-admin tasdig'ini kutmoqda",
+      auth_sub_expired:       "Obuna muddati tugagan — cheksiz hisoblash uchun obunani yangilang.",
+      auth_sa_not_admin:      "Bu hisobda super-admin huquqi yo'q",
+      auth_sa_login_hint:     "Firebase Authentication hisobi (email yoki login)",
+      auth_no_expiry:         "aktivlashtirilganda belgilanadi",
+      sa_apply_plan:          "Tarifni qo'llash: {plan}",
+    },
+    ru: {
+      auth_err_fill_all:      "Заполните все поля",
+      auth_err_inn:           "ИНН должен состоять из 9 цифр",
+      auth_err_pwd_len:       "Пароль должен содержать не менее 8 символов",
+      auth_err_pwd_mismatch:  "Пароли не совпадают",
+      auth_err_login_format:  "Логин: только латинские буквы, цифры, точка, _ и - (2–40 символов)",
+      auth_err_login_taken:   "Этот логин занят — выберите другой",
+      auth_err_bad_credentials: "Неверный логин или пароль",
+      auth_err_not_active:    "Учётная запись ещё не активирована. Оплатите подписку и свяжитесь с администратором.",
+      auth_err_emp_inactive:  "Учётная запись деактивирована. Обратитесь к администратору",
+      auth_err_no_profile:    "Эта учётная запись не привязана ни к одной организации. Обратитесь к администратору",
+      auth_err_too_many:      "Слишком много попыток. Повторите позже",
+      auth_err_network:       "Ошибка сети. Проверьте подключение к интернету",
+      auth_err_permission:    "Нет доступа",
+      auth_err_plan_limit:    'Лимит тарифа: в плане «{plan}» не более {max} сотрудников',
+      auth_err_org_not_found: "Организация не найдена",
+      auth_err_already_registered: "Организация с этим логином уже зарегистрирована",
+      auth_err_unknown:       "Непредвиденная ошибка",
+      auth_pwd_hint:          "(8+ символов)",
+      auth_old_browser:       "Ваш браузер устарел, сайт в нём не работает. Пожалуйста, обновите браузер.",
+      auth_emp_created:       "Сотрудник добавлен. Логин: {login} · Временный пароль: {pwd}",
+      auth_emp_pwd_once:      "Пароль показывается только сейчас и нигде не хранится. Передайте его сотруднику безопасным способом.",
+      auth_plan_change_hint:  "Запрос на смену тарифа (после подтверждения оплаты тариф меняет супер-админ):",
+      auth_plan_request_confirm: "Отправить запрос на переход на тариф «{plan}»? Тариф будет изменён супер-админом после подтверждения оплаты.",
+      auth_plan_requested:    "Запрошенный тариф: {plan} — ожидает подтверждения супер-админа",
+      auth_sub_expired:       "Срок подписки истёк — продлите подписку для неограниченных расчётов.",
+      auth_sa_not_admin:      "У этой учётной записи нет прав супер-админа",
+      auth_sa_login_hint:     "Учётная запись Firebase Authentication (email или логин)",
+      auth_no_expiry:         "устанавливается при активации",
+      sa_apply_plan:          "Применить тариф: {plan}",
+    },
+    en: {
+      auth_err_fill_all:      "Fill in all fields",
+      auth_err_inn:           "TIN (INN) must consist of 9 digits",
+      auth_err_pwd_len:       "Password must be at least 8 characters long",
+      auth_err_pwd_mismatch:  "Passwords do not match",
+      auth_err_login_format:  "Login may contain only Latin letters, digits, dot, _ and - (2–40 characters)",
+      auth_err_login_taken:   "This login is taken — choose another one",
+      auth_err_bad_credentials: "Wrong login or password",
+      auth_err_not_active:    "Your account is not activated yet. Complete the payment and contact the administrator.",
+      auth_err_emp_inactive:  "Your account has been deactivated. Contact your administrator",
+      auth_err_no_profile:    "This account is not linked to any organization. Contact your administrator",
+      auth_err_too_many:      "Too many attempts. Try again later",
+      auth_err_network:       "Network error. Check your internet connection",
+      auth_err_permission:    "Permission denied",
+      auth_err_plan_limit:    'Plan limit: at most {max} employees on the "{plan}" plan',
+      auth_err_org_not_found: "Organization not found",
+      auth_err_already_registered: "An organization with this login is already registered",
+      auth_err_unknown:       "Unexpected error",
+      auth_pwd_hint:          "(8+ characters)",
+      auth_old_browser:       "Your browser is too old to run this site. Please update your browser.",
+      auth_emp_created:       "Employee added. Login: {login} · Temporary password: {pwd}",
+      auth_emp_pwd_once:      "The password is shown only now and is not stored anywhere. Give it to the employee through a secure channel.",
+      auth_plan_change_hint:  "Plan change request (the super-admin changes the plan after the payment is confirmed):",
+      auth_plan_request_confirm: 'Send a request to switch to the "{plan}" plan? The plan will be changed by the super-admin after the payment is confirmed.',
+      auth_plan_requested:    "Requested plan: {plan} — awaiting super-admin approval",
+      auth_sub_expired:       "Your subscription has expired — renew it for unlimited calculations.",
+      auth_sa_not_admin:      "This account has no super-admin rights",
+      auth_sa_login_hint:     "Firebase Authentication account (email or login)",
+      auth_no_expiry:         "set on activation",
+      sa_apply_plan:          "Apply plan: {plan}",
+    },
+  };
+
+  if (typeof TRANSLATIONS !== 'undefined') {
+    Object.keys(AUTH_I18N).forEach(lang => {
+      if (TRANSLATIONS[lang]) Object.assign(TRANSLATIONS[lang], AUTH_I18N[lang]);
+    });
+  }
+  if (typeof module !== 'undefined' && module.exports) module.exports = AUTH_I18N;
+  if (root) root.AUTH_I18N = AUTH_I18N;
+})(typeof window !== 'undefined' ? window : null);

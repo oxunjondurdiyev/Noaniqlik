@@ -2,6 +2,9 @@
 <html lang="uz" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com http://127.0.0.1:8080 http://127.0.0.1:9099; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="noindex" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — UncertaintyCalc</title>
   <link rel="stylesheet" href="src/css/theme.css" />
@@ -11,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
+<script nomodule src="src/ui/old-browser.js"></script>
 
 <div class="admin-page">
 
@@ -72,7 +76,8 @@
         </div>
 
         <div style="margin-top:1.25rem">
-          <p class="text-muted text-sm" style="margin-bottom:.85rem">Tarifni o'zgartirish:</p>
+          <p class="text-muted text-sm" style="margin-bottom:.85rem" data-i18n="auth_plan_change_hint">Tarifni o'zgartirish so'rovi (to'lov tasdiqlangach super-admin o'zgartiradi):</p>
+          <p class="text-sm" id="plan-requested-text" style="margin-bottom:.6rem;color:var(--accent);display:none"></p>
           <div class="plan-upgrade-grid" id="plan-upgrade-grid"></div>
         </div>
 
@@ -129,6 +134,12 @@
         </div>
       </div>
 
+      <!-- Yangi xodimning vaqtinchalik paroli — faqat bir marta, hech qayerga yozilmaydi -->
+      <div id="emp-created-box" style="display:none;padding:.75rem 1.5rem;font-size:.85rem;background:var(--accent-light, rgba(79,142,247,.12))">
+        <div id="emp-created-text" style="font-family:'JetBrains Mono',monospace;font-weight:600"></div>
+        <div class="text-muted text-xs" style="margin-top:.3rem" data-i18n="auth_emp_pwd_once">Parol faqat hozir ko'rsatiladi va hech qayerda saqlanmaydi. Uni xodimga xavfsiz yo'l bilan bering.</div>
+      </div>
+
       <!-- Jadvalni ko'rsatish uchun xato xabari -->
       <div id="emp-add-error" style="display:none;padding:.6rem 1.5rem;color:var(--danger);font-size:.83rem;background:var(--danger-light)"></div>
 
@@ -140,7 +151,7 @@
 </div>
 
 <!-- INVOICE MODAL -->
-<div id="invoice-modal" class="invoice-modal-overlay" style="display:none" onclick="handleOverlayClick(event)">
+<div id="invoice-modal" class="invoice-modal-overlay" style="display:none">
   <div class="invoice-modal">
     <div class="invoice-modal-header">
       <div class="invoice-modal-title">
@@ -148,416 +159,28 @@
         Hisob-faktura (Invoice)
       </div>
       <div style="display:flex;gap:.5rem;align-items:center">
-        <button class="btn btn-primary btn-sm" onclick="printInvoice()">
+        <button type="button" class="btn btn-primary btn-sm" id="btn-invoice-print">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Chop etish / PDF
         </button>
-        <button class="btn btn-ghost btn-sm" onclick="closeInvoice()">✕ Yopish</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-invoice-close">✕ Yopish</button>
       </div>
     </div>
     <div id="invoice-content" class="invoice-content"></div>
   </div>
 </div>
 
-<!-- Firebase SDK (Firestore uchun) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK 9.23.0 — vendor/ (Apache-2.0). CSP: faqat 'self' skriptlar -->
+<script src="vendor/firebase/9.23.0/firebase-app-compat.js"></script>
+<script src="vendor/firebase/9.23.0/firebase-auth-compat.js"></script>
+<script src="vendor/firebase/9.23.0/firebase-firestore-compat.js"></script>
+<script src="src/ui/escape.js"></script>
 <script src="src/js/firebase-config.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-auth.js"></script>
 <script src="src/js/db.js"></script>
 <script src="src/js/auth.js"></script>
-<script>
-/* ─── MAVZU ─────────────────────────────────────────── */
-(function () {
-  const saved = localStorage.getItem('uc_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-})();
-
-document.getElementById('btn-theme').addEventListener('click', () => {
-  const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
-  const next = cur === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('uc_theme', next);
-});
-
-/* ─── YORDAMCHI ─────────────────────────────────────── */
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
-    const orig = btn.innerHTML;
-    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
-    setTimeout(() => btn.innerHTML = orig, 1500);
-  });
-}
-
-const COPY_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-
-/* ─── AUTH TEKSHIRUVI ────────────────────────────────── */
-const session = AuthManager.getSession();
-if (!session || session.role !== 'admin') {
-  location.href = 'index.html';
-}
-
-document.getElementById('topbar-name').textContent = session.name || session.login;
-document.getElementById('btn-logout').addEventListener('click', () => {
-  AuthManager.clearSession();
-  location.href = 'index.html';
-});
-
-/* ─── ASOSIY RENDER ──────────────────────────────────── */
-let _lastEmps = [];
-
-async function render() {
-  const org  = await DB.get('organizations', session.orgId);
-  if (!org) { location.href = 'index.html'; return; }
-  const emps = await AuthManager.getOrgEmployees(session.orgId);
-  _lastEmps  = emps;
-
-  renderStats(org, emps);
-  renderOrgInfo(org);
-  renderSubscription(org);
-  renderEmployees(org, emps);
-}
-
-function renderStats(org, emps) {
-  const active  = emps.filter(e => e.active).length;
-  const plan    = AuthManager.PLANS[org.plan];
-  const maxLbl  = plan.maxUsers === -1 ? '∞' : plan.maxUsers;
-  document.getElementById('stats-row').innerHTML = `
-    <div class="admin-stat">
-      <span class="admin-stat-value">${active}</span>
-      <span class="admin-stat-label">Faol xodimlar</span>
-    </div>
-    <div class="admin-stat">
-      <span class="admin-stat-value">${maxLbl}</span>
-      <span class="admin-stat-label">Tarif limiti</span>
-    </div>
-    <div class="admin-stat">
-      <span class="admin-stat-value">${(plan.priceMonthly/1000).toFixed(0)}K UZS</span>
-      <span class="admin-stat-label">Oylik to'lov</span>
-    </div>
-    <div class="admin-stat">
-      <span class="admin-stat-value">${org.registeredAt}</span>
-      <span class="admin-stat-label">Ro'yxat sanasi</span>
-    </div>`;
-}
-
-function renderOrgInfo(org) {
-  document.getElementById('org-inn-badge').textContent = 'INN: ' + org.inn;
-  document.getElementById('org-info-grid').innerHTML = `
-    <div class="org-info-item"><label>To'liq ism</label><span>${esc(org.fullName)}</span></div>
-    <div class="org-info-item"><label>Login</label><span style="font-family:monospace">${esc(org.login)}</span></div>
-    <div class="org-info-item"><label>INN</label><span>${esc(org.inn)}</span></div>
-    <div class="org-info-item"><label>Telefon</label><span>${esc(org.phone)}</span></div>
-`;
-}
-
-function renderSubscription(org) {
-  const plan     = AuthManager.PLANS[org.plan];
-  const daysLeft = Math.ceil((new Date(org.planExpiry) - Date.now()) / 86400000);
-
-  document.getElementById('current-plan-badge').textContent = plan.name;
-
-  const expiryEl = document.getElementById('plan-expiry-text');
-  expiryEl.textContent = `Obuna tugash sanasi: ${org.planExpiry} · ${daysLeft > 0 ? daysLeft + ' kun qoldi' : 'MUDDATI O\'TDI'}`;
-  expiryEl.className   = 'plan-expiry' + (daysLeft <= 0 ? ' expired' : daysLeft <= 7 ? ' soon' : '');
-
-  // Tarif tanlash
-  document.getElementById('plan-upgrade-grid').innerHTML =
-    Object.entries(AuthManager.PLANS).map(([key, p]) => `
-      <div class="plan-upgrade-card ${org.plan === key ? 'current' : ''}" data-plan="${key}">
-        <div class="plan-name">${p.name}</div>
-        <div class="plan-price">${(p.priceMonthly/1000).toFixed(0)}K <span style="font-size:.7rem;font-weight:400;color:var(--text-muted)">UZS/oy</span></div>
-        <div class="plan-limit">${p.maxUsers === -1 ? 'Cheksiz xodim' : p.maxUsers + ' xodigacha'}</div>
-        ${org.plan === key ? '<div style="font-size:.7rem;color:var(--accent);margin-top:.3rem">✓ Joriy tarif</div>' : ''}
-      </div>`).join('');
-
-  document.querySelectorAll('.plan-upgrade-card:not(.current)').forEach(card => {
-    card.addEventListener('click', async () => {
-      const planKey = card.dataset.plan;
-      if (!confirm(`"${AuthManager.PLANS[planKey].name}" tarifiga o'tishni tasdiqlaysizmi?`)) return;
-      await AuthManager.upgradePlan(session.orgId, planKey);
-      render();
-    });
-  });
-
-  // To'lov tugmalari
-  const txId = 'ORG_' + org.id + '_' + Date.now();
-  document.getElementById('btn-pay-click').onclick  = () => window.open(AuthManager.getClickUrl(plan.priceMonthly, txId), '_blank');
-  document.getElementById('btn-pay-payme').onclick  = () => window.open(AuthManager.getPaymeUrl(plan.priceMonthly, txId), '_blank');
-
-  // Bank invoice
-  document.getElementById('btn-pay-bank').onclick = () => {
-    const emps = _lastEmps || [];
-    openInvoice(org, emps);
-  };
-}
-
-/* ─── INVOICE ────────────────────────────────────────── */
-function buildInvoiceHTML(org, emps) {
-  const plan        = AuthManager.PLANS[org.plan];
-  const activeCount = (emps || []).filter(e => e.active).length;
-  const price       = plan.priceMonthly;
-  const now         = new Date();
-  const yyyymm      = now.toISOString().slice(0,7).replace('-','');
-  const invoiceNo   = `INV-${org.inn}-${yyyymm}`;
-  const today       = now.toISOString().slice(0,10);
-  const maxLbl      = plan.maxUsers === -1 ? 'Cheksiz' : plan.maxUsers + ' ta';
-  const priceStr    = price.toLocaleString('uz-UZ');
-
-  const S = {
-    wrap:    'font-family:Inter,sans-serif;color:#1a1a2e;font-size:14px;line-height:1.6;background:#fff;padding:2rem;',
-    header:  'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:3px solid #2563eb;',
-    brandN:  'font-size:1.4rem;font-weight:800;color:#2563eb;letter-spacing:-.02em;',
-    brandS:  'font-size:.8rem;color:#6b7280;margin-top:.2rem;',
-    titleB:  'text-align:right;',
-    title:   'font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1a1a2e;',
-    no:      'font-size:.95rem;font-weight:600;color:#2563eb;margin-top:.2rem;',
-    date:    'font-size:.82rem;color:#6b7280;',
-    parties: 'display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.75rem;',
-    party:   'background:#f0f6ff;border:1px solid #dbeafe;border-radius:8px;padding:1rem 1.1rem;',
-    ptitle:  'font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:.45rem;',
-    pname:   'font-size:.95rem;font-weight:700;color:#1a1a2e;margin-bottom:.3rem;',
-    prow:    'font-size:.85rem;color:#4b5563;margin-bottom:.1rem;',
-    table:   'width:100%;border-collapse:collapse;margin-bottom:.85rem;',
-    th:      'background:#2563eb;color:#fff;padding:.6rem .9rem;text-align:left;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;',
-    thR:     'background:#2563eb;color:#fff;padding:.6rem .9rem;text-align:right;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;',
-    td:      'padding:.7rem .9rem;border-bottom:1px solid #e5e7eb;font-size:.88rem;vertical-align:top;',
-    tdR:     'padding:.7rem .9rem;border-bottom:1px solid #e5e7eb;font-size:.88rem;text-align:right;',
-    tfootR:  'padding:.75rem .9rem;border-top:2px solid #2563eb;text-align:right;font-weight:700;font-size:1rem;color:#2563eb;',
-    tfootL:  'padding:.75rem .9rem;border-top:2px solid #2563eb;text-align:right;font-weight:600;font-size:.9rem;color:#374151;',
-    note:    'font-size:.8rem;color:#6b7280;background:#f9fafb;border-radius:6px;padding:.65rem .9rem;margin-bottom:.85rem;',
-    ref:     'background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:.85rem 1rem;font-size:.875rem;color:#1e40af;margin-bottom:1.25rem;',
-    refLbl:  'font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;display:block;margin-bottom:.3rem;',
-    footer:  'display:flex;justify-content:space-between;padding-top:.85rem;border-top:1px solid #e5e7eb;font-size:.78rem;color:#9ca3af;',
-  };
-
-  return `
-  <div style="${S.wrap}" id="inv-print-area">
-    <div style="${S.header}">
-      <div>
-        <div style="${S.brandN}">UncertaintyCalc</div>
-        <div style="${S.brandS}">ISO/IEC 17025 Noaniqlik kalkulyatori</div>
-      </div>
-      <div style="${S.titleB}">
-        <div style="${S.title}">Hisob-faktura</div>
-        <div style="${S.no}">№ ${invoiceNo}</div>
-        <div style="${S.date}">Sana: ${today}</div>
-      </div>
-    </div>
-
-    <div style="${S.parties}">
-      <div style="${S.party}">
-        <div style="${S.ptitle}">Sotuvchi</div>
-        <div style="${S.pname}">UncertaintyCalc xizmati</div>
-        <div style="${S.prow}">Bank: O'zbekiston Milliy Banki</div>
-        <div style="${S.prow}">Hisob raqam: 20208000000000000000</div>
-        <div style="${S.prow}">MFO: 00912</div>
-        <div style="${S.prow}">STIR: 000000000</div>
-      </div>
-      <div style="${S.party}">
-        <div style="${S.ptitle}">Xaridor</div>
-        <div style="${S.pname}">${esc(org.fullName)}</div>
-        <div style="${S.prow}">INN: ${esc(org.inn)}</div>
-        <div style="${S.prow}">Tel: ${esc(org.phone)}</div>
-      </div>
-    </div>
-
-    <table style="${S.table}">
-      <thead><tr>
-        <th style="${S.th}">#</th>
-        <th style="${S.th}">Xizmat nomi</th>
-        <th style="${S.th}">Birlik</th>
-        <th style="${S.thR}">Miqdor</th>
-        <th style="${S.thR}">Narx (so'm)</th>
-        <th style="${S.thR}">Jami (so'm)</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td style="${S.td}">1</td>
-          <td style="${S.td}">
-            <strong>Obuna tarifi — "${plan.name}"</strong><br>
-            <span style="font-size:.8rem;color:#6b7280">
-              Aktiv xodimlar: ${activeCount} ta &nbsp;·&nbsp; Tarif limiti: ${maxLbl}
-            </span>
-          </td>
-          <td style="${S.td}">oy</td>
-          <td style="${S.tdR}">1</td>
-          <td style="${S.tdR};font-weight:600">${priceStr}</td>
-          <td style="${S.tdR};font-weight:700;color:#2563eb">${priceStr}</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="5" style="${S.tfootL}">JAMI TO'LOV:</td>
-          <td style="${S.tfootR}">${priceStr} so'm</td>
-        </tr>
-      </tfoot>
-    </table>
-
-    <div style="${S.note}">
-      * Ushbu hisob-faktura QQS kiritilmagan holda taqdim etilgan.
-      To'lovdan keyin buxgalteriya bo'limiga to'lov tasdig'ini yuboring.
-    </div>
-
-    <div style="${S.ref}">
-      <span style="${S.refLbl}">To'lov maqsadi (bank orderida ko'rsating):</span>
-      "${invoiceNo} raqamli hisob-faktura bo'yicha UncertaintyCalc obuna to'lovi"
-    </div>
-
-    <div style="${S.footer}">
-      <span>UncertaintyCalc — ISO/IEC 17025 Noaniqlik kalkulyatori</span>
-      <span>Yaratildi: ${today}</span>
-    </div>
-  </div>`;
-}
-
-function openInvoice(org, emps) {
-  document.getElementById('invoice-content').innerHTML = buildInvoiceHTML(org, emps || []);
-  document.getElementById('invoice-modal').style.display = 'flex';
-}
-
-function closeInvoice() {
-  document.getElementById('invoice-modal').style.display = 'none';
-}
-
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('invoice-modal')) closeInvoice();
-}
-
-function printInvoice() {
-  window.print();
-}
-
-function renderEmployees(org, emps) {
-  const plan     = AuthManager.PLANS[org.plan];
-  const active   = emps.filter(e => e.active).length;
-  const maxLabel = plan.maxUsers === -1 ? '∞' : plan.maxUsers;
-  document.getElementById('emp-count-label').textContent = `${active} / ${maxLabel} xodim`;
-
-  const wrap = document.getElementById('emp-table-wrap');
-  if (emps.length === 0) {
-    wrap.innerHTML = `<div class="admin-empty">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <p>Hali xodim qo'shilmagan. Yuqoridagi forma orqali qo'shing.</p></div>`;
-    return;
-  }
-
-  wrap.innerHTML = `
-    <table class="emp-table">
-      <thead><tr>
-        <th>#</th><th>Ism</th><th>Telefon</th><th>Lavozim</th>
-        <th>Login</th><th>Parol</th><th>Sana</th><th>Holat</th><th></th>
-      </tr></thead>
-      <tbody>
-      ${emps.map((e, i) => `
-        <tr>
-          <td class="text-muted text-sm">${i + 1}</td>
-          <td><strong>${esc(e.name)}</strong></td>
-          <td class="text-muted text-sm">${esc(e.phone || '—')}</td>
-          <td class="text-muted text-sm">${esc(e.role || '—')}</td>
-          <td>
-            <div class="cred-box">
-              <span>${esc(e.login)}</span>
-              <button class="copy-btn" onclick="copyText('${esc(e.login)}', this)" title="Nusxa">${COPY_ICON}</button>
-            </div>
-          </td>
-          <td>
-            <div class="cred-box">
-              <span>${esc(e.rawPwd || '••••••••')}</span>
-              ${e.rawPwd ? `<button class="copy-btn" onclick="copyText('${esc(e.rawPwd)}', this)" title="Nusxa">${COPY_ICON}</button>` : ''}
-            </div>
-          </td>
-          <td class="text-muted text-sm">${e.createdAt}</td>
-          <td>
-            <span class="status-dot ${e.active ? 'active' : 'inactive'}"></span>
-            ${e.active ? 'Faol' : 'Nofaol'}
-          </td>
-          <td>
-            ${e.active
-              ? `<button class="btn btn-sm btn-danger" onclick="removeEmp('${esc(e.id)}')">O'chirish</button>`
-              : ''}
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
-}
-
-/* ─── TELEFON VALIDATSIYA ─────────────────────────────── */
-function validatePhone(raw) {
-  // Faqat raqamlarni olish
-  const digits = raw.replace(/[\s\-\(\)]/g, '');
-  // +998XXXXXXXXX | 998XXXXXXXXX | 0XXXXXXXXX
-  if (/^\+998\d{9}$/.test(digits)) return digits;
-  if (/^998\d{9}$/.test(digits))   return '+' + digits;
-  if (/^0\d{9}$/.test(digits))     return '+998' + digits.slice(1);
-  return null;
-}
-
-/* ─── XODIM QO'SHISH ─────────────────────────────────── */
-document.getElementById('btn-add-emp').addEventListener('click', async () => {
-  const name  = document.getElementById('inp-emp-name').value.trim();
-  const phone = document.getElementById('inp-emp-phone').value.trim();
-  const role  = document.getElementById('inp-emp-role').value.trim();
-  const errEl = document.getElementById('emp-add-error');
-  errEl.style.display = 'none';
-
-  // ── Validatsiya ──────────────────────────────────────
-  if (!name) {
-    errEl.textContent = '❌ Ism familyani kiriting';
-    errEl.style.display = 'block'; return;
-  }
-  if (name.trim().split(/\s+/).length < 2) {
-    errEl.textContent = '❌ Ism va familyani to\'liq kiriting (masalan: Ahmad Karimov)';
-    errEl.style.display = 'block'; return;
-  }
-  if (!phone) {
-    errEl.textContent = '❌ Telefon raqamini kiriting';
-    errEl.style.display = 'block'; return;
-  }
-  const normalizedPhone = validatePhone(phone);
-  if (!normalizedPhone) {
-    errEl.textContent = '❌ Telefon formati noto\'g\'ri. Masalan: +998901234567 yoki 0901234567';
-    errEl.style.display = 'block'; return;
-  }
-  if (!role) {
-    errEl.textContent = '❌ Lavozimni kiriting';
-    errEl.style.display = 'block'; return;
-  }
-  // ────────────────────────────────────────────────────
-
-  const btn = document.getElementById('btn-add-emp');
-  btn.disabled = true;
-  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Qo'shilmoqda…`;
-  try {
-    await AuthManager.addEmployee(session.orgId, { name, phone: normalizedPhone, role });
-    document.getElementById('inp-emp-name').value  = '';
-    document.getElementById('inp-emp-phone').value = '';
-    document.getElementById('inp-emp-role').value  = '';
-    render();
-  } catch (e) {
-    errEl.textContent = '❌ ' + e.message; errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> + Qo'shish`;
-  }
-});
-
-/* ─── XODIMNI BAZADAN O'CHIRISH ──────────────────────── */
-async function removeEmp(empId) {
-  if (!confirm('Ushbu xodimni bazadan butunlay o\'chirishni tasdiqlaysizmi?\nBu amalni qaytarib bo\'lmaydi.')) return;
-  try {
-    await AuthManager.deleteEmployee(empId);
-    render();
-  } catch (e) {
-    alert('Xato: ' + e.message);
-  }
-}
-
-/* ─── ISHGA TUSHIRISH ────────────────────────────────── */
-render();
-</script>
+<script src="src/ui/invoice.js"></script>
+<script src="src/ui/admin-page.js"></script>
 </body>
 </html>

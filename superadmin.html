@@ -2,6 +2,9 @@
 <html lang="uz" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com http://127.0.0.1:8080 http://127.0.0.1:9099; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="noindex" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Super Admin — UncertaintyCalc</title>
   <link rel="stylesheet" href="src/css/theme.css" />
@@ -212,6 +215,7 @@
   </style>
 </head>
 <body>
+<script nomodule src="src/ui/old-browser.js"></script>
 
 <!-- ══ LOGIN EKRANI ══════════════════════════════════════ -->
 <div class="sa-login-wrap" id="sa-login-screen">
@@ -224,13 +228,13 @@
       <span style="font-weight:700;font-size:1rem">UncertaintyCalc</span>
     </div>
     <h1>Super Admin</h1>
-    <p>Faqat vakolatli xodimlar uchun</p>
+    <p>Faqat vakolatli xodimlar uchun. <span data-i18n="auth_sa_login_hint">Firebase Authentication hisobi (email yoki login)</span></p>
 
     <div class="auth-error" id="sa-login-error"></div>
 
     <div class="auth-group">
-      <label>Login</label>
-      <input type="text" id="sa-login-inp" placeholder="superadmin" autocomplete="username" />
+      <label>Email / Login</label>
+      <input type="text" id="sa-login-inp" placeholder="admin@example.com" autocomplete="username" />
     </div>
     <div class="auth-group">
       <label>Parol</label>
@@ -314,270 +318,15 @@
   </div>
 </div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK 9.23.0 — vendor/ (Apache-2.0). CSP: faqat 'self' skriptlar -->
+<script src="vendor/firebase/9.23.0/firebase-app-compat.js"></script>
+<script src="vendor/firebase/9.23.0/firebase-auth-compat.js"></script>
+<script src="vendor/firebase/9.23.0/firebase-firestore-compat.js"></script>
+<script src="src/ui/escape.js"></script>
 <script src="src/js/firebase-config.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-auth.js"></script>
 <script src="src/js/db.js"></script>
-
-<script>
-/* ══════════════════════════════════════════════════════════
-   SUPER ADMIN PANEL — bosh kontroller
-══════════════════════════════════════════════════════════ */
-(function () {
-
-  const SA_SESSION_KEY = 'uc_sa_session';
-  const $ = id => document.getElementById(id);
-
-  /* ─── Mavzu ──────────────────────────────────────────── */
-  const savedTheme = localStorage.getItem('uc_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  $('sa-btn-theme').addEventListener('click', () => {
-    const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('uc_theme', next);
-  });
-
-  /* ─── Session ────────────────────────────────────────── */
-  function isSaLoggedIn() {
-    return localStorage.getItem(SA_SESSION_KEY) === 'true';
-  }
-  function setSaSession()   { localStorage.setItem(SA_SESSION_KEY, 'true'); }
-  function clearSaSession() { localStorage.removeItem(SA_SESSION_KEY); }
-
-  /* ─── Login ──────────────────────────────────────────── */
-  function showDashboard() {
-    $('sa-login-screen').style.display = 'none';
-    $('sa-dashboard').style.display = 'block';
-    startRealtime();
-  }
-
-  function showLogin() {
-    $('sa-login-screen').style.display = 'flex';
-    $('sa-dashboard').style.display = 'none';
-  }
-
-  function showLoginErr(msg) {
-    const el = $('sa-login-error');
-    el.textContent = msg;
-    el.classList.toggle('visible', !!msg);
-  }
-
-  async function doLogin() {
-    const login = $('sa-login-inp').value.trim();
-    const pwd   = $('sa-pwd-inp').value;
-    showLoginErr('');
-
-    if (!login || !pwd) { showLoginErr('Login va parolni kiriting'); return; }
-
-    if (
-      typeof SUPER_ADMIN === 'undefined' ||
-      login !== SUPER_ADMIN.login ||
-      pwd   !== SUPER_ADMIN.password
-    ) {
-      showLoginErr('Login yoki parol noto\'g\'ri');
-      return;
-    }
-
-    setSaSession();
-    showDashboard();
-  }
-
-  $('sa-btn-login').addEventListener('click', doLogin);
-  [$('sa-login-inp'), $('sa-pwd-inp')].forEach(inp =>
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
-  );
-
-  $('sa-btn-logout').addEventListener('click', () => {
-    clearSaSession();
-    if (unsubscribeFn) unsubscribeFn();
-    showLogin();
-  });
-
-  /* ─── Boshlang'ich holat ─────────────────────────────── */
-  if (isSaLoggedIn()) {
-    showDashboard();
-  } else {
-    showLogin();
-  }
-
-  /* ──────────────────────────────────────────────────────
-     REAL-TIME DASHBOARD
-  ────────────────────────────────────────────────────── */
-
-  let allOrgs       = [];
-  let unsubscribeFn = null;
-  let activeFilter  = 'all';
-  let searchQuery   = '';
-
-  function startRealtime() {
-    if (unsubscribeFn) unsubscribeFn();
-
-    unsubscribeFn = DB.onOrgsSnapshot(orgs => {
-      allOrgs = orgs;
-      updateStats(orgs);
-      renderTable();
-      $('update-label').textContent = 'Yangilandi: ' + new Date().toLocaleTimeString('uz-UZ');
-    });
-  }
-
-  /* ─── Statistika ─────────────────────────────────────── */
-  function updateStats(orgs) {
-    const today = new Date().toISOString().slice(0, 10);
-    $('stat-total').textContent   = orgs.length;
-    $('stat-active').textContent  = orgs.filter(o => o.active === true).length;
-    $('stat-pending').textContent = orgs.filter(o => o.active !== true && o.paymentStatus !== 'paid').length;
-    $('stat-today').textContent   = orgs.filter(o => o.registeredAt === today).length;
-  }
-
-  /* ─── Jadval render ──────────────────────────────────── */
-  function renderTable() {
-    let list = allOrgs;
-
-    // Filter
-    if (activeFilter === 'active')   list = list.filter(o => o.active === true);
-    if (activeFilter === 'inactive') list = list.filter(o => o.active === false && o.paymentStatus === 'paid');
-    if (activeFilter === 'pending')  list = list.filter(o => o.active !== true  && o.paymentStatus !== 'paid');
-
-    // Qidiruv
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(o =>
-        (o.fullName || '').toLowerCase().includes(q) ||
-        (o.inn || '').includes(q) ||
-        (o.login || '').toLowerCase().includes(q) ||
-        (o.phone || '').includes(q)
-      );
-    }
-
-    const tbody = $('sa-org-tbody');
-    if (list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9">
-        <div class="sa-empty">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-          Tashkilot topilmadi
-        </div></td></tr>`;
-      return;
-    }
-
-    const planNames = { basic: "Boshlang'ich", standard: 'Standart', pro: 'Pro' };
-
-    tbody.innerHTML = list.map((org, i) => {
-      const isActive    = org.active === true;
-      const isPaid      = org.paymentStatus === 'paid';
-      const statusClass = isActive ? 'active' : (isPaid ? 'inactive' : 'pending');
-      const statusLabel = isActive ? 'Faol' : (isPaid ? 'Nofaol' : 'Kutilmoqda');
-
-      return `
-        <tr id="org-row-${esc(org.id)}">
-          <td class="org-meta">${i + 1}</td>
-          <td>
-            <div class="org-name">${esc(org.fullName)}</div>
-            <div class="org-meta" style="font-family:'JetBrains Mono',monospace">${esc(org.login)}</div>
-          </td>
-          <td class="org-meta" style="font-family:'JetBrains Mono',monospace">${esc(org.inn)}</td>
-          <td class="org-meta">${esc(org.phone)}</td>
-          <td class="org-meta">${esc(planNames[org.plan] || org.plan)}</td>
-          <td>
-            <span class="pay-badge ${isPaid ? 'paid' : 'pending'}">
-              ${isPaid ? '✓ To\'langan' : '⏳ Kutilmoqda'}
-            </span>
-          </td>
-          <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-          <td class="org-meta">${esc(org.registeredAt || '—')}</td>
-          <td>
-            <div class="action-row">
-              ${!isPaid ? `
-                <button class="btn btn-xs btn-pay-confirm" onclick="confirmPayment('${esc(org.id)}')">
-                  To'lov tasdiqlash
-                </button>` : ''}
-              ${!isActive ? `
-                <button class="btn btn-xs btn-activate" onclick="activateOrg('${esc(org.id)}')">
-                  Aktivlashtirish
-                </button>` : `
-                <button class="btn btn-xs btn-deactivate" onclick="deactivateOrg('${esc(org.id)}')">
-                  Bloklash
-                </button>`}
-            </div>
-          </td>
-        </tr>`;
-    }).join('');
-  }
-
-  /* ─── XSS himoyasi ───────────────────────────────────── */
-  function esc(s) {
-    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  /* ─── Filter tugmalari ───────────────────────────────── */
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeFilter = btn.dataset.filter;
-      renderTable();
-    });
-  });
-
-  $('sa-search').addEventListener('input', e => {
-    searchQuery = e.target.value.trim();
-    renderTable();
-  });
-
-  /* ──────────────────────────────────────────────────────
-     AMALLAR
-  ────────────────────────────────────────────────────── */
-
-  /** To'lovni tasdiqlash (paymentStatus → 'paid') */
-  window.confirmPayment = async function(orgId) {
-    if (!confirm('To\'lovni tasdiqlaysizmi? Holat "To\'langan" ga o\'zgaradi.')) return;
-    try {
-      const org = await DB.get('organizations', orgId);
-      if (!org) return;
-      org.paymentStatus = 'paid';
-      org.paidAt = new Date().toISOString().slice(0, 10);
-      await DB.put('organizations', org);
-    } catch (e) {
-      alert('Xato: ' + e.message);
-    }
-  };
-
-  /** Tashkilotni aktivlashtirish */
-  window.activateOrg = async function(orgId) {
-    if (!confirm('Tashkilotni aktivlashtirasizmi? Ular tizimga kira oladi.')) return;
-    try {
-      const org = await DB.get('organizations', orgId);
-      if (!org) return;
-      org.active = true;
-      org.activatedAt = new Date().toISOString().slice(0, 10);
-      await DB.put('organizations', org);
-      flashRow(orgId);
-    } catch (e) {
-      alert('Xato: ' + e.message);
-    }
-  };
-
-  /** Tashkilotni bloklash */
-  window.deactivateOrg = async function(orgId) {
-    if (!confirm('Tashkilotni bloklaysizmi? Ular tizimga kira olmaydi.')) return;
-    try {
-      const org = await DB.get('organizations', orgId);
-      if (!org) return;
-      org.active = false;
-      await DB.put('organizations', org);
-    } catch (e) {
-      alert('Xato: ' + e.message);
-    }
-  };
-
-  /** Yangi yozuv uchun qisqa animatsiya */
-  function flashRow(orgId) {
-    const row = document.getElementById('org-row-' + orgId);
-    if (row) { row.classList.add('row-new'); setTimeout(() => row.classList.remove('row-new'), 2200); }
-  }
-
-})();
-</script>
+<script src="src/ui/superadmin-page.js"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
    DB.JS — Firebase Firestore wrapper (UncertaintyCalc)
    ─────────────────────────────────────────────────────────────
-   IndexedDB o'rniga Firebase Firestore ishlatiladi.
-   Real-time multi-user ma'lumot almashish uchun.
+   Collections (firestore.rules):
+     organizations  — tashkilotlar (egasi: ownerUid)
+     employees      — xodimlar, hujjat ID = xodimning Auth uid'i
+     admins         — super-admin belgisi (faqat o'qish)
 
-   Collections:
-     organizations  — tashkilotlar (admin hisoblar)
-     employees      — xodimlar (har bir tashkilotga bog'liq)
+   Kirish huquqi mijoz kodida emas, Firestore qoidalarida tekshiriladi.
 ═══════════════════════════════════════════════════════════════ */
 
 const DB = (() => {
@@ -24,40 +24,32 @@ const DB = (() => {
     return doc.exists ? { id: doc.id, ...doc.data() } : undefined;
   }
 
-  /* ─── INDEX BO'YICHA BITTA YOZUV ───────────────────── */
-  async function getByIndex(store, indexName, value) {
-    const snap = await getDb()
-      .collection(store)
-      .where(indexName, '==', value)
-      .limit(1)
-      .get();
+  /* ─── MAYDON BO'YICHA BITTA YOZUV ──────────────────── */
+  async function getByIndex(store, field, value) {
+    const snap = await getDb().collection(store).where(field, '==', value).limit(1).get();
     if (snap.empty) return undefined;
     const doc = snap.docs[0];
     return { id: doc.id, ...doc.data() };
   }
 
-  /* ─── BARCHA YOZUVLAR ───────────────────────────────── */
-  async function getAll(store, indexName, value) {
+  /* ─── YOZUVLAR (ixtiyoriy filtr bilan) ──────────────── */
+  async function getAll(store, field, value) {
     let query = getDb().collection(store);
-    if (indexName !== undefined) {
-      query = query.where(indexName, '==', value);
-    }
+    if (field !== undefined) query = query.where(field, '==', value);
     const snap = await query.get();
     return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
-  /* ─── YANGI YOZUV QO'SHISH ─────────────────────────── */
-  /** Firestore auto-ID (string) qaytaradi */
-  async function add(store, data) {
-    const ref = await getDb().collection(store).add(data);
-    return ref.id;
+  /* ─── BERILGAN ID BILAN YANGI YOZUV ─────────────────── */
+  async function create(store, id, data) {
+    await getDb().collection(store).doc(String(id)).set(data);
+    return String(id);
   }
 
-  /* ─── MAVJUD YOZUVNI YANGILASH ──────────────────────── */
-  async function put(store, data) {
-    const { id, ...rest } = data;
-    await getDb().collection(store).doc(String(id)).set(rest, { merge: true });
-    return id;
+  /* ─── QISMAN YANGILASH (faqat berilgan maydonlar) ───── */
+  async function update(store, id, fields) {
+    await getDb().collection(store).doc(String(id)).update(fields);
+    return String(id);
   }
 
   /* ─── YOZUVNI O'CHIRISH ─────────────────────────────── */
@@ -65,30 +57,17 @@ const DB = (() => {
     await getDb().collection(store).doc(String(id)).delete();
   }
 
-  /* ─── LOGIN MAVJUDLIGINI TEKSHIRISH ─────────────────── */
-  async function isLoginTaken(login) {
-    const [org, emp] = await Promise.all([
-      getByIndex('organizations', 'login', login),
-      getByIndex('employees',     'login', login),
-    ]);
-    return !!(org || emp);
+  /* ─── MAYDONNI O'CHIRISH QIYMATI ────────────────────── */
+  function deleteField() {
+    return firebase.firestore.FieldValue.delete();
   }
 
-  /* ─── BARCHA BAZANI EKSPORT ─────────────────────────── */
-  async function exportAll() {
-    const [orgs, emps] = await Promise.all([
-      getAll('organizations'),
-      getAll('employees'),
-    ]);
-    return { organizations: orgs, employees: emps, exportedAt: new Date().toISOString() };
-  }
-
-  /* ─── REAL-TIME: BARCHA TASHKILOTLAR ────────────────── */
-  /** Super-admin uchun: yangi ro'yxatdan o'tganlarni real vaqtda ko'rish.
-   *  @param {function(orgs: Array)} callback  — har safar o'zgarganda chaqiriladi
-   *  @returns {function} unsubscribe — tinglashni to'xtatish uchun
-   */
-  function onOrgsSnapshot(callback) {
+  /* ─── REAL-TIME: BARCHA TASHKILOTLAR (super-admin) ──── */
+  /** Qoidalar faqat super-admin'ga ruxsat beradi.
+   *  @param {function(Array)} callback
+   *  @param {function(Error)} [onError]
+   *  @returns {function} unsubscribe */
+  function onOrgsSnapshot(callback, onError) {
     return getDb()
       .collection('organizations')
       .onSnapshot(
@@ -97,21 +76,14 @@ const DB = (() => {
           orgs.sort((a, b) => (b.registeredAt || '').localeCompare(a.registeredAt || ''));
           callback(orgs);
         },
-        err => console.error('[Firestore] onOrgsSnapshot xatosi:', err)
+        err => {
+          console.error('[Firestore] onOrgsSnapshot xatosi:', err);
+          if (onError) onError(err);
+        }
       );
   }
 
-  return {
-    get,
-    getByIndex,
-    getAll,
-    add,
-    put,
-    remove,
-    isLoginTaken,
-    exportAll,
-    onOrgsSnapshot,
-  };
+  return { get, getByIndex, getAll, create, update, remove, deleteField, onOrgsSnapshot };
 
 })();
 
