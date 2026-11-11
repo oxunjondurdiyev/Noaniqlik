@@ -36,6 +36,7 @@
 ## 1. Metrologik / sonli xavflar
 
 ### R-01. Etalon ma'lumotlar va testlar (K)
+> **Yangilanish (2026-11-11):** Excel fayllar va qo'llanmalar `tests/fixtures/` ga qo'shildi; 9-nuqta — zichlik. Xavfning qolgan qismi (test faqat yaxlitlangan satrni tekshiradi, `npm test` yo'q) P01 da yopiladi.
 - `Noaniqlik_hisobi_gazoanalizator.xlsx`, `Noaniqlik_hisobi_termometr_MS-MK-3.xlsx`, C75.QM va MS-MK-3 qo'llanmalari, zichlik Excel'i repoda **yo'q** (`git log --all` da ham yo'q). Kutilgan qiymatlar `tests/verify-excel.js:7-8` da qo'lda yozilgan — ularning manbasini tekshirib bo'lmaydi.
 - Test faqat `resultText` (masalan `0.018 ± 0.021`) ni solishtiradi. u_c 10 % ga o'zgarsa ham, yaxlitlash natijasi bir xil qolsa test o'tadi.
 - MC natijasi faqat konsolga chiqariladi (assert yo'q).

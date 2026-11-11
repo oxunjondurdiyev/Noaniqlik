@@ -53,6 +53,8 @@ firebase-app-compat → firebase-firestore-compat → firebase-config → db →
 
 ### Etalon Excel fayllar va qo'llanmalar
 
+> **Yangilanish (2026-11-11):** egasi fayllarni `tests/fixtures/` ga qo'shdi (zichlik, gazoanalizator KEDR-07, termometr MS-MK-3 va 2 ta qo'llanma). Quyidagi matn P00 holatini tasvirlaydi.
+
 **Repoda yo'q.** `git log --all` bo'yicha hech qachon `.xlsx`/`.docx` qo'shilmagan. Ular faqat nomi bilan tilga olinadi:
 - `tests/verify-excel.js:2-3` — `Noaniqlik_hisobi_gazoanalizator.xlsx`, `Noaniqlik_hisobi_termometr_MS-MK-3.xlsx`;
 - `src/data/presets.js:343,364` — "C75.QM Ilova A" (KEDR-07), "MS-MK-3";
