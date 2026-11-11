@@ -1,0 +1,166 @@
+rules_version = '2';
+
+// ═══════════════════════════════════════════════════════════════
+// UncertaintyCalc — Firestore xavfsizlik qoidalari (P02)
+// ───────────────────────────────────────────────────────────────
+// Tamoyillar (docs/SECURITY_SETUP.md, RISKS R-S1…R-S5, R-15):
+//   • default — RAD. Anonim o'qish va yozish yo'q.
+//   • har bir foydalanuvchi faqat o'z tashkiloti hujjatlarini ko'radi;
+//   • active / paymentStatus / plan / planExpiry / paidAt / activatedAt /
+//     ownerUid ni faqat super-admin o'zgartiradi;
+//   • super-admin — custom claim `superadmin: true` YOKI `admins/{uid}`
+//     hujjati (faqat konsol/Admin SDK yaratadi, mijoz yoza olmaydi).
+//
+// Ma'lumot modeli:
+//   organizations/{orgId}  orgId = asoschi adminning uid'i (yangi
+//                          tashkilotlar); eski tashkilotlarda auto-ID +
+//                          ownerUid (migratsiya skripti yozadi).
+//   employees/{uid}        xodim; hujjat ID = xodimning Auth uid'i.
+//   admins/{uid}           super-admin belgisi (ixtiyoriy).
+// Testlar: tests/rules/firestore.rules.test.js (Firebase Emulator).
+// ═══════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Umumiy funksiyalar ───────────────────────────────────
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+
+    function isSuperAdmin() {
+      return signedIn() && (
+        request.auth.token.get('superadmin', false) == true ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function orgPath(orgId) { return /databases/$(database)/documents/organizations/$(orgId); }
+    function empPath(id)    { return /databases/$(database)/documents/employees/$(id); }
+
+    // Tashkilot egasi (admin)
+    function isOrgOwner(orgId) {
+      return signedIn() && exists(orgPath(orgId)) && get(orgPath(orgId)).data.ownerUid == uid();
+    }
+
+    // Faol xodim (o'z hujjati orqali)
+    function isActiveEmployeeOf(orgId) {
+      return signedIn() && exists(empPath(uid()))
+        && get(empPath(uid())).data.orgId == orgId
+        && get(empPath(uid())).data.active == true;
+    }
+
+    function isShortString(v, max) { return v is string && v.size() <= max; }
+
+    // Auth'dagi sun'iy email'ning login qismi (login@<AUTH_EMAIL_DOMAIN>)
+    function authLogin() {
+      return request.auth.token.get('email', '') is string
+        ? request.auth.token.get('email', '').split('@')[0]
+        : '';
+    }
+
+    // ─── Super-admin belgisi ──────────────────────────────────
+    match /admins/{adminId} {
+      // Faqat o'zi o'z belgisini tekshira oladi (superadmin.html uchun).
+      allow get: if signedIn() && uid() == adminId;
+      allow list, create, update, delete: if false;
+    }
+
+    // ─── Tashkilotlar ─────────────────────────────────────────
+    match /organizations/{orgId} {
+
+      // Egasi mijoz tomonidan o'zgartira oladigan maydonlar.
+      function ownerEditableKeys() {
+        return ['phone', 'firstName', 'lastName', 'employeeCount', 'requestedPlan'];
+      }
+
+      function validRequestedPlan(d) {
+        return !('requestedPlan' in d) || d.requestedPlan in ['basic', 'standard', 'pro'];
+      }
+
+      function validNewOrg() {
+        let d = request.resource.data;
+        return signedIn()
+          // yangi tashkilot ID = asoschi uid (bitta foydalanuvchi — bitta tashkilot)
+          && orgId == uid()
+          && d.keys().hasOnly(['inn', 'phone', 'firstName', 'lastName', 'login',
+                               'employeeCount', 'ownerUid', 'registeredAt',
+                               'plan', 'active', 'paymentStatus'])
+          && d.keys().hasAll(['inn', 'phone', 'firstName', 'lastName', 'login',
+                              'employeeCount', 'ownerUid', 'registeredAt',
+                              'plan', 'active', 'paymentStatus'])
+          && d.ownerUid == uid()
+          && d.login == authLogin()
+          && d.inn is string && d.inn.matches('^[0-9]{9}$')
+          && isShortString(d.phone, 20)
+          && isShortString(d.firstName, 60) && d.firstName.size() > 0
+          && isShortString(d.lastName, 60)  && d.lastName.size() > 0
+          && d.employeeCount is int && d.employeeCount >= 1 && d.employeeCount <= 999
+          && isShortString(d.registeredAt, 10)
+          // himoyalangan maydonlar faqat boshlang'ich qiymatda (R-15)
+          && d.plan == 'basic'
+          && d.active == false
+          && d.paymentStatus == 'pending';
+      }
+
+      function validOwnerUpdate() {
+        let d = request.resource.data;
+        return resource.data.ownerUid == uid()
+          && d.diff(resource.data).affectedKeys().hasOnly(ownerEditableKeys())
+          && validRequestedPlan(d)
+          && (!('phone' in d) || isShortString(d.phone, 20))
+          && (!('firstName' in d) || isShortString(d.firstName, 60))
+          && (!('lastName' in d) || isShortString(d.lastName, 60))
+          && (!('employeeCount' in d) || (d.employeeCount is int && d.employeeCount >= 1 && d.employeeCount <= 999));
+      }
+
+      allow get:    if isSuperAdmin()
+                    || (signedIn() && resource.data.ownerUid == uid())
+                    || isActiveEmployeeOf(orgId);
+      // Ro'yxat: super-admin — hammasi; admin — faqat where('ownerUid','==',uid).
+      allow list:   if isSuperAdmin() || (signedIn() && resource.data.ownerUid == uid());
+      allow create: if validNewOrg();
+      allow update: if isSuperAdmin() || (signedIn() && validOwnerUpdate());
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── Xodimlar ─────────────────────────────────────────────
+    match /employees/{empId} {
+
+      function validNewEmployee() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['orgId', 'name', 'role', 'phone', 'login', 'createdAt', 'active'])
+          && d.keys().hasAll(['orgId', 'name', 'login', 'createdAt', 'active'])
+          && isOrgOwner(d.orgId)
+          && get(orgPath(d.orgId)).data.active == true   // faqat aktiv tashkilot
+          && empId != uid()                              // admin o'zini xodim qila olmaydi
+          && d.active == true
+          && isShortString(d.name, 120) && d.name.size() > 0
+          && isShortString(d.login, 64) && d.login.matches('^[a-z0-9._-]+$')
+          && (!('role' in d)  || isShortString(d.role, 120))
+          && (!('phone' in d) || isShortString(d.phone, 20))
+          && isShortString(d.createdAt, 10);
+      }
+
+      function validOwnerEmployeeUpdate() {
+        let d = request.resource.data;
+        return isOrgOwner(resource.data.orgId)
+          && d.diff(resource.data).affectedKeys().hasOnly(['active', 'name', 'role', 'phone'])
+          && d.active is bool;
+      }
+
+      allow get:    if isSuperAdmin()
+                    || (signedIn() && uid() == empId)
+                    || isOrgOwner(resource.data.orgId);
+      // Admin faqat where('orgId','==',o'z orgId) so'rovi bilan ro'yxat oladi.
+      allow list:   if isSuperAdmin() || isOrgOwner(resource.data.orgId);
+      allow create: if signedIn() && validNewEmployee();
+      allow update: if isSuperAdmin() || (signedIn() && validOwnerEmployeeUpdate());
+      allow delete: if isSuperAdmin() || isOrgOwner(resource.data.orgId);
+    }
+
+    // ─── Qolgan hamma narsa — rad ─────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
