@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "test": "node --test \"tests/**/*.test.js\"",
-    "test:rules": "firebase emulators:exec --only firestore,auth --project demo-uncertaintycalc \"node --test tests/rules/*.test.js\""
+    "test:rules": "firebase emulators:exec --only firestore,auth --project demo-uncertaintycalc \"node --test --test-concurrency=1 tests/rules/*.test.js\""
   },
   "engines": {
     "node": ">=18"
@@ -14,6 +14,7 @@
   "devDependencies": {
     "@firebase/rules-unit-testing": "^3.0.4",
     "firebase": "^10.14.1",
+    "firebase-admin": "^12.7.0",
     "firebase-tools": "^13.35.1"
   }
 }
