@@ -7,18 +7,30 @@
   'use strict';
 
   /* ─── TRIAL MANAGER ─────────────────────────────── */
+  // Ro'yxatdan o'tgan foydalanuvchi uchun huquq FAQAT Firestore'dagi
+  // qoidalar bilan himoyalangan tashkilot hujjatidan (active, planExpiry)
+  // olinadi — AuthManager.getSession().entitled (RISKS R-15).
+  // Anonim bepul sinov hisoblagichi (uc_trial_count) baribir brauzerda:
+  // hisoblash to'liq mijozda bajarilgani uchun uni serverda himoyalab
+  // bo'lmaydi (qolgan xavf, docs/RISKS.md R-15; to'liq yechim — P15).
   const FREE_LIMIT = 7;
   const TRIAL_KEY  = 'uc_trial_count';
 
   function getTrialCount() {
-    return parseInt(localStorage.getItem(TRIAL_KEY) || '0', 10);
+    try { return parseInt(localStorage.getItem(TRIAL_KEY) || '0', 10) || 0; } catch (_) { return 0; }
   }
   function incrementTrial() {
-    localStorage.setItem(TRIAL_KEY, getTrialCount() + 1);
+    try { localStorage.setItem(TRIAL_KEY, getTrialCount() + 1); } catch (_) {}
+  }
+  function currentSession() {
+    return window.AuthManager ? window.AuthManager.getSession() : null;
+  }
+  function isEntitledSession() {
+    const s = currentSession();
+    return !!(s && s.entitled);
   }
   function isTrialActive() {
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (session) return true;
+    if (isEntitledSession()) return true;
     return getTrialCount() < FREE_LIMIT;
   }
 
@@ -44,20 +56,24 @@
   function updateTrialBanner() {
     const banner  = document.getElementById('trial-banner');
     if (!banner) return;
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (session) { banner.style.display = 'none'; return; }
+    if (isEntitledSession()) { banner.style.display = 'none'; return; }
 
     const used      = getTrialCount();
     const remaining = FREE_LIMIT - used;
+    const s         = currentSession();
 
     banner.style.display = '';
-    if (remaining <= 0) {
+    banner.textContent = '';
+    if (s && !s.entitled) {
+      banner.className = 'trial-banner trial-warn';
+      banner.textContent = window.AuthManager.tr('auth_sub_expired');
+    } else if (remaining <= 0) {
       banner.className = 'trial-banner trial-danger';
-      banner.innerHTML = `⛔ Bepul hisoblash tugadi — davom etish uchun ro'yxatdan o'ting.`;
+      banner.textContent = "⛔ Bepul hisoblash tugadi — davom etish uchun ro'yxatdan o'ting.";
     } else {
       banner.className = `trial-banner ${remaining <= 2 ? 'trial-warn' : 'trial-info'}`;
-      banner.innerHTML =
-        `🆓 Bepul sinash: <b>${used}/${FREE_LIMIT}</b> — <b>${remaining} ta</b> qoldi`;
+      // faqat ichki sonlar — foydalanuvchi matni yo'q
+      banner.innerHTML = `🆓 Bepul sinash: <b>${used}/${FREE_LIMIT}</b> — <b>${remaining} ta</b> qoldi`;
     }
   }
 
@@ -93,7 +109,11 @@
       error:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`,
       info:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>`,
     };
-    toast.innerHTML = `${icons[type] || icons.info}<span>${msg}</span>`;
+    // Xabar matni faqat textContent orqali (RISKS R-S5) — HTML sifatida talqin qilinmaydi
+    toast.innerHTML = icons[type] || icons.info;
+    const span = document.createElement('span');
+    span.textContent = String(msg ?? '');
+    toast.appendChild(span);
     container.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
@@ -112,9 +132,8 @@
     });
   };
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape — src/ui/escape.js
+  const escHtml = s => window.UCEscape.escHtml(s);
 
   /* ─── THEME — event delegation (works for ALL screens) ── */
   function toggleTheme() {
@@ -196,8 +215,7 @@
 
   function startSession() {
     // ─ Trial tekshiruvi ─────────────────────────────
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (!session) {
+    if (!isEntitledSession()) {
       if (!isTrialActive()) {
         showPaywall();
         return;
@@ -497,6 +515,7 @@
     initSidebar();
     initTabs();
     initPaywall();
+    if (window.AuthManager) window.AuthManager.onChange(updateTrialBanner);
     Table.init();
     TypeB.init();
     Results.init();
