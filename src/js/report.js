@@ -32,8 +32,12 @@ const Results = (() => {
   function nuText(nu) { return isFinite(nu) ? String(Math.floor(nu)) : '∞'; }
   function distLabel(d) { return DIST_KEYS[d] ? i18n.t(DIST_KEYS[d]).replace(/\s*\(.*$/, '') : (d || '—'); }
 
+  /* Yaxlitlash — faqat hisobot qatlamida (src/report/rounding.js, P03). Saqlangan eski natijalardagi
+     Uround/yround/resultText e'tiborsiz qoldiriladi va qayta hisoblanadi. */
+  function rounded(r) { return Calc.roundResult(r.y, r.U, r.roundUp); }
+
   function statement(r, rr, k) {
-    const text = rr ? rr.resultText : r.resultText;
+    const text = (rr || rounded(r)).resultText;
     const kk = k !== undefined ? k : r.k;
     return `${escHtml(r.symbol)} = (${text})${unitOf(r)};  k = ${kk.toFixed(2)};  P ≈ ${pct(r.P)} %`;
   }
@@ -52,9 +56,22 @@ const Results = (() => {
   }
 
   function warningsHtml(r) {
-    if (!r.warnings || !r.warnings.length) return '';
+    const notes = (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('');
+    if (!r.warnings || !r.warnings.length) return notes;
     return `<div class="warn-box">${r.warnings.map(w =>
-      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', escHtml(w.value ?? ''))}</div>`).join('')}</div>`;
+      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', escHtml(w.value ?? ''))}</div>`).join('')}</div>${notes}`;
+  }
+
+  /* k qaysi ν bilan va qaysi qoida bo'yicha olingani (GUM G.4.1 Note 1; CLAUDE.md: qoida hisobotda yoziladi) */
+  function nuUsedText(r) {
+    const c = r.coverage;
+    if (!c) return nuText(r.nuEff); // P03 dan oldingi saqlangan natija
+    if (!isFinite(c.nuUsed)) return '∞';
+    return c.nuRule === 'floor' ? String(c.nuUsed) : (+c.nuUsed.toFixed(2)).toString();
+  }
+  function nuRuleText(r) {
+    const rule = (r.coverage && r.coverage.nuRule) || 'floor';
+    return `${i18n.t('nu_rule_line')}: ${i18n.t('nu_rule_' + rule)}`;
   }
 
   /* ─── Points panel (multi-point calibration) ───── */
@@ -205,7 +222,7 @@ const Results = (() => {
   }
 
   function mcLines(r, mc) {
-    const d = r.digits + 1;
+    const d = rounded(r).digits + 1;
     return [
       `M = ${mc.M.toLocaleString()};  ${i18n.t('res_y')} = ${Calc.fmtSci(mc.mean, 8)};  u = ${Calc.fmtSci(mc.u)}`,
       `${i18n.t('mc_interval')} (${pct(mc.P)} %): [${mc.low.toFixed(d)}; ${mc.high.toFixed(d)}]  →  ${i18n.t('mc_half')} ${Calc.fmtSci(mc.mcHalf, 3)}`,
@@ -293,16 +310,18 @@ const Results = (() => {
     return r.budget.map(b => {
       const badge = b.kind === 'A' ? '<span class="badge badge-blue">A</span>'
                   : b.kind === 'B' ? '<span class="badge badge-orange">B</span>'
+                  : b.kind === 'second' ? '<span class="badge badge-blue">2</span>'
                   : '<span class="badge badge-green">r</span>';
       const aNote = b.method === 2 ? ', s_p' : b.method === 3 ? ', COOMET' : '';
       const name = b.kind === 'A' ? `${escHtml(b.name)}: ${i18n.t('budget_repeat')} (n = ${b.n}${b.directional ? ', ↑/↓' : ''}${aNote}, ν = ${nuText(b.nu)})`
                  : b.kind === 'B' ? `${escHtml(b.param)}: ${b.auto ? i18n.t('budget_hyst') : escHtml(b.name)}${isFinite(b.nu) ? ` (ν = ${b.nu})` : ''}`
+                 : b.kind === 'second' ? escHtml(i18n.t('so_title'))
                  : `${i18n.t('budget_corr')} ${escHtml(b.name)}`;
       const w = Math.min(100, Math.abs(b.share));
       return `<tr>
         <td>${name}</td>
         <td>${badge}</td>
-        <td>${b.kind === 'corr' ? '—' : distLabel(b.dist)}</td>
+        <td>${b.kind === 'corr' || b.kind === 'second' ? '—' : distLabel(b.dist)}</td>
         <td class="cell-num num mono">${Calc.fmtSci(b.u)}</td>
         <td class="cell-num num mono">${Calc.fmtSci(b.c)}</td>
         <td class="cell-num num mono">${b.ui === null ? '—' : Calc.fmtSci(b.ui)}</td>
@@ -390,9 +409,21 @@ const Results = (() => {
     return [
       `u_c²(${s}) = Σ cᵢ²·u²(xᵢ)${r.pairs.length ? ' + 2·ΣΣ cᵢ·cⱼ·u(xᵢ,xⱼ)' : ''} = ${Calc.fmtSci(r.uc2)}  →  u_c(${s}) = ${Calc.fmtSci(r.uc)}`,
       `ν_eff = u_c⁴ / Σ[(cᵢ·uᵢ)⁴/νᵢ] = ${isFinite(r.nuEff) ? r.nuEff.toFixed(1) : '∞'}`,
-      r.kMethod === 'k2' ? `k = 2 (${i18n.t('set_k_2')})` : `k = t(P = ${pct(r.P)} %; ν = ${nuText(r.nuEff)}) = ${r.k.toFixed(4)}`,
+      r.kMethod === 'k2' ? `k = 2 (${i18n.t('set_k_2')})` : `k = t(P = ${pct(r.P)} %; ν = ${nuUsedText(r)}) = ${r.k.toFixed(4)}  (${nuRuleText(r)})`,
       `U = k·u_c = ${r.k.toFixed(4)} × ${Calc.fmtSci(r.uc)} = ${Calc.fmtSci(r.U)}${unitOf(r)}`,
-      `${i18n.t('round_line')} (${i18n.t(r.roundUp ? 'set_round_up' : 'set_round_normal')}): U = ${r.Uround.toFixed(r.digits)};  ${escHtml(r.symbol)} = ${r.yround.toFixed(r.digits)}`,
+      (rr => `${i18n.t('round_line')} (${i18n.t(r.roundUp ? 'set_round_up' : 'set_round_normal')}): U = ${rr.Uround.toFixed(rr.digits)};  ${escHtml(r.symbol)} = ${rr.yround.toFixed(rr.digits)}`)(rounded(r)),
+      ...secondOrderLines(r),
+    ];
+  }
+
+  /* 2-tartibli hadlar diagnostikasi (JCGM 100:2008 §5.1.2 Note) — standartda u_c ga qo'shilmaydi */
+  function secondOrderLines(r) {
+    const so = r.secondOrder;
+    if (!so || !(so.u2 > 0)) return [];
+    const idx = isFinite(so.index) ? (so.index * 100).toPrecision(3) : '∞';
+    return [
+      `${i18n.t('so_title')}: ${i18n.t('so_line').replace('{u2}', Calc.fmtSci(so.u2)).replace('{idx}', idx)} — ${i18n.t(so.included ? 'so_included' : 'so_not_included')}. ` +
+      `${i18n.t(so.validCondition ? 'so_condition' : 'so_condition_bad')}`,
     ];
   }
 

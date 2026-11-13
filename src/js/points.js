@@ -66,18 +66,17 @@ const Points = (() => {
 
   /**
    * Certificate rows. With uniformK the largest k of all points is applied
-   * to every point (COOMET R/GM/32 §5.7.3) and U, rounding and conformity
-   * are recomputed.
+   * to every point (COOMET R/GM/32 §5.7.3) — dvigatel: Calc.multiPointCoverage.
+   * Rounding is done here, in the report layer (src/report/rounding.js, P03);
+   * Uround/resultText stored by older versions are ignored.
    */
   function summary(pts, uniformK) {
     const items = (pts || list()).filter(p => p.result && !p.result.error);
-    const kmax = items.reduce((m, p) => Math.max(m, p.result.k), 0);
-    return items.map(p => {
+    const cov = Calc.multiPointCoverage(items.map(p => p.result), uniformK);
+    return items.map((p, i) => {
       const r = p.result;
-      const k = uniformK ? kmax : r.k;
-      const U = k * r.uc;
+      const { k, U, conf } = cov[i];
       const rr = Calc.roundResult(r.y, U, r.roundUp);
-      const conf = r.conf ? Calc.conformity(r.y, U, r.conf.mpe) : null;
       return { id: p.id, label: p.label, r, k, U, rr, conf };
     });
   }
