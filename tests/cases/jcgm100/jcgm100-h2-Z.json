@@ -1,0 +1,77 @@
+{
+  "id": "jcgm100-h2-Z",
+  "title": "GUM H.2: bir vaqtda o'lchash, Z (korrelyatsiyalangan kirishlar)",
+  "status": "verified",
+  "domain": "elektr",
+  "source": {
+    "doc": "JCGM 100:2008 (GUM)",
+    "section": "Annex H.2, Table H.2 (kirish), Table H.3 (natija, 1-yondashuv)",
+    "page": "85–87"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "V",
+        "I",
+        "phi"
+      ],
+      "measurements": {
+        "V": [
+          5.007,
+          4.994,
+          5.005,
+          4.99,
+          4.999
+        ],
+        "I": [
+          19.663,
+          19.639,
+          19.64,
+          19.685,
+          19.678
+        ],
+        "phi": [
+          1.0456,
+          1.0438,
+          1.0468,
+          1.0428,
+          1.0433
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Z = V / I * 1000",
+        "unit": "Ω"
+      },
+      "settings": {
+        "paired": true,
+        "P": 0.9545
+      },
+      "covB": {},
+      "typeB": []
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 254.26,
+      "ref": "Table H.3 (p. 87): Z = 254,26 Ω"
+    },
+    "uc": {
+      "value": 0.236,
+      "ref": "Table H.3 (p. 87): u_c(Z) = 0,236 Ω"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    }
+  },
+  "knownDiscrepancies": {},
+  "notes": "I mA da berilgan (×1000). Kirishlar juftlangan (paired) — r(V,I), r(V,φ), r(I,φ) kuzatuvlardan (Eq. 17). Manba ν_eff va k bermaydi."
+}

@@ -1,0 +1,166 @@
+{
+  "id": "jcgm100-h1",
+  "title": "GUM H.1: 50 mm uzunlik o'lchovi (KMD) kalibrlash, U99",
+  "status": "verified",
+  "domain": "uzunlik",
+  "source": {
+    "doc": "JCGM 100:2008 (GUM)",
+    "section": "Annex H.1 (H.1.2–H.1.6), Table H.1",
+    "page": "79–84"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "lS",
+        "d",
+        "alphaS",
+        "theta",
+        "dalpha",
+        "dtheta"
+      ],
+      "measurements": {
+        "lS": [
+          50000623
+        ],
+        "d": [
+          215
+        ],
+        "alphaS": [
+          0.0000115
+        ],
+        "theta": [
+          -0.1
+        ],
+        "dalpha": [
+          0
+        ],
+        "dtheta": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "l = lS + d - lS * (dalpha * theta + alphaS * dtheta)",
+        "unit": "nm"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.99
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "u(l_S): sertifikat U = 0,075 µm, k = 3 (H.1.3.1)",
+          "param": "lS",
+          "halfWidth": 75,
+          "distribution": "normal",
+          "k": 3,
+          "nu": 18
+        },
+        {
+          "name": "u(d̄): s_p = 13 nm, n = 5 (H.1.3.2)",
+          "param": "d",
+          "halfWidth": "13 / sqrt(5)",
+          "distribution": "normal",
+          "k": 1,
+          "nu": 24
+        },
+        {
+          "name": "u(d1): 0,01 µm / t95(5) = 2,57 (H.1.3.2)",
+          "param": "d",
+          "halfWidth": 10,
+          "distribution": "normal",
+          "k": 2.57,
+          "nu": 5
+        },
+        {
+          "name": "u(d2): 0,02 µm \"3 sigma\" (H.1.3.2)",
+          "param": "d",
+          "halfWidth": 20,
+          "distribution": "normal",
+          "k": 3,
+          "nu": 8
+        },
+        {
+          "name": "u(α_S): ±2e-6 /°C (H.1.3.3)",
+          "param": "alphaS",
+          "halfWidth": 0.000002,
+          "distribution": "rect"
+        },
+        {
+          "name": "u(θ̄) = 0,2 °C (H.1.3.4)",
+          "param": "theta",
+          "halfWidth": 0.2,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(Δ): 0,5 °C arksinus (H.1.3.4)",
+          "param": "theta",
+          "halfWidth": 0.5,
+          "distribution": "ushape"
+        },
+        {
+          "name": "u(δα): ±1e-6 /°C (H.1.3.5)",
+          "param": "dalpha",
+          "halfWidth": 0.000001,
+          "distribution": "rect",
+          "nu": 50
+        },
+        {
+          "name": "u(δθ): ±0,05 °C (H.1.3.6)",
+          "param": "dtheta",
+          "halfWidth": 0.05,
+          "distribution": "rect",
+          "nu": 2
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 50000838,
+      "ref": "H.1.5 (p. 83): l = 50,000 838 mm"
+    },
+    "uc": {
+      "value": 32,
+      "ref": "H.1.4, Eq. (H.6c) (p. 83): u_c(l) = 32 nm"
+    },
+    "nu_eff": {
+      "value": 16.7,
+      "ref": "H.1.6 (p. 84): ν_eff(l) = 16,7"
+    },
+    "k": {
+      "value": 2.92,
+      "ref": "H.1.6 (p. 84): t99(16) = 2,92 (ν_eff 16 ga kesiladi)"
+    },
+    "U": {
+      "value": 93,
+      "ref": "H.1.6 (p. 84): U99 = 2,92 × 32 nm = 93 nm"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.5,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 0.5,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "nu_eff": {
+      "abs": 0.05,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "k": {
+      "abs": 0.005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "U": {
+      "abs": 1.5,
+      "reason": "Manba U99 ni yaxlitlangan u_c = 32 nm dan hisoblagan: 2,92 × [31,5; 32,5] → ±1,5 nm"
+    }
+  },
+  "notes": "Birliklar nm (l_S, d) va °C. d̄ ning A turi bahosi (s_p, GUM 4.2.4) B komponent sifatida berilgan: u = 13/√5, ν = 24. Ikkinchi tartibli hadlar (H.1.7) hisobga olinmaydi."
+}

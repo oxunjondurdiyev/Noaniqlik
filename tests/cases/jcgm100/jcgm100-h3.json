@@ -1,0 +1,15 @@
+{
+  "modelSpec": null,
+  "expected": {},
+  "id": "jcgm100-h3",
+  "title": "GUM H.3: termometr kalibrlash (chiziqli eng kichik kvadratlar)",
+  "status": "pending",
+  "enabledIn": "P08",
+  "domain": "harorat",
+  "source": {
+    "doc": "JCGM 100:2008 (GUM)",
+    "section": "Annex H.3, Table H.6",
+    "page": "89–94"
+  },
+  "statusReason": "regressiya dvigatelda yo'q (P08). Kirish va natijalar P08 da Table H.6 dan ko'chiriladi."
+}

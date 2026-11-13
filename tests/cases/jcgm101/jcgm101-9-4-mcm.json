@@ -1,0 +1,15 @@
+{
+  "modelSpec": null,
+  "expected": {},
+  "id": "jcgm101-9-4-mcm",
+  "title": "JCGM 101 9.4: solishtirish yo'qotishi, MCM va analitik (Table 8, 9)",
+  "status": "pending",
+  "enabledIn": "P06",
+  "domain": "elektr (o'ta yuqori chastota)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.4.2–9.4.3, Table 8, Table 9",
+    "page": "43–49"
+  },
+  "statusReason": "ko'p o'lchamli normal taqsimot (r = 0,9) va manbada δ ko'rsatilmagan — P06 (Monte-Karlo 2.0)."
+}

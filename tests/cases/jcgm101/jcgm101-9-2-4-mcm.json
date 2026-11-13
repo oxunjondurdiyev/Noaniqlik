@@ -1,0 +1,98 @@
+{
+  "id": "jcgm101-9-2-4-mcm",
+  "title": "JCGM 101 9.2.4: additiv model, Monte-Karlo 95 % interval",
+  "status": "verified",
+  "domain": "umumiy (o'lchamsiz)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.2.4, Table 4",
+    "page": "38"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2",
+        "X3",
+        "X4"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ],
+        "X3": [
+          0
+        ],
+        "X4": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y = X1 + X2 + X3 + X4",
+        "unit": "1"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "X1",
+          "param": "X1",
+          "halfWidth": 1.7320508075688772,
+          "distribution": "rect"
+        },
+        {
+          "name": "X2",
+          "param": "X2",
+          "halfWidth": 1.7320508075688772,
+          "distribution": "rect"
+        },
+        {
+          "name": "X3",
+          "param": "X3",
+          "halfWidth": 1.7320508075688772,
+          "distribution": "rect"
+        },
+        {
+          "name": "X4",
+          "param": "X4",
+          "halfWidth": 17.32050807568877,
+          "distribution": "rect"
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "M": 1000000,
+    "interval": "symmetric"
+  },
+  "expected": {
+    "u": {
+      "value": 10.1,
+      "ref": "Table 4, MCM 10⁶: u(y) = 10.1"
+    },
+    "interval": {
+      "low": -17,
+      "high": 17,
+      "ref": "Table 4: 'MCM 10⁶' qatorlari: [–17.0, 17.0]"
+    }
+  },
+  "tolerance": {
+    "u": {
+      "abs": 0.5,
+      "reason": "9.2.4: δ = 0.5 (n_dig = 2 u(y) uchun)"
+    },
+    "interval": {
+      "abs": 0.5,
+      "reason": "9.2.4: δ = 0.5"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "modelSpec": null,
+  "expected": {},
+  "id": "nist-um-ratio",
+  "title": "NIST Uncertainty Machine qo'llanmasi: y = a·b/c misoli",
+  "status": "unverified",
+  "domain": "umumiy",
+  "source": {
+    "doc": "NIST Uncertainty Machine User's Manual — docs/references/ da YO'Q"
+  },
+  "statusReason": "manba PDF repoda yo'q (egasi qo'shadi). Gemini T14 raqamlari tekshirilmagan — majburiy test emas."
+}

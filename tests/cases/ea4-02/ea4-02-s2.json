@@ -1,0 +1,122 @@
+{
+  "id": "ea4-02-s2",
+  "title": "EA-4/02 S2: 10 kg tosh (M1) kalibrlash",
+  "status": "verified",
+  "domain": "massa",
+  "source": {
+    "doc": "EA-4/02 M:2022",
+    "section": "Supplement 1, S2.2–S2.11 (S2.9 byudjet jadvali)",
+    "page": "29–30"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "mS",
+        "mD",
+        "dm",
+        "mC",
+        "B"
+      ],
+      "measurements": {
+        "mS": [
+          10000005
+        ],
+        "mD": [
+          0
+        ],
+        "dm": [
+          20
+        ],
+        "mC": [
+          0
+        ],
+        "B": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "mX = mS + mD + dm + mC + B",
+        "unit": "mg"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.9545,
+        "kMethod": "k2"
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "m_S: U = 45 mg, k = 2 (S2.3)",
+          "param": "mS",
+          "halfWidth": 45,
+          "distribution": "normal",
+          "k": 2
+        },
+        {
+          "name": "m_D: ±15 mg (S2.4)",
+          "param": "mD",
+          "halfWidth": 15,
+          "distribution": "rect"
+        },
+        {
+          "name": "δm: s_p = 25 mg, n = 3 (S2.8)",
+          "param": "dm",
+          "halfWidth": "25 / sqrt(3)",
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "δm_C: ±10 mg (S2.5)",
+          "param": "mC",
+          "halfWidth": 10,
+          "distribution": "rect"
+        },
+        {
+          "name": "δB: ±1e-6 × 10 kg = ±10 mg (S2.6)",
+          "param": "B",
+          "halfWidth": 10,
+          "distribution": "rect"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 10000025,
+      "ref": "S2.9: m_X = 10 000,025 g"
+    },
+    "uc": {
+      "value": 29.2,
+      "ref": "S2.9: u(m_X) = 29,2 mg"
+    },
+    "k": {
+      "value": 2,
+      "ref": "S2.10: k = 2"
+    },
+    "U": {
+      "value": 58,
+      "ref": "S2.10: U = 2 × 29,2 mg ≈ 58 mg"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.5,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "k": {
+      "abs": 0.005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 0.1,
+      "reason": "manba u_i(y) ni 3 qiymatli raqamgacha yaxlitlab qo'shgan (14,4 = 25/√3 = 14,43): ±0,05 + oraliq yaxlitlash ≈ ±0,1 mg"
+    },
+    "U": {
+      "abs": 0.7,
+      "reason": "±0,5 (oxirgi xona) + 2 × 0,1 (u ning yaxlitlanishi)"
+    }
+  },
+  "notes": "δm ning A turi bahosi (oldindan aniqlangan s_p, 3 o'qish) B komponent sifatida berilgan: u = 25/√3. Manba k = 2 ni ishlatadi (S2.10)."
+}
