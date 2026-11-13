@@ -24,7 +24,7 @@ Har bir misol — bitta JSON fayl. Ishga tushirish: `npm test` (`tests/run-cases
     "inputRefs": { "measurements.I": "Kirish!D32:M32" }, // kirish ↔ Excel katagi (qayta tekshiriladi)
     "quotes": ["[−0,0111; 0,0469]"]                // .docx dagi iqtibos (qayta tekshiriladi)
   },
-  "modelSpec": { "format": "calc-state/v2", "state": { … } }, // hozirgi src/js/calc.js kirishi; P03 da ENGINE_API.md formatiga o'tadi
+  "modelSpec": { "format": "calc-state/v2", "state": { … } }, // docs/ENGINE_API.md (uc-model/1 ham qabul qilinadi)
   "run": { "method": "evaluate" | "monteCarlo", "M": 1000000, "interval": "symmetric" | "shortest" },
   "expected": {                           // har bir qiymat manba havolasi bilan
     "y":  { "value": 50000838, "ref": "H.1.5 (p. 83)" },
@@ -48,7 +48,8 @@ Har bir misol — bitta JSON fayl. Ishga tushirish: `npm test` (`tests/run-cases
 | Hujjatdagi (PDF) qiymat | oxirgi ko'rsatilgan xonaning ±½ birligi | `docs/prompts` P02 §3 |
 | Manba qiymatni **yaxlitlangan oraliq qiymatdan** hisoblagan (masalan, U = k × yaxlitlangan u_c) | ±½ birlik + oraliq yaxlitlashning tarqalishi (har bir misolda `reason` bilan) | manbaning o'z hisob yo'li; **egasi tasdiqlashi kerak** (DISCREPANCIES.md, savol Q-4) |
 | Monte-Karlo | JCGM 101:2008 7.9.2: δ = ½·10^ℓ (manba bergan n_dig yoki δ) | JCGM 101 §8 |
-| ν_eff "∞" | Excel B tur uchun ν = 10⁹ ni ishlatadi. Kutilgan ≥ 10⁶ bo'lsa, natija ≥ 10⁶ (yoki ∞) bo'lishi kifoya | Excel konventsiyasi; dvigatel 10⁶ cap |
+| ν_eff "∞" | Excel B tur uchun ν = 10⁹ ni ishlatadi. Kutilgan ≥ 10⁶ bo'lsa, natija ≥ 10⁶ (yoki ∞) bo'lishi kifoya | Excel konventsiyasi; dvigatel ν_B = ∞ (P03 dan cap yo'q) |
+| k, U: Excel ν_eff ≥ 1000 da z ishlatgan nuqtalar (`excel-term-p2/-p3/-p5`) | nisbiy 1·10⁻³ (`reason` bilan) | egasi qarori Q-1(a) — GUM G.4.1: k = t(⌊ν_eff⌋) (D-02) |
 
 ## Misollar ro'yxati
 

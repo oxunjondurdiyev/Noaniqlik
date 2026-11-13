@@ -1,6 +1,6 @@
 {
   "id": "excel-gas-p2-mc",
-  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test), n_dig = 2",
+  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test), n_dig = 2 — todo → P06",
   "status": "verified",
   "domain": "fizik-kimyo/gaz tahlili",
   "modelSpec": {
@@ -89,11 +89,11 @@
   },
   "tolerance": {
     "y": {
-      "abs": 0.00005,
+      "abs": 5e-05,
       "reason": "manbadagi oxirgi xonaning yarmi"
     },
     "interval": {
-      "abs": 0.00005,
+      "abs": 5e-05,
       "reason": "JCGM 101:2008 7.9.2: u_c(y) = 0,0083 (GUM), n_dig = 2 → 83×10⁻⁴ → δ = ½·10⁻⁴"
     }
   },
@@ -101,5 +101,5 @@
     "interval.low": "D-04",
     "interval.high": "D-04"
   },
-  "notes": "Qo'llanmadagi interval E bahosiga nisbatan simmetrik (yarim kenglik 0,029) — ehtimollik bo'yicha simmetrik interval (JCGM 101 7.7.3) bilan solishtiriladi. Dvigatelning eng qisqa intervali [−0,0113; 0,0465] (PLAN P01)."
+  "notes": "Qo'llanmadagi interval E bahosiga nisbatan simmetrik (yarim kenglik 0,029) — ehtimollik bo'yicha simmetrik interval (JCGM 101 7.7.3) bilan solishtiriladi. Dvigatelning eng qisqa intervali [−0,0113; 0,0465] (PLAN P01). Egasi qarori Q-3: n_dig = 2 varianti P06 (adaptiv M) ga bog'langan todo (D-04); hozir majburiy — excel-gas-p2-mc-ndig1."
 }

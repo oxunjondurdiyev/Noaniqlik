@@ -1,6 +1,6 @@
 {
   "id": "excel-gas-p2-mc-ndig1",
-  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali, n_dig = 1 (taqqoslash uchun)",
+  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test, majburiy), n_dig = 1",
   "status": "verified",
   "domain": "fizik-kimyo/gaz tahlili",
   "modelSpec": {
@@ -89,7 +89,7 @@
   },
   "tolerance": {
     "y": {
-      "abs": 0.00005,
+      "abs": 5e-05,
       "reason": "manbadagi oxirgi xonaning yarmi"
     },
     "interval": {
@@ -97,5 +97,5 @@
       "reason": "JCGM 101:2008 7.9.2, 7.9.4 NOTE 1: n_dig = 1 → u_c(y) = 0,008 = 8×10⁻³ → δ = ½·10⁻³"
     }
   },
-  "notes": "Qaysi n_dig majburiy bo'lishi — egasining qarori (DISCREPANCIES.md D-04)."
+  "notes": "Qaysi n_dig majburiy bo'lishi — egasining qarori (DISCREPANCIES.md D-04). Egasi qarori Q-3 (2026-11-13): P06 gacha 10-testning majburiy varianti n_dig = 1; P06 (adaptiv M, JCGM 101 §7.9) dan keyin n_dig = 2 (excel-gas-p2-mc) majburiy bo'ladi."
 }

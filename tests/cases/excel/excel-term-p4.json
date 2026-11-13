@@ -187,8 +187,5 @@
       "reason": "PLAN P01/P03: y, u_c, ν_eff, k, U — 1e-9 nisbiy"
     }
   },
-  "knownDiscrepancies": {
-    "k": "D-01",
-    "U": "D-01"
-  }
+  "knownDiscrepancies": {}
 }
