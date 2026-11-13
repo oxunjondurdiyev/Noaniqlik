@@ -26,6 +26,8 @@
 > Skript tartibi: `vendor/firebase (app, auth, firestore) → escape → toast → firebase-config → auth-core → db → auth → templates → (index: presets … app) → sahifa kontrolleri`.
 > Batafsil: [SECURITY_SETUP.md](SECURITY_SETUP.md), [AUTH_MIGRATION.md](AUTH_MIGRATION.md), [DATA_RESIDENCY.md](DATA_RESIDENCY.md).
 
+> **Yangilanish — P03 (2026-11-13, `feat/p03-engine`).** Hisoblash dvigateli `src/js/calc.js` dan `src/engine/` ga (sof ES modullar, `"type": "module"`) ko'chirildi; API — [ENGINE_API.md](ENGINE_API.md), `ENGINE_VERSION` 2.0.0 (`src/engine/version.js`). Yaxlitlash va ko'rsatish — `src/report/rounding.js`, `src/report/format.js`. `src/js/calc.js` endi `<script type="module">` moslik qatlami: `window.Calc` (P00 API) ni engine + report dan yig'adi; klassik skriptlar `Calc` ni faqat ish vaqtida (DOMContentLoaded dan keyin) chaqiradi. Yangi matnlar — `src/js/i18n-engine.js`. Quyidagi §3 dagi `calc.js:…` qator havolalari P00 holatini tasvirlaydi.
+
 ---
 
 ## 1. Umumiy ko'rinish

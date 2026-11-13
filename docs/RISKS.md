@@ -31,6 +31,17 @@
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 
+### P03 natijasi (2026-11-13, branch `feat/p03-engine`, ENGINE_VERSION 2.0.0)
+
+| ID | Holat | Nima qilindi | Qoldiq xavf |
+|---|---|---|---|
+| R-02 | **yopildi** | c_i — simvolik hosila; sonli — zaxira/o'zaro tekshiruv, h = ε^⅓·max(\|x\|, u); c = 0/NaN → `c_zero`/`c_nan`; 2-tartibli hadlar diagnostikasi (`nonlinear`) | 2-tartibli hadlar faqat normal, korrelyatsiyasiz kirishlarda haqiqiy (hisobotda yoziladi); MC bilan tekshiruv — P06 |
+| R-03 | **yopildi** | AS241 normal kvantil; t-kvantil < 1e-11 (mpmath); Q-1(a) — chegara va sakrash yo'q; ν_eff cap yo'q; ν qoidasi sozlama va hisobotda | — |
+| R-04 | **yopildi (dvigatel qismi)** | yaxlitlash `src/report/rounding.js` da; 0,0999 → 0,10; half-away-from-zero; 15 raqamli ikkilik tuzatish | U = 0 / U < CMC ni chop etishda bloklash — P05 |
+| R-08 | **yopildi** | manfiy dispersiya va \|r\| > 1 → xato | — |
+| R-10 | **qisman** | korrelyatsiya ko'rinishi `typeAx` bilan (evaluate bilan bir xil); ko'p nuqtali bir xil k — `multiPointCoverage` dvigatelda | `typeB.js` dagi u_B ko'rinishi dvigatel funksiyalari bilan hisoblanadi, lekin hali alohida chaqiruv — P04 (shablon interpreteri) |
+| R-12 | **qisman** | `units.js`: o'lchamlik tahlili, affin °C ↔ K (kirish birliklari berilsa) | UI'da kirish birligini kiritish maydoni yo'q (`state.units` faqat API/P04 orqali); GUM-6 PDF yo'q — `unverified`; `:` va `e` parser xatti-harakati o'zgartirilmadi |
+
 ### P02 natijasi (2026-11-13, branch `p02-security`)
 
 | ID | Holat | Nima qilindi | Qoldiq xavf / egasining qadami |
