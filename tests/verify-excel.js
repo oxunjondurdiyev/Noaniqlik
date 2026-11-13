@@ -1,5 +1,5 @@
 /* Verifies the GUM engine against the reference Excel workbooks:
-   Noaniqlik_hisobi_gazoanalizator.xlsx (3 points) and
+   Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx (3 points) and
    Noaniqlik_hisobi_termometr_MS-MK-3.xlsx (5 points).
    Run:  node tests/verify-excel.js                                   */
 const C = require('../src/js/calc.js');
