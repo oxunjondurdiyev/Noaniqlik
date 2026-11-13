@@ -104,8 +104,11 @@ test('firebase-admin va boshqa paketlar faqat devDependencies', () => {
   for (const f of [...SRC, ...HTML]) assert.ok(!/node_modules|firebase-admin/.test(read(f)), f);
 });
 
-test('hisoblash dvigateli (src/js/calc.js) P02 da o\'zgarmagan', () => {
-  // P00 dagi calc.js SHA-256 (commit 6cc4881). Dvigatelni o'zgartirish — P03.
+test('hisoblash dvigateli (src/js/calc.js) qayd etilgan xeshga mos', () => {
+  // calc.js o'zgarsa: natijaga ta'sir qilsa — ENGINE_VERSION oshiriladi va CHANGELOG.md ga yoziladi,
+  // so'ng calc.sha256.json yangilanadi (CLAUDE.md). P02 calc.js ga tegmagan; P01 faqat ENGINE_VERSION qo'shgan.
+  const rec = require('./calc.sha256.json');
   const h = crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, 'src/js/calc.js'))).digest('hex');
-  assert.equal(h, process.env.CALC_SHA256 || require('./calc.sha256.json').sha256);
+  assert.equal(h, rec.sha256, 'calc.js o\'zgargan — ENGINE_VERSION/CHANGELOG/calc.sha256.json ni yangilang');
+  assert.equal(require('../../src/js/calc.js').ENGINE_VERSION, rec.engineVersion);
 });
