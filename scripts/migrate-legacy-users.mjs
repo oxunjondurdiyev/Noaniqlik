@@ -1,29 +1,35 @@
 #!/usr/bin/env node
 /* ═══════════════════════════════════════════════════════════════
-   prepare-auth-import.mjs — eski foydalanuvchilarni Firebase Auth'ga
-   ko'chirish (docs/AUTH_MIGRATION.md, "A yo'l")
+   migrate-legacy-users.mjs — eski foydalanuvchilarni Firebase Auth'ga
+   ko'chirish (batafsil: docs/AUTH_MIGRATION.md)
    ─────────────────────────────────────────────────────────────
-   Eski tizim parolni SHA-256(parol + ':uc_noaniqlik_v1') ko'rinishida
-   saqlagan. Firebase Auth bu xeshni import qila oladi — foydalanuvchilar
-   ESKI parol bilan kiraveradi, parolni hech kim ko'rmaydi.
+   Egasi O'Z KOMPYUTERIDA, service account kaliti bilan ishga tushiradi.
+   Har bir hisobning UID'i = eski Firestore hujjat ID'si (firestore.rules
+   organizations/{uid}, employees/{uid} bilan mos keladi).
 
-   1) Import faylini tayyorlash (Firestore'ni faqat O'QIYDI):
-        node scripts/prepare-auth-import.mjs --key ./serviceAccount.json
-      → auth-import.json (.gitignore'da; parol xeshlari bor — import'dan
-        keyin O'CHIRING)
-   2) Import (firebase-tools, egasining kompyuterida):
-        npx firebase auth:import auth-import.json --hash-algo=SHA256 \
+   B yo'l — TAVSIYA (eski parollar oshkor bo'lgan deb hisoblanadi):
+        node scripts/migrate-legacy-users.mjs --key ./serviceAccount.json --new-passwords
+      → har bir foydalanuvchiga yangi tasodifiy parol, Auth hisobi yaratiladi;
+        login/parol ro'yxati migration-out/new-passwords.csv ga (BIR MARTA,
+        .gitignore'da; tarqatgandan keyin o'chiring)
+
+   A yo'l — eski parol bilan davom etish (faqat Firestore yopiq bo'lgani aniq bo'lsa):
+     1) node scripts/migrate-legacy-users.mjs --key ./serviceAccount.json --import-file
+        → auth-import.json (parol xeshlari bor; import'dan keyin O'CHIRING)
+     2) npx firebase auth:import auth-import.json --hash-algo=SHA256 \
           --rounds=1 --hash-input-order=PASSWORD_FIRST --project <projectId>
-   3) Bitta hisob bilan kirib tekshiring.
-   4) Eski maydonlarni o'chirish (passwordHash, rawPwd, fullName):
-        node scripts/prepare-auth-import.mjs --key ./serviceAccount.json --strip-legacy --yes
-   5) Tekshiruv (qolgan eski maydonlar):
-        node scripts/prepare-auth-import.mjs --key ./serviceAccount.json --check
+     3) Bitta hisob bilan kirib tekshiring.
+
+   Ikkala yo'ldan keyin — eski maydonlarni o'chirish (passwordHash, rawPwd, fullName):
+        node scripts/migrate-legacy-users.mjs --key ./serviceAccount.json --strip-legacy --yes
+   Tekshiruv:
+        node scripts/migrate-legacy-users.mjs --key ./serviceAccount.json --check
 ═══════════════════════════════════════════════════════════════ */
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { parseArgs, initAdmin, readWebConfig, loginToEmail, die } from './lib/admin-init.mjs';
+import { getAuth } from 'firebase-admin/auth';
+import { parseArgs, initAdmin, readWebConfig, loginToEmail, strongPassword, die } from './lib/admin-init.mjs';
 
 const LEGACY_SALT = ':uc_noaniqlik_v1';           // eski auth.js: hashPwd()
 const LEGACY_FIELDS = ['passwordHash', 'rawPwd', 'fullName'];
@@ -63,19 +69,58 @@ try {
     process.exit(0);
   }
 
-  const users = [], skipped = [];
-  const saltB64 = Buffer.from(LEGACY_SALT, 'utf8').toString('base64');
+  const MODES = ['import-file', 'new-passwords'];
+  if (!MODES.some(m => args[m])) {
+    die('Rejimni tanlang: --new-passwords (B, tavsiya) | --import-file (A) | --strip-legacy --yes | --check');
+  }
+
+  const skipped = [];
+  const candidates = [];
   for (const x of all) {
-    const d = x.data;
     let email;
-    try { email = loginToEmail(d.login, domain); }
-    catch { skipped.push(`${x.kind}/${x.id}: login yaroqsiz (${JSON.stringify(d.login)}) — qo'lda: AUTH_MIGRATION.md "B yo'l"`); continue; }
+    try { email = loginToEmail(x.data.login, domain); }
+    catch { skipped.push(`${x.kind}/${x.id}: login yaroqsiz (${JSON.stringify(x.data.login)}) — qo'lda (AUTH_MIGRATION.md, 5-bo'lim)`); continue; }
+    candidates.push({ ...x, email });
+  }
+
+  if (args['new-passwords']) {
+    const auth = getAuth();
+    const rows = [['kind', 'docId', 'login', 'password']];
+    let created = 0;
+    for (const x of candidates) {
+      const password = await strongPassword(14);
+      try {
+        await auth.createUser({ uid: x.id, email: x.email, password, emailVerified: false });
+      } catch (e) {
+        if (e.code === 'auth/uid-already-exists' || e.code === 'auth/email-already-exists') {
+          skipped.push(`${x.kind}/${x.id}: Auth hisobi allaqachon bor (${e.code}) — kerak bo'lsa reset-user-password.mjs`);
+          continue;
+        }
+        throw e;
+      }
+      rows.push([x.kind, x.id, x.data.login, password]);
+      created++;
+    }
+    mkdirSync('migration-out', { recursive: true, mode: 0o700 });
+    const out = args.out || 'migration-out/new-passwords.csv';
+    writeFileSync(out, rows.map(r => r.join(',')).join('\n') + '\n', { mode: 0o600 });
+    console.log(`✓ ${created} ta Auth hisobi yaratildi; login/parollar → ${out}`);
+    console.log('  Parollarni egalariga xavfsiz kanal orqali bering va faylni O\'CHIRING.');
+    skipped.forEach(s => console.log('  ! ' + s));
+    process.exit(0);
+  }
+
+  // --import-file (A yo'l)
+  const users = [];
+  const saltB64 = Buffer.from(LEGACY_SALT, 'utf8').toString('base64');
+  for (const x of candidates) {
+    const d = x.data;
     let hex = d.passwordHash;
     if (!hex && d.rawPwd) hex = createHash('sha256').update(d.rawPwd + LEGACY_SALT).digest('hex');
     if (!hex || !/^[0-9a-f]{64}$/i.test(hex)) { skipped.push(`${x.kind}/${x.id}: parol xeshi yo'q`); continue; }
     users.push({
       localId: x.id,                     // UID = eski hujjat ID → firestore.rules bilan mos
-      email,
+      email: x.email,
       emailVerified: false,
       passwordHash: Buffer.from(hex, 'hex').toString('base64'),
       salt: saltB64,
