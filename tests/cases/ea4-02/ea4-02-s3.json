@@ -1,0 +1,129 @@
+{
+  "id": "ea4-02-s3",
+  "title": "EA-4/02 S3: 10 kΩ etalon rezistor kalibrlash",
+  "status": "verified",
+  "domain": "elektr",
+  "source": {
+    "doc": "EA-4/02 M:2022",
+    "section": "Supplement 1, S3.2–S3.11 (S3.9 byudjet jadvali)",
+    "page": "31–33"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "RS",
+        "dRD",
+        "dRTS",
+        "rC",
+        "r",
+        "dRTX"
+      ],
+      "measurements": {
+        "RS": [
+          10000.053
+        ],
+        "dRD": [
+          0.02
+        ],
+        "dRTS": [
+          0
+        ],
+        "rC": [
+          1
+        ],
+        "r": [
+          1.0000104,
+          1.0000107,
+          1.0000106,
+          1.0000103,
+          1.0000105
+        ],
+        "dRTX": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "RX = (RS + dRD + dRTS) * rC * r - dRTX",
+        "unit": "Ω"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.9545,
+        "kMethod": "k2"
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "R_S: U = 5 mΩ, k = 2 (S3.3)",
+          "param": "RS",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 2
+        },
+        {
+          "name": "δR_D: +20 mΩ ± 10 mΩ (S3.4)",
+          "param": "dRD",
+          "halfWidth": 0.01,
+          "distribution": "rect"
+        },
+        {
+          "name": "δR_TS: ±2,75 mΩ (S3.5)",
+          "param": "dRTS",
+          "halfWidth": 0.00275,
+          "distribution": "rect"
+        },
+        {
+          "name": "r_C: uchburchak ±1,0e-6 (S3.6)",
+          "param": "rC",
+          "halfWidth": 0.000001,
+          "distribution": "triang"
+        },
+        {
+          "name": "δR_TX: ±5,5 mΩ (S3.5)",
+          "param": "dRTX",
+          "halfWidth": 0.0055,
+          "distribution": "rect"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 10000.178,
+      "ref": "S3.9, S3.11: R_X = 10 000,178 Ω"
+    },
+    "uc": {
+      "value": 0.00833,
+      "ref": "S3.9: u(R_X) = 8,33 mΩ"
+    },
+    "k": {
+      "value": 2,
+      "ref": "S3.10: k = 2"
+    },
+    "U": {
+      "value": 0.017,
+      "ref": "S3.10: U = 2 × 8,33 mΩ ≈ 17 mΩ"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 0.000005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "k": {
+      "abs": 0.005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "U": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    }
+  },
+  "notes": "r — 5 ta kuzatuv (S3.8), A turi s/√n."
+}

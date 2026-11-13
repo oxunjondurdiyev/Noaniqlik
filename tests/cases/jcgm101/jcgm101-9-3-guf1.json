@@ -1,0 +1,113 @@
+{
+  "id": "jcgm101-9-3-guf1",
+  "title": "JCGM 101 9.3: massa kalibrlash, GUM 1-tartib (GUF1)",
+  "status": "verified",
+  "domain": "massa",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.3, Table 5 (kirish), Table 6 (natija)",
+    "page": "39–41"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "mR",
+        "dmR",
+        "rhoa",
+        "rhoW",
+        "rhoR"
+      ],
+      "measurements": {
+        "mR": [
+          100000
+        ],
+        "dmR": [
+          1.234
+        ],
+        "rhoa": [
+          1.2
+        ],
+        "rhoW": [
+          8000
+        ],
+        "rhoR": [
+          8000
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "dm = (mR + dmR) * (1 + (rhoa - 1.2) * (1 / rhoW - 1 / rhoR)) - 100000",
+        "unit": "mg"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "m_R,c ~ N(100 000.000 mg, 0.050 mg)",
+          "param": "mR",
+          "halfWidth": 0.05,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "δm_R,c ~ N(1.234 mg, 0.020 mg)",
+          "param": "dmR",
+          "halfWidth": 0.02,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "ρa ~ R(1.20 ± 0.10) kg/m³",
+          "param": "rhoa",
+          "halfWidth": 0.1,
+          "distribution": "rect"
+        },
+        {
+          "name": "ρW ~ R(8000 ± 1000) kg/m³",
+          "param": "rhoW",
+          "halfWidth": 1000,
+          "distribution": "rect"
+        },
+        {
+          "name": "ρR ~ R(8000 ± 50) kg/m³",
+          "param": "rhoR",
+          "halfWidth": 50,
+          "distribution": "rect"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 1.234,
+      "ref": "Table 6, GUF1: δm = 1.234 0 mg"
+    },
+    "uc": {
+      "value": 0.0539,
+      "ref": "Table 6, GUF1: u = 0.053 9 mg"
+    },
+    "U": {
+      "value": 0.1055,
+      "ref": "Table 6, GUF1: [1.128 5, 1.339 5] mg → yarim kenglik 0.105 5"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.00005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 0.00005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "U": {
+      "abs": 0.00005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    }
+  },
+  "notes": "Model (24): ρa0 = 1.2 kg/m³ aniq. ρa, ρW, ρR bo'yicha sezgirlik 0 (Table 7) — 1-tartib GUF u ni kam baholaydi (9.3.2.4); 2-tartibli hadlar P03 da."
+}

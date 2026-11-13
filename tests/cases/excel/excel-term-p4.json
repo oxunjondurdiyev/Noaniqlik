@@ -1,0 +1,194 @@
+{
+  "id": "excel-term-p4",
+  "title": "Termometr MS-MK-3, 4-nuqta (70 °C)",
+  "status": "verified",
+  "domain": "harorat",
+  "source": {
+    "doc": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx (o'quv namunasi)",
+    "file": "tests/fixtures/Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+    "sheet": "Nuqta_4",
+    "inputRefs": {
+      "measurements.Te": "Kuzatuvlar!J4:J15",
+      "measurements.Tv": "Kuzatuvlar!K4:K15",
+      "measurements.Ce": "Kirish!C34",
+      "typeB.5.halfWidth": "Kirish!D34",
+      "settings.P": "Kirish!B24"
+    },
+    "note": "Kuzatuvlar — o'quv namunasi (real laboratoriya ma'lumoti emas). ↑/↓ rejimi, histerezis. Yaxlitlash: ROUNDUP (Kirish!B26)."
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "Te",
+        "Tv",
+        "Ce"
+      ],
+      "measurements": {
+        "Te": [
+          70.089,
+          70.093,
+          70.089,
+          70.089,
+          70.089,
+          70.091,
+          70.09,
+          70.09,
+          70.092,
+          70.09,
+          70.089,
+          70.09
+        ],
+        "Tv": [
+          70,
+          70,
+          70,
+          71,
+          71,
+          71,
+          70,
+          70,
+          70,
+          71,
+          71,
+          71
+        ],
+        "Ce": [
+          0.007
+        ]
+      },
+      "directions": [
+        "↑",
+        "↑",
+        "↑",
+        "↓",
+        "↓",
+        "↓",
+        "↑",
+        "↑",
+        "↑",
+        "↓",
+        "↓",
+        "↓"
+      ],
+      "model": {
+        "formula": "Cv = Te + Ce - Tv",
+        "unit": "°C"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.9545,
+        "rounding": "up",
+        "mpe": "1",
+        "typeA": {
+          "Tv": {
+            "method": 1,
+            "directional": true
+          }
+        }
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "Etalon rezolyutsiyasi",
+          "param": "Te",
+          "halfWidth": 0.001,
+          "distribution": "resol",
+          "unit": "°C"
+        },
+        {
+          "name": "O'lchash qurilmasi xatosi",
+          "param": "Te",
+          "halfWidth": 0.01,
+          "distribution": "rect",
+          "unit": "°C"
+        },
+        {
+          "name": "Etalon dreyfi",
+          "param": "Te",
+          "halfWidth": 0.01,
+          "distribution": "rect",
+          "unit": "°C"
+        },
+        {
+          "name": "Vanna barqarorligi",
+          "param": "Te",
+          "halfWidth": 0.006,
+          "distribution": "rect",
+          "unit": "°C"
+        },
+        {
+          "name": "Vanna bir jinsliligi",
+          "param": "Te",
+          "halfWidth": 0.012,
+          "distribution": "rect",
+          "unit": "°C"
+        },
+        {
+          "name": "Botirish / issiqlik o'tkazish",
+          "param": "Te",
+          "halfWidth": 0.07,
+          "distribution": "rect",
+          "unit": "°C"
+        },
+        {
+          "name": "Etalon sertifikati (Ue, k=2)",
+          "param": "Ce",
+          "halfWidth": 0.006,
+          "distribution": "normal",
+          "k": 2,
+          "unit": "°C"
+        },
+        {
+          "name": "Termometr o'qish interpolyatsiyasi",
+          "param": "Tv",
+          "halfWidth": 0.25,
+          "distribution": "rect",
+          "unit": "°C"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": -0.402916666666656,
+      "ref": "Nuqta_4!D20"
+    },
+    "uc": {
+      "value": 0.325477945962673,
+      "ref": "Nuqta_4!D37"
+    },
+    "nu_eff": {
+      "value": 1520031911.18357,
+      "ref": "Nuqta_4!D38"
+    },
+    "k": {
+      "value": 2.0000024438996,
+      "ref": "Nuqta_4!D39"
+    },
+    "U": {
+      "value": 0.650956687360769,
+      "ref": "Nuqta_4!D40"
+    }
+  },
+  "expectedDisplay": {
+    "U": {
+      "value": 0.66,
+      "ref": "Nuqta_4!D42"
+    },
+    "y": {
+      "value": -0.4,
+      "ref": "Nuqta_4!D43"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "rel": 1e-9,
+      "reason": "PLAN P01/P03: y, u_c, ν_eff, k, U — 1e-9 nisbiy"
+    }
+  },
+  "knownDiscrepancies": {
+    "k": "D-01",
+    "U": "D-01"
+  }
+}

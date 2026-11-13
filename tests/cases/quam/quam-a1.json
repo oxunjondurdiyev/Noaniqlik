@@ -1,0 +1,102 @@
+{
+  "id": "quam-a1",
+  "title": "QUAM A1: kalibrlash eritmasini tayyorlash (Cd, 1000 mg/L)",
+  "status": "verified",
+  "domain": "analitik kimyo",
+  "source": {
+    "doc": "EURACHEM/CITAC QUAM:2012 (3rd ed.)",
+    "section": "Example A1: Table A1.1, A1.4–A1.5, Table A1.3",
+    "page": "35–40"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "m",
+        "P",
+        "V"
+      ],
+      "measurements": {
+        "m": [
+          100.28
+        ],
+        "P": [
+          0.9999
+        ],
+        "V": [
+          100
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "c = 1000 * m * P / V",
+        "unit": "mg/L"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.9545,
+        "kMethod": "k2"
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "u(m) = 0,05 mg (A1.4)",
+          "param": "m",
+          "halfWidth": 0.05,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "P: 0,9999 ± 0,0001 (A1.4)",
+          "param": "P",
+          "halfWidth": 0.0001,
+          "distribution": "rect"
+        },
+        {
+          "name": "u(V) = 0,07 mL (A1.4, manbada yaxlitlangan holda ishlatilgan)",
+          "param": "V",
+          "halfWidth": 0.07,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 1002.7,
+      "ref": "Table A1.1 (p. 35), A1.5: c(Cd) = 1002.7 mg/L"
+    },
+    "uc": {
+      "value": 0.9,
+      "ref": "Table A1.1, A1.5, Table A1.3 B13: u_c = 0.9 mg/L"
+    },
+    "k": {
+      "value": 2,
+      "ref": "A1.6 (p. 40): k = 2"
+    },
+    "U": {
+      "value": 1.8,
+      "ref": "A1.6 (p. 40): U = 2 × 0.9 = 1.8 mg/L"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.05,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 0.05,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "k": {
+      "abs": 0.005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "U": {
+      "abs": 0.15,
+      "reason": "U manbada yaxlitlangan u_c = 0,9 dan: ±0,05 + 2 × 0,05"
+    }
+  },
+  "notes": "Manba V uchun komponentlardan (uchburchak 0,1/√6; 0,02; 0,084/√3) u(V) = 0,066 ni hisoblab, uni 0,07 ga yaxlitlab ishlatgan (Table A1.2, A1.3). Test manba ishlatgan 0,07 bilan. Komponentlardan to'g'ridan-to'g'ri hisob u_c = 0,835 mg/L beradi (DISCREPANCIES.md D-06)."
+}

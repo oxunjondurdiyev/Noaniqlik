@@ -42,14 +42,15 @@ Asosiy hujjatlar: [docs/PLAN.md](docs/PLAN.md) (bosqichlar), [docs/ARCHITECTURE.
 - Pullik ISO standartlariga tayanadigan funksiyalar uchun test manbasi: ochiq manbalar (GTC/MSL, NIST), egasi bergan laboratoriya misollari yoki mustaqil qo'lda hisob (Excel). Manba aniq bo'lmaguncha `unverified`.
 - Brauzerlar: ES modules (2018+); eski brauzerga faqat oddiy ogohlantirish.
 
-## Joriy holat bo'yicha eslatmalar (2026-11-13, P02 dan keyin)
+## Joriy holat bo'yicha eslatmalar (2026-11-13, P02 va P01 dan keyin)
 
 Bu bo'lim qoidalarni bekor qilmaydi — faqat ular hozir qayerda bajarilmasligini ko'rsatadi. Tegishli bosqich tugagach yangilanadi.
 
 - **Bajarish tartibi:** P02 (xavfsizlik) → P01 → P03 → … (`docs/PLAN.md`). Bosqichlarning batafsil talablari — [docs/prompts/ClaudeCode_promptlar.md](docs/prompts/ClaudeCode_promptlar.md); u faylda raqamlash boshqacha, moslik jadvali `docs/PLAN.md` da. Zid bo'lsa `docs/PLAN.md` va egasining javoblari ustun.
 - **Etalon fayllar `tests/fixtures/` da** (README bilan): `Zichlik_noaniqligi_hisobi.xlsx`, `Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx`, `Noaniqlik_hisobi_termometr_MS-MK-3.xlsx`, `Qollanma_noaniqlik_gazoanalizator_C75QM.docx`, `Qollanma_noaniqlik_termometr_MS-MK-3.docx`. Kutilgan qiymatlar faqat shulardan, **katak havolasi bilan**. `.xlsx` o'qish kutubxonasi faqat devDependency bo'lishi mumkin (saytga yuklanmaydi). Termometr kuzatuvlari — o'quv namunasi, real laboratoriya ma'lumoti emas.
 - **9 ta etalon nuqta** = zichlik 1 + gazoanalizator 3 + termometr 5. **10-test** — gazoanalizator 2-nuqta MC intervali `[−0,0111; 0,0469]` (qo'llanmadan).
-- `npm test` (P02, minimal): `tests/excel.test.js` (`verify-excel.js` dagi 8 ta assert, zichlik yo'q; fayl nomi `…gazoanalizator.xlsx` fixture nomiga mos emas) + `tests/security/*.test.js`. Firestore qoidalari testlari Emulator talab qiladi (Java 11+): `npm run test:rules` / `npm run test:all`; Emulator'siz ular o'tkazib yuboriladi. To'liq format — P01.
+- `npm test` (P01): `tests/run-cases.test.js` (manba misollari `tests/cases/**.json`: 31 verified, 4 pending, 1 unverified; ma'lum farqlar todo — `tests/cases/DISCREPANCIES.md` D-01…D-05), `tests/fixture-refs.test.js` (kutilgan qiymat ↔ Excel katagi/docx iqtibosi har safar qayta o'qiladi), `tests/excel.test.js` (eski 8 assert), `tests/i18n.test.js`, `tests/presets.test.js`, `tests/security/*`. Firestore qoidalari — `npm run test:rules` (Emulator, Java 11+). CI: `.github/workflows/test.yml`. `ENGINE_VERSION` = 1.0.0 (`calc.js`), `CHANGELOG.md` bor; `calc.js` o'zgarsa `tests/security/calc.sha256.json` ham yangilanadi. Validatsiya matritsasi — `docs/VALIDATION_MATRIX.md`.
+- Egasi javobini kutayotgan savollar: DISCREPANCIES.md Q-1…Q-4 (katta ν da k tanlash chegarasi, Excel ν_B = 10⁹, 10-test n_dig, yaxlitlangan oraliq qiymatli manbalar uchun tolerans).
 - `src/engine/` hali yo'q: dvigatel `src/js/calc.js` da (IIFE, `window.Calc` + `module.exports`). Ajratish — PLAN P03.
 - Yaxlitlash hozir dvigatel ichida (`Calc.roundResult`), ROUNDUP 0,0999 → `0.100` va `Math.round` (−0,125 → −0,12) bilan — yuqoridagi qarorlarga zid; P03 da `src/report/rounding.js` ga ko'chiriladi.
 - `docs/references/` da hozir bor: JCGM 100:2008, JCGM 101:2008, EA-4/02 M:2022, EURACHEM/CITAC QUAM 2012, Nordtest TR 537 ed.4. **Egasi qo'shadi:** JCGM 102, JCGM 106, JCGM GUM-6, ILAC P14, ILAC G8, EURACHEM UfS, NIST Uncertainty Machine qo'llanmasi, COOMET R/GM/32. Qo'shilmaguncha ularga havola qilingan kod "tekshirilmagan" deb hisoblanadi.

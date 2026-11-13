@@ -1,0 +1,86 @@
+{
+  "id": "jcgm101-9-4-x0-r0-guf1",
+  "title": "JCGM 101 9.4: solishtirish yo'qotishi δY = X1² + X2², x1 = 0, r = 0, GUF 1-tartib",
+  "status": "verified",
+  "domain": "elektr (o'ta yuqori chastota)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.4, Table 8",
+    "page": "43–45"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "dY = X1 ^ 2 + X2 ^ 2",
+        "unit": "1"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "u(x1) = 0.005",
+          "param": "X1",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(x2) = 0.005",
+          "param": "X2",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 0,
+      "ref": "Table 8, x1 = 0: δy (G) = 0×10⁻⁶"
+    },
+    "uc": {
+      "value": 0,
+      "ref": "Table 8, x1 = 0: u(δy) (G1) = 0×10⁻⁶"
+    },
+    "U": {
+      "value": 0,
+      "ref": "Table 8, x1 = 0: GUF interval [0, 0]×10⁻⁶"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 5e-07,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 5e-07,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "U": {
+      "abs": 5e-07,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    }
+  },
+  "notes": "1-tartib GUF u = 0 beradi (noto'g'ri, 9.4.2.2.8) — U = 0 natijasi hisobotda ogohlantirishsiz chiqmasligi kerak (CLAUDE.md; P05 linter).",
+  "expectedWarnings": [
+    "zero_u"
+  ]
+}

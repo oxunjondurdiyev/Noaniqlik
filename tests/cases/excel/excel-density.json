@@ -1,0 +1,142 @@
+{
+  "id": "excel-density",
+  "title": "Zichlik ρ = m/V (juftlangan o'lchashlar, korrelyatsiya)",
+  "status": "verified",
+  "domain": "massa/zichlik",
+  "source": {
+    "doc": "Zichlik_noaniqligi_hisobi.xlsx (laboratoriya Excel'i)",
+    "file": "tests/fixtures/Zichlik_noaniqligi_hisobi.xlsx",
+    "sheet": "3_Hisob",
+    "inputRefs": {
+      "measurements.m": "2_Kirish!B6:B10",
+      "measurements.V": "2_Kirish!C6:C10",
+      "typeB.0.halfWidth": "2_Kirish!B16",
+      "typeB.0.k": "2_Kirish!B17",
+      "typeB.1.halfWidth": "2_Kirish!B18",
+      "typeB.2.halfWidth": "2_Kirish!B19",
+      "typeB.3.halfWidth": "2_Kirish!B23",
+      "typeB.4.halfWidth": "2_Kirish!B25",
+      "settings.P": "2_Kirish!B32"
+    },
+    "note": "Harorat ta'siri Excel'da 3_Hisob!D31 = V̄·γ·ΔT/√3 (γ = 2_Kirish!B27, ΔT = 2_Kirish!B26) — modelda '0.00021 * 2 * V' to'g'ri burchakli. Yaxlitlash: ROUND (3_Hisob!D73)."
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "m",
+        "V"
+      ],
+      "measurements": {
+        "m": [
+          99.8312,
+          99.8741,
+          99.8103,
+          99.8655,
+          99.8236
+        ],
+        "V": [
+          100.02,
+          100.06,
+          99.98,
+          100.04,
+          100
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "ρ = m / V",
+        "unit": "g/cm³"
+      },
+      "settings": {
+        "paired": true,
+        "P": 0.9545
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "Tarozi kalibrlovi (U, k=2)",
+          "param": "m",
+          "halfWidth": 0.0006,
+          "distribution": "normal",
+          "k": 2,
+          "unit": "g"
+        },
+        {
+          "name": "Tarozi diskretligi d",
+          "param": "m",
+          "halfWidth": 0.0001,
+          "distribution": "resol",
+          "unit": "g"
+        },
+        {
+          "name": "Nochiziqlilik / ekssentriklik",
+          "param": "m",
+          "halfWidth": 0.0002,
+          "distribution": "rect",
+          "unit": "g"
+        },
+        {
+          "name": "Idish toleransi",
+          "param": "V",
+          "halfWidth": 0.1,
+          "distribution": "rect",
+          "unit": "cm³"
+        },
+        {
+          "name": "Shkaladan o'qish d",
+          "param": "V",
+          "halfWidth": 0.02,
+          "distribution": "resol",
+          "unit": "cm³"
+        },
+        {
+          "name": "Harorat ta'siri V̄·γ·ΔT",
+          "param": "V",
+          "halfWidth": "0.00021 * 2 * V",
+          "distribution": "rect",
+          "unit": "cm³"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 0.99820975804839,
+      "ref": "3_Hisob!D9"
+    },
+    "uc": {
+      "value": 0.000628651361061272,
+      "ref": "3_Hisob!D58"
+    },
+    "nu_eff": {
+      "value": 996.005635822631,
+      "ref": "3_Hisob!D65"
+    },
+    "k": {
+      "value": 2.00251558209378,
+      "ref": "3_Hisob!D66"
+    },
+    "U": {
+      "value": 0.00125888414622966,
+      "ref": "3_Hisob!D67"
+    }
+  },
+  "expectedDisplay": {
+    "U": {
+      "value": 0.0013,
+      "ref": "3_Hisob!D73"
+    },
+    "y": {
+      "value": 0.9982,
+      "ref": "3_Hisob!D74"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "rel": 1e-9,
+      "reason": "PLAN P01/P03: y, u_c, ν_eff, k, U — 1e-9 nisbiy"
+    }
+  },
+  "knownDiscrepancies": {}
+}

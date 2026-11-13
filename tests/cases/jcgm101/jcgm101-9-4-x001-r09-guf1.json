@@ -1,0 +1,85 @@
+{
+  "id": "jcgm101-9-4-x001-r09-guf1",
+  "title": "JCGM 101 9.4: solishtirish yo'qotishi δY = X1² + X2², x1 = 0.01, r = 0.9, GUF 1-tartib",
+  "status": "verified",
+  "domain": "elektr (o'ta yuqori chastota)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.4, Table 9",
+    "page": "48"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2"
+      ],
+      "measurements": {
+        "X1": [
+          0.01
+        ],
+        "X2": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "dY = X1 ^ 2 + X2 ^ 2",
+        "unit": "1"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {
+        "X1|X2": 0.0000225
+      },
+      "typeB": [
+        {
+          "name": "u(x1) = 0.005",
+          "param": "X1",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(x2) = 0.005",
+          "param": "X2",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 0.00009999999999999999,
+      "ref": "Table 9, x1 = 0.01: δy (GUF) = 100×10⁻⁶"
+    },
+    "uc": {
+      "value": 0.00009999999999999999,
+      "ref": "Table 9, x1 = 0.01: u(δy) (G1/GUF) = 100×10⁻⁶"
+    },
+    "U": {
+      "value": 0.000196,
+      "ref": "Table 9, x1 = 0.01: GUF interval [-96, 296]×10⁻⁶"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 5e-7,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "uc": {
+      "abs": 5e-7,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "U": {
+      "abs": 5e-7,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    }
+  },
+  "notes": "Kovariatsiya covB orqali: u(x1,x2) = r·u(x1)·u(x2). c2 = 2·x2 = 0, shuning uchun GUF natijasi r ga bog'liq emas (Table 9)."
+}

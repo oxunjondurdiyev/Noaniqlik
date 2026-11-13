@@ -1,0 +1,15 @@
+{
+  "modelSpec": null,
+  "expected": {},
+  "id": "jcgm101-9-5-mcm",
+  "title": "JCGM 101 9.5: KMD kalibrlash, MCM (Table 10, 11)",
+  "status": "pending",
+  "enabledIn": "P06",
+  "domain": "uzunlik",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.5.2–9.5.4, Table 10, Table 11 (MCM: 838 nm, 36 nm, [745, 932])",
+    "page": "51–55"
+  },
+  "statusReason": "siljitilgan-masshtablangan t, arksinus va egri trapetsiya taqsimotlari dvigatelda yo'q — P06."
+}

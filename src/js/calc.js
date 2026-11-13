@@ -7,6 +7,11 @@
 
 const Calc = (() => {
 
+  /* ─── Engine version (semver) ───────────────────────
+     Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarishda oshiriladi
+     va CHANGELOG.md da qayd etiladi (CLAUDE.md). 1.0.0 = P00/P01 holati. */
+  const ENGINE_VERSION = '1.0.0';
+
   /* ─── Helpers ───────────────────────────────────── */
   function isBlank(v) {
     return v === '' || v === null || v === undefined || (typeof v === 'string' && v.trim() === '');
@@ -668,7 +673,7 @@ const Calc = (() => {
     return Number(val).toPrecision(sig);
   }
 
-  return { typeA, typeB, getDivisor, getDivisorLabel, DIVISORS,
+  return { ENGINE_VERSION, typeA, typeB, getDivisor, getDivisorLabel, DIVISORS,
            splitFormula, compile, coverageFactor, correlation, pairKey, evaluate,
            typeAx, roundResult, conformity, monteCarlo, valueOrExpr,
            toNum, fmt, fmtSci };

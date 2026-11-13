@@ -1,0 +1,114 @@
+{
+  "id": "excel-gas-p3",
+  "title": "Gazoanalizator KEDR-07, 3-nuqta",
+  "status": "verified",
+  "domain": "fizik-kimyo/gaz tahlili",
+  "source": {
+    "doc": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx (C75.QM asosida)",
+    "file": "tests/fixtures/Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
+    "sheet": "Nuqta_3",
+    "inputRefs": {
+      "measurements.I": "Kirish!D33:M33",
+      "measurements.Ce": "Kirish!B33",
+      "settings.P": "Kirish!B22"
+    },
+    "note": "Kalibrator xatosi: Kirish!B12 (%), Kirish!B13 (mA); ajratish qobiliyati Kirish!B14; PGS chegarasi Nuqta_i!G31. Yaxlitlash: ROUNDUP (Kirish!B27)."
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "I",
+        "Ce"
+      ],
+      "measurements": {
+        "I": [
+          19.21,
+          19.22,
+          19.23
+        ],
+        "Ce": [
+          19
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "E = (I - 4) * 1.25 - Ce",
+        "unit": "% об."
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.9545,
+        "rounding": "up",
+        "mpe": "0.04 * abs((I - 4) * 1.25)",
+        "range": 20
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "Kalibrator xatosi (Fluke 725Ex)",
+          "param": "I",
+          "halfWidth": "0.0002 * I + 0.002",
+          "distribution": "rect",
+          "sensitivity": 1,
+          "unit": "mA"
+        },
+        {
+          "name": "Kalibrator ajratish qobiliyati",
+          "param": "I",
+          "halfWidth": 0.001,
+          "distribution": "resol",
+          "sensitivity": 1,
+          "unit": "mA"
+        },
+        {
+          "name": "PGS (etalon) qiymati",
+          "param": "Ce",
+          "halfWidth": 0.0152,
+          "distribution": "rect",
+          "sensitivity": 1,
+          "unit": "% об."
+        }
+      ]
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 0.0249999999999986,
+      "ref": "Nuqta_3!D35"
+    },
+    "uc": {
+      "value": 0.012124955670022,
+      "ref": "Nuqta_3!D36"
+    },
+    "nu_eff": {
+      "value": 15.9350375387409,
+      "ref": "Nuqta_3!D37"
+    },
+    "k": {
+      "value": 2.18116568190408,
+      "ref": "Nuqta_3!D38"
+    },
+    "U": {
+      "value": 0.0264465372020602,
+      "ref": "Nuqta_3!D39"
+    }
+  },
+  "expectedDisplay": {
+    "U": {
+      "value": 0.027,
+      "ref": "Nuqta_3!D41"
+    },
+    "y": {
+      "value": 0.025,
+      "ref": "Nuqta_3!D42"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "rel": 1e-9,
+      "reason": "PLAN P01/P03: y, u_c, ν_eff, k, U — 1e-9 nisbiy"
+    }
+  },
+  "knownDiscrepancies": {}
+}
