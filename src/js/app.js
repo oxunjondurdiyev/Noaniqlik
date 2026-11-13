@@ -78,30 +78,7 @@
   }
 
   /* ─── UTILITIES ─────────────────────────────────── */
-  window.showToast = function (msg, type = 'info', duration = 3000) {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const icons = {
-      success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
-      error:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`,
-      info:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>`,
-    };
-    toast.innerHTML = `${icons[type] || icons.info}<span>${msg}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
-      toast.style.transition = 'opacity .3s, transform .3s';
-      setTimeout(() => toast.remove(), 300);
-    }, duration);
-  };
+  // showToast — src/ui/toast.js (xabar faqat textContent orqali, P02)
 
   window.switchTab = function (tabName) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -112,9 +89,8 @@
     });
   };
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape: src/ui/escape.js (P02)
+  const escHtml = window.escHtml;
 
   /* ─── THEME — event delegation (works for ALL screens) ── */
   function toggleTheme() {

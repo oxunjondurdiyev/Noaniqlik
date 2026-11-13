@@ -374,9 +374,8 @@ const TypeB = (() => {
     Results.render();
   }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape: src/ui/escape.js (P02)
+  const escHtml = window.escHtml;
 
   /* Public API for preset loading */
   function loadPresetComponents(components) {

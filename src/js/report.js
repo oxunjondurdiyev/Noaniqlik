@@ -545,9 +545,8 @@ const Results = (() => {
 
   function isBlankCell(v) { return v === '' || v === null || v === undefined; }
 
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  // Yagona escape: src/ui/escape.js (P02)
+  const escHtml = window.escHtml;
 
   return { init, render };
 
