@@ -7,7 +7,7 @@
 
    & < > " ' — beshala belgi almashtiriladi, shuning uchun natija
    matn tugunida ham, "..." va '...' atribut qiymatlarida ham xavfsiz.
-   JS-satr kontekstida (onclick="f('…')") ishlatilmaydi — inline
+   JS-satr kontekstida (inline hodisa atributi ichida) ishlatilmaydi — inline
    handler'lar o'rniga addEventListener + data-* atributlari.
 
    Brauzer: window.escHtml.  Node (testlar): module.exports.escHtml.
