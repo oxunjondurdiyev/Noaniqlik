@@ -5,6 +5,8 @@
    ular ham Excel kataklari bilan solishtiriladi (inputRefs).
    Qayta tekshirish har `npm test` da: tests/fixture-refs.test.js.
 
+   P03: tolerans va knownDiscrepancies egasi qarorlari (Q-1(a), Q-2) bo'yicha yangilandi.
+
    Ishga tushirish:  node tests/tools/build-excel-cases.js
    (natija git'da; qayta yaratilsa — diff ko'rib chiqiladi) */
 'use strict';
@@ -18,18 +20,25 @@ const GAS = 'Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx';
 const TERM = 'Noaniqlik_hisobi_termometr_MS-MK-3.xlsx';
 const RHO = 'Zichlik_noaniqligi_hisobi.xlsx';
 
-// Excel ν = 10⁹ ni B tur uchun "∞" o'rnida ishlatadi; dvigatel ∞ yoki 10⁶ (cap) beradi.
+// Excel ν = 10⁹ ni B tur uchun "∞" o'rnida ishlatadi; dvigatel ν_B = ∞ (GUM G.4.2).
 const REL = { rel: 1e-9, reason: 'PLAN P01/P03: y, u_c, ν_eff, k, U — 1e-9 nisbiy' };
 
-// Tahlil natijasi (DISCREPANCIES.md): hozirgi dvigatelda 1e-9 da mos kelmaydigan kattaliklar.
-// Tuzatilmaydi (PLAN P01) — P03 da egasi qaroridan keyin.
+// P03, egasi qarori Q-1(a) (2026-11-13): k = t(⌊ν_eff⌋) har doim. Excel esa ν_eff ≥ 1000 da z ni ishlatadi,
+// shuning uchun ν_eff = 1438 / 5279 / 3416 bo'lgan nuqtalarda k va U Excel'dan ~10⁻⁴…10⁻³ nisbiy farq qiladi (D-02).
+// expectedDisplay (yaxlitlangan U, y) o'zgarmaydi — bu majburiy tekshiruv bo'lib qoladi.
+const Q1A = { rel: 1e-3, reason: "Excel ν ≥ 1000 da z ishlatadi; egasi qarori Q-1(a) — GUM G.4.1: k = t(⌊ν_eff⌋) (D-02, yopildi P03)" };
+const TOL = {
+  'excel-term-p2': { k: Q1A, U: Q1A },
+  'excel-term-p3': { k: Q1A, U: Q1A },
+  'excel-term-p5': { k: Q1A, U: Q1A },
+};
+
+// Tahlil natijasi (DISCREPANCIES.md): 1e-9 da mos kelmaydigan, todo holatidagi kattaliklar.
+// D-01 (normal kvantil) va D-02 (k chegarasi) P03 da yopildi. D-03 (Excel ν_B = 10⁹) — Q-2: todo.
 const KNOWN = {
-  'excel-gas-p1': { k: 'D-01', U: 'D-01' },
-  'excel-term-p1': { k: 'D-01', U: 'D-01' },
-  'excel-term-p2': { k: 'D-02', U: 'D-02', nu_eff: 'D-03' },
-  'excel-term-p3': { k: 'D-01', U: 'D-01', nu_eff: 'D-03' },
-  'excel-term-p4': { k: 'D-01', U: 'D-01' },
-  'excel-term-p5': { k: 'D-02', U: 'D-02', nu_eff: 'D-03' },
+  'excel-term-p2': { nu_eff: 'D-03' },
+  'excel-term-p3': { nu_eff: 'D-03' },
+  'excel-term-p5': { nu_eff: 'D-03' },
 };
 
 const densityState = {
@@ -67,7 +76,7 @@ async function build(spec) {
     modelSpec: { format: 'calc-state/v2', state: spec.state },
     expected,
     expectedDisplay: display,
-    tolerance: { default: REL },
+    tolerance: { default: REL, ...(TOL[spec.id] || {}) },
     knownDiscrepancies: KNOWN[spec.id] || {},
   };
   fs.writeFileSync(path.join(OUT, spec.id + '.json'), JSON.stringify(caseObj, null, 2) + '\n');

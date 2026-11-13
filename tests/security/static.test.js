@@ -104,11 +104,11 @@ test('firebase-admin va boshqa paketlar faqat devDependencies', () => {
   for (const f of [...SRC, ...HTML]) assert.ok(!/node_modules|firebase-admin/.test(read(f)), f);
 });
 
-test('hisoblash dvigateli (src/js/calc.js) qayd etilgan xeshga mos', () => {
-  // calc.js o'zgarsa: natijaga ta'sir qilsa — ENGINE_VERSION oshiriladi va CHANGELOG.md ga yoziladi,
-  // so'ng calc.sha256.json yangilanadi (CLAUDE.md). P02 calc.js ga tegmagan; P01 faqat ENGINE_VERSION qo'shgan.
-  const rec = require('./calc.sha256.json');
-  const h = crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, 'src/js/calc.js'))).digest('hex');
-  assert.equal(h, rec.sha256, 'calc.js o\'zgargan — ENGINE_VERSION/CHANGELOG/calc.sha256.json ni yangilang');
-  assert.equal(require('../../src/js/calc.js').ENGINE_VERSION, rec.engineVersion);
+test('hisoblash dvigateli (src/engine/, src/report/) qayd etilgan xeshga mos', () => {
+  // Dvigatel yoki yaxlitlash o'zgarsa: natijaga ta'sir qilsa — ENGINE_VERSION oshiriladi va CHANGELOG.md ga
+  // yoziladi, so'ng `node tests/tools/engine-hash.js --write` (CLAUDE.md). P03 da calc.js → src/engine/.
+  const rec = require('./engine.sha256.json');
+  const { engineHash } = require('../tools/engine-hash.js');
+  assert.equal(engineHash().sha256, rec.sha256, 'src/engine yoki src/report o\'zgargan — ENGINE_VERSION/CHANGELOG/engine.sha256.json ni yangilang');
+  assert.equal(require('../../src/engine/version.js').ENGINE_VERSION, rec.engineVersion);
 });

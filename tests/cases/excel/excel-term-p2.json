@@ -185,11 +185,17 @@
     "default": {
       "rel": 1e-9,
       "reason": "PLAN P01/P03: y, u_c, ν_eff, k, U — 1e-9 nisbiy"
+    },
+    "k": {
+      "rel": 0.001,
+      "reason": "Excel ν ≥ 1000 da z ishlatadi; egasi qarori Q-1(a) — GUM G.4.1: k = t(⌊ν_eff⌋) (D-02, yopildi P03)"
+    },
+    "U": {
+      "rel": 0.001,
+      "reason": "Excel ν ≥ 1000 da z ishlatadi; egasi qarori Q-1(a) — GUM G.4.1: k = t(⌊ν_eff⌋) (D-02, yopildi P03)"
     }
   },
   "knownDiscrepancies": {
-    "k": "D-02",
-    "U": "D-02",
     "nu_eff": "D-03"
   }
 }

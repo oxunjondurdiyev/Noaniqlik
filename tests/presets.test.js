@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const Calc = require('../src/js/calc.js');
+const Calc = require('../src/engine/index.js'); // P03: dvigatel (src/engine/)
 const K = require('./excel-cases.js');
 
 const ctx = { window: {} };

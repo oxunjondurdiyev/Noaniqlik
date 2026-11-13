@@ -1,6 +1,6 @@
 /* 8 ta etalon Excel nuqtasi (gazoanalizator 3 + termometr 5) — tests/verify-excel.js orqali.
    Zichlik nuqtasi (9-chi) va MC intervali (10-test) — P01 da (docs/PLAN.md).
-   P02 hisoblash dvigateliga (src/js/calc.js) tegmaydi — bu test shuni kafolatlaydi. */
+   P03 dan dvigatel src/engine/, yaxlitlash src/report/ da — ko'rinish o'zgarmasligi shu yerda kafolatlanadi. */
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');

@@ -1,9 +1,11 @@
-/* tests/cases/*.json misollarini hozirgi dvigatelda (src/js/calc.js) ishga tushirish
-   va kutilgan qiymat bilan solishtirish. Format: tests/cases/README.md. */
+/* tests/cases/*.json misollarini dvigatelda (src/engine/, P03) ishga tushirish
+   va kutilgan qiymat bilan solishtirish. Ko'rsatiladigan (yaxlitlangan) qiymatlar —
+   hisobot qatlamidan (src/report/rounding.js). Format: tests/cases/README.md. */
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const Calc = require('../../src/js/calc.js');
+const engine = require('../../src/engine/index.js');
+const { roundResult } = require('../../src/report/rounding.js');
 
 const CASES_DIR = __dirname;
 
@@ -23,7 +25,8 @@ function loadCases() {
 const PICK = {
   evaluate: {
     y: r => r.y, uc: r => r.uc, uc2: r => r.uc2, nu_eff: r => r.nuEff, k: r => r.k, U: r => r.U,
-    'display.U': r => r.Uround, 'display.y': r => r.yround,
+    'display.U': r => roundResult(r.y, r.U, r.roundUp).Uround,
+    'display.y': r => roundResult(r.y, r.U, r.roundUp).yround,
   },
   monteCarlo: {
     y: r => r.mean, u: r => r.u,
@@ -32,13 +35,12 @@ const PICK = {
   },
 };
 
-// Excel ν_eff ≈ 10⁹ ni "∞" o'rnida ishlatadi (B tur ν = 10⁹); dvigatel ∞ yoki 10⁶ (cap).
+// Excel ν_eff ≈ 10⁹ ni "∞" o'rnida ishlatadi (B tur ν = 10⁹); dvigatel ν_B = ∞ (P03 dan cap yo'q).
 const NU_INF = 1e6;
 
 function run(c) {
   const runSpec = c.run || { method: 'evaluate' };
-  const state = c.modelSpec.state;
-  const r = runSpec.method === 'monteCarlo' ? Calc.monteCarlo(state, runSpec.M) : Calc.evaluate(state);
+  const r = runSpec.method === 'monteCarlo' ? engine.monteCarlo(c.modelSpec, runSpec.M) : engine.evaluate(c.modelSpec);
   return { r, runSpec };
 }
 
@@ -82,4 +84,4 @@ function checks(c) {
   return { list, result: r, warnings: (r.warnings || []).map(w => w.code) };
 }
 
-module.exports = { loadCases, checks, compare, Calc };
+module.exports = { loadCases, checks, compare, engine, Calc: engine };

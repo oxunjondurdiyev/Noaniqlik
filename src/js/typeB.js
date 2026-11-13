@@ -232,7 +232,11 @@ const TypeB = (() => {
     const covB     = state.covB || {};
 
     const stats = {};
-    state.params.forEach(p => { stats[p] = Calc.typeA(state.measurements[p] || []); });
+    // evaluate() bilan bir xil A tur (↑/↓ va usul hisobga olingan) — ekrandagi r hisobdagi r ga teng (P03)
+    state.params.forEach(p => {
+      const opt = ((settings.typeA || {})[p]) || {};
+      stats[p] = Calc.typeAx(state.measurements[p] || [], { ...opt, dirs: state.directions || [] });
+    });
 
     let pairRows = '';
     for (let i = 0; i < state.params.length; i++) {
@@ -280,6 +284,13 @@ const TypeB = (() => {
             </select>
           </div>
           <div class="form-group">
+            <label>${i18n.t('set_nu_rule')}</label>
+            <select data-set="nuRule" ${settings.kMethod === 'k2' ? 'disabled' : ''}>
+              ${['floor', 'interpolate', 'exact'].map(v =>
+                `<option value="${v}" ${(settings.nuRule || 'floor') === v ? 'selected' : ''}>${i18n.t('nu_rule_' + v)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
             <label>${i18n.t('set_rounding')}</label>
             <select data-set="rounding">
               <option value="normal" ${settings.rounding !== 'up' ? 'selected' : ''}>${i18n.t('set_round_normal')}</option>
@@ -287,6 +298,10 @@ const TypeB = (() => {
             </select>
           </div>
         </div>
+        <label class="model-check" title="${escHtml(i18n.t('set_second_order_hint'))}">
+          <input type="checkbox" id="chk-second-order" ${settings.secondOrder === true ? 'checked' : ''} />
+          <span>${i18n.t('set_second_order')} ⓘ</span>
+        </label>
         <div class="model-card-title" style="margin-top:.9rem">${i18n.t('conf_title')} <span class="text-muted text-xs">ISO/IEC 17025 7.8.6 · JCGM 106 · ILAC G8</span></div>
         <div class="settings-grid">
           <div class="form-group">
@@ -317,6 +332,9 @@ const TypeB = (() => {
         const v = Calc.toNum(inp.value);
         appState.set({ covB: { ...(appState.get('covB') || {}), [inp.dataset.cov]: isFinite(v) ? v : 0 }, combined: null });
       });
+    });
+    el.querySelector('#chk-second-order').addEventListener('change', e => {
+      appState.set({ settings: { ...(appState.get('settings') || {}), secondOrder: e.target.checked }, combined: null });
     });
     el.querySelector('#sel-coverage-p').addEventListener('change', e => {
       appState.set({ settings: { ...(appState.get('settings') || {}), P: Number(e.target.value) }, combined: null });
@@ -354,9 +372,15 @@ const TypeB = (() => {
         formula_eval: i18n.t('err_formula_eval'),
         bad_halfwidth: i18n.t('err_bad_halfwidth') + ': «' + (result.detail || '') + '»',
         bad_mpe:      i18n.t('err_bad_mpe'),
+        negative_variance: i18n.t('err_negative_variance'),
+        bad_correlation: i18n.t('err_bad_correlation') + (result.detail ? ': ' + result.detail.replace('|', ' ↔ ') : ''),
+        unit_mismatch: i18n.t('err_unit_mismatch') + (result.detail ? ': ' + result.detail : ''),
+        unit_fn_arg:  i18n.t('err_unit_fn_arg') + (result.detail ? ': ' + result.detail : ''),
+        multi_output: i18n.t('err_multi_output'),
+        bad_spec:     i18n.t('err_bad_spec'),
       }[result.error] || i18n.t('toast_need_data');
       showToast(msg, 'error', 4500);
-      if (!['formula_eval', 'bad_halfwidth', 'bad_mpe'].includes(result.error)) switchTab('data');
+      if (!['formula_eval', 'bad_halfwidth', 'bad_mpe', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab('data');
       return;
     }
 
