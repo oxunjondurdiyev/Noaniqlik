@@ -96,6 +96,12 @@ const Table = (() => {
           <span class="text-muted text-xs">+ − × / ^ ( ) · sqrt ln log exp sin cos tan abs pi</span>
         </div>
         <div id="model-status" class="model-status"></div>
+        <div class="model-units">
+          <span class="text-xs text-muted">${i18n.t('unit_row')}:</span>
+          ${state.params.map(p => `<label class="unit-field"><span class="mono">${escHtml(p)}</span>
+            <input type="text" data-unit-param="${escHtml(p)}" value="${escHtml(((state.units || {})[p]) || '')}" placeholder="${escHtml(i18n.t('unit_ph'))}" autocomplete="off" /></label>`).join('')}
+        </div>
+        <div id="model-units-status" class="model-status"></div>
         ${state.params.length > 1 ? `
         <label class="model-check">
           <input type="checkbox" id="model-paired" ${paired ? 'checked' : ''} />
@@ -138,6 +144,15 @@ const Table = (() => {
         appState.set({ settings: { ...settings, typeA: all }, combined: null });
       });
     });
+    box.querySelectorAll('[data-unit-param]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const units = { ...(appState.get('units') || {}) };
+        const v = inp.value.trim();
+        if (v) units[inp.dataset.unitParam] = v; else delete units[inp.dataset.unitParam];
+        appState.set({ units, combined: null });
+        updateUnitsStatus();
+      });
+    });
     const pEl = box.querySelector('#model-paired');
     if (pEl) pEl.addEventListener('change', () => {
       appState.set({ settings: { ...(appState.get('settings') || {}), paired: pEl.checked }, combined: null });
@@ -176,7 +191,39 @@ const Table = (() => {
       </details>`;
   }
 
+  /* O'lchamlik tekshiruvi (src/engine/units.js) — UI'da ogohlantirish sifatida (P04, P03 qoldig'i) */
+  function updateUnitsStatus() {
+    const el = document.getElementById('model-units-status');
+    const fEl = document.getElementById('model-formula');
+    if (!el || !fEl) return;
+    const state = appState.get();
+    const units = state.units || {};
+    const parsed = {};
+    state.params.forEach(p => { const u = Calc.parseUnit(units[p]); if (u) parsed[p] = u; });
+    const given = Object.keys(parsed).length;
+    if (!given) { el.className = 'model-status'; el.textContent = ''; return; }
+    const { expr } = Calc.splitFormula(fEl.value);
+    let ast = null;
+    try { ast = expr ? Calc.parse(expr, state.params) : null; } catch (_) { el.textContent = ''; return; }
+    const unknown = state.params.filter(p => units[p] && !parsed[p]);
+    const res = ast ? Calc.analyzeDimensions(ast, parsed) : { dim: parsed[state.params[0]] ? parsed[state.params[0]].dim : null, problems: [] };
+    const msgs = [];
+    const err = res.problems.find(x => x.severity === 'error');
+    if (err) msgs.push(i18n.t('unit_check_err') + ': ' + err.detail);
+    res.problems.filter(x => x.severity === 'warning').forEach(x => msgs.push(i18n.t('w_' + x.code).replace('{v}', x.detail).replace('{p}', '')));
+    unknown.forEach(p => msgs.push(p + ': «' + units[p] + '» ?'));
+    const outU = Calc.parseUnit((state.model || {}).unit);
+    if (!err && res.dim && outU && Calc.dimText(res.dim) !== Calc.dimText(outU.dim)) {
+      msgs.push(i18n.t('w_unit_output').replace('{v}', `${state.model.unit} [${Calc.dimText(outU.dim)}] ≠ [${Calc.dimText(res.dim)}]`));
+    }
+    if (given < state.params.length) msgs.push(i18n.t('unit_check_partial'));
+    if (err) el.className = 'model-status err';
+    else el.className = 'model-status ' + (msgs.length ? 'warn' : 'ok');
+    el.textContent = msgs.length ? '⚠ ' + msgs.join(' · ') : '✓ ' + i18n.t('unit_check_ok') + (res.dim ? ' [' + Calc.dimText(res.dim) + ']' : '');
+  }
+
   function updateModelStatus() {
+    updateUnitsStatus();
     const el  = document.getElementById('model-status');
     const fEl = document.getElementById('model-formula');
     if (!el || !fEl) return;

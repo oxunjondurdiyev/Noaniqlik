@@ -154,6 +154,7 @@ const TypeB = (() => {
           </svg>
         </button>
       </div>
+      ${comp.hint || comp.note ? `<div class="typeb-hint text-xs text-muted">${comp.optional ? '⚠ ' + escHtml(i18n.t('tpl_optional')) + '. ' : ''}${escHtml(comp.hint || '')}${comp.note ? ' — ' + escHtml(comp.note) : ''}</div>` : ''}
       <div class="typeb-card-body">
         <div class="form-group">
           <label>${i18n.t('label_param')}</label>
@@ -173,8 +174,8 @@ const TypeB = (() => {
         ${dist === 'normal' ? `
         <div class="form-group">
           <label>${i18n.t('label_k_cert')}</label>
-          <input type="text" inputmode="decimal" value="${escHtml(String(comp.k || 2))}"
-            data-id="${escHtml(comp.id)}" data-field="k" placeholder="2" autocomplete="off" />
+          <input type="text" inputmode="decimal" value="${escHtml(comp.kRequired && !(Number(comp.k) > 0) ? '' : String(comp.k || 2))}"
+            data-id="${escHtml(comp.id)}" data-field="k" placeholder="${comp.kRequired ? escHtml(i18n.t('tpl_k_required')) : '2'}" autocomplete="off" />
         </div>` : `
         <div class="form-group">
           <label>${i18n.t('label_unit')}</label>
@@ -346,12 +347,14 @@ const TypeB = (() => {
     const field = e.target.dataset.field;
     let val     = e.target.value;
 
+    // Shablon manbasi (P04): bo'sh qiymat 0 / k = 2 deb jimgina olinmaydi — hisob oldidan so'raladi
+    const comp = (appState.get('typeB') || []).find(c => c.id === id) || {};
     if (field === 'halfWidth') {
       const n = Calc.toNum(val);
-      val = isFinite(n) ? n : (val.trim() || 0);           // keep expressions like "0.0002*I + 0.002"
+      val = isFinite(n) ? n : (val.trim() || (comp.sourceId ? '' : 0));   // keep expressions like "0.0002*I + 0.002"
     } else if (field === 'sensitivity' || field === 'k') {
       const n = Calc.toNum(val);
-      val = isFinite(n) ? n : (field === 'k' ? 2 : 1);
+      val = isFinite(n) ? n : (field === 'k' ? (comp.kRequired ? '' : 2) : 1);
     } else if (field === 'nu') {
       const n = Calc.toNum(val);
       val = isFinite(n) && n > 0 ? n : '';
@@ -361,7 +364,17 @@ const TypeB = (() => {
   }
 
   function calcCombined() {
-    const state  = appState.get();
+    const raw    = appState.get();
+    // P04: shablon bo'yicha hisob — bo'sh maydonlar bloklanadi; aux formulalar va "bitta asbob" kovariatsiyasi
+    const tplRT  = window.UCTemplates;
+    if (raw.template && tplRT) {
+      const missing = tplRT.missingInState(raw);
+      if (missing.length) {
+        showToast(i18n.t('tpl_block_missing') + ' ' + tplRT.missingText(missing).slice(0, 6).join('; ') + (missing.length > 6 ? ' …' : ''), 'error', 7000);
+        return;
+      }
+    }
+    const state  = raw.template && tplRT ? tplRT.prepareState(raw) : raw;
     const result = Calc.evaluate(state);
 
     if (result.error) {
@@ -393,6 +406,7 @@ const TypeB = (() => {
     });
 
     appState.set({ typeA, combined: result });
+    if (tplRT) tplRT.saveCalculation(state, result);   // IndexedDB + audit izi (P04)
     showToast(i18n.t('toast_calc_done'), 'success');
     switchTab('results');
     Results.render();

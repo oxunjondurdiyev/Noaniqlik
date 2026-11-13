@@ -74,7 +74,23 @@
     homeScreen   .classList.toggle('hidden', name !== 'home');
     welcomeScreen.classList.toggle('hidden', name !== 'welcome');
     appShell     .classList.toggle('hidden', name !== 'app');
+    const tplScreen = document.getElementById('templates-screen');
+    if (tplScreen) tplScreen.classList.toggle('hidden', name !== 'templates');
     if (name !== 'home') window.scrollTo(0, 0);
+  }
+
+  /* Trial tekshiruvi (yangi sessiya boshlanganda). false — paywall ko'rsatildi. */
+  function beginSession() {
+    const session = window.AuthManager && window.AuthManager.getSession();
+    if (!session) {
+      if (!isTrialActive()) {
+        showPaywall();
+        return false;
+      }
+      incrementTrial();
+      updateTrialBanner();
+    }
+    return true;
   }
 
   /* ─── UTILITIES ─────────────────────────────────── */
@@ -171,17 +187,7 @@
   }
 
   function startSession() {
-    // ─ Trial tekshiruvi ─────────────────────────────
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (!session) {
-      if (!isTrialActive()) {
-        showPaywall();
-        return;
-      }
-      incrementTrial();
-      updateTrialBanner();
-    }
-    // ────────────────────────────────────────────────
+    if (!beginSession()) return;
 
     const n       = Math.max(2, parseInt(document.getElementById('inp-n').value, 10) || 10);
     const p       = Math.max(1, parseInt(document.getElementById('inp-p').value, 10) || 1);
@@ -202,7 +208,7 @@
     }
 
     appState.set({ n, params, measurements: {}, typeA: {}, typeB: [], combined: null,
-                   model: { formula: '', unit: '' }, covB: {},
+                   model: { formula: '', unit: '' }, covB: {}, units: {}, template: null,
                    settings: { paired: true, P: 0.9545 }, directions: [], points: [], currentPoint: null });
     appState.resizeN(n);
 
@@ -361,7 +367,7 @@
             typeA: {},
             typeB: [],
             combined: null,
-            model: { formula: '', unit: '' }, covB: {},
+            model: { formula: '', unit: '' }, covB: {}, units: {}, template: null,
             settings: { paired: true, P: 0.9545 }, directions: [], points: [], currentPoint: null,
           });
           appState.resizeN(n);
@@ -490,6 +496,9 @@
       detectDerived();
     }
   }
+
+  // Shablonlar moduli (src/ui/tpl/app.js) uchun
+  window.App = { showScreen, renderSidebar: () => renderSidebar(), beginSession };
 
   document.addEventListener('DOMContentLoaded', bootstrap);
 

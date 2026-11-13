@@ -7,7 +7,7 @@
 
 const Points = (() => {
 
-  const KEYS = ['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'settings', 'covB'];
+  const KEYS = ['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'settings', 'covB', 'units', 'template'];
 
   function clone(v) { return v === undefined ? undefined : JSON.parse(JSON.stringify(v)); }
 
@@ -24,7 +24,8 @@ const Points = (() => {
   /** Save the current editor contents as a point (updates the point being edited) */
   function save(label) {
     const st = appState.get();
-    const r  = Calc.evaluate(st);
+    // P04: shablon holati — aux formulalar va "bitta asbob" kovariatsiyasi bilan (src/templates/interpreter.js)
+    const r  = Calc.evaluate(st.template && window.UCTemplates ? window.UCTemplates.prepareState(st) : st);
     if (r.error) return r;
     const pts = [...list()];
     const idx = pts.findIndex(p => p.id === st.currentPoint);
