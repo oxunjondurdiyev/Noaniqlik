@@ -31,6 +31,18 @@
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 
+### P02 natijasi (2026-11-13, branch `p02-security`)
+
+| ID | Holat | Nima qilindi | Qoldiq xavf / egasining qadami |
+|---|---|---|---|
+| R-S1 | **kodda yopildi**, konsolga joylash kutilmoqda | `firestore.rules`: default deny, a'zolik bo'yicha o'qish, `active/paymentStatus/plan/planExpiry` faqat super-admin; 28 ta Emulator testi | Egasi qoidalarni konsolga joylaydi (`docs/SECURITY_SETUP.md` 5-qadam). Joylanmaguncha ma'lumot ochiq |
+| R-S2 | **yopildi** | `SUPER_ADMIN` olib tashlandi; super-admin = Auth custom claim `superadmin: true` | Eski parol git tarixida — oshkor deb hisoblanadi, qayta ishlatilmaydi (SECURITY_SETUP.md §11) |
+| R-S3 | **kodda yopildi** | `rawPwd`, `passwordHash`, `hashPwd` olib tashlandi; parollar faqat Firebase Auth'da; qoidalar parol maydonlarini yozishni taqiqlaydi | Mavjud hujjatlardan o'chirish — `migrate-legacy-users.mjs --strip-legacy`; eski parollar oshkor deb hisoblanadi → yangi parollar (AUTH_MIGRATION.md B yo'l) |
+| R-S4 | **yopildi** | Sessiya = Firebase Auth token'i; `uc_session`/`uc_sa_session` o'chiriladi; test: soxta sessiya hech narsa bermaydi | — |
+| R-S5 | **yopildi** | yagona `escHtml` (`'` bilan), `showToast` → `textContent`, shablonlar escape qilinadi, inline `onclick` yo'q; jsdom XSS testlari | `style-src 'unsafe-inline'` qoldi |
+| R-14 | **yopildi** | Firebase SDK `vendor/firebase/9.23.0/` (LICENSE, SHA-384); CSP `<meta>` (`script-src 'self'`) | Google Fonts tashqi; `frame-ancestors` meta'da ishlamaydi (P15) |
+| R-15 | **qisman** | Tarif/aktivatsiya/muddat faqat super-admin (qoidalar); admin faqat so'rov yuboradi | Trial hisoblagichi (`uc_trial_count`) va xodimlar limiti hali mijozda (Spark, Cloud Functions'siz); Click/Payme merchant ID'lari to'ldirilmagan |
+
 ---
 
 ## 1. Metrologik / sonli xavflar

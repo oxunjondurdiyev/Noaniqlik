@@ -54,7 +54,7 @@ const Results = (() => {
   function warningsHtml(r) {
     if (!r.warnings || !r.warnings.length) return '';
     return `<div class="warn-box">${r.warnings.map(w =>
-      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', w.value ?? '')}</div>`).join('')}</div>`;
+      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', escHtml(w.value ?? ''))}</div>`).join('')}</div>`;
   }
 
   /* ─── Points panel (multi-point calibration) ───── */

@@ -144,6 +144,20 @@ To deploy your own fork:
 
 ---
 
+## Development & security (P02)
+
+```bash
+npm install          # devDependencies only — nothing from node_modules is served
+npm test             # 8 reference Excel points + XSS / session / static security checks
+npm run test:all     # + Firestore rules tests in the Firebase Emulator (needs Java 11+)
+```
+
+- Authentication: Firebase Authentication (login → synthetic email), Firestore access controlled by [`firestore.rules`](firestore.rules).
+- Console setup for the project owner: [docs/SECURITY_SETUP.md](docs/SECURITY_SETUP.md); migrating existing users: [docs/AUTH_MIGRATION.md](docs/AUTH_MIGRATION.md); personal data inventory: [docs/DATA_RESIDENCY.md](docs/DATA_RESIDENCY.md).
+- Firebase SDK is vendored in `vendor/firebase/` (Apache-2.0); the pages use a CSP with `script-src 'self'`.
+
+---
+
 ## License
 
 MIT — Free to use for educational, research, and commercial laboratory applications.

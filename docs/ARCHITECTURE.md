@@ -4,6 +4,28 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P02 (2026-11-13, `p02-security`).** Quyidagi bo'limlar P00 holatini tasvirlaydi; xavfsizlik qatlami o'zgardi:
+>
+> | Fayl | Vazifasi (P02) |
+> |---|---|
+> | `firestore.rules`, `firebase.json` | Firestore qoidalari (default deny, a'zolik, super-admin claim); Emulator sozlamasi |
+> | `vendor/firebase/9.23.0/` | Firebase compat SDK (app, auth, firestore) + LICENSE + SHA-384; CDN ishlatilmaydi |
+> | `src/ui/escape.js` | yagona `escHtml` (`window.escHtml`, Node `module.exports`) |
+> | `src/ui/toast.js` | `showToast` — faqat `textContent` |
+> | `src/ui/templates.js` | `UiTemplates`: hisob-faktura, pending info, xodimlar jadvali, super-admin qatorlari (escape qilingan, `data-action`) |
+> | `src/ui/index-auth.js`, `admin-page.js`, `superadmin-page.js` | HTML ichidagi skriptlar shu fayllarga ko'chirildi (CSP `script-src 'self'`) |
+> | `src/ui/legacy-warning.js` | `<script nomodule>` — eski brauzer ogohlantirishi |
+> | `src/js/auth-core.js` | `AuthCore`: login → sun'iy email, login tavsiyasi, parol generatori, tariflar (sof, Node'da test qilinadi) |
+> | `src/js/auth.js` | `AuthManager`: Firebase Auth (sessiya token'dan; `ready()`, `onChange()`), xodim yaratish ikkinchi app instansiyasi bilan, parolni tiklash = yangi hisob, tarif so'rovi |
+> | `src/js/db.js` | `DB`: `get/getAll/set/update/remove/batch/onOrgsSnapshot/onCollectionSnapshot`; `getByIndex`, `isLoginTaken`, `exportAll` olib tashlandi |
+> | `src/js/firebase-config.js` | `FIREBASE_CONFIG`, `LOGIN_EMAIL_DOMAIN`, `window.firebaseDb`, `window.firebaseAuth`; `SUPER_ADMIN` **yo'q** |
+> | `scripts/*.mjs` | egasining Admin SDK skriptlari: `set-superadmin-claim`, `reset-user-password`, `migrate-legacy-users`, `vendor-firebase` |
+> | `package.json`, `tests/**/*.test.js` | `npm test` (8 Excel nuqtasi + xavfsizlik), `npm run test:all` (+ Emulator'da qoidalar) |
+>
+> Firestore: `organizations/{adminUid}`, `employees/{uid}`, `authCleanup/{uid}`. `passwordHash`, `rawPwd`, `fullName` yo'q. `localStorage` da `uc_session`, `uc_sa_session` endi yozilmaydi (o'chiriladi).
+> Skript tartibi: `vendor/firebase (app, auth, firestore) → escape → toast → firebase-config → auth-core → db → auth → templates → (index: presets … app) → sahifa kontrolleri`.
+> Batafsil: [SECURITY_SETUP.md](SECURITY_SETUP.md), [AUTH_MIGRATION.md](AUTH_MIGRATION.md), [DATA_RESIDENCY.md](DATA_RESIDENCY.md).
+
 ---
 
 ## 1. Umumiy ko'rinish
