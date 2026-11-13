@@ -1,0 +1,241 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-09",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Sochma zichlik (chaqiq tosh, qum)",
+    "ru": "Насыпная плотность (щебень, песок)",
+    "en": "Bulk density (crushed stone, sand)"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 8269.0",
+      "edition": null,
+      "labCount": 33
+    },
+    {
+      "code": "ГОСТ 8735",
+      "edition": null,
+      "labCount": 32
+    }
+  ],
+  "labCount": 33,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-09",
+  "measurand": {
+    "symbol": "ρ_n",
+    "name": {
+      "uz": "Sochma zichlik",
+      "ru": "Насыпная плотность",
+      "en": "Bulk density"
+    },
+    "unit": "kg/m³"
+  },
+  "model": {
+    "formula": "ρ_n = (m1 - m) / V"
+  },
+  "inputs": [
+    {
+      "symbol": "m1",
+      "name": {
+        "uz": "Material bilan o'lchov idishi massasi m1",
+        "ru": "Масса мерного сосуда с материалом m1",
+        "en": "Mass of the measuring vessel with material m1"
+      },
+      "unit": "kg",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Bo'sh o'lchov idishi massasi m",
+        "ru": "Масса пустого мерного сосуда m",
+        "en": "Mass of the empty measuring vessel m"
+      },
+      "unit": "kg",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "V",
+      "name": {
+        "uz": "O'lchov idishi hajmi V",
+        "ru": "Объём мерного сосуда V",
+        "en": "Volume of the measuring vessel V"
+      },
+      "unit": "m³",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m1_cert",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m1)",
+        "ru": "Весы: сертификат о калибровке (m1)",
+        "en": "Balance: calibration certificate (m1)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "kg",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m1_res",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m1)",
+        "ru": "Весы: разрешение (m1)",
+        "en": "Balance: resolution (m1)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "kg",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m_cert",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m)",
+        "ru": "Весы: сертификат о калибровке (m)",
+        "en": "Balance: calibration certificate (m)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "kg",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m_res",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m)",
+        "ru": "Весы: разрешение (m)",
+        "en": "Balance: resolution (m)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "kg",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "V_cert",
+      "input": "V",
+      "name": {
+        "uz": "O'lchov idishi hajmi: kalibrlash (V)",
+        "ru": "Объём мерного сосуда: калибровка (V)",
+        "en": "Volume of the measuring vessel: calibration (V)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "m³",
+      "instrument": "vessel",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "m_m1",
+      "inputs": [
+        "m1",
+        "m"
+      ],
+      "r": 1,
+      "sharedInstrument": "balance",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "Bu kirishlar bitta tarozi bilan o'lchanadimi? Ha bo'lsa — umumiy sistematik xato tufayli korrelyatsiya r = +1 hisobga olinadi (faqat sertifikat/ruxsat etilgan xatolik manbalari; ajratish qobiliyati mustaqil).",
+        "ru": "Измеряются ли эти величины одним и тем же прибором (весы)? Если да — учитывается корреляция r = +1 из-за общей систематической погрешности (только источники «сертификат/допускаемая погрешность»; разрешение независимо).",
+        "en": "Are these inputs measured with the same balance? If yes — correlation r = +1 due to the common systematic error is taken into account (certificate / permissible-error sources only; resolution is independent)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "To'ldirish usuli ta'siri A tur (parallel aniqlashlar) orqali olinadi. Birliklar: m — kg, V — m³; standartda V litrda bo'lsa ×1000 kerak — tekshirilsin.",
+        "ru": "Влияние способа заполнения учитывается через тип A (параллельные определения). Единицы: m — кг, V — м³; если в стандарте V в литрах — нужен ×1000, проверить.",
+        "en": "The effect of the filling method is captured by Type A (replicates). Units: m in kg, V in m³; if the standard uses litres, ×1000 is needed — verify."
+      },
+      "owner": "lab"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

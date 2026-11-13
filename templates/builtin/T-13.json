@@ -1,0 +1,505 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-13",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "G'isht siqilish va egilishdagi mustahkamligi",
+    "ru": "Прочность кирпича при сжатии и изгибе",
+    "en": "Compressive and flexural strength of brick"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 8462",
+      "edition": null,
+      "labCount": 31
+    }
+  ],
+  "labCount": 31,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-13",
+  "measurand": {
+    "symbol": "R",
+    "name": {
+      "uz": "Siqilishdagi mustahkamlik",
+      "ru": "Прочность при сжатии",
+      "en": "Compressive strength"
+    },
+    "unit": "MPa"
+  },
+  "model": {
+    "formula": "R = F / A"
+  },
+  "variants": [
+    {
+      "id": "compression",
+      "title": {
+        "uz": "Siqilish: R = F/A",
+        "ru": "Сжатие: R = F/A",
+        "en": "Compression: R = F/A"
+      },
+      "formula": "R = F / A",
+      "inputs": [
+        "F",
+        "A"
+      ]
+    },
+    {
+      "id": "bending",
+      "title": {
+        "uz": "Egilish: R = 3·P·l/(2·b·h²)",
+        "ru": "Изгиб: R = 3·P·l/(2·b·h²)",
+        "en": "Bending: R = 3·P·l/(2·b·h²)"
+      },
+      "formula": "R = 3 * P * l / (2 * b * h^2)",
+      "inputs": [
+        "P",
+        "l",
+        "b",
+        "h"
+      ],
+      "measurand": {
+        "symbol": "R",
+        "name": {
+          "uz": "Egilishdagi mustahkamlik",
+          "ru": "Прочность при изгибе",
+          "en": "Flexural strength"
+        },
+        "unit": "MPa"
+      },
+      "note": {
+        "uz": "Egilish modeli h ga juda sezgir (c_h ∝ h⁻³): ustun hissa ogohlantirishi kutiladi.",
+        "ru": "Модель изгиба очень чувствительна к h (c_h ∝ h⁻³): ожидается предупреждение о доминирующем вкладе.",
+        "en": "The bending model is very sensitive to h (c_h ∝ h⁻³): a dominant-contribution warning is expected."
+      }
+    }
+  ],
+  "defaultVariant": "compression",
+  "inputs": [
+    {
+      "symbol": "F",
+      "name": {
+        "uz": "Buzuvchi kuch F",
+        "ru": "Разрушающая нагрузка F",
+        "en": "Breaking load F"
+      },
+      "unit": "N",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "A",
+      "name": {
+        "uz": "Namuna kesim yuzasi A",
+        "ru": "Площадь сечения образца A",
+        "en": "Cross-sectional area A"
+      },
+      "unit": "mm²",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "P",
+      "name": {
+        "uz": "Egilishdagi buzuvchi kuch P",
+        "ru": "Разрушающая нагрузка при изгибе P",
+        "en": "Breaking load in bending P"
+      },
+      "unit": "N",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "l",
+      "name": {
+        "uz": "Tayanchlar orasidagi masofa l",
+        "ru": "Расстояние между опорами l",
+        "en": "Span between supports l"
+      },
+      "unit": "mm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "b",
+      "name": {
+        "uz": "Namuna kengligi b",
+        "ru": "Ширина образца b",
+        "en": "Specimen width b"
+      },
+      "unit": "mm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "h",
+      "name": {
+        "uz": "Namuna balandligi h",
+        "ru": "Высота образца h",
+        "en": "Specimen height h"
+      },
+      "unit": "mm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "F_cert",
+      "input": "F",
+      "name": {
+        "uz": "Press: kuch sinfi yoki sertifikati (F)",
+        "ru": "Пресс: класс или сертификат силоизмерителя (F)",
+        "en": "Press: force class or certificate (F)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "allowedDistributions": [
+        "normal",
+        "rect"
+      ],
+      "k": null,
+      "unit": "N",
+      "instrument": "press",
+      "correlated": true,
+      "hint": {
+        "uz": "Sertifikat bo'lsa — kengaytirilgan noaniqlik U va k (normal taqsimot). Faqat aniqlik sinfi yoki ruxsat etilgan xatolik ma'lum bo'lsa — ±a va to'g'ri burchakli taqsimot. Qiymat asbob sertifikatidan yoki pasportidan kiritiladi.",
+        "ru": "Если есть сертификат — расширенная неопределённость U и k (нормальное распределение). Если известен только класс точности или допускаемая погрешность — ±a и равномерное распределение. Значение — из сертификата или паспорта прибора.",
+        "en": "With a certificate — expanded uncertainty U and k (normal distribution). If only the accuracy class or maximum permissible error is known — ±a with a rectangular distribution. Enter the value from the instrument certificate or passport."
+      }
+    },
+    {
+      "id": "F_res",
+      "input": "F",
+      "name": {
+        "uz": "Press: ajratish qobiliyati (F)",
+        "ru": "Пресс: разрешение (F)",
+        "en": "Press: resolution (F)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "N",
+      "instrument": "press",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "A_cert",
+      "input": "A",
+      "name": {
+        "uz": "Kesim yuzasi: o'lchamlardan (shtangensirkul) (A)",
+        "ru": "Площадь сечения: по размерам (штангенциркуль) (A)",
+        "en": "Cross-sectional area: from dimensions (caliper) (A)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "allowedDistributions": [
+        "normal",
+        "rect"
+      ],
+      "k": null,
+      "unit": "mm²",
+      "instrument": "caliper",
+      "correlated": true,
+      "hint": {
+        "uz": "Sertifikat bo'lsa — kengaytirilgan noaniqlik U va k (normal taqsimot). Faqat aniqlik sinfi yoki ruxsat etilgan xatolik ma'lum bo'lsa — ±a va to'g'ri burchakli taqsimot. Qiymat asbob sertifikatidan yoki pasportidan kiritiladi.",
+        "ru": "Если есть сертификат — расширенная неопределённость U и k (нормальное распределение). Если известен только класс точности или допускаемая погрешность — ±a и равномерное распределение. Значение — из сертификата или паспорта прибора.",
+        "en": "With a certificate — expanded uncertainty U and k (normal distribution). If only the accuracy class or maximum permissible error is known — ±a with a rectangular distribution. Enter the value from the instrument certificate or passport."
+      }
+    },
+    {
+      "id": "P_cert",
+      "input": "P",
+      "name": {
+        "uz": "Press: kuch sinfi yoki sertifikati (P)",
+        "ru": "Пресс: класс или сертификат силоизмерителя (P)",
+        "en": "Press: force class or certificate (P)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "allowedDistributions": [
+        "normal",
+        "rect"
+      ],
+      "k": null,
+      "unit": "N",
+      "instrument": "press",
+      "correlated": true,
+      "hint": {
+        "uz": "Sertifikat bo'lsa — kengaytirilgan noaniqlik U va k (normal taqsimot). Faqat aniqlik sinfi yoki ruxsat etilgan xatolik ma'lum bo'lsa — ±a va to'g'ri burchakli taqsimot. Qiymat asbob sertifikatidan yoki pasportidan kiritiladi.",
+        "ru": "Если есть сертификат — расширенная неопределённость U и k (нормальное распределение). Если известен только класс точности или допускаемая погрешность — ±a и равномерное распределение. Значение — из сертификата или паспорта прибора.",
+        "en": "With a certificate — expanded uncertainty U and k (normal distribution). If only the accuracy class or maximum permissible error is known — ±a with a rectangular distribution. Enter the value from the instrument certificate or passport."
+      }
+    },
+    {
+      "id": "P_res",
+      "input": "P",
+      "name": {
+        "uz": "Press: ajratish qobiliyati (P)",
+        "ru": "Пресс: разрешение (P)",
+        "en": "Press: resolution (P)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "N",
+      "instrument": "press",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "l_cert",
+      "input": "l",
+      "name": {
+        "uz": "Chizg'ich yoki shablon: kalibrlash sertifikati (l)",
+        "ru": "Линейка или шаблон: сертификат о калибровке (l)",
+        "en": "Ruler or template: calibration certificate (l)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mm",
+      "instrument": "span",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "l_res",
+      "input": "l",
+      "name": {
+        "uz": "Chizg'ich yoki shablon: ajratish qobiliyati (l)",
+        "ru": "Линейка или шаблон: разрешение (l)",
+        "en": "Ruler or template: resolution (l)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "mm",
+      "instrument": "span",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "b_cert",
+      "input": "b",
+      "name": {
+        "uz": "Shtangensirkul: kalibrlash sertifikati (b)",
+        "ru": "Штангенциркуль: сертификат о калибровке (b)",
+        "en": "Caliper: calibration certificate (b)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mm",
+      "instrument": "caliper",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "b_res",
+      "input": "b",
+      "name": {
+        "uz": "Shtangensirkul: ajratish qobiliyati (b)",
+        "ru": "Штангенциркуль: разрешение (b)",
+        "en": "Caliper: resolution (b)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "mm",
+      "instrument": "caliper",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "h_cert",
+      "input": "h",
+      "name": {
+        "uz": "Shtangensirkul: kalibrlash sertifikati (h)",
+        "ru": "Штангенциркуль: сертификат о калибровке (h)",
+        "en": "Caliper: calibration certificate (h)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mm",
+      "instrument": "caliper",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "h_res",
+      "input": "h",
+      "name": {
+        "uz": "Shtangensirkul: ajratish qobiliyati (h)",
+        "ru": "Штангенциркуль: разрешение (h)",
+        "en": "Caliper: resolution (h)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "mm",
+      "instrument": "caliper",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "F_sample",
+      "input": "F",
+      "name": {
+        "uz": "Namunaning o'zgaruvchanligi (mahsulot xossasi)",
+        "ru": "Изменчивость образцов (свойство продукции)",
+        "en": "Sample variability (product property)"
+      },
+      "kind": "sample_variability",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "N",
+      "correlated": false,
+      "includeByDefault": false,
+      "hint": {
+        "uz": "Namunaning o'zgaruvchanligi (masalan, turli namunalar orasidagi farq) — mahsulot xossasi, o'lchash noaniqligi emas. Standart holatda kiritilmaydi; faqat laboratoriya asoslangan qaror bilan yoqadi.",
+        "ru": "Изменчивость образцов (например, разброс между образцами) — свойство продукции, а не неопределённость измерения. По умолчанию не включается; включается только по обоснованному решению лаборатории.",
+        "en": "Sample variability (e.g. differences between specimens) is a property of the product, not measurement uncertainty. Not included by default; include only by a justified laboratory decision."
+      },
+      "note": {
+        "uz": "WAVE1_SPEC umumiy qoidasi: alohida belgi bilan ko'rsatiladi, standart holatda kiritilmaydi.",
+        "ru": "Общее правило WAVE1_SPEC: показывается отдельной пометкой, по умолчанию не включается.",
+        "en": "WAVE1_SPEC general rule: shown with a separate mark, not included by default."
+      }
+    },
+    {
+      "id": "P_sample",
+      "input": "P",
+      "name": {
+        "uz": "Namunaning o'zgaruvchanligi (mahsulot xossasi)",
+        "ru": "Изменчивость образцов (свойство продукции)",
+        "en": "Sample variability (product property)"
+      },
+      "kind": "sample_variability",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "N",
+      "correlated": false,
+      "includeByDefault": false,
+      "hint": {
+        "uz": "Namunaning o'zgaruvchanligi (masalan, turli namunalar orasidagi farq) — mahsulot xossasi, o'lchash noaniqligi emas. Standart holatda kiritilmaydi; faqat laboratoriya asoslangan qaror bilan yoqadi.",
+        "ru": "Изменчивость образцов (например, разброс между образцами) — свойство продукции, а не неопределённость измерения. По умолчанию не включается; включается только по обоснованному решению лаборатории.",
+        "en": "Sample variability (e.g. differences between specimens) is a property of the product, not measurement uncertainty. Not included by default; include only by a justified laboratory decision."
+      },
+      "note": {
+        "uz": "WAVE1_SPEC umumiy qoidasi: alohida belgi bilan ko'rsatiladi, standart holatda kiritilmaydi.",
+        "ru": "Общее правило WAVE1_SPEC: показывается отдельной пометкой, по умолчанию не включается.",
+        "en": "WAVE1_SPEC general rule: shown with a separate mark, not included by default."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "Siqilish modelida A kirish sifatida berilgan (WAVE1_SPEC: R = F/A). A ni o'lchamlar ko'paytmasi (a·b) sifatida yozish kerakmi — standartdan tekshirilsin.",
+        "ru": "В модели сжатия A задана как входная величина (WAVE1_SPEC: R = F/A). Нужно ли записать A как произведение размеров (a·b) — проверить по стандарту.",
+        "en": "In the compression model A is an input (WAVE1_SPEC: R = F/A). Whether A should be written as the product of dimensions (a·b) — verify against the standard."
+      },
+      "owner": "lab"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

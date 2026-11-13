@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-14",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Geometrik o'lchamlar va chetlanishlar",
+    "ru": "Геометрические размеры и отклонения",
+    "en": "Geometric dimensions and deviations"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 26433.1",
+      "edition": null,
+      "labCount": 33
+    }
+  ],
+  "labCount": 33,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-14",
+  "measurand": {
+    "symbol": "Δ",
+    "name": {
+      "uz": "Loyihaviy qiymatdan chetlanish",
+      "ru": "Отклонение от проектного значения",
+      "en": "Deviation from the design value"
+    },
+    "unit": "mm"
+  },
+  "model": {
+    "formula": "Δ = x - x_loyiha"
+  },
+  "constants": [
+    {
+      "symbol": "alpha_t",
+      "name": {
+        "uz": "Ruletka materialining chiziqli kengayish koeffitsienti α",
+        "ru": "Коэффициент линейного расширения материала рулетки α",
+        "en": "Linear expansion coefficient of the tape α"
+      },
+      "unit": "1/K",
+      "value": null,
+      "ref": "WAVE1_SPEC T-14: ΔL = L·α·Δt",
+      "hint": {
+        "uz": "Ruletka pasportidan yoki material ma'lumotnomasidan.",
+        "ru": "Из паспорта рулетки или справочника материала.",
+        "en": "From the tape passport or a material handbook."
+      }
+    },
+    {
+      "symbol": "dt",
+      "name": {
+        "uz": "Haroratning normal qiymatdan chetlanishi Δt",
+        "ru": "Отклонение температуры от нормальной Δt",
+        "en": "Temperature deviation from the reference Δt"
+      },
+      "unit": "K",
+      "value": null,
+      "ref": "WAVE1_SPEC T-14: ΔL = L·α·Δt",
+      "hint": {
+        "uz": "O'lchash sharoitidan (laboratoriya qayd etadi).",
+        "ru": "Из условий измерения (регистрирует лаборатория).",
+        "en": "From the measurement conditions (recorded by the laboratory)."
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "symbol": "x",
+      "name": {
+        "uz": "O'lchangan qiymat x",
+        "ru": "Измеренное значение x",
+        "en": "Measured value x"
+      },
+      "unit": "mm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "x_loyiha",
+      "name": {
+        "uz": "Loyihaviy qiymat x_loyiha",
+        "ru": "Проектное значение x_проект",
+        "en": "Design value x_design"
+      },
+      "unit": "mm",
+      "kind": "nominal",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Loyiha hujjatidan (aniq qiymat, noaniqligi 0).",
+        "ru": "Из проектной документации (точное значение, неопределённость 0).",
+        "en": "From the design documentation (exact value, zero uncertainty)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "x_cert",
+      "input": "x",
+      "name": {
+        "uz": "Ruletka, chizg'ich yoki nivelir: kalibrlash sertifikati (x)",
+        "ru": "Рулетка, линейка или нивелир: сертификат о калибровке (x)",
+        "en": "Tape, ruler or level: calibration certificate (x)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mm",
+      "instrument": "tape",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "x_res",
+      "input": "x",
+      "name": {
+        "uz": "Ruletka, chizg'ich yoki nivelir: ajratish qobiliyati (x)",
+        "ru": "Рулетка, линейка или нивелир: разрешение (x)",
+        "en": "Tape, ruler or level: resolution (x)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "mm",
+      "instrument": "tape",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "x_temp",
+      "input": "x",
+      "name": {
+        "uz": "Harorat ta'siri ΔL = L·α·Δt (x)",
+        "ru": "Влияние температуры ΔL = L·α·Δt (x)",
+        "en": "Temperature effect ΔL = L·α·Δt (x)"
+      },
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": "x * alpha_t * dt",
+      "unit": "mm",
+      "correlated": false,
+      "hint": {
+        "uz": "Yarim kenglik avtomatik: x̄·α·Δt (α va Δt — o'zgarmaslar bo'limida).",
+        "ru": "Полуширина автоматически: x̄·α·Δt (α и Δt — в разделе констант).",
+        "en": "Half-width computed automatically: x̄·α·Δt (α and Δt in the constants section)."
+      }
+    },
+    {
+      "id": "x_read",
+      "input": "x",
+      "name": {
+        "uz": "O'qish va o'rnatish (x)",
+        "ru": "Отсчёт и установка (x)",
+        "en": "Reading and positioning (x)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "mm",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

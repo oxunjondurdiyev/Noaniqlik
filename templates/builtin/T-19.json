@@ -1,0 +1,289 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-19",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Kul miqdori",
+    "ru": "Массовая доля золы",
+    "en": "Ash content"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-19",
+  "measurand": {
+    "symbol": "X",
+    "name": {
+      "uz": "Kul massa ulushi",
+      "ru": "Массовая доля золы",
+      "en": "Mass fraction of ash"
+    },
+    "unit": "%"
+  },
+  "model": {
+    "formula": "X = (m2 - m0) / (m1 - m0) * 100"
+  },
+  "inputs": [
+    {
+      "symbol": "m0",
+      "name": {
+        "uz": "Bo'sh byuks (tigel) massasi m0",
+        "ru": "Масса пустого бюкса (тигля) m0",
+        "en": "Mass of the empty weighing bottle (crucible) m0"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m1",
+      "name": {
+        "uz": "Byuks namuna bilan (gacha) m1",
+        "ru": "Бюкс с навеской (до) m1",
+        "en": "Weighing bottle with the test portion (before) m1"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m2",
+      "name": {
+        "uz": "Byuks namuna bilan (keyin) m2",
+        "ru": "Бюкс с навеской (после) m2",
+        "en": "Weighing bottle with the test portion (after) m2"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m0_cert",
+      "input": "m0",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m0)",
+        "ru": "Весы: сертификат о калибровке (m0)",
+        "en": "Balance: calibration certificate (m0)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m0_res",
+      "input": "m0",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m0)",
+        "ru": "Весы: разрешение (m0)",
+        "en": "Balance: resolution (m0)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m1_cert",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m1)",
+        "ru": "Весы: сертификат о калибровке (m1)",
+        "en": "Balance: calibration certificate (m1)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m1_res",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m1)",
+        "ru": "Весы: разрешение (m1)",
+        "en": "Balance: resolution (m1)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m2_cert",
+      "input": "m2",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m2)",
+        "ru": "Весы: сертификат о калибровке (m2)",
+        "en": "Balance: calibration certificate (m2)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m2_res",
+      "input": "m2",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m2)",
+        "ru": "Весы: разрешение (m2)",
+        "en": "Balance: resolution (m2)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m2_dry",
+      "input": "m2",
+      "name": {
+        "uz": "Quritish (kuydirish) pechi harorati va vaqti (m2)",
+        "ru": "Температура и время прокаливания (m2)",
+        "en": "Furnace temperature and time (m2)"
+      },
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m2_ash",
+      "input": "m2",
+      "name": {
+        "uz": "Kuydirish to'liqligi (m2)",
+        "ru": "Полнота озоления (m2)",
+        "en": "Completeness of ashing (m2)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "masses",
+      "inputs": [
+        "m0",
+        "m1",
+        "m2"
+      ],
+      "r": 1,
+      "sharedInstrument": "balance",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "Bu kirishlar bitta tarozi bilan o'lchanadimi? Ha bo'lsa — umumiy sistematik xato tufayli korrelyatsiya r = +1 hisobga olinadi (faqat sertifikat/ruxsat etilgan xatolik manbalari; ajratish qobiliyati mustaqil).",
+        "ru": "Измеряются ли эти величины одним и тем же прибором (весы)? Если да — учитывается корреляция r = +1 из-за общей систематической погрешности (только источники «сертификат/допускаемая погрешность»; разрешение независимо).",
+        "en": "Are these inputs measured with the same balance? If yes — correlation r = +1 due to the common systematic error is taken into account (certificate / permissible-error sources only; resolution is independent)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "WAVE1_SPEC da standart shifrlari berilmagan (\"oziq-ovqat va don standartlari\") — laboratoriya qo'llaydigan standartlar ro'yxati qo'shilsin (qidiruv shifr bo'yicha ishlaydi).",
+        "ru": "В WAVE1_SPEC не указаны обозначения стандартов («стандарты на пищевые продукты и зерно») — добавить применяемые стандарты (поиск работает по обозначению).",
+        "en": "WAVE1_SPEC gives no standard codes (\"food and grain standards\") — add the standards the laboratory applies (search works by code)."
+      },
+      "owner": "lab+owner"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

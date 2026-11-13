@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-mass",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Massani o'lchash",
+    "ru": "Измерение массы",
+    "en": "Mass measurement"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — mass",
+  "legacyPresetKey": "mass",
+  "measurand": {
+    "symbol": "m",
+    "name": {
+      "uz": "Massa",
+      "ru": "Масса",
+      "en": "Mass"
+    },
+    "unit": "g"
+  },
+  "model": {
+    "formula": ""
+  },
+  "inputs": [
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Massa",
+        "ru": "Масса",
+        "en": "Mass"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m_1",
+      "input": "m",
+      "name": {
+        "uz": "Kalibrlash sertifikati",
+        "ru": "Сертификат калибровки",
+        "en": "Calibration certificate"
+      },
+      "legacyName": "Calibration certificate",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.0005,
+      "sensitivity": 1,
+      "unit": "g"
+    },
+    {
+      "id": "m_2",
+      "input": "m",
+      "name": {
+        "uz": "Ajratish qobiliyati (raqamli ko'rsatkich)",
+        "ru": "Разрешение (цифровой индикатор)",
+        "en": "Resolution (digital readout)"
+      },
+      "legacyName": "Resolution (digital readout)",
+      "kind": "resolution",
+      "distribution": "rect",
+      "halfWidth": 0.00005,
+      "sensitivity": 1,
+      "unit": "g"
+    },
+    {
+      "id": "m_3",
+      "input": "m",
+      "name": {
+        "uz": "Havo ko'tarish kuchiga tuzatma",
+        "ru": "Поправка на выталкивающую силу воздуха",
+        "en": "Buoyancy correction"
+      },
+      "legacyName": "Buoyancy correction",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 0.0001,
+      "sensitivity": 1,
+      "unit": "g"
+    },
+    {
+      "id": "m_4",
+      "input": "m",
+      "name": {
+        "uz": "Harorat ta'siri",
+        "ru": "Влияние температуры",
+        "en": "Temperature effect"
+      },
+      "legacyName": "Temperature effect",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 0.00003,
+      "sensitivity": 1,
+      "unit": "g"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "m": [
+        100.0021,
+        100.0018,
+        100.0023,
+        100.0019,
+        100.0022,
+        100.002,
+        100.0024,
+        100.0017,
+        100.0021,
+        100.002
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-gas_analyzer",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Gazoanalizator (3 nuqta)",
+    "ru": "Газоанализатор (3 точки)",
+    "en": "Gas analyzer (3 points)"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04). Ma'lumot manbasi: tests/fixtures/Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx; tests/fixtures/Qollanma_noaniqlik_gazoanalizator_C75QM.docx (Ilova A).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04. Источник данных: tests/fixtures/Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx; tests/fixtures/Qollanma_noaniqlik_gazoanalizator_C75QM.docx (Ilova A).",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04. Data source: tests/fixtures/Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx; tests/fixtures/Qollanma_noaniqlik_gazoanalizator_C75QM.docx (Ilova A)."
+  },
+  "ref": "src/data/presets.js (P03) — gas_analyzer",
+  "legacyPresetKey": "gas_analyzer",
+  "measurand": {
+    "symbol": "E",
+    "name": {
+      "uz": "Gazoanalizator xatosi",
+      "ru": "Погрешность газоанализатора",
+      "en": "Gas analyzer error"
+    },
+    "unit": "% об."
+  },
+  "model": {
+    "formula": "E = (I - 4) * 1.25 - Ce"
+  },
+  "inputs": [
+    {
+      "symbol": "I",
+      "name": {
+        "uz": "Chiqish signali (tok)",
+        "ru": "Выходной сигнал (ток)",
+        "en": "Output signal (current)"
+      },
+      "unit": "",
+      "kind": "observation"
+    },
+    {
+      "symbol": "Ce",
+      "name": {
+        "uz": "PGS (etalon gaz aralashmasi) qiymati",
+        "ru": "Значение ПГС (эталонной газовой смеси)",
+        "en": "Reference gas mixture (PGS) value"
+      },
+      "unit": "",
+      "kind": "reference"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "I_1",
+      "input": "I",
+      "name": {
+        "uz": "Kalibrator xatosi (Fluke 725Ex) ±(0,02 %·I + 0,002 mA)",
+        "ru": "Погрешность калибратора (Fluke 725Ex) ±(0,02 %·I + 0,002 мА)",
+        "en": "Calibrator error (Fluke 725Ex) ±(0.02 %·I + 0.002 mA)"
+      },
+      "legacyName": "Calibrator error (Fluke 725Ex) ±(0.02 %·I + 0.002 mA)",
+      "kind": "specification",
+      "distribution": "rect",
+      "halfWidth": "0.0002 * I + 0.002",
+      "sensitivity": 1,
+      "unit": "mA"
+    },
+    {
+      "id": "I_2",
+      "input": "I",
+      "name": {
+        "uz": "Kalibrator ajratish qobiliyati d",
+        "ru": "Разрешение калибратора d",
+        "en": "Calibrator resolution d"
+      },
+      "legacyName": "Calibrator resolution d",
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": 0.001,
+      "sensitivity": 1,
+      "unit": "mA"
+    },
+    {
+      "id": "Ce_3",
+      "input": "Ce",
+      "name": {
+        "uz": "PGS (etalon gaz aralashmasi) qiymati",
+        "ru": "Значение ПГС (эталонной газовой смеси)",
+        "en": "Reference gas mixture (PGS) value"
+      },
+      "legacyName": "Reference gas mixture (PGS) value",
+      "kind": "reference",
+      "distribution": "rect",
+      "halfWidth": 0.008,
+      "sensitivity": 1,
+      "unit": "% об."
+    }
+  ],
+  "settings": {
+    "paired": false,
+    "P": 0.9545,
+    "kMethod": "nu",
+    "rounding": "up",
+    "mpe": "0.04 * abs((I - 4) * 1.25)",
+    "range": "20",
+    "cmc": ""
+  },
+  "points": [
+    {
+      "label": "0 % об. (N₂)",
+      "demo": false,
+      "data": {
+        "I": [
+          4,
+          4,
+          4
+        ],
+        "Ce": [
+          0
+        ]
+      },
+      "patch": {
+        "Ce_3": {
+          "halfWidth": 0.004
+        }
+      }
+    },
+    {
+      "label": "10 % об.",
+      "demo": false,
+      "data": {
+        "I": [
+          12.01,
+          12.024,
+          12.009
+        ],
+        "Ce": [
+          10
+        ]
+      },
+      "patch": {
+        "Ce_3": {
+          "halfWidth": 0.008
+        }
+      }
+    },
+    {
+      "label": "19 % об.",
+      "demo": false,
+      "data": {
+        "I": [
+          19.21,
+          19.22,
+          19.23
+        ],
+        "Ce": [
+          19
+        ]
+      },
+      "patch": {
+        "Ce_3": {
+          "halfWidth": 0.0152
+        }
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "calibration_certificate"
+  }
+}

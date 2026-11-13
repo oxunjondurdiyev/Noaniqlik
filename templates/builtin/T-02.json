@@ -1,0 +1,233 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-02",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Metall nisbiy uzayishi",
+    "ru": "Относительное удлинение металлов",
+    "en": "Elongation of metals"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 1497",
+      "edition": null,
+      "labCount": 34
+    },
+    {
+      "code": "ГОСТ 12004",
+      "edition": null,
+      "labCount": 39
+    }
+  ],
+  "labCount": 39,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-02",
+  "measurand": {
+    "symbol": "δ",
+    "name": {
+      "uz": "Nisbiy uzayish",
+      "ru": "Относительное удлинение",
+      "en": "Percentage elongation"
+    },
+    "unit": "%"
+  },
+  "model": {
+    "formula": "δ = (lk - l0) / l0 * 100"
+  },
+  "inputs": [
+    {
+      "symbol": "lk",
+      "name": {
+        "uz": "Uzilgandan keyingi hisob uzunligi lk",
+        "ru": "Конечная расчётная длина lk",
+        "en": "Final gauge length lk"
+      },
+      "unit": "mm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "l0",
+      "name": {
+        "uz": "Boshlang'ich hisob uzunligi l0",
+        "ru": "Начальная расчётная длина l0",
+        "en": "Original gauge length l0"
+      },
+      "unit": "mm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "lk_cert",
+      "input": "lk",
+      "name": {
+        "uz": "Chizg'ich, shtangensirkul yoki ekstensometr: kalibrlash sertifikati (lk)",
+        "ru": "Линейка, штангенциркуль или экстензометр: сертификат о калибровке (lk)",
+        "en": "Ruler, caliper or extensometer: calibration certificate (lk)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mm",
+      "instrument": "length",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "lk_res",
+      "input": "lk",
+      "name": {
+        "uz": "Chizg'ich, shtangensirkul yoki ekstensometr: ajratish qobiliyati (lk)",
+        "ru": "Линейка, штангенциркуль или экстензометр: разрешение (lk)",
+        "en": "Ruler, caliper or extensometer: resolution (lk)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "mm",
+      "instrument": "length",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "lk_join",
+      "input": "lk",
+      "name": {
+        "uz": "Qismlarni birlashtirish (lk)",
+        "ru": "Совмещение частей образца (lk)",
+        "en": "Fitting the broken parts together (lk)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "mm",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "l0_cert",
+      "input": "l0",
+      "name": {
+        "uz": "Chizg'ich, shtangensirkul yoki ekstensometr: kalibrlash sertifikati (l0)",
+        "ru": "Линейка, штангенциркуль или экстензометр: сертификат о калибровке (l0)",
+        "en": "Ruler, caliper or extensometer: calibration certificate (l0)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mm",
+      "instrument": "length",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "l0_res",
+      "input": "l0",
+      "name": {
+        "uz": "Chizg'ich, shtangensirkul yoki ekstensometr: ajratish qobiliyati (l0)",
+        "ru": "Линейка, штангенциркуль или экстензометр: разрешение (l0)",
+        "en": "Ruler, caliper or extensometer: resolution (l0)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "mm",
+      "instrument": "length",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "l0_mark",
+      "input": "l0",
+      "name": {
+        "uz": "Belgilarni qo'yish (l0)",
+        "ru": "Нанесение меток (l0)",
+        "en": "Marking the gauge length (l0)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "mm",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "lk_l0",
+      "inputs": [
+        "lk",
+        "l0"
+      ],
+      "r": 1,
+      "sharedInstrument": "length",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "Bu kirishlar bitta chizg'ich, shtangensirkul yoki ekstensometr bilan o'lchanadimi? Ha bo'lsa — umumiy sistematik xato tufayli korrelyatsiya r = +1 hisobga olinadi (faqat sertifikat/ruxsat etilgan xatolik manbalari; ajratish qobiliyati mustaqil).",
+        "ru": "Измеряются ли эти величины одним и тем же прибором (линейка, штангенциркуль или экстензометр)? Если да — учитывается корреляция r = +1 из-за общей систематической погрешности (только источники «сертификат/допускаемая погрешность»; разрешение независимо).",
+        "en": "Are these inputs measured with the same ruler, caliper or extensometer? If yes — correlation r = +1 due to the common systematic error is taken into account (certificate / permissible-error sources only; resolution is independent)."
+      },
+      "note": {
+        "uz": "WAVE1_SPEC T-02: l0 va lk bitta asbob bilan o'lchansa r = +1 (umumiy sistematik xato).",
+        "ru": "WAVE1_SPEC T-02: если l0 и lk измерены одним прибором — r = +1 (общая систематическая погрешность).",
+        "en": "WAVE1_SPEC T-02: if l0 and lk are measured with one instrument, r = +1 (common systematic error)."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

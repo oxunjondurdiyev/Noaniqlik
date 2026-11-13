@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-area",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Yuza  A = L×W",
+    "ru": "Площадь  A = L×W",
+    "en": "Area  A = L×W"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — area",
+  "legacyPresetKey": "area",
+  "measurand": {
+    "symbol": "A",
+    "name": {
+      "uz": "Yuza",
+      "ru": "Площадь",
+      "en": "Area"
+    },
+    "unit": "mm²"
+  },
+  "model": {
+    "formula": "A = L * W"
+  },
+  "inputs": [
+    {
+      "symbol": "L",
+      "name": {
+        "uz": "Uzunlik",
+        "ru": "Длина",
+        "en": "Length"
+      },
+      "unit": "",
+      "kind": "observation"
+    },
+    {
+      "symbol": "W",
+      "name": {
+        "uz": "Kenglik",
+        "ru": "Ширина",
+        "en": "Width"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "L_1",
+      "input": "L",
+      "name": {
+        "uz": "Uzunlik kalibrlovi",
+        "ru": "Калибровка длины",
+        "en": "Length calibration"
+      },
+      "legacyName": "Length calibration",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.002,
+      "sensitivity": 1,
+      "unit": "mm"
+    },
+    {
+      "id": "W_2",
+      "input": "W",
+      "name": {
+        "uz": "Kenglik kalibrlovi",
+        "ru": "Калибровка ширины",
+        "en": "Width calibration"
+      },
+      "legacyName": "Width calibration",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.002,
+      "sensitivity": 1,
+      "unit": "mm"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "L": [
+        25.003,
+        24.999,
+        25.001,
+        25.002,
+        24.998,
+        25.001,
+        25,
+        25.002,
+        24.999,
+        25.001
+      ],
+      "W": [
+        15.002,
+        15.001,
+        14.998,
+        15,
+        15.003,
+        14.999,
+        15.001,
+        15,
+        15.002,
+        14.999
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

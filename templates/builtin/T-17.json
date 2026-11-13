@@ -1,0 +1,573 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-17",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Titrlash (umumiy shablon): kislotalik, ishqoriylik, xloridlar, SAV",
+    "ru": "Титрование (общий шаблон): кислотность, щёлочность, хлориды, ПАВ",
+    "en": "Titration (general template): acidity, alkalinity, chlorides, surfactants"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 3624",
+      "edition": null,
+      "labCount": 24
+    },
+    {
+      "code": "ГОСТ 5898",
+      "edition": null,
+      "labCount": 31
+    },
+    {
+      "code": "ГОСТ 5670",
+      "edition": null,
+      "labCount": 24
+    },
+    {
+      "code": "ГОСТ 26878",
+      "edition": null,
+      "labCount": 22
+    },
+    {
+      "code": "ГОСТ 4245",
+      "edition": null,
+      "labCount": 20
+    },
+    {
+      "code": "ГОСТ 22567.6",
+      "edition": null,
+      "labCount": 26
+    }
+  ],
+  "labCount": 31,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi. Asos: EURACHEM QUAM A2 tuzilmasi (NaOH titrlash).",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов. Основа: структура EURACHEM QUAM A2 (титрование NaOH).",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports. Basis: structure of EURACHEM QUAM A2 (NaOH titration)."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-17",
+  "measurand": {
+    "symbol": "X",
+    "name": {
+      "uz": "Aniqlanadigan ko'rsatkich",
+      "ru": "Определяемый показатель",
+      "en": "Determined quantity"
+    },
+    "unit": ""
+  },
+  "model": {
+    "formula": "X = (V - V0) * c * K * f / m"
+  },
+  "variants": [
+    {
+      "id": "gost_3624",
+      "title": {
+        "uz": "ГОСТ 3624 bo'yicha (f — standartdan)",
+        "ru": "По ГОСТ 3624 (f — из стандарта)",
+        "en": "Per ГОСТ 3624 (f from the standard)"
+      },
+      "formula": "X = (V - V0) * c * K * f / m",
+      "inputs": [
+        "V",
+        "V0",
+        "c",
+        "K",
+        "m",
+        "f"
+      ],
+      "constants": {
+        "f": null
+      },
+      "standards": [
+        {
+          "code": "ГОСТ 3624",
+          "edition": null,
+          "labCount": 24
+        }
+      ]
+    },
+    {
+      "id": "gost_5898",
+      "title": {
+        "uz": "ГОСТ 5898 bo'yicha (f — standartdan)",
+        "ru": "По ГОСТ 5898 (f — из стандарта)",
+        "en": "Per ГОСТ 5898 (f from the standard)"
+      },
+      "formula": "X = (V - V0) * c * K * f / m",
+      "inputs": [
+        "V",
+        "V0",
+        "c",
+        "K",
+        "m",
+        "f"
+      ],
+      "constants": {
+        "f": null
+      },
+      "standards": [
+        {
+          "code": "ГОСТ 5898",
+          "edition": null,
+          "labCount": 31
+        }
+      ]
+    },
+    {
+      "id": "gost_5670",
+      "title": {
+        "uz": "ГОСТ 5670 bo'yicha (f — standartdan)",
+        "ru": "По ГОСТ 5670 (f — из стандарта)",
+        "en": "Per ГОСТ 5670 (f from the standard)"
+      },
+      "formula": "X = (V - V0) * c * K * f / m",
+      "inputs": [
+        "V",
+        "V0",
+        "c",
+        "K",
+        "m",
+        "f"
+      ],
+      "constants": {
+        "f": null
+      },
+      "standards": [
+        {
+          "code": "ГОСТ 5670",
+          "edition": null,
+          "labCount": 24
+        }
+      ]
+    },
+    {
+      "id": "gost_26878",
+      "title": {
+        "uz": "ГОСТ 26878 bo'yicha (f — standartdan)",
+        "ru": "По ГОСТ 26878 (f — из стандарта)",
+        "en": "Per ГОСТ 26878 (f from the standard)"
+      },
+      "formula": "X = (V - V0) * c * K * f / m",
+      "inputs": [
+        "V",
+        "V0",
+        "c",
+        "K",
+        "m",
+        "f"
+      ],
+      "constants": {
+        "f": null
+      },
+      "standards": [
+        {
+          "code": "ГОСТ 26878",
+          "edition": null,
+          "labCount": 22
+        }
+      ]
+    },
+    {
+      "id": "gost_4245",
+      "title": {
+        "uz": "ГОСТ 4245 bo'yicha (f — standartdan)",
+        "ru": "По ГОСТ 4245 (f — из стандарта)",
+        "en": "Per ГОСТ 4245 (f from the standard)"
+      },
+      "formula": "X = (V - V0) * c * K * f / m",
+      "inputs": [
+        "V",
+        "V0",
+        "c",
+        "K",
+        "m",
+        "f"
+      ],
+      "constants": {
+        "f": null
+      },
+      "standards": [
+        {
+          "code": "ГОСТ 4245",
+          "edition": null,
+          "labCount": 20
+        }
+      ]
+    },
+    {
+      "id": "gost_22567_6",
+      "title": {
+        "uz": "ГОСТ 22567.6 bo'yicha (f — standartdan)",
+        "ru": "По ГОСТ 22567.6 (f — из стандарта)",
+        "en": "Per ГОСТ 22567.6 (f from the standard)"
+      },
+      "formula": "X = (V - V0) * c * K * f / m",
+      "inputs": [
+        "V",
+        "V0",
+        "c",
+        "K",
+        "m",
+        "f"
+      ],
+      "constants": {
+        "f": null
+      },
+      "standards": [
+        {
+          "code": "ГОСТ 22567.6",
+          "edition": null,
+          "labCount": 26
+        }
+      ]
+    }
+  ],
+  "defaultVariant": "gost_3624",
+  "constants": [
+    {
+      "symbol": "f",
+      "name": {
+        "uz": "Standartdagi o'zgarmas koeffitsient f (ekvivalent massa, 100, 1000 …)",
+        "ru": "Постоянный коэффициент стандарта f (эквивалентная масса, 100, 1000 …)",
+        "en": "Constant factor of the standard f (equivalent mass, 100, 1000 …)"
+      },
+      "unit": "",
+      "value": null,
+      "ref": "Har bir standart uchun alohida (⚠ tekshirilsin)",
+      "hint": {
+        "uz": "Standart jadvalidan; laboratoriya standartning amaldagi nashridan kiritadi. Noaniqligi 0 deb olinadi.",
+        "ru": "Из таблицы стандарта; лаборатория вводит по действующей редакции стандарта. Неопределённость принимается равной 0.",
+        "en": "From the table of the standard; the laboratory enters it from the current edition of the standard. Its uncertainty is taken as 0."
+      }
+    },
+    {
+      "symbol": "gamma",
+      "name": {
+        "uz": "Eritmaning hajmiy kengayish koeffitsienti γ",
+        "ru": "Коэффициент объёмного расширения раствора γ",
+        "en": "Volume expansion coefficient of the solution γ"
+      },
+      "unit": "1/K",
+      "value": null,
+      "ref": "EURACHEM QUAM A2 (harorat: V·γ·Δt)",
+      "hint": {
+        "uz": "Ma'lumotnomadan (suvli eritmalar uchun).",
+        "ru": "Из справочника (для водных растворов).",
+        "en": "From a handbook (for aqueous solutions)."
+      }
+    },
+    {
+      "symbol": "dt",
+      "name": {
+        "uz": "Haroratning kalibrlash haroratidan chetlanishi Δt",
+        "ru": "Отклонение температуры от температуры калибровки Δt",
+        "en": "Temperature deviation from the calibration temperature Δt"
+      },
+      "unit": "K",
+      "value": null,
+      "ref": "EURACHEM QUAM A2",
+      "hint": {
+        "uz": "Laboratoriya harorat nazoratidan (±Δt).",
+        "ru": "Из контроля температуры в лаборатории (±Δt).",
+        "en": "From the laboratory temperature control (±Δt)."
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "symbol": "V",
+      "name": {
+        "uz": "Namunaga sarflangan titrant hajmi V",
+        "ru": "Объём титранта на образец V",
+        "en": "Titrant volume for the sample V"
+      },
+      "unit": "mL",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "V0",
+      "name": {
+        "uz": "Bo'sh tajribaga sarflangan titrant hajmi V0",
+        "ru": "Объём титранта на холостой опыт V0",
+        "en": "Titrant volume for the blank V0"
+      },
+      "unit": "mL",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "c",
+      "name": {
+        "uz": "Titrant konsentratsiyasi c",
+        "ru": "Концентрация титранта c",
+        "en": "Titrant concentration c"
+      },
+      "unit": "mol/L",
+      "kind": "reference",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Titrantni standartlashtirish natijasidan.",
+        "ru": "По результату стандартизации титранта.",
+        "en": "From the titrant standardisation result."
+      }
+    },
+    {
+      "symbol": "K",
+      "name": {
+        "uz": "Titrga tuzatma K",
+        "ru": "Поправка к титру K",
+        "en": "Titre correction factor K"
+      },
+      "unit": "1",
+      "kind": "reference",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Titrantni standartlashtirish natijasidan.",
+        "ru": "По результату стандартизации титранта.",
+        "en": "From the titrant standardisation result."
+      }
+    },
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Namuna massasi yoki hajmi m",
+        "ru": "Масса или объём пробы m",
+        "en": "Sample mass or volume m"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "V_bur",
+      "input": "V",
+      "name": {
+        "uz": "Byuretka: kalibrlash yoki sinfi (V)",
+        "ru": "Бюретка: калибровка или класс (V)",
+        "en": "Burette: calibration or class (V)"
+      },
+      "kind": "specification",
+      "distribution": "triang",
+      "halfWidth": null,
+      "unit": "mL",
+      "instrument": "burette",
+      "correlated": true,
+      "hint": {
+        "uz": "Byuretka sinfi yoki kalibrlash natijasi: ±a (uchburchak taqsimot, EURACHEM QUAM A2 kabi). Pasport yoki kalibrlash sertifikatidan.",
+        "ru": "Класс бюретки или результат калибровки: ±a (треугольное распределение, как в EURACHEM QUAM A2). Из паспорта или сертификата о калибровке.",
+        "en": "Burette class or calibration result: ±a (triangular distribution, as in EURACHEM QUAM A2). From the passport or calibration certificate."
+      }
+    },
+    {
+      "id": "V_temp",
+      "input": "V",
+      "name": {
+        "uz": "Harorat ta'siri V·γ·Δt (V)",
+        "ru": "Влияние температуры V·γ·Δt (V)",
+        "en": "Temperature effect V·γ·Δt (V)"
+      },
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": "V * gamma * dt",
+      "unit": "mL",
+      "correlated": false,
+      "hint": {
+        "uz": "Yarim kenglik avtomatik: V̄·γ·Δt (γ va Δt — o'zgarmaslar bo'limida).",
+        "ru": "Полуширина автоматически: V̄·γ·Δt (γ и Δt — в разделе констант).",
+        "en": "Half-width computed automatically: V̄·γ·Δt (γ and Δt in the constants section)."
+      }
+    },
+    {
+      "id": "V0_bur",
+      "input": "V0",
+      "name": {
+        "uz": "Byuretka: kalibrlash yoki sinfi (V0)",
+        "ru": "Бюретка: калибровка или класс (V0)",
+        "en": "Burette: calibration or class (V0)"
+      },
+      "kind": "specification",
+      "distribution": "triang",
+      "halfWidth": null,
+      "unit": "mL",
+      "instrument": "burette",
+      "correlated": true,
+      "hint": {
+        "uz": "Byuretka sinfi yoki kalibrlash natijasi: ±a (uchburchak taqsimot, EURACHEM QUAM A2 kabi). Pasport yoki kalibrlash sertifikatidan.",
+        "ru": "Класс бюретки или результат калибровки: ±a (треугольное распределение, как в EURACHEM QUAM A2). Из паспорта или сертификата о калибровке.",
+        "en": "Burette class or calibration result: ±a (triangular distribution, as in EURACHEM QUAM A2). From the passport or calibration certificate."
+      }
+    },
+    {
+      "id": "V0_temp",
+      "input": "V0",
+      "name": {
+        "uz": "Harorat ta'siri V0·γ·Δt (V0)",
+        "ru": "Влияние температуры V0·γ·Δt (V0)",
+        "en": "Temperature effect V0·γ·Δt (V0)"
+      },
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": "V0 * gamma * dt",
+      "unit": "mL",
+      "correlated": false,
+      "hint": {
+        "uz": "Yarim kenglik avtomatik: V̄0·γ·Δt.",
+        "ru": "Полуширина автоматически: V̄0·γ·Δt.",
+        "en": "Half-width computed automatically: V̄0·γ·Δt."
+      }
+    },
+    {
+      "id": "c_std",
+      "input": "c",
+      "name": {
+        "uz": "Titrant konsentratsiyasi: standartlashtirish noaniqligi (c)",
+        "ru": "Концентрация титранта: неопределённость стандартизации (c)",
+        "en": "Titrant concentration: standardisation uncertainty (c)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "mol/L",
+      "correlated": false,
+      "hint": {
+        "uz": "Standartlashtirish hisobidan: U va k.",
+        "ru": "Из расчёта стандартизации: U и k.",
+        "en": "From the standardisation evaluation: U and k."
+      }
+    },
+    {
+      "id": "K_std",
+      "input": "K",
+      "name": {
+        "uz": "Titrga tuzatma: standartlashtirish noaniqligi (K)",
+        "ru": "Поправка к титру: неопределённость стандартизации (K)",
+        "en": "Titre factor: standardisation uncertainty (K)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "1",
+      "correlated": false,
+      "hint": {
+        "uz": "Standartlashtirish hisobidan: U va k.",
+        "ru": "Из расчёта стандартизации: U и k.",
+        "en": "From the standardisation evaluation: U and k."
+      }
+    },
+    {
+      "id": "m_cert",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi yoki pipetka: sertifikat yoki ruxsat etilgan xatolik (m)",
+        "ru": "Весы или пипетка: сертификат или допускаемая погрешность (m)",
+        "en": "Balance or pipette: certificate or permissible error (m)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "allowedDistributions": [
+        "normal",
+        "rect"
+      ],
+      "k": null,
+      "unit": "g",
+      "instrument": "massvol",
+      "correlated": true,
+      "hint": {
+        "uz": "Sertifikat bo'lsa — kengaytirilgan noaniqlik U va k (normal taqsimot). Faqat aniqlik sinfi yoki ruxsat etilgan xatolik ma'lum bo'lsa — ±a va to'g'ri burchakli taqsimot. Qiymat asbob sertifikatidan yoki pasportidan kiritiladi.",
+        "ru": "Если есть сертификат — расширенная неопределённость U и k (нормальное распределение). Если известен только класс точности или допускаемая погрешность — ±a и равномерное распределение. Значение — из сертификата или паспорта прибора.",
+        "en": "With a certificate — expanded uncertainty U and k (normal distribution). If only the accuracy class or maximum permissible error is known — ±a with a rectangular distribution. Enter the value from the instrument certificate or passport."
+      }
+    },
+    {
+      "id": "m_res",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi yoki pipetka: ajratish qobiliyati (m)",
+        "ru": "Весы или пипетка: разрешение (m)",
+        "en": "Balance or pipette: resolution (m)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "massvol",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "⚠ Har bir standart uchun f qiymati va X birligi standartning amaldagi nashridan tekshirilsin (variantlarda f bo'sh).",
+        "ru": "⚠ Для каждого стандарта проверить значение f и единицу X по действующей редакции (в вариантах f пустой).",
+        "en": "⚠ For each standard verify the value of f and the unit of X against the current edition (f is empty in the variants)."
+      },
+      "owner": "lab",
+      "blocking": true
+    },
+    {
+      "id": "Q2",
+      "text": {
+        "uz": "Ekvivalentlik nuqtasini aniqlash noaniqligi A tur (parallel titrlashlar) orqali olinadi — alohida B manba kerak emasligi tasdiqlansin.",
+        "ru": "Неопределённость определения точки эквивалентности учитывается через тип A (параллельные титрования) — подтвердить, что отдельный источник B не нужен.",
+        "en": "The end-point detection uncertainty is captured by Type A (replicate titrations) — confirm that no separate Type B source is needed."
+      },
+      "owner": "lab"
+    },
+    {
+      "id": "Q3",
+      "text": {
+        "uz": "V va V0 bitta byuretka bilan o'lchanadi — ular orasidagi korrelyatsiya kerakmi? Spetsifikatsiyada aytilmagan.",
+        "ru": "V и V0 измеряются одной бюреткой — нужна ли корреляция между ними? В спецификации не указано.",
+        "en": "V and V0 are measured with one burette — is a correlation needed? Not stated in the specification."
+      },
+      "owner": "lab+owner"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-temperature",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Harorat",
+    "ru": "Температура",
+    "en": "Temperature"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — temperature",
+  "legacyPresetKey": "temperature",
+  "measurand": {
+    "symbol": "T",
+    "name": {
+      "uz": "Harorat",
+      "ru": "Температура",
+      "en": "Temperature"
+    },
+    "unit": "°C"
+  },
+  "model": {
+    "formula": ""
+  },
+  "inputs": [
+    {
+      "symbol": "T",
+      "name": {
+        "uz": "Harorat",
+        "ru": "Температура",
+        "en": "Temperature"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "T_1",
+      "input": "T",
+      "name": {
+        "uz": "Termometr kalibrlovi",
+        "ru": "Калибровка термометра",
+        "en": "Thermometer calibration"
+      },
+      "legacyName": "Thermometer calibration",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.05,
+      "sensitivity": 1,
+      "unit": "°C"
+    },
+    {
+      "id": "T_2",
+      "input": "T",
+      "name": {
+        "uz": "Ajratish qobiliyati",
+        "ru": "Разрешение",
+        "en": "Resolution"
+      },
+      "legacyName": "Resolution",
+      "kind": "resolution",
+      "distribution": "rect",
+      "halfWidth": 0.005,
+      "sensitivity": 1,
+      "unit": "°C"
+    },
+    {
+      "id": "T_3",
+      "input": "T",
+      "name": {
+        "uz": "O'z-o'zidan qizish ta'siri",
+        "ru": "Эффект самонагрева",
+        "en": "Self-heating effect"
+      },
+      "legacyName": "Self-heating effect",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 0.02,
+      "sensitivity": 1,
+      "unit": "°C"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "T": [
+        20.02,
+        19.98,
+        20.01,
+        20,
+        19.99,
+        20.02,
+        20,
+        19.98,
+        20.01,
+        20
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

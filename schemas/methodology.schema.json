@@ -1,0 +1,252 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://uncertaintycalc/schemas/methodology.schema.json",
+  "title": "UncertaintyCalc metodika (o'lchash noaniqligi shabloni) — uc-template/1",
+  "description": "Shablon: o'lchash modeli, kirishlar, B tur manbalari, o'zgarmaslar, variantlar, korrelyatsiyalar, metama'lumot. Hisob: src/templates/interpreter.js → modelSpec (uc-model/1) → evaluate(). Yo'riqnoma: docs/TEMPLATE_GUIDE.md.",
+  "type": "object",
+  "required": ["schemaVersion", "id", "version", "status", "domain", "section", "evaluationMode", "title", "standards", "measurand", "model", "inputs", "typeBSources", "ref"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "uc-template/1" },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$", "maxLength": 64 },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "status": { "enum": ["DRAFT", "REVIEWED", "APPROVED", "RETIRED"] },
+    "domain": { "enum": ["CALIBRATION", "TESTING"] },
+    "section": { "enum": ["calibration", "construction", "food_chem", "electrical", "general"] },
+    "field": { "type": "string" },
+    "evaluationMode": { "enum": ["GUM_BOTTOM_UP", "REGRESSION", "TOP_DOWN", "QUALITATIVE"] },
+    "isEmpiricalMeasurand": { "type": "boolean" },
+    "title": { "$ref": "#/definitions/text" },
+    "description": { "$ref": "#/definitions/text" },
+    "standards": { "type": "array", "items": { "$ref": "#/definitions/standard" } },
+    "labCount": { "type": ["integer", "null"], "minimum": 0 },
+    "sourceNote": { "$ref": "#/definitions/text" },
+    "ref": { "type": "string", "minLength": 1 },
+    "openQuestions": { "type": "array", "items": { "$ref": "#/definitions/openQuestion" } },
+    "expectedWarnings": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["code", "reason"], "additionalProperties": false,
+        "properties": { "code": { "type": "string" }, "reason": { "$ref": "#/definitions/text" } }
+      }
+    },
+    "measurand": {
+      "type": "object", "required": ["symbol", "name", "unit"], "additionalProperties": false,
+      "properties": {
+        "symbol": { "$ref": "#/definitions/symbol" },
+        "name": { "$ref": "#/definitions/text" },
+        "unit": { "type": "string" }
+      }
+    },
+    "model": {
+      "type": "object", "required": ["formula"], "additionalProperties": false,
+      "properties": {
+        "formula": { "type": "string" },
+        "note": { "$ref": "#/definitions/text" }
+      }
+    },
+    "variants": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/variant" } },
+    "defaultVariant": { "type": "string" },
+    "constants": { "type": "array", "items": { "$ref": "#/definitions/constant" } },
+    "inputs": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/input" } },
+    "typeBSources": { "type": "array", "items": { "$ref": "#/definitions/typeBSource" } },
+    "correlations": { "type": "array", "items": { "$ref": "#/definitions/correlation" } },
+    "directions": { "type": "array", "items": { "enum": ["↑", "↓", ""] } },
+    "sampleData": { "$ref": "#/definitions/sampleData" },
+    "points": { "type": "array", "items": { "$ref": "#/definitions/point" } },
+    "settings": { "$ref": "#/definitions/settings" },
+    "decisionRule": { "$ref": "#/definitions/decisionRule" },
+    "reporting": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "reportType": { "enum": ["calibration_certificate", "test_report", "budget"] },
+        "rounding": { "enum": ["normal", "up"] }
+      }
+    },
+    "locked": { "type": "array", "items": { "enum": ["model", "variants", "constants", "inputs", "typeBSources", "correlations", "settings", "decisionRule", "measurand"] }, "uniqueItems": true },
+    "legacyPresetKey": { "type": "string" },
+    "author": { "type": "string" },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["at", "status"], "additionalProperties": false,
+        "properties": {
+          "at": { "type": "string" }, "status": { "enum": ["DRAFT", "REVIEWED", "APPROVED", "RETIRED"] },
+          "by": { "type": "string" }, "version": { "type": "string" }, "note": { "type": "string" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "text": {
+      "description": "Uch tildagi matn (CLAUDE.md: barcha foydalanuvchi matnlari uz/ru/en)",
+      "type": "object", "required": ["uz", "ru", "en"], "additionalProperties": false,
+      "properties": {
+        "uz": { "type": "string", "minLength": 1 },
+        "ru": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      }
+    },
+    "symbol": { "type": "string", "pattern": "^[^\\s+\\-*/^()=,.0-9√][^\\s+\\-*/^()=,√]*$", "maxLength": 32 },
+    "number_or_expr": {
+      "description": "Son, kirish o'rtachalaridan formula (\"0.0002*I + 0.002\") yoki null — foydalanuvchi kiritadi",
+      "type": ["number", "string", "null"]
+    },
+    "standard": {
+      "type": "object", "required": ["code"], "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "clause": { "type": "string" },
+        "edition": { "type": ["string", "null"] },
+        "labCount": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "openQuestion": {
+      "type": "object", "required": ["id", "text", "owner"], "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^Q\\d+$" },
+        "text": { "$ref": "#/definitions/text" },
+        "owner": { "enum": ["lab", "owner", "lab+owner"] },
+        "blocking": { "type": "boolean" }
+      }
+    },
+    "variant": {
+      "type": "object", "required": ["id", "title", "formula", "inputs"], "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+        "title": { "$ref": "#/definitions/text" },
+        "formula": { "type": "string", "minLength": 1 },
+        "inputs": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/symbol" }, "uniqueItems": true },
+        "constants": { "type": "object", "additionalProperties": { "type": ["number", "null"] } },
+        "standards": { "type": "array", "items": { "$ref": "#/definitions/standard" } },
+        "measurand": {
+          "type": "object", "required": ["symbol", "name", "unit"], "additionalProperties": false,
+          "properties": { "symbol": { "$ref": "#/definitions/symbol" }, "name": { "$ref": "#/definitions/text" }, "unit": { "type": "string" } }
+        },
+        "excludeSources": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "decisionRule": { "$ref": "#/definitions/decisionRule" },
+        "note": { "$ref": "#/definitions/text" }
+      }
+    },
+    "constant": {
+      "description": "O'zgarmas (noaniqligi 0, standart jadvalidan yoki ta'rif bo'yicha). value = null — laboratoriya standartdan kiritadi.",
+      "type": "object", "required": ["symbol", "name", "unit", "value", "ref"], "additionalProperties": false,
+      "properties": {
+        "symbol": { "$ref": "#/definitions/symbol" },
+        "name": { "$ref": "#/definitions/text" },
+        "unit": { "type": "string" },
+        "value": { "type": ["number", "null"] },
+        "ref": { "type": "string", "minLength": 1 },
+        "hint": { "$ref": "#/definitions/text" }
+      }
+    },
+    "input": {
+      "type": "object", "required": ["symbol", "name", "unit", "kind"], "additionalProperties": false,
+      "properties": {
+        "symbol": { "$ref": "#/definitions/symbol" },
+        "name": { "$ref": "#/definitions/text" },
+        "unit": { "type": "string" },
+        "kind": { "enum": ["observation", "reference", "influence", "nominal"] },
+        "typeA": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "method": { "enum": [1, 2, 3] },
+            "sp": { "type": ["number", "null"] },
+            "nup": { "type": ["number", "null"] },
+            "directional": { "type": "boolean" },
+            "pooledAllowed": { "type": "boolean" }
+          }
+        },
+        "hint": { "$ref": "#/definitions/text" }
+      }
+    },
+    "typeBSource": {
+      "type": "object", "required": ["id", "input", "name", "kind", "distribution", "halfWidth"], "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_]+$" },
+        "input": { "$ref": "#/definitions/symbol" },
+        "name": { "$ref": "#/definitions/text" },
+        "legacyName": { "type": "string" },
+        "kind": { "enum": ["certificate", "specification", "resolution", "drift", "environment", "procedure", "reference", "sample_variability", "other"] },
+        "distribution": { "enum": ["normal", "rect", "triang", "ushape", "resol"] },
+        "allowedDistributions": { "type": "array", "items": { "enum": ["normal", "rect", "triang", "ushape", "resol"] }, "uniqueItems": true },
+        "halfWidth": { "$ref": "#/definitions/number_or_expr" },
+        "k": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "nu": { "type": ["number", "null"] },
+        "sensitivity": { "type": ["number", "null"] },
+        "unit": { "type": "string" },
+        "instrument": { "type": "string" },
+        "correlated": { "type": "boolean" },
+        "includeByDefault": { "type": "boolean" },
+        "hint": { "$ref": "#/definitions/text" },
+        "note": { "$ref": "#/definitions/text" }
+      }
+    },
+    "correlation": {
+      "description": "Bitta asbob bilan o'lchangan kirishlar orasidagi korrelyatsiya (umumiy sistematik ta'sir). u(xi,xj) = r·u_X(xi)·u_X(xj), u_X — shu asbobning korrelyatsiyalangan manbalari. Ref: JCGM 100:2008 §5.2.2, F.1.2.3.",
+      "type": "object", "required": ["id", "inputs", "r"], "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_]+$" },
+        "inputs": { "type": "array", "minItems": 2, "items": { "$ref": "#/definitions/symbol" }, "uniqueItems": true },
+        "r": { "type": ["number", "null"], "minimum": -1, "maximum": 1 },
+        "sharedInstrument": { "type": "string" },
+        "ask": { "type": "boolean" },
+        "defaultEnabled": { "type": "boolean" },
+        "question": { "$ref": "#/definitions/text" },
+        "note": { "$ref": "#/definitions/text" }
+      }
+    },
+    "sampleData": {
+      "type": "object", "required": ["demo", "data"], "additionalProperties": false,
+      "properties": {
+        "demo": { "type": "boolean" },
+        "note": { "$ref": "#/definitions/text" },
+        "source": { "type": "string" },
+        "data": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": ["number", "string"] } } }
+      }
+    },
+    "point": {
+      "type": "object", "required": ["label", "data"], "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "demo": { "type": "boolean" },
+        "data": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": ["number", "string"] } } },
+        "patch": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object", "additionalProperties": false,
+            "properties": { "halfWidth": { "$ref": "#/definitions/number_or_expr" }, "k": { "type": ["number", "null"] }, "distribution": { "enum": ["normal", "rect", "triang", "ushape", "resol"] } }
+          }
+        }
+      }
+    },
+    "settings": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "P": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "kMethod": { "enum": ["nu", "k2"] },
+        "nuRule": { "enum": ["floor", "interpolate", "exact"] },
+        "paired": { "type": "boolean" },
+        "secondOrder": { "type": "boolean" },
+        "rounding": { "enum": ["normal", "up"] },
+        "mpe": { "type": ["number", "string"] },
+        "range": { "type": ["number", "string"] },
+        "cmc": { "type": ["number", "string"] },
+        "typeA": { "type": "object" }
+      }
+    },
+    "decisionRule": {
+      "type": "object", "required": ["type"], "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["none", "simple", "guarded", "one_sided_lower", "one_sided_upper"] },
+        "required": { "type": "boolean" },
+        "mpe": { "type": ["number", "string", "null"] },
+        "limit": { "type": ["number", "string", "null"] },
+        "note": { "$ref": "#/definitions/text" }
+      }
+    }
+  }
+}

@@ -1,0 +1,361 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-10",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Beton va g'isht o'rtacha zichligi",
+    "ru": "Средняя плотность бетона и кирпича",
+    "en": "Average density of concrete and brick"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 12730.1",
+      "edition": null,
+      "labCount": 31
+    },
+    {
+      "code": "ГОСТ 7025",
+      "edition": null,
+      "labCount": 31
+    }
+  ],
+  "labCount": 31,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-10",
+  "measurand": {
+    "symbol": "ρ",
+    "name": {
+      "uz": "O'rtacha zichlik",
+      "ru": "Средняя плотность",
+      "en": "Average density"
+    },
+    "unit": "kg/m³"
+  },
+  "model": {
+    "formula": "ρ = m / (a * b * c) * 1000"
+  },
+  "inputs": [
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Namuna massasi m",
+        "ru": "Масса образца m",
+        "en": "Specimen mass m"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "a",
+      "name": {
+        "uz": "Namuna o'lchami a",
+        "ru": "Размер образца a",
+        "en": "Specimen dimension a"
+      },
+      "unit": "cm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "b",
+      "name": {
+        "uz": "Namuna o'lchami b",
+        "ru": "Размер образца b",
+        "en": "Specimen dimension b"
+      },
+      "unit": "cm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "c",
+      "name": {
+        "uz": "Namuna o'lchami c",
+        "ru": "Размер образца c",
+        "en": "Specimen dimension c"
+      },
+      "unit": "cm",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m_cert",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m)",
+        "ru": "Весы: сертификат о калибровке (m)",
+        "en": "Balance: calibration certificate (m)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m_res",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m)",
+        "ru": "Весы: разрешение (m)",
+        "en": "Balance: resolution (m)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "a_cert",
+      "input": "a",
+      "name": {
+        "uz": "Shtangensirkul yoki chizg'ich: sertifikat (a)",
+        "ru": "Штангенциркуль или линейка: сертификат (a)",
+        "en": "Caliper or ruler: certificate (a)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "cm",
+      "instrument": "caliper",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "a_res",
+      "input": "a",
+      "name": {
+        "uz": "Shtangensirkul: ajratish qobiliyati (a)",
+        "ru": "Штангенциркуль: разрешение (a)",
+        "en": "Caliper: resolution (a)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "cm",
+      "instrument": "caliper",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "a_shape",
+      "input": "a",
+      "name": {
+        "uz": "Shakl nuqsoni (a)",
+        "ru": "Дефект формы (a)",
+        "en": "Shape defect (a)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "cm",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "b_cert",
+      "input": "b",
+      "name": {
+        "uz": "Shtangensirkul yoki chizg'ich: sertifikat (b)",
+        "ru": "Штангенциркуль или линейка: сертификат (b)",
+        "en": "Caliper or ruler: certificate (b)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "cm",
+      "instrument": "caliper",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "b_res",
+      "input": "b",
+      "name": {
+        "uz": "Shtangensirkul: ajratish qobiliyati (b)",
+        "ru": "Штангенциркуль: разрешение (b)",
+        "en": "Caliper: resolution (b)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "cm",
+      "instrument": "caliper",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "b_shape",
+      "input": "b",
+      "name": {
+        "uz": "Shakl nuqsoni (b)",
+        "ru": "Дефект формы (b)",
+        "en": "Shape defect (b)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "cm",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "c_cert",
+      "input": "c",
+      "name": {
+        "uz": "Shtangensirkul yoki chizg'ich: sertifikat (c)",
+        "ru": "Штангенциркуль или линейка: сертификат (c)",
+        "en": "Caliper or ruler: certificate (c)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "cm",
+      "instrument": "caliper",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "c_res",
+      "input": "c",
+      "name": {
+        "uz": "Shtangensirkul: ajratish qobiliyati (c)",
+        "ru": "Штангенциркуль: разрешение (c)",
+        "en": "Caliper: resolution (c)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "cm",
+      "instrument": "caliper",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "c_shape",
+      "input": "c",
+      "name": {
+        "uz": "Shakl nuqsoni (c)",
+        "ru": "Дефект формы (c)",
+        "en": "Shape defect (c)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "cm",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "⚠ Birliklar: WAVE1_SPEC da \"o'lchamlar mm da, massa g da\" va ×1000 deyilgan; lekin g/mm³ · 1000 kg/m³ ga teng emas (g/mm³ = 10⁶ kg/m³). ×1000 bilan to'g'ri natija uchun o'lchamlar sm da bo'lishi kerak (g/sm³ · 1000 = kg/m³) — shablonda sm olingan. ГОСТ 12730.1 bo'yicha tekshirilsin.",
+        "ru": "⚠ Единицы: в WAVE1_SPEC сказано «размеры в мм, масса в г» и ×1000; но г/мм³ · 1000 ≠ кг/м³ (г/мм³ = 10⁶ кг/м³). Для верного результата с ×1000 размеры должны быть в см (г/см³ · 1000 = кг/м³) — в шаблоне приняты см. Проверить по ГОСТ 12730.1.",
+        "en": "⚠ Units: WAVE1_SPEC says \"dimensions in mm, mass in g\" with ×1000, but g/mm³ · 1000 is not kg/m³ (g/mm³ = 10⁶ kg/m³). With ×1000 the dimensions must be in cm (g/cm³ · 1000 = kg/m³) — the template uses cm. Verify against GOST 12730.1."
+      },
+      "owner": "lab+owner",
+      "blocking": true
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

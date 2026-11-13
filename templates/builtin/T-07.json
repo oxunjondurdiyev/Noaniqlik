@@ -1,0 +1,780 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-07",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Qumning yiriklik moduli",
+    "ru": "Модуль крупности песка",
+    "en": "Fineness modulus of sand"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 8735",
+      "edition": null,
+      "labCount": 32
+    }
+  ],
+  "labCount": 32,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-07",
+  "measurand": {
+    "symbol": "Mk",
+    "name": {
+      "uz": "Yiriklik moduli",
+      "ru": "Модуль крупности",
+      "en": "Fineness modulus"
+    },
+    "unit": "1"
+  },
+  "model": {
+    "formula": "Mk = ((m25) + (m25 + m125) + (m25 + m125 + m063) + (m25 + m125 + m063 + m0315) + (m25 + m125 + m063 + m0315 + m016)) / (100 * m) * 100"
+  },
+  "variants": [
+    {
+      "id": "masses",
+      "title": {
+        "uz": "Soddalashtirilgan: m_i lar orqali, Mk = (Σ_k Σ_{j≤k} m_j)/(100·m)·100 — korrelyatsiya avtomatik",
+        "ru": "Упрощённо: через m_i, Mk = (Σ_k Σ_{j≤k} m_j)/(100·m)·100 — корреляция учитывается автоматически",
+        "en": "Simplified: via m_i, Mk = (Σ_k Σ_{j≤k} m_j)/(100·m)·100 — correlation handled automatically"
+      },
+      "formula": "Mk = ((m25) + (m25 + m125) + (m25 + m125 + m063) + (m25 + m125 + m063 + m0315) + (m25 + m125 + m063 + m0315 + m016)) / (100 * m) * 100",
+      "inputs": [
+        "m25",
+        "m125",
+        "m063",
+        "m0315",
+        "m016",
+        "m"
+      ]
+    },
+    {
+      "id": "residues",
+      "title": {
+        "uz": "To'liq qoldiqlar orqali: Mk = (A2,5 + A1,25 + A0,63 + A0,315 + A0,16)/100",
+        "ru": "Через полные остатки: Mk = (A2,5 + A1,25 + A0,63 + A0,315 + A0,16)/100",
+        "en": "Via cumulative residues: Mk = (A2.5 + A1.25 + A0.63 + A0.315 + A0.16)/100"
+      },
+      "formula": "Mk = (A25 + A125 + A063 + A0315 + A016) / 100",
+      "inputs": [
+        "A25",
+        "A125",
+        "A063",
+        "A0315",
+        "A016"
+      ],
+      "note": {
+        "uz": "⚠ A_i lar umumiy m va bir xil m_j orqali korrelyatsiyalangan — bu variantda korrelyatsiya hisobga olinmaydi.",
+        "ru": "⚠ A_i коррелированы через общую m и одни и те же m_j — в этом варианте корреляция не учитывается.",
+        "en": "⚠ A_i are correlated through the common m and the same m_j — this variant does not account for it."
+      }
+    }
+  ],
+  "defaultVariant": "masses",
+  "inputs": [
+    {
+      "symbol": "m25",
+      "name": {
+        "uz": "2,5 mm elakdagi xususiy qoldiq massasi",
+        "ru": "Масса частного остатка на сите 2,5 мм",
+        "en": "Mass of the partial residue on the 2.5 mm sieve"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m125",
+      "name": {
+        "uz": "1,25 mm elakdagi xususiy qoldiq massasi",
+        "ru": "Масса частного остатка на сите 1,25 мм",
+        "en": "Mass of the partial residue on the 1.25 mm sieve"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m063",
+      "name": {
+        "uz": "0,63 mm elakdagi xususiy qoldiq massasi",
+        "ru": "Масса частного остатка на сите 0,63 мм",
+        "en": "Mass of the partial residue on the 0.63 mm sieve"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m0315",
+      "name": {
+        "uz": "0,315 mm elakdagi xususiy qoldiq massasi",
+        "ru": "Масса частного остатка на сите 0,315 мм",
+        "en": "Mass of the partial residue on the 0.315 mm sieve"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m016",
+      "name": {
+        "uz": "0,16 mm elakdagi xususiy qoldiq massasi",
+        "ru": "Масса частного остатка на сите 0,16 мм",
+        "en": "Mass of the partial residue on the 0.16 mm sieve"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Tortim massasi m",
+        "ru": "Масса навески m",
+        "en": "Mass of the test portion m"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "A25",
+      "name": {
+        "uz": "2,5 mm elakdagi to'liq qoldiq (T-06 natijasi)",
+        "ru": "Полный остаток на сите 2,5 мм (результат T-06)",
+        "en": "Cumulative residue on the 2.5 mm sieve (T-06 result)"
+      },
+      "unit": "%",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "A125",
+      "name": {
+        "uz": "1,25 mm elakdagi to'liq qoldiq (T-06 natijasi)",
+        "ru": "Полный остаток на сите 1,25 мм (результат T-06)",
+        "en": "Cumulative residue on the 1.25 mm sieve (T-06 result)"
+      },
+      "unit": "%",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "A063",
+      "name": {
+        "uz": "0,63 mm elakdagi to'liq qoldiq (T-06 natijasi)",
+        "ru": "Полный остаток на сите 0,63 мм (результат T-06)",
+        "en": "Cumulative residue on the 0.63 mm sieve (T-06 result)"
+      },
+      "unit": "%",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "A0315",
+      "name": {
+        "uz": "0,315 mm elakdagi to'liq qoldiq (T-06 natijasi)",
+        "ru": "Полный остаток на сите 0,315 мм (результат T-06)",
+        "en": "Cumulative residue on the 0.315 mm sieve (T-06 result)"
+      },
+      "unit": "%",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "A016",
+      "name": {
+        "uz": "0,16 mm elakdagi to'liq qoldiq (T-06 natijasi)",
+        "ru": "Полный остаток на сите 0,16 мм (результат T-06)",
+        "en": "Cumulative residue on the 0.16 mm sieve (T-06 result)"
+      },
+      "unit": "%",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m25_cert",
+      "input": "m25",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m25)",
+        "ru": "Весы: сертификат о калибровке (m25)",
+        "en": "Balance: calibration certificate (m25)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m25_res",
+      "input": "m25",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m25)",
+        "ru": "Весы: разрешение (m25)",
+        "en": "Balance: resolution (m25)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m25_sieve",
+      "input": "m25",
+      "name": {
+        "uz": "Elash jarayoni: yo'qotish yoki qolib ketish (m25)",
+        "ru": "Процесс рассева: потери или застревание (m25)",
+        "en": "Sieving: loss or retention (m25)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m125_cert",
+      "input": "m125",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m125)",
+        "ru": "Весы: сертификат о калибровке (m125)",
+        "en": "Balance: calibration certificate (m125)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m125_res",
+      "input": "m125",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m125)",
+        "ru": "Весы: разрешение (m125)",
+        "en": "Balance: resolution (m125)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m125_sieve",
+      "input": "m125",
+      "name": {
+        "uz": "Elash jarayoni: yo'qotish yoki qolib ketish (m125)",
+        "ru": "Процесс рассева: потери или застревание (m125)",
+        "en": "Sieving: loss or retention (m125)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m063_cert",
+      "input": "m063",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m063)",
+        "ru": "Весы: сертификат о калибровке (m063)",
+        "en": "Balance: calibration certificate (m063)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m063_res",
+      "input": "m063",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m063)",
+        "ru": "Весы: разрешение (m063)",
+        "en": "Balance: resolution (m063)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m063_sieve",
+      "input": "m063",
+      "name": {
+        "uz": "Elash jarayoni: yo'qotish yoki qolib ketish (m063)",
+        "ru": "Процесс рассева: потери или застревание (m063)",
+        "en": "Sieving: loss or retention (m063)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m0315_cert",
+      "input": "m0315",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m0315)",
+        "ru": "Весы: сертификат о калибровке (m0315)",
+        "en": "Balance: calibration certificate (m0315)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m0315_res",
+      "input": "m0315",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m0315)",
+        "ru": "Весы: разрешение (m0315)",
+        "en": "Balance: resolution (m0315)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m0315_sieve",
+      "input": "m0315",
+      "name": {
+        "uz": "Elash jarayoni: yo'qotish yoki qolib ketish (m0315)",
+        "ru": "Процесс рассева: потери или застревание (m0315)",
+        "en": "Sieving: loss or retention (m0315)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m016_cert",
+      "input": "m016",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m016)",
+        "ru": "Весы: сертификат о калибровке (m016)",
+        "en": "Balance: calibration certificate (m016)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m016_res",
+      "input": "m016",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m016)",
+        "ru": "Весы: разрешение (m016)",
+        "en": "Balance: resolution (m016)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m016_sieve",
+      "input": "m016",
+      "name": {
+        "uz": "Elash jarayoni: yo'qotish yoki qolib ketish (m016)",
+        "ru": "Процесс рассева: потери или застревание (m016)",
+        "en": "Sieving: loss or retention (m016)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m_cert",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m)",
+        "ru": "Весы: сертификат о калибровке (m)",
+        "en": "Balance: calibration certificate (m)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m_res",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m)",
+        "ru": "Весы: разрешение (m)",
+        "en": "Balance: resolution (m)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "A25_t06",
+      "input": "A25",
+      "name": {
+        "uz": "T-06 hisobidan standart noaniqlik (A25)",
+        "ru": "Неопределённость из расчёта T-06 (A25)",
+        "en": "Uncertainty from the T-06 evaluation (A25)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "%",
+      "correlated": false,
+      "hint": {
+        "uz": "T-06 hisobidan: kengaytirilgan noaniqlik U va k.",
+        "ru": "Из расчёта T-06: расширенная неопределённость U и k.",
+        "en": "From the T-06 evaluation: expanded uncertainty U and k."
+      }
+    },
+    {
+      "id": "A125_t06",
+      "input": "A125",
+      "name": {
+        "uz": "T-06 hisobidan standart noaniqlik (A125)",
+        "ru": "Неопределённость из расчёта T-06 (A125)",
+        "en": "Uncertainty from the T-06 evaluation (A125)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "%",
+      "correlated": false,
+      "hint": {
+        "uz": "T-06 hisobidan: kengaytirilgan noaniqlik U va k.",
+        "ru": "Из расчёта T-06: расширенная неопределённость U и k.",
+        "en": "From the T-06 evaluation: expanded uncertainty U and k."
+      }
+    },
+    {
+      "id": "A063_t06",
+      "input": "A063",
+      "name": {
+        "uz": "T-06 hisobidan standart noaniqlik (A063)",
+        "ru": "Неопределённость из расчёта T-06 (A063)",
+        "en": "Uncertainty from the T-06 evaluation (A063)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "%",
+      "correlated": false,
+      "hint": {
+        "uz": "T-06 hisobidan: kengaytirilgan noaniqlik U va k.",
+        "ru": "Из расчёта T-06: расширенная неопределённость U и k.",
+        "en": "From the T-06 evaluation: expanded uncertainty U and k."
+      }
+    },
+    {
+      "id": "A0315_t06",
+      "input": "A0315",
+      "name": {
+        "uz": "T-06 hisobidan standart noaniqlik (A0315)",
+        "ru": "Неопределённость из расчёта T-06 (A0315)",
+        "en": "Uncertainty from the T-06 evaluation (A0315)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "%",
+      "correlated": false,
+      "hint": {
+        "uz": "T-06 hisobidan: kengaytirilgan noaniqlik U va k.",
+        "ru": "Из расчёта T-06: расширенная неопределённость U и k.",
+        "en": "From the T-06 evaluation: expanded uncertainty U and k."
+      }
+    },
+    {
+      "id": "A016_t06",
+      "input": "A016",
+      "name": {
+        "uz": "T-06 hisobidan standart noaniqlik (A016)",
+        "ru": "Неопределённость из расчёта T-06 (A016)",
+        "en": "Uncertainty from the T-06 evaluation (A016)"
+      },
+      "kind": "reference",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "%",
+      "correlated": false,
+      "hint": {
+        "uz": "T-06 hisobidan: kengaytirilgan noaniqlik U va k.",
+        "ru": "Из расчёта T-06: расширенная неопределённость U и k.",
+        "en": "From the T-06 evaluation: expanded uncertainty U and k."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "masses",
+      "inputs": [
+        "m25",
+        "m125",
+        "m063",
+        "m0315",
+        "m016",
+        "m"
+      ],
+      "r": 1,
+      "sharedInstrument": "balance",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "Bu kirishlar bitta tarozi bilan o'lchanadimi? Ha bo'lsa — umumiy sistematik xato tufayli korrelyatsiya r = +1 hisobga olinadi (faqat sertifikat/ruxsat etilgan xatolik manbalari; ajratish qobiliyati mustaqil).",
+        "ru": "Измеряются ли эти величины одним и тем же прибором (весы)? Если да — учитывается корреляция r = +1 из-за общей систематической погрешности (только источники «сертификат/допускаемая погрешность»; разрешение независимо).",
+        "en": "Are these inputs measured with the same balance? If yes — correlation r = +1 due to the common systematic error is taken into account (certificate / permissible-error sources only; resolution is independent)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "⚠ A_i lar umumiy m va bir xil m_j orqali korrelyatsiyalangan. 'residues' variantida bu hisobga olinmaydi; 'masses' variantida LPU korrelyatsiyani avtomatik hisobga oladi.",
+        "ru": "⚠ A_i коррелированы через общую m и одни и те же m_j. В варианте «residues» это не учитывается; в варианте «masses» ЗРН учитывает корреляцию автоматически.",
+        "en": "⚠ A_i are correlated through the common m and the same m_j. The \"residues\" variant ignores this; in the \"masses\" variant the LPU accounts for the correlation automatically."
+      },
+      "owner": "owner"
+    },
+    {
+      "id": "Q2",
+      "text": {
+        "uz": "Yiriklik moduliga kiradigan elaklar ro'yxati (2,5 … 0,16 mm) ГОСТ 8735 ning amaldagi nashridan tekshirilsin.",
+        "ru": "Проверить перечень сит для модуля крупности (2,5 … 0,16 мм) по действующей редакции ГОСТ 8735.",
+        "en": "Verify the list of sieves for the fineness modulus (2.5 … 0.16 mm) against the current edition of GOST 8735."
+      },
+      "owner": "lab"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

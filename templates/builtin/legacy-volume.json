@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-volume",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Hajmni o'lchash",
+    "ru": "Измерение объёма",
+    "en": "Volume measurement"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — volume",
+  "legacyPresetKey": "volume",
+  "measurand": {
+    "symbol": "V",
+    "name": {
+      "uz": "Hajm",
+      "ru": "Объём",
+      "en": "Volume"
+    },
+    "unit": "mL"
+  },
+  "model": {
+    "formula": ""
+  },
+  "inputs": [
+    {
+      "symbol": "V",
+      "name": {
+        "uz": "Hajm",
+        "ru": "Объём",
+        "en": "Volume"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "V_1",
+      "input": "V",
+      "name": {
+        "uz": "Shisha idish kalibrlovi",
+        "ru": "Калибровка мерной посуды",
+        "en": "Calibration of glassware"
+      },
+      "legacyName": "Calibration of glassware",
+      "kind": "certificate",
+      "distribution": "triang",
+      "halfWidth": 0.02,
+      "sensitivity": 1,
+      "unit": "mL"
+    },
+    {
+      "id": "V_2",
+      "input": "V",
+      "name": {
+        "uz": "Harorat chetlanishi (issiqlikdan kengayish)",
+        "ru": "Отклонение температуры (тепловое расширение)",
+        "en": "Temperature deviation (thermal expansion)"
+      },
+      "legacyName": "Temperature deviation (thermal expansion)",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 0.015,
+      "sensitivity": 1,
+      "unit": "mL"
+    },
+    {
+      "id": "V_3",
+      "input": "V",
+      "name": {
+        "uz": "Meniskni o'qish",
+        "ru": "Отсчёт по мениску",
+        "en": "Meniscus reading"
+      },
+      "legacyName": "Meniscus reading",
+      "kind": "other",
+      "distribution": "rect",
+      "halfWidth": 0.01,
+      "sensitivity": 1,
+      "unit": "mL"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "V": [
+        99.972,
+        99.975,
+        99.969,
+        99.973,
+        99.976,
+        99.971,
+        99.974,
+        99.97,
+        99.973,
+        99.975
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

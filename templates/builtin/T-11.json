@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-11",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Suv shimuvchanlik (beton, g'isht, plitka)",
+    "ru": "Водопоглощение (бетон, кирпич, плитка)",
+    "en": "Water absorption (concrete, brick, tiles)"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 12730.3",
+      "edition": null,
+      "labCount": null
+    },
+    {
+      "code": "ГОСТ 7025",
+      "edition": null,
+      "labCount": 31
+    },
+    {
+      "code": "ГОСТ 27180",
+      "edition": null,
+      "labCount": null
+    }
+  ],
+  "labCount": 31,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-11",
+  "measurand": {
+    "symbol": "W",
+    "name": {
+      "uz": "Massa bo'yicha suv shimuvchanlik",
+      "ru": "Водопоглощение по массе",
+      "en": "Water absorption by mass"
+    },
+    "unit": "%"
+  },
+  "model": {
+    "formula": "W = (m1 - m) / m * 100"
+  },
+  "inputs": [
+    {
+      "symbol": "m1",
+      "name": {
+        "uz": "Suvga to'yingan namuna massasi m1",
+        "ru": "Масса водонасыщенного образца m1",
+        "en": "Mass of the water-saturated specimen m1"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Quruq namuna massasi m",
+        "ru": "Масса сухого образца m",
+        "en": "Mass of the dry specimen m"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m1_cert",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m1)",
+        "ru": "Весы: сертификат о калибровке (m1)",
+        "en": "Balance: calibration certificate (m1)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m1_res",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m1)",
+        "ru": "Весы: разрешение (m1)",
+        "en": "Balance: resolution (m1)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m1_wipe",
+      "input": "m1",
+      "name": {
+        "uz": "Sirtni artish operatsiyasi (m1)",
+        "ru": "Операция протирки поверхности (m1)",
+        "en": "Surface wiping operation (m1)"
+      },
+      "kind": "procedure",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "m_cert",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m)",
+        "ru": "Весы: сертификат о калибровке (m)",
+        "en": "Balance: calibration certificate (m)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "m_res",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m)",
+        "ru": "Весы: разрешение (m)",
+        "en": "Balance: resolution (m)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "m_m1",
+      "inputs": [
+        "m1",
+        "m"
+      ],
+      "r": 1,
+      "sharedInstrument": "balance",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "Bu kirishlar bitta tarozi bilan o'lchanadimi? Ha bo'lsa — umumiy sistematik xato tufayli korrelyatsiya r = +1 hisobga olinadi (faqat sertifikat/ruxsat etilgan xatolik manbalari; ajratish qobiliyati mustaqil).",
+        "ru": "Измеряются ли эти величины одним и тем же прибором (весы)? Если да — учитывается корреляция r = +1 из-за общей систематической погрешности (только источники «сертификат/допускаемая погрешность»; разрешение независимо).",
+        "en": "Are these inputs measured with the same balance? If yes — correlation r = +1 due to the common systematic error is taken into account (certificate / permissible-error sources only; resolution is independent)."
+      },
+      "note": {
+        "uz": "WAVE1_SPEC T-11: m va m1 bitta tarozida, r = +1.",
+        "ru": "WAVE1_SPEC T-11: m и m1 на одних весах, r = +1.",
+        "en": "WAVE1_SPEC T-11: m and m1 on one balance, r = +1."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

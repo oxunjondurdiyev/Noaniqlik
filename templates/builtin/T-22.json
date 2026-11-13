@@ -1,0 +1,336 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-22",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "electrical",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Izolyatsiya qarshiligi va oqish toki",
+    "ru": "Сопротивление изоляции и ток утечки",
+    "en": "Insulation resistance and leakage current"
+  },
+  "standards": [
+    {
+      "code": "IEC 60335",
+      "edition": null,
+      "labCount": 25
+    },
+    {
+      "code": "IEC 60204",
+      "edition": null,
+      "labCount": 25
+    },
+    {
+      "code": "IEC 60950",
+      "edition": null,
+      "labCount": 22
+    },
+    {
+      "code": "IEC 60598",
+      "edition": null,
+      "labCount": 21
+    },
+    {
+      "code": "IEC 60065",
+      "edition": null,
+      "labCount": 21
+    },
+    {
+      "code": "ГОСТ 3940",
+      "edition": null,
+      "labCount": null
+    },
+    {
+      "code": "ГОСТ 2933",
+      "edition": null,
+      "labCount": null
+    }
+  ],
+  "labCount": 25,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-22",
+  "measurand": {
+    "symbol": "R_iz",
+    "name": {
+      "uz": "Izolyatsiya qarshiligi",
+      "ru": "Сопротивление изоляции",
+      "en": "Insulation resistance"
+    },
+    "unit": "MΩ"
+  },
+  "model": {
+    "formula": "R_iz = R"
+  },
+  "variants": [
+    {
+      "id": "insulation",
+      "title": {
+        "uz": "Izolyatsiya qarshiligi: Y = Y_oq",
+        "ru": "Сопротивление изоляции: Y = Y_изм",
+        "en": "Insulation resistance: Y = Y_read"
+      },
+      "formula": "R_iz = R",
+      "inputs": [
+        "R",
+        "a_rel",
+        "b_dig",
+        "d"
+      ],
+      "decisionRule": {
+        "type": "one_sided_lower",
+        "required": true,
+        "limit": null,
+        "note": {
+          "uz": "Natija chegara bilan solishtiriladi (≥ X MΩ). Qaror qoidasi (P05) majburiy.",
+          "ru": "Результат сравнивается с пределом (≥ X МОм). Правило принятия решения (P05) обязательно.",
+          "en": "The result is compared with a limit (≥ X MΩ). A decision rule (P05) is mandatory."
+        }
+      }
+    },
+    {
+      "id": "leakage",
+      "title": {
+        "uz": "Oqish toki: Y = Y_oq",
+        "ru": "Ток утечки: Y = Y_изм",
+        "en": "Leakage current: Y = Y_read"
+      },
+      "formula": "I_oq = I",
+      "inputs": [
+        "I",
+        "a_rel",
+        "b_dig",
+        "d"
+      ],
+      "measurand": {
+        "symbol": "I_oq",
+        "name": {
+          "uz": "Oqish toki",
+          "ru": "Ток утечки",
+          "en": "Leakage current"
+        },
+        "unit": "mA"
+      },
+      "decisionRule": {
+        "type": "one_sided_upper",
+        "required": true,
+        "limit": null,
+        "note": {
+          "uz": "Natija chegara bilan solishtiriladi (≤ X mA). Qaror qoidasi (P05) majburiy.",
+          "ru": "Результат сравнивается с пределом (≤ X мА). Правило принятия решения (P05) обязательно.",
+          "en": "The result is compared with a limit (≤ X mA). A decision rule (P05) is mandatory."
+        }
+      }
+    }
+  ],
+  "defaultVariant": "insulation",
+  "constants": [
+    {
+      "symbol": "a_rel",
+      "name": {
+        "uz": "Ruxsat etilgan xatolikning nisbiy qismi a (%)",
+        "ru": "Относительная часть допускаемой погрешности a (%)",
+        "en": "Relative part of the permissible error a (%)"
+      },
+      "unit": "%",
+      "value": null,
+      "ref": "Asbob pasporti: ±(a %·o'qish + b raqam)",
+      "hint": {
+        "uz": "Asbob pasportidan: ±(a %·o'qish + b raqam) dagi a.",
+        "ru": "Из паспорта прибора: a в ±(a %·показание + b ед. мл. разряда).",
+        "en": "From the instrument passport: a in ±(a %·reading + b digits)."
+      }
+    },
+    {
+      "symbol": "b_dig",
+      "name": {
+        "uz": "Ruxsat etilgan xatolikdagi raqamlar soni b",
+        "ru": "Число единиц младшего разряда b",
+        "en": "Number of digits b in the permissible error"
+      },
+      "unit": "1",
+      "value": null,
+      "ref": "Asbob pasporti: ±(a %·o'qish + b raqam)",
+      "hint": {
+        "uz": "Asbob pasportidan: ±(a %·o'qish + b raqam) dagi b.",
+        "ru": "Из паспорта прибора: b в ±(a %·показание + b ед. мл. разряда).",
+        "en": "From the instrument passport: b in ±(a %·reading + b digits)."
+      }
+    },
+    {
+      "symbol": "d",
+      "name": {
+        "uz": "Ajratish qobiliyati d (o'lchanayotgan kattalik birligida)",
+        "ru": "Разрешение d (в единицах измеряемой величины)",
+        "en": "Resolution d (in units of the measured quantity)"
+      },
+      "unit": "",
+      "value": null,
+      "ref": "Asbob pasporti",
+      "hint": {
+        "uz": "Asbob pasportidan; tanlangan diapazondagi bir xona qiymati.",
+        "ru": "Из паспорта прибора; единица младшего разряда на выбранном диапазоне.",
+        "en": "From the instrument passport; least significant digit on the selected range."
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "symbol": "R",
+      "name": {
+        "uz": "Megaommetr ko'rsatishi",
+        "ru": "Показание мегаомметра",
+        "en": "Megohmmeter reading"
+      },
+      "unit": "MΩ",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    },
+    {
+      "symbol": "I",
+      "name": {
+        "uz": "Oqish toki o'lchagich ko'rsatishi",
+        "ru": "Показание измерителя тока утечки",
+        "en": "Leakage current meter reading"
+      },
+      "unit": "mA",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "R_spec",
+      "input": "R",
+      "name": {
+        "uz": "Megaommetr yoki oqish toki o'lchagich: ruxsat etilgan xatolik ±(a %·o'qish + b raqam) (R)",
+        "ru": "Мегаомметр или измеритель тока утечки: допускаемая погрешность ±(a %·показание + b ед.) (R)",
+        "en": "Megohmmeter or leakage current meter: permissible error ±(a %·reading + b digits) (R)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "allowedDistributions": [
+        "rect",
+        "normal"
+      ],
+      "halfWidth": "a_rel / 100 * R + b_dig * d",
+      "unit": "MΩ",
+      "instrument": "megohm",
+      "correlated": true,
+      "hint": {
+        "uz": "Yarim kenglik formula bilan: a, b, d — o'zgarmaslar bo'limida (pasportdan). Sertifikat bo'lsa — normal taqsimot va U.",
+        "ru": "Полуширина по формуле: a, b, d — в разделе констант (из паспорта). При наличии сертификата — нормальное распределение и U.",
+        "en": "Half-width by formula: a, b, d in the constants section (from the passport). With a certificate — normal distribution and U."
+      }
+    },
+    {
+      "id": "R_res",
+      "input": "R",
+      "name": {
+        "uz": "Megaommetr yoki oqish toki o'lchagich: ajratish qobiliyati (R)",
+        "ru": "Мегаомметр или измеритель тока утечки: разрешение (R)",
+        "en": "Megohmmeter or leakage current meter: resolution (R)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": "d",
+      "unit": "MΩ",
+      "instrument": "megohm",
+      "correlated": false,
+      "hint": {
+        "uz": "Avtomatik: d (o'zgarmaslar bo'limida); u = d/(2√3).",
+        "ru": "Автоматически: d (раздел констант); u = d/(2√3).",
+        "en": "Automatic: d (constants section); u = d/(2√3)."
+      }
+    },
+    {
+      "id": "I_spec",
+      "input": "I",
+      "name": {
+        "uz": "Megaommetr yoki oqish toki o'lchagich: ruxsat etilgan xatolik ±(a %·o'qish + b raqam) (I)",
+        "ru": "Мегаомметр или измеритель тока утечки: допускаемая погрешность ±(a %·показание + b ед.) (I)",
+        "en": "Megohmmeter or leakage current meter: permissible error ±(a %·reading + b digits) (I)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "allowedDistributions": [
+        "rect",
+        "normal"
+      ],
+      "halfWidth": "a_rel / 100 * I + b_dig * d",
+      "unit": "mA",
+      "instrument": "megohm",
+      "correlated": true,
+      "hint": {
+        "uz": "Yarim kenglik formula bilan: a, b, d — o'zgarmaslar bo'limida (pasportdan). Sertifikat bo'lsa — normal taqsimot va U.",
+        "ru": "Полуширина по формуле: a, b, d — в разделе констант (из паспорта). При наличии сертификата — нормальное распределение и U.",
+        "en": "Half-width by formula: a, b, d in the constants section (from the passport). With a certificate — normal distribution and U."
+      }
+    },
+    {
+      "id": "I_res",
+      "input": "I",
+      "name": {
+        "uz": "Megaommetr yoki oqish toki o'lchagich: ajratish qobiliyati (I)",
+        "ru": "Мегаомметр или измеритель тока утечки: разрешение (I)",
+        "en": "Megohmmeter or leakage current meter: resolution (I)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": "d",
+      "unit": "mA",
+      "instrument": "megohm",
+      "correlated": false,
+      "hint": {
+        "uz": "Avtomatik: d (o'zgarmaslar bo'limida); u = d/(2√3).",
+        "ru": "Автоматически: d (раздел констант); u = d/(2√3).",
+        "en": "Automatic: d (constants section); u = d/(2√3)."
+      }
+    }
+  ],
+  "decisionRule": {
+    "type": "one_sided_lower",
+    "required": true,
+    "limit": null,
+    "note": {
+      "uz": "Qaror qoidasi (P05) majburiy.",
+      "ru": "Правило принятия решения (P05) обязательно.",
+      "en": "A decision rule (P05) is mandatory."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "Chegara (≥ X MΩ, ≤ X mA) va bir tomonlama qaror qoidasi — P05 da (JCGM 106, ILAC G8). Hozir natija va U chiqadi, qaror avtomatik qilinmaydi.",
+        "ru": "Предел (≥ X МОм, ≤ X мА) и одностороннее правило принятия решения — в P05 (JCGM 106, ILAC G8). Сейчас выводятся результат и U, решение автоматически не принимается.",
+        "en": "The limit (≥ X MΩ, ≤ X mA) and the one-sided decision rule are in P05 (JCGM 106, ILAC G8). For now the result and U are reported; no automatic decision is made."
+      },
+      "owner": "owner"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}
