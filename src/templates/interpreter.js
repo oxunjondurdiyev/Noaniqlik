@@ -157,6 +157,20 @@ export function checkTemplate(tpl, schema) {
 
 /* ─── Shablon → hisob holati ───────────────────────────── */
 
+function uiExtra(s, lang) {
+  return { kind: s.kind, hint: tr(s.hint, lang), ...(s.note ? { note: tr(s.note, lang) } : {}),
+    ...(s.includeByDefault === false ? { optional: true } : {}) };
+}
+function uiEntry(s, lang) {
+  const e = { name: s.legacyName || tr(s.name, lang), param: s.input, halfWidth: s.halfWidth === null ? '' : s.halfWidth,
+    distribution: s.distribution, sourceId: s.id, correlated: s.correlated !== undefined ? s.correlated : s.distribution !== 'resol' };
+  if (s.unit !== undefined) e.unit = s.unit;
+  if (s.instrument) e.instrument = s.instrument;
+  if (s.distribution === 'normal' && s.k !== null && s.k !== undefined) e.k = s.k;
+  if (s.distribution === 'normal' && s.k === null) e.kRequired = true;
+  return Object.assign(e, uiExtra(s, lang));
+}
+
 /**
  * Shablon va foydalanuvchi ma'lumotidan hisob holatini (calc-state/v2 + `template` meta) yig'ish.
  *
@@ -229,13 +243,13 @@ export function buildState(tpl, data = {}, opts = {}) {
   }
 
   // B tur manbalari
-  const typeB = [], excluded = [];
+  const typeB = [], excluded = [], excludedEntries = [];
   const patch = (point && point.patch) || {};
   for (const s of tpl.typeBSources || []) {
     if (!params.includes(s.input) || variant.excludeSources.includes(s.id)) continue;
     const user = (data.sources || {})[s.id] || {};
     const include = user.include !== undefined ? !!user.include : s.includeByDefault !== false;
-    if (!include) { excluded.push(s.id); continue; }
+    if (!include) { excluded.push(s.id); if (opts.ui) excludedEntries.push(uiEntry(s, lang)); continue; }
     const legacyName = s.legacyName;
     const p = patch[legacyName] || patch[s.id] || {};
     const pick = key => (user[key] !== undefined && !isBlank(user[key]) ? user[key] : (p[key] !== undefined ? p[key] : s[key]));
@@ -249,7 +263,11 @@ export function buildState(tpl, data = {}, opts = {}) {
     const k = pick('k');
     if (entry.distribution === 'normal' && k !== null && k !== undefined && !isBlank(k)) entry.k = toNum(k);
     // k = null shablonda — sertifikatdan kiritilishi shart (dvigatelning standart k = 2 si jimgina olinmaydi)
-    if (entry.distribution === 'normal' && k === null) missing.push({ type: 'k', id: s.id, symbol: s.input });
+    if (entry.distribution === 'normal' && k === null) {
+      missing.push({ type: 'k', id: s.id, symbol: s.input });
+      if (opts.ui) entry.kRequired = true;
+    }
+    if (opts.ui) Object.assign(entry, uiExtra(s, lang));
     const nu = pick('nu');
     if (nu !== null && nu !== undefined && !isBlank(nu)) entry.nu = toNum(nu);
     const sens = pick('sensitivity');
@@ -309,6 +327,17 @@ export function buildState(tpl, data = {}, opts = {}) {
     template: {
       id: tpl.id, version: tpl.version, status: tpl.status, title: clone(tpl.title),
       variant: variant.id, demo, aux, correlations, excluded,
+      ...(opts.ui ? {
+        excludedEntries,
+        inputInfo: Object.fromEntries([...modelInputs, ...modelConsts].map(i => [i.symbol, { name: tr(i.name, lang), hint: tr(i.hint, lang), kind: i.kind || 'constant' }])),
+        auxInfo: Object.fromEntries(auxConsts.map(c => [c.symbol, { name: tr(c.name, lang), hint: tr(c.hint, lang), unit: c.unit, ref: c.ref }])),
+        constInfo: Object.fromEntries(modelConsts.map(c => [c.symbol, { name: tr(c.name, lang), hint: tr(c.hint, lang), unit: c.unit, ref: c.ref }])),
+        correlationInfo: Object.fromEntries((tpl.correlations || []).map(c => [c.id, { question: tr(c.question, lang), note: tr(c.note, lang) }])),
+        openQuestionList: (tpl.openQuestions || []).map(q => ({ id: q.id, text: tr(q.text, lang), owner: q.owner, blocking: !!q.blocking })),
+        variantTitle: variant.title ? tr(variant.title, lang) : '',
+        measurandName: tr(variant.measurand.name, lang),
+        sourceNote: tr(tpl.sourceNote, lang),
+      } : {}),
       constants: modelConsts.map(c => c.symbol),
       standards: clone(variant.standards || []), labCount: tpl.labCount ?? null,
       openQuestions: (tpl.openQuestions || []).length,
@@ -389,6 +418,38 @@ export function prepareState(state) {
   st.covB = covB;
   if (errors.length) st.template = { ...st.template, prepareErrors: errors };
   return st;
+}
+
+/**
+ * Shablon bo'yicha UI holatida to'ldirilmagan maydonlar (hisobdan oldin tekshiriladi:
+ * bo'sh yarim kenglik dvigatelda 0 deb olinadi — U kamayib ketmasligi uchun hisob bloklanadi).
+ * @returns {{type:string, symbol?:string, id?:string, name?:string}[]}
+ */
+export function missingInState(state) {
+  if (!state || !state.template) return [];
+  const out = [];
+  const params = state.params || [];
+  for (const p of params) {
+    const obs = (state.measurements || {})[p] || [];
+    if (!obs.some(v => isFinite(toNum(v)))) out.push({ type: (state.template.constants || []).includes(p) ? 'constant' : 'observation', symbol: p });
+  }
+  const aux = state.template.aux || {};
+  const auxNames = Object.keys(aux);
+  for (const c of state.typeB || []) {
+    if (!c.sourceId) continue;
+    const hw = c.halfWidthExpr !== undefined ? c.halfWidthExpr : c.halfWidth;
+    if (isBlank(hw)) out.push({ type: 'halfWidth', id: c.sourceId, name: c.name, symbol: c.param });
+    if (c.distribution === 'normal' && c.kRequired && !(toNum(c.k) > 0)) out.push({ type: 'k', id: c.sourceId, name: c.name, symbol: c.param });
+    if (typeof hw === 'string' && !isBlank(hw) && !isFinite(toNum(hw)) && auxNames.length) {
+      try {
+        variables(parse(hw, [...params, ...auxNames])).forEach(v => {
+          if (auxNames.includes(v) && !isFinite(toNum(aux[v])) && !out.some(m => m.type === 'constant' && m.symbol === v)) out.push({ type: 'constant', symbol: v });
+        });
+      } catch (_) { /* dvigatel bad_halfwidth beradi */ }
+    }
+  }
+  for (const c of state.template.correlations || []) if (c.enabled && !isFinite(toNum(c.r))) out.push({ type: 'correlation', id: c.id });
+  return out;
 }
 
 /** Holat → dvigatel kirishi (uc-model/1). Shablon metama'lumoti va UI maydonlari olib tashlanadi. */
