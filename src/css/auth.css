@@ -535,6 +535,7 @@
 }
 
 .cred-box .copy-btn:hover { color: var(--accent); }
+.cred-box .copy-btn.copied { color: var(--success); }
 
 .status-dot {
   display: inline-block;

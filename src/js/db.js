@@ -1,12 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════
-   DB.JS — Firebase Firestore wrapper (UncertaintyCalc)
+   DB.JS — Firebase Firestore o'rami (UncertaintyCalc)
    ─────────────────────────────────────────────────────────────
-   IndexedDB o'rniga Firebase Firestore ishlatiladi.
-   Real-time multi-user ma'lumot almashish uchun.
+   Kirish huquqi firestore.rules da tekshiriladi — bu yerdagi
+   funksiyalar faqat qulaylik uchun. Ruxsat berilmagan o'qish/yozish
+   Firestore tomonidan PERMISSION_DENIED bilan rad etiladi.
 
-   Collections:
-     organizations  — tashkilotlar (admin hisoblar)
-     employees      — xodimlar (har bir tashkilotga bog'liq)
+   Kolleksiyalar (firestore.rules):
+     organizations/{adminUid}  — tashkilotlar
+     employees/{uid}           — xodimlar (orgId maydoni bilan)
+     authCleanup/{uid}         — Auth'dan qo'lda o'chirilishi kerak hisoblar
+
+   P02: parol, parol xeshi, `login` bo'yicha anonim qidiruv olib
+   tashlandi (isLoginTaken, getByIndex). Login yagonaligini Firebase
+   Authentication o'zi kafolatlaydi (bitta email — bitta hisob).
 ═══════════════════════════════════════════════════════════════ */
 
 const DB = (() => {
@@ -18,100 +24,78 @@ const DB = (() => {
     return window.firebaseDb;
   }
 
-  /* ─── BITTA YOZUV (ID bo'yicha) ────────────────────── */
-  async function get(store, id) {
-    const doc = await getDb().collection(store).doc(String(id)).get();
-    return doc.exists ? { id: doc.id, ...doc.data() } : undefined;
-  }
-
-  /* ─── INDEX BO'YICHA BITTA YOZUV ───────────────────── */
-  async function getByIndex(store, indexName, value) {
-    const snap = await getDb()
-      .collection(store)
-      .where(indexName, '==', value)
-      .limit(1)
-      .get();
-    if (snap.empty) return undefined;
-    const doc = snap.docs[0];
+  function withId(doc) {
     return { id: doc.id, ...doc.data() };
   }
 
-  /* ─── BARCHA YOZUVLAR ───────────────────────────────── */
-  async function getAll(store, indexName, value) {
+  /* ─── BITTA YOZUV (ID bo'yicha) ────────────────────── */
+  async function get(store, id) {
+    const doc = await getDb().collection(store).doc(String(id)).get();
+    return doc.exists ? withId(doc) : undefined;
+  }
+
+  /* ─── RO'YXAT (ixtiyoriy where field == value) ─────── */
+  async function getAll(store, field, value) {
     let query = getDb().collection(store);
-    if (indexName !== undefined) {
-      query = query.where(indexName, '==', value);
-    }
+    if (field !== undefined) query = query.where(field, '==', value);
     const snap = await query.get();
-    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snap.docs.map(withId);
   }
 
-  /* ─── YANGI YOZUV QO'SHISH ─────────────────────────── */
-  /** Firestore auto-ID (string) qaytaradi */
-  async function add(store, data) {
-    const ref = await getDb().collection(store).add(data);
-    return ref.id;
+  /* ─── BERILGAN ID BILAN YARATISH / ALMASHTIRISH ────── */
+  async function set(store, id, data) {
+    await getDb().collection(store).doc(String(id)).set(data);
+    return String(id);
   }
 
-  /* ─── MAVJUD YOZUVNI YANGILASH ──────────────────────── */
-  async function put(store, data) {
-    const { id, ...rest } = data;
-    await getDb().collection(store).doc(String(id)).set(rest, { merge: true });
-    return id;
+  /* ─── FAQAT BERILGAN MAYDONLARNI YANGILASH ─────────── */
+  async function update(store, id, fields) {
+    await getDb().collection(store).doc(String(id)).update(fields);
+    return String(id);
   }
 
-  /* ─── YOZUVNI O'CHIRISH ─────────────────────────────── */
+  /* ─── O'CHIRISH ────────────────────────────────────── */
   async function remove(store, id) {
     await getDb().collection(store).doc(String(id)).delete();
   }
 
-  /* ─── LOGIN MAVJUDLIGINI TEKSHIRISH ─────────────────── */
-  async function isLoginTaken(login) {
-    const [org, emp] = await Promise.all([
-      getByIndex('organizations', 'login', login),
-      getByIndex('employees',     'login', login),
-    ]);
-    return !!(org || emp);
+  /* ─── ATOMAR BATCH ─────────────────────────────────── */
+  // ops: [{ op: 'set'|'update'|'delete', store, id, data? }]
+  async function batch(ops) {
+    const db = getDb();
+    const b = db.batch();
+    ops.forEach(o => {
+      const ref = db.collection(o.store).doc(String(o.id));
+      if (o.op === 'set') b.set(ref, o.data);
+      else if (o.op === 'update') b.update(ref, o.data);
+      else if (o.op === 'delete') b.delete(ref);
+      else throw new Error('Unknown batch op: ' + o.op);
+    });
+    await b.commit();
   }
 
-  /* ─── BARCHA BAZANI EKSPORT ─────────────────────────── */
-  async function exportAll() {
-    const [orgs, emps] = await Promise.all([
-      getAll('organizations'),
-      getAll('employees'),
-    ]);
-    return { organizations: orgs, employees: emps, exportedAt: new Date().toISOString() };
+  /* ─── Maydonni o'chirish belgisi ──────────────────── */
+  function deleteField() {
+    return firebase.firestore.FieldValue.delete();
   }
 
-  /* ─── REAL-TIME: BARCHA TASHKILOTLAR ────────────────── */
-  /** Super-admin uchun: yangi ro'yxatdan o'tganlarni real vaqtda ko'rish.
-   *  @param {function(orgs: Array)} callback  — har safar o'zgarganda chaqiriladi
-   *  @returns {function} unsubscribe — tinglashni to'xtatish uchun
-   */
-  function onOrgsSnapshot(callback) {
-    return getDb()
-      .collection('organizations')
-      .onSnapshot(
-        snap => {
-          const orgs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          orgs.sort((a, b) => (b.registeredAt || '').localeCompare(a.registeredAt || ''));
-          callback(orgs);
-        },
-        err => console.error('[Firestore] onOrgsSnapshot xatosi:', err)
-      );
+  /* ─── REAL-TIME ────────────────────────────────────── */
+  // Faqat super-admin (qoidalar: organizations list → superadmin).
+  function onCollectionSnapshot(store, callback, onError) {
+    return getDb().collection(store).onSnapshot(
+      snap => callback(snap.docs.map(withId)),
+      err => { console.error('[Firestore] ' + store + ':', err.code || err.message); if (onError) onError(err); }
+    );
   }
 
-  return {
-    get,
-    getByIndex,
-    getAll,
-    add,
-    put,
-    remove,
-    isLoginTaken,
-    exportAll,
-    onOrgsSnapshot,
-  };
+  function onOrgsSnapshot(callback, onError) {
+    return onCollectionSnapshot('organizations', orgs => {
+      orgs.sort((a, b) => (b.registeredAt || '').localeCompare(a.registeredAt || ''));
+      callback(orgs);
+    }, onError);
+  }
+
+  return { get, getAll, set, update, remove, batch, deleteField, onCollectionSnapshot, onOrgsSnapshot };
 
 })();
 

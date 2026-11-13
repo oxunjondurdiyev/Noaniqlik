@@ -222,7 +222,14 @@ P02 ── P01 ── P03 ─┬─ P04 ── P05 ─┬─ P06 ── P07
 8. **Manbalar:** egasi qo'shadi — JCGM 102, JCGM 106, JCGM GUM-6, ILAC P14, ILAC G8, EURACHEM UfS, NIST Uncertainty Machine qo'llanmasi; COOMET R/GM/32 — ichki fonddan. Pullik ISO'ga tayanadigan funksiyalar uchun test manbasi: (a) ochiq manbalar (GTC/MSL, NIST), (b) egasi bergan laboratoriya misollari, (c) mustaqil qo'lda hisob (Excel). Manba aniq bo'lmaguncha `unverified`.
 9. **Brauzerlar:** ES modules (2018+) yetarli; eski brauzerlarni qo'llab-quvvatlash shart emas; index sahifasida juda eski brauzer uchun oddiy ogohlantirish.
 
-## Ochiq savollar (P02 boshida hal qilinadi)
+## P02 bo'yicha egasining qarorlari (2026-11-13) — quyidagi ochiq savollarga javob
+
+1. **Kirish usuli — (a) sun'iy email** `<login>@users.<loyiha-domeni>`, faqat Firebase Auth ichida; haqiqiy email/telefon qo'shilmaydi. Parolni tiklash faqat admin orqali: admin ikkinchi `firebase.initializeApp` instansiyasi bilan xodimga yangi hisob yaratadi; Auth'dagi eski hisobni o'chirish — `docs/SECURITY_SETUP.md` dagi qo'lda qadam.
+2. **Super-admin — custom claim** (`superadmin: true`), `scripts/set-superadmin-claim.mjs` (Admin SDK, devDependency, egasining kompyuterida); `.gitignore` da `serviceAccount*.json`, `*.key.json`; qoidalarda `request.auth.token.superadmin == true`.
+3. **Tarif noma'lum** — yechim Spark'da ishlashi shart, Cloud Functions yo'q; tekshirish yo'li `docs/SECURITY_SETUP.md` 0-qadamda.
+4. **O'RQ-1125 (26.03.2026):** mahalliy saqlash majburiyati endi faqat biometrik, genetik va telekom operatorlari foydalanuvchilari ma'lumotlariga — P15 zaruriyati yuridik qayta baholanadi (`docs/DATA_RESIDENCY.md`); minimallashtirish tamoyili o'zgarmaydi.
+
+## Ochiq savollar (P02 boshida hal qilinadi — javoblar yuqorida)
 
 1. **Firebase Auth va email (5-javob ↔ CLAUDE.md zidligi).** Firebase'ning email/parol provayderi email talab qiladi, hozir esa email umuman saqlanmaydi; email qo'shish "yangi shaxsiy maydon qo'shilmaydi" qoidasiga zid. Variantlar:
    - (a) **Sun'iy email** `login@users.<loyiha-domeni>` (shaxsiy emas, faqat Auth ichida). Parolni tiklash faqat admin orqali: admin xodimga yangi vaqtinchalik parol beradi → bu Admin SDK (Cloud Functions yoki egasi lokal ishlatadigan skript) talab qiladi. Tashkilot admini parolini super-admin tiklaydi.

@@ -1,0 +1,23 @@
+{
+  "name": "uncertaintycalc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "UncertaintyCalc — measurement uncertainty per JCGM 100:2008 (GUM) and ISO/IEC 17025:2017",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test tests/*.test.js tests/security/*.test.js",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-noaniqlik \"node --test tests/security/firestore-rules.test.js\"",
+    "test:all": "firebase emulators:exec --only firestore --project demo-noaniqlik \"node --test tests/*.test.js tests/security/*.test.js\"",
+    "vendor:firebase": "node scripts/vendor-firebase.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "2.0.7",
+    "firebase": "9.23.0",
+    "firebase-admin": "14.5.1",
+    "firebase-tools": "15.36.0",
+    "jsdom": "31.0.0"
+  }
+}

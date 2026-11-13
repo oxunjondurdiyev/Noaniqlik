@@ -1,0 +1,173 @@
+rules_version = '2';
+
+// ═══════════════════════════════════════════════════════════════
+// UncertaintyCalc — Firestore xavfsizlik qoidalari (P02)
+// ───────────────────────────────────────────────────────────────
+// Tamoyil: hamma narsa taqiqlangan, faqat quyida ochiq ruxsat
+// berilgani mumkin. Konsolga joylash: docs/SECURITY_SETUP.md.
+// Testlar: tests/security/firestore-rules.test.js (Emulator).
+//
+// Ma'lumot modeli:
+//   organizations/{orgId}   orgId == tashkilot adminining Auth UID'i
+//   employees/{uid}         uid == xodimning Auth UID'i, orgId maydoni bilan
+//   authCleanup/{uid}       o'chirilgan xodimlarning Auth hisoblari — egasi
+//                           konsolda qo'lda o'chiradi (SECURITY_SETUP.md)
+//
+// Super-admin: Auth custom claim `superadmin: true`
+// (scripts/set-superadmin-claim.mjs bilan egasi beradi).
+// ═══════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Default: deny ───────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ─── Yordamchi funksiyalar ───────────────────────────────
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperadmin() {
+      return signedIn() && request.auth.token.superadmin == true;
+    }
+
+    function empPath(uid) {
+      return /databases/$(database)/documents/employees/$(uid);
+    }
+
+    function orgPath(orgId) {
+      return /databases/$(database)/documents/organizations/$(orgId);
+    }
+
+    // Tashkilot admini: tashkilot hujjati ID'si = uning UID'i.
+    function isOrgOwner(orgId) {
+      return signedIn() && request.auth.uid == orgId;
+    }
+
+    // Tashkilot a'zosi: admini yoki shu tashkilotning faol xodimi.
+    function isOrgMember(orgId) {
+      return isOrgOwner(orgId)
+        || (signedIn()
+            && exists(empPath(request.auth.uid))
+            && get(empPath(request.auth.uid)).data.orgId == orgId
+            && get(empPath(request.auth.uid)).data.active == true);
+    }
+
+    function orgIsActive(orgId) {
+      return get(orgPath(orgId)).data.active == true;
+    }
+
+    // Parol yoki uning xeshi Firestore'ga hech qachon yozilmaydi.
+    function touchesSecrets() {
+      return request.resource.data.keys().hasAny(['passwordHash', 'rawPwd', 'password'])
+        && (resource == null
+            || request.resource.data.diff(resource.data).affectedKeys()
+                 .hasAny(['passwordHash', 'rawPwd', 'password']));
+    }
+
+    function shortString(v, maxLen) {
+      return v is string && v.size() <= maxLen;
+    }
+
+    function validLogin(v) {
+      return v is string && v.matches('^[a-z0-9][a-z0-9._-]{1,30}[a-z0-9]$');
+    }
+
+    // ─── organizations ───────────────────────────────────────
+    match /organizations/{orgId} {
+
+      allow get:  if isSuperadmin() || isOrgMember(orgId);
+      allow list: if isSuperadmin();
+
+      // Ro'yxatdan o'tish: faqat o'z UID'i bilan, faqat "nofaol / to'lov
+      // kutilmoqda / basic" holatida. planExpiry'ni faqat super-admin qo'yadi.
+      allow create: if isOrgOwner(orgId)
+        && !touchesSecrets()
+        && request.resource.data.keys().hasOnly([
+             'inn', 'phone', 'firstName', 'lastName', 'login',
+             'employeeCount', 'plan', 'active', 'paymentStatus', 'registeredAt'])
+        && request.resource.data.keys().hasAll([
+             'inn', 'phone', 'firstName', 'lastName', 'login',
+             'plan', 'active', 'paymentStatus'])
+        && request.resource.data.active == false
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.plan == 'basic'
+        && request.resource.data.inn is string
+        && request.resource.data.inn.matches('^[0-9]{9}$')
+        && validLogin(request.resource.data.login)
+        && shortString(request.resource.data.phone, 20)
+        && shortString(request.resource.data.firstName, 60)
+        && shortString(request.resource.data.lastName, 60);
+
+      // active, paymentStatus, plan, planExpiry (va boshqa barcha maydonlar)
+      // — faqat super-admin. Tashkilot admini faqat tarif so'rovini
+      // (requestedPlan) va xodimlar sonini o'zgartira oladi.
+      allow update: if !touchesSecrets() && (
+        isSuperadmin()
+        || (isOrgOwner(orgId)
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['requestedPlan', 'employeeCount'])
+            && (!('requestedPlan' in request.resource.data)
+                || request.resource.data.requestedPlan in ['basic', 'standard', 'pro']))
+      );
+
+      allow delete: if isSuperadmin();
+    }
+
+    // ─── employees ───────────────────────────────────────────
+    match /employees/{uid} {
+
+      allow get: if isSuperadmin()
+        || (signedIn() && request.auth.uid == uid)
+        || isOrgOwner(resource.data.orgId);
+
+      // So'rov `where('orgId', '==', <admin uid>)` bo'lishi shart.
+      allow list: if isSuperadmin()
+        || (signedIn() && resource.data.orgId == request.auth.uid);
+
+      // Xodimni faqat o'z tashkilotining admini va faqat tashkilot faol
+      // bo'lganda qo'shadi. Tarif limiti (maxUsers) mijozda tekshiriladi —
+      // Spark tarifida (Cloud Functions'siz) qoidada sanab bo'lmaydi.
+      allow create: if isOrgOwner(request.resource.data.orgId)
+        && orgIsActive(request.resource.data.orgId)
+        && !touchesSecrets()
+        && request.resource.data.keys().hasOnly([
+             'orgId', 'name', 'role', 'phone', 'login', 'createdAt', 'active'])
+        && request.resource.data.keys().hasAll(['orgId', 'name', 'login', 'active'])
+        && request.resource.data.active == true
+        && validLogin(request.resource.data.login)
+        && shortString(request.resource.data.name, 120);
+
+      allow update: if !touchesSecrets() && (
+        isSuperadmin()
+        || (isOrgOwner(resource.data.orgId)
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['name', 'role', 'phone', 'active']))
+      );
+
+      allow delete: if isSuperadmin() || isOrgOwner(resource.data.orgId);
+    }
+
+    // ─── authCleanup ─────────────────────────────────────────
+    // Xodim o'chirilganda (yoki paroli "tiklanganda") uning eski Auth
+    // hisobi shu yerda qayd etiladi. Spark tarifida mijoz boshqa
+    // foydalanuvchining Auth hisobini o'chira olmaydi — egasi konsolda
+    // qo'lda o'chiradi va keyin shu hujjatni o'chiradi.
+    match /authCleanup/{uid} {
+      allow get, list, delete: if isSuperadmin();
+
+      // Faqat xodim hujjatini o'chirish bilan bitta batch'da: o'chirilayotgan
+      // xodim shu adminning tashkilotiga tegishli bo'lishi shart.
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['orgId', 'login', 'reason', 'at'])
+        && request.resource.data.orgId == request.auth.uid
+        && exists(empPath(uid))
+        && get(empPath(uid)).data.orgId == request.auth.uid
+        && !existsAfter(empPath(uid))
+        && request.resource.data.reason in ['deleted', 'password-reset'];
+    }
+  }
+}
