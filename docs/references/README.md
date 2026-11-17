@@ -9,13 +9,14 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 | `EA-4-02_M_2022.pdf` | EA-4/02 M:2022 — Evaluation of the Uncertainty of Measurement in Calibration | 2022 (Rev. 3) |
 | `EURACHEM_CITAC_QUAM_2012.pdf` | EURACHEM/CITAC Guide CG 4 — Quantifying Uncertainty in Analytical Measurement (QUAM) | 3rd ed., 2012 |
 | `Nordtest_TR_537_ed4.pdf` | Nordtest TR 537 — Handbook for calculation of measurement uncertainty in environmental laboratories | Edition 4 |
+| `EURACHEM_CITAC_UfS_2019.pdf` | EURACHEM/CITAC Guide — Measurement uncertainty arising from sampling (UfS) | 2nd ed., 2019 |
+| `EURACHEM_CITAC_AQA_2021.pdf` | EURACHEM/CITAC Guide — Assessment of performance and uncertainty in qualitative chemical analysis (AQA) | 1st ed., 2021 (ISBN 978-0-948926-39-6) |
 
 Kerak bo'ladigan qo'shimcha manbalar (hali yo'q):
 - JCGM 102:2011;
 - JCGM 106:2012;
 - JCGM GUM-6:2020;
 - ILAC P14:09/2020, ILAC G8:09/2019;
-- EURACHEM UfS (2-nashr, 2019);
 - NIST Uncertainty Machine User's Manual;
 - COOMET R/GM/32:2017.
 
