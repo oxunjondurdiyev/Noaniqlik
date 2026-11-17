@@ -1,6 +1,6 @@
 # Validatsiya matritsasi (RTM): me'yoriy talab → dvigatel funksiyasi → test → holat
 
-> Holat: P04, 2026-11-17 (P03 qatorlari o'zgarmagan). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.0.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
+> Holat: P08, 2026-11-17 (P03/P04 qatorlari o'zgarmagan; regressiya — §7). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.1.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
 > Test misollari — `tests/cases/` ([README](../tests/cases/README.md)), farqlar — [DISCREPANCIES.md](../tests/cases/DISCREPANCIES.md). Asos: ISO/IEC 17025:2017 §7.11.2 (dasturiy ta'minot validatsiyasi; to'liq paket — P13).
 >
 > Holat belgilari: ✅ — `verified` testlar o'tadi; ⚠️ — o'tadi, lekin ma'lum farq bor (todo, D-ID); ⏳ — `pending` (bosqich ko'rsatilgan); ❔ — `unverified` (manba yo'q).
@@ -33,7 +33,7 @@
 | Manfiy dispersiya, |r| > 1 → xato (C.3.6; PLAN P03 6-band) | `evaluate.js` (`negative_variance`, `bad_correlation`) | `tests/engine/api.test.js` | ✅ |
 | Birliklar va o'lchamlik tahlili (GUM-6 §11 — PDF yo'q) | `units.js::parseUnit`, `analyzeDimensions`, `convert` | `tests/engine/units.test.js` (mustaqil qo'lda hisob; mA ↔ % об. misoli) | ❔ manba PDF kerak (unverified) |
 | U = 0 → ogohlantirish (CLAUDE.md) | `evaluate` (`zero_u`) | `jcgm101-9-4-x0-r0-guf1` | ✅ (ogohlantirish); hisobotda bloklash ⏳ P05 |
-| Regressiya / kalibrlash egri chizig'i (H.3) | — | `jcgm100-h3` | ⏳ P08 |
+| Regressiya / kalibrlash egri chizig'i (H.3) | `regression/index.js::evaluateRegression` | `jcgm100-h3` | ✅ (P08, §7) |
 
 ## 2. Yaxlitlash va hisobot (ILAC P14, GUM §7.2)
 
@@ -60,10 +60,11 @@
 | EA-4/02 M:2022 S2, S3 | `ea4-02-s2`, `ea4-02-s3` | ✅ |
 | EA-4/02 M:2022 S4–S13 | — | keyingi nomzodlar (P05/P08) |
 | EURACHEM/CITAC QUAM:2012 A1 | `quam-a1` | ✅ (D-06) |
-| QUAM A2–A6 | — | keyingi nomzodlar (A5, A6 — top-down, P09) |
+| EURACHEM/CITAC QUAM:2012 A5 (kalibrlash qismi), E.4 | `quam-a5-calibration` | ✅ (P08, §7) |
+| QUAM A2–A4, A6; A5 ning qolgan qismi | — | keyingi nomzodlar (A5, A6 — top-down, P09) |
 | Nordtest TR 537 ed.4 (NH₄-N) | `nordtest-tr537-nh4n` | ⏳ P09 |
 | NIST Uncertainty Machine qo'llanmasi | `nist-um-ratio` | ❔ PDF yo'q |
-| ISO/TS 28037/28038 (pullik) | — | ❔ ochiq manba (GTC/MSL) kerak — P08 |
+| ISO/TS 28037/28038 (pullik) | `york-pearson-wtls` (unverified) | ❔ WTLS/GLS/polinom uchun ochiq manba misoli kerak (egasi qo'shadi) |
 | JCGM 102, 106, GUM-6, ILAC P14, ILAC G8, COOMET R/GM/32 | — | ❔ PDF hali `docs/references/` da yo'q |
 
 ## 5. Test infratuzilmasi
@@ -121,3 +122,23 @@
 | T-22 Izolyatsiya qarshiligi va oqish toki | IEC 60335, IEC 60204, IEC 60950, IEC 60598, IEC 60065, ГОСТ 3940, ГОСТ 2933 | `R_iz = R` (variantlar: insulation, leakage) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
 | T-23 Elektr mustahkamlik: sinov kuchlanishi | IEC 60335, IEC 60204, IEC 60950, IEC 60598, IEC 60065, ГОСТ 3940, ГОСТ 2933 | `U_sin = U_oq` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
 | T-24 Qizish (harorat oshishi), qarshilik usuli | IEC 60335-1 | `Δt = (R2 - R1) / R1 * (k + t1) - (t2 - t1)` (variantlar: copper, aluminium, thermocouple) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+
+## 7. P08: regressiya va kalibrlash egri chiziqlari (`src/engine/regression/`)
+
+| Talab (manba) | Dvigatel funksiyasi | Test | Holat |
+|---|---|---|---|
+| To'g'ri chiziq, OLS: y1, y2, s(y1), s(y2), r(y1, y2), s (JCGM 100:2008 H.3.2 Eq. H.13a–g; H.3.3) | `fit.js::fitPolynomial`, `linalg.js::leastSquares` | `jcgm100-h3` (a, u_a, b, u_b, r_ab, s, ν — ±½ oxirgi xona) | ✅ |
+| Bashorat qilingan tuzatmalar va qoldiqlar (Table H.6, 4- va 5-ustunlar, 22 qiymat) | `evaluateRegression` (`fitted`, `residuals`) | `jcgm100-h3` (`fitted.0…10`, `residuals.0…10`) | ✅ |
+| To'g'ri bashorat u_c[b(t)], ν = n − 2 (H.3.4 Eq. H.15): b(30 °C) = −0,1494, u_c = 0,0041 | `predict.js::predict` | `jcgm100-h3` (`predict.0.*`), t_min = 24,0085 | ✅ |
+| Korrelyatsiyani yo'qotish, t0 = t̄ (H.3.5 Eq. H.16–H.17): y1′ = −0,1625(11) | `model.xRef` | `tests/engine/regression.test.js` | ✅ |
+| Chiziqli kalibrlash B1, B0, S (QUAM:2012 A5, Table A5.2) | `fitPolynomial` | `quam-a5-calibration` | ✅ |
+| Teskari bashorat u(c₀) (QUAM A5; E.4 Eq. E3.3, E3.5): u(c₀) = 0,018 mg/L | `predict.js::inversePredict` | `quam-a5-calibration` (`inverse.0.u`); Eq. E3.3 ≡ E3.5 (1e-9) — `regression.test.js` | ✅ (manbada A₀ yo'q — y₀ chiziqdan tiklanadi) |
+| WLS (QUAM Eq. E3.4) | `fitPolynomial` (`uy`) | OLS ≡ WLS (teng u(y)), GLS-diagonal ≡ WLS | ❔ manba misoli yo'q; o'zaro tekshiruv ✅ |
+| Polinom 2-, 3-daraja (ISO/TS 28038 — pullik) | `fitPolynomial` (`degree`) | aniq polinomni qayta tiklash, x_ref invariantligi, teskari ≡ to'g'ri | ❔ unverified; o'zaro tekshiruv ✅ |
+| GLS, y_i kovariatsiyasi (ISO/TS 28037 §10 — pullik; Aitken 1935) | `fitPolynomial` (`covY`), `linalg.js::cholesky` | diagonal ≡ WLS; umumiy siljish: u²(a) + u_c² | ❔ unverified |
+| WTLS, u(x_i) va u(y_i) (ISO/TS 28037 §7 — pullik; York et al. 2004) | `wtls.js::fitWtls` | u(x) = 0 → WLS (1e-12); tarqalish qonuni bilan sonli taqqoslash (2 %); x ↔ y simmetriyasi; `york-pearson-wtls` (a, b 5·10⁻⁹) | ❔ unverified (manba repoda yo'q) |
+| Model yaroqliligi: χ² testi, P = 0,95 | `chi2.js::chi2Quantile`, `evaluateRegression` (`chi2`, `regression_chi2_fail`) | ν = 2 yopiq formula, ν = 1 = z², A&S 26.8 qiymatlari; yiqilish/o'tish — `regression.test.js`; UI/hisobotda uch tilda — `tests/ui/regression.test.js` | ✅ (kvantil); test qoidasi ❔ (ISO/TS 28037 pullik) |
+| Chekka holatlar: aniq xato kodi | `evaluateRegression`, `inversePredict` | m < n + 1, vertikal chiziq, u = 0, b ≈ 0 va boshqalar — `regression.test.js` | ✅ |
+| "U — diapazon" (ILAC P14:09/2020 — PDF yo'q) | `urange.js::uRangeFunction` | U(X_j) ≥ U_j, `max`, xatolar | ❔ unverified |
+| Bir o'lchamli GUM natijalari o'zgarmagan | `evaluate` (format bo'yicha uzatish) | 32 misolning natija JSON'i 2.0.0 bilan bayt darajasida bir xil (P08 da tekshirildi); 9 Excel nuqtasi, 10-test | ✅ |
+| REGRESSION shabloni | `interpreter.js::buildRegressionSpec`, sxema `regression` | `tests/templates/regression.test.js` (R-01) | ✅ (R-01 — DRAFT) |

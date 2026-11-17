@@ -25,7 +25,10 @@ Har bir misol — bitta JSON fayl. Ishga tushirish: `npm test` (`tests/run-cases
     "quotes": ["[−0,0111; 0,0469]"]                // .docx dagi iqtibos (qayta tekshiriladi)
   },
   "modelSpec": { "format": "calc-state/v2", "state": { … } }, // docs/ENGINE_API.md (uc-model/1 ham qabul qilinadi)
-  "run": { "method": "evaluate" | "monteCarlo", "M": 1000000, "interval": "symmetric" | "shortest" },
+  "run": { "method": "evaluate" | "monteCarlo" | "regression", "M": 1000000, "interval": "symmetric" | "shortest" },
+                                          // "regression" (P08): modelSpec — format "uc-regression/1"; kattaliklar: a, b, c, d, u_a…, r_ab, s, nu, chi2,
+                                          // x_min_u, fitted.N, residuals.N, predict.N.y|u|nu, inverse.N.x0|u|nu (N noldan);
+                                          // "inverseAtX": [{x, p}] — manba y₀ ni bermagan bo'lsa, y₀ moslangan chiziqdan tiklanadi
   "expected": {                           // har bir qiymat manba havolasi bilan
     "y":  { "value": 50000838, "ref": "H.1.5 (p. 83)" },
     "uc": { … }, "nu_eff": { … }, "k": { … }, "U": { … },

@@ -4,6 +4,23 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.1.0] — P08: regressiya va kalibrlash egri chiziqlari, "U — diapazon" (2026-11-17)
+
+**ENGINE_VERSION: 2.0.0 → 2.1.0** (minor: yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `uc-model/1` va `calc-state/v2` yo'lidagi barcha test misollarining (32 ta, MC bilan) to'liq natija JSON'i 2.0.0 bilan bayt darajasida bir xil (`engineVersion` maydonidan tashqari). 9 ta etalon Excel nuqtasi, 10-test (MC) va 11 ta eski shablon natijasi o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.
+
+- **Dvigatel** `src/engine/regression/` (sof ES modullar), yangi format `uc-regression/1` (`evaluate()` uni `evaluateRegression()` ga uzatadi; `docs/ENGINE_API.md` §7):
+  - to'g'ri chiziq va 2-/3-darajali polinom: OLS, WLS, GLS (oqartirish + Householder QR); to'g'ri chiziq uchun WTLS (u(x_i) va u(y_i), iterativ);
+  - parametrlar, kovariatsiya va korrelyatsiya matritsasi, qoldiqlar, χ²_obs, ν = m − n_param, χ² testi (P = 0,95);
+  - to'g'ri bashorat Y(x), u(Y(x)) (GUM H.3.4, Eq. H.15) va teskari bashorat x̂₀, u(x̂₀) (QUAM E.4, Eq. E3.3/E3.5);
+  - chekka holatlarda aniq xato kodi (m < n_param + 1, barcha x bir xil, u = 0 bo'lgan WLS, b ≈ 0 da teskari bashorat va boshqalar);
+  - `warnings[]` — har birida `{code, severity, ref}` (P05 da linterga ko'chiriladi).
+- **"U — diapazon"** (`uRangeFunction`): U(X) = a + b·|X| (barcha nuqtalarda U(X_j) ≥ U_j) yoki konservativ U = max U_j; qo'llanilgan ifoda hisobotda yoziladi. **Unverified** — ILAC P14 PDF repoda yo'q.
+- **Manbadan tekshirilgan misollar:** `jcgm100-h3` `pending` → **`verified`** (JCGM 100:2008 H.3.3, Table H.6, H.3.4 — 33 kattalik); yangi `quam-a5-calibration` (QUAM:2012 A5: B1, B0, S, u(c₀)). WTLS va GLS — **unverified** (algoritm manbasi repoda yo'q), faqat o'zaro tekshiruvlar.
+- **UI:** "Regressiya" yorlig'i — (x, u(x), y, u(y)) jadvali (Excel'dan qo'yish, o'nlik vergul), SVG grafiklar (nuqtalar, xatolik chiziqlari, egri chiziq, qoldiqlar), teskari/to'g'ri bashorat, "U — diapazon". Hisobot bo'limi — `src/js/report.js` (usul, parametrlar, kovariatsiya, χ², bashoratlar, ogohlantirishlar). Matnlar — `src/js/i18n-regression.js` (uz/ru/en). Yangi `localStorage` kaliti `uc_regression_v1` (faqat kalibrlash ma'lumoti).
+- **Shablonlar:** `evaluationMode: "REGRESSION"` — sxemada `regression` bo'limi, `buildRegressionSpec`; `templates/builtin/R-01.json` (DRAFT: fotometriya/AAS kalibrlash egri chizig'i, teskari bashorat; namunaviy nuqtalar QUAM Table A5.2 dan, `demo: true`).
+- **Reja:** bajarish tartibi P08 → P09 → P10 → P05 → P06 → P07 → P11 (egasi qarori, `docs/PLAN.md`).
+- **Egasi tasdiqlashi kerak bo'lgan loyiha qarorlari** (`docs/RISKS.md` R-19): kovariatsiya asosining standart tanlovi (OLS — aposterior, WLS/WTLS/GLS — aprior); teskari bashoratda |b| ≤ u(b) → xato, |b| < 3u(b) → ogohlantirish; "U — diapazon" chizig'ini yuqoriga surish.
+
 ## [Unreleased] — P04b: "bitta asbob" korrelyatsiyasi — sertifikat manbasi ikki qismga (2026-11-17)
 
 **ENGINE_VERSION: 2.0.0 — o'zgarmadi** (`src/engine/`, `src/report/` ga tegilmagan). 9 ta etalon Excel nuqtasi, 10-test (MC) va 11 ta eski shablon natijasi o'zgarmadi.

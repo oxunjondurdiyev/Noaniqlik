@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.0.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.1.0
 
-> Holat: P03, 2026-11-13. Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P08, 2026-11-17 (2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -32,13 +32,19 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `units.js` | birliklarni tahlil qilish, o'lchamlik vektori, affin °C ↔ K, AST bo'yicha o'lchamlik | GUM-6 §11 (tekshirilmagan) |
 | `conformity.js` | MPE bilan muvofiqlik, ko'p nuqtali bir xil k | ISO/IEC 17025 §7.8.6; COOMET §5.7.3 (tekshirilmagan) |
 | `montecarlo.js` | MCM (P01 dagi bilan bir xil; Monte-Karlo 2.0 — P06) | JCGM 101:2008 |
+| `regression/index.js` | `evaluateRegression(spec)` — REGRESSION rejimi (P08), §7 | JCGM 100:2008 H.3; QUAM:2012 E.4 |
+| `regression/fit.js`, `linalg.js` | polinom (1–3-daraja) OLS / WLS / GLS — oqartirish + Householder QR | H.3.2 Eq. (H.13); QUAM Eq. (E3.4) |
+| `regression/wtls.js` | to'g'ri chiziq, u(x_i) va u(y_i) (iterativ WTLS) | York et al. 2004 (repoda yo'q — unverified) |
+| `regression/predict.js` | to'g'ri bashorat Y(x), teskari bashorat x̂₀ | H.3.4 Eq. (H.15); QUAM Eq. (E3.2)–(E3.5) |
+| `regression/chi2.js` | χ² CDF va kvantil (model yaroqliligi testi) | A&S 6.5.29, 6.5.31, 26.4 |
+| `regression/urange.js` | "U — diapazon" ifodasi | ILAC P14 (repoda yo'q — unverified) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
 Bog'liqlik: `engine` hech narsaga bog'liq emas. `report → engine` (faqat natija maydonlari), `ui → report, engine`.
 
 ## 2. Kirish: `modelSpec`
 
-Dvigatel uch ko'rinishni qabul qiladi (`spec.js::normalize`):
+REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `evaluate()` uni `evaluateRegression()` ga uzatadi. Quyidagi uch ko'rinish — bir o'lchamli GUM baholashi uchun (`spec.js::normalize`):
 
 1. **`uc-model/1`** — kanonik format (P04 shablon interpreteri shuni yaratadi);
 2. **`{ format: 'calc-state/v2', state }`** — UI holati (`uc_state_v2`), test misollari (`tests/cases/**.json`);
@@ -159,3 +165,71 @@ Saqlangan eski natijalar (`uc_state_v2.combined`, `points[].result`, ENGINE 1.0.
 ## 6. Tekshiruv
 
 `npm test`: `tests/engine/*.test.js` (kvantillar — mpmath va GUM Table G.2; simvolik hosila; 2-tartibli hadlar; birliklar; yaxlitlash; API va tozalik), `tests/run-cases.test.js` (manba misollari), `tests/security/static.test.js` (dvigatel xeshi `tests/security/engine.sha256.json` — o'zgarsa `ENGINE_VERSION`/CHANGELOG, keyin `node tests/tools/engine-hash.js --write`).
+
+## 7. REGRESSION rejimi: `uc-regression/1` (P08)
+
+Kalibrlash egri chizig'i y = a + b·θ [+ c·θ² + d·θ³], θ = x − x_ref. `evaluate(spec)` yoki `evaluateRegression(spec)`. Natija **yaxlitlanmaydi** (hisobot bo'limi — `src/js/report.js::regressionSection`).
+
+```js
+/**
+ * @typedef {Object} RegressionSpec
+ * @property {'uc-regression/1'} format
+ * @property {'OLS'|'WLS'|'WTLS'|'GLS'} [method='OLS']
+ * @property {{degree?:1|2|3, xRef?:number}} [model]   // WTLS — faqat degree = 1
+ * @property {{x:number|string, ux?:number, y:number|string, uy?:number}[]} points   // "0,5" (o'nlik vergul) qabul qilinadi
+ * @property {number[][]} [covY]            // GLS: y_i kovariatsiya matritsasi (m × m, simmetrik, musbat aniqlangan)
+ * @property {{x?:string, y?:string}} [units]
+ * @property {Object} [settings]
+ *   @property {number} [settings.P=0.9545]     // bashoratlar uchun qamrov ehtimoli (k = t_P(ν))
+ *   @property {'floor'|'interpolate'|'exact'} [settings.nuRule='floor']
+ *   @property {number} [settings.chi2P=0.95]   // χ² testi ehtimoli
+ *   @property {'prior'|'posterior'} [settings.sigma]  // kovariatsiya asosi (berilmasa — avtomatik, pastga qarang)
+ *   @property {number} [settings.uy]           // OLS: barcha y_i uchun umumiy u(y)
+ * @property {{x:number}[]} [predict]       // to'g'ri bashorat
+ * @property {{y0:number|number[], p?:number, uy0?:number, nuY0?:number}[]} [inverse]  // teskari bashorat
+ * @property {{points:{x:number,U:number}[], mode?:'linear'|'max'}} [uRange]           // "U — diapazon" (unverified)
+ *
+ * @typedef {Object} RegressionResult
+ * @property {string} engineVersion, {'REGRESSION'} mode, {'uc-regression/1'} format
+ * @property {string} method, {number} degree, xRef, m, nParam, nu      // ν = m − n_param
+ * @property {{name:'a'|'b'|'c'|'d', value:number, u:number}[]} params
+ * @property {number[][]} covariance, correlation
+ * @property {'prior'|'posterior'} covarianceBasis
+ * @property {number[]} fitted, residuals, weightedResiduals
+ * @property {number} ssr, s                 // s: OLS — qoldiq standart og'ishi (y birligida); vaznli — √(χ²/ν)
+ * @property {{applicable:boolean, obs:number|null, nu:number, P:number, crit:number|null, pValue:number|null, pass:boolean|null}} chi2
+ * @property {{x, y, u, nu, k, U, extrapolated}[]} predictions
+ * @property {({y0, p, uy0, uy0Source:'given'|'residual'|'common', x0, u, nu, k, U, components:{y0, calibration}, extrapolated} | {y0, p, error, detail?})[]} inverse
+ * @property {{mode, a, b, shift, range, points, unverified:true}|{error}|null} uRange
+ * @property {{iterations:number, adjustedX:number[]}|null} wtls
+ * @property {{code:string, severity:'info'|'warning', ref:string, value?:string}[]} warnings
+ */
+```
+
+**Usullar.**
+
+| Usul | Minimallashtiriladi | Manba |
+|---|---|---|
+| OLS | Σ(y_i − ŷ_i)² | JCGM 100:2008 H.3.2, Eq. (H.13a)–(H.13g) |
+| WLS | Σ(y_i − ŷ_i)²/u²(y_i) | EURACHEM/CITAC QUAM:2012 E.4.3, Eq. (E3.4) |
+| GLS | (y − Ap)ᵀV⁻¹(y − Ap) | Aitken (1935); ISO/TS 28037 §10 pullik — **unverified** |
+| WTLS | ΣW_i(y_i − a − bθ_i)², W_i = 1/[u²(y_i) + b²u²(x_i)] (iterativ) | York et al., Am. J. Phys. 72 (2004) 367, Eq. (13); Krystek & Anton (2007); ISO/TS 28037 §7 pullik — **unverified** |
+
+**Kovariatsiya asosi** (`covarianceBasis`, hisobotda yoziladi):
+
+- `posterior` — cov(p) = s²·(AᵀV⁻¹A)⁻¹, s² = χ²/ν (GUM H.13c–f; QUAM E3.4). Standart holat: OLS, u(y) berilmagan. Bashoratlarda ν = m − n (H.3.4).
+- `prior` — cov(p) = (AᵀV⁻¹A)⁻¹, kiritilgan noaniqliklardan; χ² testi bajariladi. Standart holat: WLS, WTLS, GLS va OLS (umumiy u(y) berilgan). Bashoratlarda ν = ∞ (yoki `nuY0` bilan Welch–Satterthwaite).
+
+**χ² testi** (faqat u(y) ma'lum bo'lganda): χ²_obs ≤ χ²_P(ν), P = 0,95. Yiqilsa — `warnings[]` da `regression_chi2_fail`. OLS (u(y) noma'lum) da χ²/ν ≡ 1 — test qo'llanmaydi (`chi2.applicable = false`, `regression_chi2_na`).
+
+**Teskari bashorat** (to'g'ri chiziq): x̂₀ = x_ref + (y₀ − a)/b, u²(x̂₀) = [u²(y₀) + u²(a) + θ₀²u²(b) + 2θ₀·cov(a, b)]/b² (QUAM Eq. E3.3; OLS da u²(y₀) = s²/p → Eq. E3.5, A5 dagi c₀ formulasi). u(y₀): berilgan `uy0`; OLS-posterior da s/√p; OLS + umumiy u(y) da u(y)/√p; boshqa hollarda **xato** `regression_need_uy0` (0 deb olinmaydi). Polinomda f(θ₀) = y₀ kalibrlash diapazonida sonli yechiladi.
+
+*Eslatma:* GUM H.3 misolining o'zi **to'g'ri** bashorat (b(30 °C) va u_c); teskari bashorat formulasi QUAM E.4 dan, noaniqlikning tarqalish qonuni (GUM 5.2.2) va H.3.4 dagi kovariatsiyadan foydalanish tamoyili bilan.
+
+**Xato kodlari** (`{error, detail}`; teskari bashoratda — `inverse[i].error`): `regression_too_few_points` (m < n_param + 1), `regression_x_degenerate` (har xil x soni < n_param — vertikal chiziq), `regression_zero_u` (WLS/GLS da u = 0 yoki bo'sh; WTLS da u(x) = u(y) = 0; `detail` — qator), `regression_bad_data`, `regression_bad_method`, `regression_bad_degree`, `regression_bad_covariance`, `regression_no_convergence`, `regression_need_uy`, `regression_need_uy0`, `regression_slope_zero` (|b| ≤ u(b)), `regression_inverse_no_root`, `regression_inverse_ambiguous`, `urange_too_few_points`, `urange_bad_data`, `urange_x_degenerate`, `urange_nonpositive`, `urange_bad_mode`.
+
+**Ogohlantirishlar** (`warnings[]`, har birida `{code, severity, ref}`; UI matni `w_<code>`, uch tilda; P05 da linter qoidalariga ko'chiriladi): `regression_chi2_fail`, `regression_slope_weak` (|b| < 3u(b), GUM H.3.3), `regression_extrapolation`, `regression_ux_ignored`, `regression_uy_unequal`, `regression_inverse_failed` (warning); `regression_chi2_na`, `regression_posterior_scale`, `regression_method_unverified` (WTLS, GLS), `urange_unverified`, `urange_shifted` (info).
+
+**"U — diapazon"** (`uRangeFunction(points, mode)`): `linear` — (|X_j|, U_j) bo'yicha OLS chizig'i, barcha nuqtalarda U(X_j) ≥ U_j bo'ladigan qilib yuqoriga surilgan; `max` — U = max U_j. Diapazondan tashqarida qiymat berilmaydi. **Unverified** (ILAC P14 PDF repoda yo'q) — natijada `unverified: true` va hisobotda belgi.
+
+Testlar: `tests/cases/jcgm100/jcgm100-h3.json`, `tests/cases/quam/quam-a5-calibration.json` (verified), `tests/cases/regression/york-pearson-wtls.json` (unverified), `tests/engine/regression.test.js`, `tests/engine/regression-wtls.test.js`.

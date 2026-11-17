@@ -44,6 +44,20 @@
 
 ---
 
+> **Yangilanish — P08 (2026-11-17, `feat/p08-regression`).** REGRESSION rejimi (bog'liqlik o'zgarmagan: `ui → engine`, `ui → templates → engine`):
+>
+> | Fayl | Vazifasi (P08) |
+> |---|---|
+> | `src/engine/regression/*` | `index.js` (`evaluateRegression`, format `uc-regression/1`), `fit.js` (OLS/WLS/GLS, polinom), `wtls.js`, `predict.js` (to'g'ri va teskari bashorat), `chi2.js`, `linalg.js`, `urange.js` ("U — diapazon"). `evaluate()` formatga qarab uzatadi; `ENGINE_VERSION` 2.1.0 |
+> | `src/ui/regression/parse.js`, `view.js` | qo'yilgan (paste) matnni tahlil qilish, o'nlik vergul; jadval va SVG grafiklar (sof, Node'da test qilinadi) |
+> | `src/ui/regression/app.js` | "Regressiya" yorlig'i kontrolleri (ES modul, `window.UCRegression`); holat — `localStorage` `uc_regression_v1` |
+> | `src/js/report.js` | `Results.regressionSection`, `printRegression` — regressiya hisobot bo'limi (P05 gacha shu yerda) |
+> | `src/js/i18n-regression.js` | P08 matnlari (uz/ru/en) |
+> | `schemas/methodology.schema.json`, `src/templates/interpreter.js` | `evaluationMode: "REGRESSION"`, `regression` bo'limi, `buildRegressionSpec` |
+> | `templates/builtin/R-01.json` | DRAFT shablon: fotometriya/AAS kalibrlash egri chizig'i |
+>
+> Skript tartibi: `… i18n-templates → i18n-regression → state → calc → … → report → app → tpl/app → regression/app`. §3 dagi "mavjud emas" ro'yxatidan regressiya/kalibrlash egri chizig'i olib tashlandi.
+
 ## 1. Umumiy ko'rinish
 
 - **Turi:** vanilla JavaScript SPA, build bosqichi yo'q, GitHub Pages'dan statik fayl sifatida beriladi.
@@ -126,7 +140,7 @@ Asosiy yo'l: **`Calc.evaluate(state)`** (`calc.js:357-554`). U toza funksiya: `s
 | **Monte-Karlo** | `monteCarlo` (565-657), `rng` (557) | JCGM 101: Type A — siljitilgan/masshtablangan t, Type B — o'z taqsimoti. **xorshift32, qat'iy seed 20261110**, M ∈ [10⁴; 2·10⁶] qat'iy (adaptiv emas). Eng qisqa qamrov intervali + simmetrik interval. §8 validatsiya: δ = ½·10^(l) u_c ning 2 qiymatli raqamidan. **Korrelyatsiya hisobga olinmaydi**, faqat `correlated` bayrog'i qaytadi |
 | **Ko'p nuqta / bir xil k** | `Points.summary` (`points.js:305`) | `uniformK` bo'lsa barcha nuqtalarga eng katta k qo'llanadi, U, yaxlitlash va muvofiqlik **dvigateldan tashqarida** qayta hisoblanadi |
 
-Hozir mavjud **emas**: top-down (Nordtest/QUAM), regressiya/kalibrlash egri chizig'i, ko'p o'lchamli chiqish (JCGM 102), adaptiv MC, ikkinchi tartibli hadlar, birliklar tahlili, mikrobiologiya, namuna olish, sifatli testlar, QC/PT/validatsiya modullari.
+Hozir mavjud **emas** (P08 dan keyin regressiya/kalibrlash egri chizig'i **bor** — `src/engine/regression/`): top-down (Nordtest/QUAM), ko'p o'lchamli chiqish (JCGM 102), adaptiv MC, ikkinchi tartibli hadlar, birliklar tahlili, mikrobiologiya, namuna olish, sifatli testlar, QC/PT/validatsiya modullari.
 
 ## 4. DOM bilan aralashib ketgan hisob joylari
 

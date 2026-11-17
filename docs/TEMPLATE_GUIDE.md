@@ -31,6 +31,7 @@ Shablon — bitta o'lchash yoki sinov metodikasining JSON tavsifi: o'lchash mode
 | `correlations[]` | bitta asbob bilan o'lchangan kirishlar: `inputs`, `r`, `sharedInstrument`, `ask: true` (UI so'raydi), `question` |
 | `openQuestions[]` | hal qilinmagan savollar (⚠ belgili joylar shu yerga) |
 | `decisionRule` | qaror qoidasi (to'liq — P05) |
+| `evaluationMode`, `regression` | `GUM_BOTTOM_UP` (standart) yoki `REGRESSION` — kalibrlash egri chizig'i ([9-bo'lim](#9-regression-rejimi-p08)) |
 
 **Bitta asbob korrelyatsiyasi** — batafsil [8-bo'lim](#8-bitta-asbob-korrelyatsiyasi-p04b). Qisqasi: asbob kalibrlash manbasi ikki qatorga bo'linadi — umumiy qism (`share: "common"`, `correlated: true`) va nuqtaga xos qism (`share: "point"`, `correlated: false`). Korrelyatsiyaga faqat umumiy qism kiradi. Ajratish qobiliyati (`resol`) va jarayon manbalari — `correlated: false`.
 
@@ -155,3 +156,36 @@ Hisob:
 Dvigatel natijasi shu formula bilan 1e-12 aniqlikda mos keladi. "Noma'lum" rejimida bu model uchun r = 0 tanlanadi; y = m + m₁ yig'indi modelida va T-07 da r = 1 tanlanadi.
 
 **Eski nusxalar.** P04 da saqlangan bitta qatorli shablon va hisoblar avtomatik ravishda `split: "unknown"` ga o'tadi (`migrateTemplate`, `upgradeState`). Kiritilgan qiymatlar o'zgarmaydi.
+
+## 9. REGRESSION rejimi (P08)
+
+Kalibrlash egri chizig'i bilan ishlaydigan metodikalar (fotometriya, AAS, ICP, xromatografiya, datchiklar) uchun `"evaluationMode": "REGRESSION"`. Hisob: shablon → `buildRegressionSpec` → `uc-regression/1` → `evaluate()` ([ENGINE_API §7](ENGINE_API.md#7-regression-rejimi-uc-regression1-p08)). Shablon "Regressiya" yorlig'ida ochiladi.
+
+```json
+"evaluationMode": "REGRESSION",
+"measurand": { "symbol": "c0", "name": {…}, "unit": "mg/L" },
+"model": { "formula": "A = B0 + B1 * c", "note": {…} },
+"inputs": [
+  { "symbol": "c", "unit": "mg/L", "kind": "reference", "name": {…} },
+  { "symbol": "A", "unit": "1", "kind": "observation", "name": {…} }
+],
+"typeBSources": [],
+"regression": {
+  "method": "OLS", "allowedMethods": ["OLS", "WLS", "WTLS"], "degree": 1, "xRef": null,
+  "x": "c", "y": "A", "sigma": "auto",
+  "calibrationPoints": [],
+  "inverse": { "enabled": true, "replicates": null, "uy0": null, "hint": {…} },
+  "predict": { "enabled": false }
+}
+```
+
+Qoidalar:
+
+1. `regression.x` va `regression.y` — `inputs[]` dagi belgilar (birliklari grafik va hisobotda ishlatiladi). `model.formula` bu rejimda **tavsifiy** (tahlil qilinmaydi).
+2. **Raqam o'ylab topilmaydi:** `calibrationPoints` bo'sh (`[]`), `xRef`, `uy0`, `replicates` — `null`. Namunaviy nuqtalar faqat `"demo": true` va `demoSource` (manba) bilan; UI va hisobotda "Namunaviy ma'lumot — real emas" chiqadi. `demo` siz son bo'lsa — sxema/semantik xato.
+3. `typeBSources` va `variants` bu rejimda ishlatilmaydi: u(x_i), u(y_i) har bir nuqta uchun jadvalda kiritiladi.
+4. WTLS faqat `degree: 1` bilan.
+5. Bo'sh maydon bilan hisob qilinmaydi: nuqtalar kiritilmagan bo'lsa `template_incomplete` (`regression_points`).
+6. u(c₀) — faqat kalibrlash va signal hissasi. Yakuniy natijaning boshqa manbalari (suyultirish, massa, recovery) alohida GUM shablonida qo'shiladi — buni `openQuestions` da yozing.
+
+Misol: [`templates/builtin/R-01.json`](../templates/builtin/R-01.json) (DRAFT; namunaviy nuqtalar — EURACHEM/CITAC QUAM:2012 Table A5.2). Test: `tests/templates/regression.test.js`.
