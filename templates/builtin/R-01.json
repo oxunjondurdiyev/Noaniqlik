@@ -1,0 +1,210 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "R-01",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "field": "spectrometry",
+  "evaluationMode": "REGRESSION",
+  "title": {
+    "uz": "Kalibrlash egri chizig'i (fotometriya / AAS): konsentratsiyani teskari bashorat qilish",
+    "ru": "Градуировочная характеристика (фотометрия / ААС): определение концентрации обратным расчётом",
+    "en": "Calibration curve (photometry / AAS): concentration by inverse prediction"
+  },
+  "description": {
+    "uz": "Standart eritmalar bo'yicha chiziqli kalibrlash A = B0 + B1·c quriladi; namuna signali A₀ (p marta o'lchangan) bo'yicha c₀ va u(c₀) hisoblanadi.",
+    "ru": "По стандартным растворам строится линейная градуировка A = B0 + B1·c; по сигналу пробы A₀ (p измерений) рассчитываются c₀ и u(c₀).",
+    "en": "A linear calibration A = B0 + B1·c is fitted to standard solutions; c₀ and u(c₀) are obtained from the sample signal A₀ (p measurements)."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P08 shabloni (DRAFT). Usul: EURACHEM/CITAC QUAM:2012, Example A5 va Appendix E.4 (Eq. E3.3–E3.5); JCGM 100:2008 H.3. Kalibrlash nuqtalari, A₀ va noaniqliklar bo'sh — laboratoriya o'z o'lchashlaridan kiritadi.",
+    "ru": "Шаблон P08 (DRAFT). Метод: EURACHEM/CITAC QUAM:2012, пример A5 и приложение E.4 (ф-лы E3.3–E3.5); JCGM 100:2008 H.3. Точки градуировки, A₀ и неопределённости пусты — лаборатория вводит собственные измерения.",
+    "en": "P08 template (DRAFT). Method: EURACHEM/CITAC QUAM:2012, Example A5 and Appendix E.4 (Eq. E3.3–E3.5); JCGM 100:2008 H.3. Calibration points, A₀ and uncertainties are empty — the laboratory enters its own measurements."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#9-regression-rejimi-p08",
+  "measurand": {
+    "symbol": "c0",
+    "name": {
+      "uz": "Namuna eritmasidagi konsentratsiya",
+      "ru": "Концентрация в растворе пробы",
+      "en": "Concentration in the sample solution"
+    },
+    "unit": "mg/L"
+  },
+  "model": {
+    "formula": "A = B0 + B1 * c",
+    "note": {
+      "uz": "Tavsifiy formula: B0, B1 — eng kichik kvadratlar bilan topiladigan parametrlar; c₀ = (A₀ − B0)/B1.",
+      "ru": "Описательная формула: B0, B1 — параметры, определяемые методом наименьших квадратов; c₀ = (A₀ − B0)/B1.",
+      "en": "Descriptive formula: B0, B1 are parameters found by least squares; c₀ = (A₀ − B0)/B1."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "c",
+      "name": {
+        "uz": "Standart eritma konsentratsiyasi",
+        "ru": "Концентрация стандартного раствора",
+        "en": "Concentration of the calibration standard"
+      },
+      "unit": "mg/L",
+      "kind": "reference",
+      "hint": {
+        "uz": "Kalibrlash standartlarining konsentratsiyasi (x o'qi). u(c_i) ahamiyatli bo'lsa, uni kiriting va WTLS usulini tanlang.",
+        "ru": "Концентрации градуировочных растворов (ось x). Если u(c_i) значима — введите её и выберите метод WTLS.",
+        "en": "Concentrations of the calibration standards (x axis). If u(c_i) is significant, enter it and choose WTLS."
+      }
+    },
+    {
+      "symbol": "A",
+      "name": {
+        "uz": "Asbob signali (optik zichlik / absorbsiya)",
+        "ru": "Сигнал прибора (оптическая плотность / абсорбция)",
+        "en": "Instrument response (absorbance)"
+      },
+      "unit": "1",
+      "kind": "observation",
+      "hint": {
+        "uz": "Har bir standart uchun har bir takroriy o'lchash alohida qator sifatida kiritiladi (o'rtacha emas).",
+        "ru": "Каждое повторное измерение каждого стандарта вводится отдельной строкой (не среднее).",
+        "en": "Enter every replicate reading of every standard as a separate row (not the mean)."
+      }
+    }
+  ],
+  "typeBSources": [],
+  "regression": {
+    "method": "OLS",
+    "allowedMethods": [
+      "OLS",
+      "WLS",
+      "WTLS"
+    ],
+    "degree": 1,
+    "xRef": null,
+    "x": "c",
+    "y": "A",
+    "sigma": "auto",
+    "calibrationPoints": [
+      {
+        "x": 0.1,
+        "y": 0.028
+      },
+      {
+        "x": 0.1,
+        "y": 0.029
+      },
+      {
+        "x": 0.1,
+        "y": 0.029
+      },
+      {
+        "x": 0.3,
+        "y": 0.084
+      },
+      {
+        "x": 0.3,
+        "y": 0.083
+      },
+      {
+        "x": 0.3,
+        "y": 0.081
+      },
+      {
+        "x": 0.5,
+        "y": 0.135
+      },
+      {
+        "x": 0.5,
+        "y": 0.131
+      },
+      {
+        "x": 0.5,
+        "y": 0.133
+      },
+      {
+        "x": 0.7,
+        "y": 0.18
+      },
+      {
+        "x": 0.7,
+        "y": 0.181
+      },
+      {
+        "x": 0.7,
+        "y": 0.183
+      },
+      {
+        "x": 0.9,
+        "y": 0.215
+      },
+      {
+        "x": 0.9,
+        "y": 0.23
+      },
+      {
+        "x": 0.9,
+        "y": 0.216
+      }
+    ],
+    "demo": true,
+    "demoSource": "EURACHEM/CITAC QUAM:2012, Example A5, Table A5.2 (p. 77)",
+    "demoNote": {
+      "uz": "Namunaviy ma'lumot — real emas: EURACHEM/CITAC QUAM:2012, A5-misol, A5.2-jadval (kadmiy, AAS). O'z kalibrlash nuqtalaringizni kiriting.",
+      "ru": "Демонстрационные данные — не реальные: EURACHEM/CITAC QUAM:2012, пример A5, табл. A5.2 (кадмий, ААС). Введите собственные точки градуировки.",
+      "en": "Sample data — not real: EURACHEM/CITAC QUAM:2012, Example A5, Table A5.2 (cadmium, AAS). Enter your own calibration points."
+    },
+    "inverse": {
+      "enabled": true,
+      "replicates": null,
+      "uy0": null,
+      "hint": {
+        "uz": "A₀ — namuna eritmasining signali; takroriy o'lchashlarni bo'sh joy yoki nuqta-vergul bilan ajratib kiriting (p — ularning soni). u(A₀) bo'sh qoldirilsa, OLS da S/√p olinadi (QUAM Eq. E3.5).",
+        "ru": "A₀ — сигнал раствора пробы; повторные измерения вводятся через пробел или точку с запятой (p — их число). Если u(A₀) не задана, для OLS берётся S/√p (QUAM, ф-ла E3.5).",
+        "en": "A₀ is the response of the sample solution; enter replicate readings separated by spaces or semicolons (p is their number). If u(A₀) is left empty, OLS uses S/√p (QUAM Eq. E3.5)."
+      }
+    },
+    "predict": {
+      "enabled": false
+    },
+    "hint": {
+      "uz": "Kamida 3 ta har xil konsentratsiya; diapazon namuna konsentratsiyasini qamrashi kerak. χ² testi u(A_i) kiritilganda (WLS/WTLS) bajariladi.",
+      "ru": "Не менее 3 разных концентраций; диапазон должен охватывать концентрацию пробы. Критерий χ² выполняется при заданных u(A_i) (WLS/WTLS).",
+      "en": "At least 3 different concentrations; the range must cover the sample concentration. The χ² test is run when u(A_i) are entered (WLS/WTLS)."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Standart eritmalar noaniqligi u(c_i) va bitta asosiy eritmadan suyultirishdagi korrelyatsiya (QUAM E.4.4, E.4.6) OLS da hisobga olinmaydi. Ahamiyatli bo'lsa — WTLS, umumiy siljish esa alohida qo'shiladi (Eq. E3.8).",
+        "ru": "⚠ Неопределённость стандартных растворов u(c_i) и корреляция при разбавлении из одного исходного раствора (QUAM E.4.4, E.4.6) в OLS не учитываются. Если значимы — WTLS, а общий сдвиг добавляется отдельно (ф-ла E3.8).",
+        "en": "⚠ The uncertainty of the standards u(c_i) and the correlation from serial dilution of one stock (QUAM E.4.4, E.4.6) are not covered by OLS. If significant use WTLS and add the common offset separately (Eq. E3.8)."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ u(c₀) — faqat kalibrlash va signal hissasi. Yakuniy natijaga suyultirish, namuna massasi/hajmi, ajratib olish (recovery) va boshqalar GUM modeli orqali qo'shiladi (QUAM A5.4).",
+        "ru": "⚠ u(c₀) — только вклад градуировки и сигнала. В итоговый результат разбавление, масса/объём пробы, извлечение (recovery) и др. добавляются через модель GUM (QUAM A5.4).",
+        "en": "⚠ u(c₀) covers only the calibration and response contribution. Dilution, sample mass/volume, recovery etc. are added to the final result through the GUM model (QUAM A5.4)."
+      }
+    },
+    {
+      "id": "Q3",
+      "owner": "lab+owner",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band) va uning kalibrlash talablari (nuqtalar soni, takrorlar, chiziqlilik mezoni) ko'rsatilmagan — laboratoriya to'ldiradi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт) и его требования к градуировке (число точек, повторов, критерий линейности) не указаны — заполняет лаборатория.",
+        "en": "⚠ The method standard (code, clause) and its calibration requirements (number of points, replicates, linearity criterion) are not specified — to be filled in by the laboratory."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

@@ -10,7 +10,7 @@ import { tr, matchTemplate } from '../../templates/interpreter.js';
 export const SECTION_ORDER = ['construction', 'food_chem', 'electrical', 'calibration', 'general'];
 
 export function hasDemo(tpl) {
-  return !!((tpl.sampleData && tpl.sampleData.demo) || (tpl.points || []).some(p => p.demo));
+  return !!((tpl.sampleData && tpl.sampleData.demo) || (tpl.points || []).some(p => p.demo) || (tpl.regression && tpl.regression.demo));
 }
 
 export function statusBadge(status, ctx) {

@@ -88,6 +88,7 @@ export function checkTemplate(tpl, schema) {
     r.errors.forEach(e => errors.push(`schema ${e.path}: ${e.message}`));
     if (!r.valid) return { valid: false, errors, warnings };
   }
+  if (isRegression(tpl)) return checkRegressionTemplate(tpl, errors, warnings);
   const inputs = tpl.inputs || [];
   const consts = tpl.constants || [];
   const symbols = [...inputs.map(i => i.symbol), ...consts.map(c => c.symbol)];
@@ -157,7 +158,12 @@ export function checkTemplate(tpl, schema) {
       }
     }
   }
-  // Uch tildagi matnlar (CLAUDE.md): sxema ham tekshiradi, bu yerda — bo'sh satrlar
+  checkTexts(tpl, errors);
+  return { valid: errors.length === 0, errors, warnings };
+}
+
+/** Uch tildagi matnlar (CLAUDE.md): sxema ham tekshiradi, bu yerda — bo'sh satrlar */
+function checkTexts(tpl, errors) {
   (function walk(o, path) {
     if (!o || typeof o !== 'object') return;
     const keys = Object.keys(o);
@@ -167,7 +173,98 @@ export function checkTemplate(tpl, schema) {
     }
     for (const k of keys) walk(o[k], `${path}.${k}`);
   })(tpl, '$');
+}
+
+/* ─── REGRESSION rejimi (P08) ───────────────────────────── */
+
+export const isRegression = tpl => !!tpl && tpl.evaluationMode === 'REGRESSION';
+
+/** REGRESSION shablonining semantik tekshiruvi (formula tavsifiy — tahlil qilinmaydi). */
+function checkRegressionTemplate(tpl, errors, warnings) {
+  const rg = tpl.regression;
+  if (!rg) { errors.push('regression: section required for evaluationMode REGRESSION'); return { valid: false, errors, warnings }; }
+  const inputs = tpl.inputs || [];
+  const sym = inputs.map(i => i.symbol);
+  if (new Set(sym).size !== sym.length) errors.push('duplicate symbols');
+  for (const k of ['x', 'y']) if (!sym.includes(rg[k])) errors.push(`regression.${k}: unknown input ${rg[k]}`);
+  if (rg.x === rg.y) errors.push('regression: x and y must be different inputs');
+  if (rg.method === 'WTLS' && rg.degree !== 1) errors.push('regression: WTLS supports degree 1 only');
+  if (rg.allowedMethods && !rg.allowedMethods.includes(rg.method)) errors.push('regression: method not in allowedMethods');
+  if ((tpl.typeBSources || []).length) errors.push('regression: typeBSources are not used in REGRESSION mode (u(x_i), u(y_i) are entered per point)');
+  if (tpl.variants && tpl.variants.length) errors.push('regression: variants are not supported in REGRESSION mode');
+  // Raqam o'ylab topilmaydi: shablondagi har qanday son — faqat demo: true bilan (TEMPLATE_GUIDE §1)
+  const numeric = (rg.calibrationPoints || []).length || ((rg.inverse || {}).y0 || []).length || ((rg.predict || {}).x || []).length
+    || ((rg.inverse || {}).uy0 !== null && (rg.inverse || {}).uy0 !== undefined);
+  if (numeric && rg.demo !== true) errors.push('regression: numeric values are allowed only as sample data (demo: true)');
+  for (const [i, p] of (rg.calibrationPoints || []).entries()) {
+    if (p.x === null || p.y === null) errors.push(`regression.calibrationPoints[${i}]: x and y required`);
+  }
+  for (const i of inputs) if (i.unit && !isBlank(i.unit) && !parseUnit(i.unit)) warnings.push(`unit "${i.unit}" of ${i.symbol} not recognised`);
+  checkTexts(tpl, errors);
   return { valid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * REGRESSION shabloni + foydalanuvchi ma'lumoti → modelSpec ('uc-regression/1').
+ * Bo'sh maydon bilan hisob qilinmaydi: kalibrlash nuqtalari kiritilmagan bo'lsa — `missing`.
+ * @param {object} tpl
+ * @param {{points?:object[], method?:string, degree?:number, xRef?:number, inverse?:object[], predict?:object[],
+ *          settings?:object, uRange?:object, covY?:number[][], useSample?:boolean}} [data]
+ * @returns {{spec:object, meta:object, missing:object[]} | {error:string, missing?:object[]}}
+ */
+export function buildRegressionSpec(tpl, data = {}, opts = {}) {
+  if (!isRegression(tpl) || !tpl.regression) return { error: 'not_regression_template' };
+  const rg = tpl.regression;
+  const xin = (tpl.inputs || []).find(i => i.symbol === rg.x) || {};
+  const yin = (tpl.inputs || []).find(i => i.symbol === rg.y) || {};
+  const sample = !!data.useSample && rg.demo === true;
+  const filled = p => p && !isBlank(p.x) && !isBlank(p.y);
+  const points = (data.points || (sample ? rg.calibrationPoints : []) || []).filter(filled).map(p => ({ ...p }));
+  const missing = [];
+  if (!points.length) missing.push({ kind: 'regression_points', id: rg.x });
+  const inv = rg.inverse || {};
+  let inverse = data.inverse;
+  if (!inverse && sample && inv.enabled && (inv.y0 || []).length) {
+    inverse = [{ y0: [...inv.y0], ...(inv.uy0 !== null && inv.uy0 !== undefined ? { uy0: inv.uy0 } : {}) }];
+  }
+  const predict = data.predict || (sample && (rg.predict || {}).x ? rg.predict.x.map(x => ({ x })) : []);
+  const ts = tpl.settings || {}, ds = data.settings || {}, lab = opts.labSettings || {};
+  const settings = {
+    ...(lab.P !== undefined ? { P: lab.P } : {}), ...(lab.nuRule ? { nuRule: lab.nuRule } : {}),
+    ...(ts.P !== undefined ? { P: ts.P } : {}), ...(ts.nuRule ? { nuRule: ts.nuRule } : {}),
+    ...(rg.sigma && rg.sigma !== 'auto' ? { sigma: rg.sigma } : {}),
+    ...(rg.chi2P !== undefined ? { chi2P: rg.chi2P } : {}),
+    ...ds,
+  };
+  const spec = {
+    format: 'uc-regression/1',
+    method: data.method || rg.method,
+    model: { degree: data.degree || rg.degree, ...(data.xRef !== undefined ? { xRef: data.xRef } : (rg.xRef !== null && rg.xRef !== undefined ? { xRef: rg.xRef } : {})) },
+    units: { x: xin.unit || '', y: yin.unit || '' },
+    points,
+    ...(data.covY ? { covY: data.covY } : {}),
+    settings,
+    predict: predict || [],
+    inverse: inverse || [],
+    ...(data.uRange ? { uRange: data.uRange } : {}),
+  };
+  const lang = opts.lang || 'en';
+  const meta = {
+    id: tpl.id, version: tpl.version, status: tpl.status, title: clone(tpl.title),
+    mode: 'REGRESSION', demo: sample && !data.points, variant: '',
+    standards: clone(tpl.standards || []), labCount: tpl.labCount ?? null,
+    openQuestions: (tpl.openQuestions || []).length,
+    measurand: { symbol: tpl.measurand.symbol, unit: tpl.measurand.unit },
+    x: { symbol: rg.x, unit: xin.unit || '' }, y: { symbol: rg.y, unit: yin.unit || '' },
+    ...(opts.ui ? {
+      xName: tr(xin.name, lang), yName: tr(yin.name, lang), measurandName: tr(tpl.measurand.name, lang),
+      hint: tr(rg.hint, lang), inverseHint: tr(inv.hint, lang), sourceNote: tr(tpl.sourceNote, lang),
+      demoNote: tr(rg.demoNote, lang),
+      openQuestionList: (tpl.openQuestions || []).map(q => ({ id: q.id, text: tr(q.text, lang), owner: q.owner, blocking: !!q.blocking })),
+    } : {}),
+  };
+  if (missing.length && !opts.allowMissing) return { error: 'template_incomplete', missing, spec, meta };
+  return { spec, meta, missing };
 }
 
 /* ─── Shablon → hisob holati ───────────────────────────── */
@@ -204,6 +301,7 @@ function uiEntry(s, lang) {
  * @returns {{state:object, meta:object, missing:object[]} | {error:string, detail?:any, missing?:object[]}}
  */
 export function buildState(tpl, data = {}, opts = {}) {
+  if (isRegression(tpl)) return { error: 'regression_template' }; // P08: buildRegressionSpec ishlatiladi
   const lang = opts.lang || 'en';
   const variant = resolveVariant(tpl, data.variant);
   if (!variant) return { error: 'bad_variant', detail: data.variant };
@@ -588,6 +686,13 @@ export function specOf(prepared) {
  * @returns {{result:object, spec:object, state:object, meta:object, missing:object[]} | {error, missing?}}
  */
 export function evaluateTemplate(tpl, data = {}, opts = {}) {
+  if (isRegression(tpl)) {
+    // P08: shablon → uc-regression/1 → evaluate()
+    const rb = buildRegressionSpec(tpl, data, opts);
+    if (rb.error) return rb;
+    if (rb.missing.length) return { error: 'template_incomplete', missing: rb.missing, spec: rb.spec, meta: rb.meta };
+    return { result: evaluate(rb.spec), spec: rb.spec, meta: rb.meta, missing: rb.missing };
+  }
   const b = buildState(tpl, data, opts);
   if (b.error) return b;
   const ev = evaluateState(b.state);
