@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "LAB-EXAMPLE-01",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "general",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Suyuqlik zichligi (piknometr usuli) — yo'riqnoma misoli",
+    "ru": "Плотность жидкости (пикнометрический метод) — пример руководства",
+    "en": "Liquid density (pycnometer method) — guide example"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "docs/TEMPLATE_GUIDE.md 1-misol. O'quv misoli: standart va raqamlar laboratoriya tomonidan aniqlanadi.",
+    "ru": "Пример 1 из docs/TEMPLATE_GUIDE.md. Учебный пример: стандарт и числа определяет лаборатория.",
+    "en": "Example 1 of docs/TEMPLATE_GUIDE.md. Training example: the standard and numbers are set by the laboratory."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#1-misol",
+  "measurand": {
+    "symbol": "ρ",
+    "name": {
+      "uz": "Suyuqlik zichligi",
+      "ru": "Плотность жидкости",
+      "en": "Liquid density"
+    },
+    "unit": "g/cm³"
+  },
+  "model": {
+    "formula": "ρ = (m2 - m0) / (m1 - m0) * rho_w"
+  },
+  "constants": [
+    {
+      "symbol": "rho_w",
+      "name": {
+        "uz": "Suvning shu haroratdagi zichligi",
+        "ru": "Плотность воды при данной температуре",
+        "en": "Density of water at this temperature"
+      },
+      "unit": "g/cm³",
+      "value": null,
+      "ref": "ma'lumotnoma jadvali (laboratoriya kiritadi)",
+      "hint": {
+        "uz": "Ma'lumotnoma jadvalidan, o'lchash haroratida.",
+        "ru": "Из справочной таблицы при температуре измерения.",
+        "en": "From a reference table at the measurement temperature."
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "symbol": "m0",
+      "name": {
+        "uz": "Bo'sh piknometr massasi m0",
+        "ru": "Масса пустого пикнометра m0",
+        "en": "Mass of the empty pycnometer m0"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Parallel tortishlar natijalari (A tur: s/√n).",
+        "ru": "Результаты параллельных взвешиваний (тип A: s/√n).",
+        "en": "Replicate weighings (Type A: s/√n)."
+      }
+    },
+    {
+      "symbol": "m1",
+      "name": {
+        "uz": "Suv bilan piknometr massasi m1",
+        "ru": "Масса пикнометра с водой m1",
+        "en": "Mass of the pycnometer with water m1"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Parallel tortishlar natijalari (A tur: s/√n).",
+        "ru": "Результаты параллельных взвешиваний (тип A: s/√n).",
+        "en": "Replicate weighings (Type A: s/√n)."
+      }
+    },
+    {
+      "symbol": "m2",
+      "name": {
+        "uz": "Suyuqlik bilan piknometr massasi m2",
+        "ru": "Масса пикнометра с жидкостью m2",
+        "en": "Mass of the pycnometer with the liquid m2"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Parallel tortishlar natijalari (A tur: s/√n).",
+        "ru": "Результаты параллельных взвешиваний (тип A: s/√n).",
+        "en": "Replicate weighings (Type A: s/√n)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m0_cert",
+      "input": "m0",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m0)",
+        "ru": "Весы: сертификат о калибровке (m0)",
+        "en": "Balance: calibration certificate (m0)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Tarozi kalibrlash sertifikatidan: U va k.",
+        "ru": "Из сертификата о калибровке весов: U и k.",
+        "en": "From the balance calibration certificate: U and k."
+      }
+    },
+    {
+      "id": "m0_res",
+      "input": "m0",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m0)",
+        "ru": "Весы: дискретность (m0)",
+        "en": "Balance: resolution (m0)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Tarozi ajratish qobiliyati d (pasportdan); u = d/(2√3).",
+        "ru": "Дискретность весов d (из паспорта); u = d/(2√3).",
+        "en": "Balance resolution d (from the passport); u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m1_cert",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m1)",
+        "ru": "Весы: сертификат о калибровке (m1)",
+        "en": "Balance: calibration certificate (m1)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Tarozi kalibrlash sertifikatidan: U va k.",
+        "ru": "Из сертификата о калибровке весов: U и k.",
+        "en": "From the balance calibration certificate: U and k."
+      }
+    },
+    {
+      "id": "m1_res",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m1)",
+        "ru": "Весы: дискретность (m1)",
+        "en": "Balance: resolution (m1)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Tarozi ajratish qobiliyati d (pasportdan); u = d/(2√3).",
+        "ru": "Дискретность весов d (из паспорта); u = d/(2√3).",
+        "en": "Balance resolution d (from the passport); u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m2_cert",
+      "input": "m2",
+      "name": {
+        "uz": "Tarozi: kalibrlash sertifikati (m2)",
+        "ru": "Весы: сертификат о калибровке (m2)",
+        "en": "Balance: calibration certificate (m2)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "hint": {
+        "uz": "Tarozi kalibrlash sertifikatidan: U va k.",
+        "ru": "Из сертификата о калибровке весов: U и k.",
+        "en": "From the balance calibration certificate: U and k."
+      }
+    },
+    {
+      "id": "m2_res",
+      "input": "m2",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m2)",
+        "ru": "Весы: дискретность (m2)",
+        "en": "Balance: resolution (m2)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Tarozi ajratish qobiliyati d (pasportdan); u = d/(2√3).",
+        "ru": "Дискретность весов d (из паспорта); u = d/(2√3).",
+        "en": "Balance resolution d (from the passport); u = d/(2√3)."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "masses",
+      "inputs": [
+        "m0",
+        "m1",
+        "m2"
+      ],
+      "r": 1,
+      "sharedInstrument": "balance",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "m0, m1, m2 bitta tarozida tortiladimi?",
+        "ru": "m0, m1, m2 взвешиваются на одних весах?",
+        "en": "Are m0, m1, m2 weighed on the same balance?"
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "Harorat ta'siri (piknometr hajmi, suv zichligi) alohida manba sifatida qo'shilishi kerakmi — laboratoriya hal qiladi.",
+        "ru": "Нужно ли добавить влияние температуры (объём пикнометра, плотность воды) отдельным источником — решает лаборатория.",
+        "en": "Should the temperature effect (pycnometer volume, water density) be a separate source — the laboratory decides."
+      },
+      "owner": "lab"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}
