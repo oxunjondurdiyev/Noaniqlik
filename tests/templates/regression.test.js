@@ -81,7 +81,7 @@ test('shablon → uc-regression/1 → evaluate(): namunaviy ma\'lumot bilan QUAM
 test('bo\'sh maydon bilan hisob qilinmaydi: nuqtalar kiritilmagan → template_incomplete (regression_points)', () => {
   const run = T.evaluateTemplate(R01, {});
   assert.equal(run.error, 'template_incomplete');
-  assert.deepEqual(run.missing.map(m => m.kind), ['regression_points']);
+  assert.deepEqual(run.missing.map(m => m.type), ['regression_points']);
   // foydalanuvchi nuqtalari: demo belgisi yo'q; bo'sh qatorlar tashlab yuboriladi
   const mine = T.evaluateTemplate(R01, { points: [{ x: 1, y: 0.1 }, { x: 2, y: 0.21 }, { x: '', y: '' }, { x: 3, y: 0.29 }, { x: 4, y: 0.41 }] });
   assert.equal(mine.meta.demo, false);

@@ -1,5 +1,5 @@
 /* i18n: har bir matn kaliti uch tilda (uz/ru/en) bo'lishi shart (CLAUDE.md).
-   src/js/i18n.js + i18n-ext.js + i18n-engine.js jsdom'da yuklanadi. */
+   src/js/i18n.js + i18n-ext.js + i18n-engine.js + i18n-templates.js + i18n-regression.js (P08) jsdom'da yuklanadi. */
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -13,7 +13,7 @@ const LANGS = ['uz', 'ru', 'en'];
 function loadTranslations() {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   // Ikkala fayl bitta skript sifatida (top-level const TRANSLATIONS umumiy bo'lishi uchun)
-  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
+  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
   return dom.window.eval(src + '\n;TRANSLATIONS');
 }
 
@@ -112,4 +112,12 @@ test('P04: src/ui/tpl dagi t(\'…\') kalitlari va dinamik kalit oilalari lug\'a
   ];
   for (const k of fam) for (const l of LANGS) if (!(k in T[l])) missing.push(`${l}.${k}`);
   assert.deepEqual([...new Set(missing)], []);
+});
+
+test('P08: i18n-regression.js oldingi fayllardagi kalitlarni bosib ketmaydi', () => {
+  const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
+  const base = dom.window.eval(['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;TRANSLATIONS');
+  const mine = [...fs.readFileSync(path.join(ROOT, 'src/js/i18n-regression.js'), 'utf8').matchAll(/^\s{6}([a-z0-9_]+):/gm)].map(m => m[1]);
+  assert.ok(mine.length > 300);
+  assert.deepEqual([...new Set(mine.filter(k => k in base.en))], []);
 });

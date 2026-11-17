@@ -530,6 +530,13 @@ const Results = (() => {
     return meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(meta, current()) : '';
   }
 
+  /* P08: regressiya yorlig'ida hisob bajarilgan bo'lsa, u umumiy hisobotga alohida sahifa bo'lib qo'shiladi */
+  function regressionAppendix() {
+    const rg = window.UCRegression && window.UCRegression.current();
+    if (!rg || !rg.result || rg.result.error) return '';
+    return `<div class="print-page-break"></div>${regressionSection(rg.result, { print: true, plots: rg.plots, residualTable: true })}`;
+  }
+
   function printReport() {
     const state = appState.get();
     const r     = current();
@@ -579,6 +586,7 @@ const Results = (() => {
       </div>
       ${templateNotice()}
       ${body}
+      ${regressionAppendix()}
       <div class="print-footer">
         <span>${i18n.t('report_standard')}</span>
         <span>${i18n.t('report_date')}: ${now}</span>
@@ -591,12 +599,173 @@ const Results = (() => {
     window.print();
   }
 
+  /* ─── P08: REGRESSION rejimi hisobot bo'limi ─────────────────────
+     Usul, parametrlar, kovariatsiya, χ² testi, teskari va to'g'ri bashorat, U — diapazon, ogohlantirishlar.
+     P05 gacha shu faylda (PLAN.md "Bajarish tartibi"); keyin src/report/ shakllariga ko'chiriladi.
+     Yaxlitlash faqat shu yerda (hisobot qatlami): qiymat ± noaniqlik — Calc.roundResult (U ≤ 2 qiymatli raqam). */
+  function rgWarnText(w) {
+    return i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', escHtml(w.value ?? ''));
+  }
+  function rgErrText(code, detail) {
+    return escHtml(i18n.t('err_' + code)) + (detail ? ' — ' + escHtml(detail) : '');
+  }
+  function rgUnit(u) { return u && u !== '1' ? ' ' + escHtml(u) : ''; }
+  function rgNu(nu) { return isFinite(nu) ? (Number.isInteger(nu) ? String(nu) : nu.toFixed(1)) : '∞'; }
+  function rgPair(v, u) { // qiymat va noaniqlik: noaniqlik 2 qiymatli raqamgacha, qiymat uning oxirgi xonasigacha
+    const rr = Calc.roundResult(v, u, false);
+    return { v: rr.yround.toFixed(rr.digits), u: rr.Uround.toFixed(rr.digits), text: rr.resultText };
+  }
+  function rgEquation(r) {
+    const x = r.xRef ? `(x − ${escHtml(String(r.xRef))})` : 'x';
+    const names = ['', `·${x}`, `·${x}²`, `·${x}³`];
+    return 'y = ' + r.params.map((p, j) => {
+      const v = rgPair(p.value, p.u).v;
+      return (j === 0 ? v : (p.value < 0 ? '− ' + v.replace(/^-/, '') : '+ ' + v)) + names[j];
+    }).join(' ');
+  }
+  function rgWarnings(r) {
+    if (!r.warnings || !r.warnings.length) return '';
+    const sev = r.warnings.filter(w => w.severity !== 'info'), info = r.warnings.filter(w => w.severity === 'info');
+    return (sev.length ? `<div class="warn-box rg-warnings" data-rg-warnings="1">${sev.map(w => `<div data-rg-warning="${escHtml(w.code)}">⚠ ${rgWarnText(w)}</div>`).join('')}</div>` : '') +
+      info.map(w => `<div class="text-xs text-muted rg-note" data-rg-warning="${escHtml(w.code)}">ⓘ ${rgWarnText(w)}</div>`).join('');
+  }
+  function rgChi2(r) {
+    const c = r.chi2;
+    if (!c.applicable) return `<p class="rg-line" data-rg-chi2="na"><strong>${i18n.t('rg_chi2')}:</strong> ${i18n.t('rg_chi2_na')}</p>`;
+    const badge = c.pass ? 'badge-green' : 'badge-red';
+    return `<p class="rg-line" data-rg-chi2="${c.pass ? 'pass' : 'fail'}"><strong>${i18n.t('rg_chi2')}:</strong>
+      ${i18n.t('rg_chi2_obs')} = ${Calc.fmtSci(c.obs, 4)}; ν = ${c.nu};
+      ${i18n.t('rg_chi2_crit').replace('{P}', pct(c.P) + ' %')} = ${Calc.fmtSci(c.crit, 4)}
+      <span class="badge ${badge}">${i18n.t(c.pass ? 'rg_chi2_pass' : 'rg_chi2_fail')}</span></p>`;
+  }
+  function rgMatrix(r, cls, M, title) {
+    return `<table class="${cls} rg-matrix"><thead><tr><th>${escHtml(title)}</th>${r.params.map(p => `<th>${escHtml(p.name)}</th>`).join('')}</tr></thead>
+      <tbody>${M.map((row, i) => `<tr><th>${escHtml(r.params[i].name)}</th>${row.map(v => `<td class="num">${Calc.fmtSci(v, 4)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+  function rgInverse(r, cls) {
+    if (!r.inverse || !r.inverse.length) return '';
+    const src = { given: 'rg_uy0_given', residual: 'rg_uy0_residual', common: 'rg_uy0_common' };
+    return `<h4 class="rg-h">${i18n.t('rg_inverse_res')}</h4>
+      <table class="${cls}" data-rg-inverse="1"><thead><tr>
+        <th>${i18n.t('rg_col_y0')}</th><th>${i18n.t('rg_col_p')}</th><th>${i18n.t('rg_col_uy0')}</th><th>${i18n.t('rg_col_x0')}</th><th>${i18n.t('rg_col_u')}(x̂₀)</th>
+        <th>${i18n.t('rg_col_from_y0')}</th><th>${i18n.t('rg_col_from_cal')}</th><th>${i18n.t('rg_col_nu')}</th><th>${i18n.t('rg_col_k')}</th><th>${i18n.t('rg_col_result')}</th>
+      </tr></thead><tbody>${r.inverse.map(q => q.error
+        ? `<tr><td class="num">${Calc.fmtSci(q.y0, 6)}</td><td class="num">${escHtml(q.p ?? '')}</td><td colspan="8">⚠ ${rgErrText(q.error, q.detail)}</td></tr>`
+        : `<tr><td class="num">${Calc.fmtSci(q.y0, 6)}</td><td class="num">${q.p}</td>
+            <td class="num">${Calc.fmtSci(q.uy0, 3)} <span class="text-muted">(${i18n.t(src[q.uy0Source])})</span></td>
+            <td class="num">${Calc.fmtSci(q.x0, 6)}</td><td class="num">${Calc.fmtSci(q.u, 3)}</td>
+            <td class="num">${Calc.fmtSci(q.components.y0, 3)}</td><td class="num">${Calc.fmtSci(q.components.calibration, 3)}</td>
+            <td class="num">${rgNu(q.nu)}</td><td class="num">${q.k.toFixed(2)}</td>
+            <td class="num"><strong>(${rgPair(q.x0, q.U).text})${rgUnit(r.units.x)}</strong>${q.extrapolated ? ` <span class="badge badge-orange">${i18n.t('rg_extrap')}</span>` : ''}${
+              !(q.U > 0) ? ` <span class="badge badge-red">⚠ ${escHtml(i18n.t('w_zero_u'))}</span>` : ''}</td></tr>`).join('')}</tbody></table>`;
+  }
+  function rgPredict(r, cls) {
+    if (!r.predictions || !r.predictions.length) return '';
+    return `<h4 class="rg-h">${i18n.t('rg_predict_res')}</h4>
+      <table class="${cls}" data-rg-predict="1"><thead><tr><th>x</th><th>${i18n.t('rg_col_Y')}</th><th>${i18n.t('rg_col_u')}</th><th>${i18n.t('rg_col_nu')}</th><th>${i18n.t('rg_col_k')}</th><th>${i18n.t('rg_col_result')}</th></tr></thead>
+      <tbody>${r.predictions.map(q => q.error
+        ? `<tr><td class="num">${escHtml(q.x)}</td><td colspan="5">⚠ ${rgErrText(q.error, q.detail)}</td></tr>`
+        : `<tr><td class="num">${Calc.fmtSci(q.x, 6)}${rgUnit(r.units.x)}</td><td class="num">${Calc.fmtSci(q.y, 6)}</td><td class="num">${Calc.fmtSci(q.u, 3)}</td>
+            <td class="num">${rgNu(q.nu)}</td><td class="num">${q.k.toFixed(2)}</td>
+            <td class="num"><strong>(${rgPair(q.y, q.U).text})${rgUnit(r.units.y)}</strong>${q.extrapolated ? ` <span class="badge badge-orange">${i18n.t('rg_extrap')}</span>` : ''}${
+              !(q.U > 0) ? ` <span class="badge badge-red">⚠ ${escHtml(i18n.t('w_zero_u'))}</span>` : ''}</td></tr>`).join('')}</tbody></table>`;
+  }
+  function rgURange(r, cls) {
+    const f = r.uRange;
+    if (!f) return '';
+    if (f.error) return `<h4 class="rg-h">${i18n.t('rg_urange_title')}</h4><div class="warn-box">⚠ ${rgErrText(f.error, f.detail)}</div>`;
+    const expr = f.mode === 'max' ? `U = ${Calc.fmtSci(f.a, 3)}` : `U(X) = ${Calc.fmtSci(f.a, 3)} ${f.b < 0 ? '−' : '+'} ${Calc.fmtSci(Math.abs(f.b), 3)}·|X|`;
+    return `<h4 class="rg-h">${i18n.t('rg_urange_title')}</h4>
+      <p class="rg-line" data-rg-urange="${escHtml(f.mode)}"><strong>${i18n.t('rg_urange_applied')}:</strong> ${i18n.t('rg_urange_' + f.mode)} — <span class="mono">${expr}</span>${rgUnit(r.units.y)};
+        |X| ∈ [${Calc.fmtSci(f.range[0], 4)}; ${Calc.fmtSci(f.range[1], 4)}]${f.shift > 0 ? `; ${i18n.t('rg_urange_shift')} ${Calc.fmtSci(f.shift, 3)}` : ''}</p>
+      <p class="rg-line"><span class="badge badge-orange">unverified</span> ${i18n.t('rg_urange_unverified')}</p>
+      <table class="${cls}"><thead><tr><th>X_j</th><th>U_j</th><th>U(X_j)</th><th>${i18n.t('rg_urange_margin')}</th></tr></thead>
+      <tbody>${f.points.map(q => `<tr><td class="num">${Calc.fmtSci(q.x, 6)}</td><td class="num">${Calc.fmtSci(q.U, 3)}</td><td class="num">${Calc.fmtSci(q.Ufit, 3)}</td><td class="num">${Calc.fmtSci(q.margin, 2)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  function rgResiduals(r, cls) {
+    return `<h4 class="rg-h">${i18n.t('rg_residuals')}</h4>
+      <table class="${cls}"><thead><tr><th>#</th><th>x</th><th>u(x)</th><th>y</th><th>u(y)</th><th>${i18n.t('rg_col_fitted')}</th><th>${i18n.t('rg_col_resid')}</th><th>${i18n.t('rg_col_wres')}</th></tr></thead>
+      <tbody>${r.points.map((p, i) => `<tr><td>${i + 1}</td><td class="num">${escHtml(p.x)}</td><td class="num">${p.ux === null ? '—' : escHtml(p.ux)}</td>
+        <td class="num">${escHtml(p.y)}</td><td class="num">${p.uy === null ? '—' : escHtml(p.uy)}</td>
+        <td class="num">${Calc.fmtSci(r.fitted[i], 6)}</td><td class="num">${Calc.fmtSci(r.residuals[i], 3)}</td><td class="num">${Calc.fmtSci(r.weightedResiduals[i], 3)}</td></tr>`).join('')}</tbody></table>`;
+  }
+
+  /**
+   * Regressiya bo'limi (ekran va bosma hisobot uchun bir xil mazmun).
+   * @param {object} r     evaluate({format:'uc-regression/1', …}) natijasi
+   * @param {{print?:boolean, plots?:string, residualTable?:boolean}} [o]  plots — src/ui/regression/view.js SVG'lari
+   */
+  function regressionSection(r, o) {
+    const opt = o || {};
+    if (!r) return '';
+    if (r.error) return `<div class="warn-box" data-rg-error="${escHtml(r.error)}">⚠ ${rgErrText(r.error, r.detail)}</div>`;
+    const cls = opt.print ? 'print-table' : 'data-table math-head';
+    const sLine = r.sKind === 'y'
+      ? `${i18n.t('rg_s')} = ${Calc.fmtSci(r.s, 4)}${rgUnit(r.units.y)}`
+      : `${i18n.t('rg_s_rel')} = ${Calc.fmtSci(r.s, 4)}`;
+    const anyPred = (r.inverse && r.inverse.length) || (r.predictions && r.predictions.length);
+    return `<div class="rg-report" data-rg-report="1">
+      <div class="${opt.print ? 'print-section' : 'rg-section-title'}">${i18n.t('rg_report_section')}</div>
+      ${rgWarnings(r)}
+      <p class="rg-line"><strong>${i18n.t('rg_method')}:</strong> <span data-rg-method="${escHtml(r.method)}">${i18n.t('rg_m_' + r.method)}</span>;
+        <strong>${i18n.t('rg_degree')}:</strong> ${i18n.t('rg_deg_' + r.degree)}${r.xRef ? `; x₀ = ${escHtml(String(r.xRef))}${rgUnit(r.units.x)}` : ''}</p>
+      <p class="rg-line">${i18n.t('rg_points_n')} = ${r.m}; ${i18n.t('rg_nu')} = ${r.nu}; ${sLine}${r.wtls ? `; ${i18n.t('rg_wtls_iter')}: ${r.wtls.iterations}` : ''}</p>
+      <p class="rg-line"><strong>${i18n.t('rg_equation')}:</strong> <span class="mono" data-rg-equation="1">${rgEquation(r)}</span></p>
+      <h4 class="rg-h">${i18n.t('rg_params')}</h4>
+      <table class="${cls}" data-rg-params="1"><thead><tr><th>${i18n.t('rg_param')}</th><th>${i18n.t('rg_value')}</th><th>${i18n.t('rg_std_u')}</th><th>${i18n.t('rg_rel_u')}</th></tr></thead>
+        <tbody>${r.params.map(p => { const v = rgPair(p.value, p.u); return `<tr><td>${escHtml(p.name)}</td><td class="num">${v.v}</td><td class="num">${v.u}</td>
+          <td class="num">${p.value !== 0 ? (Math.abs(p.u / p.value) * 100).toPrecision(3) : '—'}</td></tr>`; }).join('')}</tbody></table>
+      <p class="rg-line"><strong>${i18n.t('rg_basis')}:</strong> <span data-rg-basis="${escHtml(r.covarianceBasis)}">${i18n.t('rg_basis_' + r.covarianceBasis)}</span></p>
+      <h4 class="rg-h">${i18n.t('rg_cov')}</h4>
+      ${rgMatrix(r, cls, r.covariance, 'cov')}
+      ${rgMatrix(r, cls, r.correlation, 'r')}
+      ${rgChi2(r)}
+      ${opt.plots || ''}
+      ${rgInverse(r, cls)}
+      ${rgPredict(r, cls)}
+      ${anyPred ? `<p class="rg-line text-muted">${i18n.t('rg_k_note').replace('{P}', pct(r.P)).replace('{rule}', i18n.t('nu_rule_' + (r.nuRule || 'floor')))}</p>` : ''}
+      ${rgURange(r, cls)}
+      ${opt.residualTable ? rgResiduals(r, cls) : ''}
+      <p class="rg-line text-muted text-xs">${i18n.t('rg_ref_line')}: ${i18n.t('rg_ref_text')}. ${i18n.t('rg_engine')}: ${escHtml(r.engineVersion)}</p>
+    </div>`;
+  }
+
+  /** Faqat regressiya hisoboti (regressiya yorlig'idagi "Chop etish"). meta — shablon belgilari (DRAFT, demo). */
+  function printRegression(r, o) {
+    const opt = o || {};
+    if (!r || r.error) { showToast(i18n.t('rg_empty'), 'error'); return; }
+    const now = new Date().toLocaleDateString();
+    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
+    document.getElementById('print-report').innerHTML = `
+      <div class="print-report-header">
+        <div>
+          <div class="print-report-title">${i18n.t('report_title')}</div>
+          <div class="print-report-meta">${i18n.t('report_standard')}</div>
+        </div>
+        <div style="text-align:right;font-size:9pt;color:#555">
+          <div>${i18n.t('report_date')}: ${now}</div>
+          <div>${i18n.t('report_lab')}: _______________________</div>
+          <div>${i18n.t('report_operator')}: ____________________</div>
+        </div>
+      </div>
+      ${notice}
+      ${regressionSection(r, { print: true, plots: opt.plots, residualTable: true })}
+      <div class="print-footer">
+        <span>${i18n.t('report_standard')}</span>
+        <span>${i18n.t('report_date')}: ${now}</span>
+        <span>UncertaintyCalc</span>
+      </div>`;
+    document.body.classList.add('print-report-mode');
+    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
+    window.print();
+  }
+
   function isBlankCell(v) { return v === '' || v === null || v === undefined; }
 
   // Yagona escape: src/ui/escape.js (P02)
   const escHtml = window.escHtml;
 
-  return { init, render };
+  return { init, render, regressionSection, printRegression };
 
 })();
 

@@ -221,7 +221,7 @@ export function buildRegressionSpec(tpl, data = {}, opts = {}) {
   const filled = p => p && !isBlank(p.x) && !isBlank(p.y);
   const points = (data.points || (sample ? rg.calibrationPoints : []) || []).filter(filled).map(p => ({ ...p }));
   const missing = [];
-  if (!points.length) missing.push({ kind: 'regression_points', id: rg.x });
+  if (!points.length) missing.push({ type: 'regression_points', id: rg.x, name: rg.x });
   const inv = rg.inverse || {};
   let inverse = data.inverse;
   if (!inverse && sample && inv.enabled && (inv.y0 || []).length) {
