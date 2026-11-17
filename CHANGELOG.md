@@ -19,7 +19,11 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Manbadan tekshirilgan misollar:** `nordtest-tr537-nh4n` `pending` → **`verified`** (TR 537 ed. 4 §3.2, p. 10; Appendix 4, p. 40 — 15 kattalik; Gemini T15 raqamlari ishlatilmagan); yangi: `nordtest-tr537-nh4n-dup-low`, `-dup-high` (Appendix 5), `nordtest-tr537-oxygen-dup` (Appendix 6), `nordtest-tr537-bod-crm`, `-bod-pt` (§8.2), `nordtest-tr537-recovery` (§6.3), `quam-a4-recovery` (A4, pp. 65–68), `quam-a6-empirical` (A6, pp. 85–86). Jami 8 ta yangi verified misol.
 - **UI:** "Top-down" yorlig'i — usta (wizard): 1) ma'lumot turi; 2) jadval kiritish yoki Excel'dan qo'yish (o'nlik vergul); 3) byudjet va natija. Hisobot bo'limi — `src/js/report.js::topdownSection`: y, U, nisbiy U %, k, yondashuv nomi (ISO/IEC 17025:2017 §7.8.3.1 c)). Matnlar — `src/js/i18n-topdown.js` (uz/ru/en). Yangi `localStorage` kaliti `uc_topdown_v1` (faqat sifat nazorati ma'lumoti; shaxsiy ma'lumot yo'q).
 - **Shablonlar:** `evaluationMode: "TOP_DOWN"` — sxemada `topDown` bo'limi, `buildTopDownState`; DRAFT shablonlar `TD-01` (suvda NH₄-N), `TD-02` (oziq-ovqat namligi, empirik), `TD-03` (beton mustahkamligi, empirik; T-03 bilan bog'langan), `TD-04` (AAS og'ir metallar; R-01 bilan). Raqamli maydonlari bo'sh.
-- **Egasi tasdiqlashi kerak bo'lgan loyiha qarorlari** (`docs/RISKS.md` R-20): X12 da bias hissasi u_c dan chiqarilishi; X11 da hissa hisobda qolishi; k = 2 (ν_eff baholanmaydi); nisbiy dublikat s ning ikki usuli; empirik kattalikda `referenceByMethod` istisnosi.
+- **Egasi qarorlari (2026-11-17, `docs/RISKS.md` R-20) — shu versiyada amalga oshirildi:**
+  - **X12:** empirik kattalikka bias / recovery / u(δ̂) kiritilganda "tayanch qiymat qaysi usul bilan olingan" savoli majburiy (`referenceMethod`). Javobsiz — hissa u_c ga qo'shiladi va X12 chiqadi (konservativ); "boshqa usul / ta'rif" — hissa chiqariladi (QUAM §7.9.2); "shu usul" — qo'shiladi (§7.9.3);
+  - **X11:** hissa hisobda qoladi, ogohlantirish chop etilgan hisobotda ham chiqadi va yashirilmaydi;
+  - **k = 2**, hisobotda "k = 2, P ≈ 95 %"; ν_eff hisoblanadi va ko'rsatiladi (Welch–Satterthwaite: ν(R_w) = n − 1, ν(bias) CRM / PT soni bo'yicha); ν_eff < 30 → ogohlantirish va t_P(⌊ν_eff⌋) taklifi, k avtomatik o'zgarmaydi;
+  - `per_pair` standart; tuzatilmagan ahamiyatli recovery — hissa u(R_m) + ogohlantirish.
 
 ## [2.1.0] — P08: regressiya va kalibrlash egri chiziqlari, "U — diapazon" (2026-11-17)
 

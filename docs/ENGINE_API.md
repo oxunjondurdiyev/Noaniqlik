@@ -258,20 +258,20 @@ Validatsiya va sifat nazorati ma'lumotlaridan noaniqlik. `evaluate(spec)` yoki `
  * @property {{value:number, unit:string}} [measurement] // y (ixtiyoriy; LEVEL_DEPENDENT da majburiy)
  * @property {{components:RwComponent[], covers?:string[]}} [rw]        // NORDTEST, QUAM_RECOVERY
  * @property {BiasSpec} [bias]                           // NORDTEST
- * @property {{mean?,s?,n?,values?:number[],correction?:'applied'|'not_applied',P?:number,referenceByMethod?:boolean}} [recovery]   // QUAM_RECOVERY
+ * @property {{mean?,s?,n?,values?:number[],correction?:'applied'|'not_applied',P?:number,referenceMethod?:'same'|'other'}} [recovery]   // QUAM_RECOVERY
  * @property {{sR?,R?,sr?,r?,relative?|unit?,covers?:string[],pLabs?,nRep?}} [reproducibility]   // REPRODUCIBILITY (R, r — chegaralar: s = chegara/2,8)
  * @property {{s?,n?,values?,relative?|unit?,P?,adjust?:boolean}} [labRepeatability]   // unverified
- * @property {{include?:boolean,uDelta?,relative?|unit?}} [methodBias]                  // unverified
+ * @property {{include?:boolean,uDelta?,relative?|unit?,referenceMethod?:'same'|'other'}} [methodBias]   // unverified
  * @property {{s0:{value,unit}, s1:{value,relative:true}} | {points:{x,u}[], unit}} [levelModel]   // LEVEL_DEPENDENT
  * @property {{id?,name?,category?,u?,sensitivity?,uParam?,relative?|unit?}[]} [additional]   // gibrid: asos QAMRAMAGAN omillar
- * @property {{k?:number, rounding?:'normal'|'up'}} [settings]   // k standart 2
+ * @property {{k?:number, P?:number, rounding?:'normal'|'up'}} [settings]   // k standart 2; P (standart 0,9545) — faqat t_P(⌊ν_eff⌋) taklifi uchun
  *
  * RwComponent (type):
  *   control_series  { values[], unit | relative:true }          u = s (mutlaq) yoki F·s/x̄ (nisbiy)
  *   duplicates      { pairs[[x1,x2]…], unit, relativeMethod? }  s = √(Σd²/(2n)); nisbiy: 'per_pair' | 'pooled_over_mean'
  *   control_limits  { limit, sigmas=2, unit | relative:true }   u = limit / sigmas
  *   stated          { s, n?, unit | relative:true }             tayyor s yoki CV
- * BiasSpec: { type:'crm'|'pt'|'recovery', relative:true | unit, referenceByMethod?, … }
+ * BiasSpec: { type:'crm'|'pt'|'recovery', relative:true | unit, referenceMethod?:'same'|'other', … }   // referenceByMethod: true — 'same' ning eski ko'rinishi
  *   crm      items[{ bias | (certified, mean), uRef | (certified, U, k=2), sBias, n }]
  *   pt       rounds[{ bias | (assigned, result), uRef | (U, k=2) | (sR, nLab) }], robust?, uRef?
  *   recovery recoveries[], uRef | uRefComponents[{u}]
@@ -283,15 +283,16 @@ Validatsiya va sifat nazorati ma'lumotlaridan noaniqlik. `evaluate(spec)` yoki `
  * @property {'relative'|'absolute'} scale, {string} unit, relativeUnit   // uc va U birligi
  * @property {number|null} y, {string} yUnit, {number|null} yCorrected    // yCorrected — y·F/R_m (tuzatish qo'llansa)
  * @property {number} uc, uc2, k, U                 // baholash shkalasida, yaxlitlanmagan
+ * @property {number} nuEff, {number|null} kSuggested, {number} P   // ν_eff (Welch–Satterthwaite) — faqat ma'lumot; kSuggested = t_P(⌊ν_eff⌋), ν_eff < 30 bo'lsa; k O'ZGARMAYDI
  * @property {number|null} relUc, relU              // har doim foizda (mutlaq baholashda — y berilgan bo'lsa)
  * @property {number|null} absUc, absU, {string} absUnit   // mutlaq (nisbiy baholashda — y berilgan bo'lsa)
- * @property {{u, components:{type,id,u,n,nu,mean,s,ref}[]}|null} rw
- * @property {{type,u,rms,uRef,sMean,n,items:{id,bias,uRef}[],formula:'single_crm'|'rms',meanBias?,included}|null} bias
+ * @property {{u, nu, components:{type,id,u,n,nu,mean,s,ref}[]}|null} rw
+ * @property {{type,u,rms,uRef,sMean,n,items:{id,bias,uRef}[],formula:'single_crm'|'rms',meanBias?,nu,included,referenceMethod}|null} bias
  * @property {{Rm,s,n,nu,uRm,t,tCrit,P,significant,correction,u,biasFraction,included}|null} recovery
  * @property {{sR,sr,sRUsed,lab:{s,n,nu,ratio,chi2,chi2Crit,P,pass,adjusted}|null,uDelta,unverified:string[]}|null} reproducibility
  * @property {{s0,s1,x,constant,proportional,u,fit}|null} level
  * @property {{id,name,category,u,doubleCounted}[]} additional, {string[]} covers
- * @property {{id,kind,u,variance,share,included,flag?:'X11'|'X12',name?,category?}[]} budget
+ * @property {{id,kind,u,nu,variance,share,included,flag?:'X11'|'X12',name?,category?}[]} budget
  * @property {{code,severity:'info'|'warning',ref,rule?:'X11'|'X12',value?}[]} warnings
  */
 ```
@@ -308,19 +309,26 @@ Validatsiya va sifat nazorati ma'lumotlaridan noaniqlik. `evaluate(spec)` yoki `
 
 **Gibrid** (`additional[]`): har qanday yondashuvga asos **qamramagan** omillar qo'shiladi — tayyor `u` yoki `|sensitivity|·uParam` (QUAM Table A6.3, Note 4). Har bir hissada `category` (`TOPDOWN_CATEGORIES`).
 
-**Empirik kattalik** (`isEmpiricalMeasurand: true`, QUAM §7.9): usul bias'i ta'rif bo'yicha 0. `bias`, `recovery` yoki `methodBias` berilsa — hissa byudjetda ko'rsatiladi, lekin u_c ga **kirmaydi** (`budget[].included = false`, `flag: 'X12'`) va X12 ogohlantirishi chiqadi. Istisno: `referenceByMethod: true` — tayanch qiymat shu usulning o'zi bilan olingan, bias faqat laboratoriya ishiga tegishli (§7.9.3) — hisobga kiradi. Noaniqlik s_R / u(R_w) va rejim parametrlari (`temperature`, `time`, `speed`) bardoshliligi hissalaridan.
+**Empirik kattalik** (`isEmpiricalMeasurand: true`, QUAM §7.9): usul bias'i ta'rif bo'yicha 0. Noaniqlik s_R / u(R_w) va rejim parametrlari (`temperature`, `time`, `speed`) bardoshliligi hissalaridan. `bias`, `recovery` yoki `methodBias` berilsa, **"tayanch qiymat qaysi usul bilan olingan"** savoliga javob (`referenceMethod`) hal qiladi (egasi qarori 2026-11-17, R-20):
+
+| `referenceMethod` | Hissa | Ogohlantirish | Asos |
+|---|---|---|---|
+| berilmagan | u_c ga **qo'shiladi** (konservativ); byudjetda `flag: 'X12'` | `x12_empirical_bias` (warning) | javob majburiy |
+| `'other'` — boshqa usul / ta'rif | chiqarib tashlanadi (`included: false`, `flag: 'X12'`) | `x12_bias_excluded` (info) | QUAM §7.9.2 |
+| `'same'` — shu usul (yoki `referenceByMethod: true`) | qo'shiladi | — | QUAM §7.9.3 |
 
 **X11 va X12** (P05 linteri yo'qligi sababli hozircha shu modulning `warnings[]` da; P05 da linterga ko'chiriladi):
 
 | Kod | `rule` | Qachon | Hisobga ta'siri |
 |---|---|---|---|
 | `x11_double_counting` | X11 | qo'shimcha hissa toifasi asos qamragan toifalar ichida: `repeatability`, `intermediate_precision` (har doim), `reproducibility` (s_R), `reference_material` (bias hisobga kirgan bo'lsa), `recovery`, hamda `rw.covers[]` / `reproducibility.covers[]` | hissa hisobda qoladi (qaror foydalanuvchida), byudjetda `flag: 'X11'` |
-| `x12_empirical_bias` | X12 | empirik kattalikda bias / recovery / u(δ̂) berilgan (va `referenceByMethod` emas) | hissa u_c ga kirmaydi |
+| `x12_empirical_bias` | X12 | empirik kattalikda bias / recovery / u(δ̂) berilgan, `referenceMethod` ko'rsatilmagan | hissa u_c ga **qo'shiladi** (konservativ) |
+| `x12_bias_excluded` (info) | X12 | empirik kattalik, `referenceMethod: 'other'` | hissa u_c ga kirmaydi |
 
-**Boshqa ogohlantirishlar:** `topdown_no_bias` (NORDTEST da bias berilmagan, kattalik empirik emas — Nordtest §6), `topdown_few_pt_rounds` (< 6 raund — §6.2), `topdown_bias_significant` (R_m ahamiyatli farq qiladi, tuzatish qo'llanmagan — QUAM §7.7.9, §7.16.2), `topdown_sr_check_failed`, `zero_u` (warning); `topdown_unverified`, `topdown_level_few` (info). UI matni `w_<code>`, uch tilda (`src/js/i18n-topdown.js`).
+**Boshqa ogohlantirishlar:** `topdown_no_bias` (NORDTEST da bias berilmagan, kattalik empirik emas — Nordtest §6), `topdown_few_pt_rounds` (< 6 raund — §6.2), `topdown_bias_significant` (R_m ahamiyatli farq qiladi, tuzatish qo'llanmagan — QUAM §7.7.9, §7.16.2), `topdown_sr_check_failed`, `topdown_nu_low` (ν_eff < 30), `zero_u` (warning); `x12_bias_excluded`, `topdown_unverified`, `topdown_level_few` (info). UI matni `w_<code>`, uch tilda (`src/js/i18n-topdown.js`).
 
 **Xato kodlari** (`{error, detail}`; `detail` — maydon yo'li): `topdown_bad_spec`, `topdown_bad_approach`, `topdown_bad_data` (qiymat yo'q yoki son emas — bo'sh maydon 0 deb olinmaydi), `topdown_mixed_scale`, `topdown_need_scale`, `topdown_unit_mismatch`, `topdown_zero_mean`, `topdown_too_few`, `topdown_need_rw`, `topdown_need_bias`, `topdown_need_uref`, `topdown_need_recovery`, `topdown_need_reproducibility`, `topdown_need_level`, `topdown_level_fit_negative`.
 
-**k.** Standart k = 2 (Nordtest §3.2, 6-qadam; QUAM A6) — taxminan 95 %. ν_eff baholanmaydi (manbalar top-down uchun Welch–Satterthwaite ni qo'llamaydi). Boshqa qiymat — `settings.k`.
+**k va ν_eff** (egasi qarori 2026-11-17). Standart k = 2 (Nordtest §3.2, 6-qadam; QUAM A6); hisobotda "k = 2, P ≈ 95 %". Boshqa qiymat — `settings.k`. ν_eff **ma'lumot uchun** hisoblanadi (JCGM 100:2008 G.4.1 Eq. G.2b): ν_eff = u_c⁴ / Σ(u_i⁴/ν_i), bunda ν(R_w) — manbalari bo'yicha Welch–Satterthwaite (nazorat qatori n − 1; dublikatlar — juftliklar soni; tayyor s — n − 1 yoki ∞; chegaralar — ∞), ν(bias) = N − 1 (PT raundlari / CRM lar / recovery soni; bitta CRM — o'lchashlar soni − 1; kamida 1), recovery R_m — n − 1, qolganlari ∞; chiqarilgan hissalar kirmaydi. ν_eff < 30 (`NU_EFF_WARN_BELOW`) bo'lsa — `topdown_nu_low` va `kSuggested = t_P(⌊ν_eff⌋)` (P = `settings.P`, standart 0,9545). **k avtomatik o'zgarmaydi.**
 
 Testlar: `tests/cases/nordtest/*.json` (6 ta verified), `tests/cases/quam/quam-a4-recovery.json`, `quam-a6-empirical.json` (verified), `tests/engine/topdown.test.js`, `tests/ui/topdown.test.js`, `tests/ui/topdown-app.test.js`, `tests/templates/topdown.test.js`.

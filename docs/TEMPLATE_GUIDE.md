@@ -232,7 +232,7 @@ Qoidalar:
 
 1. **Raqam o'ylab topilmaydi.** `topDown` bo'limida son umuman yo'q; `additional[].u` — faqat `null` (sxema boshqasini rad etadi). Bo'sh maydon bilan hisob qilinmaydi: qo'shimcha hissa qatori qoldirilib, `u` kiritilmasa — xato.
 2. **X11 (ikki marta hisoblash).** `additional[]` dagi toifa `covers[]` da yoki ta'rif bo'yicha qamralgan toifalarda (`repeatability`, `intermediate_precision`; `sR` da `reproducibility`) bo'lsa — semantik xato. Hisob vaqtida foydalanuvchi shunday qator qo'shsa — natijada X11 ogohlantirishi.
-3. **X12 (empirik kattalikda bias).** `isEmpiricalMeasurand: true` bo'lsa `biasSource` faqat `none` — aks holda semantik xato. Noaniqlik s_r, s_R va rejim parametrlari (`temperature`, `time`, `speed`) bardoshliligi hissalaridan tuziladi (QUAM §7.9.4, A6).
+3. **X12 (empirik kattalikda bias).** `isEmpiricalMeasurand: true` bo'lsa odatda `biasSource: "none"`: noaniqlik s_r, s_R va rejim parametrlari (`temperature`, `time`, `speed`) bardoshliligi hissalaridan tuziladi (QUAM §7.9.4, A6). Bias manbasi ko'rsatilsa — semantik **ogohlantirish** (xato emas): usta "Tayanch qiymat qaysi usul bilan olingan?" savolini majburiy beradi. Javobsiz — hissa qo'shiladi va X12 chiqadi; "boshqa usul / ta'rif" — hissa chiqariladi (§7.9.2); "shu usul" — qo'shiladi (§7.9.3). Egasi qarori 2026-11-17.
 4. `typeBSources` va `variants` bu rejimda ishlatilmaydi; `model.formula` **tavsifiy** (tahlil qilinmaydi).
 5. `recovery`, `recovery_quam` — faqat `scale: "relative"`; `basis: "level"` — faqat `scale: "absolute"`.
 6. Bog'langan shablon natijasi avtomatik ko'chirilmaydi: masalan, TD-03 da T-03 dan faqat B tur (asbob) qismi qo'lda `additional` qatoriga kiritiladi — A tur qismi R_w ichida (aks holda X11).
