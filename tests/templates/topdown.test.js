@@ -77,7 +77,10 @@ test('sxema: TOP_DOWN rejimida `topDown` majburiy; noto\'g\'ri qiymatlar rad eti
 test('semantik tekshiruv: X11 (qamralgan toifa qo\'shimcha hissada), X12 (empirik + bias), shkala va asos mosligi', () => {
   assert.match(errs('TD-04', t => { t.topDown.additional.push({ id: 'u_cal', category: 'calibration', u: null, name: t.topDown.additional[0].name }); }), /X11 — category "calibration"/);
   assert.match(errs('TD-01', t => { t.topDown.additional = [{ id: 'rep', category: 'repeatability', u: null, name: t.title }]; }), /X11/);
-  assert.match(errs('TD-03', t => { t.topDown.biasSource = 'crm'; }), /X12/);
+  // X12 shablon darajasida xato emas (tayanch qiymat shu usul bilan olingan bo'lishi mumkin) — ogohlantirish; savolni usta beradi
+  const emp = clone(byId['TD-03']); emp.topDown.biasSource = 'crm';
+  const chk = T.checkTemplate(emp, schema);
+  assert.deepEqual(chk.errors, []); assert.ok(chk.warnings.some(w => /X12/.test(w)));
   assert.match(errs('TD-02', t => { t.topDown.biasSource = 'pt'; }), /not used with basis "sR"/);
   assert.match(errs('TD-01', t => { t.topDown.rwSources = []; }), /at least one source/);
   assert.match(errs('TD-01', t => { t.topDown.scale = 'absolute'; t.topDown.biasSource = 'recovery'; }), /recovery requires scale "relative"/);
@@ -116,7 +119,8 @@ test('bo\'sh shablon bilan hisob qilinmaydi (bo\'sh maydon 0 emas); TD-01 ga Nor
   assert.equal(r.error, undefined);
   assert.ok(Math.abs(r.uc - 3.20) <= 0.005);
   assert.equal(r.yUnit, 'µg/L');
-  assert.deepEqual(r.warnings, []);
+  assert.deepEqual(r.warnings.map(w => w.code), ['topdown_nu_low']);   // 6 ta PT raundi → ν_eff < 30 (taklif; k o'zgarmaydi)
+  assert.equal(r.k, 2);
 });
 
 test('TD-02 (empirik, s_R): qo\'shimcha hissa bo\'sh qoldirilsa — xato; to\'ldirilsa — bias qo\'shilmaydi, X11/X12 yo\'q', () => {

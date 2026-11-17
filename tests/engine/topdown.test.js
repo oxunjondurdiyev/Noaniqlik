@@ -219,38 +219,117 @@ test('X11: s_R yondashuvida takrorlanuvchanlik/takroriylik qamralgan; quritish v
 
 /* ── X12: empirik kattalikda bias ── */
 
-test('X12 (ijobiy): empirik kattalikda bias berilgan → ogohlantirish, usul bias\'i 0 (hisobga kirmaydi)', () => {
+/* Egasi qarori (2026-11-17, R-20): empirik kattalikka bias / recovery kiritilganda "tayanch qiymat qaysi usul bilan olingan"
+   savoli majburiy. Javob yo'q → hissa QO'SHILADI + X12 (konservativ); 'other' → hissa chiqariladi (QUAM §7.9.2);
+   'same' → qo'shiladi, ogohlantirishsiz (QUAM §7.9.3). */
+const RW_ONLY = 2.6, WITH_BIAS = Math.sqrt(2.6 ** 2 + 4.3 ** 2 + 2.6 ** 2 / 19 + 1.2 ** 2);
+
+test('X12 (ijobiy, javob berilmagan): empirik kattalikda bias → hissa u_c ga QO\'SHILADI va X12 ogohlantirishi chiqadi', () => {
   const r = E.evaluate(base({ isEmpiricalMeasurand: true }));
   const w = r.warnings.filter(x => x.code === 'x12_empirical_bias');
   assert.equal(w.length, 1);
   assert.equal(w[0].rule, 'X12'); assert.equal(w[0].severity, 'warning'); assert.match(w[0].ref, /QUAM:2012 §7\.9\.2/);
-  assert.equal(r.bias.included, false);
-  assert.equal(r.uc, 2.6);                                         // faqat u(R_w)
+  assert.equal(r.bias.included, true);
+  assert.equal(r.bias.referenceMethod, null);
+  assert.equal(r.uc, WITH_BIAS);                                    // konservativ: bias qo'shilgan
+  const row = r.budget.find(b => b.kind === 'bias');
+  assert.equal(row.included, true); assert.equal(row.flag, 'X12'); assert.ok(row.share > 0);
+});
+
+test('X12 (aniq tanlov "boshqa usul / ta\'rif"): hissa chiqarib tashlanadi (QUAM §7.9.2), ogohlantirish emas — eslatma', () => {
+  const spec = base({ isEmpiricalMeasurand: true }); spec.bias.referenceMethod = 'other';
+  const r = E.evaluate(spec);
+  assert.ok(!codes(r).includes('x12_empirical_bias'));
+  const note = r.warnings.find(x => x.code === 'x12_bias_excluded');
+  assert.ok(note && note.severity === 'info' && note.rule === 'X12' && /7\.9\.2/.test(note.ref));
+  assert.equal(r.bias.included, false); assert.equal(r.bias.referenceMethod, 'other');
+  assert.equal(r.uc, RW_ONLY);                                      // faqat u(R_w)
   const row = r.budget.find(b => b.kind === 'bias');
   assert.equal(row.included, false); assert.equal(row.flag, 'X12'); assert.equal(row.share, 0);
-  assert.ok(row.u > 0);                                            // qiymat ko'rsatiladi, lekin qo'shilmaydi
+  assert.ok(row.u > 0);                                             // qiymat ko'rsatiladi, lekin qo'shilmaydi
 });
 
-test('X12 (ijobiy): empirik kattalikda recovery tuzatishi va u(δ̂) ham usul bias\'i hisoblanadi', () => {
-  const rec = E.evaluate({ format: 'uc-topdown/1', approach: 'QUAM_RECOVERY', isEmpiricalMeasurand: true, scale: REL, relativeUnit: '1',
-    rw: { components: [{ type: 'stated', s: 0.1, relative: true }] }, recovery: { mean: 0.9, s: 0.28, n: 42, correction: 'applied' },
-    measurement: { value: 1, unit: 'mg/kg' } });
-  assert.ok(codes(rec).includes('x12_empirical_bias'));
-  assert.equal(rec.uc, 0.1); assert.equal(rec.yCorrected, null);
-  const rep = E.evaluate({ format: 'uc-topdown/1', approach: 'REPRODUCIBILITY', isEmpiricalMeasurand: true, scale: REL,
-    reproducibility: { sR: 5, sr: 2, relative: true }, methodBias: { uDelta: 1, relative: true } });
-  assert.ok(codes(rep).includes('x12_empirical_bias'));
-  assert.equal(rep.uc, 5);
+test('X12 (salbiy, "shu usul"): bias laboratoriya ishiga tegishli — qo\'shiladi, X12 yo\'q (QUAM §7.9.3); eski referenceByMethod ham', () => {
+  for (const mut of [b => { b.referenceMethod = 'same'; }, b => { b.referenceByMethod = true; }]) {
+    const spec = base({ isEmpiricalMeasurand: true }); mut(spec.bias);
+    const r = E.evaluate(spec);
+    assert.ok(!r.warnings.some(w => w.rule === 'X12'));
+    assert.equal(r.bias.included, true); assert.equal(r.bias.referenceMethod, 'same');
+    assert.equal(r.uc, WITH_BIAS);
+    assert.equal(r.budget.find(b => b.kind === 'bias').flag, undefined);
+  }
 });
 
-test('X12 (salbiy): empirik kattalik biassiz; bias — shu usul bilan tavsiflangan tayanch qiymatdan (QUAM §7.9.3); empirik bo\'lmagan kattalik', () => {
+test('X12: recovery va u(δ̂) uchun ham uch holat (javob yo\'q / boshqa usul / shu usul)', () => {
+  const rec = ref => E.evaluate({ format: 'uc-topdown/1', approach: 'QUAM_RECOVERY', isEmpiricalMeasurand: true, scale: REL, relativeUnit: '1',
+    rw: { components: [{ type: 'stated', s: 0.1, relative: true }] },
+    recovery: { mean: 0.9, s: 0.28, n: 42, correction: 'applied', ...(ref ? { referenceMethod: ref } : {}) }, measurement: { value: 1, unit: 'mg/kg' } });
+  const none = rec(null), other = rec('other'), same = rec('same');
+  assert.ok(codes(none).includes('x12_empirical_bias')); assert.ok(none.uc > 0.1); near(none.yCorrected, 1.1111, 0.00005);
+  assert.ok(codes(other).includes('x12_bias_excluded')); assert.equal(other.uc, 0.1); assert.equal(other.yCorrected, null);
+  assert.ok(!same.warnings.some(w => w.rule === 'X12')); assert.equal(same.uc, none.uc);
+  const rep = ref => E.evaluate({ format: 'uc-topdown/1', approach: 'REPRODUCIBILITY', isEmpiricalMeasurand: true, scale: REL,
+    reproducibility: { sR: 5, sr: 2, relative: true }, methodBias: { uDelta: 1, relative: true, ...(ref ? { referenceMethod: ref } : {}) } });
+  assert.ok(codes(rep(null)).includes('x12_empirical_bias')); near(rep(null).uc, Math.sqrt(26), 1e-12);
+  assert.equal(rep('other').uc, 5);
+  assert.ok(!rep('same').warnings.some(w => w.rule === 'X12'));
+});
+
+test('X12 (salbiy): empirik kattalik biassiz; empirik bo\'lmagan kattalik; noto\'g\'ri referenceMethod → xato', () => {
   const noBias = base({ isEmpiricalMeasurand: true }); delete noBias.bias;
-  const a = E.evaluate(noBias);
-  assert.deepEqual(codes(a), []);                                  // topdown_no_bias ham yo'q: empirikda bias talab qilinmaydi
-  const lab = base({ isEmpiricalMeasurand: true }); lab.bias.referenceByMethod = true;
-  const b = E.evaluate(lab);
-  assert.ok(!codes(b).includes('x12_empirical_bias')); assert.equal(b.bias.included, true); assert.ok(b.uc > 2.6);
-  assert.ok(!codes(E.evaluate(base())).includes('x12_empirical_bias'));
+  assert.deepEqual(codes(E.evaluate(noBias)), []);                  // topdown_no_bias ham yo'q: empirikda bias talab qilinmaydi
+  assert.ok(!E.evaluate(base()).warnings.some(w => w.rule === 'X12'));
+  const other = base(); other.bias.referenceMethod = 'other';       // empirik emas — javob ta'sir qilmaydi
+  assert.equal(E.evaluate(other).uc, WITH_BIAS);
+  const bad = base({ isEmpiricalMeasurand: true }); bad.bias.referenceMethod = 'maybe';
+  assert.equal(E.evaluate(bad).error, 'topdown_bad_spec');
+  assert.deepEqual(E.REFERENCE_METHODS, ['same', 'other']);
+});
+
+/* ── ν_eff (egasi qarori 2026-11-17): hisoblanadi va ko'rsatiladi; ν_eff < 30 → ogohlantirish + t_P(⌊ν_eff⌋) taklifi; k o'zgarmaydi ── */
+
+test('ν_eff: Welch–Satterthwaite (JCGM 100:2008 G.4.1 Eq. G.2b) — ν(R_w) = n − 1, ν(bias) CRM / PT soni bo\'yicha', () => {
+  // nazorat qatori n = 5 → ν = 4; PT 6 raund → ν = 5
+  const r = E.evaluate({ format: 'uc-topdown/1', approach: 'NORDTEST', scale: REL,
+    rw: { components: [{ type: 'control_series', values: [98, 101, 100, 102, 99], relative: true }] },
+    bias: { type: 'pt', relative: true, rounds: [2, 7, -2, 3, 6, 5].map(b => ({ bias: b, uRef: 2.6 })) } });
+  assert.equal(r.rw.components[0].nu, 4); assert.equal(r.rw.nu, 4); assert.equal(r.bias.nu, 5);
+  near(r.nuEff, r.uc ** 4 / (r.rw.u ** 4 / 4 + r.bias.u ** 4 / 5), 1e-9);
+  assert.deepEqual(r.budget.map(b => b.nu), [4, 5]);
+  assert.equal(r.k, 2); assert.equal(r.U, 2 * r.uc);                // k avtomatik o'zgarmaydi
+  const w = r.warnings.find(x => x.code === 'topdown_nu_low');
+  assert.ok(w && w.severity === 'warning' && /G\.4\.1/.test(w.ref) && /Nordtest TR 537/.test(w.ref));
+  near(r.kSuggested, E.tQuantile(0.9545, Math.floor(r.nuEff)), 1e-12);   // t_P(⌊ν_eff⌋), floor qoidasi
+  assert.ok(r.kSuggested > 2);
+});
+
+test('ν_eff: dublikatlar ν = juftliklar soni; bitta CRM ν = n − 1; ν berilmagan hissalar ∞; bir nechta u(R_w) manbasi', () => {
+  const r = E.evaluate({ format: 'uc-topdown/1', approach: 'NORDTEST', scale: REL,
+    rw: { components: [{ type: 'duplicates', unit: 'mg/L', pairs: [[10, 11], [20, 19], [30, 31], [40, 41]] }, { type: 'stated', s: 1.5, relative: true, n: 50 },
+      { type: 'control_limits', limit: 2, relative: true }] },
+    bias: { type: 'crm', relative: true, items: [{ bias: 4.3, sBias: 2.6, n: 19, uRef: 1.2 }] },
+    additional: [{ id: 'x', category: 'sampling', u: 1, relative: true }] });
+  assert.deepEqual(r.rw.components.map(c => c.nu), [4, 49, Infinity]);
+  const c = r.rw.components;
+  near(r.rw.nu, r.rw.u ** 4 / (c[0].u ** 4 / 4 + c[1].u ** 4 / 49), 1e-9);
+  assert.equal(r.bias.nu, 18);
+  assert.equal(r.budget.find(b => b.id === 'x').nu, Infinity);
+});
+
+test('ν_eff ≥ 30 yoki ∞ — ogohlantirish yo\'q, kSuggested = null; chiqarilgan hissa ν_eff ga kirmaydi', () => {
+  const inf = E.evaluate({ format: 'uc-topdown/1', approach: 'REPRODUCIBILITY', scale: REL, reproducibility: { sR: 8.8, relative: true } });
+  assert.equal(inf.nuEff, Infinity); assert.equal(inf.kSuggested, null); assert.deepEqual(codes(inf), []);
+  const big = E.evaluate(base());                                    // u(R_w) ν = ∞, bitta CRM n = 19 → ν_eff ≈ 32
+  assert.ok(big.nuEff >= 30 && isFinite(big.nuEff)); assert.ok(!codes(big).includes('topdown_nu_low'));
+  const ex = base({ isEmpiricalMeasurand: true }); ex.bias.referenceMethod = 'other';
+  assert.equal(E.evaluate(ex).nuEff, Infinity);
+  assert.equal(E.NU_EFF_WARN_BELOW, 30);
+});
+
+test('ν_eff: Nordtest NH₄-N misolida 6 ta PT raundi → ν_eff < 30, taklif chiqadi, natija (u_c, U) o\'zgarmaydi', () => {
+  const r = E.evaluate(require('../cases/nordtest/nordtest-tr537-nh4n.json').modelSpec);
+  assert.ok(r.nuEff < 30); assert.ok(codes(r).includes('topdown_nu_low'));
+  near(r.uc, 3.20, 0.005); near(r.U, 6.40, 0.01); assert.equal(r.k, 2);
 });
 
 test('empirik kattalik: noaniqlik s_R va rejim parametrlari (harorat, vaqt, tezlik) hissalaridan', () => {

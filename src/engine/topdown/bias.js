@@ -132,5 +132,8 @@ export function evaluateBias(bias, ctx) {
   if (!bias || !BIAS_TYPES.includes(bias.type)) fail('topdown_bad_spec', 'bias.type');
   const conv = blockScale(bias, ctx);
   const r = bias.type === 'crm' ? crm(bias, ctx, conv) : bias.type === 'pt' ? pt(bias, ctx, conv) : recovery(bias, ctx, conv);
-  return { type: bias.type, ...r };
+  // ν(bias): CRM / PT / recovery soni bo'yicha N − 1; bitta CRM — o'lchashlar soni n − 1 (kamida 1).
+  // Ref: JCGM 100:2008 G.4.1; egasi qarori 2026-11-17 (R-20) — faqat ν_eff ni ko'rsatish uchun, k ga ta'sir qilmaydi
+  const nu = Math.max(1, (r.formula === 'single_crm' ? r.items[0].n : r.n) - 1);
+  return { type: bias.type, ...r, nu };
 }

@@ -131,6 +131,39 @@ test('til almashtirish: usta va natija qayta chiziladi (ru, en)', () => {
   w.i18n.lang = 'uz'; doc.dispatchEvent(new w.Event('langchange'));
 });
 
+test('X12 savoli (egasi qarori 2026-11-17): empirik + bias → majburiy savol; javobsiz — eslatma, hissa qo\'shiladi + X12; "boshqa usul" — chiqariladi', () => {
+  click('[data-td-act="reset"]');
+  setChecked('[data-td-rw="control_series"]', false);
+  setChecked('[data-td-rw="stated"]', true);
+  const crm = $('input[name="td-bias"][value="crm"]'); crm.checked = true; fire(crm, 'change');
+  assert.equal($('[data-td-refmethod]'), null);                         // empirik emas — savol yo'q
+  setChecked('[data-td-flag="empirical"]', true);
+  assert.equal($('[data-td-refmethod]').dataset.tdRefmethod, 'unanswered');
+  toasts.length = 0;
+  click('[data-td-act="next"]');
+  assert.ok(toasts.some(t => t.type === 'error'), 'javobsiz o\'tishda eslatma');
+  setValue('#td-statedS', '2');
+  setValue('#td-crmRows', '3\t2\t10\t1');
+  click('[data-td-act="next"]');
+  let r = w.UCTopDown.current().result;
+  assert.ok(r.uc > 2);                                                   // konservativ: bias qo'shilgan
+  assert.ok($('.warn-box [data-td-warning="x12_empirical_bias"]'));
+  click('[data-td-step="1"]');
+  setValue('#td-refMethod', 'other');
+  assert.equal($('[data-td-refmethod]').dataset.tdRefmethod, 'answered');
+  click('[data-td-step="3"]');
+  r = w.UCTopDown.current().result;
+  assert.equal(r.uc, 2);
+  assert.equal($('[data-td-warning="x12_empirical_bias"]'), null);
+  assert.ok($('[data-td-row="bias"]').classList.contains('td-excluded'));
+  click('[data-td-step="1"]');
+  setValue('#td-refMethod', 'same');
+  click('[data-td-step="3"]');
+  r = w.UCTopDown.current().result;
+  assert.ok(r.uc > 2);
+  assert.equal(doc.querySelectorAll('[data-td-warning^="x12"]').length, 0);
+});
+
 test('tozalash: holat boshlang\'ich, shablon uziladi', () => {
   click('[data-td-act="reset"]');
   assert.equal($('[data-td-template]'), null);

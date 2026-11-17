@@ -799,6 +799,9 @@ details.rg-card > summary { cursor: pointer; }
 .td-report .td-excluded td:last-child { text-decoration: none; }
 .td-report .td-total td { border-top: 2px solid var(--border); }
 .td-report th { text-transform: none; }
+.td-unanswered { border-left: 3px solid var(--warning); padding-left: .6rem; }
 @media print {
   .td-report .td-result td { font-size: 11pt; }
+  /* X11 / X12 va boshqa ogohlantirishlar chop etilgan hisobotda ham ko'rinadi (egasi qarori 2026-11-17) */
+  .td-report .warn-box, .td-report .td-note { display: block !important; visibility: visible !important; border: 1px solid #999; padding: .3em .5em; font-size: 9pt; margin-bottom: .5em; color: #000; }
 }

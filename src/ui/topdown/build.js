@@ -10,6 +10,7 @@ import { parseNumber, parseGrid, parseList } from '../regression/parse.js';
 export const BASES = ['within', 'sR', 'level'];
 export const RW_SOURCES = ['control_series', 'duplicates', 'control_limits', 'stated'];
 export const BIAS_SOURCES = ['none', 'crm', 'pt', 'recovery', 'recovery_quam'];
+export const REFERENCE_CHOICES = ['same', 'other'];
 /** Qo'shimcha hissa va "nazorat namunasi qamraydi" ro'yxatida ko'rsatiladigan toifalar (dvigatel: TOPDOWN_CATEGORIES). */
 export const UI_CATEGORIES = ['repeatability', 'balance', 'volumetric', 'calibration', 'reference_material', 'matrix', 'homogeneity',
   'sampling', 'sample_preparation', 'temperature', 'time', 'speed', 'operator', 'instrument', 'drift', 'other'];
@@ -19,7 +20,7 @@ export function defaults() {
   return {
     step: 1,
     basis: 'within', rwSources: ['control_series'], bias: 'none',
-    scale: 'relative', unit: '', empirical: false, refByMethod: false,
+    scale: 'relative', unit: '', empirical: false, refMethod: '',   // refMethod: '' (javob yo'q) | 'same' | 'other'
     y: '', k: '',
     qcValues: '', dupPairs: '', dupMethod: 'per_pair', limit: '', sigmas: '2', statedS: '', statedN: '',
     covers: [],
@@ -114,9 +115,10 @@ export function buildSpec(st) {
         ? { values: vals, correction: st.quamCorrection }
         : { mean: one(st.quamMean, 'quamMean'), s: one(st.quamS, 'quamS'), n: one(st.quamN, 'quamN'), correction: st.quamCorrection };
     }
-    if (st.empirical && st.refByMethod) {
-      if (spec.bias) spec.bias.referenceByMethod = true;
-      if (spec.recovery) spec.recovery.referenceByMethod = true;
+    // Empirik kattalik: "tayanch qiymat qaysi usul bilan olingan" savoliga javob (bo'sh — javob yo'q: dvigatel hissani qo'shadi va X12 beradi)
+    if (st.empirical && REFERENCE_CHOICES.includes(st.refMethod)) {
+      if (spec.bias) spec.bias.referenceMethod = st.refMethod;
+      if (spec.recovery) spec.recovery.referenceMethod = st.refMethod;
     }
   }
 

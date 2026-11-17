@@ -292,9 +292,10 @@ function checkTopDownTemplate(tpl, errors, warnings) {
   if (td.basis === 'level' && td.scale !== 'absolute') errors.push('topDown: basis "level" requires scale "absolute" (QUAM:2012 E.5.2.1)');
   if (td.scale === 'absolute' && isBlank(tpl.measurand && tpl.measurand.unit)) errors.push('topDown: scale "absolute" requires measurand.unit');
   if (['recovery', 'recovery_quam'].includes(td.biasSource) && td.scale !== 'relative') errors.push('topDown: recovery requires scale "relative"');
-  // X12: empirik kattalikda usul bias'i ta'rif bo'yicha 0 (QUAM:2012 §7.9.2)
+  // X12: empirik kattalikda usul bias'i ta'rif bo'yicha 0 (QUAM:2012 §7.9.2). Bias manbasi taqiqlanmaydi (tayanch qiymat shu usul
+  // bilan olingan bo'lishi mumkin, §7.9.3) — usta "tayanch qiymat qaysi usul bilan olingan" savolini majburiy beradi (R-20).
   if (tpl.isEmpiricalMeasurand === true && td.biasSource && td.biasSource !== 'none') {
-    errors.push('topDown: X12 — bias source for an empirical measurand (method bias is zero by definition, QUAM:2012 §7.9.2)');
+    warnings.push('topDown: X12 — bias source for an empirical measurand: the wizard will require the reference-method answer (QUAM:2012 §7.9.2–7.9.3)');
   }
   // X11: qo'shimcha hissa toifasi nazorat namunasi qamraydigan toifalar ichida bo'lmasligi kerak
   const covers = new Set([...TD_BASE_COVERS, ...(td.basis === 'sR' ? ['reproducibility'] : []), ...(td.covers || [])]);

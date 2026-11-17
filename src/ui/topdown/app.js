@@ -96,7 +96,13 @@ function calculate() {
   return result;
 }
 
+/** Empirik kattalik + bias: "tayanch qiymat qaysi usul bilan olingan" savoli majburiy (egasi qarori 2026-11-17, R-20) */
+function referenceUnanswered() {
+  return state.empirical && state.basis === 'within' && state.bias !== 'none' && !state.refMethod;
+}
+
 function goto(step) {
+  if (step > state.step && referenceUnanswered()) toast(t('td_ref_required'), 'error', 6000);
   if (step === 3) { calculate(); return; }
   state.step = step;
   save();
@@ -130,7 +136,7 @@ function onInput(e) {
   if (el.type === 'radio' && !el.checked) return;
   state[key] = el.value;
   save();
-  if (e.type === 'change' && ['basis', 'bias', 'scale'].includes(key)) render();
+  if (e.type === 'change' && ['basis', 'bias', 'scale', 'refMethod'].includes(key)) render();
   const wrap = el.closest && el.closest('.td-paste');
   const cnt = wrap && wrap.querySelector('[data-td-count-wrap]');
   if (cnt) cnt.innerHTML = countHTML(state, key, ctx());

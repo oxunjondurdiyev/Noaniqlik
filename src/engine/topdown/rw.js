@@ -98,5 +98,8 @@ export function evaluateRw(rw, ctx) {
   if (!list.length) fail('topdown_need_rw');
   const components = list.map((c, i) => component(c, i, ctx));
   // Ref: Nordtest TR 537 §5 (p. 15): u(Rw) = √(s_Rw² + s_r²); §5.3 (p. 17): √(0,5² + 0,44²), √(1,5² + 3,8²)
-  return { u: rss(components.map(c => c.u)), components };
+  const u = rss(components.map(c => c.u));
+  // Ref: JCGM 100:2008 G.4.1 Eq. (G.2b) — u(R_w) ning samarali erkinlik darajasi (ν berilmagan manba — ∞)
+  const d = components.filter(c => isFinite(c.nu) && c.nu > 0).reduce((a, c) => a + (c.u ** 4) / c.nu, 0);
+  return { u, nu: d > 0 ? (u ** 4) / d : Infinity, components };
 }

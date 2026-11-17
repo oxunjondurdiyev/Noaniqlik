@@ -18,6 +18,7 @@ import { evaluateBias, MIN_PT_ROUNDS } from './bias.js';
 import { evaluateRecovery } from './recovery.js';
 import { evaluateReproducibility } from './reproducibility.js';
 import { levelUncertainty, fitLevelModel } from './level.js';
+import { coverage } from '../coverage.js';
 
 export const TOPDOWN_FORMAT = 'uc-topdown/1';
 export const TOPDOWN_APPROACHES = ['NORDTEST', 'QUAM_RECOVERY', 'REPRODUCIBILITY', 'LEVEL_DEPENDENT'];
@@ -42,10 +43,29 @@ const BASE_COVERS = {
   sR: ['repeatability', 'intermediate_precision', 'reproducibility'],
 };
 
+/** Empirik kattalikda bias / recovery: tayanch qiymat qaysi usul bilan olingan (egasi qarori 2026-11-17, R-20).
+    'same'  — shu usulning o'zi bilan: bias faqat laboratoriya ishiga tegishli → hisobga kiradi (QUAM:2012 §7.9.3);
+    'other' — boshqa usul / ta'rif: usul bias'i ta'rif bo'yicha 0 → hissa chiqarib tashlanadi (QUAM:2012 §7.9.2);
+    javob yo'q — hissa u_c ga QO'SHILADI (konservativ) va X12 ogohlantirishi chiqadi. */
+export const REFERENCE_METHODS = ['same', 'other'];
+/** Ref: JCGM 100:2008 G.4.1 (Welch–Satterthwaite); ν_eff shu chegaradan kichik bo'lsa t_P(⌊ν_eff⌋) taklif qilinadi (egasi qarori, R-20). */
+export const NU_EFF_WARN_BELOW = 30;
+
+function referenceMethod(o, where) {
+  if (!o) return null;
+  if (has(o.referenceMethod)) {
+    if (!REFERENCE_METHODS.includes(o.referenceMethod)) fail('topdown_bad_spec', `${where}.referenceMethod`);
+    return o.referenceMethod;
+  }
+  return o.referenceByMethod === true ? 'same' : null;   // eski maydon bilan moslik
+}
+
 /* Ogohlantirishlar: { code, severity, ref } (+ rule — P05 da linter qoidasiga ko'chiriladi). */
 export const TOPDOWN_WARNINGS = {
   x11_double_counting: { rule: 'X11', severity: 'warning', ref: 'Nordtest TR 537 ed. 4 §3.2, 2-qadam B (p. 10): faqat nazorat namunasi qamramagan bosqichlar; QUAM:2012 §7.6.2 d), §7.7.1 (p. 18)' },
-  x12_empirical_bias: { rule: 'X12', severity: 'warning', ref: 'EURACHEM/CITAC QUAM:2012 §7.9.2 (p. 21): empirik usulda usul bias\'i nolga teng deb ta\'riflanadi' },
+  x12_empirical_bias: { rule: 'X12', severity: 'warning', ref: 'EURACHEM/CITAC QUAM:2012 §7.9.2–7.9.3 (p. 21): empirik usulda usul bias\'i nolga teng deb ta\'riflanadi; tayanch qiymat usuli ko\'rsatilmagan' },
+  x12_bias_excluded: { rule: 'X12', severity: 'info', ref: 'EURACHEM/CITAC QUAM:2012 §7.9.2 (p. 21): tayanch qiymat boshqa usul bilan olingan — usul bias\'i hisobga kirmaydi' },
+  topdown_nu_low: { severity: 'warning', ref: 'JCGM 100:2008 G.4.1 Eq. (G.2b), G.3.2; Nordtest TR 537 ed. 4 §3.2, 6-qadam (p. 10)' },
   topdown_no_bias: { severity: 'warning', ref: 'Nordtest TR 537 ed. 4 §6 (p. 19): bias ahamiyatsiz bo\'lsa ham noaniqlik komponenti sifatida hisobga olinadi' },
   topdown_few_pt_rounds: { severity: 'warning', ref: 'Nordtest TR 537 ed. 4 §6.2 (p. 21): kamida 6 ta PT raundi; QUAM:2012 §7.8.2 (p. 21)' },
   topdown_bias_significant: { severity: 'warning', ref: 'EURACHEM/CITAC QUAM:2012 §7.7.9 (p. 20), §7.16.2 iv) (p. 25)' },
@@ -93,7 +113,15 @@ function evaluateCore(spec) {
   const warnings = [];
   const warn = (code, extra) => warnings.push({ code, ...TOPDOWN_WARNINGS[code], ...(extra || {}) });
   const budget = [];
-  const row = (id, kind, u, extra) => budget.push({ id, kind, u, included: true, ...(extra || {}) });
+  const row = (id, kind, u, extra) => budget.push({ id, kind, u, included: true, nu: Infinity, ...(extra || {}) });
+  // X12 (egasi qarori 2026-11-17): empirik kattalikda bias — tayanch qiymat usuli bo'yicha
+  const empiricalBias = (block, where) => {
+    const reference = referenceMethod(block, where);
+    if (!empirical || reference === 'same') return { included: true, reference, flag: false };
+    if (reference === 'other') { warn('x12_bias_excluded', { value: where }); return { included: false, reference, flag: true }; }
+    warn('x12_empirical_bias', { value: where });            // javob berilmagan: konservativ — hissa qo'shiladi
+    return { included: true, reference, flag: true };
+  };
   const covered = new Set();
   const out = { rw: null, bias: null, recovery: null, reproducibility: null, level: null };
 
@@ -111,7 +139,7 @@ function evaluateCore(spec) {
   if (approach === 'NORDTEST' || approach === 'QUAM_RECOVERY') {
     out.rw = evaluateRw(spec.rw, ctx);
     [...BASE_COVERS.rw, ...((spec.rw && spec.rw.covers) || [])].forEach(c => covered.add(c));
-    row('rw', 'rw', out.rw.u);
+    row('rw', 'rw', out.rw.u, { nu: out.rw.nu });
   }
 
   if (approach === 'NORDTEST') {
@@ -119,11 +147,10 @@ function evaluateCore(spec) {
       out.bias = evaluateBias(spec.bias, ctx);
       // Ref: QUAM:2012 §7.9.2–7.9.3 (p. 21): empirik usulda bias faqat laboratoriya ishiga tegishli bo'lishi mumkin —
       // tayanch qiymat shu usulning o'zi bilan olingan bo'lsa (referenceByMethod). Aks holda usul bias'i = 0.
-      const methodBias = empirical && spec.bias.referenceByMethod !== true;
-      out.bias.included = !methodBias;
-      row('bias', 'bias', out.bias.u, { included: !methodBias, ...(methodBias ? { flag: 'X12' } : {}) });
-      if (methodBias) warn('x12_empirical_bias', { value: 'bias' });
-      else covered.add('reference_material');
+      const x12 = empiricalBias(spec.bias, 'bias');
+      out.bias.included = x12.included; out.bias.referenceMethod = x12.reference;
+      row('bias', 'bias', out.bias.u, { included: x12.included, nu: out.bias.nu, ...(x12.flag ? { flag: 'X12' } : {}) });
+      if (x12.included) covered.add('reference_material');
       if (spec.bias.type === 'pt' && out.bias.n < MIN_PT_ROUNDS) warn('topdown_few_pt_rounds', { value: String(out.bias.n) });
     } else if (!empirical) warn('topdown_no_bias');
   }
@@ -132,11 +159,10 @@ function evaluateCore(spec) {
   if (approach === 'QUAM_RECOVERY') {
     out.recovery = evaluateRecovery(spec.recovery, ctx);
     const rec = out.recovery;
-    const methodBias = empirical && spec.recovery.referenceByMethod !== true;
-    rec.included = !methodBias;
-    row('recovery', 'recovery', rec.u, { included: !methodBias, ...(methodBias ? { flag: 'X12' } : {}) });
-    if (methodBias) warn('x12_empirical_bias', { value: 'recovery' });
-    else {
+    const x12 = empiricalBias(spec.recovery, 'recovery');
+    rec.included = x12.included; rec.referenceMethod = x12.reference;
+    row('recovery', 'recovery', rec.u, { included: x12.included, nu: rec.nu, ...(x12.flag ? { flag: 'X12' } : {}) });
+    if (x12.included) {
       covered.add('recovery');
       // Ref: QUAM:2012 A4 (p. 66): tuzatish koeffitsiyenti 1/Rec qo'llanadi
       if (rec.correction === 'applied' && y !== null) yUsed = y * ctx.F / rec.Rm;
@@ -151,8 +177,9 @@ function evaluateCore(spec) {
     row('sR', 'sR', rp.sRUsed);
     if (rp.uDelta !== null) {
       // Empirik usul: usul bias'i ta'rif bo'yicha 0 → u(δ̂) qo'shilmaydi (QUAM:2012 §7.9.2)
-      row('uDelta', 'bias', rp.uDelta, { included: !empirical, ...(empirical ? { flag: 'X12' } : {}) });
-      if (empirical) warn('x12_empirical_bias', { value: 'methodBias' });
+      const x12 = empiricalBias(spec.methodBias, 'methodBias');
+      rp.uDeltaIncluded = x12.included;
+      row('uDelta', 'bias', rp.uDelta, { included: x12.included, ...(x12.flag ? { flag: 'X12' } : {}) });
     }
     if (rp.lab && !rp.lab.pass) warn('topdown_sr_check_failed', { value: `χ² = ${rp.lab.chi2.toPrecision(4)} > ${rp.lab.chi2Crit.toPrecision(4)}` });
     if (rp.unverified.length) warn('topdown_unverified', { value: rp.unverified.join(', ') });
@@ -207,6 +234,19 @@ function evaluateCore(spec) {
   const U = k * uc;
   if (!(uc > 0)) warn('zero_u');
 
+  // ── ν_eff (faqat ma'lumot uchun: k avtomatik O'ZGARMAYDI — egasi qarori 2026-11-17) ──
+  // Ref: JCGM 100:2008 G.4.1 Eq. (G.2b): ν_eff = u_c⁴ / Σ(u_i⁴/ν_i). ν(R_w) = n − 1 (dublikatlar — juftliklar soni);
+  // ν(bias) — CRM / PT / recovery soni bo'yicha (N − 1; bitta CRM — o'lchashlar soni − 1); ν berilmagan hissalar — ∞ (G.4.2).
+  const denom = budget.filter(b => b.included && isFinite(b.nu) && b.nu > 0).reduce((a, b) => a + (b.u ** 4) / b.nu, 0);
+  const nuEff = denom > 0 ? (uc ** 4) / denom : Infinity;
+  const P = has(settings.P) ? num(settings.P, 'settings.P') : 0.9545;
+  let kSuggested = null;
+  if (nuEff < NU_EFF_WARN_BELOW) {
+    // Ref: JCGM 100:2008 G.3.2, G.4.1 Note 1 — k_p = t_p(⌊ν_eff⌋) (egasi qarori: floor)
+    kSuggested = coverage(P, nuEff, 'floor').k;
+    warn('topdown_nu_low', { value: `ν_eff = ${nuEff.toFixed(1)}; t(${Math.max(1, Math.floor(nuEff))}) = ${kSuggested.toFixed(2)}` });
+  }
+
   // Mutlaq va nisbiy ko'rinish (aralashtirilmaydi: o'tkazish faqat o'lchangan qiymat y orqali)
   let relUc = null, relU = null, absUc = null, absU = null;
   if (ctx.relative) {
@@ -230,6 +270,7 @@ function evaluateCore(spec) {
     y, yUnit, yCorrected: approach === 'QUAM_RECOVERY' && out.recovery.included && out.recovery.correction === 'applied' ? yUsed : null,
     uc, uc2, k, U,
     kBasis: has(settings.k) ? 'given' : 'default',
+    nuEff, kSuggested, P,                    // ν_eff — ma'lumot uchun; kSuggested = t_P(⌊ν_eff⌋) (ν_eff < 30 bo'lsa), k o'zgarmaydi
     relUc, relU,                             // har doim foizda (y kerak bo'lsa va berilmagan bo'lsa — null)
     absUc, absU,                             // mutlaq (nisbiy baholashda y berilgan bo'lsa); birlik: absUnit
     absUnit: ctx.relative ? yUnit : ctx.unit,

@@ -3,7 +3,7 @@
    Sof modul: DOM'ga tegmaydi, Node'da test qilinadi. Har qanday qiymat ctx.esc (escHtml) orqali.
    ctx = { t(key), esc(value) }. Hodisalar — app.js da (data-td-* atributlari; inline handler yo'q).
 ═══════════════════════════════════════════════════════════════ */
-import { RW_SOURCES, BIAS_SOURCES, BASES, UI_CATEGORIES, COVER_CATEGORIES, numericRows, numericList } from './build.js';
+import { RW_SOURCES, BIAS_SOURCES, BASES, REFERENCE_CHOICES, UI_CATEGORIES, COVER_CATEGORIES, numericRows, numericList } from './build.js';
 
 const opt = (ctx, value, label, cur) => `<option value="${ctx.esc(value)}"${String(cur) === String(value) ? ' selected' : ''}>${ctx.esc(label)}</option>`;
 const field = (ctx, id, labelKey, inner, hintKey) =>
@@ -48,8 +48,10 @@ export function step1HTML(st, ctx) {
     <div class="settings-grid">${field(ctx, 'td-unit', unitLabel, `<input type="text" id="td-unit" data-td-field="unit" value="${ctx.esc(st.unit)}" placeholder="mg/L" autocomplete="off" />`)}</div>
     <div class="td-choices">
       ${check(ctx, 'data-td-flag', 'empirical', st.empirical, 'td_empirical', 'td_empirical_d')}
-      ${st.empirical && within && st.bias !== 'none' ? check(ctx, 'data-td-flag', 'refByMethod', st.refByMethod, 'td_ref_by_method', 'td_ref_by_method_d') : ''}
     </div>
+    ${st.empirical && within && st.bias !== 'none' ? `<div class="td-required${st.refMethod ? '' : ' td-unanswered'}" data-td-refmethod="${st.refMethod ? 'answered' : 'unanswered'}">
+      ${field(ctx, 'td-refMethod', 'td_ref_method', `<select id="td-refMethod" data-td-field="refMethod" required aria-required="true">
+        ${opt(ctx, '', ctx.t('td_ref_none'), st.refMethod)}${REFERENCE_CHOICES.map(c => opt(ctx, c, ctx.t('td_ref_' + c), st.refMethod)).join('')}</select>`, 'td_ref_method_d')}</div>` : ''}
   </div>`;
 }
 

@@ -785,12 +785,12 @@ const Results = (() => {
   }
   function tdBudget(r, cls) {
     return `<h4 class="rg-h">${i18n.t('td_budget')}</h4>
-      <table class="${cls}" data-td-budget="1"><thead><tr><th>${i18n.t('td_col_component')}</th><th>u${tdScaleUnit(r)}</th><th>u²</th><th>${i18n.t('td_col_share')}</th><th>${i18n.t('td_col_note')}</th></tr></thead>
+      <table class="${cls}" data-td-budget="1"><thead><tr><th>${i18n.t('td_col_component')}</th><th>u${tdScaleUnit(r)}</th><th>u²</th><th>ν</th><th>${i18n.t('td_col_share')}</th><th>${i18n.t('td_col_note')}</th></tr></thead>
         <tbody>${r.budget.map(b => `<tr data-td-row="${escHtml(b.id)}"${b.included ? '' : ' class="td-excluded"'}>
-          <td>${tdBudgetName(b)}</td><td class="num">${tdNum(b.u)}</td><td class="num">${tdNum(b.variance)}</td>
+          <td>${tdBudgetName(b)}</td><td class="num">${tdNum(b.u)}</td><td class="num">${tdNum(b.variance)}</td><td class="num">${rgNu(b.nu)}</td>
           <td class="num">${b.included ? b.share.toFixed(1) : '—'}</td>
           <td>${b.flag ? `<span class="badge badge-orange" data-td-flag="${escHtml(b.flag)}">${escHtml(b.flag)}</span> ` : ''}${b.included ? '' : i18n.t('td_excluded')}</td></tr>`).join('')}
-          <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">${tdNum(r.uc2)}</td><td class="num">100.0</td><td></td></tr>
+          <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">${tdNum(r.uc2)}</td><td class="num">${rgNu(r.nuEff)}</td><td class="num">100.0</td><td></td></tr>
         </tbody></table>`;
   }
   function tdRw(r, cls) {
@@ -868,7 +868,9 @@ const Results = (() => {
         <tbody><tr><td class="num" data-td-y="1">${yCell}</td><td class="num" data-td-u="1"><strong>${uCell}</strong></td>
           <td class="num" data-td-urel="1"><strong>${relCell}</strong></td><td class="num" data-td-k="1">${escHtml(String(r.k))}</td>
           <td data-td-approach="${escHtml(r.approach)}">${approach}<div class="text-xs text-muted">${escHtml(r.approachRef)}</div></td></tr></tbody></table>
-      <p class="rg-line" data-td-statement="1"><strong>${i18n.t('td_statement')}:</strong> ${statement}; k = ${escHtml(String(r.k))} (${i18n.t('td_k_note')}); ${i18n.t('td_col_approach')}: ${approach}.</p>
+      <p class="rg-line" data-td-statement="1"><strong>${i18n.t('td_statement')}:</strong> ${statement}; <span data-td-kline="1">k = ${escHtml(String(r.k))}${r.k === 2 ? ', P ≈ 95 %' : ''}</span>; ${i18n.t('td_col_approach')}: ${approach}.</p>
+      <p class="rg-line" data-td-nueff="${isFinite(r.nuEff) ? r.nuEff.toFixed(1) : 'inf'}"><strong>ν<sub>eff</sub></strong> = ${rgNu(r.nuEff)} (${i18n.t('td_nu_note')})${
+        r.kSuggested !== null ? `; <span data-td-ksuggested="1">${i18n.t('td_k_suggested').replace('{P}', pct(r.P)).replace('{nu}', String(Math.max(1, Math.floor(r.nuEff))))} = ${r.kSuggested.toFixed(2)}</span> — ${i18n.t('td_k_unchanged')}` : ''}</p>
       <p class="rg-line"><strong>${i18n.t('td_scale')}:</strong> <span data-td-scale="${escHtml(r.scale)}">${i18n.t('td_scale_' + r.scale)}${tdScaleUnit(r) ? ' (' + escHtml(r.unit) + ')' : ''}</span>;
         u_c = ${tdNum(r.uc)}${tdScaleUnit(r)}; U = k·u_c = ${tdNum(r.U)}${tdScaleUnit(r)}${r.y === null && r.scale === 'relative' ? `. ${i18n.t('td_no_y')}` : ''}</p>
       ${r.isEmpiricalMeasurand ? `<p class="rg-line" data-td-empirical="1">ⓘ ${i18n.t('td_empirical_note')}</p>` : ''}

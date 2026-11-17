@@ -125,12 +125,20 @@ test('X11 / X12 usta orqali: qamralgan omil yana qo\'shilgan; empirik kattalikda
   const ok = E.evaluate(B.buildSpec(st({ rwSources: ['stated'], statedS: '2', covers: [], empirical: true, additional: [{ name: 'Tarozi', category: 'balance', u: '0,5' }] })).spec);
   assert.deepEqual(ok.warnings, []);
   const base = { rwSources: ['stated'], statedS: '2', bias: 'crm', crmRows: '3\t2\t10\t1', empirical: true };
+  // javob berilmagan → hissa qo'shiladi + X12 (konservativ; egasi qarori 2026-11-17)
   const x12 = E.evaluate(B.buildSpec(st(base)).spec);
-  assert.ok(x12.warnings.some(w => w.rule === 'X12'));
-  assert.equal(x12.uc, 2);
-  const lab = E.evaluate(B.buildSpec(st({ ...base, refByMethod: true })).spec);
+  assert.ok(x12.warnings.some(w => w.code === 'x12_empirical_bias'));
+  assert.ok(x12.uc > 2);
+  // "boshqa usul / ta'rif" → hissa chiqariladi
+  const other = E.evaluate(B.buildSpec(st({ ...base, refMethod: 'other' })).spec);
+  assert.equal(other.uc, 2);
+  assert.ok(other.warnings.some(w => w.code === 'x12_bias_excluded') && !other.warnings.some(w => w.code === 'x12_empirical_bias'));
+  // "shu usul" → qo'shiladi, X12 yo'q
+  const lab = E.evaluate(B.buildSpec(st({ ...base, refMethod: 'same' })).spec);
   assert.ok(!lab.warnings.some(w => w.rule === 'X12'));
-  assert.ok(lab.uc > 2);
+  assert.equal(lab.uc, x12.uc);
+  // empirik bo'lmasa savol spetsifikatsiyaga kirmaydi
+  assert.equal(B.buildSpec(st({ ...base, empirical: false, refMethod: 'other' })).spec.bias.referenceMethod, undefined);
 });
 
 /* ── usta ko'rinishi ── */
@@ -247,7 +255,7 @@ test('hisobot: X11 va X12 ogohlantirishlari (belgi, matn, manba havolasi) uch ti
     assert.match(x12.textContent, /X12/); assert.match(x12.textContent, /QUAM:2012 §7\.9\.2/);
     assert.ok(!/\{v\}/.test(d.textContent), lang);
     assert.equal(d.querySelector('[data-td-row="bias"] [data-td-flag]').dataset.tdFlag, 'X12');
-    assert.ok(d.querySelector('[data-td-row="bias"]').classList.contains('td-excluded'));
+    assert.ok(!d.querySelector('[data-td-row="bias"]').classList.contains('td-excluded'));   // javob yo'q: hissa qo'shilgan
     assert.equal(d.querySelector('[data-td-row="rep"] [data-td-flag]').dataset.tdFlag, 'X11');
   }
 });
@@ -290,4 +298,85 @@ test('index.html: "Top-down" yorlig\'i, ildiz element, skriptlar; UI modullarida
   }
   // sof modullar DOM'ga tegmaydi
   for (const f of ['src/ui/topdown/view.js', 'src/ui/topdown/build.js']) assert.ok(!/\b(document|window|localStorage)\b/.test(read(f)), f);
+});
+
+/* ── Egasi qarorlari (2026-11-17, R-20) ── */
+
+test('X12 savoli: empirik kattalik + bias tanlanganda "tayanch qiymat qaysi usul bilan olingan" majburiy maydoni chiqadi (uch tilda)', () => {
+  for (const lang of LANGS) {
+    const w = loadReport(lang), ctx = ctxOf(w);
+    const q = s => frag(w, V.step1HTML(st(s), ctx)).querySelector('[data-td-refmethod]');
+    assert.equal(q({ empirical: false, bias: 'crm' }), null);
+    assert.equal(q({ empirical: true, bias: 'none' }), null);
+    const un = q({ empirical: true, bias: 'crm' });
+    assert.equal(un.dataset.tdRefmethod, 'unanswered');
+    const sel = un.querySelector('select[data-td-field="refMethod"]');
+    assert.ok(sel.required);
+    assert.deepEqual([...sel.options].map(o => o.value), ['', 'same', 'other']);
+    assert.equal(sel.value, '');                                     // standart holatda javob yo'q
+    assert.equal(q({ empirical: true, bias: 'pt', refMethod: 'other' }).dataset.tdRefmethod, 'answered');
+    assert.ok(!/td_[a-z_]+/.test(un.textContent), lang);
+  }
+});
+
+test('hisobot: "boshqa usul" tanlanganda bias qatori chiqarilgan deb belgilanadi; javobsiz holatda X12 ogohlantirishi', () => {
+  const mk = ref => E.evaluate({ format: 'uc-topdown/1', approach: 'NORDTEST', scale: { relative: true }, isEmpiricalMeasurand: true,
+    rw: { components: [{ type: 'stated', s: 2, relative: true }] },
+    bias: { type: 'crm', relative: true, items: [{ bias: 3, sBias: 2, n: 10, uRef: 1 }], ...(ref ? { referenceMethod: ref } : {}) } });
+  for (const lang of LANGS) {
+    const w = loadReport(lang);
+    const other = frag(w, w.Results.topdownSection(mk('other')));
+    assert.ok(other.querySelector('[data-td-row="bias"]').classList.contains('td-excluded'), lang);
+    assert.ok(other.querySelector('[data-td-warning="x12_bias_excluded"]'));
+    assert.equal(other.querySelector('[data-td-warning="x12_empirical_bias"]'), null);
+    const none = frag(w, w.Results.topdownSection(mk(null)));
+    assert.ok(none.querySelector('.warn-box [data-td-warning="x12_empirical_bias"]'));
+    const same = frag(w, w.Results.topdownSection(mk('same')));
+    assert.equal(same.querySelectorAll('[data-td-warning^="x12"]').length, 0);
+    assert.ok(!/\{v\}|w_[a-z_]+/.test(other.textContent + none.textContent), lang);
+  }
+});
+
+test('X11 chop etilgan hisobotda ham chiqadi va uni yashiradigan parametr yo\'q', () => {
+  const r = E.evaluate({ format: 'uc-topdown/1', approach: 'NORDTEST', scale: { relative: true }, isEmpiricalMeasurand: true,
+    rw: { components: [{ type: 'stated', s: 2, relative: true }] },
+    additional: [{ id: 'rep', name: 'Repeat', category: 'repeatability', u: 1, relative: true }] });
+  const w = loadReport('uz');
+  w.print = () => {};
+  w.Results.printTopdown(r, {});
+  const printed = w.document.getElementById('print-report');
+  const x11 = printed.querySelector('.warn-box [data-td-warning="x11_double_counting"]');
+  assert.ok(x11, 'bosma hisobotda X11 yo\'q');
+  assert.match(x11.textContent, /X11/); assert.match(x11.textContent, /Repeat/);
+  assert.equal(printed.querySelector('[data-td-row="rep"] [data-td-flag]').dataset.tdFlag, 'X11');
+  // topdownSection ning har qanday parametrida ogohlantirish qoladi
+  for (const o of [{ print: true }, { print: false }, { warnings: false }, { hideWarnings: true }, undefined]) {
+    assert.ok(frag(w, w.Results.topdownSection(r, o)).querySelector('[data-td-warning="x11_double_counting"]'));
+  }
+  // bosma CSS ogohlantirishni yashirmaydi
+  const css = read('src/css/components.css');
+  assert.match(css, /@media print \{[\s\S]*\.td-report \.warn-box[^{]*\{[^}]*display: block !important/);
+  assert.ok(!/@media print[\s\S]*\.(td-warnings|warn-box)[^{]*\{[^}]*display:\s*none/.test(css));
+});
+
+test('hisobot: ν_eff ko\'rsatiladi; ν_eff < 30 → t_P(⌊ν_eff⌋) taklifi, k o\'zgarmaydi; "k = 2, P ≈ 95 %" yoziladi', () => {
+  const r = E.evaluate(NH4.modelSpec);                               // 6 ta PT raundi → ν_eff ≈ 9,5
+  for (const lang of LANGS) {
+    const w = loadReport(lang);
+    const d = frag(w, w.Results.topdownSection(r));
+    assert.equal(d.querySelector('[data-td-kline]').textContent, 'k = 2, P ≈ 95 %');
+    assert.equal(d.querySelector('[data-td-k]').textContent.trim(), '2');
+    const nu = d.querySelector('[data-td-nueff]');
+    assert.equal(nu.dataset.tdNueff, r.nuEff.toFixed(1));
+    assert.match(d.querySelector('[data-td-ksuggested]').textContent, new RegExp(r.kSuggested.toFixed(2).replace('.', '\\.')));
+    assert.ok(d.querySelector('.warn-box [data-td-warning="topdown_nu_low"]'));
+    assert.equal(d.querySelector('[data-td-urel]').textContent.trim(), '6.4 %');   // U = 2·u_c — o'zgarmagan
+    assert.ok(!/\{P\}|\{nu\}|\{v\}|td_[a-z_]+/.test(d.textContent), lang);
+  }
+  const w = loadReport('en');
+  const inf = frag(w, w.Results.topdownSection(E.evaluate(A6.modelSpec)));
+  assert.equal(inf.querySelector('[data-td-nueff]').dataset.tdNueff, 'inf');
+  assert.equal(inf.querySelector('[data-td-ksuggested]'), null);
+  const k3 = frag(w, w.Results.topdownSection(E.evaluate({ ...A6.modelSpec, settings: { k: 3 } })));
+  assert.equal(k3.querySelector('[data-td-kline]').textContent, 'k = 3');   // "P ≈ 95 %" faqat k = 2 uchun
 });
