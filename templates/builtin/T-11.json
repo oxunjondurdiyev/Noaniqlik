@@ -89,12 +89,12 @@
   ],
   "typeBSources": [
     {
-      "id": "m1_cert",
+      "id": "m1_cal_common",
       "input": "m1",
       "name": {
-        "uz": "Tarozi: kalibrlash sertifikati (m1)",
-        "ru": "Весы: сертификат о калибровке (m1)",
-        "en": "Balance: calibration certificate (m1)"
+        "uz": "Tarozi: kalibrlash — umumiy qism (ofset/sezgirlik) (m1)",
+        "ru": "Весы: калибровка — общая часть (смещение/чувствительность) (m1)",
+        "en": "Balance: calibration — common part (offset/sensitivity) (m1)"
       },
       "kind": "certificate",
       "distribution": "normal",
@@ -103,10 +103,48 @@
       "unit": "g",
       "instrument": "balance",
       "correlated": true,
+      "share": "common",
+      "certificateU": null,
+      "certificateK": null,
       "hint": {
-        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
-        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
-        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+        "uz": "Umumiy qism: sertifikatdagi ofset yoki sezgirlik noaniqligi (U va k). U barcha o'lchashlarda bir xil ta'sir qiladi (r = +1). Ikki marta hisoblamang: sertifikatda faqat bitta umumiy U bo'lsa, uni bu qator va nuqtaga xos qator o'rtasida bo'ling — u²(umumiy) + u²(nuqta) = u²(sertifikat). Tekshiruv uchun sertifikatning to'liq U va k sini quyidagi maydonlarga yozing. Bo'lishni bilmasangiz — korrelyatsiya savolida \"Noma'lum\" ni tanlang.",
+        "ru": "Общая часть: неопределённость смещения или чувствительности из сертификата (U и k). Действует одинаково на все измерения (r = +1). Не учитывайте дважды: если в сертификате только одна общая U, разделите её между этой строкой и строкой части, специфичной для точки, — u²(общая) + u²(точка) = u²(сертификат). Для проверки укажите полную U и k сертификата в полях ниже. Если разделение неизвестно — выберите «Неизвестно» в вопросе о корреляции.",
+        "en": "Common part: offset or sensitivity uncertainty from the certificate (U and k). It acts identically on all measurements (r = +1). Do not count twice: if the certificate gives only one overall U, split it between this row and the point-specific row — u²(common) + u²(point) = u²(certificate). For the check, enter the certificate's full U and k in the fields below. If the split is unknown, choose \"Unknown\" in the correlation question."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
+      }
+    },
+    {
+      "id": "m1_cal_point",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash — nuqtaga xos qism (nochiziqlilik, ekssentriklik, interpolyatsiya) (m1)",
+        "ru": "Весы: калибровка — часть, специфичная для точки (нелинейность, эксцентриситет, интерполяция) (m1)",
+        "en": "Balance: calibration — point-specific part (non-linearity, eccentricity, interpolation) (m1)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "allowedDistributions": [
+        "rect",
+        "normal"
+      ],
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "share": "point",
+      "hint": {
+        "uz": "Nuqtaga xos qism: sertifikat jadvalidagi nuqtalar orasidagi farq, nochiziqlilik yoki ekssentriklik sinovi natijasi, yoki pasportdagi ruxsat etilgan qiymat (±a). Har bir o'lchashda mustaqil (r = 0), korrelyatsiyaga kirmaydi.",
+        "ru": "Часть, специфичная для точки: разброс между точками в таблице сертификата, результат проверки нелинейности или эксцентриситета, либо допуск из паспорта (±a). Независима для каждого измерения (r = 0), в корреляцию не входит.",
+        "en": "Point-specific part: spread between the points of the certificate table, the result of a non-linearity or eccentricity test, or the passport tolerance (±a). Independent for each measurement (r = 0); not part of the correlation."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
       }
     },
     {
@@ -149,12 +187,12 @@
       }
     },
     {
-      "id": "m_cert",
+      "id": "m_cal_common",
       "input": "m",
       "name": {
-        "uz": "Tarozi: kalibrlash sertifikati (m)",
-        "ru": "Весы: сертификат о калибровке (m)",
-        "en": "Balance: calibration certificate (m)"
+        "uz": "Tarozi: kalibrlash — umumiy qism (ofset/sezgirlik) (m)",
+        "ru": "Весы: калибровка — общая часть (смещение/чувствительность) (m)",
+        "en": "Balance: calibration — common part (offset/sensitivity) (m)"
       },
       "kind": "certificate",
       "distribution": "normal",
@@ -163,10 +201,48 @@
       "unit": "g",
       "instrument": "balance",
       "correlated": true,
+      "share": "common",
+      "certificateU": null,
+      "certificateK": null,
       "hint": {
-        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
-        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
-        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+        "uz": "Umumiy qism: sertifikatdagi ofset yoki sezgirlik noaniqligi (U va k). U barcha o'lchashlarda bir xil ta'sir qiladi (r = +1). Ikki marta hisoblamang: sertifikatda faqat bitta umumiy U bo'lsa, uni bu qator va nuqtaga xos qator o'rtasida bo'ling — u²(umumiy) + u²(nuqta) = u²(sertifikat). Tekshiruv uchun sertifikatning to'liq U va k sini quyidagi maydonlarga yozing. Bo'lishni bilmasangiz — korrelyatsiya savolida \"Noma'lum\" ni tanlang.",
+        "ru": "Общая часть: неопределённость смещения или чувствительности из сертификата (U и k). Действует одинаково на все измерения (r = +1). Не учитывайте дважды: если в сертификате только одна общая U, разделите её между этой строкой и строкой части, специфичной для точки, — u²(общая) + u²(точка) = u²(сертификат). Для проверки укажите полную U и k сертификата в полях ниже. Если разделение неизвестно — выберите «Неизвестно» в вопросе о корреляции.",
+        "en": "Common part: offset or sensitivity uncertainty from the certificate (U and k). It acts identically on all measurements (r = +1). Do not count twice: if the certificate gives only one overall U, split it between this row and the point-specific row — u²(common) + u²(point) = u²(certificate). For the check, enter the certificate's full U and k in the fields below. If the split is unknown, choose \"Unknown\" in the correlation question."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
+      }
+    },
+    {
+      "id": "m_cal_point",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash — nuqtaga xos qism (nochiziqlilik, ekssentriklik, interpolyatsiya) (m)",
+        "ru": "Весы: калибровка — часть, специфичная для точки (нелинейность, эксцентриситет, интерполяция) (m)",
+        "en": "Balance: calibration — point-specific part (non-linearity, eccentricity, interpolation) (m)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "allowedDistributions": [
+        "rect",
+        "normal"
+      ],
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "share": "point",
+      "hint": {
+        "uz": "Nuqtaga xos qism: sertifikat jadvalidagi nuqtalar orasidagi farq, nochiziqlilik yoki ekssentriklik sinovi natijasi, yoki pasportdagi ruxsat etilgan qiymat (±a). Har bir o'lchashda mustaqil (r = 0), korrelyatsiyaga kirmaydi.",
+        "ru": "Часть, специфичная для точки: разброс между точками в таблице сертификата, результат проверки нелинейности или эксцентриситета, либо допуск из паспорта (±a). Независима для каждого измерения (r = 0), в корреляцию не входит.",
+        "en": "Point-specific part: spread between the points of the certificate table, the result of a non-linearity or eccentricity test, or the passport tolerance (±a). Independent for each measurement (r = 0); not part of the correlation."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
       }
     },
     {
@@ -210,7 +286,8 @@
         "uz": "WAVE1_SPEC T-11: m va m1 bitta tarozida, r = +1.",
         "ru": "WAVE1_SPEC T-11: m и m1 на одних весах, r = +1.",
         "en": "WAVE1_SPEC T-11: m and m1 on one balance, r = +1."
-      }
+      },
+      "split": "known"
     }
   ],
   "reporting": {
