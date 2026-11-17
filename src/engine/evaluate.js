@@ -14,6 +14,7 @@ import { conformity } from './conformity.js';
 import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
 import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
+import { evaluateTopDown, TOPDOWN_FORMAT } from './topdown/index.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -41,6 +42,7 @@ export function prepareModel(state) {
 export function evaluate(spec) {
   // P08: REGRESSION rejimi alohida format bilan — bir o'lchamli GUM yo'li o'zgarmagan
   if (spec && spec.format === REGRESSION_FORMAT) return evaluateRegression(spec);
+  if (spec && spec.format === TOPDOWN_FORMAT) return evaluateTopDown(spec); // P09
   const norm = normalize(spec);
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;
