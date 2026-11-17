@@ -1,0 +1,109 @@
+{
+  "id": "quam-a4-recovery",
+  "title": "QUAM A4: nondagi fosfororganik pestitsidlar — tiklanish R_m, t-test, tuzatilgan bias, u_c",
+  "status": "verified",
+  "domain": "analitik kimyo (oziq-ovqat)",
+  "source": {
+    "doc": "EURACHEM/CITAC QUAM:2012 (3rd ed.)",
+    "section": "Example A4: A4.4 (1. Precision study, 2. Bias study), Table A4.3, Table A4.4, A4.5",
+    "page": "65, 66, 68",
+    "note": "Nisbiy qiymatlar ulushda (relativeUnit: 1). Aniqlik 0,27 (p. 65: 0,382/√2), tiklanish 'bread' qatori: 42 namuna, o'rtacha 90 %, s = 28 % (Table A4.3, p. 66); bir jinslilik 0,20 (p. 67–68). Tuzatish 1/Rec qo'llanadi. t_crit: manba '≅ 2.021' (ν = 40 jadval qiymati) beradi, aniq t₀.₉₅(41) = 2,0195 (DISCREPANCIES D-13)."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "QUAM_RECOVERY",
+    "scale": {
+      "relative": true
+    },
+    "relativeUnit": "1",
+    "rw": {
+      "components": [
+        {
+          "type": "stated",
+          "id": "precision",
+          "s": 0.27,
+          "relative": true
+        }
+      ]
+    },
+    "recovery": {
+      "mean": 0.9,
+      "s": 0.28,
+      "n": 42,
+      "correction": "applied"
+    },
+    "additional": [
+      {
+        "id": "homogeneity",
+        "category": "homogeneity",
+        "u": 0.2,
+        "relative": true
+      }
+    ],
+    "measurement": {
+      "value": 1.0,
+      "unit": "mg/kg"
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "recovery.uRm": {
+      "value": 0.0432,
+      "ref": "A4.4, Bias study (p. 66): u(Rec) = 0.28/√42 = 0.0432"
+    },
+    "recovery.t": {
+      "value": 2.31,
+      "ref": "A4.4, Bias study (p. 66): t = (1 − 0.9)/0.0432 = 2.31"
+    },
+    "recovery.tCrit": {
+      "value": 2.021,
+      "ref": "A4.4, Bias study (p. 66): t_crit;41 ≅ 2.021"
+    },
+    "recovery.significant": {
+      "value": 1,
+      "ref": "A4.4, Bias study (p. 66): t = 2.31 ≥ t_crit — Rec is significantly different from 1"
+    },
+    "recovery.u": {
+      "value": 0.048,
+      "ref": "Table A4.4 (p. 68): Bias (Rec), relative standard uncertainty 0.048"
+    },
+    "uc": {
+      "value": 0.34,
+      "ref": "A4.5 (p. 68): u_c(Pop)/Pop = √(0.27² + 0.048² + 0.2²) = 0.34"
+    },
+    "yCorrected": {
+      "value": 1.1111,
+      "ref": "A4.5 (p. 68): nominal corrected result of 1.1111"
+    },
+    "absUc": {
+      "value": 0.377,
+      "ref": "A4.5 (p. 68): absolute value uncertainty (0.377)"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.0005
+    },
+    "recovery.uRm": {
+      "abs": 5e-05
+    },
+    "recovery.t": {
+      "abs": 0.005
+    },
+    "recovery.significant": {
+      "abs": 0
+    },
+    "recovery.tCrit": {
+      "abs": 0.002,
+      "reason": "manba ≅ belgisi bilan ν = 40 jadval qiymatini bergan; aniq t(41) = 2,0195 (D-13)"
+    },
+    "uc": {
+      "abs": 0.005
+    },
+    "yCorrected": {
+      "abs": 5e-05
+    }
+  }
+}

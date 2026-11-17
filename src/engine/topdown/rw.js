@@ -11,6 +11,7 @@
 import { fail, num, has, declaredScale, stated, toContextUnit, mean, stdev, rss } from './scale.js';
 
 export const RW_TYPES = ['control_series', 'control_limits', 'duplicates', 'stated'];
+export const DUPLICATE_RELATIVE_METHODS = ['per_pair', 'pooled_over_mean'];
 
 /**
  * Dublikatlardan standart og'ish.
@@ -66,9 +67,18 @@ function component(c, i, ctx) {
       .map((p, j) => [num(p[0], `${where}.pairs[${j}]`), num(p[1], `${where}.pairs[${j}]`)]);
     if (pairs.length < 2) fail('topdown_too_few', where);
     if (declaredScale(c, where) === 'relative') fail('topdown_mixed_scale', `${where}: pairs need unit`);
-    const d = duplicateSd(pairs, ctx.relative);
-    const u = ctx.relative ? ctx.F * d.s : toContextUnit(d.s, c.unit, ctx, where);
-    return { ...base, u, n: d.n, nu: d.n, mean: d.mean, s: d.s, ref: 'Nordtest TR 537 ed. 4 §5.3 (p. 16), Appendix 5–6 (pp. 41–42)' };
+    // Nisbiy shkalada ikki yo'l (ikkalasi ham manbada):
+    //   per_pair         — har bir juftlik o'z o'rtachasiga nisbatan (keng diapazon; Appendix 5, p. 41: "Pooled s %");
+    //   pooled_over_mean — mutlaq pooled s / umumiy o'rtacha (tor diapazon; §5.3, pp. 17–18: 0,0252 / 7,50 → 0,34 %).
+    const method = c.relativeMethod === undefined ? 'per_pair' : c.relativeMethod;
+    if (!DUPLICATE_RELATIVE_METHODS.includes(method)) fail('topdown_bad_spec', `${where}.relativeMethod`);
+    const perPair = ctx.relative && method === 'per_pair';
+    const d = duplicateSd(pairs, perPair);
+    let u;
+    if (!ctx.relative) u = toContextUnit(d.s, c.unit, ctx, where);
+    else if (perPair) u = ctx.F * d.s;
+    else { if (!(d.mean !== 0)) fail('topdown_zero_mean', where); u = ctx.F * d.s / Math.abs(d.mean); }
+    return { ...base, u, n: d.n, nu: d.n, mean: d.mean, s: d.s, ...(ctx.relative ? { relativeMethod: method } : {}), ref: 'Nordtest TR 537 ed. 4 §5.3 (pp. 16–18), Appendix 5–6 (pp. 41–42)' };
   }
 
   // stated: tayyor s yoki CV

@@ -26,5 +26,5 @@ export {
 export {
   evaluateTopDown, TOPDOWN_FORMAT, TOPDOWN_APPROACHES, TOPDOWN_CATEGORIES, TOPDOWN_WARNINGS, TOPDOWN_ERRORS, APPROACH_REF,
   evaluateRw, duplicateSd, evaluateBias, evaluateRecovery, evaluateReproducibility, levelUncertainty, fitLevelModel,
-  RW_TYPES, BIAS_TYPES, RECOVERY_CORRECTIONS, ROBUST_SD_FACTOR, MIN_PT_ROUNDS, LIMIT_FACTOR,
+  makeContext, RW_TYPES, DUPLICATE_RELATIVE_METHODS, BIAS_TYPES, RECOVERY_CORRECTIONS, ROBUST_SD_FACTOR, MIN_PT_ROUNDS, LIMIT_FACTOR,
 } from './topdown/index.js';

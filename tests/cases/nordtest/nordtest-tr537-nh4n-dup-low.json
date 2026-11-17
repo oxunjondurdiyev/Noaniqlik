@@ -1,0 +1,252 @@
+{
+  "id": "nordtest-tr537-nh4n-dup-low",
+  "title": "Nordtest TR 537: NH₄-N dublikatlari, past diapazon (< 30 µg/L) — mutlaq s_r va u(R_w)",
+  "status": "verified",
+  "domain": "atrof-muhit (suv)",
+  "source": {
+    "doc": "Nordtest TR 537 ed. 4 (2017)",
+    "section": "§5.2 (nazorat namunasi 1), §5.3 (Example – different matrices), Appendix 5 (chap ustun)",
+    "page": "16, 17, 41",
+    "note": "Appendix 5 jadvalida (< 30 µg/L) 46 juftlik bosilgan; §5.3 matnida n = 47 deyilgan (DISCREPANCIES D-12). Pooled s 46 juftlikdan 0,441 → 0,44, manbaga mos. Bu misolda bias berilmagan — faqat u(R_w) tekshiriladi (ogohlantirish: topdown_no_bias)."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "NORDTEST",
+    "scale": {
+      "unit": "µg/L"
+    },
+    "rw": {
+      "components": [
+        {
+          "type": "stated",
+          "id": "control_20",
+          "s": 0.5,
+          "unit": "µg/L",
+          "n": 75
+        },
+        {
+          "type": "duplicates",
+          "id": "duplicates",
+          "unit": "µg/L",
+          "pairs": [
+            [
+              7.46,
+              7.25
+            ],
+            [
+              9.01,
+              9.17
+            ],
+            [
+              3.6,
+              3.1
+            ],
+            [
+              6.48,
+              6.48
+            ],
+            [
+              14.49,
+              14.12
+            ],
+            [
+              10.84,
+              10.89
+            ],
+            [
+              4.61,
+              5.0
+            ],
+            [
+              2.6,
+              2.42
+            ],
+            [
+              2.8,
+              2.62
+            ],
+            [
+              5.84,
+              6.19
+            ],
+            [
+              2.12,
+              2.5
+            ],
+            [
+              2.3,
+              2.11
+            ],
+            [
+              2.52,
+              2.89
+            ],
+            [
+              3.71,
+              3.71
+            ],
+            [
+              7.43,
+              7.43
+            ],
+            [
+              8.83,
+              8.51
+            ],
+            [
+              9.12,
+              8.79
+            ],
+            [
+              8.24,
+              7.9
+            ],
+            [
+              2.62,
+              2.78
+            ],
+            [
+              3.33,
+              3.33
+            ],
+            [
+              2.69,
+              2.69
+            ],
+            [
+              12.09,
+              12.09
+            ],
+            [
+              4.24,
+              4.24
+            ],
+            [
+              10.49,
+              10.64
+            ],
+            [
+              3.68,
+              3.52
+            ],
+            [
+              2.22,
+              2.06
+            ],
+            [
+              6.1,
+              6.1
+            ],
+            [
+              2.96,
+              2.86
+            ],
+            [
+              14.02,
+              13.7
+            ],
+            [
+              4.24,
+              3.62
+            ],
+            [
+              5.1,
+              4.61
+            ],
+            [
+              2.78,
+              2.62
+            ],
+            [
+              8.52,
+              6.81
+            ],
+            [
+              12.82,
+              14.05
+            ],
+            [
+              3.17,
+              2.4
+            ],
+            [
+              11.28,
+              11.43
+            ],
+            [
+              14.31,
+              13.82
+            ],
+            [
+              4.01,
+              4.48
+            ],
+            [
+              3.27,
+              3.58
+            ],
+            [
+              9.98,
+              10.29
+            ],
+            [
+              12.56,
+              13.66
+            ],
+            [
+              16.2,
+              16.6
+            ],
+            [
+              28.8,
+              28.7
+            ],
+            [
+              15.8,
+              18.5
+            ],
+            [
+              17.7,
+              16.7
+            ],
+            [
+              3.35,
+              2.88
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "rw.components.0.u": {
+      "value": 0.5,
+      "ref": "§5.2 (p. 16): Control sample 1, sRw = 0.5 µg L-1"
+    },
+    "rw.components.1.u": {
+      "value": 0.44,
+      "ref": "Appendix 5 (p. 41): Pooled s = 0.44; §5.3 (p. 16): sr = 0.44 µg L-1"
+    },
+    "rw.u": {
+      "value": 0.7,
+      "ref": "§5.3 (p. 17): Low level u(Rw) = √(0.5² + 0.44²) = 0.7 µg L-1"
+    }
+  },
+  "expectedWarnings": [
+    "topdown_no_bias"
+  ],
+  "tolerance": {
+    "default": {
+      "abs": 0.005
+    },
+    "rw.u": {
+      "abs": 0.05
+    },
+    "rw.components.0.u": {
+      "abs": 0
+    }
+  }
+}

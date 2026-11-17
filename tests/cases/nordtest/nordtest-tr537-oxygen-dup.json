@@ -1,0 +1,281 @@
+{
+  "id": "nordtest-tr537-oxygen-dup",
+  "title": "Nordtest TR 537: dengiz suvida erigan kislorod — dublikatlardan s_r (R-karta) va u(R_w)",
+  "status": "verified",
+  "domain": "atrof-muhit (suv)",
+  "source": {
+    "doc": "Nordtest TR 537 ed. 4 (2017)",
+    "section": "§5.3 (Example – unstable control samples), Appendix 6",
+    "page": "17, 18, 42",
+    "note": "51 juftlik (Appendix 6). Nisbiy qiymat manbada pooled s / umumiy o'rtacha ko'rinishida (0,0252 / 7,50 → 0,34 %) — relativeMethod: pooled_over_mean. Kalibrlashning uzoq muddatli o'zgaruvchanligi 0,5 % — manbada tajribaga asoslangan baho (§5.3, p. 18). Bias berilmagan."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "NORDTEST",
+    "scale": {
+      "relative": true
+    },
+    "relativeUnit": "%",
+    "rw": {
+      "components": [
+        {
+          "type": "duplicates",
+          "id": "duplicates",
+          "unit": "mg/L",
+          "relativeMethod": "pooled_over_mean",
+          "pairs": [
+            [
+              8.9,
+              8.91
+            ],
+            [
+              8.99,
+              9.01
+            ],
+            [
+              8.9,
+              8.9
+            ],
+            [
+              9.11,
+              9.12
+            ],
+            [
+              8.68,
+              8.64
+            ],
+            [
+              8.6,
+              8.51
+            ],
+            [
+              8.61,
+              8.61
+            ],
+            [
+              8.02,
+              8.0
+            ],
+            [
+              7.05,
+              7.08
+            ],
+            [
+              6.98,
+              7.01
+            ],
+            [
+              7.13,
+              7.1
+            ],
+            [
+              6.79,
+              6.78
+            ],
+            [
+              6.55,
+              6.55
+            ],
+            [
+              6.53,
+              6.53
+            ],
+            [
+              4.68,
+              4.68
+            ],
+            [
+              5.28,
+              5.33
+            ],
+            [
+              7.42,
+              7.4
+            ],
+            [
+              7.62,
+              7.63
+            ],
+            [
+              5.88,
+              5.88
+            ],
+            [
+              6.03,
+              6.06
+            ],
+            [
+              6.33,
+              6.33
+            ],
+            [
+              5.9,
+              5.9
+            ],
+            [
+              6.24,
+              6.27
+            ],
+            [
+              6.02,
+              6.02
+            ],
+            [
+              9.13,
+              9.11
+            ],
+            [
+              9.1,
+              9.14
+            ],
+            [
+              8.5,
+              8.44
+            ],
+            [
+              8.73,
+              8.71
+            ],
+            [
+              8.09,
+              8.09
+            ],
+            [
+              7.56,
+              7.58
+            ],
+            [
+              6.3,
+              6.32
+            ],
+            [
+              6.43,
+              6.44
+            ],
+            [
+              7.25,
+              7.34
+            ],
+            [
+              7.25,
+              7.31
+            ],
+            [
+              8.0,
+              8.03
+            ],
+            [
+              8.38,
+              8.29
+            ],
+            [
+              9.23,
+              9.29
+            ],
+            [
+              9.09,
+              9.08
+            ],
+            [
+              9.37,
+              9.36
+            ],
+            [
+              9.38,
+              9.37
+            ],
+            [
+              9.32,
+              9.25
+            ],
+            [
+              8.47,
+              8.49
+            ],
+            [
+              8.27,
+              8.28
+            ],
+            [
+              8.37,
+              8.31
+            ],
+            [
+              8.09,
+              8.15
+            ],
+            [
+              8.05,
+              8.03
+            ],
+            [
+              7.38,
+              7.4
+            ],
+            [
+              7.49,
+              7.49
+            ],
+            [
+              4.52,
+              4.49
+            ],
+            [
+              4.45,
+              4.44
+            ],
+            [
+              4.29,
+              4.27
+            ]
+          ]
+        },
+        {
+          "type": "stated",
+          "id": "calibration_longterm",
+          "s": 0.5,
+          "relative": true
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "rw.components.0.n": {
+      "value": 51,
+      "ref": "§5.3 (p. 18): n = 51"
+    },
+    "rw.components.0.s": {
+      "value": 0.0252,
+      "ref": "Appendix 6 (p. 42): Pooled s = 0.0252 mg L-1"
+    },
+    "rw.components.0.mean": {
+      "value": 7.5,
+      "ref": "§5.3 (p. 18): X = 7.50 mg L-1"
+    },
+    "rw.components.0.u": {
+      "value": 0.34,
+      "ref": "§5.3 (pp. 17–18): relative u(x) for repeatability is 0.34 %"
+    },
+    "rw.u": {
+      "value": 0.6,
+      "ref": "§5.3 (p. 18): √(0.34² + 0.5²) = 0.60 %"
+    }
+  },
+  "expectedWarnings": [
+    "topdown_no_bias"
+  ],
+  "tolerance": {
+    "default": {
+      "abs": 0.005
+    },
+    "rw.components.0.n": {
+      "abs": 0
+    },
+    "rw.components.0.s": {
+      "abs": 5e-05
+    }
+  }
+}

@@ -251,7 +251,7 @@ export function evaluateTopDown(spec) {
   }
 }
 
-export { evaluateRw, duplicateSd, RW_TYPES } from './rw.js';
+export { evaluateRw, duplicateSd, RW_TYPES, DUPLICATE_RELATIVE_METHODS } from './rw.js';
 export { evaluateBias, BIAS_TYPES, ROBUST_SD_FACTOR, MIN_PT_ROUNDS } from './bias.js';
 export { evaluateRecovery, RECOVERY_CORRECTIONS } from './recovery.js';
 export { evaluateReproducibility, LIMIT_FACTOR } from './reproducibility.js';

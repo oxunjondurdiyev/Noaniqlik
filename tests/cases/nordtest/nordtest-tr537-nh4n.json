@@ -1,14 +1,153 @@
 {
-  "modelSpec": null,
-  "expected": {},
   "id": "nordtest-tr537-nh4n",
-  "title": "Nordtest TR 537: suvda NH₄-N (top-down, u(R_w) + u(bias))",
-  "status": "pending",
-  "enabledIn": "P09",
+  "title": "Nordtest TR 537: suvda NH₄-N (top-down, u(R_w) nazorat chegaralaridan + u(bias) 6 ta PT raundidan)",
+  "status": "verified",
   "domain": "atrof-muhit (suv)",
   "source": {
     "doc": "Nordtest TR 537 ed. 4 (2017)",
-    "section": "misol bo'limi — P09 da sahifa bilan aniqlanadi"
+    "section": "§3.2 Flow scheme (1–6-qadamlar); §3.3 Summary table; Appendix 4",
+    "page": "10, 11, 40",
+    "note": "Kirishlar: nazorat chegaralari (2s) ± 3,34 % (§3.2, 2-qadam, p. 10); PT jadvali — Bias %, s_R %, laboratoriyalar soni (Appendix 4, p. 40). Manba RMS ni jadvaldagi yaxlitlangan Bias % qiymatlaridan hisoblaydi (2,5² + 2,7² + … + 2,9²) — test ham shu ustunni ishlatadi. Gemini T15 raqamlari ishlatilmagan."
   },
-  "statusReason": "top-down usuli dvigatelda yo'q (P09). Gemini T15 raqamlari manba bilan hali solishtirilmagan."
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "NORDTEST",
+    "scale": {
+      "relative": true
+    },
+    "relativeUnit": "%",
+    "rw": {
+      "components": [
+        {
+          "type": "control_limits",
+          "limit": 3.34,
+          "sigmas": 2,
+          "relative": true
+        }
+      ]
+    },
+    "bias": {
+      "type": "pt",
+      "relative": true,
+      "rounds": [
+        {
+          "id": "1999-1",
+          "bias": 2.5,
+          "sR": 10,
+          "nLab": 31
+        },
+        {
+          "id": "1999-2",
+          "bias": 2.7,
+          "sR": 7,
+          "nLab": 36
+        },
+        {
+          "id": "2000-1",
+          "bias": 1.9,
+          "sR": 8,
+          "nLab": 32
+        },
+        {
+          "id": "2000-2",
+          "bias": 1.4,
+          "sR": 10,
+          "nLab": 35
+        },
+        {
+          "id": "2001-1",
+          "bias": 1.8,
+          "sR": 7,
+          "nLab": 36
+        },
+        {
+          "id": "2001-2",
+          "bias": 2.9,
+          "sR": 11,
+          "nLab": 34
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "rw.u": {
+      "value": 1.67,
+      "ref": "§3.2, 4-qadam (p. 10): u(Rw) = 3.34/2 = 1.67 %"
+    },
+    "bias.rms": {
+      "value": 2.26,
+      "ref": "Appendix 4 (p. 40): RMS of the bias = 2.26 % (rel)"
+    },
+    "bias.meanBias": {
+      "value": 2.2,
+      "ref": "Appendix 4 (p. 40): X = + 2.20"
+    },
+    "bias.items.0.uRef": {
+      "value": 1.8,
+      "ref": "Appendix 4 (p. 40), u(Cref i), 1999-1"
+    },
+    "bias.items.1.uRef": {
+      "value": 1.17,
+      "ref": "Appendix 4 (p. 40), u(Cref i), 1999-2"
+    },
+    "bias.items.2.uRef": {
+      "value": 1.41,
+      "ref": "Appendix 4 (p. 40), u(Cref i), 2000-1"
+    },
+    "bias.items.3.uRef": {
+      "value": 1.69,
+      "ref": "Appendix 4 (p. 40), u(Cref i), 2000-2"
+    },
+    "bias.items.4.uRef": {
+      "value": 1.17,
+      "ref": "Appendix 4 (p. 40), u(Cref i), 2001-1"
+    },
+    "bias.items.5.uRef": {
+      "value": 1.89,
+      "ref": "Appendix 4 (p. 40), u(Cref i), 2001-2"
+    },
+    "bias.uRef": {
+      "value": 1.52,
+      "ref": "Appendix 4 (p. 40): Mean u(Cref) = 1.52 %"
+    },
+    "bias.u": {
+      "value": 2.73,
+      "ref": "§3.2, 4-qadam (p. 10): u(bias) = √(2.26² + 1.52²) = 2.73 %"
+    },
+    "uc": {
+      "value": 3.2,
+      "ref": "§3.2, 5-qadam (p. 10): u_c = √(1.67² + 2.73²) = 3.20 %"
+    },
+    "k": {
+      "value": 2,
+      "ref": "§3.2, 6-qadam (p. 10): U = 2·u_c"
+    },
+    "U": {
+      "value": 6.4,
+      "ref": "§3.2, 6-qadam (p. 10): U = 2 · 3.20 = 6.40"
+    },
+    "relU": {
+      "value": 6.4,
+      "ref": "§3.2, 6-qadam (p. 10): 6.40 ≈ 7 % (manba yuqoriga yaxlitlagan)"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.005
+    },
+    "k": {
+      "abs": 0
+    },
+    "U": {
+      "abs": 0.01,
+      "reason": "manba U ni yaxlitlangan u_c = 3,20 dan hisoblagan (2 × 3,20); ±½ birlik + oraliq yaxlitlash"
+    },
+    "relU": {
+      "abs": 0.01,
+      "reason": "U bilan bir xil"
+    }
+  }
 }

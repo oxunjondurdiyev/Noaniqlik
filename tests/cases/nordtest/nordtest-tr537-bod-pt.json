@@ -1,0 +1,105 @@
+{
+  "id": "nordtest-tr537-bod-pt",
+  "title": "Nordtest TR 537, Example B: oqova suvda BOD — ichki sifat nazorati + 3 ta PT raundi",
+  "status": "verified",
+  "domain": "atrof-muhit (suv)",
+  "source": {
+    "doc": "Nordtest TR 537 ed. 4 (2017)",
+    "section": "§8.2 Table 6, Example B",
+    "page": "27, 29",
+    "note": "Table 6: Bias %, s_R %, laboratoriyalar soni. Manba RMS ni yaxlitlangan Bias % ustunidan hisoblaydi (3,76). 3 ta raund — manbaning o'zi 'kamida 6 ta kerak' deydi → topdown_few_pt_rounds ogohlantirishi kutiladi."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "NORDTEST",
+    "scale": {
+      "relative": true
+    },
+    "relativeUnit": "%",
+    "rw": {
+      "components": [
+        {
+          "type": "stated",
+          "s": 2.6,
+          "relative": true
+        }
+      ]
+    },
+    "bias": {
+      "type": "pt",
+      "relative": true,
+      "rounds": [
+        {
+          "bias": 4.5,
+          "sR": 7.2,
+          "nLab": 23
+        },
+        {
+          "bias": -4.1,
+          "sR": 6.6,
+          "nLab": 25
+        },
+        {
+          "bias": 2.3,
+          "sR": 9.8,
+          "nLab": 19
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "bias.items.0.uRef": {
+      "value": 1.5,
+      "ref": "Table 6 (p. 27): u(Crefi), exercise 1"
+    },
+    "bias.items.1.uRef": {
+      "value": 1.32,
+      "ref": "Table 6 (p. 27): u(Crefi), exercise 2"
+    },
+    "bias.items.2.uRef": {
+      "value": 2.25,
+      "ref": "Table 6 (p. 27): u(Crefi), exercise 3"
+    },
+    "bias.meanBias": {
+      "value": 0.9,
+      "ref": "Table 6 (p. 27): X = +0.9"
+    },
+    "bias.rms": {
+      "value": 3.76,
+      "ref": "Table 6 (p. 27): RMSbias = 3.76"
+    },
+    "bias.uRef": {
+      "value": 1.69,
+      "ref": "Table 6 (p. 27): u(Cref) = 1.69"
+    },
+    "bias.u": {
+      "value": 4.12,
+      "ref": "Example B, 4-qadam (p. 29): √(3.76² + 1.69²) = 4.12 %"
+    },
+    "uc": {
+      "value": 4.87,
+      "ref": "Example B, 5-qadam (p. 29): u_c = √(2.6² + 4.12²) = 4.87 %"
+    },
+    "U": {
+      "value": 9.7,
+      "ref": "Example B, 6-qadam (p. 29): U = 2 · 4.87 = 9.7 ≈ 10 %"
+    }
+  },
+  "expectedWarnings": [
+    "topdown_few_pt_rounds"
+  ],
+  "tolerance": {
+    "default": {
+      "abs": 0.005
+    },
+    "bias.meanBias": {
+      "abs": 0.05
+    },
+    "U": {
+      "abs": 0.05
+    }
+  }
+}

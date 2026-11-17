@@ -59,6 +59,16 @@ function pickRegression(q) {
 // Excel ν_eff ≈ 10⁹ ni "∞" o'rnida ishlatadi (B tur ν = 10⁹); dvigatel ν_B = ∞ (P03 dan cap yo'q).
 const NU_INF = 1e6;
 
+// P09: top-down natijasi (format 'uc-topdown/1') — kattalik nomi natijadagi yo'l:
+//   uc, U, k, relU, rw.u, rw.components.N.u|s|n|mean, bias.rms|uRef|u|meanBias, bias.items.N.uRef,
+//   recovery.uRm|t|tCrit|u|significant (mantiqiy → 0/1), yCorrected, absUc …
+function pickTopDown(q) {
+  return r => {
+    const v = String(q).split('.').reduce((o, k) => (o == null ? o : o[k]), r);
+    return typeof v === 'boolean' ? Number(v) : v;
+  };
+}
+
 function run(c) {
   const runSpec = c.run || { method: 'evaluate' };
   if (runSpec.method === 'regression') {
@@ -70,6 +80,16 @@ function run(c) {
       spec = { ...spec, inverse: runSpec.inverseAtX.map(q => ({ ...q, x: undefined, y0: f.params.reduce((s, p, j) => s + p.value * (q.x - f.xRef) ** j, 0) })) };
     }
     const r = engine.evaluate(spec);
+    if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
+    return { r, runSpec };
+  }
+  if (runSpec.method === 'topdown') {
+    let r;
+    if (runSpec.part === 'bias') {
+      // Manba faqat u(bias) ni bergan bo'lim (masalan TR 537 §6.3): bias qismi alohida hisoblanadi
+      try { r = { bias: engine.evaluateBias(c.modelSpec.bias, engine.makeContext(c.modelSpec.scale, c.modelSpec.relativeUnit)), warnings: [] }; }
+      catch (e) { throw new Error(`${c.id}: ${e.code || e.message} ${e.detail || ''}`); }
+    } else r = engine.evaluate(c.modelSpec);
     if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
     return { r, runSpec };
   }
@@ -100,7 +120,9 @@ function checks(c) {
   const { r, runSpec } = run(c);
   const pick = runSpec.method === 'regression'
     ? new Proxy({}, { get: (_, q) => pickRegression(String(q)) })
-    : PICK[runSpec.method];
+    : runSpec.method === 'topdown'
+      ? new Proxy({}, { get: (_, q) => pickTopDown(String(q)) })
+      : PICK[runSpec.method];
   const list = [];
   const push = (q, e, actualFn) => list.push({
     q, expected: e.value, ref: e.ref, tol: tolFor(c, q),
