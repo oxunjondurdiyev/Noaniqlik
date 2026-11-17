@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-16",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Rokvell qattiqligi",
+    "ru": "Твёрдость по Роквеллу",
+    "en": "Rockwell hardness"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 9013",
+      "edition": null,
+      "labCount": 21
+    }
+  ],
+  "labCount": 21,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-16",
+  "measurand": {
+    "symbol": "H",
+    "name": {
+      "uz": "Rokvell qattiqligi",
+      "ru": "Твёрдость по Роквеллу",
+      "en": "Rockwell hardness"
+    },
+    "unit": "HR"
+  },
+  "model": {
+    "formula": "H = H_oq + Δ_et"
+  },
+  "inputs": [
+    {
+      "symbol": "H_oq",
+      "name": {
+        "uz": "Qattiqlik o'lchagich ko'rsatishi (kamida 3 ta iz)",
+        "ru": "Показание твердомера (не менее 3 отпечатков)",
+        "en": "Hardness tester reading (at least 3 indentations)"
+      },
+      "unit": "1",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "Δ_et",
+      "name": {
+        "uz": "Etalon plitka bo'yicha tuzatma Δ_et",
+        "ru": "Поправка по эталонной мере Δ_эт",
+        "en": "Correction from the reference block Δ_ref"
+      },
+      "unit": "1",
+      "kind": "reference",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Etalon plitkadagi o'lchash natijasidan: Δ_et = H_sertifikat − H_o'lchangan.",
+        "ru": "По результату измерения на эталонной мере: Δ = H_сертификат − H_измеренное.",
+        "en": "From the measurement on the reference block: Δ = H_certificate − H_measured."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "D_et_cert",
+      "input": "Δ_et",
+      "name": {
+        "uz": "Etalon qattiqlik plitkasi: kalibrlash sertifikati (Δ_et)",
+        "ru": "Эталонная мера твёрдости: сертификат о калибровке (Δ_et)",
+        "en": "Reference hardness block: calibration certificate (Δ_et)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "1",
+      "instrument": "block",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "D_et_dev",
+      "input": "Δ_et",
+      "name": {
+        "uz": "Qattiqlik o'lchagichning etalon plitkadagi chetlanishi (Δ_et)",
+        "ru": "Отклонение твердомера на эталонной мере (Δ_эт)",
+        "en": "Deviation of the hardness tester on the reference block (Δ_ref)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "1",
+      "instrument": "hardness",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "H_oq_res",
+      "input": "H_oq",
+      "name": {
+        "uz": "Qattiqlik o'lchagich: ajratish qobiliyati (H_oq)",
+        "ru": "Твердомер: разрешение (H_oq)",
+        "en": "Hardness tester: resolution (H_oq)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "1",
+      "instrument": "hardness",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "⚠ ГОСТ 9013 / ISO 6508-1 dagi noaniqlik ilovasi tekshirilsin (manbalar ro'yxati va taqsimotlar).",
+        "ru": "⚠ Проверить приложение о неопределённости в ГОСТ 9013 / ISO 6508-1 (перечень источников и распределения).",
+        "en": "⚠ Verify the uncertainty annex of GOST 9013 / ISO 6508-1 (list of sources and distributions)."
+      },
+      "owner": "lab",
+      "blocking": true
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

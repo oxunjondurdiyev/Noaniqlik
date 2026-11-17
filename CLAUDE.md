@@ -42,7 +42,7 @@ Asosiy hujjatlar: [docs/PLAN.md](docs/PLAN.md) (bosqichlar), [docs/ARCHITECTURE.
 - Pullik ISO standartlariga tayanadigan funksiyalar uchun test manbasi: ochiq manbalar (GTC/MSL, NIST), egasi bergan laboratoriya misollari yoki mustaqil qo'lda hisob (Excel). Manba aniq bo'lmaguncha `unverified`.
 - Brauzerlar: ES modules (2018+); eski brauzerga faqat oddiy ogohlantirish.
 
-## Joriy holat bo'yicha eslatmalar (2026-11-13, P02, P01 va P03 dan keyin)
+## Joriy holat bo'yicha eslatmalar (2026-11-17, P02, P01, P03 va P04 dan keyin)
 
 Bu bo'lim qoidalarni bekor qilmaydi — faqat ular hozir qayerda bajarilmasligini ko'rsatadi. Tegishli bosqich tugagach yangilanadi.
 
@@ -59,4 +59,5 @@ Bu bo'lim qoidalarni bekor qilmaydi — faqat ular hozir qayerda bajarilmasligin
 - **Inline skript va `onclick` yo'q** (CSP `script-src 'self'`): yangi HTML/JS'da `addEventListener` va `data-*`; bazadan kelgan qiymat `escHtml` (`src/ui/escape.js`) orqali. Tashqi skript faqat `vendor/` dan.
 - Shaxsiy ma'lumotlarni O'zbekistondagi serverga ko'chirish (P15) — O'RQ-1125 (26.03.2026) bo'yicha zaruriyati yuridik qayta baholanadi (`docs/DATA_RESIDENCY.md`). Minimallashtirish tamoyili o'zgarmaydi.
 - admin/superadmin/auth sahifalari hali i18n'ga ulanmagan (faqat o'zbekcha, R-13) — P02 da qo'shilgan bir nechta yangi matn ham o'zbekcha; 3 tilga o'tkazish — P05 (R-13).
+- **Shablonlar (P04):** `schemas/methodology.schema.json`, `src/templates/` (interpreter, validator), `templates/builtin/` (11 `legacy-*` + 24 `T-*`, hammasi DRAFT), yo'riqnoma `docs/TEMPLATE_GUIDE.md`, tasdiqlash `docs/templates/APPROVAL_CHECKLIST.md`. Saqlash — `src/storage/` (IndexedDB, audit xesh zanjiri). 1-to'lqin shablonlarida raqam (yarim kenglik, U, k, kuzatuv) yo'q — qo'shilmaydi. `npm test` ga `tests/templates/`, `tests/storage/` qo'shildi.
 - Pullik ISO/GOST standartlarini repoga joylama (`docs/references/README.md`).

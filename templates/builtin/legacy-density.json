@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-density",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Zichlik  ρ = m/V",
+    "ru": "Плотность  ρ = m/V",
+    "en": "Density  ρ = m/V"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — density",
+  "legacyPresetKey": "density",
+  "measurand": {
+    "symbol": "ρ",
+    "name": {
+      "uz": "Zichlik",
+      "ru": "Плотность",
+      "en": "Density"
+    },
+    "unit": "g/cm³"
+  },
+  "model": {
+    "formula": "ρ = m / V"
+  },
+  "inputs": [
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Massa",
+        "ru": "Масса",
+        "en": "Mass"
+      },
+      "unit": "",
+      "kind": "observation"
+    },
+    {
+      "symbol": "V",
+      "name": {
+        "uz": "Hajm",
+        "ru": "Объём",
+        "en": "Volume"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m_1",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi kalibrlovi (U, k = 2)",
+        "ru": "Калибровка весов (U, k = 2)",
+        "en": "Balance calibration (U, k=2)"
+      },
+      "legacyName": "Balance calibration (U, k=2)",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.0006,
+      "k": 2,
+      "sensitivity": 1,
+      "unit": "g"
+    },
+    {
+      "id": "m_2",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi ajratish qobiliyati d",
+        "ru": "Дискретность весов d",
+        "en": "Balance resolution d"
+      },
+      "legacyName": "Balance resolution d",
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": 0.0001,
+      "sensitivity": 1,
+      "unit": "g"
+    },
+    {
+      "id": "m_3",
+      "input": "m",
+      "name": {
+        "uz": "Nochiziqlilik / ekssentriklik",
+        "ru": "Нелинейность / эксцентриситет",
+        "en": "Non-linearity / eccentricity"
+      },
+      "legacyName": "Non-linearity / eccentricity",
+      "kind": "specification",
+      "distribution": "rect",
+      "halfWidth": 0.0002,
+      "sensitivity": 1,
+      "unit": "g"
+    },
+    {
+      "id": "V_4",
+      "input": "V",
+      "name": {
+        "uz": "Idish ruxsat etilgan chetlanishi",
+        "ru": "Допуск мерной посуды",
+        "en": "Glassware tolerance"
+      },
+      "legacyName": "Glassware tolerance",
+      "kind": "specification",
+      "distribution": "rect",
+      "halfWidth": 0.1,
+      "sensitivity": 1,
+      "unit": "cm³"
+    },
+    {
+      "id": "V_5",
+      "input": "V",
+      "name": {
+        "uz": "Shkaladan o'qish d",
+        "ru": "Отсчёт по шкале d",
+        "en": "Scale reading d"
+      },
+      "legacyName": "Scale reading d",
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": 0.02,
+      "sensitivity": 1,
+      "unit": "cm³"
+    },
+    {
+      "id": "V_6",
+      "input": "V",
+      "name": {
+        "uz": "Harorat ±ΔT (×V·γ)",
+        "ru": "Температура ±ΔT (×V·γ)",
+        "en": "Temperature ±ΔT (×V·γ)"
+      },
+      "legacyName": "Temperature ±ΔT (×V·γ)",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 2,
+      "sensitivity": 0.021004,
+      "unit": "cm³"
+    }
+  ],
+  "sampleData": {
+    "demo": false,
+    "note": {
+      "uz": "Laboratoriya Excel misolidan.",
+      "ru": "Из лабораторного примера Excel.",
+      "en": "From the laboratory Excel example."
+    },
+    "source": "tests/fixtures/Zichlik_noaniqligi_hisobi.xlsx (2_Kirish!B6:C10)",
+    "data": {
+      "m": [
+        99.8312,
+        99.8741,
+        99.8103,
+        99.8655,
+        99.8236
+      ],
+      "V": [
+        100.02,
+        100.06,
+        99.98,
+        100.04,
+        100
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-length",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Uzunlik",
+    "ru": "Длина",
+    "en": "Length"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — length",
+  "legacyPresetKey": "length",
+  "measurand": {
+    "symbol": "L",
+    "name": {
+      "uz": "Uzunlik",
+      "ru": "Длина",
+      "en": "Length"
+    },
+    "unit": "mm"
+  },
+  "model": {
+    "formula": ""
+  },
+  "inputs": [
+    {
+      "symbol": "L",
+      "name": {
+        "uz": "Uzunlik",
+        "ru": "Длина",
+        "en": "Length"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "L_1",
+      "input": "L",
+      "name": {
+        "uz": "Mikrometr kalibrlovi",
+        "ru": "Калибровка микрометра",
+        "en": "Calibration of micrometer"
+      },
+      "legacyName": "Calibration of micrometer",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.002,
+      "sensitivity": 1,
+      "unit": "mm"
+    },
+    {
+      "id": "L_2",
+      "input": "L",
+      "name": {
+        "uz": "Ajratish qobiliyati (0,001 mm)",
+        "ru": "Разрешение (0,001 мм)",
+        "en": "Resolution (0.001 mm)"
+      },
+      "legacyName": "Resolution (0.001 mm)",
+      "kind": "resolution",
+      "distribution": "rect",
+      "halfWidth": 0.0005,
+      "sensitivity": 1,
+      "unit": "mm"
+    },
+    {
+      "id": "L_3",
+      "input": "L",
+      "name": {
+        "uz": "Issiqlikdan kengayish (ΔT = ±1 °C)",
+        "ru": "Тепловое расширение (ΔT = ±1 °C)",
+        "en": "Thermal expansion (ΔT = ±1 °C)"
+      },
+      "legacyName": "Thermal expansion (ΔT = ±1 °C)",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 0.0003,
+      "sensitivity": 1,
+      "unit": "mm"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "L": [
+        25.003,
+        24.999,
+        25.001,
+        25.002,
+        24.998,
+        25.001,
+        25,
+        25.002,
+        24.999,
+        25.001
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

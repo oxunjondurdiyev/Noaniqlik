@@ -28,6 +28,20 @@
 
 > **Yangilanish — P03 (2026-11-13, `feat/p03-engine`).** Hisoblash dvigateli `src/js/calc.js` dan `src/engine/` ga (sof ES modullar, `"type": "module"`) ko'chirildi; API — [ENGINE_API.md](ENGINE_API.md), `ENGINE_VERSION` 2.0.0 (`src/engine/version.js`). Yaxlitlash va ko'rsatish — `src/report/rounding.js`, `src/report/format.js`. `src/js/calc.js` endi `<script type="module">` moslik qatlami: `window.Calc` (P00 API) ni engine + report dan yig'adi; klassik skriptlar `Calc` ni faqat ish vaqtida (DOMContentLoaded dan keyin) chaqiradi. Yangi matnlar — `src/js/i18n-engine.js`. Quyidagi §3 dagi `calc.js:…` qator havolalari P00 holatini tasvirlaydi.
 
+
+> **Yangilanish — P04 (2026-11-17, `feat/p04-templates`).** Yangi qatlamlar (bog'liqlik: `ui → templates → engine`, `ui → storage`; dvigatel o'zgarmagan):
+>
+> | Fayl | Vazifasi (P04) |
+> |---|---|
+> | `schemas/methodology.schema.json` | shablon sxemasi `uc-template/1` |
+> | `src/templates/validator.js`, `interpreter.js` | o'z JSON Schema validatori; shablon → holat → `uc-model/1` → `evaluate`, holat oqimi, qulflash, versiya, qidiruv |
+> | `templates/builtin/*.json`, `index.json` | 11 ta eski preset (`legacy-*`) + 24 ta 1-to'lqin shabloni (`T-01…T-24`) |
+> | `src/storage/*` | `StorageAdapter`, `LocalAdapter` (IndexedDB `uncertaintycalc`: calculations, templates, settings, registries, audit, meta), `RemoteAdapter` skeleti, audit xesh zanjiri, migratsiya, eksport/import |
+> | `src/ui/tpl/view.js`, `app.js` | katalog, shablon paneli, muharrir, laboratoriya sozlamalari, ma'lumotlar oynasi (`<script type="module">`, `window.UCTemplates`) |
+> | `src/js/i18n-templates.js` | P04 matnlari (uz/ru/en) |
+>
+> §7 (shablonlar) va R-09: shablonlar endi JSON; foydalanuvchi shablonlari va har bir hisob IndexedDB da audit bilan saqlanadi. `uc_state_v2` joriy sessiya uchun ishlatilishda davom etadi; birinchi yuklanishda IndexedDB ga nusxalanadi (`uc_state_v2_backup` bilan).
+
 ---
 
 ## 1. Umumiy ko'rinish

@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-20",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "pH (suvli eritma yoki ekstrakt)",
+    "ru": "pH (водный раствор или вытяжка)",
+    "en": "pH (aqueous solution or extract)"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 22567.5",
+      "edition": null,
+      "labCount": 30
+    },
+    {
+      "code": "ГОСТ 29188.2",
+      "edition": null,
+      "labCount": 25
+    }
+  ],
+  "labCount": 30,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-20",
+  "measurand": {
+    "symbol": "pH",
+    "name": {
+      "uz": "pH qiymati",
+      "ru": "Значение pH",
+      "en": "pH value"
+    },
+    "unit": ""
+  },
+  "model": {
+    "formula": "pH = pH_oq + δ_bufer + δ_T + δ_drift"
+  },
+  "inputs": [
+    {
+      "symbol": "pH_oq",
+      "name": {
+        "uz": "pH-metr ko'rsatishi",
+        "ru": "Показание pH-метра",
+        "en": "pH meter reading"
+      },
+      "unit": "1",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "δ_bufer",
+      "name": {
+        "uz": "Bufer eritmalar bo'yicha tuzatma",
+        "ru": "Поправка по буферным растворам",
+        "en": "Correction for the buffer solutions"
+      },
+      "unit": "1",
+      "kind": "influence",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Tuzatma qiymati (bitta son). Tuzatma kiritilmasa — uning bahosi va noaniqligi B tur manbada (GUM 4.1.4, F.2.4.5).",
+        "ru": "Значение поправки (одно число). Если поправка не вводится — её оценка и неопределённость задаются источником типа B (GUM 4.1.4, F.2.4.5).",
+        "en": "Correction value (a single number). If no correction is applied, its estimate and uncertainty are given by the Type B source (GUM 4.1.4, F.2.4.5)."
+      }
+    },
+    {
+      "symbol": "δ_T",
+      "name": {
+        "uz": "Harorat kompensatsiyasi tuzatmasi",
+        "ru": "Поправка температурной компенсации",
+        "en": "Temperature-compensation correction"
+      },
+      "unit": "1",
+      "kind": "influence",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Tuzatma qiymati (bitta son). Tuzatma kiritilmasa — uning bahosi va noaniqligi B tur manbada (GUM 4.1.4, F.2.4.5).",
+        "ru": "Значение поправки (одно число). Если поправка не вводится — её оценка и неопределённость задаются источником типа B (GUM 4.1.4, F.2.4.5).",
+        "en": "Correction value (a single number). If no correction is applied, its estimate and uncertainty are given by the Type B source (GUM 4.1.4, F.2.4.5)."
+      }
+    },
+    {
+      "symbol": "δ_drift",
+      "name": {
+        "uz": "Elektrod dreyfi tuzatmasi",
+        "ru": "Поправка на дрейф электрода",
+        "en": "Electrode drift correction"
+      },
+      "unit": "1",
+      "kind": "influence",
+      "typeA": {
+        "method": 1
+      },
+      "hint": {
+        "uz": "Tuzatma qiymati (bitta son). Tuzatma kiritilmasa — uning bahosi va noaniqligi B tur manbada (GUM 4.1.4, F.2.4.5).",
+        "ru": "Значение поправки (одно число). Если поправка не вводится — её оценка и неопределённость задаются источником типа B (GUM 4.1.4, F.2.4.5).",
+        "en": "Correction value (a single number). If no correction is applied, its estimate and uncertainty are given by the Type B source (GUM 4.1.4, F.2.4.5)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "d_buf_cert",
+      "input": "δ_bufer",
+      "name": {
+        "uz": "Bufer eritmalar sertifikati (δ_bufer)",
+        "ru": "Сертификат буферных растворов (δ_буфер)",
+        "en": "Buffer solution certificate (δ_buffer)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "1",
+      "instrument": "buffer",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob kalibrlash sertifikatidan: kengaytirilgan noaniqlik U va qamrov koeffitsienti k.",
+        "ru": "Из сертификата о калибровке прибора: расширенная неопределённость U и коэффициент охвата k.",
+        "en": "From the instrument calibration certificate: expanded uncertainty U and coverage factor k."
+      }
+    },
+    {
+      "id": "pH_oq_res",
+      "input": "pH_oq",
+      "name": {
+        "uz": "PH-metr: ajratish qobiliyati (pH_oq)",
+        "ru": "PH-метр: разрешение (pH_oq)",
+        "en": "PH meter: resolution (pH_oq)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "1",
+      "instrument": "phmeter",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "d_T",
+      "input": "δ_T",
+      "name": {
+        "uz": "Harorat kompensatsiyasi (δ_T)",
+        "ru": "Температурная компенсация (δ_T)",
+        "en": "Temperature compensation (δ_T)"
+      },
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "1",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    },
+    {
+      "id": "d_drift",
+      "input": "δ_drift",
+      "name": {
+        "uz": "Elektrod dreyfi (δ_drift)",
+        "ru": "Дрейф электрода (δ_drift)",
+        "en": "Electrode drift (δ_drift)"
+      },
+      "kind": "drift",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "1",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      }
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "⚠ Kalibrlashda ishlatilgan ikki bufer pH qiymatiga bog'liq interpolyatsiya — ilg'or variant (P08).",
+        "ru": "⚠ Интерполяция в зависимости от pH двух буферов, использованных при калибровке, — расширенный вариант (P08).",
+        "en": "⚠ Interpolation depending on the pH of the two calibration buffers — advanced variant (P08)."
+      },
+      "owner": "owner"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

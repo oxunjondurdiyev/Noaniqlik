@@ -30,6 +30,11 @@ const Calc = Object.freeze({
   multiPointCoverage: engine.multiPointCoverage,
   valueOrExpr: engine.valueOrExpr,
   toNum: engine.toNum,
+  // birliklar (P04: UI dagi o'lchamlik ogohlantirishi)
+  parse: engine.parse,
+  parseUnit: engine.parseUnit,
+  analyzeDimensions: engine.analyzeDimensions,
+  dimText: engine.dimText,
   // hisobot qatlami
   roundResult, roundHalfAway, roundUpAway, fmt, fmtSci,
 });

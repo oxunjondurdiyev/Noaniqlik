@@ -1,0 +1,318 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-08",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Chaqiq tosh maydalanuvchanligi; chang va loy zarralari miqdori",
+    "ru": "Дробимость щебня; содержание пылевидных и глинистых частиц",
+    "en": "Crushability of crushed stone; content of dust and clay particles"
+  },
+  "standards": [
+    {
+      "code": "ГОСТ 8269.0",
+      "edition": null,
+      "labCount": 33
+    }
+  ],
+  "labCount": 33,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-08",
+  "measurand": {
+    "symbol": "X",
+    "name": {
+      "uz": "Massa yo'qotilishi ulushi",
+      "ru": "Доля потери массы",
+      "en": "Mass loss fraction"
+    },
+    "unit": "%"
+  },
+  "model": {
+    "formula": "X = (m - m1) / m * 100"
+  },
+  "variants": [
+    {
+      "id": "crushing",
+      "title": {
+        "uz": "Maydalanuvchanlik",
+        "ru": "Дробимость",
+        "en": "Crushability"
+      },
+      "formula": "X = (m - m1) / m * 100",
+      "inputs": [
+        "m",
+        "m1"
+      ]
+    },
+    {
+      "id": "dust_clay",
+      "title": {
+        "uz": "Chang va loy zarralari miqdori",
+        "ru": "Содержание пылевидных и глинистых частиц",
+        "en": "Content of dust and clay particles"
+      },
+      "formula": "X = (m - m1) / m * 100",
+      "inputs": [
+        "m",
+        "m1"
+      ],
+      "excludeSources": [
+        "m1_press"
+      ]
+    }
+  ],
+  "defaultVariant": "crushing",
+  "inputs": [
+    {
+      "symbol": "m",
+      "name": {
+        "uz": "Tortim massasi m",
+        "ru": "Масса навески m",
+        "en": "Mass of the test portion m"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    },
+    {
+      "symbol": "m1",
+      "name": {
+        "uz": "Sinovdan keyingi massa m1",
+        "ru": "Масса после испытания m1",
+        "en": "Mass after the test m1"
+      },
+      "unit": "g",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Parallel aniqlashlar natijalari (natijaga kiradigan barcha parallellar). A tur: u = s/√n. Laboratoriyada R_w ma'lumoti bo'lsa — A tur usuli 2 (pooled s_p, ν_p).",
+        "ru": "Результаты параллельных определений (все параллели, входящие в результат). Тип A: u = s/√n. Если в лаборатории есть данные R_w — метод типа A 2 (объединённое s_p, ν_p).",
+        "en": "Results of replicate determinations (all replicates that enter the result). Type A: u = s/√n. If the laboratory has R_w data — Type A method 2 (pooled s_p, ν_p)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "m_cal_common",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash — umumiy qism (ofset/sezgirlik) (m)",
+        "ru": "Весы: калибровка — общая часть (смещение/чувствительность) (m)",
+        "en": "Balance: calibration — common part (offset/sensitivity) (m)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "share": "common",
+      "certificateU": null,
+      "certificateK": null,
+      "hint": {
+        "uz": "Umumiy qism: sertifikatdagi ofset yoki sezgirlik noaniqligi (U va k). U barcha o'lchashlarda bir xil ta'sir qiladi (r = +1). Ikki marta hisoblamang: sertifikatda faqat bitta umumiy U bo'lsa, uni bu qator va nuqtaga xos qator o'rtasida bo'ling — u²(umumiy) + u²(nuqta) = u²(sertifikat). Tekshiruv uchun sertifikatning to'liq U va k sini quyidagi maydonlarga yozing. Bo'lishni bilmasangiz — korrelyatsiya savolida \"Noma'lum\" ni tanlang.",
+        "ru": "Общая часть: неопределённость смещения или чувствительности из сертификата (U и k). Действует одинаково на все измерения (r = +1). Не учитывайте дважды: если в сертификате только одна общая U, разделите её между этой строкой и строкой части, специфичной для точки, — u²(общая) + u²(точка) = u²(сертификат). Для проверки укажите полную U и k сертификата в полях ниже. Если разделение неизвестно — выберите «Неизвестно» в вопросе о корреляции.",
+        "en": "Common part: offset or sensitivity uncertainty from the certificate (U and k). It acts identically on all measurements (r = +1). Do not count twice: if the certificate gives only one overall U, split it between this row and the point-specific row — u²(common) + u²(point) = u²(certificate). For the check, enter the certificate's full U and k in the fields below. If the split is unknown, choose \"Unknown\" in the correlation question."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
+      }
+    },
+    {
+      "id": "m_cal_point",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: kalibrlash — nuqtaga xos qism (nochiziqlilik, ekssentriklik, interpolyatsiya) (m)",
+        "ru": "Весы: калибровка — часть, специфичная для точки (нелинейность, эксцентриситет, интерполяция) (m)",
+        "en": "Balance: calibration — point-specific part (non-linearity, eccentricity, interpolation) (m)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "allowedDistributions": [
+        "rect",
+        "normal"
+      ],
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "share": "point",
+      "hint": {
+        "uz": "Nuqtaga xos qism: sertifikat jadvalidagi nuqtalar orasidagi farq, nochiziqlilik yoki ekssentriklik sinovi natijasi, yoki pasportdagi ruxsat etilgan qiymat (±a). Har bir o'lchashda mustaqil (r = 0), korrelyatsiyaga kirmaydi.",
+        "ru": "Часть, специфичная для точки: разброс между точками в таблице сертификата, результат проверки нелинейности или эксцентриситета, либо допуск из паспорта (±a). Независима для каждого измерения (r = 0), в корреляцию не входит.",
+        "en": "Point-specific part: spread between the points of the certificate table, the result of a non-linearity or eccentricity test, or the passport tolerance (±a). Independent for each measurement (r = 0); not part of the correlation."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
+      }
+    },
+    {
+      "id": "m_res",
+      "input": "m",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m)",
+        "ru": "Весы: разрешение (m)",
+        "en": "Balance: resolution (m)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m1_cal_common",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash — umumiy qism (ofset/sezgirlik) (m1)",
+        "ru": "Весы: калибровка — общая часть (смещение/чувствительность) (m1)",
+        "en": "Balance: calibration — common part (offset/sensitivity) (m1)"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": true,
+      "share": "common",
+      "certificateU": null,
+      "certificateK": null,
+      "hint": {
+        "uz": "Umumiy qism: sertifikatdagi ofset yoki sezgirlik noaniqligi (U va k). U barcha o'lchashlarda bir xil ta'sir qiladi (r = +1). Ikki marta hisoblamang: sertifikatda faqat bitta umumiy U bo'lsa, uni bu qator va nuqtaga xos qator o'rtasida bo'ling — u²(umumiy) + u²(nuqta) = u²(sertifikat). Tekshiruv uchun sertifikatning to'liq U va k sini quyidagi maydonlarga yozing. Bo'lishni bilmasangiz — korrelyatsiya savolida \"Noma'lum\" ni tanlang.",
+        "ru": "Общая часть: неопределённость смещения или чувствительности из сертификата (U и k). Действует одинаково на все измерения (r = +1). Не учитывайте дважды: если в сертификате только одна общая U, разделите её между этой строкой и строкой части, специфичной для точки, — u²(общая) + u²(точка) = u²(сертификат). Для проверки укажите полную U и k сертификата в полях ниже. Если разделение неизвестно — выберите «Неизвестно» в вопросе о корреляции.",
+        "en": "Common part: offset or sensitivity uncertainty from the certificate (U and k). It acts identically on all measurements (r = +1). Do not count twice: if the certificate gives only one overall U, split it between this row and the point-specific row — u²(common) + u²(point) = u²(certificate). For the check, enter the certificate's full U and k in the fields below. If the split is unknown, choose \"Unknown\" in the correlation question."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
+      }
+    },
+    {
+      "id": "m1_cal_point",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: kalibrlash — nuqtaga xos qism (nochiziqlilik, ekssentriklik, interpolyatsiya) (m1)",
+        "ru": "Весы: калибровка — часть, специфичная для точки (нелинейность, эксцентриситет, интерполяция) (m1)",
+        "en": "Balance: calibration — point-specific part (non-linearity, eccentricity, interpolation) (m1)"
+      },
+      "kind": "specification",
+      "distribution": "rect",
+      "allowedDistributions": [
+        "rect",
+        "normal"
+      ],
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "share": "point",
+      "hint": {
+        "uz": "Nuqtaga xos qism: sertifikat jadvalidagi nuqtalar orasidagi farq, nochiziqlilik yoki ekssentriklik sinovi natijasi, yoki pasportdagi ruxsat etilgan qiymat (±a). Har bir o'lchashda mustaqil (r = 0), korrelyatsiyaga kirmaydi.",
+        "ru": "Часть, специфичная для точки: разброс между точками в таблице сертификата, результат проверки нелинейности или эксцентриситета, либо допуск из паспорта (±a). Независима для каждого измерения (r = 0), в корреляцию не входит.",
+        "en": "Point-specific part: spread between the points of the certificate table, the result of a non-linearity or eccentricity test, or the passport tolerance (±a). Independent for each measurement (r = 0); not part of the correlation."
+      },
+      "note": {
+        "uz": "P04b, egasi qarori (2026-11-17): sertifikat manbasi umumiy va nuqtaga xos qismga bo'lingan (EA-4/02 M:2022 D4–D5).",
+        "ru": "P04b, решение владельца (2026-11-17): источник «сертификат» разделён на общую и специфичную для точки части (EA-4/02 M:2022 D4–D5).",
+        "en": "P04b, owner's decision (2026-11-17): the certificate source is split into a common and a point-specific part (EA-4/02 M:2022 D4–D5)."
+      }
+    },
+    {
+      "id": "m1_res",
+      "input": "m1",
+      "name": {
+        "uz": "Tarozi: ajratish qobiliyati (m1)",
+        "ru": "Весы: разрешение (m1)",
+        "en": "Balance: resolution (m1)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "g",
+      "instrument": "balance",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    },
+    {
+      "id": "m1_press",
+      "input": "m1",
+      "name": {
+        "uz": "Press yuklamasi (maydalanuvchanlik uchun bilvosita, m1)",
+        "ru": "Нагрузка пресса (косвенно, для дробимости, m1)",
+        "en": "Press load (indirect, crushability only, m1)"
+      },
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": null,
+      "unit": "g",
+      "correlated": false,
+      "hint": {
+        "uz": "Laboratoriya o'z tajribasi, validatsiya yoki tajriba natijalari asosida ±a ni baholaydi (to'g'ri burchakli taqsimot).",
+        "ru": "Лаборатория оценивает ±a по своему опыту, данным валидации или экспериментам (равномерное распределение).",
+        "en": "The laboratory estimates ±a from its experience, validation data or experiments (rectangular distribution)."
+      },
+      "note": {
+        "uz": "Press yuklamasining natijaga bilvosita ta'siri laboratoriya tomonidan m1 birligida baholanadi.",
+        "ru": "Косвенное влияние нагрузки пресса оценивается лабораторией в единицах m1.",
+        "en": "The indirect effect of the press load is estimated by the laboratory in units of m1."
+      }
+    }
+  ],
+  "correlations": [
+    {
+      "id": "m_m1",
+      "inputs": [
+        "m",
+        "m1"
+      ],
+      "r": 1,
+      "sharedInstrument": "balance",
+      "ask": true,
+      "defaultEnabled": true,
+      "question": {
+        "uz": "Bu kirishlar bitta tarozi bilan o'lchanadimi? Ha bo'lsa — umumiy sistematik xato tufayli korrelyatsiya r = +1 hisobga olinadi (faqat sertifikat/ruxsat etilgan xatolik manbalari; ajratish qobiliyati mustaqil).",
+        "ru": "Измеряются ли эти величины одним и тем же прибором (весы)? Если да — учитывается корреляция r = +1 из-за общей систематической погрешности (только источники «сертификат/допускаемая погрешность»; разрешение независимо).",
+        "en": "Are these inputs measured with the same balance? If yes — correlation r = +1 due to the common systematic error is taken into account (certificate / permissible-error sources only; resolution is independent)."
+      },
+      "split": "known"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "T-23",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "electrical",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Elektr mustahkamlik: sinov kuchlanishi",
+    "ru": "Электрическая прочность: испытательное напряжение",
+    "en": "Electric strength: test voltage"
+  },
+  "standards": [
+    {
+      "code": "IEC 60335",
+      "edition": null,
+      "labCount": 25
+    },
+    {
+      "code": "IEC 60204",
+      "edition": null,
+      "labCount": 25
+    },
+    {
+      "code": "IEC 60950",
+      "edition": null,
+      "labCount": 22
+    },
+    {
+      "code": "IEC 60598",
+      "edition": null,
+      "labCount": 21
+    },
+    {
+      "code": "IEC 60065",
+      "edition": null,
+      "labCount": 21
+    },
+    {
+      "code": "ГОСТ 3940",
+      "edition": null,
+      "labCount": null
+    },
+    {
+      "code": "ГОСТ 2933",
+      "edition": null,
+      "labCount": null
+    }
+  ],
+  "labCount": 25,
+  "sourceNote": {
+    "uz": "1-to'lqin shabloni (DRAFT). Formula WAVE1_SPEC.md dan; standartning to'liq matni repoda yo'q — laboratoriya amaldagi nashr bo'yicha tekshiradi. Yarim kenglik, sertifikat U va kuzatuvlar bo'sh: laboratoriya o'z asbob sertifikati va pasportidan kiritadi.",
+    "ru": "Шаблон 1-й волны (DRAFT). Формула — из WAVE1_SPEC.md; полного текста стандарта в репозитории нет — лаборатория проверяет по действующей редакции. Полуширины, U из сертификатов и наблюдения пустые: лаборатория вводит их из своих сертификатов и паспортов приборов.",
+    "en": "Wave-1 template (DRAFT). Formula from WAVE1_SPEC.md; the full text of the standard is not in the repository — the laboratory checks it against the current edition. Half-widths, certificate U and observations are empty: the laboratory enters them from its own instrument certificates and passports."
+  },
+  "ref": "docs/templates/WAVE1_SPEC.md#t-23",
+  "measurand": {
+    "symbol": "U_sin",
+    "name": {
+      "uz": "Qo'llangan sinov kuchlanishi",
+      "ru": "Приложенное испытательное напряжение",
+      "en": "Applied test voltage"
+    },
+    "unit": "kV"
+  },
+  "model": {
+    "formula": "U_sin = U_oq"
+  },
+  "inputs": [
+    {
+      "symbol": "U_oq",
+      "name": {
+        "uz": "Yuqori kuchlanish o'lchagichi ko'rsatishi",
+        "ru": "Показание измерителя высокого напряжения",
+        "en": "High-voltage meter reading"
+      },
+      "unit": "kV",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": true
+      },
+      "hint": {
+        "uz": "Bitta o'lchash natijasi (yoki parallellar). Takroriy o'lchash bo'lsa — barcha qiymatlarni kiriting (A tur).",
+        "ru": "Результат одного измерения (или параллелей). При повторных измерениях введите все значения (тип A).",
+        "en": "Single measurement result (or replicates). For repeated measurements enter all values (Type A)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "U_oq_cert",
+      "input": "U_oq",
+      "name": {
+        "uz": "Yuqori kuchlanish o'lchagichi: ruxsat etilgan xatolik yoki sertifikat (U_oq)",
+        "ru": "Измеритель высокого напряжения: допускаемая погрешность или сертификат (U_изм)",
+        "en": "High-voltage meter: permissible error or certificate (U_read)"
+      },
+      "kind": "certificate",
+      "distribution": "rect",
+      "halfWidth": null,
+      "allowedDistributions": [
+        "normal",
+        "rect"
+      ],
+      "unit": "kV",
+      "instrument": "hv",
+      "correlated": true,
+      "hint": {
+        "uz": "Asbob pasportidan: ruxsat etilgan xatolik chegarasi ±a (to'g'ri burchakli). Sertifikat bo'lsa — U va k (normal).",
+        "ru": "Из паспорта прибора: предел допускаемой погрешности ±a (равномерное). При наличии сертификата — U и k (нормальное).",
+        "en": "From the instrument passport: limit of permissible error ±a (rectangular). With a certificate — U and k (normal)."
+      }
+    },
+    {
+      "id": "U_oq_res",
+      "input": "U_oq",
+      "name": {
+        "uz": "Yuqori kuchlanish o'lchagichi: ajratish qobiliyati (U_oq)",
+        "ru": "Измеритель высокого напряжения: разрешение (U_oq)",
+        "en": "High-voltage meter: resolution (U_oq)"
+      },
+      "kind": "resolution",
+      "distribution": "resol",
+      "halfWidth": null,
+      "unit": "kV",
+      "instrument": "hv",
+      "correlated": false,
+      "hint": {
+        "uz": "Ko'rsatkichning ajratish qobiliyati (bir xona qiymati) d — asbob pasportidan. Bu yerga d ning o'zi kiritiladi: u = d/(2√3).",
+        "ru": "Цена единицы младшего разряда (разрешение) d — из паспорта прибора. Вводится само значение d: u = d/(2√3).",
+        "en": "Resolution (least significant digit) d — from the instrument passport. Enter d itself: u = d/(2√3)."
+      }
+    }
+  ],
+  "decisionRule": {
+    "type": "one_sided_lower",
+    "required": true,
+    "limit": null,
+    "note": {
+      "uz": "Natija — \"teshilmadi / teshildi\". Noaniqlik qo'llangan kuchlanishga tegishli: kuchlanish talab qilinganidan past bo'lmasligi kerak (bir tomonlama qaror qoidasi, P05).",
+      "ru": "Результат — «пробоя нет / пробой». Неопределённость относится к приложенному напряжению: оно не должно быть ниже требуемого (одностороннее правило, P05).",
+      "en": "The outcome is \"no breakdown / breakdown\". The uncertainty refers to the applied voltage: it must not be lower than required (one-sided decision rule, P05)."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "text": {
+        "uz": "Bir tomonlama qaror qoidasi (U_sin − U·… ≥ U_talab) — P05 da. Hozir faqat qo'llangan kuchlanish va uning U si chiqadi.",
+        "ru": "Одностороннее правило (U_исп − U·… ≥ U_треб) — в P05. Сейчас выводятся только приложенное напряжение и его U.",
+        "en": "The one-sided rule (U_test − U·… ≥ U_required) is in P05. For now only the applied voltage and its U are reported."
+      },
+      "owner": "owner"
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

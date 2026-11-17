@@ -4,6 +4,36 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [Unreleased] — P04b: "bitta asbob" korrelyatsiyasi — sertifikat manbasi ikki qismga (2026-11-17)
+
+**ENGINE_VERSION: 2.0.0 — o'zgarmadi** (`src/engine/`, `src/report/` ga tegilmagan). 9 ta etalon Excel nuqtasi, 10-test (MC) va 11 ta eski shablon natijasi o'zgarmadi.
+
+- Egasi qarori (3-variant): 14 ta 1-to'lqin shablonida bitta asbob bilan o'lchanadigan kirishlarning kalibrlash manbasi ikki qatorga bo'lindi. Shablonlar: T-02, T-04, T-05, T-06, T-07, T-08, T-09, T-11, T-12, T-15, T-18, T-19, T-21, T-24 (T-04 da ikki guruh, jami 15 guruh). Qo'shimcha: `docs/templates/examples/LAB-EXAMPLE-01.json`.
+  - umumiy qism: `share: "common"`, kovariatsiyaga kiradi;
+  - nuqtaga xos qism: `share: "point"`, kovariatsiyaga hech qachon kirmaydi.
+  - Yarim kengliklar bo'sh. Asos: EA-4/02 M:2022 D4–D5.
+- **Hisob natijasiga ta'sir (shablon qatlami).** Avval butun sertifikat U si r = 1 bilan kovariatsiyaga kirardi. Ayirma yoki nisbat modellarida bu kalibrlash hissasini qisqartirib, U ni kam baholashi mumkin edi. Endi faqat umumiy qism korrelyatsiyalangan.
+- **`split: "unknown"`.** Bu rejimda faqat sertifikatning to'liq U si ma'lum. Dastur r = 0 va r = 1 bilan hisoblaydi va katta u_c ni oladi. Hisobotda "Korrelyatsiya noma'lum — konservativ chegara: r = …" yoziladi. **Bu loyiha qarori, me'yoriy talab emas** (yuqori chegara g'oyasi — EA-4/02 D7, D.10).
+- **Ikki marta hisoblash tekshiruvi.** u²(umumiy) + u²(nuqta) > u²(sertifikat) bo'lsa — ogohlantirish (`split_exceeds`).
+- **Migratsiya.** P04 dagi bitta qatorli shablon nusxalari va hisob holatlari `split: "unknown"` ga o'tadi (`migrateTemplate`, `upgradeState`). Kiritilgan ma'lumot yo'qolmaydi.
+- **UI.** Yangi elementlar:
+  - "Sertifikat qismlari" tanlovi;
+  - sertifikatning to'liq U va k maydonlari;
+  - natija va bosma hisobotda chegara qatori va ogohlantirish.
+  - Matnlar uz/ru/en tillarida.
+
+## [Unreleased] — P04: shablonlar dvigateli, saqlash qatlami, 1-to'lqin shablonlari (2026-11-17)
+
+**ENGINE_VERSION: 2.0.0 — o'zgarmadi.** `src/engine/` va `src/report/` ga tegilmagan (`tests/security/engine.sha256.json` o'zgarmagan). 9 ta etalon Excel nuqtasi va 10-test (MC) natijasi o'zgarmadi.
+
+- **Shablon sxemasi** `schemas/methodology.schema.json` (`uc-template/1`): o'zgarmaslar, variantlar, formula ko'rinishidagi yarim kenglik, `correlations` + `sharedInstrument`, `includeByDefault`, kirish/natija birliklari, `standards[]`/`labCount`/`status`/`sourceNote`/`ref`/`openQuestions`. O'z validatori — `src/templates/validator.js` (tashqi kutubxonasiz).
+- **Interpreter** `src/templates/interpreter.js`: shablon → hisob holati → `uc-model/1` → `evaluate()`; holat oqimi DRAFT → REVIEWED → APPROVED, qulflash, yangi versiya; bo'sh maydon bilan hisob bloklanadi (bo'sh yarim kenglik 0, bo'sh k 2 deb jimgina olinmaydi).
+- **11 ta preset** → `templates/builtin/legacy-*.json` (`tests/tools/legacy-presets-to-templates.js`). Natija P03 bilan **bit darajasida bir xil** (`tests/templates/snapshots/legacy-p03.json`); zichlik, gazoanalizator va termometr — Excel bilan (katak havolalari, `tests/cases/excel/*.json`). `src/data/presets.js` va eski preset menyusi hozircha saqlanadi.
+- **24 ta 1-to'lqin shabloni** `templates/builtin/T-01 … T-24.json` (`docs/templates/WAVE1_SPEC.md`), hammasi DRAFT, raqamli maydonlar bo'sh, ⚠ joylar `openQuestions[]` da.
+- **Saqlash** `src/storage/`: `StorageAdapter`, `LocalAdapter` (IndexedDB), `RemoteAdapter` skeleti, append-only audit jurnali (SHA-256 xesh zanjiri, `verifyChain`), `uc_state_v2` → IndexedDB migratsiyasi (eski kalit o'chirilmaydi, `uc_state_v2_backup`), kanonik JSON eksport/import, laboratoriya sozlamalari. `fake-indexeddb` 6.2.8 — faqat devDependency.
+- **UI**: shablonlar katalogi (bo'limlar, standart shifri bo'yicha qidiruv, kartada holat/standartlar/laboratoriyalar soni), hisob sahifasida shablon paneli (o'zgarmaslar, "bitta asbobmi?" savoli, kiritilmagan manbalar, demo/DRAFT ogohlantirishi), muharrir, laboratoriya sozlamalari, eksport/import/audit oynasi; kirish birliklari maydoni va o'lchamlik ogohlantirishi; natijalar va bosma hisobotda "Shablon tasdiqlanmagan (DRAFT)" va "Namunaviy ma'lumot — real emas"; `cmcMode: 'block'`. Matnlar — `src/js/i18n-templates.js` (uz/ru/en).
+- Hujjatlar: `docs/TEMPLATE_GUIDE.md`, `docs/templates/APPROVAL_CHECKLIST.md`, `docs/VALIDATION_MATRIX.md` §6 (24 ta `pending` qator).
+
 ## [2.0.0] — P03: dvigatel `src/engine/` ga ajratildi (2026-11-13)
 
 **ENGINE_VERSION: 1.0.0 → 2.0.0** (major: API va natija tuzilmasi o'zgardi — natijada `Uround`/`yround`/`resultText` yo'q, `outputs[]`, `coverage`, `secondOrder`, `notes`, `units` qo'shildi; `docs/ENGINE_API.md`).

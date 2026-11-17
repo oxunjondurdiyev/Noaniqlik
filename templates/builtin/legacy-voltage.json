@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-voltage",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "O'zgarmas kuchlanish",
+    "ru": "Напряжение постоянного тока",
+    "en": "DC Voltage"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — voltage",
+  "legacyPresetKey": "voltage",
+  "measurand": {
+    "symbol": "U",
+    "name": {
+      "uz": "O'zgarmas kuchlanish",
+      "ru": "Постоянное напряжение",
+      "en": "DC voltage"
+    },
+    "unit": "V"
+  },
+  "model": {
+    "formula": ""
+  },
+  "inputs": [
+    {
+      "symbol": "U",
+      "name": {
+        "uz": "Kuchlanish",
+        "ru": "Напряжение",
+        "en": "Voltage"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "U_1",
+      "input": "U",
+      "name": {
+        "uz": "Multimetr kalibrlash sertifikati",
+        "ru": "Сертификат калибровки мультиметра",
+        "en": "DMM calibration certificate"
+      },
+      "legacyName": "DMM calibration certificate",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.003,
+      "sensitivity": 1,
+      "unit": "V"
+    },
+    {
+      "id": "U_2",
+      "input": "U",
+      "name": {
+        "uz": "Etalon noaniqligi",
+        "ru": "Неопределённость эталона",
+        "en": "Reference standard uncertainty"
+      },
+      "legacyName": "Reference standard uncertainty",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.001,
+      "sensitivity": 1,
+      "unit": "V"
+    },
+    {
+      "id": "U_3",
+      "input": "U",
+      "name": {
+        "uz": "Ajratish qobiliyati",
+        "ru": "Разрешение",
+        "en": "Resolution"
+      },
+      "legacyName": "Resolution",
+      "kind": "resolution",
+      "distribution": "rect",
+      "halfWidth": 0.00005,
+      "sensitivity": 1,
+      "unit": "V"
+    },
+    {
+      "id": "U_4",
+      "input": "U",
+      "name": {
+        "uz": "Termo-EYuK",
+        "ru": "Термо-ЭДС",
+        "en": "Thermal EMF"
+      },
+      "legacyName": "Thermal EMF",
+      "kind": "environment",
+      "distribution": "rect",
+      "halfWidth": 0.0005,
+      "sensitivity": 1,
+      "unit": "V"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "U": [
+        9.9987,
+        9.9991,
+        9.9985,
+        9.9988,
+        9.999,
+        9.9986,
+        9.9989,
+        9.9987,
+        9.9991,
+        9.9988
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

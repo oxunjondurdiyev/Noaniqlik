@@ -13,7 +13,7 @@ const LANGS = ['uz', 'ru', 'en'];
 function loadTranslations() {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   // Ikkala fayl bitta skript sifatida (top-level const TRANSLATIONS umumiy bo'lishi uchun)
-  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
+  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
   return dom.window.eval(src + '\n;TRANSLATIONS');
 }
 
@@ -87,4 +87,29 @@ test('P03: dvigatel xato kodlari UI xabarlariga ulangan (typeB.js) va uch tilda 
     assert.match(ui, new RegExp(`${code}:\\s+i18n\\.t\\('err_${code}'\\)`), code);
     for (const l of LANGS) assert.ok(T[l]['err_' + code], `${l}.err_${code}`);
   }
+});
+
+test('P04: i18n-templates.js oldingi fayllardagi kalitlarni bosib ketmaydi', () => {
+  const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
+  const base = dom.window.eval(['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;TRANSLATIONS');
+  const mine = [...fs.readFileSync(path.join(ROOT, 'src/js/i18n-templates.js'), 'utf8').matchAll(/^\s{6}([a-z0-9_]+):/gm)].map(m => m[1]);
+  assert.ok(mine.length > 50);
+  assert.deepEqual([...new Set(mine.filter(k => k in base.en))], []);
+});
+
+test('P04: src/ui/tpl dagi t(\'…\') kalitlari va dinamik kalit oilalari lug\'atda bor', () => {
+  const missing = [];
+  const dir = path.join(ROOT, 'src/ui/tpl');
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js'))) {
+    const src = fs.readFileSync(path.join(dir, f), 'utf8');
+    for (const m of src.matchAll(/\bt\('([a-z0-9_]+)'\)/g)) for (const l of LANGS) if (!(m[1] in T[l])) missing.push(`${f}: ${l}.${m[1]}`);
+  }
+  const fam = [
+    ...['DRAFT', 'REVIEWED', 'APPROVED', 'RETIRED'].flatMap(s => ['tpl_status_' + s, 'tpl_banner_' + s, 'ed_to_' + s]),
+    ...['construction', 'food_chem', 'electrical', 'calibration', 'general'].map(s => 'tpl_sec_' + s),
+    ...['observation', 'halfWidth', 'k', 'constant', 'correlation'].map(s => 'tpl_missing_' + s),
+    'w_unit_affine', 'w_unit_output', 'w_unit_pow',
+  ];
+  for (const k of fam) for (const l of LANGS) if (!(k in T[l])) missing.push(`${l}.${k}`);
+  assert.deepEqual([...new Set(missing)], []);
 });

@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "legacy-power",
+  "version": "1.0.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "calibration",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Elektr quvvat  P = U·I",
+    "ru": "Электрическая мощность  P = U·I",
+    "en": "Electrical Power  P = U·I"
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P03 dagi src/data/presets.js shablonidan o'zgarishsiz ko'chirilgan (P04).",
+    "ru": "Перенесён без изменений из шаблона src/data/presets.js (P03) в P04.",
+    "en": "Migrated unchanged from the src/data/presets.js preset (P03) in P04."
+  },
+  "ref": "src/data/presets.js (P03) — power",
+  "legacyPresetKey": "power",
+  "measurand": {
+    "symbol": "P",
+    "name": {
+      "uz": "Elektr quvvati",
+      "ru": "Электрическая мощность",
+      "en": "Electrical power"
+    },
+    "unit": "W"
+  },
+  "model": {
+    "formula": "P = U * I"
+  },
+  "inputs": [
+    {
+      "symbol": "U",
+      "name": {
+        "uz": "Kuchlanish",
+        "ru": "Напряжение",
+        "en": "Voltage"
+      },
+      "unit": "",
+      "kind": "observation"
+    },
+    {
+      "symbol": "I",
+      "name": {
+        "uz": "Tok kuchi",
+        "ru": "Сила тока",
+        "en": "Current"
+      },
+      "unit": "",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "U_1",
+      "input": "U",
+      "name": {
+        "uz": "Kuchlanish multimetri kalibrlovi",
+        "ru": "Калибровка мультиметра (напряжение)",
+        "en": "Voltage DMM calibration"
+      },
+      "legacyName": "Voltage DMM calibration",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.003,
+      "sensitivity": 1,
+      "unit": "V"
+    },
+    {
+      "id": "I_2",
+      "input": "I",
+      "name": {
+        "uz": "Tok shunti kalibrlovi",
+        "ru": "Калибровка токового шунта",
+        "en": "Current shunt calibration"
+      },
+      "legacyName": "Current shunt calibration",
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": 0.0002,
+      "sensitivity": 1,
+      "unit": "A"
+    }
+  ],
+  "sampleData": {
+    "demo": true,
+    "note": {
+      "uz": "Namunaviy ma'lumot — real emas (o'quv misoli).",
+      "ru": "Пример данных — не реальные (учебный пример).",
+      "en": "Sample data — not real (training example)."
+    },
+    "data": {
+      "U": [
+        9.9987,
+        9.9991,
+        9.9985,
+        9.9988,
+        9.999,
+        9.9986,
+        9.9989,
+        9.9987,
+        9.9991,
+        9.9988
+      ],
+      "I": [
+        0.50012,
+        0.50009,
+        0.50015,
+        0.50011,
+        0.5001,
+        0.50013,
+        0.50008,
+        0.50012,
+        0.5001,
+        0.50011
+      ]
+    }
+  },
+  "reporting": {
+    "reportType": "budget"
+  }
+}

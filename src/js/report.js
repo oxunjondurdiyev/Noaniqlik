@@ -175,6 +175,7 @@ const Results = (() => {
         <div class="result-statement-value mono">${statement(r)}</div>
         <div class="text-xs text-muted" style="margin-top:.45rem">${ilacNote(r)}</div>
       </div>
+      ${templateNotice()}
       ${warningsHtml(r)}
       ${renderKPIs(r)}
       ${renderConformity(r)}
@@ -192,7 +193,9 @@ const Results = (() => {
       mcBtn.textContent = i18n.t('mc_running');
       setTimeout(() => {
         const M = Number(el.querySelector('#mc-m').value) || 200000;
-        lastMC = Calc.monteCarlo(appState.get(), M);
+        const st = appState.get();
+        // P04b: MC tanlangan chegara (r = 0 yoki r = 1) holatida
+        lastMC = Calc.monteCarlo(st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).state : st, M);
         render();
       }, 30);
     });
@@ -521,6 +524,12 @@ const Results = (() => {
       </table>`;
   }
 
+  /* P04: shablon belgilari — "Shablon tasdiqlanmagan (DRAFT)", "Namunaviy ma'lumot — real emas" va h.k. */
+  function templateNotice() {
+    const meta = appState.get('template');
+    return meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(meta, current()) : '';
+  }
+
   function printReport() {
     const state = appState.get();
     const r     = current();
@@ -528,6 +537,13 @@ const Results = (() => {
 
     if (!r && !pts.length) {
       showToast(i18n.t('results_empty'), 'error');
+      return;
+    }
+    // P04: laboratoriya sozlamasi cmcMode = 'block' — U < CMC bo'lsa hisobot chiqmaydi (CLAUDE.md)
+    const lab = window.UCTemplates ? window.UCTemplates.labSettings() : null;
+    const below = [r, ...pts.map(p => p.result)].some(x => x && (x.warnings || []).some(w => w.code === 'below_cmc'));
+    if (lab && lab.cmcMode === 'block' && below) {
+      showToast(i18n.t('cmc_blocked'), 'error', 5000);
       return;
     }
 
@@ -561,6 +577,7 @@ const Results = (() => {
           <div>${i18n.t('report_operator')}: ____________________</div>
         </div>
       </div>
+      ${templateNotice()}
       ${body}
       <div class="print-footer">
         <span>${i18n.t('report_standard')}</span>

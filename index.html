@@ -502,6 +502,9 @@
         </div>
       </div>
 
+      <!-- P04: shablonlar katalogi -->
+      <button type="button" class="btn btn-outline w-full wf-templates-btn" data-open-templates="1" data-i18n="tpl_open_catalog">Template catalogue</button>
+
       <!-- Trial banner -->
       <div id="trial-banner" class="trial-banner trial-info" style="display:none"></div>
 
@@ -509,6 +512,41 @@
         Start Calculation →
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     P04: SHABLONLAR KATALOGI (src/ui/tpl/app.js)
+══════════════════════════════════════════════════ -->
+<div id="templates-screen" class="overlay-screen hidden">
+  <div class="tpl-screen">
+    <div class="tpl-screen-head">
+      <button type="button" class="btn btn-ghost btn-sm" id="tpl-btn-back" data-i18n="tpl_btn_back">← Back</button>
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="uz">UZ</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn active" data-lang="en">EN</button>
+      </div>
+    </div>
+    <h1 class="welcome-title" data-i18n="tpl_catalog_title">Methods (templates) catalogue</h1>
+    <p class="welcome-sub" data-i18n="tpl_catalog_sub">A template provides the model, inputs and uncertainty sources.</p>
+    <div class="tpl-toolbar">
+      <input type="search" id="tpl-search" data-i18n-ph="tpl_search_ph" placeholder="Standard code, ID or title" autocomplete="off" />
+      <button type="button" class="btn btn-outline btn-sm" id="tpl-btn-new" data-i18n="tpl_btn_new">New template</button>
+      <button type="button" class="btn btn-outline btn-sm" id="tpl-btn-import" data-i18n="tpl_btn_import">Import template (JSON)</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-open-lab="1" data-i18n="tpl_btn_lab">Laboratory settings</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-open-data="1" data-i18n="tpl_btn_data">Data: export / import / audit</button>
+    </div>
+    <p class="text-xs text-muted" id="tpl-data-status"></p>
+    <div id="tpl-catalog"></div>
+  </div>
+</div>
+
+<!-- P04: muharrir, laboratoriya sozlamalari, ma'lumotlar oynasi -->
+<div id="tpl-modal" class="tpl-modal" style="display:none">
+  <div class="tpl-modal-panel">
+    <button type="button" class="icon-btn tpl-modal-close" title="×">×</button>
+    <div class="tpl-modal-body"></div>
   </div>
 </div>
 
@@ -594,6 +632,13 @@
       </div>
 
       <div class="sidebar-section">
+        <h3 class="sidebar-heading" data-i18n="tpl_nav">Templates</h3>
+        <button type="button" class="btn btn-sm btn-outline w-full" data-open-templates="1" data-i18n="tpl_open_catalog">Template catalogue</button>
+        <button type="button" class="btn btn-sm btn-ghost w-full" data-open-lab="1" data-i18n="tpl_btn_lab">Laboratory settings</button>
+        <button type="button" class="btn btn-sm btn-ghost w-full" data-open-data="1" data-i18n="tpl_btn_data">Data: export / import / audit</button>
+      </div>
+
+      <div class="sidebar-section">
         <h3 class="sidebar-heading" data-i18n="sidebar_presets">Presets</h3>
         <select id="sidebar-preset" class="w-full">
           <option value="" data-i18n="opt_load_preset">— Load Preset —</option>
@@ -643,6 +688,7 @@
           </div>
         </div>
         <div class="data-scroll">
+          <div id="template-box"></div>
           <div id="model-box"></div>
           <div id="table-hint-box"></div>
           <div class="table-scroll">
@@ -813,6 +859,7 @@
 <script src="src/js/i18n.js"></script>
 <script src="src/js/i18n-ext.js"></script>
 <script src="src/js/i18n-engine.js"></script>
+<script src="src/js/i18n-templates.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
 <script src="src/js/table.js"></script>
@@ -820,6 +867,7 @@
 <script src="src/js/points.js"></script>
 <script src="src/js/report.js"></script>
 <script src="src/js/app.js"></script>
+<script type="module" src="src/ui/tpl/app.js"></script>
 <script src="src/ui/index-auth.js"></script>
 
 </body>

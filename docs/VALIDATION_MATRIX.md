@@ -1,6 +1,6 @@
 # Validatsiya matritsasi (RTM): me'yoriy talab → dvigatel funksiyasi → test → holat
 
-> Holat: P03, 2026-11-13. Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.0.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
+> Holat: P04, 2026-11-17 (P03 qatorlari o'zgarmagan). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.0.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
 > Test misollari — `tests/cases/` ([README](../tests/cases/README.md)), farqlar — [DISCREPANCIES.md](../tests/cases/DISCREPANCIES.md). Asos: ISO/IEC 17025:2017 §7.11.2 (dasturiy ta'minot validatsiyasi; to'liq paket — P13).
 >
 > Holat belgilari: ✅ — `verified` testlar o'tadi; ⚠️ — o'tadi, lekin ma'lum farq bor (todo, D-ID); ⏳ — `pending` (bosqich ko'rsatilgan); ❔ — `unverified` (manba yo'q).
@@ -75,3 +75,49 @@
 | i18n: har bir kalit uch tilda | `tests/i18n.test.js` | ✅ |
 | 11 ta shablon tuzilmasi va hisobi; shablon ↔ etalon ma'lumot mosligi (R-11) | `tests/presets.test.js` | ✅ |
 | CI | `.github/workflows/test.yml` | ✅ (push/PR) |
+
+## 6. P04: metodika shablonlari
+
+| Talab | Funksiya | Test | Holat |
+|---|---|---|---|
+| Shablon sxemasi (uc-template/1), o'z validator | `schemas/methodology.schema.json`, `src/templates/validator.js` | `tests/templates/workflow.test.js`, `schema` tekshiruvi barcha 35 shablonda | ✅ |
+| Shablon → modelSpec → evaluate (dvigatel o'zgarmagan) | `src/templates/interpreter.js` | `tests/templates/*.test.js` | ✅ |
+| 11 ta eski preset JSON'da, P03 bilan bit darajasida bir xil | `templates/builtin/legacy-*.json` | `tests/templates/builtin.test.js` (snapshot `snapshots/legacy-p03.json` + jonli P03 holati) | ✅ |
+| Zichlik, gazoanalizator (3), termometr (5) shablonlari Excel bilan | `legacy-density`, `legacy-gas_analyzer`, `legacy-thermometer` | `builtin.test.js` ← `tests/cases/excel/*.json` (katak havolalari) | ✅ / ⚠️ D-03 (term p2–p4 ν_eff, avvalgidek) |
+| Bitta asbob korrelyatsiyasi u(xi,xj) = r·u_X(xi)·u_X(xj) (§5.2.2, F.1.2.3) | `interpreter.js::prepareState` | `workflow.test.js`, `wave1.test.js` (analitik) | ✅ (sintetik) |
+| P04b: bitta asbob — covB faqat umumiy qismdan, nuqtaga xos qism r = 0 (EA-4/02 M:2022 D4–D5, D.6/D.8) | `interpreter.js::prepareState` (`share`) | `tests/templates/correlation.test.js` — qo'lda hisob w = (m − m₁)/m₁, 1e-12 | ✅ (qo'lda hisob; manba misoli yo'q) |
+| P04b: `split: "unknown"` — r = 0 va r = 1, katta u_c (loyiha qarori; EA-4/02 D7 g'oyasi) | `interpreter.js::evaluateState` | `correlation.test.js` (ayirma → r = 0, yig'indi va T-07 → r = 1, hisobot matni 3 tilda) | ✅ (qo'lda hisob) |
+| P04b: ikki marta hisoblash tekshiruvi u²(umumiy) + u²(nuqta) ≤ u²(sertifikat) | `prepareState` (`split_exceeds`) | `correlation.test.js` | ✅ |
+| P04b: P04 dagi bitta qatorli nusxalar migratsiyasi → `split: "unknown"` | `migrateTemplate`, `upgradeState` | `correlation.test.js` | ✅ |
+| Holat oqimi, qulflash, yangi versiya | `interpreter.js::transition/applyEdit/newVersion` | `workflow.test.js` | ✅ |
+| Saqlash: IndexedDB, uc_state_v2 migratsiyasi (natija bir xil), eksport→import bit darajasida, audit xesh zanjiri | `src/storage/*` | `tests/storage/storage.test.js` | ✅ |
+| Kodsiz yangi shablon | `docs/templates/examples/LAB-EXAMPLE-01.json` | `tests/templates/guide-example.test.js` | ✅ |
+
+### 6.1. 1-to'lqin sinov shablonlari (24 ta, [WAVE1_SPEC](templates/WAVE1_SPEC.md)) — APPROVED uchun [APPROVAL_CHECKLIST](templates/APPROVAL_CHECKLIST.md)
+
+| Shablon | Standartlar | Model | Test (faqat sxema ↔ dvigatel ulanishi) | Holat |
+|---|---|---|---|---|
+| T-01 Metall cho'zilishi: vaqtinchalik qarshilik va oquvchanlik chegarasi | ГОСТ 1497, ГОСТ 12004, ГОСТ 34028 | `σ = F / (pi * d0^2 / 4)` (variantlar: round, rect) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-02 Metall nisbiy uzayishi | ГОСТ 1497, ГОСТ 12004 | `δ = (lk - l0) / l0 * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-03 Beton siqilishdagi mustahkamligi | ГОСТ 10180 | `R = alpha * F / (a * b)` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-04 Beton qorishmasi: konus cho'kishi va zichligi | ГОСТ 10181 | `OK = h0 - h1` (variantlar: slump, density) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-05 Qurilish qorishmasi: o'rtacha zichlik va harakatchanlik | ГОСТ 5802 | `ρ = (m - m1) / V` (variantlar: density, mobility) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-06 Chaqiq tosh / qum: donador tarkib (elakdagi xususiy qoldiq) | ГОСТ 8269.0, ГОСТ 8735 | `a_i = m_i / m * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-07 Qumning yiriklik moduli | ГОСТ 8735 | `Mk = ((m25) + (m25 + m125) + (m25 + m125 + m063) + (m25 + m125 + m063 + m0315) + (m25 + m125 + m063 + m0315 + m016)) / (100 * m) * 100` (variantlar: masses, residues) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-08 Chaqiq tosh maydalanuvchanligi; chang va loy zarralari miqdori | ГОСТ 8269.0 | `X = (m - m1) / m * 100` (variantlar: crushing, dust_clay) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-09 Sochma zichlik (chaqiq tosh, qum) | ГОСТ 8269.0, ГОСТ 8735 | `ρ_n = (m1 - m) / V` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-10 Beton va g'isht o'rtacha zichligi | ГОСТ 12730.1, ГОСТ 7025 | `ρ = m / (a * b * c) * 1000` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-11 Suv shimuvchanlik (beton, g'isht, plitka) | ГОСТ 12730.3, ГОСТ 7025, ГОСТ 27180 | `W = (m1 - m) / m * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-12 Namlik (beton, grunt) | ГОСТ 12730.2, ГОСТ 5180 | `W = (m1 - m0) / (m0 - m) * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-13 G'isht siqilish va egilishdagi mustahkamligi | ГОСТ 8462 | `R = F / A` (variantlar: compression, bending) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-14 Geometrik o'lchamlar va chetlanishlar | ГОСТ 26433.1 | `Δ = x - x_loyiha` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-15 Plastmassa cho'zilishi | ГОСТ 11262 | `σ = F / (b * h)` (variantlar: stress, strain) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-16 Rokvell qattiqligi | ГОСТ 9013 | `H = H_oq + Δ_et` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-17 Titrlash (umumiy shablon): kislotalik, ishqoriylik, xloridlar, SAV | ГОСТ 3624, ГОСТ 5898, ГОСТ 5670, ГОСТ 26878, ГОСТ 4245, ГОСТ 22567.6 | `X = (V - V0) * c * K * f / m` (variantlar: gost_3624, gost_5898, gost_5670, gost_26878, gost_4245, gost_22567_6) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-18 Quritish usulida namlik va uchuvchan moddalar | ГОСТ 29188.4, ГОСТ 13586.5, ГОСТ 5900 | `X = (m1 - m2) / (m1 - m0) * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-19 Kul miqdori | — | `X = (m2 - m0) / (m1 - m0) * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-20 pH (suvli eritma yoki ekstrakt) | ГОСТ 22567.5, ГОСТ 29188.2 | `pH = pH_oq + δ_bufer + δ_T + δ_drift` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |
+| T-21 Gravimetrik massa ulushi (erimaydigan aralashmalar, sovun komponentlari) | ГОСТ 790, ГОСТ 22567.7 | `X = (m2 - m1) / m * 100` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-22 Izolyatsiya qarshiligi va oqish toki | IEC 60335, IEC 60204, IEC 60950, IEC 60598, IEC 60065, ГОСТ 3940, ГОСТ 2933 | `R_iz = R` (variantlar: insulation, leakage) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-23 Elektr mustahkamlik: sinov kuchlanishi | IEC 60335, IEC 60204, IEC 60950, IEC 60598, IEC 60065, ГОСТ 3940, ГОСТ 2933 | `U_sin = U_oq` | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT |
+| T-24 Qizish (harorat oshishi), qarshilik usuli | IEC 60335-1 | `Δt = (R2 - R1) / R1 * (k + t1) - (t2 - t1)` (variantlar: copper, aluminium, thermocouple) | `wave1.test.js` (struktura + sintetik 1e-9) | ⏳ pending — DRAFT; ⚠ Q1 |

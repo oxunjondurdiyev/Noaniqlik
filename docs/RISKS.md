@@ -30,6 +30,7 @@
 | R-15 | Trial limiti va to'lov holati faqat mijoz tomonda | O | P02 |
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
+| R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
 
 ### P03 natijasi (2026-11-13, branch `feat/p03-engine`, ENGINE_VERSION 2.0.0)
 
@@ -132,12 +133,17 @@
 
 ## 2. Arxitektura / ma'lumot xavflari
 
-### R-09. localStorage: versiya va migratsiya yo'q (Y)
+### R-09. localStorage: versiya va migratsiya yo'q (Y) — P04 da qisman yopildi
+- **P04:** `src/storage/` — IndexedDB, `uc_state_v2` migratsiyasi (asl kalit + `_backup`), har bir hisob `engineVersion` va shablon ID/versiyasi bilan, append-only audit (xesh zanjiri), JSON eksport/import. Qoldi: joriy sessiya hali `uc_state_v2` da; kvota xatosi jimgina; lokal audit — faqat buzilishni aniqlash (server — P15).
 - `uc_state_v2` da versiya maydoni yo'q; `_load` sayoz birlashtiradi; v1 → v2 migratsiyasi yo'q (eski ma'lumot yo'qolgan).
 - `points[].result` — dvigatel natijasining nusxasi; dvigatel o'zgargach eski nuqtalar eski formulalar bilan hisoblangan holda qoladi va hisobotga chiqadi — qaysi versiyada hisoblangani noma'lum.
 - `_save` xatosi (kvota) jimgina yutiladi.
 - Preset tanlash/Reset barcha nuqtalarni ogohlantirishsiz o'chiradi; eksport/import yo'q — ma'lumotni zaxiralab bo'lmaydi.
 - Audit izi yo'q (kim, qachon, nimani o'zgartirdi) — ISO/IEC 17025 §7.11.3, §7.5.
+
+### R-18. Bitta asbob korrelyatsiyasida U ni kam baholash (Y) — P04b da yopildi
+- P04 da sertifikat manbasining butun U si r = 1 bilan korrelyatsiyalangan deb olinardi. Ayirma yoki nisbat modellarida (c_i·c_j < 0) bu kalibrlash hissasini qisqartiradi va nochiziqlilik yoki ekssentriklik bo'lsa U ni kam baholaydi.
+- **P04b:** sertifikat manbasi umumiy va nuqtaga xos qismga bo'lindi; korrelyatsiyaga faqat umumiy qism kiradi. Bo'lish noma'lum bo'lsa — `split: "unknown"` (r = 0 va r = 1, katta u_c; loyiha qarori). Ikki marta hisoblash tekshiriladi. Qolgan xavf: laboratoriya qismlarni noto'g'ri bo'lishi mumkin. Shuning uchun bu band APPROVAL_CHECKLIST ga kiritilgan.
 
 ### R-10. Hisoblash mantig'ining takrorlanishi (O)
 - `typeB.js:73-81, 204-221` u_B ni mustaqil hisoblaydi; `typeB.js:241` korrelyatsiyani `typeA` (usulsiz) bilan ko'rsatadi, `evaluate` esa `typeAx` bilan. Ekrandagi va hisobotdagi qiymatlar farq qilishi mumkin. Batafsil: ARCHITECTURE.md §4.
