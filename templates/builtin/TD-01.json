@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "TD-01",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "TOP_DOWN",
+  "title": {
+    "uz": "Suvda ammoniy azoti (NH₄-N): top-down, u(R_w) + u(bias)",
+    "ru": "Аммонийный азот (NH₄-N) в воде: top-down, u(R_w) + u(bias)",
+    "en": "Ammonium nitrogen (NH₄-N) in water: top-down, u(R_w) + u(bias)"
+  },
+  "description": {
+    "uz": "Nazorat namunasi (yoki nazorat kartasi chegaralari) dan u(R_w), malaka sinovi (PT) raundlaridan u(bias); U = 2·u_c nisbiy ko'rinishda.",
+    "ru": "u(R_w) — по контрольной пробе (или границам контрольной карты), u(bias) — по раундам проверки квалификации (PT); U = 2·u_c в относительном виде.",
+    "en": "u(R_w) from the control sample (or control chart limits), u(bias) from proficiency test rounds; U = 2·u_c in relative form."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P09 shabloni (DRAFT). Usul: Nordtest TR 537 ed. 4 (2017) §3.2 oqim sxemasi (p. 10), Appendix 4 (p. 40) — NH₄-N misoli asosida. Barcha raqamli maydonlar bo'sh — laboratoriya o'z sifat nazorati va validatsiya ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P09 (DRAFT). Метод: Nordtest TR 537 ed. 4 (2017) §3.2, схема расчёта (с. 10), приложение 4 (с. 40) — на основе примера NH₄-N. Все числовые поля пусты — лаборатория вводит собственные данные контроля качества и валидации.",
+    "en": "P09 template (DRAFT). Method: Nordtest TR 537 ed. 4 (2017) §3.2 flow scheme (p. 10), Appendix 4 (p. 40) — based on the NH₄-N example. All numeric fields are empty — the laboratory enters its own quality control and validation data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#10-top_down-rejimi-p09",
+  "measurand": {
+    "symbol": "c",
+    "name": {
+      "uz": "Ammoniy azoti konsentratsiyasi",
+      "ru": "Концентрация аммонийного азота",
+      "en": "Concentration of ammonium nitrogen"
+    },
+    "unit": "µg/L"
+  },
+  "model": {
+    "formula": "u_c = sqrt(u_Rw^2 + u_bias^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob Top-down ustasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в мастере Top-down.",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Top-down wizard."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "c",
+      "name": {
+        "uz": "Namunadagi NH₄-N konsentratsiyasi",
+        "ru": "Концентрация NH₄-N в пробе",
+        "en": "NH₄-N concentration in the sample"
+      },
+      "unit": "µg/L",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "topDown": {
+    "basis": "within",
+    "rwSources": [
+      "control_series"
+    ],
+    "biasSource": "pt",
+    "scale": "relative",
+    "covers": [],
+    "additional": [],
+    "hint": {
+      "uz": "Nisbiy shkala yuqori diapazon uchun (aniqlash chegarasidan ancha yuqori). Past diapazonda mutlaq shkalani tanlang va diapazonni bo'ling (Nordtest TR 537 §4.3). Nazorat namunasi butun tahlil jarayonidan o'tishi kerak; o'tmagan bosqichlar «qamralmagan hissalar» ga kiritiladi.",
+      "ru": "Относительная шкала — для верхнего диапазона (значительно выше предела определения). В нижнем диапазоне выберите абсолютную шкалу и разделите диапазон (Nordtest TR 537 §4.3). Контрольная проба должна проходить весь ход анализа; не пройденные этапы вносятся в «неохваченные вклады».",
+      "en": "The relative scale is for the high range (well above the limit of quantification). In the low range choose the absolute scale and divide the range (Nordtest TR 537 §4.3). The control sample must go through the whole analytical process; steps it does not cover are entered as additional contributions."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ PT raundlari kamida 6 ta bo'lishi kerak (Nordtest TR 537 §6.2); kam bo'lsa CRM yoki recovery bilan solishtiring.",
+        "ru": "⚠ Раундов PT должно быть не менее 6 (Nordtest TR 537 §6.2); если меньше — сравните с оценкой по CRM или извлечению.",
+        "en": "⚠ At least 6 PT rounds are needed (Nordtest TR 537 §6.2); with fewer, compare with a CRM or recovery estimate."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

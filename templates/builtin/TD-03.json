@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "TD-03",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "construction",
+  "evaluationMode": "TOP_DOWN",
+  "isEmpiricalMeasurand": true,
+  "title": {
+    "uz": "Beton siqilishdagi mustahkamligi: empirik kattalik, top-down (T-03 bilan bog'langan)",
+    "ru": "Прочность бетона на сжатие: эмпирическая величина, top-down (связан с T-03)",
+    "en": "Compressive strength of concrete: empirical measurand, top-down (linked to T-03)"
+  },
+  "description": {
+    "uz": "Mustahkamlik sinov usuli bilan belgilanadi (usul bias'i 0). Noaniqlik: laboratoriya ichidagi takrorlanuvchanlik (dublikat namunalar yoki validatsiya s), press va o'lchov asboblari hissasi (T-03 shablonidan) va rejim parametrlari (yuklash tezligi, saqlash harorati, namuna yoshi).",
+    "ru": "Прочность определяется методом испытания (смещение метода равно 0). Неопределённость: внутрилабораторная воспроизводимость (образцы-дубликаты или s из валидации), вклад пресса и средств измерений (из шаблона T-03) и параметры режима (скорость нагружения, температура хранения, возраст образца).",
+    "en": "Strength is defined by the test method (method bias is zero). Uncertainty: within-laboratory reproducibility (duplicate specimens or validation s), contribution of the press and measuring instruments (from template T-03) and method parameters (loading rate, curing temperature, specimen age)."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P09 shabloni (DRAFT). Usul: EURACHEM/CITAC QUAM:2012 §7.9 (empirik usullar, pp. 21–22), §7.7.10 (qolgan omillar); Nordtest TR 537 ed. 4 §5.3 (dublikatlar). O'lchash modeli R = α·F/(a·b) va asbob manbalari takrorlanmaydi — ular T-03 shablonida. Barcha raqamli maydonlar bo'sh — laboratoriya o'z sifat nazorati va validatsiya ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P09 (DRAFT). Метод: EURACHEM/CITAC QUAM:2012 §7.9 (эмпирические методы, с. 21–22), §7.7.10 (остальные факторы); Nordtest TR 537 ed. 4 §5.3 (дубликаты). Модель измерения R = α·F/(a·b) и источники от приборов не дублируются — они в шаблоне T-03. Все числовые поля пусты — лаборатория вводит собственные данные контроля качества и валидации.",
+    "en": "P09 template (DRAFT). Method: EURACHEM/CITAC QUAM:2012 §7.9 (empirical methods, pp. 21–22), §7.7.10 (remaining factors); Nordtest TR 537 ed. 4 §5.3 (duplicates). The measurement model R = α·F/(a·b) and the instrument sources are not duplicated — they are in template T-03. All numeric fields are empty — the laboratory enters its own quality control and validation data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#10-top_down-rejimi-p09",
+  "measurand": {
+    "symbol": "R",
+    "name": {
+      "uz": "Siqilishdagi mustahkamlik",
+      "ru": "Прочность на сжатие",
+      "en": "Compressive strength"
+    },
+    "unit": "MPa"
+  },
+  "model": {
+    "formula": "u_c = sqrt(u_Rw^2 + u_inst^2 + u_v^2 + u_T^2 + u_age^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob Top-down ustasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в мастере Top-down.",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Top-down wizard."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "R",
+      "name": {
+        "uz": "Namuna mustahkamligi",
+        "ru": "Прочность образца",
+        "en": "Strength of the specimen"
+      },
+      "unit": "MPa",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "topDown": {
+    "basis": "within",
+    "rwSources": [
+      "duplicates"
+    ],
+    "biasSource": "none",
+    "scale": "relative",
+    "covers": [],
+    "linkedTemplate": "T-03",
+    "additional": [
+      {
+        "id": "u_inst",
+        "category": "instrument",
+        "u": null,
+        "name": {
+          "uz": "Press va o'lchov asboblari (T-03 dan, faqat B tur qismi)",
+          "ru": "Пресс и средства измерений (из T-03, только часть типа B)",
+          "en": "Press and measuring instruments (from T-03, Type B part only)"
+        },
+        "hint": {
+          "uz": "T-03 shablonida hisoblangan nisbiy u_c ning faqat B tur (kalibrlash, ajratish qobiliyati) qismi, %. A tur (takroriy o'lchash) qismi qo'shilmaydi — u R_w ichida (X11).",
+          "ru": "Только часть типа B (калибровка, разрешение) относительной u_c, рассчитанной в шаблоне T-03, %. Часть типа A (повторные измерения) не добавляется — она уже в R_w (X11).",
+          "en": "Only the Type B part (calibration, resolution) of the relative u_c computed in template T-03, %. The Type A part (repeated measurements) is not added — it is already in R_w (X11)."
+        }
+      },
+      {
+        "id": "u_v",
+        "category": "speed",
+        "u": null,
+        "name": {
+          "uz": "Yuklash tezligi bardoshliligi",
+          "ru": "Устойчивость к скорости нагружения",
+          "en": "Robustness to loading rate"
+        },
+        "hint": {
+          "uz": "Standartda ruxsat etilgan tezlik oralig'ida mustahkamlikning o'zgarishi (bardoshlilik tajribasi yoki adabiyot), %.",
+          "ru": "Изменение прочности в допустимом по стандарту интервале скорости (опыт на устойчивость или литература), %.",
+          "en": "Change of strength within the rate interval permitted by the standard (robustness experiment or literature), %."
+        }
+      },
+      {
+        "id": "u_T",
+        "category": "temperature",
+        "u": null,
+        "name": {
+          "uz": "Saqlash (qotish) harorati va namligi",
+          "ru": "Температура и влажность хранения (твердения)",
+          "en": "Curing temperature and humidity"
+        },
+        "hint": {
+          "uz": "Ruxsat etilgan saqlash sharoiti oralig'ining mustahkamlikka ta'siri, %.",
+          "ru": "Влияние допустимого интервала условий хранения на прочность, %.",
+          "en": "Effect of the permitted interval of curing conditions on strength, %."
+        }
+      },
+      {
+        "id": "u_age",
+        "category": "time",
+        "u": null,
+        "name": {
+          "uz": "Namuna yoshi (sinov vaqti)",
+          "ru": "Возраст образца (срок испытания)",
+          "en": "Specimen age (time of test)"
+        },
+        "hint": {
+          "uz": "Sinov muddatining ruxsat etilgan og'ishi mustahkamlikka ta'siri, %.",
+          "ru": "Влияние допустимого отклонения срока испытания на прочность, %.",
+          "en": "Effect of the permitted deviation of the test age on strength, %."
+        }
+      }
+    ],
+    "hint": {
+      "uz": "Dublikatlar — bitta qorishmadan tayyorlangan juft namunalar (har xil qorishma va mustahkamlik sinflari). Namunalar orasidagi farq mahsulot xossasini ham o'z ichiga oladi — bu natijaning talqinida hisobga olinadi.",
+      "ru": "Дубликаты — парные образцы из одного замеса (разные замесы и классы прочности). Разность между образцами включает и свойство продукции — это учитывается при интерпретации результата.",
+      "en": "Duplicates are paired specimens from one batch (different batches and strength classes). The difference between specimens also contains the product property — keep this in mind when interpreting the result."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab+owner",
+      "blocking": true,
+      "text": {
+        "uz": "⚠ T-03 (ГОСТ 10180, GUM bottom-up) va shu shablon bir xil natijaga ikki xil yondashuv. Hisobotda qaysi biri ishlatilishini laboratoriya o'z protsedurasida belgilaydi; ikkalasining natijasini qo'shib bo'lmaydi.",
+        "ru": "⚠ T-03 (ГОСТ 10180, GUM bottom-up) и этот шаблон — два подхода к одному результату. Какой из них применяется в протоколе, лаборатория определяет в своей процедуре; результаты двух подходов складывать нельзя.",
+        "en": "⚠ T-03 (GOST 10180, GUM bottom-up) and this template are two approaches to the same result. The laboratory defines in its procedure which one is used in the report; the results of the two must not be added."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Rejim parametrlari bardoshliligi bo'yicha ma'lumot (tezlik, harorat, yosh) laboratoriyaning validatsiya hisobotidan olinadi; ma'lumot bo'lmasa — hissa bo'sh qoldirilmaydi, tajriba o'tkaziladi yoki asoslangan baho beriladi (QUAM §7.15).",
+        "ru": "⚠ Данные об устойчивости к параметрам режима (скорость, температура, возраст) берутся из отчёта о валидации; если данных нет — вклад не оставляют пустым, а проводят опыт или дают обоснованную оценку (QUAM §7.15).",
+        "en": "⚠ Robustness data for the method parameters (rate, temperature, age) come from the laboratory's validation report; if there are none, the contribution is not left empty — run an experiment or give a justified estimate (QUAM §7.15)."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}
