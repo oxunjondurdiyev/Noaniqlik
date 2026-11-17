@@ -725,3 +725,6 @@ select {
 @media print { .tpl-report-notice { border-color: #999; } }
 #templates-screen { align-items: flex-start; overflow-y: auto; padding: 0; }
 #templates-screen .tpl-screen { width: 100%; }
+.tpl-split { display: grid; grid-template-columns: auto minmax(220px, 1fr); gap: .2rem .5rem; align-items: center; margin: 0 0 .5rem 1.6rem; font-size: .8rem; }
+.tpl-split .text-xs { grid-column: 1 / 3; }
+.tpl-report-bound { font-weight: 600; }

@@ -33,6 +33,10 @@ async function fetchJSON(url) {
   return r.json();
 }
 
+/* P04b: P04 dagi (split maydonisiz) brauzer nusxalari → split 'unknown'; ma'lumot o'zgarmaydi,
+   saqlangan yozuv faqat foydalanuvchi qayta saqlaganda yangilanadi (audit bilan). */
+function migrateLocals(list) { return list.map(t => Interp.migrateTemplate(t).template); }
+
 const ready = (async () => {
   try {
     schema = await fetchJSON('schemas/methodology.schema.json');
@@ -43,7 +47,7 @@ const ready = (async () => {
     db = await new Store.LocalAdapter().open();
     const mig = await Store.migrateLegacy(window.localStorage, db);
     if (mig.status === 'migrated' || mig.status === 'invalid') toast(t('st_migrated'), 'info', 5000);
-    locals = await db.list('templates');
+    locals = migrateLocals(await db.list('templates'));
     labCache = await Store.getLabSettings(db);
   } catch (e) { db = null; }
 })();
@@ -146,6 +150,14 @@ function onBannerChange(e) {
     } else {
       window.appState.set({ template: { ...st.template, aux: { ...st.template.aux, [sym]: isFinite(v) ? v : null } }, combined: null });
     }
+    return;
+  }
+  const sp = e.target.closest('[data-tpl-split]');
+  if (sp) {
+    const correlations = clone(st.template.correlations);
+    correlations[Number(sp.dataset.tplSplit)].split = sp.value === 'known' ? 'known' : 'unknown';
+    window.appState.set({ template: { ...st.template, correlations }, combined: null });
+    window.TypeB.render();
     return;
   }
   const k = e.target.closest('[data-tpl-corr]');
@@ -303,7 +315,7 @@ function showCheck(tpl) {
 async function persist(tpl, action, reason) {
   if (!db) { toast(t('st_no_idb'), 'error'); return false; }
   await db.save('templates', tpl, { actor: ($('ed-by') || {}).value || '', reason, action });
-  locals = await db.list('templates');
+  locals = migrateLocals(await db.list('templates'));
   toast(t('ed_saved'), 'success');
   return true;
 }
@@ -437,7 +449,7 @@ async function onDataAction(e) {
     if (!window.confirm(t('st_import_confirm'))) return;
     const r = await Store.importAll(db, text, { actor: '' });
     if (!r.ok) { toast(`${t('st_import_bad')}: ${r.reason}`, 'error', 5000); return; }
-    locals = await db.list('templates');
+    locals = migrateLocals(await db.list('templates'));
     labCache = await Store.getLabSettings(db);
     toast(t('st_import_ok'), 'success');
     openModal(await dataHTML());
@@ -450,6 +462,7 @@ async function importTemplate() {
   if (!text) return;
   let tpl;
   try { tpl = JSON.parse(text); } catch (_) { toast(t('ed_bad_json'), 'error'); return; }
+  tpl = Interp.migrateTemplate(tpl).template;
   openEditor(tpl, true);
   showCheck(tpl);
 }
@@ -504,8 +517,10 @@ function bind() {
 window.UCTemplates = Object.freeze({
   ready,
   prepareState: Interp.prepareState,
+  evaluateState: Interp.evaluateState,
+  pointRowIgnored: (entry, state) => !!(state && state.template) && Interp.pointRowIgnored(entry, Interp.upgradeState(state).template.correlations || []),
   missingInState: Interp.missingInState,
-  reportNoticeHTML: meta => View.reportNoticeHTML(meta, ctx()),
+  reportNoticeHTML: (meta, result) => View.reportNoticeHTML(meta, ctx(), result),
   missingText: list => View.missingText(list, ctx()),
   labSettings: () => ({ ...labCache }),
   saveCalculation,

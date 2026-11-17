@@ -154,6 +154,7 @@ const TypeB = (() => {
           </svg>
         </button>
       </div>
+      ${comp.share === 'point' && window.UCTemplates && window.UCTemplates.pointRowIgnored(comp, state) ? `<div class="typeb-hint text-xs" style="color:var(--warning)">${escHtml(i18n.t('tpl_point_ignored'))}</div>` : ''}
       ${comp.hint || comp.note ? `<div class="typeb-hint text-xs text-muted">${comp.optional ? '⚠ ' + escHtml(i18n.t('tpl_optional')) + '. ' : ''}${escHtml(comp.hint || '')}${comp.note ? ' — ' + escHtml(comp.note) : ''}</div>` : ''}
       <div class="typeb-card-body">
         <div class="form-group">
@@ -182,6 +183,17 @@ const TypeB = (() => {
           <input type="text" value="${escHtml(comp.unit || '')}"
             data-id="${escHtml(comp.id)}" data-field="unit" placeholder="g, mL, V…" />
         </div>`}
+        ${comp.share === 'common' ? `
+        <div class="form-group">
+          <label>${escHtml(i18n.t('tpl_cert_U'))}</label>
+          <input type="text" inputmode="decimal" value="${escHtml(String(comp.certificateU ?? ''))}"
+            data-id="${escHtml(comp.id)}" data-field="certificateU" placeholder="—" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>${escHtml(i18n.t('tpl_cert_k'))}</label>
+          <input type="text" inputmode="decimal" value="${escHtml(String(comp.certificateK ?? ''))}"
+            data-id="${escHtml(comp.id)}" data-field="certificateK" placeholder="—" autocomplete="off" />
+        </div>` : ''}
         <div class="form-group">
           <label title="${escHtml(i18n.t('label_mult_hint'))}">${i18n.t('label_mult')} ⓘ</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.sensitivity ?? 1))}"
@@ -355,6 +367,9 @@ const TypeB = (() => {
     } else if (field === 'sensitivity' || field === 'k') {
       const n = Calc.toNum(val);
       val = isFinite(n) ? n : (field === 'k' ? (comp.kRequired ? '' : 2) : 1);
+    } else if (field === 'certificateU' || field === 'certificateK') {
+      const n = Calc.toNum(val);
+      val = isFinite(n) && n > 0 ? n : '';
     } else if (field === 'nu') {
       const n = Calc.toNum(val);
       val = isFinite(n) && n > 0 ? n : '';
@@ -374,8 +389,10 @@ const TypeB = (() => {
         return;
       }
     }
-    const state  = raw.template && tplRT ? tplRT.prepareState(raw) : raw;
-    const result = Calc.evaluate(state);
+    // P04b: split = 'unknown' bo'lsa r = 0 va r = 1 hisoblanib katta u_c olinadi (interpreter.evaluateState)
+    const ev     = raw.template && tplRT ? tplRT.evaluateState(raw) : { result: Calc.evaluate(raw), state: raw };
+    const state  = ev.state;
+    const result = ev.result;
 
     if (result.error) {
       const msg = {

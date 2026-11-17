@@ -194,7 +194,8 @@ const Results = (() => {
       setTimeout(() => {
         const M = Number(el.querySelector('#mc-m').value) || 200000;
         const st = appState.get();
-        lastMC = Calc.monteCarlo(st.template && window.UCTemplates ? window.UCTemplates.prepareState(st) : st, M);
+        // P04b: MC tanlangan chegara (r = 0 yoki r = 1) holatida
+        lastMC = Calc.monteCarlo(st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).state : st, M);
         render();
       }, 30);
     });
@@ -526,7 +527,7 @@ const Results = (() => {
   /* P04: shablon belgilari — "Shablon tasdiqlanmagan (DRAFT)", "Namunaviy ma'lumot — real emas" va h.k. */
   function templateNotice() {
     const meta = appState.get('template');
-    return meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(meta) : '';
+    return meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(meta, current()) : '';
   }
 
   function printReport() {

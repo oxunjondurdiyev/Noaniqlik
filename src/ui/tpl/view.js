@@ -112,7 +112,13 @@ export function bannerHTML(state, missing, ctx) {
           ${c.info.hint ? `<span class="text-xs text-muted">${ctx.esc(c.info.hint)}</span>` : ''}${c.info.ref ? `<span class="text-xs text-muted">${ctx.esc(c.info.ref)}</span>` : ''}</label>`).join('')}</div>` : ''}
       ${(m.correlations || []).length ? `<div class="tpl-block"><div class="tpl-block-title">${ctx.esc(ctx.t('tpl_corr_title'))}</div>
         ${m.correlations.map((c, i) => `<label class="tpl-corr"><input type="checkbox" data-tpl-corr="${i}" ${c.enabled ? 'checked' : ''} />
-          <span><b class="mono">${c.inputs.map(ctx.esc).join(', ')}</b> — ${ctx.esc(((m.correlationInfo || {})[c.id] || {}).question || ctx.t('tpl_corr_yes'))}</span></label>`).join('')}</div>` : ''}
+          <span><b class="mono">${c.inputs.map(ctx.esc).join(', ')}</b> — ${ctx.esc(((m.correlationInfo || {})[c.id] || {}).question || ctx.t('tpl_corr_yes'))}</span></label>
+          ${c.instrument ? `<label class="tpl-split"><span>${ctx.esc(ctx.t('tpl_split_label'))}</span>
+            <select data-tpl-split="${i}">
+              <option value="known" ${(c.split || 'unknown') === 'known' ? 'selected' : ''}>${ctx.esc(ctx.t('tpl_split_known'))}</option>
+              <option value="unknown" ${(c.split || 'unknown') === 'unknown' ? 'selected' : ''}>${ctx.esc(ctx.t('tpl_split_unknown'))}</option>
+            </select>
+            <span class="text-xs text-muted">${ctx.esc(ctx.t('tpl_split_hint'))}</span></label>` : ''}`).join('')}</div>` : ''}
       ${(m.excludedEntries || []).length ? `<div class="tpl-block"><div class="tpl-block-title">${ctx.esc(ctx.t('tpl_excluded'))}</div>
         ${m.excludedEntries.map((e, i) => `<div class="tpl-excl"><span>${ctx.esc(e.name)} <span class="text-xs text-muted">(${ctx.esc(e.param)}; ${ctx.esc(ctx.t('tpl_optional'))})</span>${e.hint ? `<div class="text-xs text-muted">${ctx.esc(e.hint)}</div>` : ''}</span>
           <button type="button" class="btn btn-ghost btn-sm" data-tpl-include="${i}">${ctx.esc(ctx.t('tpl_include'))}</button></div>`).join('')}</div>` : ''}
@@ -124,8 +130,25 @@ export function bannerHTML(state, missing, ctx) {
     </div>`;
 }
 
+/** P04b: "Korrelyatsiya noma'lum — konservativ chegara: r = …" va ikki marta hisoblash ogohlantirishi */
+export function boundLinesHTML(result, ctx) {
+  if (!result) return [];
+  const lines = [];
+  const b = result.templateBound;
+  if (b) {
+    const rs = [...new Set(b.r)];
+    const fmt = v => (Number.isFinite(v) ? Number(v).toPrecision(4) : String(v));
+    lines.push(`<div class="tpl-report-bound" data-bound="1">${ctx.esc(ctx.t('tpl_bound_line'))} ${ctx.esc(rs.join(' / '))}` +
+      ` <span class="text-muted">(u_c(r = 0) = ${ctx.esc(fmt(b.ucR0))}; u_c(r = 1) = ${ctx.esc(fmt(b.ucR1))}; ${ctx.esc(ctx.t('tpl_bound_project'))})</span></div>`);
+  }
+  for (const w of result.templateWarnings || []) {
+    if (w.code === 'split_exceeds') lines.push(`<div class="tpl-report-warn" data-split-warning="1">⚠ ${ctx.esc(w.param)}: ${ctx.esc(ctx.t('tpl_split_exceeds'))}</div>`);
+  }
+  return lines;
+}
+
 /** Natijalar va bosma hisobot uchun shablon belgilari (DRAFT, demo, kiritilmagan manbalar, korrelyatsiya) */
-export function reportNoticeHTML(meta, ctx) {
+export function reportNoticeHTML(meta, ctx, result) {
   if (!meta) return '';
   const lines = [];
   if (meta.status !== 'APPROVED') lines.push(`<div class="tpl-report-warn" data-draft-warning="1">⚠ ${ctx.esc(ctx.t('tpl_banner_' + meta.status))}</div>`);
@@ -135,7 +158,8 @@ export function reportNoticeHTML(meta, ctx) {
   const excl = (meta.excludedEntries || []).map(e => e.name);
   if (excl.length) lines.push(`<div>${ctx.esc(ctx.t('tpl_report_excluded'))}: ${excl.map(ctx.esc).join('; ')}</div>`);
   const corr = (meta.correlations || []).filter(c => c.enabled);
-  if (corr.length) lines.push(`<div>${ctx.esc(ctx.t('tpl_report_corr'))}: ${corr.map(c => ctx.esc(c.inputs.join(' ↔ ')) + ' (r = ' + ctx.esc(c.r) + ')').join('; ')}</div>`);
+  if (corr.length) lines.push(`<div>${ctx.esc(ctx.t('tpl_report_corr'))}: ${corr.map(c => ctx.esc(c.inputs.join(' ↔ ')) + ' (' + (c.split === 'known' ? 'r = ' + ctx.esc(c.r) + ', ' + ctx.esc(ctx.t('tpl_split_known')) : ctx.esc(ctx.t('tpl_split_unknown'))) + ')').join('; ')}</div>`);
+  lines.push(...boundLinesHTML(result, ctx));
   if (meta.decisionRule && meta.decisionRule.required) lines.push(`<div>⚖ ${ctx.esc(ctx.t('tpl_decision_required'))}</div>`);
   return `<div class="tpl-report-notice">${lines.join('')}</div>`;
 }

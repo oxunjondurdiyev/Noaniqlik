@@ -25,7 +25,7 @@ const Points = (() => {
   function save(label) {
     const st = appState.get();
     // P04: shablon holati — aux formulalar va "bitta asbob" kovariatsiyasi bilan (src/templates/interpreter.js)
-    const r  = Calc.evaluate(st.template && window.UCTemplates ? window.UCTemplates.prepareState(st) : st);
+    const r  = st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).result : Calc.evaluate(st);
     if (r.error) return r;
     const pts = [...list()];
     const idx = pts.findIndex(p => p.id === st.currentPoint);
