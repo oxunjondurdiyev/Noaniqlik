@@ -1,0 +1,126 @@
+{
+  "id": "york-pearson-wtls",
+  "title": "WTLS: Pirson ma'lumotlari, York vaznlari (x va y da noaniqlik)",
+  "status": "unverified",
+  "statusReason": "Manba maqolasi (York et al., Am. J. Phys. 72 (2004) 367; York, Can. J. Phys. 44 (1966) 1079) docs/references/ da yo'q — ma'lumotlar va a = 5,47991022, b = −0,48053341 adabiyotdan xotira bo'yicha keltirilgan, egasi manba bilan solishtirishi kerak. Dvigatel 2.1.0 natijasi: a = 5,479910224, b = −0,480533407, S = 11,8664 (tests/engine/regression-wtls.test.js da qayd etilgan).",
+  "domain": "regressiya",
+  "source": {
+    "doc": "York, Evensen, López Martínez, De Basabe Delgado, Am. J. Phys. 72 (2004) 367–375",
+    "section": "Pearson's data with York's weights (Table I–II)",
+    "page": "—"
+  },
+  "modelSpec": {
+    "format": "uc-regression/1",
+    "method": "WTLS",
+    "model": {
+      "degree": 1
+    },
+    "points": [
+      {
+        "x": 0,
+        "y": 5.9,
+        "ux": 0.03162277660168379,
+        "uy": 1.0
+      },
+      {
+        "x": 0.9,
+        "y": 5.4,
+        "ux": 0.03162277660168379,
+        "uy": 0.7453559924999299
+      },
+      {
+        "x": 1.8,
+        "y": 4.4,
+        "ux": 0.044721359549995794,
+        "uy": 0.5
+      },
+      {
+        "x": 2.6,
+        "y": 4.6,
+        "ux": 0.035355339059327376,
+        "uy": 0.35355339059327373
+      },
+      {
+        "x": 3.3,
+        "y": 3.5,
+        "ux": 0.07071067811865475,
+        "uy": 0.22360679774997896
+      },
+      {
+        "x": 4.4,
+        "y": 3.7,
+        "ux": 0.11180339887498948,
+        "uy": 0.22360679774997896
+      },
+      {
+        "x": 5.2,
+        "y": 2.8,
+        "ux": 0.12909944487358055,
+        "uy": 0.11952286093343936
+      },
+      {
+        "x": 6.1,
+        "y": 2.8,
+        "ux": 0.22360679774997896,
+        "uy": 0.11952286093343936
+      },
+      {
+        "x": 6.5,
+        "y": 2.4,
+        "ux": 0.7453559924999299,
+        "uy": 0.1
+      },
+      {
+        "x": 7.4,
+        "y": 1.5,
+        "ux": 1.0,
+        "uy": 0.044721359549995794
+      }
+    ],
+    "weights": {
+      "note": "u = 1/√ω",
+      "wx": [
+        1000,
+        1000,
+        500,
+        800,
+        200,
+        80,
+        60,
+        20,
+        1.8,
+        1
+      ],
+      "wy": [
+        1,
+        1.8,
+        4,
+        8,
+        20,
+        20,
+        70,
+        70,
+        100,
+        500
+      ]
+    }
+  },
+  "run": {
+    "method": "regression"
+  },
+  "expected": {
+    "a": {
+      "value": 5.47991022,
+      "ref": "unverified (xotira bo'yicha)"
+    },
+    "b": {
+      "value": -0.48053341,
+      "ref": "unverified (xotira bo'yicha)"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 5e-09
+    }
+  }
+}
