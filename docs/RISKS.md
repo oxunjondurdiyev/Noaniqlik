@@ -132,7 +132,8 @@
 
 ## 2. Arxitektura / ma'lumot xavflari
 
-### R-09. localStorage: versiya va migratsiya yo'q (Y)
+### R-09. localStorage: versiya va migratsiya yo'q (Y) — P04 da qisman yopildi
+- **P04:** `src/storage/` — IndexedDB, `uc_state_v2` migratsiyasi (asl kalit + `_backup`), har bir hisob `engineVersion` va shablon ID/versiyasi bilan, append-only audit (xesh zanjiri), JSON eksport/import. Qoldi: joriy sessiya hali `uc_state_v2` da; kvota xatosi jimgina; lokal audit — faqat buzilishni aniqlash (server — P15).
 - `uc_state_v2` da versiya maydoni yo'q; `_load` sayoz birlashtiradi; v1 → v2 migratsiyasi yo'q (eski ma'lumot yo'qolgan).
 - `points[].result` — dvigatel natijasining nusxasi; dvigatel o'zgargach eski nuqtalar eski formulalar bilan hisoblangan holda qoladi va hisobotga chiqadi — qaysi versiyada hisoblangani noma'lum.
 - `_save` xatosi (kvota) jimgina yutiladi.
