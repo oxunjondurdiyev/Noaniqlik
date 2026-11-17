@@ -51,6 +51,7 @@ export const TOPDOWN_WARNINGS = {
   topdown_bias_significant: { severity: 'warning', ref: 'EURACHEM/CITAC QUAM:2012 §7.7.9 (p. 20), §7.16.2 iv) (p. 25)' },
   topdown_sr_check_failed: { severity: 'warning', ref: 'ISO 21748 (repoda yo\'q — tekshirilmagan); QUAM:2012 §7.6.2 c) (p. 18)' },
   topdown_unverified: { severity: 'info', ref: 'CLAUDE.md — ISO 21748 pullik, docs/references/ da yo\'q' },
+  zero_u: { severity: 'warning', ref: 'CLAUDE.md: U = 0 bo\'lgan natija ogohlantirishsiz hisobotga chiqmaydi; ISO/IEC 17025:2017 §7.6' },
   topdown_level_few: { severity: 'info', ref: 'EURACHEM/CITAC QUAM:2012 E.5.5.2, 1-qadam (p. 119): kamida 10 ta daraja' },
 };
 export const TOPDOWN_ERRORS = [
@@ -204,6 +205,7 @@ function evaluateCore(spec) {
   const uc2 = uc * uc;
   budget.forEach(b => { b.variance = b.u * b.u; b.share = b.included && uc2 > 0 ? 100 * b.variance / uc2 : 0; });
   const U = k * uc;
+  if (!(uc > 0)) warn('zero_u');
 
   // Mutlaq va nisbiy ko'rinish (aralashtirilmaydi: o'tkazish faqat o'lchangan qiymat y orqali)
   let relUc = null, relU = null, absUc = null, absU = null;

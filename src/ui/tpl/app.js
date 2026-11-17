@@ -110,6 +110,14 @@ async function useTemplate(key, variant) {
     window.switchTab('regression');
     return;
   }
+  if (Interp.isTopDown(tpl)) {
+    // P09: TOP_DOWN shabloni — "Top-down" yorlig'idagi ustaga yuklanadi (src/ui/topdown/app.js)
+    if (!window.UCTopDown || !window.UCTopDown.loadTemplate(tpl)) return;
+    window.App.showScreen('app');
+    window.App.renderSidebar();
+    window.switchTab('topdown');
+    return;
+  }
   const opts = { lang: window.i18n.lang, labSettings: Store.labToEngineSettings(labCache), ui: true, allowMissing: true };
   window.appState.set({ points: [], currentPoint: null, combined: null });
   if (tpl.points && tpl.points.length) {

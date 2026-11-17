@@ -11,6 +11,11 @@
       "$comment": "P08: evaluationMode = REGRESSION bo'lsa `regression` bo'limi majburiy (kalibrlash egri chizig'i; hisob: buildRegressionSpec → uc-regression/1 → evaluate()).",
       "if": { "required": ["evaluationMode"], "properties": { "evaluationMode": { "const": "REGRESSION" } } },
       "then": { "required": ["regression"] }
+    },
+    {
+      "$comment": "P09: evaluationMode = TOP_DOWN bo'lsa `topDown` bo'limi majburiy (usta sozlamalari; hisob: buildTopDownState → usta → uc-topdown/1 → evaluate()).",
+      "if": { "required": ["evaluationMode"], "properties": { "evaluationMode": { "const": "TOP_DOWN" } } },
+      "then": { "required": ["topDown"] }
     }
   ],
   "properties": {
@@ -64,6 +69,7 @@
     "points": { "type": "array", "items": { "$ref": "#/definitions/point" } },
     "settings": { "$ref": "#/definitions/settings" },
     "regression": { "$ref": "#/definitions/regression" },
+    "topDown": { "$ref": "#/definitions/topDown" },
     "decisionRule": { "$ref": "#/definitions/decisionRule" },
     "reporting": {
       "type": "object", "additionalProperties": false,
@@ -306,6 +312,33 @@
           "then": { "required": ["demo"], "properties": { "demo": { "const": true } } }
         }
       ]
+    },
+    "topDown": {
+      "description": "TOP_DOWN rejimi (P09): validatsiya va sifat nazorati ma'lumotlaridan noaniqlik. Shablon faqat usta sozlamalarini beradi (ma'lumot turi, shkala, nazorat namunasi qamraydigan omillar, qamralmagan qo'shimcha hissalar ro'yxati). Raqamli maydonlar yo'q: qo'shimcha hissalarning u qiymati har doim null — laboratoriya kiritadi.",
+      "type": "object", "required": ["basis", "scale"], "additionalProperties": false,
+      "properties": {
+        "basis": { "enum": ["within", "sR", "level"] },
+        "rwSources": { "type": "array", "uniqueItems": true, "items": { "enum": ["control_series", "duplicates", "control_limits", "stated"] } },
+        "biasSource": { "enum": ["none", "crm", "pt", "recovery", "recovery_quam"] },
+        "scale": { "enum": ["relative", "absolute"] },
+        "covers": { "type": "array", "uniqueItems": true, "items": { "enum": ["repeatability", "intermediate_precision", "reproducibility", "balance", "volumetric", "calibration", "reference_material", "recovery", "matrix", "homogeneity", "sampling", "sample_preparation", "temperature", "time", "speed", "operator", "instrument", "drift", "other"] } },
+        "additional": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["id", "name", "category", "u"], "additionalProperties": false,
+            "properties": {
+              "id": { "$ref": "#/definitions/symbol" },
+              "name": { "$ref": "#/definitions/text" },
+              "category": { "enum": ["repeatability", "intermediate_precision", "reproducibility", "balance", "volumetric", "calibration", "reference_material", "recovery", "matrix", "homogeneity", "sampling", "sample_preparation", "temperature", "time", "speed", "operator", "instrument", "drift", "other"] },
+              "u": { "type": "null" },
+              "hint": { "$ref": "#/definitions/text" }
+            }
+          }
+        },
+        "linkedTemplate": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
+        "regressionTemplate": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
+        "hint": { "$ref": "#/definitions/text" }
+      }
     },
     "decisionRule": {
       "type": "object", "required": ["type"], "additionalProperties": false,
