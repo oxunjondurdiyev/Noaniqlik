@@ -4,6 +4,24 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [Unreleased] — P04b: "bitta asbob" korrelyatsiyasi — sertifikat manbasi ikki qismga (2026-11-17)
+
+**ENGINE_VERSION: 2.0.0 — o'zgarmadi** (`src/engine/`, `src/report/` ga tegilmagan). 9 ta etalon Excel nuqtasi, 10-test (MC) va 11 ta eski shablon natijasi o'zgarmadi.
+
+- Egasi qarori (3-variant): 14 ta 1-to'lqin shablonida bitta asbob bilan o'lchanadigan kirishlarning kalibrlash manbasi ikki qatorga bo'lindi. Shablonlar: T-02, T-04, T-05, T-06, T-07, T-08, T-09, T-11, T-12, T-15, T-18, T-19, T-21, T-24 (T-04 da ikki guruh, jami 15 guruh). Qo'shimcha: `docs/templates/examples/LAB-EXAMPLE-01.json`.
+  - umumiy qism: `share: "common"`, kovariatsiyaga kiradi;
+  - nuqtaga xos qism: `share: "point"`, kovariatsiyaga hech qachon kirmaydi.
+  - Yarim kengliklar bo'sh. Asos: EA-4/02 M:2022 D4–D5.
+- **Hisob natijasiga ta'sir (shablon qatlami).** Avval butun sertifikat U si r = 1 bilan kovariatsiyaga kirardi. Ayirma yoki nisbat modellarida bu kalibrlash hissasini qisqartirib, U ni kam baholashi mumkin edi. Endi faqat umumiy qism korrelyatsiyalangan.
+- **`split: "unknown"`.** Bu rejimda faqat sertifikatning to'liq U si ma'lum. Dastur r = 0 va r = 1 bilan hisoblaydi va katta u_c ni oladi. Hisobotda "Korrelyatsiya noma'lum — konservativ chegara: r = …" yoziladi. **Bu loyiha qarori, me'yoriy talab emas** (yuqori chegara g'oyasi — EA-4/02 D7, D.10).
+- **Ikki marta hisoblash tekshiruvi.** u²(umumiy) + u²(nuqta) > u²(sertifikat) bo'lsa — ogohlantirish (`split_exceeds`).
+- **Migratsiya.** P04 dagi bitta qatorli shablon nusxalari va hisob holatlari `split: "unknown"` ga o'tadi (`migrateTemplate`, `upgradeState`). Kiritilgan ma'lumot yo'qolmaydi.
+- **UI.** Yangi elementlar:
+  - "Sertifikat qismlari" tanlovi;
+  - sertifikatning to'liq U va k maydonlari;
+  - natija va bosma hisobotda chegara qatori va ogohlantirish.
+  - Matnlar uz/ru/en tillarida.
+
 ## [Unreleased] — P04: shablonlar dvigateli, saqlash qatlami, 1-to'lqin shablonlari (2026-11-17)
 
 **ENGINE_VERSION: 2.0.0 — o'zgarmadi.** `src/engine/` va `src/report/` ga tegilmagan (`tests/security/engine.sha256.json` o'zgarmagan). 9 ta etalon Excel nuqtasi va 10-test (MC) natijasi o'zgarmadi.

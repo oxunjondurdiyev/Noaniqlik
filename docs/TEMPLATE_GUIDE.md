@@ -32,7 +32,7 @@ Shablon — bitta o'lchash yoki sinov metodikasining JSON tavsifi: o'lchash mode
 | `openQuestions[]` | hal qilinmagan savollar (⚠ belgili joylar shu yerga) |
 | `decisionRule` | qaror qoidasi (to'liq — P05) |
 
-**Bitta asbob korrelyatsiyasi.** `instrument` bir xil va `correlated: true` bo'lgan manbalar umumiy sistematik ta'sir hisoblanadi: u(xᵢ, xⱼ) = r · u_X(xᵢ) · u_X(xⱼ) (JCGM 100:2008 §5.2.2, F.1.2.3). Ajratish qobiliyati (`resol`) har bir o'qishda mustaqil — `correlated: false`.
+**Bitta asbob korrelyatsiyasi** — batafsil [8-bo'lim](#8-bitta-asbob-korrelyatsiyasi-p04b). Qisqasi: asbob kalibrlash manbasi ikki qatorga bo'linadi — umumiy qism (`share: "common"`, `correlated: true`) va nuqtaga xos qism (`share: "point"`, `correlated: false`). Korrelyatsiyaga faqat umumiy qism kiradi. Ajratish qobiliyati (`resol`) va jarayon manbalari — `correlated: false`.
 
 ## 3. Kod yozmasdan yangi shablon qo'shish
 
@@ -60,16 +60,18 @@ Model: ρ = (m2 − m0) / (m1 − m0) · ρ_w, bu yerda m0 — bo'sh piknometr, 
   { "symbol": "m1", "unit": "g", … }, { "symbol": "m2", "unit": "g", … }
 ],
 "typeBSources": [
-  { "id": "m0_cert", "input": "m0", "kind": "certificate", "distribution": "normal", "halfWidth": null, "k": null,
-    "unit": "g", "instrument": "balance", "correlated": true, "name": {…}, "hint": {…} },
+  { "id": "m0_cal_common", "input": "m0", "kind": "certificate", "distribution": "normal", "halfWidth": null, "k": null,
+    "unit": "g", "instrument": "balance", "correlated": true, "share": "common", "certificateU": null, "certificateK": null, … },
+  { "id": "m0_cal_point", "input": "m0", "kind": "specification", "distribution": "rect", "halfWidth": null,
+    "unit": "g", "instrument": "balance", "correlated": false, "share": "point", … },
   { "id": "m0_res", "input": "m0", "kind": "resolution", "distribution": "resol", "halfWidth": null,
     "unit": "g", "instrument": "balance", "correlated": false, … }
   … m1, m2 uchun xuddi shunday …
 ],
-"correlations": [{ "id": "masses", "inputs": ["m0", "m1", "m2"], "r": 1, "sharedInstrument": "balance", "ask": true, "defaultEnabled": true, "question": {…} }]
+"correlations": [{ "id": "masses", "inputs": ["m0", "m1", "m2"], "r": 1, "sharedInstrument": "balance", "ask": true, "defaultEnabled": true, "split": "known", "question": {…} }]
 ```
 
-Natija: birliklar tekshiriladi (g/g · g/cm³ = g/cm³ ✓); hisob sahifasida ρ_w maydoni va "m0, m1, m2 bitta tarozida tortiladimi?" savoli chiqadi; javob "ha" bo'lsa uchta juftlik uchun kovariatsiya qo'shiladi.
+Natija: birliklar tekshiriladi (g/g · g/cm³ = g/cm³ ✓); hisob sahifasida ρ_w maydoni va "m0, m1, m2 bitta tarozida tortiladimi?" savoli chiqadi; javob "ha" bo'lsa uchta juftlik uchun kovariatsiya qo'shiladi — faqat tarozi kalibrlashining umumiy qismidan (8-bo'lim).
 
 ## 5. 2-misol: variantlar va formula ko'rinishidagi yarim kenglik (T-22 asosida)
 
@@ -105,3 +107,51 @@ Formuladagi `R` — kirishning o'rtacha qiymati; `a_rel`, `b_dig`, `d` — o'zga
 ## 7. Laboratoriya sozlamalari
 
 "Laboratoriya sozlamalari": P, k usuli (t_P(ν_eff) yoki k = 2), ν_eff kasr qoidasi (`floor` — standart, `interpolate`, `exact`), U ni yaxlitlash, standart qaror qoidasi, 2-tartibli hadlar, U < CMC bo'lganda (ogohlantirish yoki hisobotni bloklash). Ustunlik tartibi: dastur standarti < laboratoriya < shablon `settings` < hisob sahifasida foydalanuvchi.
+
+## 8. Bitta asbob korrelyatsiyasi (P04b)
+
+Egasining qarori (2026-11-17). Manba: JCGM 100:2008 §5.2.2 Eq. (13)–(14), F.1.2.3 Eq. (F.2); EA-4/02 M:2022 Ilova D — D4–D5 (Eq. D.6, D.8, D.9), D7 (Eq. D.10).
+
+**Muammo.** Bir xil asbob (tarozi, chizg'ich, ommetr) bilan o'lchangan ikki kirish korrelyatsiyalangan, lekin har doim ham to'liq emas. EA-4/02 D5 ga ko'ra: x₁ = q_S − z₁, x₂ = q_S − z₂ bo'lsa u(x₁, x₂) = u²(q_S), r = u²(q_S)/(u²(q_S) + u²(z)) — 0 dan +1 gacha. Korrelyatsiyani faqat **umumiy** ta'sir (q_S — sertifikatdagi ofset yoki sezgirlik xatosi) beradi. Nuqtaga xos ta'sirlar (z — nochiziqlilik, ekssentriklik, nuqtalar orasidagi interpolyatsiya) har bir o'lchash uchun mustaqil.
+
+**Qachon r = +1 to'g'ri, qachon emas.**
+
+| Model | c₁·c₂ | Butun sertifikat U ni r = 1 bilan olish |
+|---|---|---|
+| Ayirma yoki nisbat: w = (m − m₁)/m₁, Δt = (R₂ − R₁)/R₁·(k + t₁) − …, OK = h₀ − h₁ | < 0 | kalibrlash hissasi **qisqaradi**. Agar xato yuklamaga qarab o'zgarsa (nochiziqlilik), **U kam baholanadi** |
+| Yig'indi: y = m₁ + m₂; T-07 Mk = Σ_k Σ_{j≤k} m_j / m (ijobiy hissalar ustun) | > 0 | hissalar qo'shiladi — r = 1 konservativ |
+
+**Shablonda.** Har bir `sharedInstrument` kirishida ikki qator bo'ladi:
+
+1. `"<asbob>: kalibrlash — umumiy qism (ofset/sezgirlik)"` — `share: "common"`, `correlated: true`, normal taqsimot, U va k sertifikatdan.
+2. `"<asbob>: kalibrlash — nuqtaga xos qism (nochiziqlilik, ekssentriklik, interpolyatsiya)"` — `share: "point"`, `correlated: false`. Qiymat manbasi: sertifikat jadvalidagi nuqtalar orasidagi farq, nochiziqlilik yoki ekssentriklik sinovi, yoki pasport (±a).
+
+Kovariatsiya u(xᵢ, xⱼ) = r · u_umumiy(xᵢ) · u_umumiy(xⱼ). Nuqtaga xos qism hech qachon kovariatsiyaga kirmaydi (r = 0). Ikkala qatorning yarim kengligi shablonda bo'sh, ularni laboratoriya kiritadi.
+
+**Ikki marta hisoblamaslik.** Sertifikatda faqat bitta umumiy U bo'lsa, uni ikki qatorga bo'lish mumkin. Bunda u²(umumiy) + u²(nuqta) = u²(sertifikat) bo'lishi shart. Sertifikatning to'liq U va k sini umumiy qatorning "Sertifikatdagi to'liq U" va "k" maydonlariga yozing. Yig'indi oshib ketsa, dastur ogohlantiradi.
+
+**Bo'lishni bilmasangiz — `split: "unknown"`** (hisob sahifasida "Sertifikat qismlari: Noma'lum"):
+
+- umumiy qatorga sertifikatning to'liq U si yoziladi, nuqtaga xos qator e'tiborsiz qoldiriladi;
+- dastur ikki hisob bajaradi: r = 0 va r = 1, va **katta u_c(y)** ni oladi;
+- hisobotda: "Korrelyatsiya noma'lum — konservativ chegara: r = 0" (yoki r = 1).
+
+u_c² r ga chiziqli bog'liq. Shuning uchun r ∈ [0, 1] dagi maksimum chetki nuqtalardan birida bo'ladi. Bitta asbob uchun r ning 0…+1 oralig'ida bo'lishi EA-4/02 D5 dan kelib chiqadi. Yuqori chegara g'oyasi esa EA-4/02 D7 (D.10) dan. **Bu loyiha qarori, me'yoriy talab emas.** Bir nechta noma'lum guruh bo'lsa, ularning hammasi bir vaqtda 0 yoki 1 olinadi.
+
+**Misol** (qo'lda hisob, `tests/templates/correlation.test.js`). w = (m − m₁)/m₁:
+
+- kirishlar: m = 105,3 g, m₁ = 100,1 g (har biri 3 ta o'lchash, s = 0,1 g);
+- umumiy qism: U = 0,004 g, k = 2;
+- nuqtaga xos qism: a = 0,003 g, to'g'ri burchakli taqsimot;
+- ajratish qobiliyati: d = 0,001 g.
+
+Hisob:
+
+- c_m = 1/m₁, c_m₁ = −m/m₁²;
+- u²(x) = (s/√3)² + (U/k)² + (a/√3)² + (d/(2√3))²;
+- u(m, m₁) = (U/k)² = 4·10⁻⁶ g²;
+- u_c² = c_m²·u²(m) + c_m₁²·u²(m₁) + 2·c_m·c_m₁·u(m, m₁).
+
+Dvigatel natijasi shu formula bilan 1e-12 aniqlikda mos keladi. "Noma'lum" rejimida bu model uchun r = 0 tanlanadi; y = m + m₁ yig'indi modelida va T-07 da r = 1 tanlanadi.
+
+**Eski nusxalar.** P04 da saqlangan bitta qatorli shablon va hisoblar avtomatik ravishda `split: "unknown"` ga o'tadi (`migrateTemplate`, `upgradeState`). Kiritilgan qiymatlar o'zgarmaydi.

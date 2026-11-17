@@ -12,6 +12,7 @@
 - [ ] Shablonning har bir `openQuestions[]` savoliga javob yozildi; `blocking: true` savollar yopildi (savol olib tashlanadi yoki javob `sourceNote` ga yoziladi).
 - [ ] Natijani yaxlitlash qoidasi (masalan "0,1 MPa gacha") hisobot qatlamida — noaniqlik byudjetiga kiritilmagan.
 - [ ] Namunaning o'zgaruvchanligi `includeByDefault: false` bilan qolgan (mahsulot xossasi).
+- [ ] **Bitta asbob korrelyatsiyasi (P04b):** asbob sertifikati umumiy (ofset/sezgirlik) va nuqtaga xos (nochiziqlilik, ekssentriklik, interpolyatsiya) qismlarga to'g'ri bo'lingan va u²(umumiy) + u²(nuqta) ≤ u²(sertifikat) (dastur ogohlantirishi yo'q), **yoki** `split: "unknown"` tanlangan va hisobotda konservativ chegara (r = 0 / r = 1) yozilgan ([TEMPLATE_GUIDE §8](../TEMPLATE_GUIDE.md#8-bitta-asbob-korrelyatsiyasi-p04b)).
 
 ## 2. Real hisob bilan solishtirish
 

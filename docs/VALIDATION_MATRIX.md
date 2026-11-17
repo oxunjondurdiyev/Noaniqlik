@@ -85,6 +85,10 @@
 | 11 ta eski preset JSON'da, P03 bilan bit darajasida bir xil | `templates/builtin/legacy-*.json` | `tests/templates/builtin.test.js` (snapshot `snapshots/legacy-p03.json` + jonli P03 holati) | ✅ |
 | Zichlik, gazoanalizator (3), termometr (5) shablonlari Excel bilan | `legacy-density`, `legacy-gas_analyzer`, `legacy-thermometer` | `builtin.test.js` ← `tests/cases/excel/*.json` (katak havolalari) | ✅ / ⚠️ D-03 (term p2–p4 ν_eff, avvalgidek) |
 | Bitta asbob korrelyatsiyasi u(xi,xj) = r·u_X(xi)·u_X(xj) (§5.2.2, F.1.2.3) | `interpreter.js::prepareState` | `workflow.test.js`, `wave1.test.js` (analitik) | ✅ (sintetik) |
+| P04b: bitta asbob — covB faqat umumiy qismdan, nuqtaga xos qism r = 0 (EA-4/02 M:2022 D4–D5, D.6/D.8) | `interpreter.js::prepareState` (`share`) | `tests/templates/correlation.test.js` — qo'lda hisob w = (m − m₁)/m₁, 1e-12 | ✅ (qo'lda hisob; manba misoli yo'q) |
+| P04b: `split: "unknown"` — r = 0 va r = 1, katta u_c (loyiha qarori; EA-4/02 D7 g'oyasi) | `interpreter.js::evaluateState` | `correlation.test.js` (ayirma → r = 0, yig'indi va T-07 → r = 1, hisobot matni 3 tilda) | ✅ (qo'lda hisob) |
+| P04b: ikki marta hisoblash tekshiruvi u²(umumiy) + u²(nuqta) ≤ u²(sertifikat) | `prepareState` (`split_exceeds`) | `correlation.test.js` | ✅ |
+| P04b: P04 dagi bitta qatorli nusxalar migratsiyasi → `split: "unknown"` | `migrateTemplate`, `upgradeState` | `correlation.test.js` | ✅ |
 | Holat oqimi, qulflash, yangi versiya | `interpreter.js::transition/applyEdit/newVersion` | `workflow.test.js` | ✅ |
 | Saqlash: IndexedDB, uc_state_v2 migratsiyasi (natija bir xil), eksport→import bit darajasida, audit xesh zanjiri | `src/storage/*` | `tests/storage/storage.test.js` | ✅ |
 | Kodsiz yangi shablon | `docs/templates/examples/LAB-EXAMPLE-01.json` | `tests/templates/guide-example.test.js` | ✅ |
