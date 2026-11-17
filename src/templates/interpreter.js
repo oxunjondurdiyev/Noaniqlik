@@ -15,7 +15,10 @@
      • variants   — bitta modelning standartga xos ko'rinishlari (formula, kirishlar,
                     o'zgarmas qiymatlari).
      • correlations + sharedInstrument — bitta asbob bilan o'lchangan kirishlar
-                    orasidagi korrelyatsiya (u(xi,xj) = r·u_X(xi)·u_X(xj)).
+                    orasidagi korrelyatsiya (u(xi,xj) = r·u_X(xi)·u_X(xj)). P04b: asbob
+                    kalibrlash manbasi umumiy (share: 'common', covB ga kiradi) va nuqtaga
+                    xos (share: 'point', hech qachon covB ga kirmaydi) qismga bo'linadi;
+                    split: 'unknown' — r = 0 va r = 1 hisoblanib, katta u_c olinadi.
      • includeByDefault: false — standart holatda kiritilmaydigan manba.
      • unit       — har bir kirish va natija birligi (units.js o'lchamlik tekshiruvi).
 ═══════════════════════════════════════════════════════════════ */
@@ -95,11 +98,23 @@ export function checkTemplate(tpl, schema) {
   if (dupSrc.length) errors.push(`duplicate source ids: ${dupSrc.join(', ')}`);
   for (const s of tpl.typeBSources || []) {
     if (!inputs.some(i => i.symbol === s.input)) errors.push(`source ${s.id}: unknown input ${s.input}`);
+    if (s.share === 'point' && s.correlated !== false) errors.push(`source ${s.id}: share 'point' must be correlated: false`);
+    if (s.share && !s.instrument) errors.push(`source ${s.id}: share requires instrument`);
+    if (s.distribution === 'resol' && s.correlated !== false && s.instrument) errors.push(`source ${s.id}: resolution must be correlated: false`);
     if (s.allowedDistributions && !s.allowedDistributions.includes(s.distribution)) errors.push(`source ${s.id}: distribution not in allowedDistributions`);
     if (s.unit && !isBlank(s.unit) && !parseUnit(s.unit)) warnings.push(`source ${s.id}: unit "${s.unit}" not recognised`);
   }
   for (const c of tpl.correlations || []) {
     for (const x of c.inputs) if (!inputs.some(i => i.symbol === x)) errors.push(`correlation ${c.id}: unknown input ${x}`);
+    // P04b: har bir kirishda asbobning umumiy va nuqtaga xos kalibrlash qatori bo'lishi shart
+    if (c.sharedInstrument && c.split === undefined) warnings.push(`correlation ${c.id}: P04 format without split (migrateTemplate → 'unknown')`);
+    if (c.sharedInstrument && c.split !== undefined) {
+      for (const x of c.inputs) {
+        const rows = (tpl.typeBSources || []).filter(s => s.input === x && s.instrument === c.sharedInstrument);
+        if (!rows.some(s => s.share === 'common' && s.correlated !== false)) errors.push(`correlation ${c.id}: input ${x} has no common calibration row (share: 'common')`);
+        if (c.split === 'known' && !rows.some(s => s.share === 'point' && s.correlated === false)) errors.push(`correlation ${c.id}: input ${x} has no point-specific calibration row (share: 'point', correlated: false)`);
+      }
+    }
     if (c.sharedInstrument && !(tpl.typeBSources || []).some(s => c.inputs.includes(s.input) && s.instrument === c.sharedInstrument)) {
       errors.push(`correlation ${c.id}: no source with instrument "${c.sharedInstrument}"`);
     }
@@ -156,6 +171,12 @@ export function checkTemplate(tpl, schema) {
 }
 
 /* ─── Shablon → hisob holati ───────────────────────────── */
+
+/** P04b: split = 'unknown' bo'lsa nuqtaga xos qator ishlatilmaydi (umumiy qatorda sertifikatning to'liq U si) */
+export function pointRowIgnored(entry, correlations) {
+  return entry.share === 'point' && (correlations || []).some(c => c.split === 'unknown' && c.inputs.includes(entry.param) &&
+    (!c.instrument || c.instrument === entry.instrument));
+}
 
 function uiExtra(s, lang) {
   return { kind: s.kind, hint: tr(s.hint, lang), ...(s.note ? { note: tr(s.note, lang) } : {}),
@@ -242,6 +263,19 @@ export function buildState(tpl, data = {}, opts = {}) {
     if (Object.keys(t).length) settingsTypeA[i.symbol] = t;
   }
 
+  // Korrelyatsiyalar (bitta asbob). split yo'q — P04 dagi eski format → 'unknown' (migrateTemplate bilan bir xil)
+  const correlations = [];
+  for (const c of tpl.correlations || []) {
+    const inVariant = c.inputs.filter(x => params.includes(x));
+    if (inVariant.length < 2) continue;
+    const enabled = data.correlations && data.correlations[c.id] !== undefined ? !!data.correlations[c.id]
+      : c.defaultEnabled !== false;
+    const r = data.correlationR && data.correlationR[c.id] !== undefined ? toNum(data.correlationR[c.id]) : c.r;
+    if (enabled && (r === null || !isFinite(r))) missing.push({ type: 'correlation', id: c.id });
+    const split = data.correlationSplit && data.correlationSplit[c.id] ? data.correlationSplit[c.id] : (c.split || 'unknown');
+    correlations.push({ id: c.id, inputs: inVariant, r, instrument: c.sharedInstrument || '', enabled, split });
+  }
+
   // B tur manbalari
   const typeB = [], excluded = [], excludedEntries = [];
   const patch = (point && point.patch) || {};
@@ -277,7 +311,14 @@ export function buildState(tpl, data = {}, opts = {}) {
     entry.sourceId = s.id;
     if (s.instrument) entry.instrument = s.instrument;
     entry.correlated = s.correlated !== undefined ? s.correlated : entry.distribution !== 'resol';
-    if (isBlank(entry.halfWidth)) missing.push({ type: 'halfWidth', id: s.id, symbol: s.input });
+    if (s.share) entry.share = s.share;
+    for (const key of ['certificateU', 'certificateK']) {
+      const v = pick(key);
+      if (v !== null && v !== undefined && !isBlank(v)) entry[key] = toNum(v);
+    }
+    const ignored = pointRowIgnored(entry, correlations);
+    if (ignored) { const i = missing.findIndex(m => m.type === 'k' && m.id === s.id); if (i >= 0) missing.splice(i, 1); }
+    if (isBlank(entry.halfWidth) && !ignored) missing.push({ type: 'halfWidth', id: s.id, symbol: s.input });
     typeB.push(entry);
   }
   // B tur formulalarida ishlatilgan, qiymati berilmagan aux o'zgarmaslar
@@ -290,17 +331,6 @@ export function buildState(tpl, data = {}, opts = {}) {
   }
   for (const a of auxUsed) if (!isFinite(aux[a])) missing.push({ type: 'constant', symbol: a });
 
-  // Korrelyatsiyalar (bitta asbob)
-  const correlations = [];
-  for (const c of tpl.correlations || []) {
-    const inVariant = c.inputs.filter(x => params.includes(x));
-    if (inVariant.length < 2) continue;
-    const enabled = data.correlations && data.correlations[c.id] !== undefined ? !!data.correlations[c.id]
-      : c.defaultEnabled !== false;
-    const r = data.correlationR && data.correlationR[c.id] !== undefined ? toNum(data.correlationR[c.id]) : c.r;
-    if (enabled && (r === null || !isFinite(r))) missing.push({ type: 'correlation', id: c.id });
-    correlations.push({ id: c.id, inputs: inVariant, r, instrument: c.sharedInstrument || '', enabled });
-  }
 
   const settings = {
     ...APP_DEFAULTS,
@@ -369,9 +399,12 @@ function inputMeans(state) {
  *     korrelyatsiyalangan manbalari). Ref: JCGM 100:2008 §5.2.2 Eq. (14), F.1.2.3 Eq. (F.2).
  * `template` maydoni bo'lmagan eski holatlar o'zgarishsiz qaytadi.
  */
-export function prepareState(state) {
+export function prepareState(state, opts = {}) {
   if (!state || !state.template) return state;
-  const st = clone(state);
+  const st = upgradeState(state);
+  const corrs = st.template.correlations || [];
+  // split = 'unknown': nuqtaga xos qatorlar hisobga kirmaydi (to'liq U umumiy qatorda)
+  st.typeB = (st.typeB || []).filter(c => !pointRowIgnored(c, corrs));
   const params = st.params || [];
   const aux = st.template.aux || {};
   const auxNames = Object.keys(aux);
@@ -393,31 +426,112 @@ export function prepareState(state) {
     }
   }
 
+  const uOf = c => {
+    let hw;
+    try { hw = valueOrExpr(c.halfWidth, params, means); } catch (_) { hw = NaN; }
+    const mult = c.sensitivity === undefined || c.sensitivity === null || c.sensitivity === '' ? 1 : Number(c.sensitivity) || 0;
+    const u = Math.abs(mult) * typeBStd(hw, c.distribution, c.k);
+    return isFinite(u) ? u : 0;
+  };
+  // Ikki marta hisoblash tekshiruvi: u²(umumiy) + u²(nuqta) ≤ u²(sertifikat) = (U/k)²
+  const warnings = [];
+  for (const c of st.typeB) {
+    if (c.share !== 'common' || !(Number(c.certificateU) > 0) || !(Number(c.certificateK) > 0)) continue;
+    const uCert = Number(c.certificateU) / Number(c.certificateK);
+    const sum2 = st.typeB.filter(x => x.param === c.param && x.instrument === c.instrument && (x === c || x.share === 'point'))
+      .reduce((s, x) => s + uOf(x) ** 2, 0);
+    if (sum2 > uCert * uCert * (1 + 1e-9)) warnings.push({ code: 'split_exceeds', id: c.sourceId, param: c.param, value: Math.sqrt(sum2) / uCert });
+  }
+
   const covB = { ...(st.covB || {}) };
-  for (const corr of st.template.correlations || []) {
+  for (const corr of corrs) {
     const ins = corr.inputs.filter(x => params.includes(x));
     for (let i = 0; i < ins.length; i++) {
       for (let j = i + 1; j < ins.length; j++) {
         const [a, b] = params.indexOf(ins[i]) < params.indexOf(ins[j]) ? [ins[i], ins[j]] : [ins[j], ins[i]];
         const key = pairKey(a, b);
         if (!corr.enabled) { delete covB[key]; continue; }
+        // Faqat umumiy qism (share !== 'point'), korrelyatsiyalangan manbalar. Ref: EA-4/02 M:2022 D4–D5 (D.6, D.8)
         const uX = x => Math.sqrt((st.typeB || [])
-          .filter(c => c.param === x && c.correlated !== false && (!corr.instrument || c.instrument === corr.instrument))
-          .reduce((s, c) => {
-            let hw;
-            try { hw = valueOrExpr(c.halfWidth, params, means); } catch (_) { hw = NaN; }
-            const mult = c.sensitivity === undefined || c.sensitivity === null || c.sensitivity === '' ? 1 : Number(c.sensitivity) || 0;
-            const u = Math.abs(mult) * typeBStd(hw, c.distribution, c.k);
-            return s + (isFinite(u) ? u * u : 0);
-          }, 0));
-        const cov = Number(corr.r) * uX(a) * uX(b);
+          .filter(c => c.param === x && c.correlated !== false && c.share !== 'point' && (!corr.instrument || c.instrument === corr.instrument))
+          .reduce((s, c) => s + uOf(c) ** 2, 0));
+        const r = opts.rOverride && opts.rOverride[corr.id] !== undefined ? opts.rOverride[corr.id] : Number(corr.r);
+        const cov = r * uX(a) * uX(b);
         if (isFinite(cov) && cov !== 0) covB[key] = cov; else delete covB[key];
       }
     }
   }
   st.covB = covB;
-  if (errors.length) st.template = { ...st.template, prepareErrors: errors };
+  if (errors.length || warnings.length) st.template = { ...st.template, ...(errors.length ? { prepareErrors: errors } : {}), ...(warnings.length ? { prepareWarnings: warnings } : {}) };
   return st;
+}
+
+/**
+ * P04 dagi (split maydonisiz) hisob holatini P04b ga keltirish: korrelyatsiya → split 'unknown'
+ * (bitta qatorli sertifikat manbasi to'liq U ni saqlaydi). Ma'lumot o'zgarmaydi. Sof funksiya.
+ */
+export function upgradeState(state) {
+  const st = clone(state);
+  if (st && st.template && Array.isArray(st.template.correlations)) {
+    st.template.correlations = st.template.correlations.map(c => (c.split ? c : { ...c, split: 'unknown' }));
+  }
+  return st;
+}
+
+/**
+ * P04 dagi (split maydonisiz) shablonni P04b formatiga keltirish. Foydalanuvchi ma'lumoti (yarim kenglik,
+ * k va h.k.) yo'qolmaydi: bitta qatorli sertifikat manbasi share: 'common' bo'ladi va to'liq U ni saqlaydi,
+ * korrelyatsiya split: 'unknown' ga o'tadi (konservativ chegara). Sof funksiya.
+ * @returns {{template: object, migrated: boolean}}
+ */
+export function migrateTemplate(tpl) {
+  const t = clone(tpl);
+  let migrated = false;
+  for (const c of t.correlations || []) {
+    if (c.split !== undefined || !c.sharedInstrument) continue;
+    c.split = 'unknown';
+    migrated = true;
+    for (const s of t.typeBSources || []) {
+      if (c.inputs.includes(s.input) && s.instrument === c.sharedInstrument && !s.share &&
+          s.distribution !== 'resol' && (s.correlated !== undefined ? s.correlated : true)) s.share = 'common';
+    }
+  }
+  return { template: t, migrated };
+}
+
+/**
+ * Shablon holati bo'yicha hisob (UI va evaluateTemplate uchun yagona yo'l).
+ * split = 'unknown' korrelyatsiyalar uchun ikki hisob: r = 0 va r = corr.r (= 1); natija — katta u_c.
+ * LOYIHA QARORI (egasi, 2026-11-17), me'yoriy talab emas. Asos: u_c² r ga chiziqli bog'liq, shuning uchun
+ * r ∈ [0, 1] dagi maksimum chetki nuqtada; bitta asbob uchun r = 0 … +1 (EA-4/02 M:2022 D5, Eq. D.9);
+ * yuqori chegara g'oyasi — EA-4/02 M:2022 D7, Eq. (D.10). Bir nechta noma'lum guruh — bir vaqtda 0 yoki 1.
+ * Dvigatel (src/engine) o'zgarmaydi: natijaga faqat templateBound / templateWarnings qo'shiladi.
+ * @returns {{result: object, state: object}}  state — tanlangan chegara uchun tayyorlangan holat (MC uchun)
+ */
+export function evaluateState(state) {
+  if (!state || !state.template) return { result: evaluate(state), state };
+  const st = upgradeState(state);
+  const unknown = (st.template.correlations || []).filter(c => c.enabled && c.split === 'unknown');
+  const finish = (p, result, bound) => {
+    if (result.error) return { result, state: p };
+    const w = (p.template && p.template.prepareWarnings) || [];
+    if (w.length) result.templateWarnings = w;
+    if (bound) result.templateBound = bound;
+    return { result, state: p };
+  };
+  if (!unknown.length) {
+    const p = prepareState(st);
+    return finish(p, evaluate(p));
+  }
+  const over = r => Object.fromEntries(unknown.map(c => [c.id, r === 1 ? Number(c.r) : 0]));
+  const p0 = prepareState(st, { rOverride: over(0) });
+  const p1 = prepareState(st, { rOverride: over(1) });
+  const r0 = evaluate(p0), r1 = evaluate(p1);
+  if (r0.error) return { result: r0, state: p0 };
+  if (r1.error) return { result: r1, state: p1 };
+  const pick1 = r1.uc > r0.uc;
+  const bound = { ids: unknown.map(c => c.id), r: pick1 ? unknown.map(c => Number(c.r)) : unknown.map(() => 0), chosen: pick1 ? 'r1' : 'r0', ucR0: r0.uc, ucR1: r1.uc };
+  return pick1 ? finish(p1, r1, bound) : finish(p0, r0, bound);
 }
 
 /**
@@ -435,8 +549,9 @@ export function missingInState(state) {
   }
   const aux = state.template.aux || {};
   const auxNames = Object.keys(aux);
+  const corrs = upgradeState(state).template.correlations || [];
   for (const c of state.typeB || []) {
-    if (!c.sourceId) continue;
+    if (!c.sourceId || pointRowIgnored(c, corrs)) continue;
     const hw = c.halfWidthExpr !== undefined ? c.halfWidthExpr : c.halfWidth;
     if (isBlank(hw)) out.push({ type: 'halfWidth', id: c.sourceId, name: c.name, symbol: c.param });
     if (c.distribution === 'normal' && c.kRequired && !(toNum(c.k) > 0)) out.push({ type: 'k', id: c.sourceId, name: c.name, symbol: c.param });
@@ -454,8 +569,12 @@ export function missingInState(state) {
 
 /** Holat → dvigatel kirishi (uc-model/1). Shablon metama'lumoti va UI maydonlari olib tashlanadi. */
 export function stateToSpec(state) {
-  const st = prepareState(state);
-  const spec = toModel(st);
+  return specOf(prepareState(state));
+}
+
+/** Tayyorlangan holat → uc-model/1 (faqat dvigatel maydonlari) */
+export function specOf(prepared) {
+  const spec = toModel(prepared);
   spec.typeB = spec.typeB.map(c => {
     const out = {};
     for (const k of ['name', 'input', 'halfWidth', 'distribution', 'k', 'nu', 'sensitivity', 'unit']) if (c[k] !== undefined) out[k] = c[k];
@@ -471,9 +590,13 @@ export function stateToSpec(state) {
 export function evaluateTemplate(tpl, data = {}, opts = {}) {
   const b = buildState(tpl, data, opts);
   if (b.error) return b;
-  const spec = stateToSpec(b.state);
+  const ev = evaluateState(b.state);
+  const spec = specOf(ev.state);
+  // Natija modelSpec orqali (tayyorlangan holat bilan bir xil; snapshot testlari spec yo'lini tekshiradi)
   const result = evaluate(spec);
-  return { result, spec, state: b.state, meta: b.meta, missing: b.missing };
+  if (ev.result.templateWarnings) result.templateWarnings = ev.result.templateWarnings;
+  if (ev.result.templateBound) result.templateBound = ev.result.templateBound;
+  return { result, spec, state: b.state, prepared: ev.state, meta: b.meta, missing: b.missing };
 }
 
 /* ─── Holat oqimi va versiyalash (muharrir uchun, sof) ─────────── */

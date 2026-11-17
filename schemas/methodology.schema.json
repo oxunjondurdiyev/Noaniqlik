@@ -181,6 +181,9 @@
         "instrument": { "type": "string" },
         "correlated": { "type": "boolean" },
         "includeByDefault": { "type": "boolean" },
+        "share": { "description": "P04b: asbob kalibrlash manbasining qismi — 'common' (ofset/sezgirlik, korrelyatsiyaga kiradi) yoki 'point' (nuqtaga xos, hech qachon covB ga kirmaydi)", "enum": ["common", "point"] },
+        "certificateU": { "description": "P04b: sertifikatdagi to'liq U (ixtiyoriy; ikki marta hisoblash tekshiruvi uchun, faqat share = 'common')", "type": ["number", "null"] },
+        "certificateK": { "type": ["number", "null"], "exclusiveMinimum": 0 },
         "hint": { "$ref": "#/definitions/text" },
         "note": { "$ref": "#/definitions/text" }
       }
@@ -195,6 +198,7 @@
         "sharedInstrument": { "type": "string" },
         "ask": { "type": "boolean" },
         "defaultEnabled": { "type": "boolean" },
+        "split": { "description": "P04b: 'known' — sertifikat umumiy va nuqtaga xos qismga bo'lingan (covB faqat umumiy qismdan); 'unknown' — faqat to'liq U ma'lum, r = 0 va r = 1 hisoblanib katta u_c olinadi (loyiha qarori). Yo'q bo'lsa — P04 dagi eski format (migrateTemplate → 'unknown').", "enum": ["known", "unknown"] },
         "question": { "$ref": "#/definitions/text" },
         "note": { "$ref": "#/definitions/text" }
       }
