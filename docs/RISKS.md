@@ -13,6 +13,7 @@
 | R-S3 | Xodim parollari Firestore'da ochiq matnda (`rawPwd`) | K | P02 |
 | R-S4 | Sessiya imzosiz, `localStorage` da — qo'lda yasash mumkin | K | P02 |
 | R-S5 | XSS: `showToast` va `index.html` `pending-org-info` da escape'siz `innerHTML` | Y | P02 |
+| R-19 | Regressiya: WTLS/GLS/polinom va "U — diapazon" unverified; loyiha qarorlari egasi tasdig'ini kutadi | Y | P08 → egasi |
 | R-01 | Etalon Excel fayllar repoda yo'q; testlar faqat yaxlitlangan satrni tekshiradi | K | P01 |
 | R-02 | Sonli hosila qadami h; nochiziqli modelda c=0 → u_c=0 | Y | P03 |
 | R-03 | t-kvantil: ν `floor` qilinadi, ν=5000 da sakrash, `erf` approksimatsiyasi | O | P03 |
@@ -144,6 +145,17 @@
 ### R-18. Bitta asbob korrelyatsiyasida U ni kam baholash (Y) — P04b da yopildi
 - P04 da sertifikat manbasining butun U si r = 1 bilan korrelyatsiyalangan deb olinardi. Ayirma yoki nisbat modellarida (c_i·c_j < 0) bu kalibrlash hissasini qisqartiradi va nochiziqlilik yoki ekssentriklik bo'lsa U ni kam baholaydi.
 - **P04b:** sertifikat manbasi umumiy va nuqtaga xos qismga bo'lindi; korrelyatsiyaga faqat umumiy qism kiradi. Bo'lish noma'lum bo'lsa — `split: "unknown"` (r = 0 va r = 1, katta u_c; loyiha qarori). Ikki marta hisoblash tekshiriladi. Qolgan xavf: laboratoriya qismlarni noto'g'ri bo'lishi mumkin. Shuning uchun bu band APPROVAL_CHECKLIST ga kiritilgan.
+
+### R-19. Regressiya: tekshirilmagan usullar va loyiha qarorlari (Y) — P08
+- **Unverified usullar.** WTLS (York et al. 2004), GLS va 2-/3-darajali polinom uchun manba misoli `docs/references/` da yo'q (ISO/TS 28037/28038 pullik). Faqat o'zaro tekshiruvlardan o'tgan (u(x) = 0 → WLS; tarqalish qonuni bilan sonli taqqoslash; diagonal GLS ≡ WLS). Natijada `regression_method_unverified` belgisi chiqadi. **Kerak:** egasi ochiq manba misolini (NPL/NIST/GTC) yoki laboratoriya Excel'ini qo'shadi.
+- **"U — diapazon"** — ILAC P14:09/2020 matni bilan solishtirilmagan (`unverified: true`, hisobotda belgi).
+- **Loyiha qarorlari (egasi tasdiqlashi kerak, me'yoriy talab emas):**
+  1. kovariatsiya asosi: OLS (u(y) noma'lum) — qoldiqlardan (GUM H.3), WLS/WTLS/GLS — kiritilgan noaniqliklardan; χ² yiqilganda dastur avtomatik ravishda aposterior asosga **o'tmaydi**, faqat ogohlantiradi;
+  2. teskari bashorat: |b| ≤ u(b) → xato; |b| < 3u(b) → ogohlantirish (GUM H.3.3 dagi "uch baravar" mulohazasi asosida);
+  3. m < n_param + 1 har doim xato (aprior asosda ham);
+  4. "U — diapazon" `linear`: OLS chizig'i barcha nuqtalarni qoplaydigan qilib yuqoriga suriladi.
+- **Qamrab olinmagan:** standart eritmalar orasidagi korrelyatsiya (bitta asosiy eritmadan suyultirish, QUAM E.4.6) — faqat GLS/`covY` orqali qo'lda; x va y orasidagi kovariatsiya UI'da yo'q; teskari bashoratda birinchi tartibli yaqinlashish (Fieller intervali emas).
+- Regressiya holati `localStorage` (`uc_regression_v1`) da — audit izisiz; IndexedDB saqlash qatlamiga (`src/storage/`) ko'chirish — P05.
 
 ### R-10. Hisoblash mantig'ining takrorlanishi (O)
 - `typeB.js:73-81, 204-221` u_B ni mustaqil hisoblaydi; `typeB.js:241` korrelyatsiyani `typeA` (usulsiz) bilan ko'rsatadi, `evaluate` esa `typeAx` bilan. Ekrandagi va hisobotdagi qiymatlar farq qilishi mumkin. Batafsil: ARCHITECTURE.md §4.

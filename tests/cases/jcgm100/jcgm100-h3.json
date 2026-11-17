@@ -1,15 +1,240 @@
 {
-  "modelSpec": null,
-  "expected": {},
   "id": "jcgm100-h3",
-  "title": "GUM H.3: termometr kalibrlash (chiziqli eng kichik kvadratlar)",
-  "status": "pending",
-  "enabledIn": "P08",
+  "title": "GUM H.3: termometr kalibrlash (chiziqli eng kichik kvadratlar, bashorat qilingan tuzatma)",
+  "status": "verified",
   "domain": "harorat",
   "source": {
     "doc": "JCGM 100:2008 (GUM)",
-    "section": "Annex H.3, Table H.6",
-    "page": "89–94"
+    "section": "Annex H.3: H.3.3, Table H.6, H.3.4",
+    "page": "89–92",
+    "note": "Kirishlar — Table H.6 ning 2- va 3-ustunlari (t_k, b_k); t0 = 20 °C (H.3.3). Usul — OLS, s² qoldiqlardan (H.13f), ν = n − 2."
   },
-  "statusReason": "regressiya dvigatelda yo'q (P08). Kirish va natijalar P08 da Table H.6 dan ko'chiriladi."
+  "modelSpec": {
+    "format": "uc-regression/1",
+    "method": "OLS",
+    "model": {
+      "degree": 1,
+      "xRef": 20
+    },
+    "units": {
+      "x": "°C",
+      "y": "°C"
+    },
+    "points": [
+      {
+        "x": 21.521,
+        "y": -0.171
+      },
+      {
+        "x": 22.012,
+        "y": -0.169
+      },
+      {
+        "x": 22.512,
+        "y": -0.166
+      },
+      {
+        "x": 23.003,
+        "y": -0.159
+      },
+      {
+        "x": 23.507,
+        "y": -0.164
+      },
+      {
+        "x": 23.999,
+        "y": -0.165
+      },
+      {
+        "x": 24.513,
+        "y": -0.156
+      },
+      {
+        "x": 25.002,
+        "y": -0.157
+      },
+      {
+        "x": 25.503,
+        "y": -0.159
+      },
+      {
+        "x": 26.01,
+        "y": -0.161
+      },
+      {
+        "x": 26.511,
+        "y": -0.16
+      }
+    ],
+    "predict": [
+      {
+        "x": 30
+      }
+    ]
+  },
+  "run": {
+    "method": "regression"
+  },
+  "expected": {
+    "a": {
+      "value": -0.1712,
+      "ref": "H.3.3 (p. 90): y1 = −0,171 2 °C"
+    },
+    "u_a": {
+      "value": 0.0029,
+      "ref": "H.3.3 (p. 90): s(y1) = 0,002 9 °C"
+    },
+    "b": {
+      "value": 0.00218,
+      "ref": "H.3.3 (p. 90): y2 = 0,002 18"
+    },
+    "u_b": {
+      "value": 0.00067,
+      "ref": "H.3.3 (p. 90): s(y2) = 0,000 67"
+    },
+    "r_ab": {
+      "value": -0.93,
+      "ref": "H.3.3 (p. 90): r(y1, y2) = −0,930"
+    },
+    "s": {
+      "value": 0.0035,
+      "ref": "H.3.3 (p. 90): s = 0,003 5 °C"
+    },
+    "nu": {
+      "value": 9,
+      "ref": "H.3.4 (p. 92): ν = n − 2 = 9"
+    },
+    "x_min_u": {
+      "value": 24.0085,
+      "ref": "H.3.4 (p. 91): t_min = 24,008 5 °C"
+    },
+    "predict.0.y": {
+      "value": -0.1494,
+      "ref": "H.3.4 (p. 91): b(30 °C) = −0,149 4 °C"
+    },
+    "predict.0.u": {
+      "value": 0.0041,
+      "ref": "H.3.4 (p. 92): u_c[b(30 °C)] = 0,004 1 °C"
+    },
+    "predict.0.nu": {
+      "value": 9,
+      "ref": "H.3.4 (p. 92): ν = n − 2 = 9"
+    },
+    "fitted.0": {
+      "value": -0.1679,
+      "ref": "Table H.6 (p. 91), k = 1: b(t_k)"
+    },
+    "fitted.1": {
+      "value": -0.1668,
+      "ref": "Table H.6 (p. 91), k = 2: b(t_k)"
+    },
+    "fitted.2": {
+      "value": -0.1657,
+      "ref": "Table H.6 (p. 91), k = 3: b(t_k)"
+    },
+    "fitted.3": {
+      "value": -0.1646,
+      "ref": "Table H.6 (p. 91), k = 4: b(t_k)"
+    },
+    "fitted.4": {
+      "value": -0.1635,
+      "ref": "Table H.6 (p. 91), k = 5: b(t_k)"
+    },
+    "fitted.5": {
+      "value": -0.1625,
+      "ref": "Table H.6 (p. 91), k = 6: b(t_k)"
+    },
+    "fitted.6": {
+      "value": -0.1614,
+      "ref": "Table H.6 (p. 91), k = 7: b(t_k)"
+    },
+    "fitted.7": {
+      "value": -0.1603,
+      "ref": "Table H.6 (p. 91), k = 8: b(t_k)"
+    },
+    "fitted.8": {
+      "value": -0.1592,
+      "ref": "Table H.6 (p. 91), k = 9: b(t_k)"
+    },
+    "fitted.9": {
+      "value": -0.1581,
+      "ref": "Table H.6 (p. 91), k = 10: b(t_k)"
+    },
+    "fitted.10": {
+      "value": -0.157,
+      "ref": "Table H.6 (p. 91), k = 11: b(t_k)"
+    },
+    "residuals.0": {
+      "value": -0.0031,
+      "ref": "Table H.6 (p. 91), k = 1: b_k − b(t_k)"
+    },
+    "residuals.1": {
+      "value": -0.0022,
+      "ref": "Table H.6 (p. 91), k = 2: b_k − b(t_k)"
+    },
+    "residuals.2": {
+      "value": -0.0003,
+      "ref": "Table H.6 (p. 91), k = 3: b_k − b(t_k)"
+    },
+    "residuals.3": {
+      "value": 0.0056,
+      "ref": "Table H.6 (p. 91), k = 4: b_k − b(t_k)"
+    },
+    "residuals.4": {
+      "value": -0.0005,
+      "ref": "Table H.6 (p. 91), k = 5: b_k − b(t_k)"
+    },
+    "residuals.5": {
+      "value": -0.0025,
+      "ref": "Table H.6 (p. 91), k = 6: b_k − b(t_k)"
+    },
+    "residuals.6": {
+      "value": 0.0054,
+      "ref": "Table H.6 (p. 91), k = 7: b_k − b(t_k)"
+    },
+    "residuals.7": {
+      "value": 0.0033,
+      "ref": "Table H.6 (p. 91), k = 8: b_k − b(t_k)"
+    },
+    "residuals.8": {
+      "value": 0.0002,
+      "ref": "Table H.6 (p. 91), k = 9: b_k − b(t_k)"
+    },
+    "residuals.9": {
+      "value": -0.0029,
+      "ref": "Table H.6 (p. 91), k = 10: b_k − b(t_k)"
+    },
+    "residuals.10": {
+      "value": -0.003,
+      "ref": "Table H.6 (p. 91), k = 11: b_k − b(t_k)"
+    }
+  },
+  "expectedWarnings": [
+    "regression_chi2_na",
+    "regression_extrapolation"
+  ],
+  "tolerance": {
+    "default": {
+      "abs": 5e-05,
+      "reason": "manbada 4 kasr xonasi — oxirgi xonaning ±½ birligi"
+    },
+    "b": {
+      "abs": 5e-06,
+      "reason": "5 kasr xonasi"
+    },
+    "u_b": {
+      "abs": 5e-06,
+      "reason": "5 kasr xonasi"
+    },
+    "r_ab": {
+      "abs": 0.0005,
+      "reason": "3 kasr xonasi"
+    },
+    "nu": {
+      "abs": 0
+    },
+    "predict.0.nu": {
+      "abs": 0
+    }
+  }
 }

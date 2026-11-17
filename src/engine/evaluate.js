@@ -13,6 +13,7 @@ import { sensitivities, higherDerivatives, secondOrderTerms } from './sensitivit
 import { conformity } from './conformity.js';
 import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
+import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -38,6 +39,8 @@ export function prepareModel(state) {
  * @returns {object} result (docs/ENGINE_API.md) yoki { error: code, detail }
  */
 export function evaluate(spec) {
+  // P08: REGRESSION rejimi alohida format bilan — bir o'lchamli GUM yo'li o'zgarmagan
+  if (spec && spec.format === REGRESSION_FORMAT) return evaluateRegression(spec);
   const norm = normalize(spec);
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;

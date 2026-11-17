@@ -102,6 +102,14 @@ async function useTemplate(key, variant) {
   const tpl = findByKey(key);
   if (!tpl) return;
   if (!window.App.beginSession()) return;
+  if (Interp.isRegression(tpl)) {
+    // P08: REGRESSION shabloni — "Regressiya" yorlig'iga yuklanadi (src/ui/regression/app.js)
+    if (!window.UCRegression || !window.UCRegression.loadTemplate(tpl)) return;
+    window.App.showScreen('app');
+    window.App.renderSidebar();
+    window.switchTab('regression');
+    return;
+  }
   const opts = { lang: window.i18n.lang, labSettings: Store.labToEngineSettings(labCache), ui: true, allowMissing: true };
   window.appState.set({ points: [], currentPoint: null, combined: null });
   if (tpl.points && tpl.points.length) {

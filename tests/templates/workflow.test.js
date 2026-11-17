@@ -57,7 +57,7 @@ test('katalog: index.json papkadagi barcha shablonlarni sanaydi; fayl nomi = id'
   const files = fs.readdirSync(TPL_DIR).filter(f => f.endsWith('.json') && f !== 'index.json').sort();
   assert.deepEqual(templates.map(x => x.file).sort(), files);
   for (const { file, tpl } of templates) assert.equal(file, tpl.id + '.json');
-  assert.equal(templates.length, 35);
+  assert.equal(templates.length, 36); // 11 legacy + 24 T-* + R-01 (P08)
 });
 
 test('katalog: barcha shablonlar sxemadan va semantik tekshiruvdan o\'tadi', () => {
@@ -73,7 +73,7 @@ test('qidiruv standart shifri bo\'yicha: "10180" → T-03; "ГОСТ 8735" → T
   assert.deepEqual(find('ГОСТ 8735'), ['T-06', 'T-07', 'T-09']);
   assert.deepEqual(find('60335'), ['T-22', 'T-23', 'T-24']);
   assert.deepEqual(find('22567.6'), ['T-17']);  // variant standarti
-  assert.ok(find('').length === 35);
+  assert.ok(find('').length === 36);
   assert.deepEqual(find('beton qorishmasi'), ['T-04']);
 });
 
@@ -191,6 +191,10 @@ test('"demo": true belgili har bir shablon/nuqta UI ogohlantirishiga ulangan (me
   for (const { tpl } of templates) {
     const raw = JSON.stringify(tpl);
     if (!raw.includes('"demo":true')) continue;
+    if (T.isRegression(tpl)) { // P08: REGRESSION shabloni — buildRegressionSpec
+      assert.equal(T.buildRegressionSpec(tpl, { useSample: true }).meta.demo, true, tpl.id);
+      continue;
+    }
     const data = tpl.points ? { useSample: true, point: tpl.points.findIndex(p => p.demo) } : { useSample: true };
     assert.equal(T.buildState(tpl, data, { allowMissing: true }).meta.demo, true, tpl.id);
   }

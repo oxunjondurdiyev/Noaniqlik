@@ -7,7 +7,13 @@
 
 ## Bajarish tartibi
 
-**P02 → P01 → P03 → P04 → P05 → P06 → P07 → P08 → P09 → P10 → P11 → P12 → P13 → P14 → P15**
+**P02 → P01 → P03 → P04 → P08 → P09 → P10 → P05 → P06 → P07 → P11 → P12 → P13 → P14 → P15**
+
+> **Tartib o'zgarishi (egasining qarori, 2026-11-17).** P04 dan keyin avval **P08 → P09 → P10**, so'ng P05 → P06 → P07 → P11 → …. Sabab — akkreditatsiya tahlili: M7 / M5 / M8 / M13 ulushlari (regressiya, top-down, mikrobiologiya/namuna olish rejimlari laboratoriyalarning katta qismiga kerak). Bosqich raqamlari o'zgarmaydi, faqat bajarish ketma-ketligi.
+>
+> P05 (linter, hisobot shakllari) hali yo'qligi sababli P08–P10 da:
+> - linter qoidalari o'rniga natijadagi **`warnings[]`** ishlatiladi; har bir ogohlantirish `{code, severity, ref}` ko'rinishida — P05 da ular linter qoidalariga ko'chiriladi;
+> - yangi rejimlarning hisobot bo'limi mavjud **`src/js/report.js`** ga qo'shiladi (P05 da `src/report/` shakllariga ko'chiriladi).
 
 P02 (kritik xavfsizlik) birinchi bajariladi. U dvigatelga tegmaydi. `npm test` hali yo'qligi sababli P02 o'zi minimal `package.json` qo'shadi (`"test": "node --test tests/"`) va mavjud `tests/verify-excel.js` ni hamda yangi xavfsizlik testlarini shu orqali ishga tushiradi; to'liq test formati P01 da.
 
@@ -201,14 +207,15 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 ## Bosqichlar bog'liqligi
 
 ```
-P02 ── P01 ── P03 ─┬─ P04 ── P05 ─┬─ P06 ── P07
-                   │              ├─ P08
-                   │              ├─ P09 ── P12
-                   │              ├─ P10
-                   │              └─ P11
+P02 ── P01 ── P03 ─┬─ P04 ─┬─ P08 ── P09 ── P10 ── P05 ─┬─ P06 ── P07
+                   │       │                            ├─ P11
+                   │       │                            └─ P12 (P09 ham kerak)
+                   │       └─ (P08–P10 P05 siz: warnings[] + src/js/report.js)
                    └───────────────────────── P13 ── P14
                                               P15 (hosting qaroridan keyin; P03 + P04 talab qilinadi)
 ```
+
+*2026-11-17 gacha:* P08, P09, P10 va P11 P05 dan keyin rejalashtirilgan edi; yangi tartib yuqoridagi "Bajarish tartibi" da.
 
 ## Egasining javoblari (2026-11-11)
 

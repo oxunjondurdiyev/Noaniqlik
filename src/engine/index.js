@@ -16,3 +16,9 @@ export { sensitivities, numericDerivative, higherDerivatives, secondOrderVarianc
 export { normalQuantile, normalCdf, tQuantile, tCoverage, tTail2, lgamma, lbeta, ibeta } from './special.js';
 export { parseUnit, convert, analyzeDimensions, dimText } from './units.js';
 export { toNum, isBlank, pairKey } from './util.js';
+// P08: regressiya va kalibrlash egri chiziqlari (format 'uc-regression/1')
+export {
+  evaluateRegression, REGRESSION_FORMAT, REGRESSION_METHODS, PARAM_NAMES,
+  fitPolynomial, fitWtls, predict, inversePredict, uRangeFunction, uRangeAt, URANGE_MODES,
+  chi2Cdf, chi2Quantile, gammaP,
+} from './regression/index.js';
