@@ -1,6 +1,6 @@
 # Validatsiya matritsasi (RTM): me'yoriy talab → dvigatel funksiyasi → test → holat
 
-> Holat: P08, 2026-11-17 (P03/P04 qatorlari o'zgarmagan; regressiya — §7). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.1.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
+> Holat: P09, 2026-11-17 (P03/P04 qatorlari o'zgarmagan; regressiya — §7; top-down — §8). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.2.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
 > Test misollari — `tests/cases/` ([README](../tests/cases/README.md)), farqlar — [DISCREPANCIES.md](../tests/cases/DISCREPANCIES.md). Asos: ISO/IEC 17025:2017 §7.11.2 (dasturiy ta'minot validatsiyasi; to'liq paket — P13).
 >
 > Holat belgilari: ✅ — `verified` testlar o'tadi; ⚠️ — o'tadi, lekin ma'lum farq bor (todo, D-ID); ⏳ — `pending` (bosqich ko'rsatilgan); ❔ — `unverified` (manba yo'q).
@@ -61,8 +61,12 @@
 | EA-4/02 M:2022 S4–S13 | — | keyingi nomzodlar (P05/P08) |
 | EURACHEM/CITAC QUAM:2012 A1 | `quam-a1` | ✅ (D-06) |
 | EURACHEM/CITAC QUAM:2012 A5 (kalibrlash qismi), E.4 | `quam-a5-calibration` | ✅ (P08, §7) |
-| QUAM A2–A4, A6; A5 ning qolgan qismi | — | keyingi nomzodlar (A5, A6 — top-down, P09) |
-| Nordtest TR 537 ed.4 (NH₄-N) | `nordtest-tr537-nh4n` | ⏳ P09 |
+| EURACHEM/CITAC QUAM:2012 A4 (aniqlik, recovery t-test, tuzatish, u_c) | `quam-a4-recovery` | ✅ (P09, §8; t_crit — D-13) |
+| EURACHEM/CITAC QUAM:2012 A6 (empirik usul, s_R + quritish) | `quam-a6-empirical` | ✅ (P09, §8) |
+| QUAM A2, A3; A5 ning qolgan qismi | — | keyingi nomzodlar |
+| Nordtest TR 537 ed.4 (NH₄-N: §3.2, Appendix 4) | `nordtest-tr537-nh4n` | ✅ (P09, §8) |
+| Nordtest TR 537 ed.4 (dublikatlar — Appendix 5, 6; BOD — §8.2; recovery — §6.3) | `nordtest-tr537-nh4n-dup-low`, `-dup-high`, `nordtest-tr537-oxygen-dup`, `-bod-crm`, `-bod-pt`, `-recovery` | ✅ (P09, §8; D-12) |
+| ISO 21748 (pullik) — laboratoriya s_r tekshiruvi, u(δ̂) | `tests/engine/topdown.test.js` (o'zaro tekshiruv) | ❔ unverified — ochiq manba misoli yoki laboratoriya Excel'i kerak (egasi qo'shadi) |
 | NIST Uncertainty Machine qo'llanmasi | `nist-um-ratio` | ❔ PDF yo'q |
 | ISO/TS 28037/28038 (pullik) | `york-pearson-wtls` (unverified) | ❔ WTLS/GLS/polinom uchun ochiq manba misoli kerak (egasi qo'shadi) |
 | JCGM 102, 106, GUM-6, ILAC P14, ILAC G8, COOMET R/GM/32 | — | ❔ PDF hali `docs/references/` da yo'q |
@@ -142,3 +146,35 @@
 | "U — diapazon" (ILAC P14:09/2020 — PDF yo'q) | `urange.js::uRangeFunction` | U(X_j) ≥ U_j, `max`, xatolar | ❔ unverified |
 | Bir o'lchamli GUM natijalari o'zgarmagan | `evaluate` (format bo'yicha uzatish) | 32 misolning natija JSON'i 2.0.0 bilan bayt darajasida bir xil (P08 da tekshirildi); 9 Excel nuqtasi, 10-test | ✅ |
 | REGRESSION shabloni | `interpreter.js::buildRegressionSpec`, sxema `regression` | `tests/templates/regression.test.js` (R-01) | ✅ (R-01 — DRAFT) |
+
+## 8. P09: top-down va empirik kattaliklar (`src/engine/topdown/`)
+
+| Talab (manba) | Dvigatel funksiyasi | Test | Holat |
+|---|---|---|---|
+| u(R_w) nazorat kartasi chegaralaridan: chegara / 2 (Nordtest TR 537 ed. 4 §3.2, p. 10; §5.1, p. 15) | `rw.js::evaluateRw` (`control_limits`) | `nordtest-tr537-nh4n` (`rw.u` = 1,67 %) | ✅ |
+| u(bias) = √(RMS_bias² + u(C_ref)²), PT: u(C_ref,i) = s_R,i/√n_Lab,i (§6.2, p. 21; Appendix 4, p. 40) | `bias.js::evaluateBias` (`pt`) | `nordtest-tr537-nh4n` (RMS 2,26; 6 ta u(C_ref,i); o'rtacha 1,52; u(bias) 2,73), `nordtest-tr537-bod-pt` (Table 6, p. 27) | ✅ |
+| u_c = √(u(R_w)² + u(bias)²), U = 2·u_c (§3.2, 5–6-qadam, p. 10) | `index.js::evaluateTopDown` | `nordtest-tr537-nh4n` (3,20 %; 6,40 %), `-bod-crm` (5,2; 10,4), `-bod-pt` (4,87; 9,7) | ✅ |
+| Dublikatlar: s = √(Σd²/(2n)), mutlaq (Appendix 5 chap ustun, p. 41; Appendix 6, p. 42) | `rw.js::duplicateSd` | `nordtest-tr537-nh4n-dup-low` (0,44 µg/L), `nordtest-tr537-oxygen-dup` (0,0252 mg/L) | ✅ (D-12: n = 46 / 47) |
+| Dublikatlar, nisbiy: har bir juftlik o'z o'rtachasiga nisbatan (Appendix 5 o'ng ustun; Table 1, p. 13) | `duplicateSd` (`per_pair`) | `nordtest-tr537-nh4n-dup-high` (3,8 %); Table 1 qiymatlari 2,019; 1,245; 10,554 — `topdown.test.js` | ✅ |
+| Dublikatlar, nisbiy: pooled s / umumiy o'rtacha (§5.3, pp. 17–18) | `rw.js` (`pooled_over_mean`) | `nordtest-tr537-oxygen-dup` (0,34 %) | ✅ |
+| u(R_w) = √(s_Rw² + s_r²) (§5, p. 15; §5.3, pp. 17–18) | `evaluateRw` | `-dup-low` (0,7 µg/L), `-dup-high` (4,1 %), `-oxygen-dup` (0,60 %) | ✅ |
+| Nazorat namunasi qatori: s, CV (§5.2, p. 16) | `rw.js` (`control_series`) | `topdown.test.js` (0,5 / 20,01 → 2,5 %) | ✅ (formula; manbada xom qator yo'q) |
+| Bitta CRM: √(bias² + (s_bias/√n)² + u(C_ref)²); bir nechta CRM: RMS (§6, p. 19; §6.1, p. 20) | `bias.js` (`crm`) | `nordtest-tr537-bod-crm` (4,5 %); §6.1: 4,1 %; 2,53 / 1,92 / 3,2 % — `topdown.test.js` | ✅ (D-14: u(C_ref) 2,16 vs 2,17) |
+| Recovery: RMS_bias, u(C_recovery) = √(u(conc)² + u(vol)²) (§6.3, p. 23) | `bias.js` (`recovery`) | `nordtest-tr537-recovery` (3,44; 1,0; 3,6 %) | ✅ |
+| Robust s × 1,25; PT provayderi U bersa U/2 (§6.2, pp. 21–22) | `bias.js` | `topdown.test.js` | ✅ |
+| QUAM recovery: u(Rec) = s/√n, t = \|1 − Rec\|/u(Rec), t_crit(n − 1; 95 %) (QUAM:2012 A4, p. 66) | `recovery.js::evaluateRecovery` | `quam-a4-recovery` (0,0432; 2,31; ahamiyatli) | ✅ (t_crit: D-13) |
+| Tuzatilgan bias: hissa u(Rec)/Rec, natija y/Rec; u_c/P = 0,34 (Table A4.4, A4.5, p. 68) | `evaluateTopDown` (`QUAM_RECOVERY`, gibrid) | `quam-a4-recovery` (0,048; 0,34; 1,1111; 0,377) | ✅ |
+| Tuzatilmagan bias: hissa u(R_m); ahamiyatli bo'lsa ogohlantirish (§7.7.9, p. 20; §7.16.2, p. 25) | `evaluateTopDown` (`topdown_bias_significant`) | `topdown.test.js` | ✅ (qoida manbadan; raqamli misol yo'q) |
+| s_R asosida: u_c = s_R (+ qamralmagan omillar) (QUAM §7.6.3, p. 18; A6 Table A6.4–A6.5, p. 86; Nordtest §7, pp. 24–25) | `reproducibility.js`, `evaluateTopDown` | `quam-a6-empirical` (0,31; 0,62 % m/m; 12 %; 25 %); Nordtest Table 2 (27,5 → 55 %), §7.2 (8,8 → 17,6 %) | ✅ |
+| Rejim parametri hissasi = sezgirlik × u(parametr) (QUAM Table A6.3, Note 4, p. 85) | `index.js::additionalComponent` | `topdown.test.js` (0,00030; 0,00048; 0,0090; 0,0072) | ✅ |
+| Empirik kattalik: usul bias'i 0 (QUAM §7.9.2, p. 21) | `evaluateTopDown` (`isEmpiricalMeasurand`) | `quam-a6-empirical`; `topdown.test.js` | ✅ |
+| u(x) = √(s₀² + (x·s₁)²); s₀ = √c, s₁ = √m (QUAM E.5.2.1 Eq. [1], p. 117; E.5.5.2, p. 119) | `level.js::levelUncertainty`, `fitLevelModel` | `topdown.test.js` (ayniyat va qayta tiklash) | ✅ (formula; manbada raqamli misol yo'q) |
+| ISO 21748: laboratoriya s_r tekshiruvi (χ²), s_R′, u(δ̂) | `reproducibility.js` | `topdown.test.js` (formula bo'yicha; natijada `topdown_unverified`) | ❔ unverified (standart pullik) |
+| **X11** — ikki marta hisoblash | `evaluateTopDown` (`x11_double_counting`) | ijobiy: takrorlanuvchanlik, `covers` dagi tarozi, `reference_material`; salbiy: namuna olish, bir jinslilik — `topdown.test.js`; usta va hisobotda — `tests/ui/topdown*.test.js`; shablonda — `tests/templates/topdown.test.js` | ✅ |
+| **X12** — empirik kattalikda bias | `evaluateTopDown` (`x12_empirical_bias`) | ijobiy: bias, recovery, u(δ̂); salbiy: biassiz, `referenceByMethod`, empirik bo'lmagan — `topdown.test.js` | ✅ |
+| Nisbiy va mutlaq aralashmasi → xato | `scale.js::stated`, `declaredScale` | `topdown_mixed_scale`, `topdown_need_scale`, `topdown_unit_mismatch` — `topdown.test.js` (4 test) | ✅ |
+| Hisobot: y, U, nisbiy U %, k, yondashuv nomi (ISO/IEC 17025:2017 §7.8.3.1 c)) | `src/js/report.js::topdownSection` | `tests/ui/topdown.test.js` (uch tilda), `tests/ui/topdown-app.test.js` (usta boshidan oxirigacha, jsdom) | ✅ |
+| U = 0 ogohlantirishsiz chiqmaydi | `evaluateTopDown` (`zero_u`) | `tests/ui/topdown.test.js` | ✅ |
+| GUM va regressiya natijalari o'zgarmagan | `evaluate` (format bo'yicha uzatish) | 35 misolning natija JSON'i 2.1.0 bilan bayt darajasida bir xil (P09 da tekshirildi); 9 Excel nuqtasi, 10-test | ✅ |
+| Mutatsiyaga sezgirlik (P09) | qo'lda: 2n → n (8 test yiqildi); √ yig'indi → oddiy yig'indi (8); s/√n → s/n (6); X11 o'chirildi (6); X12 o'chirildi (3) | — | ✅ |
+| TOP_DOWN shablonlari | `interpreter.js::buildTopDownState`, sxema `topDown` | `tests/templates/topdown.test.js` (TD-01…TD-04) | ✅ (hammasi DRAFT, raqamsiz) |

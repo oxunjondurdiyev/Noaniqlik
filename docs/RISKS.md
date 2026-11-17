@@ -14,6 +14,7 @@
 | R-S4 | Sessiya imzosiz, `localStorage` da — qo'lda yasash mumkin | K | P02 |
 | R-S5 | XSS: `showToast` va `index.html` `pending-org-info` da escape'siz `innerHTML` | Y | P02 |
 | R-19 | Regressiya: WTLS/GLS/polinom va "U — diapazon" unverified; loyiha qarorlari egasi tasdig'ini kutadi | Y | P08 → egasi |
+| R-20 | Top-down: ISO 21748 qismi unverified; X11/X12 va k bo'yicha loyiha qarorlari egasi tasdig'ini kutadi; usta brauzerda qo'lda tekshirilmagan | Y | P09 → egasi |
 | R-01 | Etalon Excel fayllar repoda yo'q; testlar faqat yaxlitlangan satrni tekshiradi | K | P01 |
 | R-02 | Sonli hosila qadami h; nochiziqli modelda c=0 → u_c=0 | Y | P03 |
 | R-03 | t-kvantil: ν `floor` qilinadi, ν=5000 da sakrash, `erf` approksimatsiyasi | O | P03 |
@@ -156,6 +157,19 @@
   4. "U — diapazon" `linear`: OLS chizig'i barcha nuqtalarni qoplaydigan qilib yuqoriga suriladi.
 - **Qamrab olinmagan:** standart eritmalar orasidagi korrelyatsiya (bitta asosiy eritmadan suyultirish, QUAM E.4.6) — faqat GLS/`covY` orqali qo'lda; x va y orasidagi kovariatsiya UI'da yo'q; teskari bashoratda birinchi tartibli yaqinlashish (Fieller intervali emas).
 - Regressiya holati `localStorage` (`uc_regression_v1`) da — audit izisiz; IndexedDB saqlash qatlamiga (`src/storage/`) ko'chirish — P05.
+
+### R-20. Top-down: tekshirilmagan qism va loyiha qarorlari (Y) — P09
+- **Unverified.** ISO 21748 ga xos hisoblar — laboratoriya s_r ni χ² testi bilan tekshirish, s_R ni laboratoriya s_r bilan moslash (s_R′² = s_R² − s_r² + s_lab²), u(δ̂) = √((s_R² − (1 − 1/n)·s_r²)/p) — standart matni bilan solishtirilmagan (pullik, `docs/references/` da yo'q). Natijada `topdown_unverified` belgisi, hisobotda "unverified" yorlig'i. **Kerak:** egasi ochiq manba misoli (NIST, Eurolab TR) yoki laboratoriya Excel'ini qo'shadi. QUAM §7.6 / A6 va Nordtest §7 bilan tasdiqlangan qism (u_c = s_R + qamralmagan omillar) — verified.
+- **Loyiha qarorlari (egasi tasdiqlashi kerak, me'yoriy talab emas):**
+  1. **X12:** empirik kattalikda bias / recovery / u(δ̂) kiritilsa, hissa byudjetda ko'rsatiladi, lekin u_c ga **qo'shilmaydi** (QUAM §7.9.2: usul bias'i nolga teng). Muqobil: hissani qoldirib, faqat ogohlantirish. Istisno `referenceByMethod` — tayanch qiymat shu usul bilan olingan bo'lsa bias laboratoriya ishiga tegishli (§7.9.3) va qo'shiladi;
+  2. **X11:** ikki marta hisoblangan hissa hisobda **qoladi** (dastur o'zi olib tashlamaydi), faqat ogohlantiradi — qaysi qator ortiqcha ekanini foydalanuvchi hal qiladi. Toifalar ro'yxati (`TOPDOWN_CATEGORIES`) va "nazorat namunasi qamraydi" belgisi — loyiha tuzilmasi; ta'rif bo'yicha faqat takrorlanuvchanlik va oraliq aniqlik qamralgan deb olinadi;
+  3. **k = 2** (Nordtest §3.2, QUAM A6): top-down da ν_eff baholanmaydi va laboratoriyaning "k = t_P(ν_eff)" sozlamasi bu rejimga qo'llanmaydi; boshqa k — qo'lda;
+  4. **nisbiy dublikat s:** ikki usul (`per_pair` — Appendix 5; `pooled_over_mean` — §5.3 kislorod misoli); standart tanlov `per_pair`;
+  5. tuzatilmagan ahamiyatli recovery'da hissa u(R_m) qoladi va ogohlantirish chiqadi (QUAM §7.16.2: tuzatish yoki bias'ni alohida ko'rsatish) — dastur bias'ni u_c ga "kengaytirish" sifatida qo'shmaydi.
+- **Manba nuanslari:** TR 537 Appendix 5 da 46 juftlik bosilgan, matnda n = 47 (D-12); QUAM A4 t_crit ≅ 2,021 (ν = 40 jadval qiymati; aniq 2,0195 — D-13); TR 537 §6.1 u(C_ref) = 2,16 % (0,25/11,5 = 2,17 % — D-14). Manba U ni yuqoriga yaxlitlaydi (6,40 → 7 %); dastur egasi qoidasi bo'yicha 2 qiymatli raqam beradi (6,4 %).
+- **Qamrab olinmagan:** diapazonni avtomatik bo'lish (TR 537 §4.3: past — mutlaq, yuqori — nisbiy); PT natijalaridan to'g'ridan-to'g'ri s_R; bir nechta bias manbasini birga ishlatish (TR 537 PCB misoli: maksimal u(bias)); ISO 11352 (pullik); QC kartalaridan avtomatik s_Rw (P11).
+- **Brauzerda qo'lda tekshirilmagan.** P09 sessiyasida real brauzerni ishga tushirishga ruxsat berilmadi. Usta jsdom'da boshidan oxirigacha sinalgan (`tests/ui/topdown-app.test.js`), lekin ko'rinish (CSS, tor ekran, chop etish) egasi tomonidan ko'rib chiqilishi kerak.
+- Top-down holati `localStorage` (`uc_topdown_v1`) da — audit izisiz; IndexedDB saqlash qatlamiga (`src/storage/`) ko'chirish — P05. Shaxsiy ma'lumot yozilmaydi.
 
 ### R-10. Hisoblash mantig'ining takrorlanishi (O)
 - `typeB.js:73-81, 204-221` u_B ni mustaqil hisoblaydi; `typeB.js:241` korrelyatsiyani `typeA` (usulsiz) bilan ko'rsatadi, `evaluate` esa `typeAx` bilan. Ekrandagi va hisobotdagi qiymatlar farq qilishi mumkin. Batafsil: ARCHITECTURE.md §4.

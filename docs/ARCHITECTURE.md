@@ -44,6 +44,20 @@
 
 ---
 
+> **Yangilanish — P09 (2026-11-17, `feat/p09-top-down`).** TOP_DOWN rejimi (bog'liqlik o'zgarmagan: `ui → engine`, `ui → templates → engine`):
+>
+> | Fayl | Vazifasi (P09) |
+> |---|---|
+> | `src/engine/topdown/*` | `index.js` (`evaluateTopDown`, format `uc-topdown/1`, X11 / X12), `scale.js` (nisbiy / mutlaq nazorati), `rw.js` (u(R_w)), `bias.js` (CRM / PT / recovery), `recovery.js` (QUAM R_m, t-test), `reproducibility.js` (s_R; ISO 21748 qismi — unverified), `level.js` (u(x) = √(s₀² + (x·s₁)²)). `evaluate()` formatga qarab uzatadi |
+> | `src/ui/topdown/build.js`, `view.js` | usta holati → `uc-topdown/1`; qo'yilgan jadval matnini o'qish; qadamlar HTML'i (sof, Node'da test qilinadi) |
+> | `src/ui/topdown/app.js` | "Top-down" yorlig'i — usta kontrolleri (ES modul, `window.UCTopDown`); holat — `localStorage` `uc_topdown_v1` (faqat sifat nazorati ma'lumoti) |
+> | `src/js/report.js` | `Results.topdownSection`, `printTopdown` — top-down hisobot bo'limi (P05 gacha shu yerda) |
+> | `src/js/i18n-topdown.js` | P09 matnlari (uz/ru/en) |
+> | `schemas/methodology.schema.json`, `src/templates/interpreter.js` | `evaluationMode: "TOP_DOWN"`, `topDown` bo'limi, `buildTopDownState` |
+> | `templates/builtin/TD-01…TD-04.json` | DRAFT shablonlar (raqamsiz) |
+>
+> Skript tartibi: `… i18n-regression → i18n-topdown → state → calc → … → report → app → tpl/app → regression/app → topdown/app`. §3 dagi "mavjud emas" ro'yxatidan top-down (Nordtest/QUAM) olib tashlandi.
+>
 > **Yangilanish — P08 (2026-11-17, `feat/p08-regression`).** REGRESSION rejimi (bog'liqlik o'zgarmagan: `ui → engine`, `ui → templates → engine`):
 >
 > | Fayl | Vazifasi (P08) |
@@ -140,7 +154,7 @@ Asosiy yo'l: **`Calc.evaluate(state)`** (`calc.js:357-554`). U toza funksiya: `s
 | **Monte-Karlo** | `monteCarlo` (565-657), `rng` (557) | JCGM 101: Type A — siljitilgan/masshtablangan t, Type B — o'z taqsimoti. **xorshift32, qat'iy seed 20261110**, M ∈ [10⁴; 2·10⁶] qat'iy (adaptiv emas). Eng qisqa qamrov intervali + simmetrik interval. §8 validatsiya: δ = ½·10^(l) u_c ning 2 qiymatli raqamidan. **Korrelyatsiya hisobga olinmaydi**, faqat `correlated` bayrog'i qaytadi |
 | **Ko'p nuqta / bir xil k** | `Points.summary` (`points.js:305`) | `uniformK` bo'lsa barcha nuqtalarga eng katta k qo'llanadi, U, yaxlitlash va muvofiqlik **dvigateldan tashqarida** qayta hisoblanadi |
 
-Hozir mavjud **emas** (P08 dan keyin regressiya/kalibrlash egri chizig'i **bor** — `src/engine/regression/`): top-down (Nordtest/QUAM), ko'p o'lchamli chiqish (JCGM 102), adaptiv MC, ikkinchi tartibli hadlar, birliklar tahlili, mikrobiologiya, namuna olish, sifatli testlar, QC/PT/validatsiya modullari.
+Hozir mavjud **emas** (P08 dan keyin regressiya/kalibrlash egri chizig'i **bor** — `src/engine/regression/`; P09 dan keyin top-down (Nordtest/QUAM) **bor** — `src/engine/topdown/`): ko'p o'lchamli chiqish (JCGM 102), adaptiv MC, ikkinchi tartibli hadlar, birliklar tahlili, mikrobiologiya, namuna olish, sifatli testlar, QC/PT/validatsiya modullari.
 
 ## 4. DOM bilan aralashib ketgan hisob joylari
 

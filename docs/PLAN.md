@@ -162,6 +162,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P09 — Top-down va empirik kattaliklar
 
+> **Holat: bajarildi (2026-11-17, `feat/p09-top-down`, ENGINE_VERSION 2.2.0).** X11 va X12 linter o'rniga `src/engine/topdown/` ning `warnings[]` da (P05 da ko'chiriladi). ISO 21748 ga xos qism — `unverified`. Ochiq qarorlar — `docs/RISKS.md` R-20.
+
 - **Fayllar:** `src/engine/topdown/` — u(R_w) QC'dan, u(bias) CRM/PT/recovery'dan (Nordtest TR 537), QUAM yondashuvlari, empirik kattaliklar; linter X11, X12 yoqiladi.
 - **Nima buzilishi mumkin:** nisbiy va absolyut noaniqlik aralashishi; GUM rejimiga ta'sir yo'q. ISO 21748 pullik — 8-javob.
 - **Qanday tekshiriladi:** Nordtest TR 537 ed.4 va EURACHEM QUAM misollari (sahifa havolasi bilan).

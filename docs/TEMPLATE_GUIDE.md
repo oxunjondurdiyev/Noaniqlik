@@ -32,6 +32,7 @@ Shablon — bitta o'lchash yoki sinov metodikasining JSON tavsifi: o'lchash mode
 | `openQuestions[]` | hal qilinmagan savollar (⚠ belgili joylar shu yerga) |
 | `decisionRule` | qaror qoidasi (to'liq — P05) |
 | `evaluationMode`, `regression` | `GUM_BOTTOM_UP` (standart) yoki `REGRESSION` — kalibrlash egri chizig'i ([9-bo'lim](#9-regression-rejimi-p08)) |
+| `evaluationMode: "TOP_DOWN"`, `topDown`, `isEmpiricalMeasurand` | validatsiya va sifat nazorati ma'lumotlaridan noaniqlik ([10-bo'lim](#10-top_down-rejimi-p09)) |
 
 **Bitta asbob korrelyatsiyasi** — batafsil [8-bo'lim](#8-bitta-asbob-korrelyatsiyasi-p04b). Qisqasi: asbob kalibrlash manbasi ikki qatorga bo'linadi — umumiy qism (`share: "common"`, `correlated: true`) va nuqtaga xos qism (`share: "point"`, `correlated: false`). Korrelyatsiyaga faqat umumiy qism kiradi. Ajratish qobiliyati (`resol`) va jarayon manbalari — `correlated: false`.
 
@@ -189,3 +190,60 @@ Qoidalar:
 6. u(c₀) — faqat kalibrlash va signal hissasi. Yakuniy natijaning boshqa manbalari (suyultirish, massa, recovery) alohida GUM shablonida qo'shiladi — buni `openQuestions` da yozing.
 
 Misol: [`templates/builtin/R-01.json`](../templates/builtin/R-01.json) (DRAFT; namunaviy nuqtalar — EURACHEM/CITAC QUAM:2012 Table A5.2). Test: `tests/templates/regression.test.js`.
+
+## 10. TOP_DOWN rejimi (P09)
+
+Sinov laboratoriyalari uchun: noaniqlik o'lchash modelidan emas, **validatsiya va sifat nazorati ma'lumotlaridan** (nazorat namunasi, dublikatlar, CRM, PT, recovery, standart usuldagi s_R) baholanadi — `"evaluationMode": "TOP_DOWN"`. Shablon "Top-down" yorlig'idagi ustada ochiladi: shablon → `buildTopDownState` → usta → `uc-topdown/1` → `evaluate()` ([ENGINE_API §8](ENGINE_API.md#8-top_down-rejimi-uc-topdown1-p09)).
+
+```json
+"evaluationMode": "TOP_DOWN",
+"isEmpiricalMeasurand": true,
+"measurand": { "symbol": "R", "name": {…}, "unit": "MPa" },
+"model": { "formula": "u_c = sqrt(u_Rw^2 + u_inst^2 + u_v^2)", "note": {…} },
+"inputs": [{ "symbol": "R", "unit": "MPa", "kind": "observation", "name": {…} }],
+"typeBSources": [],
+"topDown": {
+  "basis": "within",
+  "rwSources": ["duplicates"],
+  "biasSource": "none",
+  "scale": "relative",
+  "covers": [],
+  "linkedTemplate": "T-03",
+  "additional": [
+    { "id": "u_v", "category": "speed", "u": null, "name": {…}, "hint": {…} }
+  ],
+  "hint": {…}
+}
+```
+
+| Maydon | Ma'nosi |
+|---|---|
+| `basis` | `within` — o'z laboratoriyasi ma'lumoti (u(R_w) + bias; Nordtest TR 537, QUAM §7.7); `sR` — standart usul / validatsiya hisobotidagi s_R, s_r (QUAM §7.6, A6); `level` — u(x) = √(s₀² + (x·s₁)²) (QUAM E.5) |
+| `rwSources[]` | u(R_w) manbalari (`basis: within`): `control_series`, `duplicates`, `control_limits`, `stated` — bir nechtasi kvadratlar yig'indisi bilan birlashtiriladi |
+| `biasSource` | `none`, `crm`, `pt`, `recovery` (Nordtest RMS), `recovery_quam` (R_m, t-test) |
+| `scale` | `relative` (%) yoki `absolute` (kattalik birligida — `measurand.unit` majburiy). Nisbiy va mutlaq hissalar aralashtirilmaydi |
+| `covers[]` | nazorat namunasi (yoki s_R) **qamraydigan** omillar toifalari (takrorlanuvchanlik va oraliq aniqlik har doim qamralgan) |
+| `additional[]` | asos **qamramagan** omillar ro'yxati: `id`, `name`, `category`, `hint`; **`u` har doim `null`** — laboratoriya kiritadi |
+| `linkedTemplate` | bog'langan GUM shabloni (model va asbob manbalari o'sha yerda — bu shablonda takrorlanmaydi) |
+| `regressionTemplate` | kalibrlash egri chizig'i shabloni (`REGRESSION`) |
+| `isEmpiricalMeasurand` (yuqori daraja) | usul bilan belgilanadigan kattalik: usul bias'i ta'rif bo'yicha 0 |
+
+Qoidalar:
+
+1. **Raqam o'ylab topilmaydi.** `topDown` bo'limida son umuman yo'q; `additional[].u` — faqat `null` (sxema boshqasini rad etadi). Bo'sh maydon bilan hisob qilinmaydi: qo'shimcha hissa qatori qoldirilib, `u` kiritilmasa — xato.
+2. **X11 (ikki marta hisoblash).** `additional[]` dagi toifa `covers[]` da yoki ta'rif bo'yicha qamralgan toifalarda (`repeatability`, `intermediate_precision`; `sR` da `reproducibility`) bo'lsa — semantik xato. Hisob vaqtida foydalanuvchi shunday qator qo'shsa — natijada X11 ogohlantirishi.
+3. **X12 (empirik kattalikda bias).** `isEmpiricalMeasurand: true` bo'lsa `biasSource` faqat `none` — aks holda semantik xato. Noaniqlik s_r, s_R va rejim parametrlari (`temperature`, `time`, `speed`) bardoshliligi hissalaridan tuziladi (QUAM §7.9.4, A6).
+4. `typeBSources` va `variants` bu rejimda ishlatilmaydi; `model.formula` **tavsifiy** (tahlil qilinmaydi).
+5. `recovery`, `recovery_quam` — faqat `scale: "relative"`; `basis: "level"` — faqat `scale: "absolute"`.
+6. Bog'langan shablon natijasi avtomatik ko'chirilmaydi: masalan, TD-03 da T-03 dan faqat B tur (asbob) qismi qo'lda `additional` qatoriga kiritiladi — A tur qismi R_w ichida (aks holda X11).
+
+Ichki shablonlar (hammasi **DRAFT**, raqamli maydonlari bo'sh):
+
+| ID | Metodika | Asos | Manba |
+|---|---|---|---|
+| [`TD-01`](../templates/builtin/TD-01.json) | Suvda ammoniy azoti (NH₄-N) | u(R_w) + PT | Nordtest TR 537 ed. 4 §3.2 (p. 10), Appendix 4 (p. 40) |
+| [`TD-02`](../templates/builtin/TD-02.json) | Oziq-ovqat namligi (empirik) | s_R + quritish harorati va vaqti | QUAM:2012 §7.6, §7.9, Example A6 |
+| [`TD-03`](../templates/builtin/TD-03.json) | Beton siqilishdagi mustahkamligi (empirik) | dublikatlar + asbob (T-03 dan) + tezlik, harorat, yosh | QUAM:2012 §7.9; Nordtest §5.3; `linkedTemplate: "T-03"` |
+| [`TD-04`](../templates/builtin/TD-04.json) | Og'ir metallar (AAS) | u(R_w) + CRM; kalibrlash R_w ichida | Nordtest §3.2, §6.1; `regressionTemplate: "R-01"` |
+
+Test: `tests/templates/topdown.test.js`.

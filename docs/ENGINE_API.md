@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.1.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.2.0
 
-> Holat: P08, 2026-11-17 (2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P09, 2026-11-17 (2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -38,13 +38,20 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `regression/predict.js` | to'g'ri bashorat Y(x), teskari bashorat x̂₀ | H.3.4 Eq. (H.15); QUAM Eq. (E3.2)–(E3.5) |
 | `regression/chi2.js` | χ² CDF va kvantil (model yaroqliligi testi) | A&S 6.5.29, 6.5.31, 26.4 |
 | `regression/urange.js` | "U — diapazon" ifodasi | ILAC P14 (repoda yo'q — unverified) |
+| `topdown/index.js` | `evaluateTopDown(spec)` — TOP_DOWN rejimi (P09), §8; X11 / X12 ogohlantirishlari | Nordtest TR 537 ed. 4 §3.2; QUAM:2012 §7.6, §7.7, §7.9 |
+| `topdown/scale.js` | nisbiy / mutlaq shkala nazorati (`unit` yoki `relative: true`), birlik o'tkazish | Nordtest TR 537 §4.3 |
+| `topdown/rw.js` | u(R_w): nazorat namunasi qatori, dublikatlar, nazorat chegaralari, tayyor s / CV | Nordtest TR 537 §5, Appendix 5–6 |
+| `topdown/bias.js` | u(bias): CRM, PT raundlari, recovery (RMS) | Nordtest TR 537 §6, Appendix 4 |
+| `topdown/recovery.js` | R_m, u(R_m), t-test, tuzatilgan / tuzatilmagan | QUAM:2012 A4; §7.7.8–7.7.9, §7.16 |
+| `topdown/reproducibility.js` | s_R asosida; laboratoriya s_r tekshiruvi, u(δ̂) | QUAM:2012 §7.6, A6; Nordtest §7; ISO 21748 (repoda yo'q — unverified) |
+| `topdown/level.js` | u(x) = √(s₀² + (x·s₁)²), s₀ va s₁ ni aniqlash | QUAM:2012 E.5.2.1 Eq. [1], E.5.5.2 |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
 Bog'liqlik: `engine` hech narsaga bog'liq emas. `report → engine` (faqat natija maydonlari), `ui → report, engine`.
 
 ## 2. Kirish: `modelSpec`
 
-REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `evaluate()` uni `evaluateRegression()` ga uzatadi. Quyidagi uch ko'rinish — bir o'lchamli GUM baholashi uchun (`spec.js::normalize`):
+REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `evaluate()` uni `evaluateRegression()` ga uzatadi. TOP_DOWN rejimi — `uc-topdown/1` (§8), `evaluateTopDown()`. Quyidagi uch ko'rinish — bir o'lchamli GUM baholashi uchun (`spec.js::normalize`):
 
 1. **`uc-model/1`** — kanonik format (P04 shablon interpreteri shuni yaratadi);
 2. **`{ format: 'calc-state/v2', state }`** — UI holati (`uc_state_v2`), test misollari (`tests/cases/**.json`);
@@ -233,3 +240,87 @@ Kalibrlash egri chizig'i y = a + b·θ [+ c·θ² + d·θ³], θ = x − x_ref. 
 **"U — diapazon"** (`uRangeFunction(points, mode)`): `linear` — (|X_j|, U_j) bo'yicha OLS chizig'i, barcha nuqtalarda U(X_j) ≥ U_j bo'ladigan qilib yuqoriga surilgan; `max` — U = max U_j. Diapazondan tashqarida qiymat berilmaydi. **Unverified** (ILAC P14 PDF repoda yo'q) — natijada `unverified: true` va hisobotda belgi.
 
 Testlar: `tests/cases/jcgm100/jcgm100-h3.json`, `tests/cases/quam/quam-a5-calibration.json` (verified), `tests/cases/regression/york-pearson-wtls.json` (unverified), `tests/engine/regression.test.js`, `tests/engine/regression-wtls.test.js`.
+
+## 8. TOP_DOWN rejimi: `uc-topdown/1` (P09)
+
+Validatsiya va sifat nazorati ma'lumotlaridan noaniqlik. `evaluate(spec)` yoki `evaluateTopDown(spec)`. Natija **yaxlitlanmaydi** (hisobot bo'limi — `src/js/report.js::topdownSection`).
+
+**Shkala qoidasi.** Har bir kattalikda `unit` (mutlaq) **yoki** `relative: true` (nisbiy) bo'ladi. Bitta baholashda barcha hissalar bitta shkalada (`spec.scale`). Boshqa shkaladagi qiymat jimgina o'tkazilmaydi — xato `topdown_mixed_scale`; ikkalasi ham yo'q — `topdown_need_scale` (Nordtest TR 537 §4.3, p. 14). Xom ma'lumot (nazorat namunasi qatori, dublikatlar, sertifikat va PT qiymatlari) `unit` bilan beriladi va nisbiy baholashda o'z o'rtachasiga / tayanch qiymatiga nisbatan olinadi. Nisbiy qiymatlar `relativeUnit` birligida: `'%'` (standart) yoki `'1'` (ulush). Mutlaq birliklar mos o'lchamlikda bo'lsa o'tkaziladi (`mg/L` → `µg/L`), aks holda `topdown_unit_mismatch`. Mutlaq va nisbiy hissa aniq birlashtiriladigan yagona joy — `LEVEL_DEPENDENT` (x orqali).
+
+```js
+/**
+ * @typedef {Object} TopDownSpec
+ * @property {'uc-topdown/1'} format
+ * @property {'NORDTEST'|'QUAM_RECOVERY'|'REPRODUCIBILITY'|'LEVEL_DEPENDENT'} approach
+ * @property {{relative:true}|{unit:string}} scale       // baholash shkalasi
+ * @property {'%'|'1'} [relativeUnit='%']
+ * @property {boolean} [isEmpiricalMeasurand=false]     // usul bias'i ta'rif bo'yicha 0 (QUAM §7.9.2)
+ * @property {{value:number, unit:string}} [measurement] // y (ixtiyoriy; LEVEL_DEPENDENT da majburiy)
+ * @property {{components:RwComponent[], covers?:string[]}} [rw]        // NORDTEST, QUAM_RECOVERY
+ * @property {BiasSpec} [bias]                           // NORDTEST
+ * @property {{mean?,s?,n?,values?:number[],correction?:'applied'|'not_applied',P?:number,referenceByMethod?:boolean}} [recovery]   // QUAM_RECOVERY
+ * @property {{sR?,R?,sr?,r?,relative?|unit?,covers?:string[],pLabs?,nRep?}} [reproducibility]   // REPRODUCIBILITY (R, r — chegaralar: s = chegara/2,8)
+ * @property {{s?,n?,values?,relative?|unit?,P?,adjust?:boolean}} [labRepeatability]   // unverified
+ * @property {{include?:boolean,uDelta?,relative?|unit?}} [methodBias]                  // unverified
+ * @property {{s0:{value,unit}, s1:{value,relative:true}} | {points:{x,u}[], unit}} [levelModel]   // LEVEL_DEPENDENT
+ * @property {{id?,name?,category?,u?,sensitivity?,uParam?,relative?|unit?}[]} [additional]   // gibrid: asos QAMRAMAGAN omillar
+ * @property {{k?:number, rounding?:'normal'|'up'}} [settings]   // k standart 2
+ *
+ * RwComponent (type):
+ *   control_series  { values[], unit | relative:true }          u = s (mutlaq) yoki F·s/x̄ (nisbiy)
+ *   duplicates      { pairs[[x1,x2]…], unit, relativeMethod? }  s = √(Σd²/(2n)); nisbiy: 'per_pair' | 'pooled_over_mean'
+ *   control_limits  { limit, sigmas=2, unit | relative:true }   u = limit / sigmas
+ *   stated          { s, n?, unit | relative:true }             tayyor s yoki CV
+ * BiasSpec: { type:'crm'|'pt'|'recovery', relative:true | unit, referenceByMethod?, … }
+ *   crm      items[{ bias | (certified, mean), uRef | (certified, U, k=2), sBias, n }]
+ *   pt       rounds[{ bias | (assigned, result), uRef | (U, k=2) | (sR, nLab) }], robust?, uRef?
+ *   recovery recoveries[], uRef | uRefComponents[{u}]
+ *
+ * @typedef {Object} TopDownResult
+ * @property {string} engineVersion, {'TOP_DOWN'} mode, {'uc-topdown/1'} format
+ * @property {string} approach, approachRef        // yondashuv nomi va manbasi (hisobotda yoziladi)
+ * @property {boolean} hybrid, isEmpiricalMeasurand
+ * @property {'relative'|'absolute'} scale, {string} unit, relativeUnit   // uc va U birligi
+ * @property {number|null} y, {string} yUnit, {number|null} yCorrected    // yCorrected — y·F/R_m (tuzatish qo'llansa)
+ * @property {number} uc, uc2, k, U                 // baholash shkalasida, yaxlitlanmagan
+ * @property {number|null} relUc, relU              // har doim foizda (mutlaq baholashda — y berilgan bo'lsa)
+ * @property {number|null} absUc, absU, {string} absUnit   // mutlaq (nisbiy baholashda — y berilgan bo'lsa)
+ * @property {{u, components:{type,id,u,n,nu,mean,s,ref}[]}|null} rw
+ * @property {{type,u,rms,uRef,sMean,n,items:{id,bias,uRef}[],formula:'single_crm'|'rms',meanBias?,included}|null} bias
+ * @property {{Rm,s,n,nu,uRm,t,tCrit,P,significant,correction,u,biasFraction,included}|null} recovery
+ * @property {{sR,sr,sRUsed,lab:{s,n,nu,ratio,chi2,chi2Crit,P,pass,adjusted}|null,uDelta,unverified:string[]}|null} reproducibility
+ * @property {{s0,s1,x,constant,proportional,u,fit}|null} level
+ * @property {{id,name,category,u,doubleCounted}[]} additional, {string[]} covers
+ * @property {{id,kind,u,variance,share,included,flag?:'X11'|'X12',name?,category?}[]} budget
+ * @property {{code,severity:'info'|'warning',ref,rule?:'X11'|'X12',value?}[]} warnings
+ */
+```
+
+**Yondashuvlar.**
+
+| `approach` | Formula | Manba | Holat |
+|---|---|---|---|
+| `NORDTEST` | u_c = √(u(R_w)² + u(bias)²); u(bias) = √(RMS_bias² + u(C_ref)²); bitta CRM: √(bias² + (s_bias/√n)² + u(C_ref)²) | Nordtest TR 537 ed. 4 §3.2 (p. 10), §5 (pp. 15–18), §6 (pp. 19–23), Appendix 4–6 | **verified** |
+| `QUAM_RECOVERY` | R_m, u(R_m) = s/√n; t = \|1 − R_m\|/u(R_m) ≥ t_crit(n − 1; 95 %) → ahamiyatli; tuzatish qo'llansa hissa u(R_m)/R_m va y/R_m, qo'llanmasa u(R_m) | QUAM:2012 Example A4 (pp. 65–68); §7.7.8–7.7.9, §7.16 | **verified** |
+| `REPRODUCIBILITY` | u_c = √(s_R² + Σu_i²); s_R = R/2,8 | QUAM:2012 §7.6 (p. 18), Example A6 (pp. 84–86); Nordtest §7 (pp. 24–25) | **verified** |
+| ↳ laboratoriya s_r tekshiruvi (χ²), s_R′² = s_R² − s_r² + s_lab², u(δ̂) = √((s_R² − (1 − 1/n)s_r²)/p) | | ISO 21748 (pullik, repoda yo'q) | **unverified** (`topdown_unverified`) |
+| `LEVEL_DEPENDENT` | u(x) = √(s₀² + (x·s₁)²); s₀ = √c, s₁ = √m (u² = m·x² + c) | QUAM:2012 E.5.2.1 Eq. [1] (p. 117), E.5.5.2 (p. 119) | formula manbadan; manbada raqamli misol yo'q |
+
+**Gibrid** (`additional[]`): har qanday yondashuvga asos **qamramagan** omillar qo'shiladi — tayyor `u` yoki `|sensitivity|·uParam` (QUAM Table A6.3, Note 4). Har bir hissada `category` (`TOPDOWN_CATEGORIES`).
+
+**Empirik kattalik** (`isEmpiricalMeasurand: true`, QUAM §7.9): usul bias'i ta'rif bo'yicha 0. `bias`, `recovery` yoki `methodBias` berilsa — hissa byudjetda ko'rsatiladi, lekin u_c ga **kirmaydi** (`budget[].included = false`, `flag: 'X12'`) va X12 ogohlantirishi chiqadi. Istisno: `referenceByMethod: true` — tayanch qiymat shu usulning o'zi bilan olingan, bias faqat laboratoriya ishiga tegishli (§7.9.3) — hisobga kiradi. Noaniqlik s_R / u(R_w) va rejim parametrlari (`temperature`, `time`, `speed`) bardoshliligi hissalaridan.
+
+**X11 va X12** (P05 linteri yo'qligi sababli hozircha shu modulning `warnings[]` da; P05 da linterga ko'chiriladi):
+
+| Kod | `rule` | Qachon | Hisobga ta'siri |
+|---|---|---|---|
+| `x11_double_counting` | X11 | qo'shimcha hissa toifasi asos qamragan toifalar ichida: `repeatability`, `intermediate_precision` (har doim), `reproducibility` (s_R), `reference_material` (bias hisobga kirgan bo'lsa), `recovery`, hamda `rw.covers[]` / `reproducibility.covers[]` | hissa hisobda qoladi (qaror foydalanuvchida), byudjetda `flag: 'X11'` |
+| `x12_empirical_bias` | X12 | empirik kattalikda bias / recovery / u(δ̂) berilgan (va `referenceByMethod` emas) | hissa u_c ga kirmaydi |
+
+**Boshqa ogohlantirishlar:** `topdown_no_bias` (NORDTEST da bias berilmagan, kattalik empirik emas — Nordtest §6), `topdown_few_pt_rounds` (< 6 raund — §6.2), `topdown_bias_significant` (R_m ahamiyatli farq qiladi, tuzatish qo'llanmagan — QUAM §7.7.9, §7.16.2), `topdown_sr_check_failed`, `zero_u` (warning); `topdown_unverified`, `topdown_level_few` (info). UI matni `w_<code>`, uch tilda (`src/js/i18n-topdown.js`).
+
+**Xato kodlari** (`{error, detail}`; `detail` — maydon yo'li): `topdown_bad_spec`, `topdown_bad_approach`, `topdown_bad_data` (qiymat yo'q yoki son emas — bo'sh maydon 0 deb olinmaydi), `topdown_mixed_scale`, `topdown_need_scale`, `topdown_unit_mismatch`, `topdown_zero_mean`, `topdown_too_few`, `topdown_need_rw`, `topdown_need_bias`, `topdown_need_uref`, `topdown_need_recovery`, `topdown_need_reproducibility`, `topdown_need_level`, `topdown_level_fit_negative`.
+
+**k.** Standart k = 2 (Nordtest §3.2, 6-qadam; QUAM A6) — taxminan 95 %. ν_eff baholanmaydi (manbalar top-down uchun Welch–Satterthwaite ni qo'llamaydi). Boshqa qiymat — `settings.k`.
+
+Testlar: `tests/cases/nordtest/*.json` (6 ta verified), `tests/cases/quam/quam-a4-recovery.json`, `quam-a6-empirical.json` (verified), `tests/engine/topdown.test.js`, `tests/ui/topdown.test.js`, `tests/ui/topdown-app.test.js`, `tests/templates/topdown.test.js`.
