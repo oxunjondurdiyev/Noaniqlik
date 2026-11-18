@@ -104,3 +104,24 @@ export function cmcCheck(row, x, U) {
   if (c.error) return { ...base, error: c.error };
   return { ...base, x: c.x, cmc: c.cmc, inRange: c.inRange, below: c.inRange ? U < c.cmc : null };
 }
+
+/**
+ * Hisobdagi tekshiruv — bir kattalikning BIR NECHTA qatori (turli diapazonlar) bo'yicha: X ga mos qator avtomatik topiladi.
+ * Hech bir qator diapazoniga tushmasa — soha chegaralari (eng kichik min … eng katta max) bilan `inRange: false`.
+ */
+export function cmcCheckRows(rows, x, U) {
+  const list = (rows || []).filter(r => r && typeof r === 'object');
+  if (!list.length) return { error: 'cmc_bad_row' };
+  const f = findCmc(list, x);
+  if (f.error) return { error: f.error };
+  if (f.row) {
+    const src = list.find(r => String(r.id || '') === f.row.id) || {};
+    return { ...cmcCheck({ ...f.row, tableVersion: src.tableVersion }, x, U), rows: f.candidates };
+  }
+  const ok = list.map(cleanCmcRow).filter(r => !cmcRowError(r));
+  if (!ok.length) return { error: 'cmc_bad_row' };
+  return {
+    rowId: '', tableVersion: Number(list[0].tableVersion) || 0, quantity: ok[0].quantity, method: ok[0].method, type: '', unit: ok[0].unit,
+    min: Math.min(...ok.map(r => r.min)), max: Math.max(...ok.map(r => r.max)), x: f.x, cmc: null, inRange: false, below: null, rows: ok.length,
+  };
+}

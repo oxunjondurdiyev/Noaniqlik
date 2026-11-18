@@ -55,7 +55,7 @@ export async function saveRegistry(store, rec, ctx = {}) {
   if (prev && prev.kind !== rec.kind) throw new Error('registry_bad_kind');
   const at = ctx.at || new Date().toISOString();
   const out = { ...rec, format: REGISTRY_RECORD_FORMAT, schema: REGISTRY_SCHEMA, version: ((prev && prev.version) || 0) + 1, updatedAt: at };
-  return store.save(REGISTRY_STORE, out, { actor: cleanRole(ctx.role), reason: ctx.reason || `registry ${rec.kind}`, at, action: ctx.action });
+  return store.save(REGISTRY_STORE, out, { actor: cleanRole(ctx.role), reason: ctx.reason || `registry_${rec.kind}`, at, action: ctx.action });
 }
 
 /** O'chirish — audit bilan (asl qiymat audit `before` da qoladi). */
@@ -63,7 +63,7 @@ export async function removeRegistry(store, id, ctx = {}) {
   const prev = await store.get(REGISTRY_STORE, id);
   if (!prev) return false;
   if (!canEditRegistry(prev.kind, ctx.role)) throw new Error('registry_forbidden');
-  return store.remove(REGISTRY_STORE, id, { actor: cleanRole(ctx.role), reason: ctx.reason || `registry ${prev.kind} delete`, at: ctx.at });
+  return store.remove(REGISTRY_STORE, id, { actor: cleanRole(ctx.role), reason: ctx.reason || `registry_${prev.kind}_delete`, at: ctx.at });
 }
 
 /** Reestr yozuvining audit tarixi (yaratish, tahrirlash, o'chirish) — eskidan yangiga. */
@@ -78,6 +78,6 @@ export async function registryHistory(store, id) {
  */
 export async function importRegistry(store, records, ctx = {}) {
   let saved = 0;
-  for (const r of records || []) { await saveRegistry(store, r, { ...ctx, reason: ctx.reason || 'registry import' }); saved++; }
+  for (const r of records || []) { await saveRegistry(store, r, { ...ctx, reason: ctx.reason || 'registry_import' }); saved++; }
   return { saved };
 }

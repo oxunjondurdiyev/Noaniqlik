@@ -271,6 +271,20 @@ test('L2: X diapazondan tashqarida → outside_scope (warning), CMC bilan solish
   assert.equal(E.evaluate(gum(tb, { cmcRow: { type: 'abs', min: 0, max: 1, value: -1 }, cmcX: 0.5 })).error, 'cmc_bad_row');
 });
 
+test('hisobda bir kattalikning bir nechta diapazoni (settings.cmcRows): X ga mos qator avtomatik; hech biriga tushmasa — sohadan tashqari', () => {
+  const tb = [{ name: 'Etalon sertifikati', param: 't', halfWidth: 0.02, distribution: 'normal', k: 2 }];
+  const rows = ROWS.slice(0, 2).map(r => ({ ...r, tableVersion: 4 }));
+  const a = E.evaluate(gum(tb, { cmcRows: rows, cmcX: 't' }));                 // X ≈ 50 → r1
+  assert.deepEqual([a.cmcCheck.rowId, a.cmcCheck.cmc, a.cmcCheck.tableVersion, a.cmcCheck.below], ['r1', 0.05, 4, true]);
+  const b = E.evaluate(gum(tb, { cmcRows: rows, cmcX: 300 }));                 // → r2: 0,05 + 0,0005·300
+  assert.equal(b.cmcCheck.rowId, 'r2');
+  near(b.cmcCheck.cmc, 0.2, 1e-15);
+  const c = E.evaluate(gum(tb, { cmcRows: rows, cmcX: 501 }));
+  assert.deepEqual([c.cmcCheck.inRange, c.cmcCheck.min, c.cmcCheck.max, c.cmcCheck.rowId], [false, 0, 500, '']);
+  assert.ok(codes(c).includes('outside_scope') && !codes(c).includes('below_cmc'));
+  assert.ok(codes(E.evaluate(gum(tb, { cmcRows: rows }))).includes('cmc_x_missing'));
+});
+
 test('P11 maydonlari bo\'lmagan hisob natijasida yangi kalit yo\'q (mavjud natijalar o\'zgarmagan)', () => {
   const r = E.evaluate(gum([{ name: 'a', param: 't', halfWidth: 0.02, distribution: 'rect' }], { cmc: 0.001 }));
   assert.ok(!('cmcCheck' in r) && !('measurementDate' in r));

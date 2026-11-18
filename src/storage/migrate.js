@@ -100,6 +100,6 @@ export async function migrateSchema(store, opts = {}) {
     changed++;
   }
   await store.save('meta', { key: SCHEMA_KEY, calcState: CALC_STATE_SCHEMA, registry: 1, at },
-    { action: 'migrate', actor: opts.actor || 'system', reason: 'schema mark', at });
+    { action: 'migrate', actor: opts.actor || 'system', reason: 'schema_mark', at });
   return { status: 'migrated', from, to: CALC_STATE_SCHEMA, changed };
 }

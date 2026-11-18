@@ -17,5 +17,8 @@
            eski natija rng: 'xorshift32-legacy' bilan aynan takrorlanadi. LPU (y, u_c, ν_eff, k, U) o'zgarmagan).
    2.7.0 — P07 (JCGM 102:2011: multivariate/ — vektor LPU U_y = C_x·U_x·C_xᵀ, qamrov sohasi §6.5 / §7.7, ko'p o'lchovli
            MCM §7–8; linter MV1; ko'p o'lchovli t §5.3.2 — juftlangan A tur kuzatuvlarida MCM endi natija beradi
-           (2.6.0 da mc_nonnormal_correlation). Bitta chiqishli LPU va qolgan MCM natijalari bit darajasida o'zgarmagan). */
-export const ENGINE_VERSION = '2.7.0';
+           (2.6.0 da mc_nonnormal_correlation). Bitta chiqishli LPU va qolgan MCM natijalari bit darajasida o'zgarmagan).
+   2.8.0 — P11 (lab/ — etalonlar reestri, drift, CMC jadvali, QC kartalari, Westgard, kalibrlash intervali; linter L1, L2;
+           settings.cmcRow / cmcRows + cmcX → CMC(X) avtomatik; typeB[].registry, typeB[].drift — byudjet qatorida nusxa.
+           YANGI IMKONIYAT: yangi maydonlar ishlatilmagan hisoblarning natijasi 2.7.0 bilan bit darajasida bir xil). */
+export const ENGINE_VERSION = '2.8.0';

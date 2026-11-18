@@ -80,7 +80,7 @@ function compactItem(S, env, it, withBudget) {
     <p class="report-result" data-report-result="1"><strong>${S.statement(it.r, it.rr, it.k)}</strong></p>
     ${p9(S.ilacNote(it.r))}
     ${p9(`<span data-model-kind-info="${S.confKind(it.r)}">${S.modelKindLine(it.r)}</span>`)}
-    ${withBudget ? `<div class="print-section">${t('results_title')}</div>${S.budgetTable(it.r, 'print-table', false)}` : ''}
+    ${withBudget ? `<div class="print-section">${t('results_title')}</div>${S.budgetTable(it.r, 'print-table', false)}` : ''}${S.labSection(it.r, { print: true, acceptances: it.extra.acceptances })}
     ${conf.length ? `<div class="print-section">${t('conf_title')}</div>${conf.map(p9).join('')}` : ''}
     ${S.marksHtml(it.r, { mc: it.extra.mc })}`;
 }
@@ -103,6 +103,7 @@ function conformityItem(S, env, it) {
 
 function cmcLine(S, env, r) {
   const { t, esc } = env;
+  if (r.cmcCheck) return '';   // P11: CMC jadvali ishlatilgan — batafsil bo'lim S.labSection da
   if (r.cmc === null || r.cmc === undefined || !(r.cmc > 0)) return '';
   return `<p class="report-line" data-report-cmc="${r.U < r.cmc ? 'below' : 'ok'}">CMC = ${esc(String(r.cmc))}${S.unitOf(r)};  U ${r.U < r.cmc ? '&lt;' : '≥'} CMC — ${esc(t(r.U < r.cmc ? 'rf_cmc_below' : 'rf_cmc_ok'))}</p>`;
 }

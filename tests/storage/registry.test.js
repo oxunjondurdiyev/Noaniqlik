@@ -54,7 +54,7 @@ test('rol: etalon va CMC ni xodim tahrirlay olmaydi; QC kartasiga xodim yozadi; 
 test('QC kartasi: nazorat namunasi qiymati va karta tarixi audit izida', async () => {
   const db = await fresh();
   let c = await S.saveRegistry(db, { id: 'qc:1', kind: 'qc', name: 'NH4-N', unit: 'µg/L', type: 'imr', target: null, points: [] }, { role: 'admin' });
-  for (const v of [201.2, 199.4, 203.1]) c = await S.saveRegistry(db, { ...c, points: [...c.points, { date: '2026-11-18', run: '', values: [v] }] }, { role: 'employee', reason: 'qc value' });
+  for (const v of [201.2, 199.4, 203.1]) c = await S.saveRegistry(db, { ...c, points: [...c.points, { date: '2026-11-18', run: '', values: [v] }] }, { role: 'employee', reason: 'qc_value' });
   const h = await S.registryHistory(db, 'qc:1');
   assert.equal(h.length, 4);
   assert.deepEqual(h.map(e => e.after.points.length), [0, 1, 2, 3]);

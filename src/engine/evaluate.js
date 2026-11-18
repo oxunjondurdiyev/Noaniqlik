@@ -15,7 +15,7 @@ import { lint } from './linter/index.js';
 import { decide, decisionInput } from './decision.js';
 import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
-import { cmcCheck as cmcTableCheck } from './lab/cmc.js';
+import { cmcCheck as cmcTableCheck, cmcCheckRows } from './lab/cmc.js';
 import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
 import { evaluateTopDown, TOPDOWN_FORMAT } from './topdown/index.js';
 import { evaluateSampling, SAMPLING_FORMAT } from './sampling/index.js';
@@ -344,18 +344,23 @@ function evaluateCore(spec) {
   // X diapazondan tashqarida bo'lsa CMC bilan solishtirilmaydi (linter L2: outside_scope). U avtomatik almashtirilmaydi.
   // Ref: ILAC P14:09/2020 §4.2 (CMC ni ifodalash usullari), §5.5 (U ≥ CMC)
   let cmcInfo = null;
-  if (settings.cmcRow && typeof settings.cmcRow === 'object') {
+  // settings.cmcRows (massiv) — bir kattalikning barcha diapazon qatorlari: X ga mos qator avtomatik topiladi;
+  // settings.cmcRow — bitta qator.
+  const cmcRows = Array.isArray(settings.cmcRows) && settings.cmcRows.length ? settings.cmcRows : null;
+  const checkCmc = (xv) => (cmcRows ? cmcCheckRows(cmcRows, xv, U) : cmcTableCheck(settings.cmcRow, xv, U));
+  if (cmcRows || (settings.cmcRow && typeof settings.cmcRow === 'object')) {
     let cx = NaN;
     if (!isBlank(settings.cmcX)) {
       try { cx = valueOrExpr(settings.cmcX, params, means); }
       catch (_) { return { error: 'bad_cmc_x' }; }
     }
     if (!isFinite(cx)) {
-      cmcInfo = { ...cmcTableCheck(settings.cmcRow, 0, U), x: null, cmc: null, inRange: null, below: null, pending: 'x' };
+      const first = cmcRows ? cmcRows[0] : settings.cmcRow;
+      cmcInfo = { ...cmcTableCheck(first, 0, U), ...(cmcRows ? { rowId: '', type: '' } : {}), x: null, cmc: null, inRange: null, below: null, pending: 'x' };
       delete cmcInfo.error;
       cmc = NaN;
     } else {
-      cmcInfo = cmcTableCheck(settings.cmcRow, cx, U);
+      cmcInfo = checkCmc(cx);
       if (cmcInfo.error) return { error: cmcInfo.error };
       cmc = cmcInfo.inRange ? cmcInfo.cmc : NaN;
     }

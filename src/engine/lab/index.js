@@ -13,7 +13,7 @@ export {
   DRIFT_METHODS, DRIFT_DISTRIBUTIONS, DRIFT_DEFAULTS, DRIFT_MIN_CALIBRATIONS, DRIFT_ERRORS,
   correctionHistory, linearTrend, driftProposal, driftComponent,
 } from './drift.js';
-export { CMC_TYPES, CMC_ERRORS, cleanCmcRow, cmcRowError, inRange as cmcInRange, cmcAt, findCmc, cmcCheck } from './cmc.js';
+export { CMC_TYPES, CMC_ERRORS, cleanCmcRow, cmcRowError, inRange as cmcInRange, cmcAt, findCmc, cmcCheck, cmcCheckRows } from './cmc.js';
 export {
   SHEWHART_CONSTANTS, QC_MIN_SUBGROUP, QC_MAX_SUBGROUP, QC_ERRORS, QC_TYPES,
   sampleSd, individualsChart, xbarRChart, targetLimits, zScores, sRwFromChart,

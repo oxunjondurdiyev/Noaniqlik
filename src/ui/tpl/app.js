@@ -413,6 +413,7 @@ function labHTML(l) {
       <label>${esc(t('lab_mc_mode'))}<select id="lab-mcMode">${opt('adaptive', l.mcMode, t('mc_mode_adaptive'))}${opt('fixed', l.mcMode, t('mc_mode_fixed'))}</select></label>
       <label>${esc(t('lab_mc_ndig'))}<select id="lab-mcNDig">${opt(1, l.mcNDig, '1')}${opt(2, l.mcNDig, '2')}</select></label>
       <label>${esc(t('lab_mc_tolerance'))}<select id="lab-mcTolerance">${opt('delta5', l.mcTolerance, t('lab_mc_tol_delta5'))}${opt('delta', l.mcTolerance, t('lab_mc_tol_delta'))}</select></label>
+      <label>${esc(t('lb_set_expiry_days'))}<input type="number" id="lab-expiryWarnDays" min="0" max="3650" step="1" value="${esc(l.expiryWarnDays)}" /></label>
     </div>
     <label class="model-check"><input type="checkbox" id="lab-secondOrder" ${l.secondOrder ? 'checked' : ''} /> <span>${esc(t('set_second_order'))}</span></label>
     <p class="text-xs text-muted">${esc(t('set_second_order_hint'))}</p>
@@ -433,6 +434,7 @@ async function onLabAction(e) {
     P: Number($('lab-P').value), kMethod: $('lab-kMethod').value, nuRule: $('lab-nuRule').value, rounding: $('lab-rounding').value,
     decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, criticalMode: $('lab-criticalMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
     mcMode: $('lab-mcMode').value, mcNDig: Number($('lab-mcNDig').value), mcTolerance: $('lab-mcTolerance').value,
+    expiryWarnDays: Math.max(0, Math.round(Number($('lab-expiryWarnDays').value)) || 0),   // P11: etalon muddati ogohlantirishi (linter L1)
   };
   if (!db) { toast(t('st_no_idb'), 'error'); return; }
   await Store.saveLabSettings(db, v, { reason: 'lab settings' });
