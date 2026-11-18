@@ -4,7 +4,32 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
-## [2.7.0] — P07: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
+## [2.8.0] — P11: etalonlar reestri, drift, CMC jadvali, QC kartalari, kalibrlash intervali (2026-11-18)
+
+**ENGINE_VERSION: 2.7.0 → 2.8.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` natijasi 2.7.0 (`ada88d9`) bilan **bit darajasida bir xil** (`engineVersion` dan tashqari; nazorat skripti bilan solishtirildi); 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi. Yangi maydonlar (`typeB[].registry`, `typeB[].drift`, `settings.cmcRow` / `cmcRows` / `cmcX`, `settings.measurementDate`) ishlatilmagan hisobda natijaga hech qanday yangi kalit qo'shilmaydi.
+
+### Qo'shilganlar
+
+- **`src/engine/lab/`** (sof modullar, API — `docs/ENGINE_API.md` §14):
+  - `registry.js` — etalon kartochkasi (`uc-registry/1`), kalibrlash nuqtalari, nuqtalar orasida chiziqli interpolyatsiya (ekstrapolyatsiya yo'q), `sourceFromStandard` — B tur manbasi + hisobda saqlanadigan sertifikat nusxasi (reestr ID va versiyasi), amal qilish muddati, kuzatuvchanlik dalili (ILAC P10:07/2020 §2).
+  - `drift.js` — kalibrlash tarixidan |ΔC| yoki chiziqli trend; taklif u = |ΔC|/√3 (taqsimot sozlanadi); kamida 2 ta kalibrlash; taklif avtomatik qo'shilmaydi.
+  - `cmc.js` — CMC jadvali: bitta qiymat, nisbiy (%), a + b·|X|, diapazon bo'yicha chiziqli interpolyatsiya (ILAC P14:09/2020 §4.2 a–c); `findCmc`, `cmcCheck`, `cmcCheckRows`.
+  - `qc.js` — Shewhart X̄–R va I–MR kartalari, ±2s / ±3s, konstantalar d₂, d₃, A₂, D₃, D₄ (n = 2…10), s_Rw kartadan (ν = n − 1).
+  - `westgard.js` — 1₃s, 2₂s, R₄s, 4₁s, 10ₓ (har biri alohida funksiya).
+  - `interval.js` — kalibrlash intervali tavsiyasi (drift trendi → chegaraga yetish vaqti; kamida 3 ta kalibrlash; faqat tavsiya).
+- **Hisobda CMC(X) avtomatik:** `settings.cmcRows` (bir kattalikning barcha diapazon qatorlari nusxasi) yoki `settings.cmcRow` + `settings.cmcX` (son yoki kirishlardan ifoda) → `result.cmcCheck`; U < CMC(X) → mavjud `below_cmc` (X8, error), `criticalMode` bo'yicha. **U avtomatik CMC ga almashtirilmaydi.**
+- **Linter:** **L1** — `standard_expired` (error → hisobot "RASMIY EMAS"), `standard_expiring` (info, standart 30 kun — `settings.expiryWarnDays`), `standard_no_validity` (warning), `standard_no_traceability` (warning, ILAC P10 §2); **L2** — `outside_scope` (warning), `cmc_x_missing` (warning). Chegaralar — loyiha qarori, **egasi tasdig'ini kutadi** (`docs/LINTER_RULES.md` §4 #25–#28).
+- **Saqlash:** `src/storage/registry.js` — reestr yozuvlari `registries` omborida (IndexedDB), har bir yaratish / tahrirlash / o'chirish audit zanjirida (rol, vaqt, oldingi va yangi qiymat), versiya har saqlashda oshadi; Firebase'ga yozilmaydi. **Saqlash sxemasi 2 → 3** (`CALC_STATE_SCHEMA`, `migrateSchema`): eski hisoblardagi qo'lda kiritilgan B tur manbalari o'zgarishsiz qoladi (reestrga bog'lanmagan). Laboratoriya sozlamasi `expiryWarnDays` (30).
+- **Import / eksport:** `src/io/registry.js` — reestr `.xlsx` / `.csv` dan (P05b `LIMITS` bilan; formulalar bajarilmaydi), `uc-registry/1` JSON (RFC 8785 xeshi bilan), CSV eksport (matn zararsizlantirilgan).
+- **UI:** "Laboratoriya" yorlig'i — "Etalonlar", "CMC", "QC kartalari" (`src/ui/lab/`); B tur oynasida "Reestrdan tanlash"; hisob sozlamalarida o'lchash sanasi va CMC kattaligi; QC kartasidan s_Rw ni Top-down ustasiga bir tugma bilan uzatish; SVG grafik (skriptsiz, CSP o'zgarmagan). Matnlar uch tilda (`src/js/i18n-lab.js`, 246 kalit).
+- **Hisobot:** `src/report/lab.js` — reestr manbasi (sertifikat raqami, sanasi, kalibrlovchi tashkilot, akkreditatsiya, kuzatuvchanlik, nuqta, tuzatma, reestr ID / versiya), CMC tekshiruvi (qaysi qator, CMC(X), U ≥ CMC yoki asoslangan qaror), drift manbasi asosi (qaysi kalibrlashlar, usul, bo'luvchi).
+
+### Manba holati
+
+- **Verified:** ILAC P14:09/2020 §4.1–4.3, §5.5 (CMC; sahifa havolali testlar), ILAC P10:07/2020 §2 (kuzatuvchanlik yo'llari).
+- **Unverified:** ISO/IEC 17025:2017 §6.4, §6.5, §7.7.1 (repoda yo'q); Westgard qoidalari (nashr repoda yo'q — ta'rif bo'yicha jadvalli testlar); Shewhart konstantalari — **NIST e-Handbook sahifasi sessiyada ochilmadi**, shuning uchun qiymatlar ta'rifdan mustaqil sonli integrallash bilan tekshirildi (±0,001); NIST misoli — `todo`. ILAC G24 / OIML D 10:2022 repoda bor, lekin u aniq formula bermaydi — interval hisobi loyiha qarori.
+
+: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
 
 **ENGINE_VERSION: 2.6.0 → 2.7.0** (minor). **Bitta chiqishli hisoblar o'zgarmadi:** barcha mavjud test misollarining `evaluate()` natijasi 2.6.0 bilan **bit darajasida bir xil** (`engineVersion` dan tashqari); 9 ta etalon Excel nuqtasi, 10-test va JCGM 100 / 101 misollari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi. `monteCarlo()` ning 188 ta nazorat natijasidan 176 tasi bit darajasida bir xil; qolgan 12 tasi — quyida.
 

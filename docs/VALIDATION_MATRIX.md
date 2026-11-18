@@ -311,3 +311,32 @@ Manba — JCGM 102:2011 (repoda). Sahifa raqamlari — PDF bo'yicha, test misoll
 | Linter MV1 | `linter/rules/mv01-output-correlation.js` | `multivariate.test.js`, `linter.test.js` | ✅ (chegara — egasi tasdig'ini kutadi) |
 | Shablon `outputs`, MV-01 | sxema, interpreter | `tests/templates/workflow.test.js` | ✅ |
 | Oshkormas model (§6.3; §6.3.2, §9.5), eng kichik soha (§7.7.4) | — | — | ❌ qilinmagan (R-24) |
+
+
+## 14. P11: laboratoriya jarayonlari (`src/engine/lab/`, `src/storage/registry.js`, `src/io/registry.js`)
+
+Manbalar: ILAC P14:09/2020 va ILAC P10:07/2020 (repoda — sahifa raqamlari hujjatdagi "Page N of M" bo'yicha), ILAC G24 / OIML D 10:2022 (repoda; aniq formula bermaydi). ISO/IEC 17025:2017, NIST e-Handbook sahifalari va Westgard nashri repoda **yo'q**.
+
+| Talab (band) | Funksiya | Test | Holat |
+|---|---|---|---|
+| CMC ni ifodalash: bitta qiymat, diapazon (chiziqli interpolyatsiya), oshkor funksiya (ILAC P14 §4.2 a–c, p. 6); nisbiy (§4.3) | `cmcAt`, `findCmc` | `tests/engine/lab.test.js` | ✅ verified |
+| Diapazon chegarasi (kiradi), tashqarisi, tutashgan diapazonlar; ochiq interval rad etiladi (§4.2) | `cmcAt`, `cmcRowError` | `lab.test.js` | ✅ (chegara qoidalari — loyiha qarori, R-25) |
+| U < CMC(X) → `below_cmc` (ILAC P14 §5.5, p. 8); U almashtirilmaydi | `evaluate` (`settings.cmcRows`), X8 | `lab.test.js` | ✅ verified |
+| X sohadan tashqarida → `outside_scope`; X yo'q → `cmc_x_missing` (§4.1 c) | linter L2 | `lab.test.js` | ✅ (daraja — loyiha qarori) |
+| Kuzatuvchanlik yo'llari 1) – 3b) (ILAC P10 §2, p. 6–7); akkreditatsiya belgisi yo'q → warning | `hasTraceabilityEvidence`, linter L1 | `lab.test.js` | ✅ verified (daraja — loyiha qarori) |
+| Muddati o'tgan etalon → error, hisobot "RASMIY EMAS"; muddati yaqin (30 kun) → info | `validityStatus`, linter L1 | `lab.test.js`, `tests/ui/lab.test.js` | ✅ (ISO/IEC 17025 §6.4, §6.5 — ❔ unverified; chegara — loyiha qarori) |
+| Reestrdan B tur manbasi: U, k, ν, tuzatma, sertifikat; ID + versiya; reestr o'zgarsa eski hisob o'zgarmaydi | `sourceFromStandard` | `lab.test.js`, `tests/storage/registry.test.js` | ✅ |
+| Nuqtalar orasida interpolyatsiya; ekstrapolyatsiya yo'q | `pointAt` | `lab.test.js` | ✅ (U qoidasi — loyiha qarori) |
+| MPE / tolerans manba sifatida taklif qilinmaydi | `sourceFromStandard` | `lab.test.js` | ✅ |
+| Drift: |ΔC|, u = |ΔC|/√3; trend; < 2 kalibrlash — yo'q; faqat tasdiqlangach qo'shiladi (EA-4/02 S2.4; JCGM 100 4.3.7) | `driftProposal`, `driftComponent` | `lab.test.js`, `tests/ui/lab.test.js` | ✅ (qo'lda hisob; standart taqsimot — loyiha qarori) |
+| Kalibrlash intervali (ILAC G24 / OIML D 10:2022 §6.3): trend → chegara; < 3 kalibrlash — yo'q; faqat tavsiya | `intervalRecommendation` | `lab.test.js` | ✅ qo'lda hisob; formula — loyiha qarori (hujjat formula bermaydi) |
+| Shewhart konstantalari d₂, d₃, A₂, D₃, D₄ (n = 2…10) | `SHEWHART_CONSTANTS` | `tests/engine/lab-qc.test.js` | ❔ manba (NIST e-Handbook §6.3.2.1) sessiyada ochilmadi → **ta'rifdan mustaqil sonli integrallash** bilan ±0,001 |
+| I–MR va X̄–R chegaralari, ±2s / ±3s | `individualsChart`, `xbarRChart` | `lab-qc.test.js` | ✅ qo'lda hisob; NIST misoli (§6.3.2.2) — ⏳ `todo` (manba matni kerak) |
+| Westgard 1₃s, 2₂s, R₄s, 4₁s, 10ₓ — har biri ijobiy va salbiy jadval | `rule13s` … `rule10x`, `westgard` | `lab-qc.test.js` (24 holat) | ❔ unverified (nashr repoda yo'q) |
+| s_Rw kartadan → top-down (ν = n − 1) | `sRwFromChart` | `lab-qc.test.js`, `tests/ui/lab.test.js` | ✅ (top-down byudjetidagi qiymat bilan aynan) |
+| Reestr: yaratish / tahrirlash / o'chirish audit izida (rol, vaqt, oldingi va yangi qiymat); rol cheklovi | `saveRegistry`, `removeRegistry` | `tests/storage/registry.test.js` | ✅ |
+| Migratsiya 2 → 3: qo'lda kiritilgan B tur manbalari o'zgarmaydi; idempotent; audit | `migrateSchema` | `tests/storage/registry.test.js` | ✅ |
+| Import `.xlsx` / `.csv` (LIMITS), `uc-registry/1` eksport → import; formula bajarilmaydi | `standardsFromGrid`, `buildRegistryDoc`, `parseRegistryDoc` | `tests/io/registry.test.js` | ✅ |
+| Hisobot: reestr manbasi, CMC tekshiruvi (asoslangan qaror bilan), drift asosi — uch tilda | `src/report/lab.js` | `tests/ui/lab.test.js` | ✅ (jsdom) |
+| UI: uch yorliq, reestrdan tanlash, QC SVG, rol, escape, CSP | `src/ui/lab/` | `tests/ui/lab.test.js` (15 test) | ✅ jsdom + Chromium da mehmon yo'li bilan qo'lda (2026-11-18): konsolda xato yo'q |
+| Mavjud natijalar o'zgarmagan | `evaluate` | 83 misol 2.7.0 bilan bit darajasida bir xil (nazorat skripti); 9 Excel nuqtasi | ✅ |

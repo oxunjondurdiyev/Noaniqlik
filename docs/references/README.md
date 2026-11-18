@@ -19,6 +19,8 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 | `ILAC_G24_OIML_D10_2022.pdf` | ILAC-G24 / OIML D 10 — Guidelines for the determination of recalibration intervals of measuring equipment | Edition 2022 (© ILAC / OIML) |
 
 Kerak bo'ladigan qo'shimcha manbalar (hali yo'q):
+- NIST/SEMATECH e-Handbook of Statistical Methods, §6.3.2.1 (Shewhart X̄–R, konstantalar jadvali) va §6.3.2.2 (individuals — misol): sahifalarni PDF yoki matn sifatida saqlang (`NIST_eHandbook_6-3-2.pdf`) — P11 da sayt ochilmadi, konstantalar ta'rifdan mustaqil hisoblab tekshirilgan, NIST misoli testi `todo`;
+- Westgard J.O. va b., "A multi-rule Shewhart chart for quality control in clinical chemistry", Clin. Chem. 27 (1981) 493–501 (yoki Westgard qoidalarining boshqa ochiq rasmiy tavsifi) — P11 qoidalari hozir "(unverified)";
 - JCGM GUM-6:2020;
 - NIST Uncertainty Machine User's Manual;
 - COOMET R/GM/32:2017.

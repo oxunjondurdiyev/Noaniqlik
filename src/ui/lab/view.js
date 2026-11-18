@@ -210,12 +210,12 @@ export function qcHTML(m, ctx) {
     ${body}
     <h4 class="rg-card-title">${ctx.esc(t('lb_qc_add_title'))}</h4>
     <div class="settings-grid">
-      ${field(ctx, 'lb_f_date', inp(ctx, 'data-lb-qc="newDate"', m.entry.date, { type: 'date' }))}
+      ${field(ctx, 'lb_qc_date', inp(ctx, 'data-lb-qc="newDate"', m.entry.date, { type: 'date' }))}
       ${field(ctx, 'lb_qc_run', inp(ctx, 'data-lb-qc="newRun"', m.entry.run), 'lb_qc_run_hint')}
       ${field(ctx, 'lb_qc_values', inp(ctx, 'data-lb-qc="newValues"', m.entry.values, { decimal: true }), c.type === 'xbar' ? 'lb_qc_values_hint_xbar' : 'lb_qc_values_hint_imr')}
     </div>
     <div class="rg-actions"><button type="button" class="btn btn-outline btn-sm" data-lb-act="add-qc-point">${ctx.esc(t('lb_qc_add'))}</button></div>
-    ${c.points.length ? `<details class="lb-history"><summary>${ctx.esc(t('lb_qc_points'))} (${c.points.length})</summary><table class="data-table"><thead><tr><th>#</th><th>${ctx.esc(t('lb_f_date'))}</th><th>${ctx.esc(t('lb_qc_run'))}</th><th>${ctx.esc(t('lb_qc_values'))}</th><th></th></tr></thead><tbody>${pts}</tbody></table></details>` : ''}
+    ${c.points.length ? `<details class="lb-history"><summary>${ctx.esc(t('lb_qc_points'))} (${c.points.length})</summary><table class="data-table"><thead><tr><th>#</th><th>${ctx.esc(t('lb_qc_date'))}</th><th>${ctx.esc(t('lb_qc_run'))}</th><th>${ctx.esc(t('lb_qc_values'))}</th><th></th></tr></thead><tbody>${pts}</tbody></table></details>` : ''}
     ${historyHTML(m.history, ctx)}
     <p class="text-xs text-muted">${ctx.esc(t('lb_qc_source_note'))} (${ctx.esc(WESTGARD_RULES.map(r => t('lb_rule_' + r)).join(', '))})</p>
   </div>`;
