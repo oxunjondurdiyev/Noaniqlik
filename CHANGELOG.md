@@ -24,6 +24,13 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **UI:** "Laboratoriya" yorlig'i — "Etalonlar", "CMC", "QC kartalari" (`src/ui/lab/`); B tur oynasida "Reestrdan tanlash"; hisob sozlamalarida o'lchash sanasi va CMC kattaligi; QC kartasidan s_Rw ni Top-down ustasiga bir tugma bilan uzatish; SVG grafik (skriptsiz, CSP o'zgarmagan). Matnlar uch tilda (`src/js/i18n-lab.js`, 246 kalit).
 - **Hisobot:** `src/report/lab.js` — reestr manbasi (sertifikat raqami, sanasi, kalibrlovchi tashkilot, akkreditatsiya, kuzatuvchanlik, nuqta, tuzatma, reestr ID / versiya), CMC tekshiruvi (qaysi qator, CMC(X), U ≥ CMC yoki asoslangan qaror), drift manbasi asosi (qaysi kalibrlashlar, usul, bo'luvchi).
 
+### Egasi qarorlari (2026-11-18, R-25) — shu versiyada
+
+- R-25 dagi loyiha qarorlari va `docs/LINTER_RULES.md` §4 #25–#28 tasdiqlandi.
+- **R₄s** seriya belgisisiz ketma-ket ikki natijaga qo'llansa — natijada `approximation: true`, kartadagi topilmada "loyiha yaqinlashuvi" (uch tilda).
+- **Mehmon (`guest`) kiritgan yozuv:** `saveRegistry` yozuvga `savedBy` (rol) yozadi; `sourceFromStandard` nusxaga `enteredBy`; yangi info topilmalar `registry_unauthenticated` (L1) va `cmc_unauthenticated` (L2) — hisobotda "reestr yozuvi autentifikatsiyasiz kiritilgan". Hisob natijasiga (y, u_c, k, U) ta'sir qilmaydi.
+- NIST e-Handbook va Westgard manbalari — egasi PDF qo'shguncha "(unverified)"; tarmoq ruxsati berilmaydi.
+
 ### Manba holati
 
 - **Verified:** ILAC P14:09/2020 §4.1–4.3, §5.5 (CMC; sahifa havolali testlar), ILAC P10:07/2020 §2 (kuzatuvchanlik yo'llari).

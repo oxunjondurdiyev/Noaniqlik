@@ -7,9 +7,10 @@
    standard_no_validity    (warning)  o'lchash sanasi yoki amal qilish muddati ko'rsatilmagan — muddat tekshirilmadi.
    standard_no_traceability (warning) akkreditatsiya belgisi / kodi yo'q va yo'l CIPM MRA qamragan NMI emas —
                                       kuzatuvchanlik dalili yo'q (ILAC P10:07/2020 §2, 1) – 3b), Note 3; p. 6–7).
+   registry_unauthenticated (info)   reestr yozuvi autentifikatsiyasiz (rol 'guest') kiritilgan.
    Ref: ILAC P10:07/2020 §2 (p. 6–8) — verified. ISO/IEC 17025:2017 §6.4, §6.5 — unverified (standart repoda yo'q).
    Muddat chegarasining o'zi ("muddati o'tgan → error") — loyiha qarori: ILAC P10 muddat haqida gapirmaydi.
-   Chegaralar va darajalar — loyiha qarori (docs/LINTER_RULES.md §4 #25–#27). */
+   Chegaralar va darajalar — loyiha qarori, egasi tasdiqladi 2026-11-18 (docs/LINTER_RULES.md §4 #25–#27, #29). */
 import { finding, gumState, typeBOf, THRESHOLDS } from '../util.js';
 import { validityStatus, hasTraceabilityEvidence } from '../../lab/registry.js';
 
@@ -24,6 +25,9 @@ const rule = {
     standard_expiring: { severity: 'info' },
     standard_no_validity: { severity: 'warning' },
     standard_no_traceability: { severity: 'warning', ref: 'ILAC P10:07/2020 §2 (1), (2), Note 3 (p. 6–7)' },
+    // Reestr yozuvi tizimga kirmasdan (rol 'guest') kiritilgan — egasi qarori 2026-11-18 (docs/LINTER_RULES.md §4 #29).
+    // Me'yoriy band emas: yozuvlar yaxlitligi (ISO/IEC 17025:2017 §7.11 — unverified) uchun loyiha qoidasi.
+    registry_unauthenticated: { severity: 'info', ref: 'docs/LINTER_RULES.md §4 #29 (loyiha qoidasi)' },
   },
   check(spec) {
     const state = gumState(spec);
@@ -42,6 +46,7 @@ const rule = {
       if (v.status === 'expired') out.push(finding(rule, 'standard_expired', { source, key, value: `${reg.validUntil} < ${settings.measurementDate}` }));
       else if (v.status === 'expiring') out.push(finding(rule, 'standard_expiring', { source, key, severity: 'info', value: `${reg.validUntil} (${v.daysLeft})` }));
       else if (v.status === 'unknown') out.push(finding(rule, 'standard_no_validity', { source, key, severity: 'warning' }));
+      if (reg.enteredBy === 'guest') out.push(finding(rule, 'registry_unauthenticated', { source, key, severity: 'info', ref: rule.codes.registry_unauthenticated.ref }));
       if (!hasTraceabilityEvidence(reg)) out.push(finding(rule, 'standard_no_traceability', { source, key, severity: 'warning', ref: rule.codes.standard_no_traceability.ref }));
     }
     return out;

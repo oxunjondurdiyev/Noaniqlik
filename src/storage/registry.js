@@ -8,7 +8,8 @@
    Rol: etalonlar va CMC ni faqat laboratoriya admini tahrirlaydi; xodim — faqat o'qiydi; QC kartasiga xodim ham
    natija qo'shadi. Lokal rejimda bu himoya OGOHLANTIRISH darajasida (foydalanuvchi o'z brauzerini to'liq boshqaradi);
    haqiqiy cheklov server bilan (P15). Tizimga kirmagan foydalanuvchi ('guest' — yakka lokal rejim) tahrirlay oladi,
-   rol audit izida 'guest' bo'lib qoladi.
+   rol audit izida 'guest' bo'lib qoladi va yozuvga `savedBy: 'guest'` yoziladi — shunday yozuvdan foydalangan hisobotda
+   info topilma chiqadi: "reestr yozuvi autentifikatsiyasiz kiritilgan" (egasi qarori 2026-11-18).
    Shaxsiy ma'lumot yozilmaydi: yozuvni tozalash (noma'lum maydonlarni tashlash) — chaqiruvchida
    (src/engine/lab: cleanStandard, cleanCmcRow), bu qatlam dvigatelga bog'liq emas.
 ═══════════════════════════════════════════════════════════════ */
@@ -54,7 +55,9 @@ export async function saveRegistry(store, rec, ctx = {}) {
   const prev = await store.get(REGISTRY_STORE, rec.id);
   if (prev && prev.kind !== rec.kind) throw new Error('registry_bad_kind');
   const at = ctx.at || new Date().toISOString();
-  const out = { ...rec, format: REGISTRY_RECORD_FORMAT, schema: REGISTRY_SCHEMA, version: ((prev && prev.version) || 0) + 1, updatedAt: at };
+  // savedBy — oxirgi saqlagan ROL (ism emas). 'guest' — tizimga kirmasdan (autentifikatsiyasiz) kiritilgan yozuv:
+  // undan foydalangan hisobotda info topilma chiqadi (egasi qarori 2026-11-18; linter L1 / L2).
+  const out = { ...rec, format: REGISTRY_RECORD_FORMAT, schema: REGISTRY_SCHEMA, version: ((prev && prev.version) || 0) + 1, updatedAt: at, savedBy: cleanRole(ctx.role) };
   return store.save(REGISTRY_STORE, out, { actor: cleanRole(ctx.role), reason: ctx.reason || `registry_${rec.kind}`, at, action: ctx.action });
 }
 

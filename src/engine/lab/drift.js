@@ -7,7 +7,7 @@
         drifti, chegaralari bilan to'g'ri burchakli taqsimot), S3.4; JCGM 100:2008 4.3.7 (chegaralari ±a ma'lum kattalik: u = a/√3);
         ILAC G24 / OIML D 10:2022 §3.10 (instrumental drift), §6.3 (p. 15: "instrumental drift is the mean drift
         normally over one recalibration interval").
-   Loyiha qarorlari (egasi tasdig'ini kutadi — docs/RISKS.md R-25):
+   Loyiha qarorlari (egasi tasdiqladi 2026-11-18 — docs/RISKS.md R-25):
      • standart yarim kenglik a = |ΔC| — oxirgi ikki kalibrlash orasidagi tuzatma farqi (bitta kalibrlash oralig'idagi
        drift), taqsimot to'g'ri burchakli (bo'luvchi √3). Taqsimot sozlanadi (rect / triang / ushape / normal).
      • 'trend' usuli: a = |b|·Δt, b — tuzatmaning vaqt bo'yicha OLS og'maligi, Δt — oxirgi kalibrlashdan

@@ -74,7 +74,7 @@ export function cmcAt(row, xIn) {
 /**
  * Jadvaldan X ga mos qatorni topish. `quantity` va `method` berilsa — shular bo'yicha suziladi.
  * Bir nechta qator mos kelsa (chegarada ikki diapazon tutashgan) — CMC si KATTA bo'lgani olinadi
- * (konservativ; loyiha qarori — docs/RISKS.md R-25).
+ * (konservativ; loyiha qarori, egasi tasdiqladi 2026-11-18 — docs/RISKS.md R-25).
  * @returns {{row:object, cmc:number, x:number, candidates:number}|{row:null, outside:true, candidates:number}|{error}}
  */
 export function findCmc(rows, xIn, filter = {}) {
@@ -100,7 +100,8 @@ export function findCmc(rows, xIn, filter = {}) {
 export function cmcCheck(row, x, U) {
   const c = cmcAt(row, x);
   const r = cleanCmcRow(row);
-  const base = { rowId: r.id, tableVersion: Number((row || {}).tableVersion) || 0, quantity: r.quantity, method: r.method, type: r.type, min: r.min, max: r.max, unit: r.unit };
+  const base = { rowId: r.id, tableVersion: Number((row || {}).tableVersion) || 0, quantity: r.quantity, method: r.method, type: r.type, min: r.min, max: r.max, unit: r.unit,
+    ...((row || {}).savedBy === 'guest' ? { enteredBy: 'guest' } : {}) };   // jadval autentifikatsiyasiz kiritilgan — linter L2 (info)
   if (c.error) return { ...base, error: c.error };
   return { ...base, x: c.x, cmc: c.cmc, inRange: c.inRange, below: c.inRange ? U < c.cmc : null };
 }
@@ -116,12 +117,13 @@ export function cmcCheckRows(rows, x, U) {
   if (f.error) return { error: f.error };
   if (f.row) {
     const src = list.find(r => String(r.id || '') === f.row.id) || {};
-    return { ...cmcCheck({ ...f.row, tableVersion: src.tableVersion }, x, U), rows: f.candidates };
+    return { ...cmcCheck({ ...f.row, tableVersion: src.tableVersion, savedBy: src.savedBy }, x, U), rows: f.candidates };
   }
   const ok = list.map(cleanCmcRow).filter(r => !cmcRowError(r));
   if (!ok.length) return { error: 'cmc_bad_row' };
   return {
     rowId: '', tableVersion: Number(list[0].tableVersion) || 0, quantity: ok[0].quantity, method: ok[0].method, type: '', unit: ok[0].unit,
     min: Math.min(...ok.map(r => r.min)), max: Math.max(...ok.map(r => r.max)), x: f.x, cmc: null, inRange: false, below: null, rows: ok.length,
+    ...(list[0].savedBy === 'guest' ? { enteredBy: 'guest' } : {}),
   };
 }

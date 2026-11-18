@@ -5,7 +5,7 @@
 ═══════════════════════════════════════════════════════════════ */
 export { dayNumber, isDate, daysBetween, fromDayNumber, addDays } from './dates.js';
 export {
-  REGISTRY_FORMAT, REGISTRY_KINDS, TRACEABILITY_ROUTES, RECOGNISED_ROUTES, REGISTRY_ERRORS, EXPIRY_WARN_DAYS,
+  REGISTRY_FORMAT, REGISTRY_KINDS, TRACEABILITY_ROUTES, RECOGNISED_ROUTES, REGISTRY_ERRORS, REGISTRY_ROLES, EXPIRY_WARN_DAYS,
   cleanPoint, cleanCalibration, cleanStandard, sortedCalibrations, currentCalibration, pointAt, sourceFromStandard,
   validityStatus, hasTraceabilityEvidence,
 } from './registry.js';

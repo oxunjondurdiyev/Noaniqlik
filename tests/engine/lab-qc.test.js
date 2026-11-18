@@ -157,6 +157,14 @@ test('Westgard R₄s seriya ichida (runs): faqat bitta seriyadagi natijalar oras
   assert.deepEqual(E.ruleR4s([2.5, 0, -2.5], ['a', 'a', 'a']), [0, 2]);       // bir seriyada, ketma-ket bo'lmasa ham
 });
 
+test('R₄s seriya belgisisiz — "loyiha yaqinlashuvi" deb belgilanadi (approximation); seriya bilan — belgisiz', () => {
+  const noRuns = E.westgard([2.5, -2.5]).violations.find(v => v.rule === 'R_4s');
+  assert.equal(noRuns.approximation, true);
+  const withRuns = E.westgard([2.5, -2.5], { runs: ['a', 'a'] }).violations.find(v => v.rule === 'R_4s');
+  assert.equal('approximation' in withRuns, false);
+  assert.ok(E.westgard([3.5, 0]).violations.every(v => !('approximation' in v)));     // boshqa qoidalarda belgi yo'q
+});
+
 test('westgard(): yig\'ma natija, tanlangan qoidalar, nazoratdagi qator', () => {
   const r = E.westgard([0, 3.2, 2.1, 2.2, -2.5]);
   assert.deepEqual(r.violations.map(v => v.rule), ['1_3s', '2_2s', 'R_4s', '4_1s'].filter(x => r.violations.some(v => v.rule === x)));

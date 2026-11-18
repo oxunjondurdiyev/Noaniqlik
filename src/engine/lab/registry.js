@@ -27,6 +27,9 @@ export const RECOGNISED_ROUTES = Object.freeze(['nmi_cipm', 'accredited']);
 
 export const REGISTRY_ERRORS = Object.freeze(['registry_no_calibration', 'registry_no_points', 'registry_bad_point', 'registry_out_of_range', 'registry_bad_x']);
 
+/** Reestr yozuvini saqlagan rol (src/storage/registry.js `savedBy`). 'guest' — autentifikatsiyasiz kiritilgan. Ism EMAS. */
+export const REGISTRY_ROLES = Object.freeze(['admin', 'employee', 'superadmin', 'guest']);
+
 const num = v => (typeof v === 'number' ? v : (v === null || v === undefined || String(v).trim() === '' ? NaN : Number(String(v).replace(',', '.'))));
 const str = v => (v === null || v === undefined ? '' : String(v).trim());
 
@@ -58,6 +61,7 @@ export function cleanStandard(s) {
     name: str(o.name), type: str(o.type), serial: str(o.serial), unit: str(o.unit),
     range: { min: Number.isFinite(num(r.min)) ? num(r.min) : null, max: Number.isFinite(num(r.max)) ? num(r.max) : null },
     ...(Number.isFinite(lim) && lim > 0 ? { limit: lim } : {}),
+    ...(REGISTRY_ROLES.includes(o.savedBy) ? { savedBy: o.savedBy } : {}),
     calibrations: (Array.isArray(o.calibrations) ? o.calibrations : []).map(cleanCalibration),
   };
 }
@@ -78,7 +82,7 @@ export function currentCalibration(std) {
  * Sertifikat nuqtalaridan X dagi qiymat.
  * Aynan nuqtada — o'sha nuqta. Ikki nuqta orasida — tuzatma CHIZIQLI interpolyatsiya qilinadi; U uchun ikki qo'shni
  * nuqtadagi KATTASI olinadi (k va ν — o'sha nuqtaniki): interpolyatsiya noaniqlikni kamaytirmasligi kerak
- * (loyiha qarori — egasi tasdig'ini kutadi, docs/RISKS.md R-25). Interpolyatsiyaning o'z noaniqligi (nuqtalar orasidagi
+ * (loyiha qarori — egasi tasdiqladi 2026-11-18, docs/RISKS.md R-25). Interpolyatsiyaning o'z noaniqligi (nuqtalar orasidagi
  * nochiziqlik) HISOBLANMAYDI: u alohida manba sifatida taklif qilinadi va qiymatini foydalanuvchi kiritadi.
  * Diapazondan tashqarida ekstrapolyatsiya YO'Q — xato.
  * Bitta nuqtali sertifikatda X berilmasa — o'sha nuqta.
@@ -134,6 +138,7 @@ export function sourceFromStandard(std, opts = {}) {
     accreditation: cal.accreditation, route: cal.route, traceability: cal.traceability,
     x: pt.x === undefined ? null : pt.x, correction: pt.correction, U: pt.U, k: pt.k, nu: pt.nu,
     interpolated: !!pt.interpolated, ...(pt.between ? { between: pt.between } : {}),
+    ...(REGISTRY_ROLES.includes(std.savedBy) ? { enteredBy: std.savedBy } : {}),   // kim kiritgan (rol) — 'guest' bo'lsa hisobotda info
   };
   const component = {
     name: [str(std.name), cal.certificate].filter(Boolean).join(' — '),

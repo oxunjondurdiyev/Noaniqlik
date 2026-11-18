@@ -102,8 +102,10 @@ L1 faqat reestrdan tanlangan manbalar uchun ishlaydi (`typeB[].registry` nusxasi
 | | `standard_expiring` | info | shu | Muddat tugashiga `expiryWarnDays` (standart 30) kun yoki kam qolgan | Kalibrlashni rejalashtirish |
 | | `standard_no_validity` | warning | shu | O'lchash sanasi yoki amal qilish muddati yo'q — muddat tekshirilmadi | Sanalarni kiritish |
 | | `standard_no_traceability` | warning | ILAC P10:07/2020 §2 (1), (2), Note 3 (p. 6–7) | Akkreditatsiya belgisi / kodi yo'q va yo'l CIPM MRA qamragan NMI emas — kuzatuvchanlik dalili yo'q | Belgini kiritish yoki dalilni (3a / 3b) hujjatlashtirib asoslab qabul qilish |
+| | `registry_unauthenticated` | info | loyiha qoidasi (§4 #29) | Reestr yozuvi tizimga kirmasdan (rol `guest`) kiritilgan — audit izida rol `guest`, yozuvda `savedBy: 'guest'` | Admin tizimga kirib, kartochkani sertifikat bilan solishtirib qayta saqlaydi |
 | **L2** | `outside_scope` | warning | ILAC P14:09/2020 §4.1 c), §4.2 (p. 6) | X CMC jadvali diapazonidan tashqarida — akkreditatsiya sohasidan tashqarida; CMC bilan solishtirilmaydi | X va kattalikni tekshirish |
 | | `cmc_x_missing` | warning | shu | CMC kattaligi tanlangan, X ko'rsatilmagan | "X (CMC uchun)" ni to'ldirish |
+| | `cmc_unauthenticated` | info | loyiha qoidasi (§4 #29) | CMC jadvali tizimga kirmasdan (rol `guest`) kiritilgan | Admin tizimga kirib, jadvalni qayta saqlaydi |
 
 U < CMC(X) — mavjud **X8 `below_cmc`** (error): CMC endi jadvaldan avtomatik topilishi mumkin (`settings.cmcRows` + `cmcX`), xatti-harakat o'zgarmagan.
 
@@ -159,7 +161,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 23 | M4 — **egasi qarori (2026-11-18)** | `mc_variance_undefined` chegarasi ν ≤ 2; warning; bunday kirishda mezon avtomatik faqat interval uchlari, u(y) berilmaydi. `mc_not_converged` — adaptiv M chegarasi **yoki** qat'iy M da tekshiruv toleransiga erishilmagani | §7.6 Note 2: "fewer than three degrees of freedom" |
 | 24 | MV1 (P07) — **egasi tasdig'ini kutadi** | \|r\| > **0,5** → info (`outputs_correlated`); singular chegarasi λ_min / λ_max < 10⁻⁹ → info (`outputs_singular`) | JCGM 102 da son yo'q; 0,5 — X4 dagi chegara bilan bir xil olindi |
 
-**P11 — egasi tasdig'ini kutadi (2026-11-18):**
+**P11 — egasi tasdiqladi (2026-11-18):**
 
 | # | Qoida | Qaror | Manbada nima bor |
 |---|---|---|---|
@@ -167,6 +169,9 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 26 | L1 | muddat tugashiga ≤ **30** kun → info (`LINTER_THRESHOLDS.expiryWarnDays`; laboratoriya sozlamasi `expiryWarnDays`); sana yo'q → warning | son yo'q |
 | 27 | L1 | akkreditatsiya belgisi yo'q → **warning**; `route: 'nmi_cipm'` belgisiz ham dalil hisoblanadi (ILAC P10 §2 Note 1: CIPM MRA logotipi majburiy emas, KCDB — asos) | ILAC P10 §2: 3a / 3b yo'llari faqat 1) va 2) imkonsiz bo'lganda — daraja ko'rsatilmagan |
 | 28 | L2 | sohadan tashqari → **warning** (error emas), CMC bilan solishtirilmaydi; X yo'q → warning | ILAC P14 §4.1 — daraja ko'rsatilmagan |
+| 29 | L1, L2 | reestr yozuvi yoki CMC jadvali **autentifikatsiyasiz** (rol `guest`) kiritilgan → **info** (`registry_unauthenticated`, `cmc_unauthenticated`); mehmon lokal rejimda tahrirlay oladi, audit izida rol `guest` (egasi qarori, 2026-11-18) | me'yoriy band emas — loyiha qoidasi |
+
+**Westgard qoidalari (QC kartalari — linter qoidasi emas, `src/engine/lab/westgard.js`; egasi tasdiqladi 2026-11-18).** Qat'iy tengsizlik; 10ₓ da o'rtachadagi nuqta ketma-ketlikni uzadi. **R₄s:** seriya belgisi barcha nuqtalarda berilgan bo'lsa — bir seriya ichida; **seriya belgisisiz ketma-ket ikki natijaga qo'llash — loyiha yaqinlashuvi** (asl qoida bir seriya ichidagi natijalar uchun): natijada `approximation: true`, kartadagi topilmada "loyiha yaqinlashuvi" deb yoziladi (uch tilda). Manba (Westgard nashri) repoga qo'shilguncha barcha Westgard qoidalari "(unverified)".
 
 ## 5. Tekshiruv
 

@@ -53,7 +53,7 @@ async function reload() {
   standards = (await Store.listRegistry(db, 'standard')).map(Lab.cleanStandard);
   charts = (await Store.listRegistry(db, 'qc')).map(cleanQcChart);
   const c = await Store.getRegistry(db, Store.CMC_TABLE_ID);
-  cmc = c ? { id: c.id, kind: 'cmc', version: c.version || 0, rows: (c.rows || []).map(Lab.cleanCmcRow) } : { id: Store.CMC_TABLE_ID, kind: 'cmc', version: 0, rows: [] };
+  cmc = c ? { id: c.id, kind: 'cmc', version: c.version || 0, savedBy: c.savedBy, rows: (c.rows || []).map(Lab.cleanCmcRow) } : { id: Store.CMC_TABLE_ID, kind: 'cmc', version: 0, rows: [] };
   cmcRows = cmc.rows.map(r => ({ ...r }));
 }
 
@@ -404,7 +404,7 @@ function onSettingsChange(e) {
   if (!el.dataset || el.dataset.lbCmcPick === undefined) return;
   const settings = { ...(window.appState.get('settings') || {}) };
   const q = cmcQuantities(cmc.rows).find(x => x.key === el.value);
-  if (q) settings.cmcRows = q.rows.map(r => ({ ...r, tableVersion: cmc.version })); else delete settings.cmcRows;
+  if (q) settings.cmcRows = q.rows.map(r => ({ ...r, tableVersion: cmc.version, ...(cmc.savedBy ? { savedBy: cmc.savedBy } : {}) })); else delete settings.cmcRows;
   settings.cmcKey = q ? q.key : '';
   window.appState.set({ settings, combined: null });
 }

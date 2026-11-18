@@ -6,7 +6,7 @@
         tanlanadi, natijalar vaqt bo'yicha chiziladi, tarqoqlik va instrumental drift hisoblanadi, "from these figures,
         the optimum interval may be calculated"; §6.1 (p. 14) b): vosita "fails to meet prescribed limits (e.g. maximum
         permissible error …) due to drift over time". Hujjat ANIQ FORMULA BERMAYDI — quyidagi hisob loyiha qarori
-        (egasi tasdig'ini kutadi, docs/RISKS.md R-25):
+        (egasi tasdiqladi 2026-11-18, docs/RISKS.md R-25):
           C(t) = a + b·t — tuzatmalarning OLS to'g'ri chizig'i (kamida 3 ta kalibrlash);
           chegara: |C(t)| + U_oxirgi = L (includeU: true — standart, konservativ) yoki |C(t)| = L;
           t* — oxirgi kalibrlashdan keyin chegaraga yetiladigan birinchi vaqt.

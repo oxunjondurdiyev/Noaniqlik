@@ -20,7 +20,7 @@ const std = (extra = {}) => E.cleanStandard({
 test('reestr: yaratish, tahrirlash, o\'chirish — har biri audit izida (rol, vaqt, oldingi va yangi qiymat); versiya oshadi', async () => {
   const db = await fresh();
   const a = await S.saveRegistry(db, std(), { role: 'admin', at: '2026-11-18T10:00:00.000Z' });
-  assert.deepEqual([a.version, a.format, a.schema, a.updatedAt], [1, 'uc-registry/1', 1, '2026-11-18T10:00:00.000Z']);
+  assert.deepEqual([a.version, a.format, a.schema, a.updatedAt, a.savedBy], [1, 'uc-registry/1', 1, '2026-11-18T10:00:00.000Z', 'admin']);
   const b = await S.saveRegistry(db, { ...a, name: 'Etalon termometr Pt100' }, { role: 'admin', at: '2026-11-18T11:00:00.000Z', reason: 'nom tuzatildi' });
   assert.equal(b.version, 2);
   assert.equal(await S.removeRegistry(db, 'std:t1', { role: 'superadmin', at: '2026-11-18T12:00:00.000Z' }), true);
@@ -49,6 +49,19 @@ test('rol: etalon va CMC ni xodim tahrirlay olmaydi; QC kartasiga xodim yozadi; 
   assert.deepEqual([S.canEditRegistry('standard', 'admin'), S.canEditRegistry('standard', 'employee'), S.canEditRegistry('cmc', 'employee'), S.canEditRegistry('qc', 'employee'), S.canEditRegistry('standard', 'guest')], [true, false, false, true, true]);
   await assert.rejects(S.saveRegistry(db, { id: 'x', kind: 'person' }, { role: 'admin' }), /registry_bad_kind/);
   await assert.rejects(S.saveRegistry(db, { kind: 'standard' }, { role: 'admin' }), /registry_id_required/);
+});
+
+test('mehmon (tizimga kirmagan) lokal rejimda tahrirlaydi: audit izida rol guest, yozuvda savedBy: guest → hisobda info topilma; admin qayta saqlasa — yo\'qoladi', async () => {
+  const db = await fresh();
+  const g = await S.saveRegistry(db, std(), {});                                     // rol berilmagan → guest
+  assert.equal(g.savedBy, 'guest');
+  assert.deepEqual((await db.listAudit()).map(e => [e.action, e.actor]), [['create', 'guest']]);
+  const st = rec => ({ params: ['t'], measurements: { t: [50, 50.1, 49.9] }, model: { formula: '' }, typeB: [E.sourceFromStandard(E.cleanStandard(rec), { x: 0, param: 't' }).component], settings: { modelKind: 'unknown', measurementDate: '2026-03-01' } });
+  const f = E.evaluate(st(await S.getRegistry(db, 'std:t1'))).findings.find(x => x.code === 'registry_unauthenticated');
+  assert.equal(f.severity, 'info');
+  const a = await S.saveRegistry(db, await S.getRegistry(db, 'std:t1'), { role: 'admin' });
+  assert.deepEqual([a.savedBy, a.version], ['admin', 2]);
+  assert.ok(!E.evaluate(st(a)).findings.some(x => x.code === 'registry_unauthenticated'));
 });
 
 test('QC kartasi: nazorat namunasi qiymati va karta tarixi audit izida', async () => {

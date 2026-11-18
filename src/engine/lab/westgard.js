@@ -11,10 +11,10 @@
      R₄s — bir natija m + 2s dan yuqori, ikkinchisi m − 2s dan past (ko'lam 4s dan oshgan);
      4₁s — ketma-ket 4 natija bir tomonda m ± 1s dan tashqarida;
      10ₓ — ketma-ket 10 natija o'rtachaning bir tomonida.
-   Loyiha qarorlari (egasi tasdig'ini kutadi — docs/RISKS.md R-25):
+   Loyiha qarorlari (egasi tasdiqladi 2026-11-18 — docs/RISKS.md R-25):
      • chegaralar QAT'IY tengsizlik bilan (aynan 2s yoki 3s dagi nuqta buzilish emas);
      • R₄s: `runs` (har bir nuqtaning seriya belgisi) berilsa — faqat BIR SERIYA ichidagi natijalar orasida; berilmasa —
-       ketma-ket ikki natija orasida;
+       ketma-ket ikki natija orasida — bu LOYIHA YAQINLASHUVI: natijada `approximation: true`, UI va hujjatda belgilanadi;
      • 10ₓ: aynan o'rtachadagi nuqta (z = 0) ketma-ketlikni uzadi;
      • 1₂s alohida qoida sifatida berilmaydi — u ±2s ogohlantirish chegarasi (kartada chiziladi).
    Qoida buzilganda dastur natijani O'CHIRMAYDI va o'zgartirmaydi — faqat belgilaydi.
@@ -69,13 +69,15 @@ export function rule41s(z) { return sameSideRun(z || [], 4, 1); }
 /** 10ₓ: ketma-ket 10 nuqta o'rtachaning bir tomonida. */
 export function rule10x(z) { return sameSideRun(z || [], 10, 0); }
 
+const usesRuns = (z, runs) => Array.isArray(runs) && runs.length === (z || []).length;
+
 export const WESTGARD_FUNCTIONS = Object.freeze({ '1_3s': rule13s, '2_2s': rule22s, 'R_4s': ruleR4s, '4_1s': rule41s, '10_x': rule10x });
 
 /**
  * Barcha (yoki tanlangan) qoidalar.
  * @param {number[]} z       z-ballar (vaqt tartibida)
  * @param {{rules?:string[], runs?:any[]}} [opts]
- * @returns {{violations:{rule:string, indices:number[]}[], flagged:Object<number,string[]>, inControl:boolean}}
+ * @returns {{violations:{rule:string, indices:number[], approximation?:boolean}[], flagged:Object<number,string[]>, inControl:boolean}}
  */
 export function westgard(z, opts = {}) {
   const rules = (opts.rules || WESTGARD_RULES).filter(r => WESTGARD_RULES.includes(r));
@@ -83,7 +85,10 @@ export function westgard(z, opts = {}) {
   for (const r of rules) {
     const indices = r === 'R_4s' ? ruleR4s(z, opts.runs) : WESTGARD_FUNCTIONS[r](z);
     if (!indices.length) continue;
-    violations.push({ rule: r, indices });
+    // R₄s seriya belgisisiz ketma-ket juftlikka qo'llangan — LOYIHA YAQINLASHUVI (asl qoida bir seriya ichida);
+    // topilmada shunday belgilanadi (egasi qarori 2026-11-18).
+    const approx = r === 'R_4s' && !usesRuns(z, opts.runs);
+    violations.push({ rule: r, indices, ...(approx ? { approximation: true } : {}) });
     indices.forEach(i => { (flagged[i] = flagged[i] || []).push(r); });
   }
   return { violations, flagged, inControl: violations.length === 0 };

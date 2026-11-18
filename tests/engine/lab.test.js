@@ -135,6 +135,28 @@ test('L1: akkreditatsiya belgisi yo\'q → warning (ILAC P10:07/2020 §2, p. 6�
   assert.ok(!codes(E.evaluate(gum([{ name: 'Etalon sertifikati', param: 't', halfWidth: 0.02, distribution: 'normal', k: 2 }]))).some(c => c.startsWith('standard_')));
 });
 
+test('L1 / L2: autentifikatsiyasiz (rol guest) kiritilgan reestr yozuvi → info (egasi qarori 2026-11-18); admin kiritgan — yo\'q', () => {
+  const src = by => E.sourceFromStandard({ ...STD(), ...(by ? { savedBy: by } : {}) }, { x: 0, param: 't' });
+  assert.equal(src('guest').snapshot.enteredBy, 'guest');
+  assert.equal('enteredBy' in src('').snapshot, false);
+  assert.equal(E.cleanStandard({ ...STD(), savedBy: 'Ism Familiya' }).savedBy, undefined);        // rol o'rniga ism — o'tmaydi
+  const r = E.evaluate(gum([src('guest').component], { measurementDate: '2026-03-01' }));
+  const f = r.findings.find(x => x.code === 'registry_unauthenticated');
+  assert.deepEqual([f.severity, f.rule], ['info', 'L1']);
+  assert.equal(E.reportStatus(r.findings, {}).official, true);                                      // info — hisobot rasmiy bo'lib qoladi
+  assert.equal(r.budget.find(b => b.registry).registry.enteredBy, 'guest');
+  for (const by of ['admin', 'superadmin', 'employee', '']) assert.ok(!codes(E.evaluate(gum([src(by).component], { measurementDate: '2026-03-01' }))).includes('registry_unauthenticated'), by);
+  // CMC jadvali
+  const tb = [{ name: 'Etalon sertifikati', param: 't', halfWidth: 0.02, distribution: 'normal', k: 2 }];
+  const row = { id: 'r1', quantity: 'Harorat', min: 0, max: 100, type: 'abs', value: 0.001 };
+  const g = E.evaluate(gum(tb, { cmcRows: [{ ...row, savedBy: 'guest' }], cmcX: 50 }));
+  assert.equal(g.findings.find(x => x.code === 'cmc_unauthenticated').severity, 'info');
+  assert.equal(g.cmcCheck.enteredBy, 'guest');
+  assert.ok(codes(E.evaluate(gum(tb, { cmcRows: [{ ...row, savedBy: 'guest' }], cmcX: 500 }))).includes('cmc_unauthenticated'));   // sohadan tashqarida ham
+  const a = E.evaluate(gum(tb, { cmcRows: [{ ...row, savedBy: 'admin' }], cmcX: 50 }));
+  assert.ok(!codes(a).includes('cmc_unauthenticated') && !('enteredBy' in a.cmcCheck));
+});
+
 /* ── drift ── */
 test('drift: 2 ta kalibrlash — |ΔC|, u = |ΔC|/√3 (to\'g\'ri burchakli); bittada — taklif yo\'q', () => {
   const std = STD();
@@ -292,8 +314,8 @@ test('P11 maydonlari bo\'lmagan hisob natijasida yangi kalit yo\'q (mavjud natij
 });
 
 test('yangi linter kodlari ro\'yxatda: L1, L2 (manba belgisi bilan)', () => {
-  for (const c of ['standard_expired', 'standard_expiring', 'standard_no_validity', 'standard_no_traceability']) assert.equal(E.FINDING_CODES[c].rule, 'L1', c);
-  for (const c of ['outside_scope', 'cmc_x_missing']) assert.equal(E.FINDING_CODES[c].rule, 'L2', c);
+  for (const c of ['standard_expired', 'standard_expiring', 'standard_no_validity', 'standard_no_traceability', 'registry_unauthenticated']) assert.equal(E.FINDING_CODES[c].rule, 'L1', c);
+  for (const c of ['outside_scope', 'cmc_x_missing', 'cmc_unauthenticated']) assert.equal(E.FINDING_CODES[c].rule, 'L2', c);
   assert.deepEqual([E.FINDING_CODES.standard_expired.severity, E.FINDING_CODES.standard_expiring.severity, E.FINDING_CODES.standard_no_traceability.severity, E.FINDING_CODES.outside_scope.severity], ['error', 'info', 'warning', 'warning']);
   assert.match(E.FINDING_CODES.standard_expired.ref, /ILAC P10:07\/2020 §2/);
 });

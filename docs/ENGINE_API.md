@@ -681,7 +681,7 @@ Hisobda: `settings.cmcRows` (massiv — X ga mos qator avtomatik) yoki `settings
 - `xbarRChart(subgroups)` → X̿ ± A₂·R̄; R: D₃R̄ … D₄R̄; `sigmaWithin = R̄/d₂`. Kichik guruh hajmi 2…10, hammasi bir xil.
 - `targetLimits({ mean, s })`, `zScores(values, m, s)`, `SHEWHART_CONSTANTS[n] = { d2, d3, A2, D3, D4 }`.
 - `sRwFromChart(points)` → `{ sRw, mean, n, nu: n − 1, values }` — top-down `control_series` ga uzatiladi.
-- `westgard(z, { rules?, runs? })` → `{ violations: [{ rule, indices }], flagged, inControl }`; alohida: `rule13s`, `rule22s`, `ruleR4s(z, runs?)`, `rule41s`, `rule10x`. Natija o'chirilmaydi — faqat belgilanadi.
+- `westgard(z, { rules?, runs? })` → `{ violations: [{ rule, indices }], flagged, inControl }`; alohida: `rule13s`, `rule22s`, `ruleR4s(z, runs?)`, `rule41s`, `rule10x`. Natija o'chirilmaydi — faqat belgilanadi. R₄s seriya belgisisiz (`runs` yo'q) ketma-ket juftlikka qo'llansa — `violations[].approximation: true` (loyiha yaqinlashuvi).
 
 ### 14.5. Kalibrlash intervali
 
@@ -689,4 +689,4 @@ Hisobda: `settings.cmcRows` (massiv — X ga mos qator avtomatik) yoki `settings
 
 ### 14.6. Saqlash va rol (`src/storage/registry.js`)
 
-`saveRegistry(store, rec, { role, reason })` (versiya + 1, audit), `removeRegistry`, `listRegistry(store, kind)`, `registryHistory(store, id)`, `canEditRegistry(kind, role)`: etalon va CMC — xodim (`employee`) tahrirlay olmaydi; QC kartasi — hamma. `migrateSchema(store)` — saqlangan hisoblar sxemasi → `CALC_STATE_SCHEMA` = 3.
+`saveRegistry(store, rec, { role, reason })` (versiya + 1, audit; yozuvga `savedBy` — rol; `guest` bo'lsa nusxada `enteredBy: 'guest'` → info `registry_unauthenticated` / `cmc_unauthenticated`), `removeRegistry`, `listRegistry(store, kind)`, `registryHistory(store, id)`, `canEditRegistry(kind, role)`: etalon va CMC — xodim (`employee`) tahrirlay olmaydi; QC kartasi — hamma. `migrateSchema(store)` — saqlangan hisoblar sxemasi → `CALC_STATE_SCHEMA` = 3.

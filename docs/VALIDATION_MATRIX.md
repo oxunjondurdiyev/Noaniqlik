@@ -334,6 +334,8 @@ Manbalar: ILAC P14:09/2020 va ILAC P10:07/2020 (repoda — sahifa raqamlari hujj
 | I–MR va X̄–R chegaralari, ±2s / ±3s | `individualsChart`, `xbarRChart` | `lab-qc.test.js` | ✅ qo'lda hisob; NIST misoli (§6.3.2.2) — ⏳ `todo` (manba matni kerak) |
 | Westgard 1₃s, 2₂s, R₄s, 4₁s, 10ₓ — har biri ijobiy va salbiy jadval | `rule13s` … `rule10x`, `westgard` | `lab-qc.test.js` (24 holat) | ❔ unverified (nashr repoda yo'q) |
 | s_Rw kartadan → top-down (ν = n − 1) | `sRwFromChart` | `lab-qc.test.js`, `tests/ui/lab.test.js` | ✅ (top-down byudjetidagi qiymat bilan aynan) |
+| Mehmon (`guest`) kiritgan reestr yozuvi / CMC jadvali → info `registry_unauthenticated` / `cmc_unauthenticated`; audit izida rol `guest` (egasi qarori 2026-11-18) | `saveRegistry` (`savedBy`), linter L1 / L2 | `lab.test.js`, `tests/storage/registry.test.js`, `tests/ui/lab.test.js` | ✅ |
+| R₄s seriya belgisisiz — "loyiha yaqinlashuvi" belgisi | `westgard` (`approximation`) | `lab-qc.test.js`, `tests/ui/lab.test.js` | ✅ |
 | Reestr: yaratish / tahrirlash / o'chirish audit izida (rol, vaqt, oldingi va yangi qiymat); rol cheklovi | `saveRegistry`, `removeRegistry` | `tests/storage/registry.test.js` | ✅ |
 | Migratsiya 2 → 3: qo'lda kiritilgan B tur manbalari o'zgarmaydi; idempotent; audit | `migrateSchema` | `tests/storage/registry.test.js` | ✅ |
 | Import `.xlsx` / `.csv` (LIMITS), `uc-registry/1` eksport → import; formula bajarilmaydi | `standardsFromGrid`, `buildRegistryDoc`, `parseRegistryDoc` | `tests/io/registry.test.js` | ✅ |

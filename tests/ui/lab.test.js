@@ -124,6 +124,13 @@ test('ko\'rinish uch tilda: etalonlar ro\'yxati (muddati o\'tgan / yaqin, akkred
     assert.equal(qc.querySelector('[data-lb-westgard]').dataset.lbWestgard, 'out');
     assert.deepEqual([...qc.querySelectorAll('[data-lb-rule]')].map(e => e.dataset.lbRule), ['1_3s']);
     assert.ok(qc.querySelector('[data-lb-act="to-topdown"]'));
+    // R₄s seriya belgisisiz — "loyiha yaqinlashuvi" belgisi (uch tilda)
+    const r4 = { ...chart, points: [100, 105, 95].map(v => ({ date: '2026-11-18', run: '', values: [v] })) };
+    const q4 = frag(V.qcHTML({ charts: [r4], selected: 'qc:1', chart: r4, readOnly: false, history: [], entry: { date: '', run: '', values: '' }, target: { mean: 100, s: 2 }, analysis: M.analyseQc(r4) }, ctx));
+    assert.equal(q4.querySelectorAll('[data-lb-rule="R_4s"] [data-lb-approx]').length, 1);
+    assert.equal(q4.querySelector('[data-lb-approx]').textContent, `(${ctx.t('lb_rule_approx')})`);
+    const runs = { ...r4, points: r4.points.map(p => ({ ...p, run: 'a' })) };
+    assert.equal(frag(V.qcHTML({ charts: [runs], selected: 'qc:1', chart: runs, readOnly: false, history: [], entry: {}, target: { mean: 100, s: 2 }, analysis: M.analyseQc(runs) }, ctx)).querySelectorAll('[data-lb-approx]').length, 0);
   }
   assert.equal(seen.size, 3);
   assert.deepEqual([...missing], []);
@@ -213,6 +220,23 @@ test('hisobot shakllari: to\'liq hisobotda reestr bo\'limi va muddati o\'tgan et
     assert.ok(f.querySelector('[data-report-registry="std:pt100"]'), form);
     assert.ok(f.querySelector('[data-report-unofficial], .report-watermark, [data-watermark]') || /RASMIY EMAS/.test(f.textContent), form);
   }
+});
+
+test('hisobot: mehmon kiritgan reestr yozuvi → info topilma matni uch tilda hisobotda', () => {
+  const spec = state();
+  spec.typeB[0].registry.enteredBy = 'guest';
+  const r = E.evaluate(spec);
+  const seen = new Set();
+  for (const lang of LANGS) {
+    const env = ctxOf(lang);
+    const html = FM.buildReport({ form: 'budget', lang, env, sections: createSections(env), requisites: {}, mode: 'GUM', result: r, snapshot: spec, state: spec });
+    const text = frag(html).textContent;
+    const w = env.t('w_registry_unauthenticated').replace('{s}', 'Etalon termometr — C-2025');
+    assert.ok(text.includes(w), lang);
+    seen.add(w);
+  }
+  assert.equal(seen.size, 3);
+  assert.deepEqual([...missing], []);
 });
 
 /* ── kontroller ── */

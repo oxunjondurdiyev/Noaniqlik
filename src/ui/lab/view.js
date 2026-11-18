@@ -182,7 +182,7 @@ export function qcHTML(m, ctx) {
   const an = m.analysis;
   let body = '';
   if (an && !an.error) {
-    const flags = an.westgard.violations.map(v => `<li data-lb-rule="${ctx.esc(v.rule)}"><strong>${ctx.esc(t('lb_rule_' + v.rule))}</strong> — ${ctx.esc(t('lb_rule_desc_' + v.rule))}: ${ctx.esc(v.indices.map(i => i + 1).join(', '))}</li>`).join('');
+    const flags = an.westgard.violations.map(v => `<li data-lb-rule="${ctx.esc(v.rule)}"><strong>${ctx.esc(t('lb_rule_' + v.rule))}</strong> — ${ctx.esc(t('lb_rule_desc_' + v.rule))}: ${ctx.esc(v.indices.map(i => i + 1).join(', '))}${v.approximation ? ` <em data-lb-approx="1">(${ctx.esc(t('lb_rule_approx'))})</em>` : ''}</li>`).join('');
     body = `${qcChartSVG({ series: an.series, limits: an.limits, flagged: an.westgard.flagged, labels: an.labels }, { esc: ctx.esc, title: c.name, ruleLabel: r => t('lb_rule_' + r) })}
       <p class="text-sm" data-lb-limits="1">${ctx.esc(fill(t('lb_qc_limits'), { cl: num(an.limits.center), s: num(an.limits.sigma), lwl: num(an.limits.lwl), uwl: num(an.limits.uwl), lcl: num(an.limits.lcl), ucl: num(an.limits.ucl) }))}
         — ${ctx.esc(t(an.fromTarget ? 'lb_qc_from_target' : (an.type === 'xbar' ? 'lb_qc_from_rbar' : 'lb_qc_from_mr')))}</p>
