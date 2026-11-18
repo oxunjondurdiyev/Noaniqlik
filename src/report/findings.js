@@ -144,7 +144,13 @@ export function reportMarks(r, o) {
     const rule = (cov && cov.nuRule) || r.nuRule || 'floor';
     out.push({ key: 'nu_rule', text: `${t('nu_rule_line')}: ${t('nu_rule_' + rule)}` });
   }
-  if (o.mc && isFinite(o.mc.M)) out.push({ key: 'mc', text: t('mark_mc').replace('{M}', String(o.mc.M)).replace('{seed}', String(o.mc.seed)) });
+  // P06: interval turi, P, M, generator, urug', n_dig — MCM natijasi hisobotda shular bilan birga (JCGM 101:2008 §7.9, §8)
+  if (o.mc && isFinite(o.mc.M)) {
+    const shortest = (o.mc.interval || 'shortest') !== 'symmetric';
+    out.push({ key: 'mc', text: t('mark_mc').replace('{M}', String(o.mc.M)).replace('{seed}', String(o.mc.seed))
+      .replace('{p}', (o.mc.rng && o.mc.rng.name) || 'xorshift32-legacy').replace('{v}', String(o.mc.nDig || 2))
+      .replace('{s}', t(shortest ? 'mark_mc_shortest' : 'mark_mc_symmetric')) });
+  }
   if (r.unverified === true) out.push({ key: 'beta', text: t('mark_beta') });
   const unv = (r.findings || []).filter(f => f.unverified && /unverified/.test(f.code));
   if (!r.unverified && unv.length) out.push({ key: 'unverified', text: t('mark_unverified') });

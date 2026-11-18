@@ -30,6 +30,8 @@ const PICK = {
   },
   monteCarlo: {
     y: r => r.mean, u: r => r.u,
+    // P06: adaptiv protsedura sinovlari soni (10⁶ birlikda — manba jadvallaridagi kabi), §8.1.3 tekshiruvi
+    M: r => r.M, d_low: r => r.dLow, d_high: r => r.dHigh, validated: r => Number(r.validated), converged: r => Number(r.adaptive.converged),
     'interval.low': (r, run) => run.interval === 'shortest' ? r.low : r.symLow,
     'interval.high': (r, run) => run.interval === 'shortest' ? r.high : r.symHigh,
   },
@@ -99,7 +101,11 @@ function run(c) {
     if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
     return { r, runSpec };
   }
-  const r = runSpec.method === 'monteCarlo' ? engine.monteCarlo(c.modelSpec, runSpec.M) : engine.evaluate(c.modelSpec);
+  // P06: run.mc — monteCarlo() sozlamalari (adaptiv / qat'iy, interval turi, n_dig, δ/5 …); bo'lmasa qat'iy M (eski misollar)
+  const r = runSpec.method === 'monteCarlo'
+    ? engine.monteCarlo(c.modelSpec, runSpec.mc ? { interval: runSpec.interval, ...runSpec.mc } : { mode: 'fixed', M: runSpec.M, interval: runSpec.interval })
+    : engine.evaluate(c.modelSpec);
+  if (runSpec.method === 'monteCarlo' && r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
   return { r, runSpec };
 }
 

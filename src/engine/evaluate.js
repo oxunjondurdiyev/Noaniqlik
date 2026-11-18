@@ -7,7 +7,7 @@ import { ENGINE_VERSION } from './version.js';
 import { isBlank, toNum, pairKey } from './util.js';
 import { splitFormula, parse, compileAst } from './parser.js';
 import { typeA, typeAx, correlation } from './typeA.js';
-import { typeB, valueOrExpr } from './typeB.js';
+import { typeB, valueOrExpr, distParamError } from './typeB.js';
 import { coverage, DEFAULT_NU_RULE } from './coverage.js';
 import { sensitivities, higherDerivatives, secondOrderTerms } from './sensitivity.js';
 import { conformity, pendingConformity, MODEL_KINDS } from './conformity.js';
@@ -97,7 +97,9 @@ function evaluateCore(spec) {
     let a;
     try { a = valueOrExpr(c.halfWidth, params, means); }
     catch (_) { return { error: 'bad_halfwidth', detail: c.name }; }
-    const std  = typeB(a, c.distribution, c.k);
+    // P06: parametrli taqsimotlar (trapetsiya β, egri trapetsiya d). Ref: JCGM 101:2008 §6.4.3, §6.4.4
+    if (distParamError(a, c.distribution, c)) return { error: 'bad_dist_param', detail: c.name };
+    const std  = typeB(a, c.distribution, c.k, c);
     const mult = (c.sensitivity === undefined || c.sensitivity === null || c.sensitivity === '') ? 1 : Number(c.sensitivity) || 0;
     const param = params.includes(c.param) ? c.param : params[0];
     const nuB = toNum(c.nu);

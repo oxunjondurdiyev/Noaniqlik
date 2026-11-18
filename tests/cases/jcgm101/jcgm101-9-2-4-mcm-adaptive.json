@@ -1,0 +1,126 @@
+{
+  "id": "jcgm101-9-2-4-mcm-adaptive",
+  "title": "JCGM 101 9.2.4: additiv model (bitta kirish ustun), adaptiv MCM — GUM tasdiqlanmaydi",
+  "status": "verified",
+  "domain": "umumiy (o'lchamsiz)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.2.4, Table 4 (Adaptive MCM qatorlari)",
+    "page": "38"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2",
+        "X3",
+        "X4"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ],
+        "X3": [
+          0
+        ],
+        "X4": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y = X1 + X2 + X3 + X4",
+        "unit": "1"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "X1",
+          "param": "X1",
+          "halfWidth": 1.7320508075688772,
+          "distribution": "rect"
+        },
+        {
+          "name": "X2",
+          "param": "X2",
+          "halfWidth": 1.7320508075688772,
+          "distribution": "rect"
+        },
+        {
+          "name": "X3",
+          "param": "X3",
+          "halfWidth": 1.7320508075688772,
+          "distribution": "rect"
+        },
+        {
+          "name": "X4",
+          "param": "X4",
+          "halfWidth": 17.32050807568877,
+          "distribution": "rect"
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "interval": "symmetric",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 2,
+      "tolDivisor": 5
+    }
+  },
+  "expected": {
+    "u": {
+      "value": 10.15,
+      "ref": "Table 4, Adaptive MCM: u(y) = 10.2 va 10.1"
+    },
+    "interval": {
+      "low": -17.05,
+      "high": 17.05,
+      "ref": "Table 4, Adaptive MCM: [–17.1, 17.1] va [–17.0, 17.0]"
+    },
+    "d_low": {
+      "value": 2.85,
+      "ref": "Table 4, Adaptive MCM: d_low = 2.8 va 2.9"
+    },
+    "d_high": {
+      "value": 2.85,
+      "ref": "Table 4, Adaptive MCM: d_high = 2.8 va 2.9"
+    },
+    "validated": {
+      "value": 0,
+      "ref": "Table 4, Adaptive MCM: GUF validated — No"
+    }
+  },
+  "tolerance": {
+    "u": {
+      "abs": 0.1,
+      "reason": "manbaning ikki qo'llanishi 10,2 va 10,1; δ/5 = 0,1"
+    },
+    "interval": {
+      "abs": 0.15,
+      "reason": "ikki qo'llanish ±0,05 farq qiladi + δ/5 = 0,1"
+    },
+    "d_low": {
+      "abs": 0.15,
+      "reason": "ikki qo'llanish 2,8 va 2,9 + δ/5 = 0,1"
+    },
+    "d_high": {
+      "abs": 0.15,
+      "reason": "ikki qo'llanish 2,8 va 2,9 + δ/5 = 0,1"
+    },
+    "validated": {
+      "abs": 0
+    }
+  },
+  "notes": "Manba adaptiv protsedurani δ/5 bilan qo'llagan (9.1.2, 8.2) — tolDivisor = 5. Sinovlar soni M tasodifiy kattalik (manbaning ikki qo'llanishida ham har xil), shuning uchun faqat tartibi solishtiriladi. δ = 0,5 (u(y) = 10 = 10×10⁰, n_dig = 2)."
+}

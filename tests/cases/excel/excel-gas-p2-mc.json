@@ -64,8 +64,11 @@
   },
   "run": {
     "method": "monteCarlo",
-    "M": 1000000,
-    "interval": "symmetric"
+    "interval": "symmetric",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 2
+    }
   },
   "expected": {
     "y": {

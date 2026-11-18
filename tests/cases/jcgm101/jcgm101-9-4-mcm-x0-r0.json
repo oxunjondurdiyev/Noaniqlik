@@ -1,0 +1,96 @@
+{
+  "id": "jcgm101-9-4-mcm-x0-r0",
+  "title": "JCGM 101 9.4: solishtirish yo'qotishi δY = X1² + X2², x1 = 0, r = 0, MCM (M = 10⁶, eng qisqa 95 % interval)",
+  "status": "verified",
+  "domain": "elektr (o'ta yuqori chastota)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.4.2.1.4 (M = 10⁶), Table 8",
+    "page": "45"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "dY = X1 ^ 2 + X2 ^ 2",
+        "unit": "1"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "u(x1) = 0.005",
+          "param": "X1",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(x2) = 0.005",
+          "param": "X2",
+          "halfWidth": 0.005,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "interval": "shortest",
+    "mc": {
+      "mode": "fixed",
+      "M": 1000000
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 4.9999999999999996e-05,
+      "ref": "Table 8, x1 = 0.000: δy (M / MCM) = 50×10⁻⁶"
+    },
+    "u": {
+      "value": 4.9999999999999996e-05,
+      "ref": "Table 8, x1 = 0.000: u(δy) (M / MCM) = 50×10⁻⁶"
+    },
+    "interval": {
+      "low": 0.0,
+      "high": 0.00015,
+      "ref": "Table 8, x1 = 0.000: MCM eng qisqa 95 % interval [0, 150]×10⁻⁶"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 7e-07,
+      "reason": "½ oxirgi xona (0,5·10⁻⁶) + 2·√2·s, s — bitta M = 10⁶ simulyatsiyasining urug'dan-urug'ga standart og'ishi (16 ta urug', tests/tools/mc-scatter.js): s(δy) = 0,05·10⁻⁶"
+    },
+    "u": {
+      "abs": 7e-07,
+      "reason": "½ oxirgi xona (0,5·10⁻⁶) + 2·√2·s, s — bitta M = 10⁶ simulyatsiyasining urug'dan-urug'ga standart og'ishi (16 ta urug', tests/tools/mc-scatter.js): s(u) = 0,06·10⁻⁶"
+    },
+    "interval.low": {
+      "abs": 5e-07,
+      "reason": "½ oxirgi xona (0,5·10⁻⁶) + 2·√2·s, s — bitta M = 10⁶ simulyatsiyasining urug'dan-urug'ga standart og'ishi (16 ta urug', tests/tools/mc-scatter.js): s(y_low) = 0,00·10⁻⁶"
+    },
+    "interval.high": {
+      "abs": 1.1e-06,
+      "reason": "½ oxirgi xona (0,5·10⁻⁶) + 2·√2·s, s — bitta M = 10⁶ simulyatsiyasining urug'dan-urug'ga standart og'ishi (16 ta urug', tests/tools/mc-scatter.js): s(y_high) = 0,19·10⁻⁶"
+    }
+  },
+  "notes": "Manbada generator — Mersenne Twister (9.1.4), bitta M = 10⁶ simulyatsiyasi; bu yerda Wichmann–Hill, urug' 20261110. Manba δ ni bermagan va natijalar tarqoqligini o'zi qayd etgan (9.4.2.2.8 Note) — tolerans manbadagi raqamlar soni va o'lchangan tarqoqlik bo'yicha (ikki mustaqil simulyatsiya farqi: √2·s, ikki s.o.). Eng qisqa interval uchlari o'rtacha va u ga nisbatan ancha sekin barqarorlashadi (DISCREPANCIES.md D-18)."
+}

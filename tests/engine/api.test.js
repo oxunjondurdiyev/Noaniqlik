@@ -127,9 +127,15 @@ test('ogohlantirishlar: U = 0 va U < CMC (CLAUDE.md) saqlanadi', () => {
 });
 
 test('Monte-Karlo: seed natijada, bir xil kirish → aynan bir xil natija', () => {
-  const a = E.monteCarlo(DENS.modelSpec, 20000), b = E.monteCarlo(DENS.modelSpec, 20000);
+  const GAS = require('../cases/excel/excel-gas-p2.json');
+  const a = E.monteCarlo(GAS.modelSpec, 20000), b = E.monteCarlo(GAS.modelSpec, 20000);
   assert.equal(a.seed, E.MC_SEED);
   assert.equal(a.low, b.low); assert.equal(a.high, b.high); assert.equal(a.u, b.u);
+  // P06: zichlik misolida kirishlar juftlangan kuzatuvlar orqali korrelyatsiyalangan (t-taqsimot) — MCM natijasi
+  // berilmaydi (2.5.0 gacha korrelyatsiya e'tiborsiz qoldirilar edi — RISKS R-06); GUM natijasi o'zgarmagan
+  const d = E.monteCarlo(DENS.modelSpec, 20000);
+  assert.equal(d.error, 'mc_nonnormal_correlation');
+  assert.equal(d.findings[0].rule, 'M2');
 });
 
 test('ko\'p nuqtali bir xil k (COOMET §5.7.3) dvigatelda: multiPointCoverage', () => {
