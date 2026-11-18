@@ -237,7 +237,11 @@
       },
       "unit": "",
       "value": null,
-      "ref": "Har bir standart uchun alohida (⚠ tekshirilsin)",
+      "ref": {
+        "uz": "Har bir standart uchun alohida (⚠ tekshirilsin)",
+        "ru": "Отдельно для каждого стандарта (⚠ проверить)",
+        "en": "Separately for each standard (⚠ to be verified)"
+      },
       "hint": {
         "uz": "Standart jadvalidan; laboratoriya standartning amaldagi nashridan kiritadi. Noaniqligi 0 deb olinadi.",
         "ru": "Из таблицы стандарта; лаборатория вводит по действующей редакции стандарта. Неопределённость принимается равной 0.",
@@ -253,7 +257,11 @@
       },
       "unit": "1/K",
       "value": null,
-      "ref": "EURACHEM QUAM A2 (harorat: V·γ·Δt)",
+      "ref": {
+        "uz": "EURACHEM QUAM A2 (harorat: V·γ·Δt)",
+        "ru": "EURACHEM QUAM A2 (температура: V·γ·Δt)",
+        "en": "EURACHEM QUAM A2 (temperature: V·γ·Δt)"
+      },
       "hint": {
         "uz": "Ma'lumotnomadan (suvli eritmalar uchun).",
         "ru": "Из справочника (для водных растворов).",

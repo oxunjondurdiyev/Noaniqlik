@@ -589,8 +589,8 @@ export function buildState(tpl, data = {}, opts = {}) {
       ...(opts.ui ? {
         excludedEntries,
         inputInfo: Object.fromEntries([...modelInputs, ...modelConsts].map(i => [i.symbol, { name: tr(i.name, lang), hint: tr(i.hint, lang), kind: i.kind || 'constant' }])),
-        auxInfo: Object.fromEntries(auxConsts.map(c => [c.symbol, { name: tr(c.name, lang), hint: tr(c.hint, lang), unit: c.unit, ref: c.ref }])),
-        constInfo: Object.fromEntries(modelConsts.map(c => [c.symbol, { name: tr(c.name, lang), hint: tr(c.hint, lang), unit: c.unit, ref: c.ref }])),
+        auxInfo: Object.fromEntries(auxConsts.map(c => [c.symbol, { name: tr(c.name, lang), hint: tr(c.hint, lang), unit: c.unit, ref: tr(c.ref, lang) }])),
+        constInfo: Object.fromEntries(modelConsts.map(c => [c.symbol, { name: tr(c.name, lang), hint: tr(c.hint, lang), unit: c.unit, ref: tr(c.ref, lang) }])),
         correlationInfo: Object.fromEntries((tpl.correlations || []).map(c => [c.id, { question: tr(c.question, lang), note: tr(c.note, lang) }])),
         openQuestionList: (tpl.openQuestions || []).map(q => ({ id: q.id, text: tr(q.text, lang), owner: q.owner, blocking: !!q.blocking })),
         variantTitle: variant.title ? tr(variant.title, lang) : '',

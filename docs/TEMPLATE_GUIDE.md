@@ -25,7 +25,7 @@ Shablon — bitta o'lchash yoki sinov metodikasining JSON tavsifi: o'lchash mode
 | `measurand` | natija belgisi, nomi, **birligi** |
 | `model.formula` | `y = f(x…)`: `+ − * / ^ ( )`, `sqrt ln log exp sin cos tan abs pi` |
 | `inputs[]` | `symbol`, `name`, **`unit`**, `kind` (`observation`, `reference`, `influence`, `nominal`), `typeA` (`method`: 1 — s/√n, 2 — pooled s_p) |
-| `constants[]` | o'zgarmas (noaniqligi 0): `value: null` — laboratoriya standartdan kiritadi. Formulada bo'lsa — kirish sifatida (u = 0); faqat manba formulasida bo'lsa — son sifatida qo'yiladi |
+| `constants[]` | o'zgarmas (noaniqligi 0): `value: null` — laboratoriya standartdan kiritadi. `ref` (qiymat manbasi): faqat belgi bo'lsa (`"ГОСТ 10180"`, `"EURACHEM QUAM A2"`) — satr; izohli matn bo'lsa — uch tildagi obyekt `{uz, ru, en}` (ekranda ko'rsatiladi). Formulada bo'lsa — kirish sifatida (u = 0); faqat manba formulasida bo'lsa — son sifatida qo'yiladi |
 | `variants[]` | bitta modelning standartga xos ko'rinishlari: `formula`, `inputs`, `constants` (masalan `{"f": null}`), ixtiyoriy `measurand`, `excludeSources`, `decisionRule` |
 | `typeBSources[]` | `id`, `input`, `name`, `kind`, `distribution` (`normal` — U/k; `rect` — a/√3; `triang` — a/√6; `resol` — d/(2√3); `ushape` — a/√2), `halfWidth` (son, **formula** — `"0.0002*I + 0.002"`, yoki `null`), `k`, `nu`, `unit`, `instrument`, `correlated`, `includeByDefault`, `hint` |
 | `correlations[]` | bitta asbob bilan o'lchangan kirishlar: `inputs`, `r`, `sharedInstrument`, `ask: true` (UI so'raydi), `question` |
@@ -57,7 +57,7 @@ Model: ρ = (m2 − m0) / (m1 − m0) · ρ_w, bu yerda m0 — bo'sh piknometr, 
 ```json
 "measurand": { "symbol": "ρ", "name": {"uz": "Suyuqlik zichligi", "ru": "…", "en": "…"}, "unit": "g/cm³" },
 "model": { "formula": "ρ = (m2 - m0) / (m1 - m0) * rho_w" },
-"constants": [{ "symbol": "rho_w", "unit": "g/cm³", "value": null, "ref": "ma'lumotnoma jadvali", "name": {…}, "hint": {…} }],
+"constants": [{ "symbol": "rho_w", "unit": "g/cm³", "value": null, "ref": {"uz": "ma'lumotnoma jadvali", "ru": "справочная таблица", "en": "reference table"}, "name": {…}, "hint": {…} }],
 "inputs": [
   { "symbol": "m0", "unit": "g", "kind": "observation", "typeA": {"method": 1}, "name": {…} },
   { "symbol": "m1", "unit": "g", … }, { "symbol": "m2", "unit": "g", … }

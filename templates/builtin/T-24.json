@@ -101,7 +101,11 @@
       },
       "unit": "°C",
       "value": null,
-      "ref": "IEC 60335-1, 11-band: mis 234,5; alyuminiy 225 (WAVE1_SPEC T-24, ⚠ tekshirilsin)",
+      "ref": {
+        "uz": "IEC 60335-1, 11-band: mis 234,5; alyuminiy 225 (WAVE1_SPEC T-24, ⚠ tekshirilsin)",
+        "ru": "IEC 60335-1, п. 11: медь 234,5; алюминий 225 (WAVE1_SPEC T-24, ⚠ проверить)",
+        "en": "IEC 60335-1, clause 11: copper 234.5; aluminium 225 (WAVE1_SPEC T-24, ⚠ to be verified)"
+      },
       "hint": {
         "uz": "Variant tanlanganda avtomatik (mis 234,5; alyuminiy 225).",
         "ru": "Задаётся вариантом (медь 234,5; алюминий 225).",

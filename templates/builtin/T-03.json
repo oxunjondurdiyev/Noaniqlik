@@ -47,7 +47,11 @@
       },
       "unit": "1",
       "value": null,
-      "ref": "ГОСТ 10180 — masshtab koeffitsienti jadvali (⚠ tekshirilsin)",
+      "ref": {
+        "uz": "ГОСТ 10180 — masshtab koeffitsienti jadvali (⚠ tekshirilsin)",
+        "ru": "ГОСТ 10180 — таблица масштабных коэффициентов (⚠ проверить)",
+        "en": "ГОСТ 10180 — table of scale factors (⚠ to be verified)"
+      },
       "hint": {
         "uz": "Standart jadvalidan; laboratoriya standartning amaldagi nashridan kiritadi. Noaniqligi 0 deb olinadi.",
         "ru": "Из таблицы стандарта; лаборатория вводит по действующей редакции стандарта. Неопределённость принимается равной 0.",
