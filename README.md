@@ -160,7 +160,8 @@ npm run test:all     # + Firestore rules tests in the Firebase Emulator (needs J
 
 ## License
 
-MIT — Free to use for educational, research, and commercial laboratory applications.
+Copyright © 2026 Oxunjon Durdiyev. All rights reserved — see [LICENSE](LICENSE).
+Barcha huquqlar himoyalangan — [LICENSE](LICENSE) ga qarang. Third-party components in `vendor/` and documents in `docs/references/` keep their own terms.
 
 ---
 
