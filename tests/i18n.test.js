@@ -22,6 +22,8 @@ const I18N_FILES = [
   'src/js/i18n-topdown.js',
   'src/js/i18n-special.js',
   'src/js/i18n-linter.js',
+  'src/js/i18n-io.js',
+  'src/js/i18n-report.js',
   'src/js/i18n-admin.js',
 ];
 
@@ -518,4 +520,28 @@ test('P05a: i18n-linter.js oldingi fayllardagi kalitlarni bosib ketmaydi; har bi
   assert.deepEqual([...new Set(missing)], []);
   // matnlardagi o'rinbosarlar: faqat {p}, {s}, {v} (va belgilar uchun {M}, {seed})
   for (const l of LANGS) for (const k of new Set(mine)) assert.ok(!/\{(?!p\}|s\}|v\}|M\}|seed\})/.test(T[l][k]), `${l}.${k}`);
+});
+
+/* ── P05b: hisobot shakllari, rekvizitlar, qaror qoidasi matnlari ── */
+test('P05b: i18n-report.js oldingi fayllardagi kalitlarni bosib ketmaydi; shakl, rekvizit va qaror kalitlari uch tilda', () => {
+  const base = translationsBefore('src/js/i18n-report.js');
+  const mine = [...fs.readFileSync(path.join(ROOT, 'src/js/i18n-report.js'), 'utf8').matchAll(/^\s{6}([a-zA-Z0-9_]+):/gm)].map(m => m[1]);
+  assert.ok(new Set(mine).size >= 95, String(new Set(mine).size));
+  assert.deepEqual([...new Set(mine.filter(k => k in base.en))], []);
+  const FM = require('../src/report/forms.js');
+  const RQ = require('../src/report/requisites.js');
+  const E = require('../src/engine/index.js');
+  const missing = [];
+  const need = k => { for (const l of LANGS) if (!T[l][k]) missing.push(`${l}.${k}`); };
+  FM.REPORT_FORMS.forEach(f => { need('rf_title_' + f); need('rf_sub_' + f); need('rp_form_' + f); });
+  [...RQ.LAB_FIELDS, ...RQ.REPORT_FIELDS.map(f => f.key)].forEach(k => need('rq_' + k));
+  ['pass', 'fail', 'cond_pass', 'cond_fail'].forEach(v => need('dr_' + v));
+  E.DECISION_STATEMENTS.forEach(s => { need('dr_statement_' + s); need('set_decision_' + s); });
+  ['rule', 'limit', 'recalc'].forEach(p => need('dr_pending_' + p));
+  for (const f of ['src/report/sections.js', 'src/report/forms.js', 'src/report/footer.js', 'src/ui/report/app.js', 'src/js/report.js', 'src/js/typeB.js']) {
+    const code = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    for (const m of code.matchAll(/\bt\('((?:rf|rq|rp|dr|set|mk|fnd|mark)_[a-z0-9_]+)'\)/g)) if (!m[1].endsWith('_')) need(m[1]);
+  }
+  assert.deepEqual([...new Set(missing)], []);
+  for (const l of LANGS) for (const k of new Set(mine)) assert.ok(!/[<&]/.test(T[l][k]), `${l}.${k}: < yoki & bo'lmasin`);
 });

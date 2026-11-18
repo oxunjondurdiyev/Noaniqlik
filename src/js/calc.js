@@ -12,6 +12,12 @@ import { roundResult, roundHalfAway, roundUpAway } from '../report/rounding.js';
 import { fmt, fmtSci } from '../report/format.js';
 import { newMeta, metaFor } from '../io/calc-meta.js';
 import { createSections } from '../report/sections.js';
+import { summaryRows } from '../report/summary.js';
+import { buildReport, REPORT_FORMS, DEFAULT_FORM, requisiteFields } from '../report/forms.js';
+import { footerModel, qrSvg } from '../report/footer.js';
+import { cleanRequisites, splitRequisites, missingRequisites, validLogo, MAX_LOGO_BYTES } from '../report/requisites.js';
+import { buildCalcDoc } from '../io/calc-json.js';
+import { loadQr } from '../io/vendor.js';
 import { findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText } from '../report/findings.js';
 
 const Calc = Object.freeze({
@@ -49,7 +55,9 @@ const Calc = Object.freeze({
   // P05b: hisob identifikatori (eksport va hisobot xeshi bir xil bo'lishi uchun)
   newMeta, metaFor,
   // hisobot qatlami
-  createSections,
+  createSections, summaryRows, buildReport, REPORT_FORMS, DEFAULT_FORM, requisiteFields, footerModel, qrSvg,
+  cleanRequisites, splitRequisites, missingRequisites, validLogo, MAX_LOGO_BYTES, buildCalcDoc, loadQr,
+  decide: engine.decide, GUARD_PRESETS: engine.GUARD_PRESETS, DECISION_RULES: engine.DECISION_RULES,
   roundResult, roundHalfAway, roundUpAway, fmt, fmtSci,
   findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText,
 });

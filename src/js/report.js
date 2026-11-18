@@ -47,7 +47,7 @@ const Results = (() => {
   function specialSection(...a) { return sec().specialSection(...a); }
 
   function init() {
-    document.getElementById('btn-print').addEventListener('click', printReport);
+    document.getElementById('btn-print').addEventListener('click', () => { printReport(); });
     document.addEventListener('findingschange', e => { if (!e.detail || e.detail.scope === 'gum') render(); });
     if (window.UCFindings) window.UCFindings.register('gum', () => { const r = current(); return r ? findingsOf(r, appState.get()) : []; });
     appState.subscribe((changes) => {
@@ -69,6 +69,34 @@ const Results = (() => {
 
   function acceptancesOf(scope) { return window.UCFindings ? window.UCFindings.acceptances(scope) : {}; }
   /** @param {{scope?:string, print?:boolean, acceptances?:object, spec?:object, legacy?:string, legacyOn?:string, showEmpty?:boolean}} o */
+  /* P05b: qaror qoidasi tanlanmagan bo'lsa — natijalar sahifasidan tanlash (sozlamaga yoziladi va qayta hisoblanadi) */
+  function decisionChooser() {
+    const st = appState.get('settings') || {};
+    return `<div class="model-kind-chooser" data-decision-chooser="1">
+      <label>${escHtml(i18n.t('dr_choose'))}
+        <select data-decision-rule-select="1">
+          <option value="simple">${escHtml(i18n.t('set_decision_simple'))}</option>
+          <option value="guard_band" selected>${escHtml(i18n.t('set_decision_guard'))}</option>
+        </select></label>
+      <label>${escHtml(i18n.t('set_guard_r'))}
+        <input type="text" inputmode="decimal" class="mono" data-decision-r="1" value="${escHtml(String(st.guardR ?? '1'))}" autocomplete="off" /></label>
+      <label>${escHtml(i18n.t('set_agreement'))}
+        <input type="text" maxlength="200" data-decision-agreement="1" value="${escHtml(String(st.agreement ?? ''))}" autocomplete="off" /></label>
+      <button type="button" class="btn btn-primary btn-sm" data-decision-apply="1">${escHtml(i18n.t('dr_apply'))}</button>
+    </div>`;
+  }
+  function bindDecision(el) {
+    const box = el.querySelector('[data-decision-chooser]');
+    if (!box) return;
+    box.querySelector('[data-decision-apply]').addEventListener('click', () => {
+      const rule = box.querySelector('[data-decision-rule-select]').value;
+      const settings = { ...(appState.get('settings') || {}), decisionRule: rule,
+        guardR: box.querySelector('[data-decision-r]').value.trim().replace(',', '.'), agreement: box.querySelector('[data-decision-agreement]').value.trim() };
+      appState.set({ settings, combined: null });
+      if (window.TypeB && window.TypeB.calculate) window.TypeB.calculate();
+    });
+  }
+
   function modelKindChooser() {
     const cur = (appState.get('settings') || {}).modelKind || 'unknown';
     const nominal = (appState.get('settings') || {}).nominal;
@@ -114,7 +142,7 @@ const Results = (() => {
               <th class="cell-num">k</th>
               <th class="cell-num">ν_eff</th>
               ${anyGamma ? '<th class="cell-num">γ, %</th>' : ''}
-              ${anyConf ? `<th class="cell-num">MPE</th><th>${i18n.t('conf_guarded')}</th>` : ''}
+              ${anyConf ? `<th class="cell-num">MPE</th><th>${i18n.t('dr_col')}</th>` : ''}
               <th></th>
             </tr></thead>
             <tbody>
@@ -126,7 +154,7 @@ const Results = (() => {
                 <td class="cell-num mono">${nuText(x.r.nuEff)}</td>
                 ${anyGamma ? `<td class="cell-num mono">${x.r.gamma !== null && x.r.gamma !== undefined ? x.r.gamma.toFixed(3) : '—'}</td>` : ''}
                 ${anyConf ? `<td class="cell-num mono">${x.conf && x.conf.mpe > 0 ? Calc.fmtSci(x.conf.mpe, 3) : '—'}</td>
-                  <td>${x.conf ? (x.conf.pending ? `<span class="badge badge-orange" data-conf-pending="1">${escHtml(i18n.t('mk_pending_short'))}</span>` : confLabel(x.conf.guarded, true)) : '—'}</td>` : ''}
+                  <td>${x.conf && x.conf.pending ? `<span class="badge badge-orange" data-conf-pending="1">${escHtml(i18n.t('mk_pending_short'))}</span>` : sec().decisionCell(x.r, x.decision)}</td>` : ''}
                 <td style="white-space:nowrap">
                   <button class="btn btn-ghost btn-sm" data-pt-load="${x.id}">${i18n.t('pt_open')}</button>
                   <button class="btn btn-ghost btn-sm" data-pt-del="${x.id}" title="${escHtml(i18n.t('pt_delete'))}">✕</button>
@@ -200,6 +228,7 @@ const Results = (() => {
     `;
     bindPoints(el);
     bindModelKind(el);
+    bindDecision(el);
     const mcBtn = el.querySelector('#btn-mc');
     if (mcBtn) mcBtn.addEventListener('click', () => {
       mcBtn.disabled = true;
@@ -223,7 +252,8 @@ const Results = (() => {
     return `
       <div class="section-title">${i18n.t('conf_title')}</div>
       ${lines.map(l => `<div class="formula-box">${l}</div>`).join('')}
-      ${confPending(r) ? modelKindChooser() : ''}`;
+      ${confPending(r) ? modelKindChooser() : ''}
+      ${!confPending(r) && r.decision && r.decision.pending === 'rule' ? decisionChooser() : ''}`;
   }
 
   /* Model turini natijalar sahifasidan tanlash (eski saqlangan hisoblar uchun so'raladi) → sozlamaga yoziladi va qayta hisoblanadi */
@@ -270,6 +300,41 @@ const Results = (() => {
     return `<div class="print-page-break"></div>${regressionSection(rg.result, { print: true, plots: rg.plots, residualTable: true })}`;
   }
 
+  /* ─── P05b: hisobot shakllari (src/report/forms.js) ────────────────
+     Shakl turi va rekvizitlar — window.UCReport (src/ui/report/app.js; faqat brauzerda saqlanadi).
+     Pastki qism: dastur, ENGINE_VERSION, build, shablon, hisob sanasi, kanonik JSON'dan SHA-256 va QR.
+     Xesh JSON eksportdagi bilan BIR XIL bo'lishi uchun hujjatni window.UCIO.calcDoc(scope) quradi (bo'lsa). */
+  function reportOptions() {
+    return window.UCReport ? window.UCReport.options() : { form: Calc.DEFAULT_FORM, requisites: {} };
+  }
+  async function footerFor(scope, fallback) {
+    try {
+      let doc = window.UCIO && window.UCIO.calcDoc ? await window.UCIO.calcDoc(scope) : null;
+      if (!doc) doc = await Calc.buildCalcDoc(fallback());
+      const build = window.UCReport && window.UCReport.buildInfo ? await window.UCReport.buildInfo() : null;
+      const model = Calc.footerModel({ engineVersion: doc.engineVersion, build, template: doc.template, meta: { id: doc.id, createdAt: doc.createdAt }, hash: doc.hash });
+      let qr = '';
+      try { qr = Calc.qrSvg(await Calc.loadQr(), model.qr); } catch (_) { qr = ''; }
+      return { model, qr };
+    } catch (_) { return null; }
+  }
+  /** HTML ni chop etish maydoniga qo'yish → pastki qismni (xesh, QR) to'ldirish → chop etish oynasi */
+  async function show(build, scope, fallbackDoc) {
+    const el = document.getElementById('print-report');
+    el.innerHTML = build(null);                       // darhol (xesh hisoblanguncha pastki qismsiz)
+    const footer = await footerFor(scope, fallbackDoc);
+    if (footer) el.innerHTML = build(footer);
+    document.body.classList.add('print-report-mode');
+    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
+    window.print();
+    return true;
+  }
+  function blocked(statuses) {
+    const block = blockedBy(statuses);
+    if (block) showToast(i18n.t(block === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000);
+    return !!block;
+  }
+
   function printReport() {
     const state = appState.get();
     const r     = current();
@@ -277,167 +342,69 @@ const Results = (() => {
 
     if (!r && !pts.length) {
       showToast(i18n.t('results_empty'), 'error');
-      return;
+      return Promise.resolve(false);
     }
     // P05a (RISKS R-05): U = 0, u_c = 0, U < CMC — hisobot yo bloklanadi (laboratoriya sozlamasi criticalMode / cmcMode
     // = 'block'), yo aniq belgi bilan chiqadi (standart). Qabul qilinmagan `error` bo'lsa — "RASMIY EMAS" suv belgisi.
     const statuses = pts.length
       ? pts.map(p => statusOf(p.result, { spec: p.snapshot, acceptances: p.acceptances || {} }))
       : [statusOf(r, { spec: state })];
-    const block = blockedBy(statuses);
-    if (block) {
-      showToast(i18n.t(block === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000);
-      return;
-    }
+    if (blocked(statuses)) return Promise.resolve(false);
 
-    const now     = new Date().toLocaleDateString();
-    const printEl = document.getElementById('print-report');
     const uniformK = !!(state.summary && state.summary.uniformK);
     const rows = Points.summary(pts, uniformK);
-
-    let body;
-    if (rows.length) {
-      body = `
-        <div class="print-section">${i18n.t('pt_summary')}</div>
-        ${summaryTable(rows)}
-        ${uniformK ? `<p style="font-size:9pt">${i18n.t('pt_uniform_k')}</p>` : ''}
-        <p style="font-size:9pt">${ilacNote(rows[0].r)}</p>
-        ${rows.map(x => { const pt = pts.find(p => p.id === x.id); return `<div class="print-page-break"></div>` +
-          pointDetail(x.r, pt.snapshot, x.label, x.rr, x.k, { acceptances: pt.acceptances || {}, conf: x.conf }); }).join('')}`;
-    } else {
-      body = pointDetail(r, Points.snapshot(state), '', null, undefined, { mc: lastMC && !lastMC.error ? lastMC : null });
-    }
-
-    printEl.innerHTML = `
-      <div class="print-report-header">
-        <div>
-          <div class="print-report-title">${i18n.t('report_title')}</div>
-          <div class="print-report-meta">${i18n.t('report_standard')}</div>
-        </div>
-        <div style="text-align:right;font-size:9pt;color:#555">
-          <div>${i18n.t('report_date')}: ${now}</div>
-          <div>${i18n.t('report_lab')}: _______________________</div>
-          <div>${i18n.t('report_operator')}: ____________________</div>
-        </div>
-      </div>
-      ${officialMarksHtml(statuses)}
-      ${templateNotice()}
-      ${body}
-      ${regressionAppendix()}
-      <div class="print-footer">
-        <span>${i18n.t('report_standard')}</span>
-        <span>${i18n.t('report_date')}: ${now}</span>
-        <span>UncertaintyCalc</span>
-      </div>
-    `;
-
-    document.body.classList.add('print-report-mode');
-    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
-    window.print();
+    const opt = reportOptions();
+    const mc = lastMC && !lastMC.error ? lastMC : null;
+    const snap = Points.snapshot(state);
+    const build = footer => Calc.buildReport({
+      form: opt.form, lang: i18n.lang, env: fctx(), sections: sec(), requisites: opt.requisites, mode: 'GUM',
+      ...(rows.length ? { rows, uniformK } : { result: r, snapshot: snap, mc }),
+      marksHTML: officialMarksHtml(statuses), noticeHTML: templateNotice(), extraHTML: regressionAppendix(), footer,
+    });
+    const tm = state.template || null;
+    return show(build, 'gum', () => {
+      const main = rows.length ? rows[rows.length - 1] : null;
+      const meta = Calc.metaFor(main ? main.r : r, main ? main.point.meta : state.calcMeta);
+      return { id: meta.id, createdAt: meta.createdAt, input: main ? main.point.snapshot : snap, result: main ? main.r : r, template: tm,
+               points: rows.map(x => ({ id: x.id, label: x.label, input: x.point.snapshot, result: x.r, acceptances: x.point.acceptances || {} })),
+               acceptances: state.acceptances || {} };
+    });
   }
+  const fctx = () => ({ t: k => i18n.t(k), esc: escHtml });
 
+  /** Boshqa rejimlar (regressiya, top-down, maxsus): tayyor bo'lim + umumiy shakl (sarlavha, rekvizitlar, pastki qism) */
+  function printMode(r, o, cfg) {
+    const opt = o || {};
+    if (!r || r.error) { showToast(i18n.t(cfg.emptyKey), 'error'); return Promise.resolve(false); }
+    const statuses = [statusOf(r, { scope: cfg.scope })];
+    if (blocked(statuses)) return Promise.resolve(false);
+    const ro = reportOptions();
+    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
+    const form = ro.form === 'calibration_certificate' ? 'test_report' : ro.form;   // bu rejimlar — sinov / validatsiya ma'lumoti
+    const build = footer => Calc.buildReport({
+      form, lang: i18n.lang, env: fctx(), sections: sec(), requisites: ro.requisites, mode: cfg.mode(r),
+      bodyHTML: cfg.body(r, opt) + marksHtml(r), marksHTML: officialMarksHtml(statuses), noticeHTML: notice, footer,
+    });
+    return show(build, cfg.scope, () => { const m = Calc.metaFor(r); return { id: m.id, createdAt: m.createdAt, input: opt.input || { format: r.format }, result: r, template: opt.meta || null }; });
+  }
+  const linterMode = r => (r.mode === 'MICROBIOLOGY' ? 'MICRO' : r.mode);
+
+  /** Faqat regressiya hisoboti (regressiya yorlig'idagi "Chop etish"). meta — shablon belgilari (DRAFT, demo). */
   function printRegression(r, o) {
-    const opt = o || {};
-    if (!r || r.error) { showToast(i18n.t('rg_empty'), 'error'); return; }
-    const blk = blockedBy([statusOf(r, { scope: 'regression' })]);
-    if (blk) { showToast(i18n.t(blk === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000); return; }
-    const now = new Date().toLocaleDateString();
-    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
-    document.getElementById('print-report').innerHTML = `
-      <div class="print-report-header">
-        <div>
-          <div class="print-report-title">${i18n.t('report_title')}</div>
-          <div class="print-report-meta">${i18n.t('report_standard')}</div>
-        </div>
-        <div style="text-align:right;font-size:9pt;color:#555">
-          <div>${i18n.t('report_date')}: ${now}</div>
-          <div>${i18n.t('report_lab')}: _______________________</div>
-          <div>${i18n.t('report_operator')}: ____________________</div>
-        </div>
-      </div>
-      ${officialMarksHtml([statusOf(r, { scope: 'regression' })])}
-      ${notice}
-      ${regressionSection(r, { print: true, plots: opt.plots, residualTable: true })}
-      ${marksHtml(r)}
-      <div class="print-footer">
-        <span>${i18n.t('report_standard')}</span>
-        <span>${i18n.t('report_date')}: ${now}</span>
-        <span>UncertaintyCalc</span>
-      </div>`;
-    document.body.classList.add('print-report-mode');
-    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
-    window.print();
+    return printMode(r, o, { scope: 'regression', emptyKey: 'rg_empty', mode: () => 'REGRESSION',
+      body: (res, opt) => regressionSection(res, { print: true, plots: opt.plots, residualTable: true }) });
   }
-
+  /** Faqat top-down hisoboti ("Chop etish"). meta — shablon belgilari (DRAFT). */
   function printTopdown(r, o) {
-    const opt = o || {};
-    if (!r || r.error) { showToast(i18n.t('td_empty'), 'error'); return; }
-    const blk = blockedBy([statusOf(r, { scope: 'topdown' })]);
-    if (blk) { showToast(i18n.t(blk === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000); return; }
-    const now = new Date().toLocaleDateString();
-    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
-    document.getElementById('print-report').innerHTML = `
-      <div class="print-report-header">
-        <div>
-          <div class="print-report-title">${i18n.t('report_title')}</div>
-          <div class="print-report-meta">${i18n.t('td_report_standard')}</div>
-        </div>
-        <div style="text-align:right;font-size:9pt;color:#555">
-          <div>${i18n.t('report_date')}: ${now}</div>
-          <div>${i18n.t('report_lab')}: _______________________</div>
-          <div>${i18n.t('report_operator')}: ____________________</div>
-        </div>
-      </div>
-      ${officialMarksHtml([statusOf(r, { scope: 'topdown' })])}
-      ${notice}
-      ${topdownSection(r, { print: true })}
-      ${marksHtml(r)}
-      <div class="print-footer">
-        <span>${i18n.t('td_report_standard')}</span>
-        <span>${i18n.t('report_date')}: ${now}</span>
-        <span>UncertaintyCalc</span>
-      </div>`;
-    document.body.classList.add('print-report-mode');
-    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
-    window.print();
+    return printMode(r, o, { scope: 'topdown', emptyKey: 'td_empty', mode: () => 'TOP_DOWN', body: res => topdownSection(res, { print: true }) });
   }
-
   function printSpecial(r, o) {
-    const opt = o || {};
-    if (!r || r.error) { showToast(i18n.t('sp_empty'), 'error'); return; }
-    const blk = blockedBy([statusOf(r, { scope: 'special' })]);
-    if (blk) { showToast(i18n.t(blk === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000); return; }
-    const now = new Date().toLocaleDateString();
-    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
-    document.getElementById('print-report').innerHTML = `
-      <div class="print-report-header">
-        <div>
-          <div class="print-report-title">${i18n.t('report_title')}</div>
-          <div class="print-report-meta">${escHtml(r.approachRef)}</div>
-        </div>
-        <div style="text-align:right;font-size:9pt;color:#555">
-          <div>${i18n.t('report_date')}: ${now}</div>
-          <div>${i18n.t('report_lab')}: _______________________</div>
-          <div>${i18n.t('report_operator')}: ____________________</div>
-        </div>
-      </div>
-      ${officialMarksHtml([statusOf(r, { scope: 'special' })])}
-      ${notice}
-      ${specialSection(r, { print: true })}
-      ${marksHtml(r)}
-      <div class="print-footer">
-        <span>${escHtml(r.approachRef)}</span>
-        <span>${i18n.t('report_date')}: ${now}</span>
-        <span>UncertaintyCalc</span>
-      </div>`;
-    document.body.classList.add('print-report-mode');
-    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
-    window.print();
+    return printMode(r, o, { scope: 'special', emptyKey: 'sp_empty', mode: linterMode, body: res => specialSection(res, { print: true }) });
   }
 
   const escHtml = window.escHtml;
 
-  return { init, render, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, findingsOf, findingsHtml, statusOf };
+  return { init, render, printReport, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, findingsOf, findingsHtml, statusOf };
 
 
 })();

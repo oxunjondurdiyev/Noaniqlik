@@ -678,6 +678,7 @@
             <p class="panel-sub text-muted" data-i18n="data_sub">Enter your observed values for each measurement</p>
           </div>
           <div class="panel-actions">
+            <button type="button" class="btn btn-sm btn-ghost" id="btn-import-table" data-io-act="import-table" data-io-target="gum" data-i18n="io_import_file">Import from file</button>
             <button class="btn btn-sm btn-ghost" id="btn-fill-sample" data-i18n="btn_sample">Fill Sample Data</button>
             <button class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
           </div>
@@ -733,6 +734,15 @@
             <h2 class="panel-title" data-i18n="results_title">Uncertainty Budget</h2>
             <p class="panel-sub text-muted" data-i18n="results_sub">Combined and expanded uncertainty per ISO/IEC 17025:2017</p>
           </div>
+          <!-- P05b: hisobot shakli va rekvizitlari (src/ui/report/app.js) -->
+          <div class="report-bar" data-report-bar="1"></div>
+          <!-- P05b: eksport / import (src/ui/io/app.js); #results-content dan tashqarida — u qayta chiziladi -->
+          <div class="panel-actions io-bar" data-io-bar="gum">
+            <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="gum" data-io-format="json" data-i18n="io_export_json">Export JSON</button>
+            <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="gum" data-io-format="xlsx" data-i18n="io_export_xlsx">Export Excel</button>
+            <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="gum" data-io-format="csv" data-i18n="io_export_csv">Export CSV</button>
+            <button type="button" class="btn btn-sm btn-ghost" data-io-act="import-calc" data-i18n="io_import_json">Open calculation file</button>
+          </div>
         </div>
 
         <div id="results-content" class="results-content">
@@ -746,16 +756,38 @@
       <!-- TAB: REGRESSION (P08) — kalibrlash egri chizig'i; mazmunni src/ui/regression/app.js chizadi -->
       <div class="tab-panel" id="tab-regression">
         <div id="regression-root"></div>
+        <div class="io-bar io-bar-bottom" data-io-bar="regression">
+          <span class="text-muted text-sm" data-i18n="io_bar_title">Export and import</span>
+          <button type="button" class="btn btn-sm btn-ghost" data-io-act="import-table" data-io-target="regression" data-i18n="io_import_file">Import from file</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="regression" data-io-format="json" data-i18n="io_export_json">Export JSON</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="regression" data-io-format="xlsx" data-i18n="io_export_xlsx">Export Excel</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="regression" data-io-format="csv" data-i18n="io_export_csv">Export CSV</button>
+          <button type="button" class="btn btn-sm btn-ghost" data-io-act="import-calc" data-i18n="io_import_json">Open calculation file</button>
+        </div>
       </div>
 
       <!-- TAB: TOP-DOWN (P09) — validatsiya / sifat nazorati ma'lumotlaridan noaniqlik; mazmunni src/ui/topdown/app.js chizadi -->
       <div class="tab-panel" id="tab-topdown">
         <div id="topdown-root"></div>
+        <div class="io-bar io-bar-bottom" data-io-bar="topdown">
+          <span class="text-muted text-sm" data-i18n="io_bar_title">Export and import</span>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="topdown" data-io-format="json" data-i18n="io_export_json">Export JSON</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="topdown" data-io-format="xlsx" data-i18n="io_export_xlsx">Export Excel</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="topdown" data-io-format="csv" data-i18n="io_export_csv">Export CSV</button>
+          <button type="button" class="btn btn-sm btn-ghost" data-io-act="import-calc" data-i18n="io_import_json">Open calculation file</button>
+        </div>
       </div>
 
       <!-- TAB: MAXSUS REJIMLAR (P10) — namuna olish, sifatli test, mikrobiologiya (beta), tibbiy laboratoriya (beta); src/ui/special/app.js -->
       <div class="tab-panel" id="tab-special">
         <div id="special-root"></div>
+        <div class="io-bar io-bar-bottom" data-io-bar="special">
+          <span class="text-muted text-sm" data-i18n="io_bar_title">Export and import</span>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="special" data-io-format="json" data-i18n="io_export_json">Export JSON</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="special" data-io-format="xlsx" data-i18n="io_export_xlsx">Export Excel</button>
+          <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="special" data-io-format="csv" data-i18n="io_export_csv">Export CSV</button>
+          <button type="button" class="btn btn-sm btn-ghost" data-io-act="import-calc" data-i18n="io_import_json">Open calculation file</button>
+        </div>
       </div>
 
     </main>
@@ -870,6 +902,8 @@
 <script src="src/js/i18n-topdown.js"></script>
 <script src="src/js/i18n-special.js"></script>
 <script src="src/js/i18n-linter.js"></script>
+<script src="src/js/i18n-io.js"></script>
+<script src="src/js/i18n-report.js"></script>
 <script src="src/js/i18n-admin.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
@@ -879,10 +913,12 @@
 <script src="src/js/report.js"></script>
 <script src="src/js/app.js"></script>
 <script type="module" src="src/ui/findings/app.js"></script>
+<script type="module" src="src/ui/report/app.js"></script>
 <script type="module" src="src/ui/tpl/app.js"></script>
 <script type="module" src="src/ui/regression/app.js"></script>
 <script type="module" src="src/ui/topdown/app.js"></script>
 <script type="module" src="src/ui/special/app.js"></script>
+<script type="module" src="src/ui/io/app.js"></script>
 <script src="src/ui/index-auth.js"></script>
 
 </body>

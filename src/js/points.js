@@ -74,14 +74,8 @@ const Points = (() => {
    * Uround/resultText stored by older versions are ignored.
    */
   function summary(pts, uniformK) {
-    const items = (pts || list()).filter(p => p.result && !p.result.error);
-    const cov = Calc.multiPointCoverage(items.map(p => p.result), uniformK);
-    return items.map((p, i) => {
-      const r = p.result;
-      const { k, U, conf } = cov[i];
-      const rr = Calc.roundResult(r.y, U, r.roundUp);
-      return { id: p.id, label: p.label, r, k, U, rr, conf };
-    });
+    // P05b: qatorlar src/report/summary.js da (sof modul) — qaror qoidasi ham yagona k bilan qayta qo'llanadi
+    return Calc.summaryRows(pts || list(), uniformK);
   }
 
   return { save, load, remove, startNew, clearAll, summary, list, snapshot };
