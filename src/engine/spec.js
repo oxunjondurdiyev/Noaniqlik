@@ -6,7 +6,7 @@
      • format maydonisiz obyekt { params, measurements, … } — P00 dagi Calc.evaluate(state) bilan mos.
 ═══════════════════════════════════════════════════════════════ */
 
-export const FORMATS = ['uc-model/1', 'calc-state/v2', 'uc-regression/1', 'uc-topdown/1']; // 'uc-regression/1' — regression/index.js (P08); 'uc-topdown/1' — topdown/index.js (P09)
+export const FORMATS = ['uc-model/1', 'calc-state/v2', 'uc-regression/1', 'uc-topdown/1', 'uc-sampling/1', 'uc-qualitative/1', 'uc-micro/1', 'uc-medical/1']; // 'uc-regression/1' — regression/index.js (P08); 'uc-topdown/1' — topdown/index.js (P09)
 
 /**
  * Ichki ko'rinish = calc-state/v2 holati (+ ixtiyoriy `units`).

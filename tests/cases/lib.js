@@ -83,6 +83,12 @@ function run(c) {
     if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
     return { r, runSpec };
   }
+  if (runSpec.method === 'path') {
+    // P10: maxsus rejimlar (uc-sampling/1, uc-qualitative/1, uc-micro/1, uc-medical/1) — kattalik nomi natijadagi yo'l
+    const r = engine.evaluate(c.modelSpec);
+    if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
+    return { r, runSpec };
+  }
   if (runSpec.method === 'topdown') {
     let r;
     if (runSpec.part === 'bias') {
@@ -120,7 +126,7 @@ function checks(c) {
   const { r, runSpec } = run(c);
   const pick = runSpec.method === 'regression'
     ? new Proxy({}, { get: (_, q) => pickRegression(String(q)) })
-    : runSpec.method === 'topdown'
+    : runSpec.method === 'topdown' || runSpec.method === 'path'
       ? new Proxy({}, { get: (_, q) => pickTopDown(String(q)) })
       : PICK[runSpec.method];
   const list = [];

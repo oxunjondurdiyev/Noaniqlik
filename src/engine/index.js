@@ -28,3 +28,13 @@ export {
   evaluateRw, duplicateSd, evaluateBias, evaluateRecovery, evaluateReproducibility, levelUncertainty, fitLevelModel,
   makeContext, REFERENCE_METHODS, NU_EFF_WARN_BELOW, RW_TYPES, DUPLICATE_RELATIVE_METHODS, BIAS_TYPES, RECOVERY_CORRECTIONS, ROBUST_SD_FACTOR, MIN_PT_ROUNDS, LIMIT_FACTOR,
 } from './topdown/index.js';
+// P10: maxsus rejimlar — namuna olish, sifatli testlar, mikrobiologiya (beta), tibbiy laboratoriya (beta)
+export {
+  evaluateSampling, classicalAnova, robustAnova, SAMPLING_FORMAT, SAMPLING_METHODS, SAMPLING_WARNINGS, SAMPLING_ERRORS,
+  MIN_TARGETS, FITNESS_VARIANCE_PCT, HUBER_C, HUBER_BETA,
+} from './sampling/index.js';
+export {
+  evaluateQualitative, wilsonInterval, clopperPearsonInterval, posterior, QUALITATIVE_FORMAT, QUALITATIVE_WARNINGS, QUALITATIVE_ERRORS, SMALL_N,
+} from './qualitative/index.js';
+export { evaluateMicro, logDuplicateSd, MICRO_FORMAT, MICRO_WARNINGS, MICRO_ERRORS, LOG10_E, LOW_COUNT_DEFAULT } from './micro/index.js';
+export { evaluateMedical, MEDICAL_FORMAT, MEDICAL_WARNINGS, MEDICAL_ERRORS, FEW_IQC } from './medical/index.js';
