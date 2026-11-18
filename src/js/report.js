@@ -229,17 +229,71 @@ const Results = (() => {
     bindPoints(el);
     bindModelKind(el);
     bindDecision(el);
-    const mcBtn = el.querySelector('#btn-mc');
-    if (mcBtn) mcBtn.addEventListener('click', () => {
-      mcBtn.disabled = true;
-      mcBtn.textContent = i18n.t('mc_running');
-      setTimeout(() => {
-        const M = Number(el.querySelector('#mc-m').value) || 200000;
-        const st = appState.get();
-        // P04b: MC tanlangan chegara (r = 0 yoki r = 1) holatida
-        lastMC = Calc.monteCarlo(st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).state : st, M);
+    bindMC(el);
+  }
+
+  /* ── Monte-Karlo paneli (P06) ─────────────────────────────────────
+     Hisob Web Worker'da (window.UCMonteCarlo — src/ui/mc/); worker bo'lmasa asosiy oqimda bo'laklab. Progress va
+     bekor qilish. Sozlamalar: rejim (adaptiv — standart / qat'iy M), n_dig, interval turi, urug' (R-06). */
+  let mcUi = null;      // paneldagi tanlovlar (hisob sozlamasi settings.mc dan boshlanadi)
+  let mcJob = null;     // { cancel, info } — bajarilayotgan hisob
+  function mcDefaults() {
+    const lab = (appState.get('settings') || {}).mc || {};
+    const d = (window.Calc && Calc.MC_DEFAULTS) || {};
+    return {
+      mode: lab.mode || d.mode || 'adaptive', M: Number(lab.M) || 1000000, nDig: Number(lab.nDig) || d.nDig || 2,
+      interval: lab.interval || d.interval || 'shortest', seed: lab.seed !== undefined ? lab.seed : (d.seed !== undefined ? d.seed : Calc.MC_SEED),
+      gaussian: lab.nonNormalCorrelation === 'gaussian',
+    };
+  }
+  function mcOpts() {
+    const u = mcUi || mcDefaults();
+    const seed = /^\d+$/.test(String(u.seed).trim()) ? Number(String(u.seed).trim()) : u.seed;
+    return { mode: u.mode, M: u.M, nDig: u.nDig, interval: u.interval, seed, nonNormalCorrelation: u.gaussian ? 'gaussian' : 'refuse' };
+  }
+  function mcProgressText(info) {
+    return info ? `M = ${Number(info.M).toLocaleString()}` + (info.expected ? ` / ≈ ${Number(info.expected).toLocaleString()}` : '') : '';
+  }
+  function bindMC(el) {
+    const box = el.querySelector('[data-mc-panel]');
+    if (!box) return;
+    if (!mcUi) mcUi = mcDefaults();
+    box.querySelectorAll('[data-mc-opt]').forEach(inp => inp.addEventListener('change', () => {
+      const k = inp.dataset.mcOpt;
+      mcUi[k] = inp.type === 'checkbox' ? inp.checked : (k === 'M' || k === 'nDig' ? Number(inp.value) : inp.value.trim());
+      if (k === 'mode') box.querySelector('[data-mc-opt="M"]').disabled = mcUi.mode !== 'fixed';
+    }));
+    const runBtn = box.querySelector('#btn-mc'), cancelBtn = box.querySelector('[data-mc-cancel]');
+    if (cancelBtn) cancelBtn.addEventListener('click', () => { if (mcJob) mcJob.cancel(); });
+    if (runBtn) runBtn.addEventListener('click', () => {
+      if (mcJob) return;
+      const st = appState.get();
+      // P04b: MC tanlangan chegara (r = 0 yoki r = 1) holatida
+      const spec = st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).state : st;
+      const opts = mcOpts();
+      const done = res => {
+        mcJob = null;
+        lastMC = res && res.error === 'mc_cancelled' ? null : res;
+        if (res && res.error === 'mc_cancelled') showToast(i18n.t('mc_cancelled'), 'warning');
         render();
-      }, 30);
+      };
+      if (!window.UCMonteCarlo) {            // modul yuklanmagan (juda eski brauzer): bir chaqiruvda
+        runBtn.disabled = true;
+        runBtn.textContent = i18n.t('mc_running');
+        setTimeout(() => done(Calc.monteCarlo(spec, opts)), 30);
+        return;
+      }
+      const onProgress = info => {
+        if (!mcJob) return;
+        mcJob.info = info;
+        const bar = document.querySelector('[data-mc-progress]'), txt = document.querySelector('[data-mc-progress-text]');
+        if (bar) bar.value = Math.round((info.progress || 0) * 100);
+        if (txt) txt.textContent = mcProgressText(info);
+      };
+      const job = window.UCMonteCarlo.run(spec, opts, onProgress);
+      mcJob = { cancel: job.cancel, info: null };
+      job.promise.then(done);
+      render();
     });
   }
 
@@ -270,21 +324,53 @@ const Results = (() => {
     });
   }
 
+  function mcErrorText(mc) {
+    const key = 'mc_err_' + mc.error;
+    const txt = i18n.t(key);
+    return (txt === key ? i18n.t('mc_err_failed') + ' (' + mc.error + ')' : txt) + (mc.detail ? ': «' + mc.detail + '»' : '');
+  }
+
   function renderMC(r) {
     const mc = lastMC && !lastMC.error ? lastMC : null;
+    const err = lastMC && lastMC.error ? lastMC : null;
+    const u = mcUi || mcDefaults();
+    const sel = (v, cur) => (String(v) === String(cur) ? 'selected' : '');
+    const running = !!mcJob;
     return `
       <div class="section-title">${i18n.t('mc_title')}</div>
-      <div class="mc-row">
-        <select id="mc-m">
-          <option value="100000">M = 10⁵</option>
-          <option value="200000" selected>M = 2·10⁵</option>
-          <option value="1000000">M = 10⁶</option>
+      <div class="mc-row" data-mc-panel="1">
+        <select data-mc-opt="mode" title="${escHtml(i18n.t('mc_mode'))}" ${running ? 'disabled' : ''}>
+          <option value="adaptive" ${sel('adaptive', u.mode)}>${i18n.t('mc_mode_adaptive')}</option>
+          <option value="fixed" ${sel('fixed', u.mode)}>${i18n.t('mc_mode_fixed')}</option>
         </select>
-        <button class="btn btn-outline btn-sm" id="btn-mc">${i18n.t('mc_run')}</button>
+        <select id="mc-m" data-mc-opt="M" ${u.mode !== 'fixed' || running ? 'disabled' : ''}>
+          <option value="100000" ${sel(100000, u.M)}>M = 10⁵</option>
+          <option value="200000" ${sel(200000, u.M)}>M = 2·10⁵</option>
+          <option value="1000000" ${sel(1000000, u.M)}>M = 10⁶</option>
+          <option value="10000000" ${sel(10000000, u.M)}>M = 10⁷</option>
+        </select>
+        <select data-mc-opt="nDig" title="${escHtml(i18n.t('mc_ndig_hint'))}" ${running ? 'disabled' : ''}>
+          <option value="1" ${sel(1, u.nDig)}>n_dig = 1</option>
+          <option value="2" ${sel(2, u.nDig)}>n_dig = 2</option>
+        </select>
+        <select data-mc-opt="interval" title="${escHtml(i18n.t('mc_interval_type'))}" ${running ? 'disabled' : ''}>
+          <option value="shortest" ${sel('shortest', u.interval)}>${i18n.t('mc_int_shortest')}</option>
+          <option value="symmetric" ${sel('symmetric', u.interval)}>${i18n.t('mc_int_symmetric')}</option>
+        </select>
+        <label class="text-xs">${i18n.t('mc_seed')} <input type="text" inputmode="numeric" data-mc-opt="seed" value="${escHtml(String(u.seed))}" style="width:7.5em" autocomplete="off" ${running ? 'disabled' : ''} /></label>
+        <button class="btn btn-outline btn-sm" id="btn-mc" ${running ? 'disabled' : ''}>${i18n.t(running ? 'mc_running' : 'mc_run')}</button>
+        ${running ? `<button class="btn btn-outline btn-sm" data-mc-cancel="1">${i18n.t('mc_cancel')}</button>
+          <progress data-mc-progress="1" max="100" value="${Math.round(((mcJob.info || {}).progress || 0) * 100)}"></progress>
+          <span class="text-xs mono" data-mc-progress-text="1">${escHtml(mcProgressText(mcJob.info))}</span>` : ''}
+      </div>
+      <div class="mc-row">
+        <label class="text-xs"><input type="checkbox" data-mc-opt="gaussian" ${u.gaussian ? 'checked' : ''} ${running ? 'disabled' : ''} /> ${i18n.t('mc_gauss_approx')}</label>
         <span class="text-muted text-xs">${i18n.t('mc_hint')}</span>
       </div>
+      ${err ? `<div class="formula-box" data-mc-error="${escHtml(err.error)}" style="border-color:var(--danger)">${escHtml(mcErrorText(err))}</div>${sec().mcFindingsHtml(err)}` : ''}
       ${mc ? mcLines(r, mc).map(l => `<div class="formula-box">${l}</div>`).join('') +
-        (mc.correlated ? `<div class="text-xs text-muted">⚠ ${i18n.t('mc_corr_note')}</div>` : '') +
+        (mc.correlated ? `<div class="text-xs text-muted">${i18n.t('mc_corr_note')}</div>` : '') +
+        sec().mcFindingsHtml(mc) +
         (!mc.validated ? `<div class="text-xs text-muted">${i18n.t('mc_advice')}</div>` : '') : ''}`;
   }
 

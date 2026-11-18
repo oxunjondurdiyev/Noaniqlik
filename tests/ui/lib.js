@@ -14,7 +14,7 @@ const { loadQr } = require('../../src/io/vendor.js');
 
 const reportBridge = {
   lint: E.lint, lintReported: E.lintReported, FINDING_CODES: E.FINDING_CODES, MIN_ACCEPT_COMMENT: E.MIN_ACCEPT_COMMENT,
-  validateAcceptance: E.validateAcceptance, MODEL_KINDS: E.MODEL_KINDS, MC_SEED: E.MC_SEED,
+  validateAcceptance: E.validateAcceptance, MODEL_KINDS: E.MODEL_KINDS, MC_SEED: E.MC_SEED, MC_DEFAULTS: E.MC_DEFAULTS, MC_LIMITS: E.MC_LIMITS, DIST_PARAMS: E.DIST_PARAMS,
   findingsBlockHTML: F.findingsBlockHTML, findingsStatus: F.findingsStatus, findingText: F.findingText,
   createSections, summaryRows, buildReport: FM.buildReport, REPORT_FORMS: FM.REPORT_FORMS, DEFAULT_FORM: FM.DEFAULT_FORM, requisiteFields: FM.requisiteFields,
   footerModel: FT.footerModel, qrSvg: FT.qrSvg, cleanRequisites: RQ.cleanRequisites, splitRequisites: RQ.splitRequisites, missingRequisites: RQ.missingRequisites,

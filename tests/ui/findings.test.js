@@ -251,7 +251,10 @@ test('hisobot belgilari: ν qoidasi (floor / interpolate), MC seed va M, k = 2, 
   assert.deepEqual(keys(E.evaluate({ ...st, settings: { ...st.settings, kMethod: 'k2' } })), ['k', 'engine']);
   const mc = E.monteCarlo(st, 20000);
   marks = F.reportMarks(r, { t: c.t, mc });
-  assert.equal(marks.find(m => m.key === 'mc').text, `Monte-Karlo: M = 20000, seed = ${E.MC_SEED} (JCGM 101:2008)`);
+  // P06: interval turi, M, generator, urug', n_dig — MCM natijasi hisobotda shular bilan (JCGM 101:2008 §7.9, §8)
+  assert.equal(marks.find(m => m.key === 'mc').text, `Monte-Karlo (JCGM 101:2008): M = 20000; generator — wichmann-hill-2006; seed = ${E.MC_SEED}; n_dig = 2; interval — eng qisqa`);
+  const mcSym = E.monteCarlo(st, { mode: 'fixed', M: 20000, interval: 'symmetric', nDig: 1, seed: 5 });
+  assert.equal(F.reportMarks(r, { t: c.t, mc: mcSym }).find(m => m.key === 'mc').text, `Monte-Karlo (JCGM 101:2008): M = 20000; generator — wichmann-hill-2006; seed = 5; n_dig = 1; interval — ehtimollik bo'yicha simmetrik`);
   assert.ok(keys(E.evaluate({ format: 'uc-micro/1', result: { value: 120, sumCounts: 12 }, technical: { s: 0.1 } })).includes('beta'));
   assert.ok(keys(E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 2, n: 30 }], uCal: { value: 1, relative: true } })).includes('beta'));
   assert.ok(keys(E.evaluate({ format: 'uc-regression/1', method: 'WTLS', points: [[0, 0.1], [1, 1.9], [2, 4.2], [3, 5.8]].map(([x, y]) => ({ x, y, ux: 0.01, uy: 0.05 })) })).includes('unverified'));

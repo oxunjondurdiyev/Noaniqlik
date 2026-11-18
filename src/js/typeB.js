@@ -12,6 +12,11 @@ const TypeB = (() => {
     { value: 'triang', labelKey: 'dist_triang', cssClass: 'dist-triang' },
     { value: 'ushape', labelKey: 'dist_ushape', cssClass: 'dist-ushape' },
     { value: 'resol',  labelKey: 'dist_resol',  cssClass: 'dist-rect'   },
+    // P06 (JCGM 101:2008 §6.4.3, §6.4.4, §6.4.10; log-normal — unverified)
+    { value: 'trap',    labelKey: 'dist_trap',    cssClass: 'dist-triang' },
+    { value: 'ctrap',   labelKey: 'dist_ctrap',   cssClass: 'dist-rect'   },
+    { value: 'exp',     labelKey: 'dist_exp',     cssClass: 'dist-normal' },
+    { value: 'lognorm', labelKey: 'dist_lognorm', cssClass: 'dist-normal' },
   ];
 
   const P_OPTIONS = [
@@ -74,7 +79,7 @@ const TypeB = (() => {
     let a = 0, bad = false;
     try { a = Calc.valueOrExpr(comp.halfWidth, state.params, means || inputMeans(state)); if (!isFinite(a)) { a = 0; bad = true; } }
     catch (_) { bad = true; }
-    const std  = Calc.typeB(a, comp.distribution, comp.k);
+    const std  = Calc.typeB(a, comp.distribution, comp.k, comp);
     const mult = (comp.sensitivity === undefined || comp.sensitivity === '' || comp.sensitivity === null)
       ? 1 : Number(comp.sensitivity) || 0;
     return { std, mult, u: Math.abs(mult) * std, a, bad };
@@ -137,10 +142,21 @@ const TypeB = (() => {
 
     const distCls  = DIST_OPTIONS.find(d => d.value === dist)?.cssClass || 'dist-rect';
     const divLabel = Calc.getDivisorLabel(dist, comp.k);
-    const aLabel   = dist === 'normal' ? i18n.t('label_a_normal')
+    const withK    = dist === 'normal' || dist === 'lognorm';
+    const aLabel   = withK ? i18n.t('label_a_normal')
                    : dist === 'resol'  ? i18n.t('label_a_resol')
+                   : dist === 'exp'    ? i18n.t('label_a_exp')
                    : i18n.t('label_half_width') + ' (±a)';
-    const aSym     = dist === 'normal' ? 'U' : dist === 'resol' ? 'd' : 'a';
+    const aSym     = withK ? 'U' : dist === 'resol' ? 'd' : dist === 'exp' ? 'x' : 'a';
+    // P06: parametrli taqsimotlar — β (trapetsiya, 0…1), d (egri trapetsiya, 0 < d < a)
+    const extraField = dist === 'trap' ? 'beta' : dist === 'ctrap' ? 'd' : '';
+    const extraHtml = extraField ? `
+        <div class="form-group">
+          <label title="${escHtml(i18n.t('label_' + (extraField === 'beta' ? 'beta' : 'd_inexact') + '_hint'))}">${i18n.t(extraField === 'beta' ? 'label_beta' : 'label_d_inexact')} ⓘ</label>
+          <input type="text" inputmode="decimal" value="${escHtml(String(comp[extraField] ?? ''))}"
+            data-id="${escHtml(comp.id)}" data-field="${extraField}" autocomplete="off" />
+        </div>` : '';
+    const uFormula = dist === 'ctrap' ? '√(a²/3 + d²/9)' : `${aSym} / ${divLabel}`;
 
     return `
     <div class="typeb-card" data-id="${escHtml(comp.id)}">
@@ -172,7 +188,8 @@ const TypeB = (() => {
             ${bad ? 'style="border-color:var(--danger)"' : ''} />
           ${isExpr ? `<span class="text-xs ${bad ? '' : 'text-muted'}" style="${bad ? 'color:var(--danger)' : ''}">${bad ? i18n.t('err_bad_formula') : '= ' + Calc.fmtSci(a)}</span>` : ''}
         </div>
-        ${dist === 'normal' ? `
+        ${extraHtml}
+        ${withK ? `
         <div class="form-group">
           <label>${i18n.t('label_k_cert')}</label>
           <input type="text" inputmode="decimal" value="${escHtml(comp.kRequired && !(Number(comp.k) > 0) ? '' : String(comp.k || 2))}"
@@ -207,7 +224,7 @@ const TypeB = (() => {
         <div class="form-group">
           <label>${i18n.t('label_std_unc')}</label>
           <div class="formula-box" style="color:var(--accent)">
-            u = ${mult !== 1 ? Calc.fmtSci(Math.abs(mult)) + ' · ' : ''}${aSym} / ${divLabel} = ${Calc.fmtSci(u)}
+            u = ${mult !== 1 ? Calc.fmtSci(Math.abs(mult)) + ' · ' : ''}${uFormula} = ${Calc.fmtSci(u)}
           </div>
         </div>
       </div>
@@ -418,6 +435,9 @@ const TypeB = (() => {
     } else if (field === 'nu') {
       const n = Calc.toNum(val);
       val = isFinite(n) && n > 0 ? n : '';
+    } else if (field === 'beta' || field === 'd') {
+      const n = Calc.toNum(val);
+      val = isFinite(n) && n >= 0 ? n : '';
     }
 
     appState.updateTypeBComponent(id, { [field]: val });
@@ -446,6 +466,7 @@ const TypeB = (() => {
         need_data:    i18n.t('err_need_data') + ' ' + (result.detail || ''),
         formula_eval: i18n.t('err_formula_eval'),
         bad_halfwidth: i18n.t('err_bad_halfwidth') + ': «' + (result.detail || '') + '»',
+        bad_dist_param: i18n.t('err_bad_dist_param') + ': «' + (result.detail || '') + '»',
         bad_mpe:      i18n.t('err_bad_mpe'),
         negative_variance: i18n.t('err_negative_variance'),
         bad_correlation: i18n.t('err_bad_correlation') + (result.detail ? ': ' + result.detail.replace('|', ' ↔ ') : ''),
@@ -455,7 +476,7 @@ const TypeB = (() => {
         bad_spec:     i18n.t('err_bad_spec'),
       }[result.error] || i18n.t('toast_need_data');
       showToast(msg, 'error', 4500);
-      if (!['formula_eval', 'bad_halfwidth', 'bad_mpe', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab('data');
+      if (!['formula_eval', 'bad_halfwidth', 'bad_dist_param', 'bad_mpe', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab('data');
       return;
     }
 
