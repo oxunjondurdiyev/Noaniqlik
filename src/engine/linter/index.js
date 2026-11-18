@@ -23,11 +23,12 @@ import a02 from './rules/a02-few-observations.js';
 import a03 from './rules/a03-invalid-nu.js';
 import a04 from './rules/a04-grubbs-outlier.js';
 import m01 from './rules/m01-model-kind.js';
+import d01 from './rules/d01-decision-rule.js';
 import w01 from './rules/w01-gum-warnings.js';
 import w02 from './rules/w02-module-warnings.js';
 
 /** Barcha qoidalar (tartib — hisobotdagi tartibga ta'sir qilmaydi: topilmalar darajasi bo'yicha saralanadi). */
-export const RULES = Object.freeze([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, a01, a02, a03, a04, m01, w01, w02]);
+export const RULES = Object.freeze([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, a01, a02, a03, a04, m01, d01, w01, w02]);
 
 /** Kod → { rule, severity, ref, modes, unverified } — hujjat (docs/LINTER_RULES.md), i18n testi va UI uchun. */
 export const FINDING_CODES = Object.freeze(Object.fromEntries(RULES.flatMap(r =>

@@ -35,11 +35,11 @@ test('Node\'da ES modul sifatida: import { evaluate } from "./src/engine/index.j
   assert.equal(typeof m.evaluate, 'function');
   const r = m.evaluate(DENS.modelSpec);
   assert.ok(!r.error);
-  assert.equal(r.engineVersion, '2.4.0');
+  assert.equal(r.engineVersion, '2.5.0');
 });
 
-test('ENGINE_VERSION = 2.4.0 (semver)', () => {
-  assert.equal(E.ENGINE_VERSION, '2.4.0');
+test('ENGINE_VERSION = 2.5.0 (semver)', () => {
+  assert.equal(E.ENGINE_VERSION, '2.5.0');
 });
 
 test('natija: outputs[] (bitta element) va yuqori darajadagi maydonlar bir xil', () => {

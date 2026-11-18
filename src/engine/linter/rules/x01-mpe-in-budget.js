@@ -15,8 +15,10 @@ const norm = s => String(s).replace(/\s+/g, '').toLowerCase();
 const rule = {
   id: 'X1',
   severity: 'error',
-  // Ref: JCGM 100:2008 3.4.5, F.2.4.2; ILAC P14 va COOMET R/GM/32 docs/references da yo'q
-  ref: 'JCGM 100:2008 3.4.5, F.2.4.2; ILAC P14:09/2020 §5.4 (unverified); COOMET R/GM/32:2017 §8.3.1 (unverified)',
+  // Ref: JCGM 100:2008 3.4.5, F.2.4.2; ILAC P14:09/2020 §5.4 ("contributions that can reasonably be attributed to the
+  //      customer's device" — qisqa muddatli hissalar, MPE emas); JCGM 106:2012 §7.6.5 (MPE — talab, tolerantlik T = 2·E_max);
+  //      COOMET R/GM/32 docs/references da yo'q
+  ref: 'JCGM 100:2008 3.4.5, F.2.4.2; ILAC P14:09/2020 §5.4; JCGM 106:2012 §7.6.5; COOMET R/GM/32:2017 §8.3.1 (unverified)',
   modes: ['GUM'],
   codes: { x1_mpe_in_budget: {} },
   check(spec, result) {

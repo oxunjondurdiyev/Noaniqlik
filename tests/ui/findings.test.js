@@ -82,7 +82,7 @@ test('blok: har bir topilmada nima topildi (manba nomi va raqam) / nima uchun (m
     const why = x1.querySelector('.finding-why').textContent;
     assert.ok(why.startsWith(w.i18n.t('fnd_why') + ':'), lang);
     assert.ok(why.includes(w.i18n.t('why_x1_mpe_in_budget')), lang);
-    assert.match(why, /\[JCGM 100:2008 3\.4\.5, F\.2\.4\.2; ILAC P14:09\/2020 §5\.4 \(unverified\)/);
+    assert.match(why, /\[JCGM 100:2008 3\.4\.5, F\.2\.4\.2; ILAC P14:09\/2020 §5\.4; JCGM 106:2012 §7\.6\.5/);
     // qanday tuzatish
     assert.equal(x1.querySelector('.finding-fix').textContent, `${w.i18n.t('fnd_fix')}: ${w.i18n.t('fix_x1_mpe_in_budget')}`);
     // darajalar: error — warn-box ichida; info — alohida (ko'k)
