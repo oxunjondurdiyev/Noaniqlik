@@ -6,7 +6,7 @@ export { StorageAdapter, STORES, DATA_STORES, keyOf } from './adapter.js';
 export { LocalAdapter, DB_NAME, DB_VERSION } from './local-adapter.js';
 export { RemoteAdapter, REMOTE_ENDPOINTS } from './remote-adapter.js';
 export { makeEntry, verifyChain, GENESIS } from './audit.js';
-export { canonicalize, sha256Hex, hashOf } from './canonical.js';
+export { canonicalize, sha256Hex, hashOf, canonicalizeJcs, jcsHash, portable, fromPortable } from './canonical.js';
 export { migrateLegacy, upgradeCalcState, CALC_STATE_SCHEMA, LEGACY_KEY, BACKUP_KEY, MIGRATION_KEY, LEGACY_CALC_ID } from './migrate.js';
 export { acceptFinding, revokeAcceptance, acceptancesFromAudit, cleanRole, ACCEPT_ACTION, REVOKE_ACTION, ACCEPT_ENTITY, MIN_COMMENT, ACCEPTABLE_SEVERITIES } from './acceptance.js';
 export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js';
