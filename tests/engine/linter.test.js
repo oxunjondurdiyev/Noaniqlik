@@ -243,6 +243,13 @@ test('X7: k = 2 qat\'iy, ν_eff < 30 → x7_k2_low_dof; k = t(ν_eff) yoki ν_ef
   assert.ok(r.nuEff < 30 && r.k === 2);
   const f = find(r, 'x7_k2_low_dof');
   assert.ok(f); assert.match(f.ref, /EA-4\/02 M:2022 §5\.1, §5\.3, §5\.5/); assert.match(f.ref, /JCGM 100:2008 G\.6\.6/);
+  // Egasi qarori (2026-11-18): ν_eff < 10 → warning (JCGM 100:2008 G.6.6 "say greater than 10"); 10 ≤ ν_eff < 30 → info
+  assert.ok(r.nuEff < 10); assert.equal(f.severity, 'warning');
+  const obs15 = [10.02, 10.05, 10.01, 10.03, 10.04, 10.02, 10.06, 10.01, 10.03, 10.05, 10.02, 10.04, 10.03, 10.01, 10.05];
+  const mid = run({ measurements: { X: obs15, Xref: [10] }, typeB: [], settings: { kMethod: 'k2' } });
+  assert.ok(mid.nuEff >= 10 && mid.nuEff < 30, `ν_eff = ${mid.nuEff}`);
+  assert.equal(find(mid, 'x7_k2_low_dof').severity, 'info');
+  assert.equal(E.LINTER_THRESHOLDS.k2WarnNuEff, 10); assert.equal(E.LINTER_THRESHOLDS.k2MinNuEff, 30);
   assert.ok(!codes(run(few)).some(c => c.startsWith('x7_')));                          // kMethod = 'nu'
   assert.ok(!codes(run({ settings: { kMethod: 'k2' }, typeB: gum().typeB.map(c => ({ ...c, halfWidth: c.halfWidth * 20 })) })).some(c => c.startsWith('x7_')));
 });
