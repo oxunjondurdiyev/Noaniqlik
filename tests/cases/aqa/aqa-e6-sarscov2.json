@@ -1,0 +1,68 @@
+{
+  "id": "aqa-e6-sarscov2",
+  "title": "AQA 7.6: SARS-CoV-2 RNK ni aniqlash — klinik sezgirlik va spetsifiklik, Wilson 95 % CI",
+  "status": "verified",
+  "domain": "sifatli tahlil (tibbiy)",
+  "source": {
+    "doc": "EURACHEM/CITAC AQA:2021 (1st ed.)",
+    "section": "§7.6.3 Clinical accuracy; Table E6.1, Table E6.2; §4.4 Eq. (8)–(11)",
+    "page": "18–19, 36",
+    "note": "Kontingentlik jadvali: tp = 100, fp = 3, fn = 0, tn = 97 (Table E6.1). Spetsifiklikning quyi chegarasi: formula bo'yicha 91,55 %, manbada 91,6 % (DISCREPANCIES D-17)."
+  },
+  "modelSpec": {
+    "format": "uc-qualitative/1",
+    "table": {
+      "tp": 100,
+      "fn": 0,
+      "fp": 3,
+      "tn": 97
+    }
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "sensitivity.value": {
+      "value": 1.0,
+      "ref": "Table E6.2 (p. 36): SS = 100 %"
+    },
+    "specificity.value": {
+      "value": 0.97,
+      "ref": "Table E6.2 (p. 36): SP = 97 %"
+    },
+    "sensitivity.wilson.low": {
+      "value": 0.963,
+      "ref": "Table E6.2 (p. 36): 96.3 %"
+    },
+    "sensitivity.wilson.high": {
+      "value": 1.0,
+      "ref": "Table E6.2 (p. 36): 100 %"
+    },
+    "specificity.wilson.low": {
+      "value": 0.916,
+      "ref": "Table E6.2 (p. 36): 91.6 %"
+    },
+    "specificity.wilson.high": {
+      "value": 0.99,
+      "ref": "Table E6.2 (p. 36): 99.0 %"
+    }
+  },
+  "expectedWarnings": [
+    "qualitative_zero_false"
+  ],
+  "tolerance": {
+    "default": {
+      "abs": 0.0005
+    },
+    "sensitivity.value": {
+      "abs": 0
+    },
+    "specificity.value": {
+      "abs": 1e-12
+    },
+    "specificity.wilson.low": {
+      "abs": 0.001,
+      "reason": "Eq. (8)–(11) bo'yicha aniq qiymat 91,548 % (→ 91,5); manba 91,6 % deb yozgan (ikki marta yaxlitlash) — D-17"
+    }
+  }
+}
