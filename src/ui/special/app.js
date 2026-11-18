@@ -19,6 +19,7 @@ const toast = (m, type = 'info', ms) => window.showToast && window.showToast(m, 
 
 let state = defaults();
 const last = {}; // rejim → natija
+const lastSpec = {}; // rejim → dvigatelga berilgan kirish (P05b: JSON eksport)
 
 function load() {
   try {
@@ -84,6 +85,7 @@ function calculate() {
   const prefix = { sampling: 'sampling', qualitative: 'qualitative', micro: 'micro', medical: 'medical' }[state.mode];
   const result = bad.length ? { error: `${prefix}_bad_data`, detail: bad.map(b => t('sp_f_' + b)).join(', ') } : evaluate(spec);
   last[state.mode] = result;
+  lastSpec[state.mode] = spec;
   const el = $('sp-result');
   if (el) { el.innerHTML = resultHTML(); if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   if (result.error) toast(`${t('err_' + result.error)}${result.detail ? ' — ' + result.detail : ''}`, 'error', 6000);
@@ -144,6 +146,7 @@ function bind() {
 
 window.UCSpecial = Object.freeze({
   current: () => last[state.mode] || null,
+  currentSpec: () => (last[state.mode] ? lastSpec[state.mode] || null : null),
   getState: () => JSON.parse(JSON.stringify(state)),
   setState: s => { state = { ...defaults(), ...s }; save(); render(); },
   loadTemplate,

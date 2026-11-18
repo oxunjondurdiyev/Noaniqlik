@@ -6,21 +6,9 @@
 
 export const COLUMNS = ['x', 'ux', 'y', 'uy'];
 
-/** "0,028" → 0.028; "1 234,5" → 1234.5; "−0,5" (U+2212) → −0.5; bo'sh → null; yaroqsiz → NaN */
-export function parseNumber(v) {
-  if (v === null || v === undefined) return null;
-  if (typeof v === 'number') return v;
-  const s = String(v).replace(/[\s   ]/g, '').replace(/[−–]/g, '-').replace(',', '.');
-  if (s === '') return null;
-  return /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(s) ? Number(s) : NaN;
-}
-
-/** Matn → kataklar panjarasi. Excel — tab; aks holda nuqta-vergul; aks holda bo'sh joylar. */
-export function parseGrid(text) {
-  const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n').filter(l => l.trim() !== '');
-  const sep = lines.some(l => l.includes('\t')) ? /\t/ : lines.some(l => l.includes(';')) ? /;/ : /[  ]+/;
-  return lines.map(l => (sep.source === '\\t' ? l : l.trim()).split(sep).map(c => c.trim()));
-}
+// P05b: son va panjara tahlili — yagona umumiy modul (src/io/table-text.js); bu yerda faqat qayta eksport.
+import { parseNumber, parseGrid } from '../../io/table-text.js';
+export { parseNumber, parseGrid };
 
 /**
  * Qo'yilgan panjara → jadval qatorlari ({x, ux, y, uy} — satr ko'rinishida, o'nlik nuqta bilan).
