@@ -6,6 +6,7 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 |---|---|---|
 | `JCGM_100_2008_GUM.pdf` | JCGM 100:2008 — Guide to the expression of uncertainty in measurement (GUM) | 2008 (GUM 1995 with minor corrections) |
 | `JCGM_101_2008_GUM-S1_MonteCarlo.pdf` | JCGM 101:2008 — Supplement 1 to the GUM: Propagation of distributions using a Monte Carlo method | 2008 |
+| `JCGM_102_2011_GUM-S2_multivariate.pdf` | JCGM 102:2011 — Supplement 2 to the GUM: Extension to any number of output quantities | 2011 |
 | `JCGM_106_2012_conformity.pdf` | JCGM 106:2012 — Evaluation of measurement data: The role of measurement uncertainty in conformity assessment | 2012 |
 | `EA-4-02_M_2022.pdf` | EA-4/02 M:2022 — Evaluation of the Uncertainty of Measurement in Calibration | 2022 (Rev. 3) |
 | `EURACHEM_CITAC_QUAM_2012.pdf` | EURACHEM/CITAC Guide CG 4 — Quantifying Uncertainty in Analytical Measurement (QUAM) | 3rd ed., 2012 |
@@ -16,7 +17,6 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 | `ILAC_P14_09_2020.pdf` | ILAC-P14 — ILAC Policy for Measurement Uncertainty in Calibration | 09/2020 (© ILAC; same terms) |
 
 Kerak bo'ladigan qo'shimcha manbalar (hali yo'q):
-- JCGM 102:2011;
 - JCGM GUM-6:2020;
 - NIST Uncertainty Machine User's Manual;
 - COOMET R/GM/32:2017.
