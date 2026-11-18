@@ -1,0 +1,36 @@
+{
+ "note": "src/engine/mc/rng.js regressiya qiymatlari (IEEE 754 binary64, big-endian hex). Manba qiymati EMAS — dvigatelning o'z chiqishi; Node 22 va Chromium da bir xil (P06).",
+ "seed": 20261110,
+ "state0": [
+  2137223432,
+  1438835753,
+  190561524,
+  501095184
+ ],
+ "first5": [
+  "3fd0bba23e042fa8",
+  "3fe90a4d28075e34",
+  "3fe6581acbbfa774",
+  "3fe475f97836142e",
+  "3fe73ad4278b9d80"
+ ],
+ "first5dec": [
+  0.26145225578579323,
+  0.7825074941455967,
+  0.6982549647775458,
+  0.6394011829257857,
+  0.7259312412615344
+ ],
+ "millionth": "3fe9e8935991f522",
+ "stateAfterMillion": [
+  1333395864,
+  1273332289,
+  383754578,
+  895690447
+ ],
+ "legacy3": [
+  "3fc0ae7341c00000",
+  "3fa82fa1cb000000",
+  "3fcbb53bf0400000"
+ ]
+}
