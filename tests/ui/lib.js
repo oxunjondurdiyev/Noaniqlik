@@ -13,6 +13,7 @@ const { newMeta, metaFor } = require('../../src/io/calc-meta.js');
 const { loadQr } = require('../../src/io/vendor.js');
 
 const reportBridge = {
+  decisionPreset: E.decisionPreset,
   lint: E.lint, lintReported: E.lintReported, FINDING_CODES: E.FINDING_CODES, MIN_ACCEPT_COMMENT: E.MIN_ACCEPT_COMMENT,
   validateAcceptance: E.validateAcceptance, MODEL_KINDS: E.MODEL_KINDS, MC_SEED: E.MC_SEED,
   findingsBlockHTML: F.findingsBlockHTML, findingsStatus: F.findingsStatus, findingText: F.findingText,
