@@ -63,6 +63,19 @@
         "note": { "$ref": "#/definitions/text" }
       }
     },
+    "outputs": {
+      "$comment": "P07: qo'shimcha chiqish kattaliklari (vektor model, JCGM 102:2011 §6.2). Birinchi chiqish — measurand + model.formula; bu yerda ikkinchi va keyingilari. Mavjud shablonlarda bu maydon yo'q — ular o'zgarmagan.",
+      "type": "array", "minItems": 1, "maxItems": 20,
+      "items": {
+        "type": "object", "required": ["symbol", "formula"], "additionalProperties": false,
+        "properties": {
+          "symbol": { "$ref": "#/definitions/symbol" },
+          "name": { "$ref": "#/definitions/text" },
+          "unit": { "type": "string" },
+          "formula": { "type": "string" }
+        }
+      }
+    },
     "variants": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/variant" } },
     "defaultVariant": { "type": "string" },
     "constants": { "type": "array", "items": { "$ref": "#/definitions/constant" } },

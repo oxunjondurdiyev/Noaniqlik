@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "MV-01",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "CALIBRATION",
+  "section": "electrical",
+  "evaluationMode": "GUM_BOTTOM_UP",
+  "title": {
+    "uz": "Impedans tashkil etuvchilari: R, X va Z (bir vaqtda o'lchash, vektor natija)",
+    "ru": "Составляющие импеданса: R, X и Z (одновременное измерение, векторный результат)",
+    "en": "Impedance components: R, X and Z (simultaneous measurement, vector result)"
+  },
+  "standards": [
+    {
+      "code": "JCGM 102:2011",
+      "edition": "2011",
+      "labCount": null
+    },
+    {
+      "code": "JCGM 100:2008",
+      "edition": "2008",
+      "labCount": null
+    }
+  ],
+  "sourceNote": {
+    "uz": "Vektor model namunasi (DRAFT, raqamsiz). Model — JCGM 100:2008 H.2 va JCGM 102:2011 §9.4 (Eq. 26): R = (V/I)·cos φ, X = (V/I)·sin φ, Z = V/I. Kuzatuvlar va sertifikat qiymatlari bo'sh — laboratoriya o'zi kiritadi. Chiqishlar orasidagi korrelyatsiya va qamrov sohasi avtomatik hisoblanadi.",
+    "ru": "Пример векторной модели (DRAFT, без чисел). Модель — JCGM 100:2008 H.2 и JCGM 102:2011 §9.4 (ф. 26): R = (V/I)·cos φ, X = (V/I)·sin φ, Z = V/I. Наблюдения и значения из сертификатов пустые — их вводит лаборатория. Корреляция между выходными величинами и область охвата вычисляются автоматически.",
+    "en": "Example of a vector model (DRAFT, no numbers). Model — JCGM 100:2008 H.2 and JCGM 102:2011 §9.4 (Eq. 26): R = (V/I)·cos φ, X = (V/I)·sin φ, Z = V/I. Observations and certificate values are empty — entered by the laboratory. The correlation between the outputs and the coverage region are computed automatically."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#12-vektor-model-bir-nechta-chiqish-p07",
+  "measurand": {
+    "symbol": "R",
+    "name": {
+      "uz": "Qarshilik R",
+      "ru": "Сопротивление R",
+      "en": "Resistance R"
+    },
+    "unit": "Ω"
+  },
+  "model": {
+    "formula": "R = V / I * cos(phi)"
+  },
+  "outputs": [
+    {
+      "symbol": "X",
+      "name": {
+        "uz": "Reaktivlik X",
+        "ru": "Реактивное сопротивление X",
+        "en": "Reactance X"
+      },
+      "unit": "Ω",
+      "formula": "X = V / I * sin(phi)"
+    },
+    {
+      "symbol": "Z",
+      "name": {
+        "uz": "To'liq qarshilik (impedans moduli) Z",
+        "ru": "Полное сопротивление (модуль импеданса) Z",
+        "en": "Impedance magnitude Z"
+      },
+      "unit": "Ω",
+      "formula": "Z = V / I"
+    }
+  ],
+  "inputs": [
+    {
+      "symbol": "V",
+      "name": {
+        "uz": "Kuchlanish amplitudasi V",
+        "ru": "Амплитуда напряжения V",
+        "en": "Voltage amplitude V"
+      },
+      "unit": "V",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": false
+      },
+      "hint": {
+        "uz": "Bir vaqtda olingan (juftlangan) kuzatuvlar: har bir qatorda V, I va φ bitta o'lchashdan. Kirishlar orasidagi korrelyatsiya kuzatuvlardan hisoblanadi (GUM 5.2.3).",
+        "ru": "Одновременные (парные) наблюдения: в каждой строке V, I и φ из одного измерения. Корреляция между входными величинами вычисляется по наблюдениям (GUM 5.2.3).",
+        "en": "Simultaneous (paired) observations: each row holds V, I and φ from one measurement. The correlation between the inputs is evaluated from the observations (GUM 5.2.3)."
+      }
+    },
+    {
+      "symbol": "I",
+      "name": {
+        "uz": "Tok amplitudasi I",
+        "ru": "Амплитуда тока I",
+        "en": "Current amplitude I"
+      },
+      "unit": "A",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": false
+      },
+      "hint": {
+        "uz": "Bir vaqtda olingan (juftlangan) kuzatuvlar: har bir qatorda V, I va φ bitta o'lchashdan. Kirishlar orasidagi korrelyatsiya kuzatuvlardan hisoblanadi (GUM 5.2.3).",
+        "ru": "Одновременные (парные) наблюдения: в каждой строке V, I и φ из одного измерения. Корреляция между входными величинами вычисляется по наблюдениям (GUM 5.2.3).",
+        "en": "Simultaneous (paired) observations: each row holds V, I and φ from one measurement. The correlation between the inputs is evaluated from the observations (GUM 5.2.3)."
+      }
+    },
+    {
+      "symbol": "phi",
+      "name": {
+        "uz": "Faza burchagi φ",
+        "ru": "Фазовый угол φ",
+        "en": "Phase angle φ"
+      },
+      "unit": "rad",
+      "kind": "observation",
+      "typeA": {
+        "method": 1,
+        "pooledAllowed": false
+      },
+      "hint": {
+        "uz": "Bir vaqtda olingan (juftlangan) kuzatuvlar: har bir qatorda V, I va φ bitta o'lchashdan. Kirishlar orasidagi korrelyatsiya kuzatuvlardan hisoblanadi (GUM 5.2.3).",
+        "ru": "Одновременные (парные) наблюдения: в каждой строке V, I и φ из одного измерения. Корреляция между входными величинами вычисляется по наблюдениям (GUM 5.2.3).",
+        "en": "Simultaneous (paired) observations: each row holds V, I and φ from one measurement. The correlation between the inputs is evaluated from the observations (GUM 5.2.3)."
+      }
+    }
+  ],
+  "typeBSources": [
+    {
+      "id": "V_cert",
+      "input": "V",
+      "name": {
+        "uz": "Voltmetr: kalibrlash sertifikati",
+        "ru": "Вольтметр: сертификат калибровки",
+        "en": "Voltmeter: calibration certificate"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "V",
+      "correlated": false,
+      "hint": {
+        "uz": "Asbobning kalibrlash sertifikatidagi kengaytirilgan noaniqlik U va qamrov koeffitsiyenti k. Qiymat shablonda yo'q — laboratoriya o'z sertifikatidan kiritadi.",
+        "ru": "Расширенная неопределённость U и коэффициент охвата k из сертификата калибровки прибора. Значения в шаблоне нет — лаборатория вводит его из своего сертификата.",
+        "en": "Expanded uncertainty U and coverage factor k from the instrument's calibration certificate. No value in the template — the laboratory enters it from its own certificate."
+      }
+    },
+    {
+      "id": "I_cert",
+      "input": "I",
+      "name": {
+        "uz": "Ampermetr: kalibrlash sertifikati",
+        "ru": "Амперметр: сертификат калибровки",
+        "en": "Ammeter: calibration certificate"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "A",
+      "correlated": false,
+      "hint": {
+        "uz": "Asbobning kalibrlash sertifikatidagi kengaytirilgan noaniqlik U va qamrov koeffitsiyenti k. Qiymat shablonda yo'q — laboratoriya o'z sertifikatidan kiritadi.",
+        "ru": "Расширенная неопределённость U и коэффициент охвата k из сертификата калибровки прибора. Значения в шаблоне нет — лаборатория вводит его из своего сертификата.",
+        "en": "Expanded uncertainty U and coverage factor k from the instrument's calibration certificate. No value in the template — the laboratory enters it from its own certificate."
+      }
+    },
+    {
+      "id": "phi_cert",
+      "input": "phi",
+      "name": {
+        "uz": "Faza o'lchagich: kalibrlash sertifikati",
+        "ru": "Фазометр: сертификат калибровки",
+        "en": "Phase meter: calibration certificate"
+      },
+      "kind": "certificate",
+      "distribution": "normal",
+      "halfWidth": null,
+      "k": null,
+      "unit": "rad",
+      "correlated": false,
+      "hint": {
+        "uz": "Asbobning kalibrlash sertifikatidagi kengaytirilgan noaniqlik U va qamrov koeffitsiyenti k. Qiymat shablonda yo'q — laboratoriya o'z sertifikatidan kiritadi.",
+        "ru": "Расширенная неопределённость U и коэффициент охвата k из сертификата калибровки прибора. Значения в шаблоне нет — лаборатория вводит его из своего сертификата.",
+        "en": "Expanded uncertainty U and coverage factor k from the instrument's calibration certificate. No value in the template — the laboratory enters it from its own certificate."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "calibration_certificate"
+  }
+}

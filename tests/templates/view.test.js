@@ -21,7 +21,7 @@ const frag = html => JSDOM.fragment(html);
 test('katalog: 5 bo\'lim (qurilish, oziq-ovqat/kimyo, elektr, kalibrlash, umumiy — P10 dan), 44 karta (35 + P08 R-01 + P09 TD-01…TD-04 + P10 SP-01…SP-04)', () => {
   const f = frag(V.catalogHTML(entries, '', ctx('uz')));
   assert.deepEqual([...f.querySelectorAll('[data-section]')].map(s => s.dataset.section), ['construction', 'food_chem', 'electrical', 'calibration', 'general']);
-  assert.equal(f.querySelectorAll('.tpl-card').length, 44);
+  assert.equal(f.querySelectorAll('.tpl-card').length, 45);   // + P07 MV-01 (vektor model)
   assert.match(f.textContent, /Qurilish materiallari va metallar/);
   assert.match(frag(V.catalogHTML(entries, '', ctx('ru'))).textContent, /Электробезопасность/);
 });
