@@ -18,7 +18,7 @@ export const REGRESSION_METHODS = ['OLS', 'WLS', 'WTLS', 'GLS'];
 export const PARAM_NAMES = ['a', 'b', 'c', 'd'];
 
 /* Ogohlantirishlar: { code, severity, ref } — P05 da linter qoidalariga ko'chiriladi. */
-const WARN = {
+export const REGRESSION_WARNINGS = {
   regression_chi2_fail: { severity: 'warning', ref: 'χ² testi (P = 0,95), ν = m − n; ISO/TS 28037:2010 §6.3 (repoda yo\'q, tekshirilmagan); kvantil — Abramowitz & Stegun 26.4' },
   regression_chi2_na: { severity: 'info', ref: 'JCGM 100:2008 H.3.2 Eq. (H.13f) — s² qoldiqlardan; H.3.3 — rasmiy test ko\'rilmagan' },
   regression_posterior_scale: { severity: 'info', ref: 'EURACHEM/CITAC QUAM:2012 E.4.3 Eq. (E3.4) — S² = Σw(y − y_f)²/(n − 2)' },
@@ -69,7 +69,7 @@ export function evaluateRegression(spec) {
   const theta = x.map(v => v - xRef);
   const nu = m - nParam;
   const warnings = [];
-  const warn = (code, extra) => warnings.push({ code, ...WARN[code], ...(extra || {}) });
+  const warn = (code, extra) => warnings.push({ code, ...REGRESSION_WARNINGS[code], ...(extra || {}) });
 
   // ── Moslash ─────────────────────────────────────────────
   let fit, priorAvailable = true, unweighted = false, commonUy = null;

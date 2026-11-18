@@ -3,5 +3,7 @@
    1.0.0 — P00/P01 (src/js/calc.js); 2.0.0 — P03 (src/engine/, ENGINE_API.md);
    2.1.0 — P08 (src/engine/regression/, format 'uc-regression/1'; bir o'lchamli GUM natijalari o'zgarmagan);
    2.2.0 — P09 (src/engine/topdown/, format 'uc-topdown/1'; GUM va regressiya natijalari o'zgarmagan);
-   2.3.0 — P10 (sampling/, qualitative/, micro/ (beta), medical/ (beta); mavjud rejimlar natijalari o'zgarmagan). */
-export const ENGINE_VERSION = '2.3.0';
+   2.3.0 — P10 (sampling/, qualitative/, micro/ (beta), medical/ (beta); mavjud rejimlar natijalari o'zgarmagan);
+   2.4.0 — P05a (linter/: result.findings; model turi — settings.modelKind, result.modelKind / deviation;
+           y, u_c, ν_eff, k, U o'zgarmagan. Model turi ko'rsatilmagan hisobda muvofiqlik bayonoti berilmaydi — R-07). */
+export const ENGINE_VERSION = '2.4.0';

@@ -10,7 +10,8 @@ import { typeA, typeAx, correlation } from './typeA.js';
 import { typeB, valueOrExpr } from './typeB.js';
 import { coverage, DEFAULT_NU_RULE } from './coverage.js';
 import { sensitivities, higherDerivatives, secondOrderTerms } from './sensitivity.js';
-import { conformity } from './conformity.js';
+import { conformity, pendingConformity, MODEL_KINDS } from './conformity.js';
+import { lint } from './linter/index.js';
 import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
 import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
@@ -44,6 +45,14 @@ export function prepareModel(state) {
  * @returns {object} result (docs/ENGINE_API.md) yoki { error: code, detail }
  */
 export function evaluate(spec) {
+  const result = evaluateCore(spec);
+  // P05a: metrologik linter — hisobni o'zgartirmaydi, faqat result.findings ni to'ldiradi (docs/LINTER_RULES.md).
+  // result.warnings — eski maydon, bir versiya davomida moslik uchun qoladi (deprecated, 2.4.0).
+  if (result && !result.error) result.findings = lint(spec, result);
+  return result;
+}
+
+function evaluateCore(spec) {
   // P08: REGRESSION rejimi alohida format bilan — bir o'lchamli GUM yo'li o'zgarmagan
   if (spec && spec.format === REGRESSION_FORMAT) return evaluateRegression(spec);
   if (spec && spec.format === TOPDOWN_FORMAT) return evaluateTopDown(spec); // P09
@@ -248,12 +257,19 @@ export function evaluate(spec) {
   }
 
   // Muvofiqlik, keltirilgan xato, CMC. MPE byudjetga KIRMAYDI (CLAUDE.md)
+  // Model turi (RISKS R-07, P05a): natija — ko'rsatish xatosi E = X − X_ref ('error') yoki kattalik qiymati Y
+  // nominal bilan ('value'). Ko'rsatilmagan ('unknown') bo'lsa |y| xato deb FARAZ QILINMAYDI — muvofiqlik
+  // bayonoti berilmaydi (conf.pending), foydalanuvchidan tanlov so'raladi. y, u_c, k, U ga ta'sir yo'q.
+  const modelKind = MODEL_KINDS.includes(settings.modelKind) ? settings.modelKind : 'unknown';
+  const nominal = toNum(settings.nominal);
+  // deviation — MPE bilan solishtiriladigan og'ish: E ('error') yoki Y − Y_nom ('value'); aks holda null
+  const deviation = modelKind === 'error' ? y : (modelKind === 'value' && isFinite(nominal) ? y - nominal : null);
   let conf = null;
   if (!isBlank(settings.mpe)) {
     let mpe;
     try { mpe = Math.abs(valueOrExpr(settings.mpe, params, means)); }
     catch (_) { return { error: 'bad_mpe' }; }
-    conf = conformity(y, U, mpe);
+    conf = deviation !== null ? conformity(deviation, U, mpe) : pendingConformity(U, mpe, modelKind === 'value' ? 'nominal' : 'model_kind');
   }
   const range = toNum(settings.range);
   const gamma = isFinite(range) && range > 0 ? Math.abs(y) / range * 100 : null;
@@ -306,6 +322,7 @@ export function evaluate(spec) {
     roundUp: settings.rounding === 'up', rounding: settings.rounding === 'up' ? 'up' : 'normal',
     inputs: inputs.map(({ rowVals, deviations, values, warnings: w, ...rest }) => rest),
     pairs, budget, verify, conf, gamma, warnings, notes, units, secondOrder, cmc: isFinite(cmc) ? cmc : null,
+    modelKind, nominal: modelKind === 'value' && isFinite(nominal) ? nominal : null, deviation,
     y, mean: y, uc2, uc, ucNoCorr, uc2FirstOrder: Math.max(0, uc2First),
     corrEffectPct: ucNoCorr > 0 ? (uc - ucNoCorr) / ucNoCorr * 100 : 0,
     nuEff, k, U, coverage: coverageInfo,

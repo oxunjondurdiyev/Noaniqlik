@@ -30,7 +30,10 @@ test('evaluate() uc-topdown/1 formatini evaluateTopDown ga uzatadi; natija yaxli
   assert.equal(r.U, 2 * r.uc);
   assert.equal(r.uc, Math.sqrt(2.6 ** 2 + 4.3 ** 2 + 2.6 ** 2 / 19 + 1.2 ** 2)); // yaxlitlash yo'q
   assert.ok(E.FORMATS.includes('uc-topdown/1'));
-  assert.deepEqual(E.evaluateTopDown(base()), r);
+  // P05a: evaluate() natijaga faqat `findings` ni qo'shadi (linter); qolgan maydonlar evaluateTopDown() bilan aynan bir xil
+  const { findings, ...rest } = r;
+  assert.deepEqual(E.evaluateTopDown(base()), rest);
+  assert.ok(Array.isArray(findings));
 });
 
 test('byudjet: ulushlar yig\'indisi 100 %, har bir qatorda u va dispersiya', () => {

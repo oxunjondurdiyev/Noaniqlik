@@ -10,7 +10,7 @@ export { normalize, toModel, FORMATS } from './spec.js';
 export { typeA, typeAx, correlation } from './typeA.js';
 export { typeB, getDivisor, getDivisorLabel, DIVISORS, valueOrExpr } from './typeB.js';
 export { coverage, coverageFactor, NU_RULES, DEFAULT_NU_RULE } from './coverage.js';
-export { conformity, multiPointCoverage } from './conformity.js';
+export { conformity, pendingConformity, multiPointCoverage, MODEL_KINDS } from './conformity.js';
 export { splitFormula, tokenize, parse, compile, compileAst, derivative, toText } from './parser.js';
 export { sensitivities, numericDerivative, higherDerivatives, secondOrderVariance, secondOrderTerms } from './sensitivity.js';
 export { normalQuantile, normalCdf, tQuantile, tCoverage, tTail2, lgamma, lbeta, ibeta } from './special.js';
@@ -18,7 +18,7 @@ export { parseUnit, convert, analyzeDimensions, dimText } from './units.js';
 export { toNum, isBlank, pairKey } from './util.js';
 // P08: regressiya va kalibrlash egri chiziqlari (format 'uc-regression/1')
 export {
-  evaluateRegression, REGRESSION_FORMAT, REGRESSION_METHODS, PARAM_NAMES,
+  evaluateRegression, REGRESSION_FORMAT, REGRESSION_METHODS, REGRESSION_WARNINGS, PARAM_NAMES,
   fitPolynomial, fitWtls, predict, inversePredict, uRangeFunction, uRangeAt, URANGE_MODES,
   chi2Cdf, chi2Quantile, gammaP,
 } from './regression/index.js';
@@ -38,3 +38,9 @@ export {
 } from './qualitative/index.js';
 export { evaluateMicro, logDuplicateSd, MICRO_FORMAT, MICRO_WARNINGS, MICRO_ERRORS, LOG10_E, LOW_COUNT_DEFAULT } from './micro/index.js';
 export { evaluateMedical, MEDICAL_FORMAT, MEDICAL_WARNINGS, MEDICAL_ERRORS, FEW_IQC } from './medical/index.js';
+// P05a: metrologik linter (docs/LINTER_RULES.md) — evaluate() natijasiga result.findings ni yozadi
+export {
+  lint, lintReported, RULES as LINTER_RULES, FINDING_CODES, SEVERITIES, LINTER_MODES, LINTER_THRESHOLDS, linterModeOf,
+  withAcceptances, reportStatus, validateAcceptance, MIN_ACCEPT_COMMENT,
+  grubbsCritical, grubbsStatistic, significantDigits, decimalPlaces,
+} from './linter/index.js';
