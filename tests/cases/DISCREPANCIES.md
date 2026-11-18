@@ -12,6 +12,8 @@ Bu faylda uch turdagi farqlar qayd etilgan:
 
 P01 dagi dvigatel: `src/js/calc.js`, `ENGINE_VERSION` 1.0.0. Hech bir farq **hisobotda ko'rinadigan (yaxlitlangan) natijani o'zgartirmaydi**: 9 ta Excel nuqtasining `expectedDisplay` qiymatlari (U va y) hammasi mos keladi.
 
+> **P07b holati (2026-11-18, ENGINE_VERSION 2.9.0):** yangi D-21 (JCGM 102 §9.5.2.6 — C_x elementidagi bosma xato). §9.3 MCM, §9.5, §7.7.4 misollari — farqsiz.
+>
 > **P07 holati (2026-11-18, ENGINE_VERSION 2.7.0):** Q-6 — **yopildi** (ko'p o'lchovli t, JCGM 102:2011 §5.3.2); yangi D-19 (§6.5.2.3 to'g'ri burchakli soha yuzi), D-20 (§9.4 MCM, Table 11). JCGM 100 H.2 vektor misolida `u.X` — avvalgi D-05.
 
 ## A. Dvigatel ↔ manba (todo-testlar)

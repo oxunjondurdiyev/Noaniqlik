@@ -35,7 +35,7 @@
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
 | R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; qoldiq — Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06, P07 → P13 |
-| R-24 | Ko'p o'zgaruvchili modellar (P07): qilinmagan qismlar (oshkormas model, eng kichik qamrov sohasi, `atan2`) va egasi tasdig'ini kutayotgan loyiha qarorlari | O | P07 → egasi qarori |
+| R-24 | Ko'p o'zgaruvchili modellar: P07b da oshkormas model, `atan2`, eng kichik soha (m = 2), shablon muharririda `outputs` bajarildi; qoldiq — oshkormas model uchun MCM va UI, m > 2 da eng kichik soha, ko'p chiqish + ko'p nuqta; loyiha qarorlari egasi tasdig'ini kutadi | O | P07, P07b → egasi qarori |
 | R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); ochiq — tekshirilmagan manbalar (ISO/IEC 17025 §6.4–6.5, §7.7.1; NIST e-Handbook; Westgard — egasi PDF qo'shadi) | O | P11 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
@@ -291,7 +291,30 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 
 **P07 da topilgan, P06 ga ham tegishli (P13 ga):** Monte-Karlo natijasi **JS dvigateli versiyalari orasida bit darajasida bir xil emas**. O'lchov (2026-11-18): Node 22 va Chromium 157 da `Math.sin`, `cos`, `log`, `exp`, `atan`, `tan` ayrim argumentlarda oxirgi ikkilik xonada farq qiladi (`sqrt` va arifmetika — bir xil). Oqibat: R(0, 1) ketma-ketligi bir xil (faqat arifmetika), lekin Gauss kirishli (Box–Muller: ln, sin, cos) yoki trigonometrik modelli MCM natijalari ≈ 10⁻¹⁶ nisbiy (kvantillarda ≈ 10⁻¹²) farq qiladi — `jcgm101-9-2-2-mcm`, `jcgm102-9-2-2-mcm`, `jcgm102-9-4-mcm` da kuzatildi; `excel-gas-p2` (t va to'g'ri burchakli kirishlar) — aynan bir xil. Metrologik ahamiyati yo'q (yaxlitlangan natija o'zgarmaydi), lekin "bit darajasida takrorlanadi" da'vosi faqat **bir xil dvigatel versiyasi** ichida to'g'ri; `uc-calc/1` da MCM natijasini boshqa brauzerda qayta hisoblash "aynan bir xil emas" deb ko'rsatishi mumkin. **Variantlar (egasi qarori, P13):** (a) hozirgidek qoldirish, da'voni "bir xil muhitda" deb aniqlashtirish, qayta hisobda MCM uchun nisbiy tolerans (masalan 10⁻⁹); (b) ln / sin / cos ni dvigatelda o'z kodi bilan (faqat arifmetika, to'g'ri yaxlitlangan emas, lekin deterministik) — MCM raqamlari yana o'zgaradi, ENGINE major / minor. Vektor MCM modulli worker'da `script-src 'self'` ostida ishlashi Chromium 157 da tekshirildi (M = 2·10⁵, m = 3: ≈ 0,5 s, konsolda xato yo'q).
 
-**Egasi tasdig'ini kutayotgan loyiha qarorlari:**
+**P07b natijasi (2026-11-18, `feat/p07b-multivariate-rest`, ENGINE 2.9.0).** Yuqoridagi jadvaldan **yopildi:** #1 oshkormas model (§6.3; §9.5 — Table 12–16 verified; §6.3.2 — oshkor yechim bilan tenglik), #2 eng kichik qamrov sohasi — **faqat m = 2** (§7.7.4 misoli verified), #3 `atan2` (§9.3 MCM, Table 6–7 verified); #5 ning yarmi — shablon muharririda `outputs`. Chromium da (mehmon yo'li) shablon muharriri sinab ko'rildi.
+
+**P07b dan keyin qolgan (qilinmagan):**
+
+| # | Nima | Sabab / oqibat |
+|---|---|---|
+| a | Oshkormas model uchun Monte-Karlo | har bir sinovda Nyuton yechimi kerak; `monteCarlo()` aniq xato qaytaradi (`implicit_mc_unsupported`) — GUM natijasi amal qiladi, §8 tekshiruvi yo'q |
+| b | Oshkormas modelni UI da kiritish shakli | `state.implicit` faqat hisob fayli (`uc-calc/1`), `uc-model/1` yoki API orqali; natija sahifasi va hisobot ishlaydi. Kirishlar ro'yxati yoki oshkor formula o'zgarsa `implicit` bekor bo'ladi (jimgina eski tenglama ishlatilmasin) |
+| c | Oshkormas modelda 2-tartibli hadlar va o'lchamlik tahlili | chiziqli ekvivalent orqali hisoblanadi — diagnostika yo'q (`notes: implicit_model`) |
+| d | Eng kichik qamrov sohasi m > 2 | §7.7.4 Note 4: juda katta M talab qiladi; faqat ellipsoid va to'g'ri burchakli soha |
+| e | Ko'p chiqish + ko'p nuqta | vektor natijada "nuqtalar" paneli yo'q; yagona k qoidasi (COOMET) vektor natijaga qanday qo'llanishi — metrologik qaror kerak |
+| f | Bosma hisobot brauzerda qo'lda ko'rilmagan | jsdom testlari bor |
+
+**P07b: egasi tasdig'ini kutayotgan loyiha qarorlari (PR "Egasidan qaror kerak"):**
+
+1. **Nyuton yaqinlashish mezoni:** hozir — nisbiy qadam ≤ 10⁻¹² (s_j = max(|y_j|, |start_j|)) **yoki** turg'unlik (qadam yaxlitlash darajasida, ≤ 10⁻⁸ nisbiy, kichraymayapti); iteratsiya chegarasi 50. Muqobillar: qadam ≤ κ·u(y_j) (masalan κ = 10⁻⁶ — noaniqlikka nisbatan); qoldiq |h| bo'yicha.
+2. **Singularlik chegarasi:** LU bosh elementi < 10⁻¹³·max|C_y|.
+3. **U_y ni hisoblash yo'li:** LU bilan C = C_y⁻¹C_x, so'ng C·U_x·Cᵀ. Manba (§6.3.1.5) sonli barqarorlik uchun Annex B (ortogonal faktorizatsiya) ni tavsiya qiladi — kichik, yaxshi shartlangan masalalarda farq yo'q (§9.5.3 da 65 qiymat mos).
+4. **Boshlang'ich yaqinlashuv majburiy** (standart qiymat yo'q).
+5. **Eng kichik soha:** standart to'r 100 × 100 (M dan qat'i nazar); teng kataklar tartibi — indeks bo'yicha; chegaralovchi to'rtburchak — nuqtalarning min … max; har bir ikki chiqishli MCM da hisoblanadi.
+6. **§9.3 MCM testlari M = 3·10⁶ da** (manba 10⁷) — test vaqti uchun; tolerans shu M dagi o'lchangan tarqoqlikdan.
+7. **`outputs` qulflanadigan bo'limlar ro'yxatiga qo'shildi** (APPROVED shablonda o'zgartirish — faqat yangi versiya orqali).
+
+**Egasi tasdig'ini kutayotgan loyiha qarorlari (P07):**
 
 1. **MV1 chegarasi** |r| > 0,5 → info (`docs/LINTER_RULES.md` §4 #24). JCGM 102 da son yo'q.
 2. **Korrelyatsiya koeffitsiyentini ko'rsatish:** 3 o'nlik xona; |r| > 0,99 da qo'shimcha "1 − |r|" (JCGM 102 Table 11 dagi kabi). ILAC P14 r uchun qoida bermaydi.

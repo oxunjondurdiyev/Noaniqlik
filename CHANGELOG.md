@@ -4,6 +4,27 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-18)
+
+**ENGINE_VERSION: 2.8.0 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi 2.7.0 (`ada88d9`) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.
+
+### Qo'shilganlar
+
+- **Oshkor bo'lmagan model h(Y, X) = 0** (`src/engine/multivariate/implicit.js`; JCGM 102:2011 §6.3): `state.implicit = { unknowns: [{ name, start, unit }], equations: [...] }`. y — Nyuton usuli bilan (Eq. (7)); C_y, C_x — simvolik hosilalar; U_y — Eq. (8) (C_y·C = C_x sistemasi LU bilan yechiladi, so'ng lokal chiziqli ekvivalent model mavjud oshkor yo'ldan o'tadi — byudjet, ν_eff, k, U, qamrov sohasi aynan oshkor modeldagidek). Bitta noma'lum — bir o'lchovli natija, bir nechta — `mode: 'MULTIVARIATE'`; ikkalasida `implicit: { iterations, residual, criterion, lastStep, Cy, Cx, sensitivity }`. Xatolar: `implicit_no_convergence`, `implicit_singular` (C_y singular — §6.3.1.3 Note 1), `implicit_bad_spec`, `implicit_bad_equation`, `implicit_bad_start` (boshlang'ich yaqinlashuv majburiy), `implicit_name_clash`. Monte-Karlo — `implicit_mc_unsupported` (jimgina chiziqlashtirilmaydi).
+- **`atan2(y; x)`** formula tahlilchisida (ajratuvchi `;` yoki `,`), simvolik hosila (v·u′ − u·v′)/(u² + v²), o'lchamlik tekshiruvi. Shablon formulalarida ham ishlaydi.
+- **Eng kichik qamrov sohasi** (§7.7.4, a–g) — ikki chiqishli MCM natijasida `coverageRegion.smallest = { mesh, bounds, cells, area, count, fraction, rows }`; to'r standart 100 × 100 (`smallestMesh`: 10…500, 0 — o'chirish). Hisobotda yuz, to'r, qamragan nuqtalar ulushi va grafikda bo'yalgan soha.
+- **Shablon muharriri:** qo'shimcha chiqishlar (`outputs`) jadvali — qo'shish, tahrirlash, o'chirish; tekshiruv (belgi takrori, kirish belgisi bilan to'qnashuv, formula tahlili, chap tomon ↔ belgi); `outputs` APPROVED shablonda qulflanadi (`DEFAULT_LOCKED`). Uch tilda.
+- **Hisob fayli:** `uc-calc/1` va `uc-model/1` da `implicit` maydoni (eksport → import → qayta hisob bit darajasida bir xil).
+
+### Test misollari (verified, sahifa / jadval havolasi bilan)
+
+- §9.3 MCM qatorlari (Table 6, 7 — 44–45-betlar): 6 ta misol × 5 qiymat = 30 qiymatning hammasi tolerans ichida (½ oxirgi xona + 2·√2·s, s — o'lchangan; M = 3·10⁶, manbada 10⁷).
+- §9.5.2 (56-bet): θ̂ = 20,0232 °C, u = 0,0045 °C, c_y = 0,389; §9.5.3 (Table 15, 16 — 57-bet): 10 baho + 10 noaniqlik + 45 korrelyatsiya koeffitsiyenti — hammasi oxirgi xonaning yarmi ichida.
+- §7.7.4 misoli (31-bet): 100 × 100 to'r, M = 10⁶ — yuz 9,35 (manba 9,4), 950 0xx nuqta (manba 950 074).
+- §6.3.2 Example 1, 2: manbada raqam yo'q — oshkor va oshkormas yondashuv natijalari tengligi bilan tekshirilgan.
+- Farq: **D-21** — §9.5.2.6 da C_x ning uchinchi elementi "4.01 Ω°C²" deb bosilgan (4,01·10⁴ bo'lishi kerak; yakuniy natija mos).
+- Jami: 90 verified, 2 unverified.
+
 ## [2.8.0] — P11: etalonlar reestri, drift, CMC jadvali, QC kartalari, kalibrlash intervali (2026-11-18)
 
 **ENGINE_VERSION: 2.7.0 → 2.8.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` natijasi 2.7.0 (`ada88d9`) bilan **bit darajasida bir xil** (`engineVersion` dan tashqari; nazorat skripti bilan solishtirildi); 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi. Yangi maydonlar (`typeB[].registry`, `typeB[].drift`, `settings.cmcRow` / `cmcRows` / `cmcX`, `settings.measurementDate`) ishlatilmagan hisobda natijaga hech qanday yangi kalit qo'shilmaydi.

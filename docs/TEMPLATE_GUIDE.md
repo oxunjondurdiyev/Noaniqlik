@@ -293,3 +293,7 @@ Bir o'lchashdan bir nechta kattalik olinsa (masalan R, X, Z — JCGM 100 H.2), s
 - Hisobotda: har bir chiqish alohida qator (y, u, k, U), korrelyatsiya matritsasi va qamrov sohasi (ellipsoid k_p, to'g'ri burchakli k_q).
 - MPE va qaror qoidasi vektor hisobda umumiy sozlamadan olinmaydi (ENGINE_API §13.1).
 - `outputs` siz shablonlar — o'zgarmagan. Namuna: `templates/builtin/MV-01.json` (DRAFT, raqamsiz). Shablon muharririda `outputs` maydoni hali yo'q — JSON orqali.
+
+### 12.1. Muharrirda qo'shimcha chiqishlar (P07b)
+
+Shablon muharririda (GUM rejimi) "Qo'shimcha chiqish kattaliklari" jadvali bor: har bir qator — belgi, birlik, formula va nom. "Chiqish qo'shish" band bo'lmagan belgi bilan (`y2`, `y3` …) bo'sh qator ochadi; belgi o'zgarsa formulaning chap tomoni ham yangilanadi; oxirgi qator o'chirilsa `outputs` maydoni olib tashlanadi. Tekshiruv (`checkTemplate`): belgi takrorlanmasligi va kirish / konstanta belgisi bilan to'qnashmasligi, formula tahlil qilinishi va faqat ma'lum belgilardan iborat bo'lishi, formulaning chap tomoni belgiga mos kelishi. APPROVED shablonda `outputs` qulflangan — o'zgartirish faqat yangi versiya orqali. Formulalarda `atan2(y; x)` ishlatish mumkin (masalan, faza). Raqamlar (kuzatuv, yarim kenglik) avvalgidek qo'shilmaydi.
