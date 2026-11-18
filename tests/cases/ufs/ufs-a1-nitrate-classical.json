@@ -1,0 +1,151 @@
+{
+  "id": "ufs-a1-nitrate-classical",
+  "title": "UfS A1: issiqxona salatida nitrat — dublikat usuli, klassik ichma-ich ANOVA",
+  "status": "verified",
+  "domain": "namuna olish (oziq-ovqat)",
+  "source": {
+    "doc": "EURACHEM/CITAC UfS:2019 (2nd ed.)",
+    "section": "Example A1: Table A1.1, Figure A1.2 (CLASSICAL ANOVA RESULTS)",
+    "page": "40–41",
+    "note": "8 ob'ekt × 2 namuna × 2 tahlil (Table A1.1, p. 40). Manba klassik natijalarni to'liq aniqlikda beradi."
+  },
+  "modelSpec": {
+    "format": "uc-sampling/1",
+    "method": "classical",
+    "unit": "mg/kg",
+    "targets": [
+      {
+        "id": "A",
+        "values": [
+          3898,
+          4139,
+          4466,
+          4693
+        ]
+      },
+      {
+        "id": "B",
+        "values": [
+          3910,
+          3993,
+          4201,
+          4126
+        ]
+      },
+      {
+        "id": "C",
+        "values": [
+          5708,
+          5903,
+          4061,
+          3782
+        ]
+      },
+      {
+        "id": "D",
+        "values": [
+          5028,
+          4754,
+          5450,
+          5416
+        ]
+      },
+      {
+        "id": "E",
+        "values": [
+          4640,
+          4401,
+          4248,
+          4191
+        ]
+      },
+      {
+        "id": "F",
+        "values": [
+          5182,
+          5023,
+          4662,
+          4839
+        ]
+      },
+      {
+        "id": "G",
+        "values": [
+          3028,
+          3224,
+          3023,
+          2901
+        ]
+      },
+      {
+        "id": "H",
+        "values": [
+          3966,
+          4283,
+          4131,
+          3788
+        ]
+      }
+    ]
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "classical.mean": {
+      "value": 4345.5625,
+      "ref": "Figure A1.2 (p. 41): Mean = 4345.5625"
+    },
+    "classical.s.total": {
+      "value": 774.5296,
+      "ref": "Figure A1.2 (p. 41): Standard Deviation (Total) = 774.5296"
+    },
+    "classical.ss.between": {
+      "value": 12577113,
+      "ref": "Figure A1.2 (p. 41): Sums of Squares"
+    },
+    "classical.ss.sampling": {
+      "value": 4471511,
+      "ref": "Figure A1.2 (p. 41): Sums of Squares"
+    },
+    "classical.ss.analysis": {
+      "value": 351320,
+      "ref": "Figure A1.2 (p. 41): Sums of Squares"
+    },
+    "classical.s.between": {
+      "value": 556.2804,
+      "ref": "Figure A1.2 (p. 41): Between-target"
+    },
+    "classical.s.sampling": {
+      "value": 518.16089,
+      "ref": "Figure A1.2 (p. 41): Sampling"
+    },
+    "classical.s.analysis": {
+      "value": 148.18063,
+      "ref": "Figure A1.2 (p. 41): Analysis"
+    },
+    "classical.variancePct.between": {
+      "value": 51.583582,
+      "ref": "Figure A1.2 (p. 41): Percentage Variance"
+    },
+    "classical.variancePct.sampling": {
+      "value": 44.756204,
+      "ref": "Figure A1.2 (p. 41): Percentage Variance"
+    },
+    "classical.variancePct.analysis": {
+      "value": 3.6602174,
+      "ref": "Figure A1.2 (p. 41): Percentage Variance"
+    }
+  },
+  "expectedWarnings": [
+    "sampling_fitness"
+  ],
+  "tolerance": {
+    "default": {
+      "rel": 1e-07
+    },
+    "classical.ss.between": {
+      "abs": 0.5
+    }
+  }
+}

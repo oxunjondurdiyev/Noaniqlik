@@ -1,0 +1,182 @@
+{
+  "id": "ufs-a2-lead-robust",
+  "title": "UfS A2: ifloslangan tuproqda qo'rg'oshin — robust ANOVA, U' = 83,63 %",
+  "status": "verified",
+  "domain": "namuna olish (atrof-muhit)",
+  "source": {
+    "doc": "EURACHEM/CITAC UfS:2019 (2nd ed.)",
+    "section": "Example A2: Table A2.2, Figure A2.2 (Robust ANOVA), §6.1",
+    "page": "47–48",
+    "note": "RANOVA2 chiqishi; algoritm qayta tiklangan (D-16) — manba bilan 4 qiymatli raqamgacha mos."
+  },
+  "modelSpec": {
+    "format": "uc-sampling/1",
+    "method": "robust",
+    "unit": "mg/kg",
+    "targets": [
+      {
+        "id": "A4",
+        "values": [
+          787,
+          769,
+          811,
+          780
+        ]
+      },
+      {
+        "id": "B7",
+        "values": [
+          338,
+          327,
+          651,
+          563
+        ]
+      },
+      {
+        "id": "C1",
+        "values": [
+          289,
+          297,
+          211,
+          204
+        ]
+      },
+      {
+        "id": "D9",
+        "values": [
+          662,
+          702,
+          238,
+          246
+        ]
+      },
+      {
+        "id": "E8",
+        "values": [
+          229,
+          215,
+          208,
+          218
+        ]
+      },
+      {
+        "id": "F7",
+        "values": [
+          346,
+          374,
+          525,
+          520
+        ]
+      },
+      {
+        "id": "G7",
+        "values": [
+          324,
+          321,
+          77,
+          73
+        ]
+      },
+      {
+        "id": "H5",
+        "values": [
+          56,
+          61,
+          116,
+          120
+        ]
+      },
+      {
+        "id": "I9",
+        "values": [
+          189,
+          189,
+          176,
+          168
+        ]
+      },
+      {
+        "id": "J5",
+        "values": [
+          61,
+          61,
+          91,
+          119
+        ]
+      }
+    ]
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "mean": {
+      "value": 297.31,
+      "ref": "Figure A2.2 (p. 48): Robust Mean"
+    },
+    "sTotal": {
+      "value": 218.49,
+      "ref": "Figure A2.2 (p. 48): Total Sdev"
+    },
+    "sBetween": {
+      "value": 179.67,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "sSamp": {
+      "value": 123.81,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "sAnal": {
+      "value": 11.144,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "uc": {
+      "value": 124.31,
+      "ref": "Figure A2.2 (p. 48): Measure"
+    },
+    "variancePct.between": {
+      "value": 67.63,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "variancePct.sampling": {
+      "value": 32.11,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "variancePct.analysis": {
+      "value": 0.26,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "variancePct.measurement": {
+      "value": 32.37,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "relUSamp": {
+      "value": 83.29,
+      "ref": "Figure A2.2 (p. 48); p. 47: U_sampling' = 83.29 %"
+    },
+    "relUAnal": {
+      "value": 7.5,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "relU": {
+      "value": 83.63,
+      "ref": "Figure A2.2 (p. 48); p. 47: U_meas' = 83.63 %"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "rel": 0.0002,
+      "reason": "RANOVA dasturi natijasini qayta tiklash (dastur kodi repoda yo'q): manba bilan 4 qiymatli raqamgacha mos"
+    },
+    "variancePct.analysis": {
+      "abs": 0.005
+    },
+    "relUAnal": {
+      "abs": 0.005
+    },
+    "sAnal": {
+      "abs": 0.001,
+      "reason": "RANOVA dasturi natijasini qayta tiklash (dastur kodi repoda yo'q): manba bilan 4 qiymatli raqamgacha mos"
+    }
+  }
+}

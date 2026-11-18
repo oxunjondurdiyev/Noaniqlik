@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "SP-03",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "MICROBIOLOGY",
+  "title": {
+    "uz": "Mikrobiologik sanoq (CFU): log₁₀ shkalada noaniqlik — BETA",
+    "ru": "Микробиологический подсчёт (КОЕ): неопределённость в шкале log₁₀ — BETA",
+    "en": "Microbiological count (CFU): uncertainty on the log₁₀ scale — BETA"
+  },
+  "description": {
+    "uz": "Texnik noaniqlik (dublikatlarning log farqlaridan), matritsa hissasi va Puasson hissasi; natija log₁₀ da y ± U va oddiy shkalada asimmetrik interval.",
+    "ru": "Техническая неопределённость (по разностям логарифмов дубликатов), вклад матрицы и пуассоновский вклад; результат в log₁₀ как y ± U и несимметричный интервал в обычной шкале.",
+    "en": "Technical uncertainty (from log differences of duplicates), matrix contribution and Poisson contribution; the result is y ± U in log₁₀ and an asymmetric interval on the ordinary scale."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P10 shabloni (DRAFT, BETA). Yondashuv ISO 19036 ga tayanadi; standart matni repozitoriyda yo'q — tekshirilmagan. Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P10 (DRAFT, BETA). Подход основан на ISO 19036; текста стандарта в репозитории нет — не проверено. Все числовые поля пусты — лаборатория вводит собственные данные.",
+    "en": "P10 template (DRAFT, BETA). The approach follows ISO 19036; the text of the standard is not in the repository — unverified. All numeric fields are empty — the laboratory enters its own data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#11-maxsus-rejimlar-p10",
+  "measurand": {
+    "symbol": "N",
+    "name": {
+      "uz": "Mikroorganizmlar soni",
+      "ru": "Число микроорганизмов",
+      "en": "Number of microorganisms"
+    },
+    "unit": "CFU/g"
+  },
+  "model": {
+    "formula": "u_c = sqrt(u_tech^2 + u_matrix^2 + (0.4343 / sqrt(C))^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob «Maxsus rejimlar» oynasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в окне «Специальные режимы».",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Special modes window."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "N",
+      "name": {
+        "uz": "Sanoq natijasi",
+        "ru": "Результат подсчёта",
+        "en": "Count result"
+      },
+      "unit": "CFU/g",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "special": {
+    "hint": {
+      "uz": "Texnik noaniqlik laboratoriya ichidagi takrorlanuvchanlik sharoitida (turli kun, operator, muhit partiyasi) olingan dublikatlardan baholanadi.",
+      "ru": "Техническая неопределённость оценивается по дубликатам, полученным в условиях внутрилабораторной воспроизводимости (разные дни, операторы, партии сред).",
+      "en": "The technical uncertainty is estimated from duplicates obtained under within-laboratory reproducibility conditions (different days, operators, media batches)."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab+owner",
+      "blocking": true,
+      "text": {
+        "uz": "⚠ BETA: ISO 19036 matni repozitoriyda yo'q — hisob manba misoli bilan tasdiqlanmagan. Shablon tasdiqlanishidan (APPROVED) oldin standart yoki laboratoriya Excel'i bilan solishtirilishi shart.",
+        "ru": "⚠ BETA: текста ISO 19036 в репозитории нет — расчёт не подтверждён примером из источника. До утверждения шаблона (APPROVED) обязательна сверка со стандартом или лабораторным Excel.",
+        "en": "⚠ BETA: the text of ISO 19036 is not in the repository — the calculation is not confirmed by a source example. Before the template is APPROVED it must be checked against the standard or a laboratory spreadsheet."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

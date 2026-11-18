@@ -16,6 +16,11 @@
       "$comment": "P09: evaluationMode = TOP_DOWN bo'lsa `topDown` bo'limi majburiy (usta sozlamalari; hisob: buildTopDownState → usta → uc-topdown/1 → evaluate()).",
       "if": { "required": ["evaluationMode"], "properties": { "evaluationMode": { "const": "TOP_DOWN" } } },
       "then": { "required": ["topDown"] }
+    },
+    {
+      "$comment": "P10: maxsus rejimlar (SAMPLING, QUALITATIVE, MICROBIOLOGY, MEDICAL) — `special` bo'limi majburiy (hisob: buildSpecialState → \"Maxsus rejimlar\" oynasi → evaluate()).",
+      "if": { "required": ["evaluationMode"], "properties": { "evaluationMode": { "enum": ["SAMPLING", "QUALITATIVE", "MICROBIOLOGY", "MEDICAL"] } } },
+      "then": { "required": ["special"] }
     }
   ],
   "properties": {
@@ -27,7 +32,7 @@
     "domain": { "enum": ["CALIBRATION", "TESTING"] },
     "section": { "enum": ["calibration", "construction", "food_chem", "electrical", "general"] },
     "field": { "type": "string" },
-    "evaluationMode": { "enum": ["GUM_BOTTOM_UP", "REGRESSION", "TOP_DOWN", "QUALITATIVE"] },
+    "evaluationMode": { "enum": ["GUM_BOTTOM_UP", "REGRESSION", "TOP_DOWN", "QUALITATIVE", "SAMPLING", "MICROBIOLOGY", "MEDICAL"] },
     "isEmpiricalMeasurand": { "type": "boolean" },
     "title": { "$ref": "#/definitions/text" },
     "description": { "$ref": "#/definitions/text" },
@@ -70,6 +75,7 @@
     "settings": { "$ref": "#/definitions/settings" },
     "regression": { "$ref": "#/definitions/regression" },
     "topDown": { "$ref": "#/definitions/topDown" },
+    "special": { "$ref": "#/definitions/special" },
     "decisionRule": { "$ref": "#/definitions/decisionRule" },
     "reporting": {
       "type": "object", "additionalProperties": false,
@@ -337,6 +343,15 @@
         },
         "linkedTemplate": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
         "regressionTemplate": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
+        "hint": { "$ref": "#/definitions/text" }
+      }
+    },
+    "special": {
+      "description": "Maxsus rejimlar (P10): namuna olish (dublikat usuli), sifatli test (2×2), mikrobiologiya (BETA), tibbiy laboratoriya (BETA). Shablon faqat oyna sozlamalarini beradi; raqamli maydonlar yo'q — ma'lumotni laboratoriya kiritadi.",
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "method": { "enum": ["classical", "robust"] },
+        "logTransform": { "type": "boolean" },
         "hint": { "$ref": "#/definitions/text" }
       }
     },

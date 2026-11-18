@@ -1,6 +1,6 @@
 # Validatsiya matritsasi (RTM): me'yoriy talab → dvigatel funksiyasi → test → holat
 
-> Holat: P09, 2026-11-17 (P03/P04 qatorlari o'zgarmagan; regressiya — §7; top-down — §8). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.2.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
+> Holat: P10, 2026-11-18 (P03/P04 qatorlari o'zgarmagan; regressiya — §7; top-down — §8; maxsus rejimlar — §9). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.3.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
 > Test misollari — `tests/cases/` ([README](../tests/cases/README.md)), farqlar — [DISCREPANCIES.md](../tests/cases/DISCREPANCIES.md). Asos: ISO/IEC 17025:2017 §7.11.2 (dasturiy ta'minot validatsiyasi; to'liq paket — P13).
 >
 > Holat belgilari: ✅ — `verified` testlar o'tadi; ⚠️ — o'tadi, lekin ma'lum farq bor (todo, D-ID); ⏳ — `pending` (bosqich ko'rsatilgan); ❔ — `unverified` (manba yo'q).
@@ -67,6 +67,9 @@
 | Nordtest TR 537 ed.4 (NH₄-N: §3.2, Appendix 4) | `nordtest-tr537-nh4n` | ✅ (P09, §8) |
 | Nordtest TR 537 ed.4 (dublikatlar — Appendix 5, 6; BOD — §8.2; recovery — §6.3) | `nordtest-tr537-nh4n-dup-low`, `-dup-high`, `nordtest-tr537-oxygen-dup`, `-bod-crm`, `-bod-pt`, `-recovery` | ✅ (P09, §8; D-12) |
 | ISO 21748 (pullik) — laboratoriya s_r tekshiruvi, u(δ̂) | `tests/engine/topdown.test.js` (o'zaro tekshiruv) | ❔ unverified — ochiq manba misoli yoki laboratoriya Excel'i kerak (egasi qo'shadi) |
+| EURACHEM/CITAC UfS:2019 A1, A2 (dublikat usuli, ANOVA, ᶠU) | `ufs-a1-nitrate-classical`, `-robust`, `ufs-a2-lead-classical`, `-robust` | ✅ (P10, §9; robust — D-16) |
+| EURACHEM/CITAC AQA:2021 E3, 7.6 (posterior ehtimol, Wilson CI) | `aqa-e3-emit-opiates`, `-methadone`, `-cocaine`, `aqa-e6-sarscov2` | ✅ (P10, §9; D-15, D-17) |
+| ISO 19036 (mikrobiologiya), ISO/TS 20914 (tibbiy laboratoriya) — pullik | `tests/engine/special-modes.test.js` (analitik) | ❔ BETA / unverified — manba kerak (egasi qo'shadi) |
 | NIST Uncertainty Machine qo'llanmasi | `nist-um-ratio` | ❔ PDF yo'q |
 | ISO/TS 28037/28038 (pullik) | `york-pearson-wtls` (unverified) | ❔ WTLS/GLS/polinom uchun ochiq manba misoli kerak (egasi qo'shadi) |
 | JCGM 102, 106, GUM-6, ILAC P14, ILAC G8, COOMET R/GM/32 | — | ❔ PDF hali `docs/references/` da yo'q |
@@ -180,3 +183,26 @@
 | GUM va regressiya natijalari o'zgarmagan | `evaluate` (format bo'yicha uzatish) | 35 misolning natija JSON'i 2.1.0 bilan bayt darajasida bir xil (P09 da tekshirildi); 9 Excel nuqtasi, 10-test | ✅ |
 | Mutatsiyaga sezgirlik (P09) | qo'lda: 2n → n (8 test yiqildi); √ yig'indi → oddiy yig'indi (8); s/√n → s/n (6); X11 o'chirildi (6); X12 o'chirildi (3) | — | ✅ |
 | TOP_DOWN shablonlari | `interpreter.js::buildTopDownState`, sxema `topDown` | `tests/templates/topdown.test.js` (TD-01…TD-04) | ✅ (hammasi DRAFT, raqamsiz) |
+
+## 9. P10: maxsus rejimlar (`src/engine/sampling/`, `qualitative/`, `micro/`, `medical/`)
+
+| Talab (manba) | Dvigatel funksiyasi | Test | Holat |
+|---|---|---|---|
+| Klassik ichma-ich ANOVA: kvadratlar yig'indisi, s_between, s_samp, s_anal, % dispersiya (UfS:2019 Figure A1.2, p. 41) | `sampling/index.js::classicalAnova` | `ufs-a1-nitrate-classical` (11 kattalik, nisbiy 1·10⁻⁷); qo'lda hisoblangan 2 ob'ektli misol — `special-modes.test.js` | ✅ |
+| Klassik ANOVA, U′ va ᶠU = exp(2·s_G) (UfS Figure A2.2, p. 48; Table A2.3, p. 49; Eq. 4, 5) | `evaluateSampling` (`logTransform`) | `ufs-a2-lead-classical` (23 kattalik; ᶠU = 2,6032 / 1,12 / 2,6207) | ✅ |
+| Robust ANOVA: o'rtacha, s_between, s_samp, s_anal, s_meas, % dispersiya, U′ (UfS Figure A1.2, A2.2) | `robustAnova` | `ufs-a1-nitrate-robust` (14 kattalik), `ufs-a2-lead-robust` (13 kattalik) — nisbiy 2·10⁻⁴ | ✅ 4 qiymatli raqamgacha (qayta tiklangan algoritm — D-16, R-21) |
+| s_meas² = s_samp² + s_anal²; U′ = 2·100·s_meas/x̄ (UfS Eq. 1–2, 4): A1 — 360,55 mg/kg; 16,4 % | `evaluateSampling` | `ufs-a1-nitrate-robust` (`uc`, `relU`); `special-modes.test.js` | ✅ |
+| Manfiy dispersiya bahosi → 0 va ogohlantirish | `evaluateSampling` (`sampling_negative_variance`) | `special-modes.test.js` | ✅ |
+| Muvozanatsiz dizayn, kam ob'ekt, log uchun musbat bo'lmagan qiymat → aniq xato / ogohlantirish | `evaluateSampling` | `special-modes.test.js` | ✅ |
+| SS, SP, FP, FN ulushlari; LR(+), LR(−) (AQA:2021 §3.2, §4.2) | `qualitative/index.js::evaluateQualitative` | `aqa-e6-sarscov2` (SS 100 %, SP 97 %); `special-modes.test.js` | ✅ |
+| Wilson score 95 % CI (AQA §4.4 Eq. 8–11): [96,3; 100], [91,6; 99,0]; 400/400 → 99 %; 5/5 → 57 % | `wilsonInterval` | `aqa-e6-sarscov2`; `special-modes.test.js` | ✅ (D-17: 91,55 vs 91,6) |
+| Posterior ehtimol PP (AQA §4.3 Eq. 6; Table E3.1): 0,963; 0,988; 0,963 | `posterior`, `evaluateQualitative` (`rates`, `prevalence`) | `aqa-e3-emit-opiates`, `-methadone`, `-cocaine` | ✅ (D-15) |
+| Clopper–Pearson (aniq binomial; loyiha qo'shimchasi — laboratoriya sozlamasi): 7/20, 97/100, 100/100, 0/50, 3/100, 45/60 (P = 0,95), 7/20 (P = 0,99) | `clopperPearsonInterval` | SciPy 1.18.1 — `scipy.stats.binomtest(x, n).proportion_ci(confidence_level=P, method="exact")` bilan 10⁻¹⁰ gacha; analitik: x = n → (α/2)^(1/n), simmetriya — `special-modes.test.js` | ✅ mustaqil ochiq dastur (qiymatlar sessiyada hisoblangan — RISKS R-21) |
+| Interval usuli tanlovi (egasi qarori 2026-11-18): standart Wilson; `ciMethod: 'clopper_pearson'`; bosma hisobotda faqat tanlangani, usul nomi va P | `evaluateQualitative`, `report.js::qualitativeSection` | `special-modes.test.js`, `tests/ui/special.test.js` | ✅ |
+| Mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; interval [10^(y−U); 10^(y+U)] (ISO 19036 — pullik) | `micro/index.js::evaluateMicro` | analitik testlar — `special-modes.test.js` | ❔ BETA / unverified |
+| Tibbiy laboratoriya: u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914 — pullik) | `medical/index.js::evaluateMedical` | analitik testlar — `special-modes.test.js` | ❔ BETA / unverified |
+| BETA modullar: har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | `evaluateMicro`, `evaluateMedical`; `interpreter.js::checkSpecialTemplate` | `special-modes.test.js`, `tests/ui/special.test.js` | ✅ |
+| Hisobotda qo'llanilgan yondashuv va cheklovlar yozilgan (uch tilda) | `src/js/report.js::specialSection` | `tests/ui/special.test.js` | ✅ |
+| "Maxsus rejimlar" oynasi: Excel'dan qo'yish, o'nlik vergul, bo'sh maydon ≠ 0, escape (XSS), CSP | `src/ui/special/*` | `tests/ui/special.test.js` (kontroller jsdom'da boshidan oxirigacha) | ✅ |
+| Mavjud natijalar o'zgarmagan | `evaluate` (format bo'yicha uzatish) | 43 misolning natija JSON'i 2.2.0 bilan bayt darajasida bir xil (P10 da tekshirildi); 9 Excel nuqtasi, 10-test | ✅ |
+| Mutatsiyaga sezgirlik (P10) | qo'lda: σ_s² dagi /2 olib tashlandi (22 test yiqildi); robust τ² bo'luvchisi n → n − 1 (21); Wilson dagi z²/(4n²) hadi (7); Clopper–Pearson parametri (2); Puasson 1/√C → 1/C (2); kvadratlar yig'indisi → oddiy yig'indi (3) | — | ✅ |

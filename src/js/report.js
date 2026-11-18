@@ -910,12 +910,148 @@ const Results = (() => {
     window.print();
   }
 
+  /* ─── P10: maxsus rejimlar hisobot bo'limlari ────────────────────
+     Namuna olish (dublikat usuli, ANOVA), sifatli test (2×2), mikrobiologiya (BETA), tibbiy laboratoriya (BETA).
+     Har bir bo'limda: natija, qo'llanilgan yondashuv nomi va manbasi, cheklovlar, ogohlantirishlar.
+     P05 gacha shu faylda; yaxlitlash faqat shu yerda. */
+  function spWarnings(r) {
+    if (!r.warnings || !r.warnings.length) return '';
+    const sev = r.warnings.filter(w => w.severity !== 'info'), info = r.warnings.filter(w => w.severity === 'info');
+    return (sev.length ? `<div class="warn-box td-warnings" data-sp-warnings="1">${sev.map(w => `<div data-sp-warning="${escHtml(w.code)}">⚠ ${rgWarnText(w)} <span class="text-xs text-muted">[${escHtml(w.ref)}]</span></div>`).join('')}</div>` : '') +
+      info.map(w => `<div class="text-xs text-muted td-note" data-sp-warning="${escHtml(w.code)}">ⓘ ${rgWarnText(w)}</div>`).join('');
+  }
+  function spHead(r, opt, inner) {
+    return `<div class="rg-report td-report sp-report" data-sp-report="${escHtml(r.mode)}">
+      <div class="${opt.print ? 'print-section' : 'rg-section-title'}">${i18n.t('sp_section_' + r.mode)}${r.unverified ? ' <span class="badge badge-orange" data-sp-beta="1">BETA</span>' : ''}</div>
+      ${spWarnings(r)}
+      ${inner}
+      <p class="rg-line" data-sp-approach="${escHtml(r.approach)}"><strong>${i18n.t('td_col_approach')}:</strong> ${i18n.t('sp_approach_' + r.approach)} <span class="text-xs text-muted">[${escHtml(r.approachRef)}]</span></p>
+      <p class="rg-line" data-sp-limits="1"><strong>${i18n.t('sp_limits')}:</strong> ${i18n.t('sp_limits_' + r.mode)}</p>
+      <p class="rg-line text-muted text-xs">${i18n.t('rg_engine')}: ${escHtml(r.engineVersion)}</p>
+    </div>`;
+  }
+  const spPct = (v, d) => (v === null || v === undefined || !isFinite(v) ? '—' : (100 * v).toFixed(d === undefined ? 1 : d));
+
+  function samplingSection(r, opt) {
+    const cls = opt.print ? 'print-table' : 'data-table math-head';
+    const unit = rgUnit(r.unit);
+    const rr = r.y !== null && r.absU !== null ? Calc.roundResult(r.y, r.absU, r.roundUp) : null;
+    const col = (a, used) => `<td class="num"${used ? ' data-sp-used="1"' : ''}>${tdNum(a.mean, 8)}</td><td class="num">${tdNum(a.s.between, 6)}</td><td class="num">${tdNum(a.s.sampling, 6)}</td>
+      <td class="num">${tdNum(a.s.analysis, 6)}</td><td class="num"><strong>${tdNum(a.s.measurement, 6)}</strong></td><td class="num">${a.variancePct.measurement.toFixed(1)}</td><td class="num">${tdU2(a.relU.measurement)}</td>`;
+    return spHead(r, opt, `
+      <table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>s<sub>samp</sub></th><th>s<sub>anal</sub></th><th>s<sub>meas</sub></th></tr></thead>
+        <tbody><tr><td class="num" data-sp-y="1">${rr ? rr.yround.toFixed(rr.digits) + unit : '—'}</td><td class="num" data-sp-u="1"><strong>${rr ? rr.Uround.toFixed(rr.digits) + unit : '—'}</strong></td>
+          <td class="num" data-sp-urel="1"><strong>${tdU2(r.relU, r.roundUp)} %</strong></td><td class="num">${escHtml(String(r.k))}</td>
+          <td class="num" data-sp-ssamp="1">${tdNum(r.sSamp, 5)}${unit}</td><td class="num" data-sp-sanal="1">${tdNum(r.sAnal, 5)}${unit}</td><td class="num" data-sp-smeas="1">${tdNum(r.uc, 5)}${unit}</td></tr></tbody></table>
+      <p class="rg-line"><span class="mono">s<sub>meas</sub>² = s<sub>samp</sub>² + s<sub>anal</sub>²; U′ = ${escHtml(String(r.k))}·100·s<sub>meas</sub>/x̄</span>; ${i18n.t('sp_sa_n_targets')} = ${r.nTargets};
+        U′<sub>samp</sub> = ${tdU2(r.relUSamp)} %; U′<sub>anal</sub> = ${tdU2(r.relUAnal)} %</p>
+      <h4 class="rg-h">${i18n.t('sp_sa_anova')}</h4>
+      <table class="${cls}" data-sp-anova="1"><thead><tr><th>${i18n.t('sp_sa_method')}</th><th>x̄</th><th>s<sub>between</sub></th><th>s<sub>samp</sub></th><th>s<sub>anal</sub></th><th>s<sub>meas</sub></th><th>${i18n.t('sp_sa_meas_pct')}</th><th>U′, %</th></tr></thead>
+        <tbody>${['classical', 'robust'].map(m => `<tr data-sp-method="${m}"${r.method === m ? ' class="td-total"' : ''}><td>${i18n.t('sp_sa_' + m)}${r.method === m ? ' ✓' : ''}</td>${col(r[m], r.method === m)}</tr>`).join('')}</tbody></table>
+      ${r.log ? `<p class="rg-line" data-sp-fu="1"><strong>${i18n.t('sp_sa_fu')}:</strong> <sup>F</sup>U = exp(${escHtml(String(r.k))}·s<sub>G,meas</sub>) = ${tdNum(r.log.uncertaintyFactor.measurement, 5)}
+        (s<sub>G,meas</sub> = ${tdNum(r.log.sG.measurement, 4)}; ${i18n.t('sp_sa_gmean')} = ${tdNum(r.log.geometricMean, 4)}${unit})${r.y !== null ? `; ${i18n.t('sp_sa_fu_interval')}: [${tdNum(r.y / r.log.uncertaintyFactor.measurement, 4)}; ${tdNum(r.y * r.log.uncertaintyFactor.measurement, 4)}]${unit}` : ''}</p>` : ''}`);
+  }
+
+  function qualitativeSection(r, opt) {
+    const cls = opt.print ? 'print-table' : 'data-table math-head';
+    const ci = c => (c ? `[${spPct(c.low)}; ${spPct(c.high)}]` : '—');
+    const t = r.table;
+    // Egasi qarori (2026-11-18, R-21): hisobotga faqat tanlangan usul intervali chiqadi (standart — Wilson);
+    // ekrandagi batafsil ko'rinishda ikkinchisi solishtirish uchun ko'rsatiladi, bosma hisobotda — yo'q.
+    const method = r.ciMethod || 'wilson', other = method === 'wilson' ? 'clopper_pearson' : 'wilson';
+    const field = { wilson: 'wilson', clopper_pearson: 'clopperPearson' };
+    const compare = !opt.print && !!t;
+    const row = (key, q) => `<tr data-sp-rate="${key}"><td>${i18n.t('sp_ql_' + key)}</td><td class="num"><strong>${spPct(q.value)}</strong></td><td class="num">${q.n !== undefined ? `${q.x} / ${q.n}` : '—'}</td>
+      <td class="num" data-sp-ci="${method}"><strong>${ci(q[field[method]])}</strong></td>${compare ? `<td class="num text-muted" data-sp-ci-compare="${other}">${ci(q[field[other]])}</td>` : ''}</tr>`;
+    const lr = v => (isFinite(v) ? tdNum(v, 4) : '∞');
+    return spHead(r, opt, `
+      ${t ? `<table class="${cls} sp-2x2" data-sp-table="1"><thead><tr><th></th><th>${i18n.t('sp_ql_case_pos')}</th><th>${i18n.t('sp_ql_case_neg')}</th></tr></thead>
+        <tbody><tr><th>${i18n.t('sp_ql_res_pos')}</th><td class="num">tp = ${t.tp}</td><td class="num">fp = ${t.fp}</td></tr>
+          <tr><th>${i18n.t('sp_ql_res_neg')}</th><td class="num">fn = ${t.fn}</td><td class="num">tn = ${t.tn}</td></tr></tbody></table>` : ''}
+      <table class="${cls}" data-sp-rates="1"><thead><tr><th>${i18n.t('sp_ql_metric')}</th><th>%</th><th>x / n</th><th>${i18n.t('sp_ql_ci').replace('{P}', pct(r.P))} — ${i18n.t('sp_ci_' + method)}</th>${compare ? `<th class="text-muted">${i18n.t('sp_ql_ci_compare')}: ${i18n.t('sp_ci_' + other)}</th>` : ''}</tr></thead>
+        <tbody>${row('ss', r.sensitivity)}${row('sp', r.specificity)}${row('fp', r.falsePositiveRate)}${row('fn', r.falseNegativeRate)}
+          ${r.ppvStudy ? row('ppv', r.ppvStudy) : ''}${r.npvStudy ? row('npv', r.npvStudy) : ''}</tbody></table>
+      ${t ? `<p class="rg-line" data-sp-cimethod="${escHtml(method)}"><strong>${i18n.t('sp_ql_ci_method')}:</strong> ${i18n.t('sp_ci_' + method)}; P = ${pct(r.P)} % <span class="text-xs text-muted">[${i18n.t('sp_ci_ref_' + method)}]</span></p>` : ''}
+      <p class="rg-line" data-sp-lr="1">LR(+) = TP/FP = ${lr(r.lrPositive)}; LR(−) = FN/TN = ${lr(r.lrNegative)}</p>
+      ${r.prevalence !== null ? `<p class="rg-line" data-sp-posterior="1"><strong>${i18n.t('sp_ql_posterior')}</strong> (${i18n.t('sp_ql_prev')} ${spPct(r.prevalence)} %): PP = ${spPct(r.posteriorPositive, 2)} %; PN = ${spPct(r.posteriorNegative, 2)} %</p>`
+        : (r.studyPrevalence !== null ? `<p class="rg-line text-muted">${i18n.t('sp_ql_study_prev')}: ${spPct(r.studyPrevalence)} %</p>` : '')}`);
+  }
+
+  function microSection(r, opt) {
+    const cls = opt.print ? 'print-table' : 'data-table math-head';
+    const rr = Calc.roundResult(r.y, r.U, r.roundUp);
+    const unit = rgUnit(r.unit);
+    return spHead(r, opt, `
+      <table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('sp_mi_value')}</th><th>log₁₀ y</th><th>U (log₁₀)</th><th>k</th><th>${i18n.t('sp_mi_interval')}</th></tr></thead>
+        <tbody><tr><td class="num">${tdNum(r.value, 3)}${unit}</td><td class="num" data-sp-y="1">${rr.yround.toFixed(rr.digits)}</td><td class="num" data-sp-u="1"><strong>${rr.Uround.toFixed(rr.digits)}</strong></td><td class="num">${escHtml(String(r.k))}</td>
+          <td class="num" data-sp-interval="1">[${tdNum(r.interval.low, 2)}; ${tdNum(r.interval.high, 2)}]${unit}</td></tr></tbody></table>
+      <p class="rg-line"><strong>${i18n.t('td_statement')}:</strong> log₁₀ = ${rr.resultText}; ${i18n.t('sp_mi_interval')} [10<sup>y−U</sup>; 10<sup>y+U</sup>]; k = ${escHtml(String(r.k))}; ΣC = ${escHtml(String(r.sumCounts))}</p>
+      <h4 class="rg-h">${i18n.t('td_budget')}</h4>
+      <table class="${cls}" data-sp-budget="1"><thead><tr><th>${i18n.t('td_col_component')}</th><th>u (log₁₀)</th><th>${i18n.t('td_col_share')}</th></tr></thead>
+        <tbody>${r.budget.map(b => `<tr data-sp-row="${escHtml(b.id)}"><td>${i18n.t('sp_mi_u_' + b.id)}</td><td class="num">${tdNum(b.u)}</td><td class="num">${b.share.toFixed(1)}</td></tr>`).join('')}
+          <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">100.0</td></tr></tbody></table>`);
+  }
+
+  function medicalSection(r, opt) {
+    const cls = opt.print ? 'print-table' : 'data-table math-head';
+    const unit = rgUnit(r.unit);
+    const rr = r.y !== null ? Calc.roundResult(r.y, r.absU, r.roundUp) : null;
+    const q = v => (v ? `${tdNum(v.abs)} (${tdNum(v.rel, 3)} %)` : '—');
+    return spHead(r, opt, `
+      ${rr ? `<table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>${i18n.t('sp_me_level')}</th></tr></thead>
+        <tbody><tr><td class="num" data-sp-y="1">${rr.yround.toFixed(rr.digits)}${unit}</td><td class="num" data-sp-u="1"><strong>${rr.Uround.toFixed(rr.digits)}${unit}</strong></td>
+          <td class="num" data-sp-urel="1"><strong>${tdU2(r.relU, r.roundUp)} %</strong></td><td class="num">${escHtml(String(r.k))}</td><td>${escHtml(r.appliedLevel)}</td></tr></tbody></table>` : ''}
+      <h4 class="rg-h">${i18n.t('sp_me_levels_title')}</h4>
+      <table class="${cls}" data-sp-levels="1"><thead><tr><th>${i18n.t('sp_me_level')}</th><th>x̄${unit}</th><th>n</th><th>u<sub>Rw</sub></th><th>u<sub>cal</sub></th><th>u<sub>bias</sub></th><th>u</th><th>U (k = ${escHtml(String(r.k))})</th></tr></thead>
+        <tbody>${r.levels.map(L => `<tr data-sp-level="${escHtml(L.id)}"><td>${escHtml(L.id)}</td><td class="num">${tdNum(L.mean, 6)}</td><td class="num">${L.n === null ? '—' : escHtml(String(L.n))}</td>
+          <td class="num">${q(L.uRw)}</td><td class="num">${q(L.uCal)}</td><td class="num">${q(L.uBias)}</td><td class="num">${q(L.u)}</td><td class="num"><strong>${tdU2(L.U.abs)}${unit} (${tdU2(L.U.rel)} %)</strong></td></tr>`).join('')}</tbody></table>
+      <p class="rg-line"><span class="mono">u = √(u<sub>cal</sub>² + u<sub>Rw</sub>² + u<sub>bias</sub>²)</span></p>`);
+  }
+
+  /** Maxsus rejim natijasi → hisobot bo'limi (rejim natijadagi `mode` bo'yicha tanlanadi). */
+  function specialSection(r, o) {
+    const opt = o || {};
+    if (!r) return '';
+    if (r.error) return `<div class="warn-box" data-sp-error="${escHtml(r.error)}">⚠ ${rgErrText(r.error, r.detail)}</div>`;
+    const fn = { SAMPLING: samplingSection, QUALITATIVE: qualitativeSection, MICROBIOLOGY: microSection, MEDICAL: medicalSection }[r.mode];
+    return fn ? fn(r, opt) : '';
+  }
+
+  function printSpecial(r, o) {
+    const opt = o || {};
+    if (!r || r.error) { showToast(i18n.t('sp_empty'), 'error'); return; }
+    const now = new Date().toLocaleDateString();
+    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
+    document.getElementById('print-report').innerHTML = `
+      <div class="print-report-header">
+        <div>
+          <div class="print-report-title">${i18n.t('report_title')}</div>
+          <div class="print-report-meta">${escHtml(r.approachRef)}</div>
+        </div>
+        <div style="text-align:right;font-size:9pt;color:#555">
+          <div>${i18n.t('report_date')}: ${now}</div>
+          <div>${i18n.t('report_lab')}: _______________________</div>
+          <div>${i18n.t('report_operator')}: ____________________</div>
+        </div>
+      </div>
+      ${notice}
+      ${specialSection(r, { print: true })}
+      <div class="print-footer">
+        <span>${escHtml(r.approachRef)}</span>
+        <span>${i18n.t('report_date')}: ${now}</span>
+        <span>UncertaintyCalc</span>
+      </div>`;
+    document.body.classList.add('print-report-mode');
+    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
+    window.print();
+  }
+
   function isBlankCell(v) { return v === '' || v === null || v === undefined; }
 
   // Yagona escape: src/ui/escape.js (P02)
   const escHtml = window.escHtml;
 
-  return { init, render, regressionSection, printRegression, topdownSection, printTopdown };
+  return { init, render, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial };
 
 })();
 

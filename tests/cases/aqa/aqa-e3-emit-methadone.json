@@ -1,0 +1,38 @@
+{
+  "id": "aqa-e3-emit-methadone",
+  "title": "AQA E3: siydikda giyohvand moddalar (EMIT) — methadone: posterior ehtimol PP (Bayes)",
+  "status": "verified",
+  "domain": "sifatli tahlil (toksikologiya)",
+  "source": {
+    "doc": "EURACHEM/CITAC AQA:2021 (1st ed.)",
+    "section": "Example E3: Table E3.1, Eq. (E3.1); §4.3 Eq. (6)",
+    "page": "17, 28",
+    "note": "P(+), FP va FN — Table E3.1 dan; LR(+) = TP/FP, TP = 1 − FN. Manba 0,988 deb yozgan; Eq. (E3.1) bo'yicha aniq qiymat 0,98854 (→ 0,989) — DISCREPANCIES D-15."
+  },
+  "modelSpec": {
+    "format": "uc-qualitative/1",
+    "rates": {
+      "fp": 0.004,
+      "fn": 0.018
+    },
+    "prevalence": 0.26
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "posteriorPositive": {
+      "value": 0.988,
+      "ref": "Table E3.1 (p. 28): PP, methadone"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.0005
+    },
+    "posteriorPositive": {
+      "abs": 0.001,
+      "reason": "manba 0,988 (kesilgan); Eq. (E3.1) bo'yicha 0,98854 — D-15"
+    }
+  }
+}

@@ -15,6 +15,10 @@ import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
 import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
 import { evaluateTopDown, TOPDOWN_FORMAT } from './topdown/index.js';
+import { evaluateSampling, SAMPLING_FORMAT } from './sampling/index.js';
+import { evaluateQualitative, QUALITATIVE_FORMAT } from './qualitative/index.js';
+import { evaluateMicro, MICRO_FORMAT } from './micro/index.js';
+import { evaluateMedical, MEDICAL_FORMAT } from './medical/index.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -43,6 +47,11 @@ export function evaluate(spec) {
   // P08: REGRESSION rejimi alohida format bilan — bir o'lchamli GUM yo'li o'zgarmagan
   if (spec && spec.format === REGRESSION_FORMAT) return evaluateRegression(spec);
   if (spec && spec.format === TOPDOWN_FORMAT) return evaluateTopDown(spec); // P09
+  // P10: maxsus rejimlar
+  if (spec && spec.format === SAMPLING_FORMAT) return evaluateSampling(spec);
+  if (spec && spec.format === QUALITATIVE_FORMAT) return evaluateQualitative(spec);
+  if (spec && spec.format === MICRO_FORMAT) return evaluateMicro(spec);
+  if (spec && spec.format === MEDICAL_FORMAT) return evaluateMedical(spec);
   const norm = normalize(spec);
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;

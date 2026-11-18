@@ -110,6 +110,14 @@ async function useTemplate(key, variant) {
     window.switchTab('regression');
     return;
   }
+  if (Interp.isSpecial(tpl)) {
+    // P10: maxsus rejim shabloni — "Maxsus rejimlar" yorlig'iga yuklanadi (src/ui/special/app.js)
+    if (!window.UCSpecial || !window.UCSpecial.loadTemplate(tpl)) return;
+    window.App.showScreen('app');
+    window.App.renderSidebar();
+    window.switchTab('special');
+    return;
+  }
   if (Interp.isTopDown(tpl)) {
     // P09: TOP_DOWN shabloni — "Top-down" yorlig'idagi ustaga yuklanadi (src/ui/topdown/app.js)
     if (!window.UCTopDown || !window.UCTopDown.loadTemplate(tpl)) return;
@@ -398,6 +406,7 @@ function labHTML(l) {
       <label>${esc(t('set_rounding'))}<select id="lab-rounding">${opt('normal', l.rounding, t('set_round_normal'))}${opt('up', l.rounding, t('set_round_up'))}</select></label>
       <label>${esc(t('lab_decision'))}<select id="lab-decisionRule">${opt('simple', l.decisionRule, t('lab_dec_simple'))}${opt('guarded', l.decisionRule, t('lab_dec_guarded'))}</select></label>
       <label>${esc(t('lab_cmc'))}<select id="lab-cmcMode">${opt('warn', l.cmcMode, t('lab_cmc_warn'))}${opt('block', l.cmcMode, t('lab_cmc_block'))}</select></label>
+      <label>${esc(t('lab_ci_method'))}<select id="lab-ciMethod">${opt('wilson', l.ciMethod, t('sp_ci_wilson'))}${opt('clopper_pearson', l.ciMethod, t('sp_ci_clopper_pearson'))}</select></label>
     </div>
     <label class="model-check"><input type="checkbox" id="lab-secondOrder" ${l.secondOrder ? 'checked' : ''} /> <span>${esc(t('set_second_order'))}</span></label>
     <p class="text-xs text-muted">${esc(t('set_second_order_hint'))}</p>
@@ -416,7 +425,7 @@ async function onLabAction(e) {
   if (b.dataset.lab === 'close') { closeModal(); return; }
   const v = {
     P: Number($('lab-P').value), kMethod: $('lab-kMethod').value, nuRule: $('lab-nuRule').value, rounding: $('lab-rounding').value,
-    decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, secondOrder: $('lab-secondOrder').checked,
+    decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
   };
   if (!db) { toast(t('st_no_idb'), 'error'); return; }
   await Store.saveLabSettings(db, v, { reason: 'lab settings' });

@@ -1,0 +1,34 @@
+{
+  "id": "aqa-e3-emit-cocaine",
+  "title": "AQA E3: siydikda giyohvand moddalar (EMIT) — cocaine: posterior ehtimol PP (Bayes)",
+  "status": "verified",
+  "domain": "sifatli tahlil (toksikologiya)",
+  "source": {
+    "doc": "EURACHEM/CITAC AQA:2021 (1st ed.)",
+    "section": "Example E3: Table E3.1, Eq. (E3.1); §4.3 Eq. (6)",
+    "page": "17, 28",
+    "note": "P(+), FP va FN — Table E3.1 dan; LR(+) = TP/FP, TP = 1 − FN."
+  },
+  "modelSpec": {
+    "format": "uc-qualitative/1",
+    "rates": {
+      "fp": 0.009,
+      "fn": 0.056
+    },
+    "prevalence": 0.2
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "posteriorPositive": {
+      "value": 0.963,
+      "ref": "Table E3.1 (p. 28): PP, cocaine"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.0005
+    }
+  }
+}

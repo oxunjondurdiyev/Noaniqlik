@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.2.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.3.0
 
-> Holat: P09, 2026-11-17 (2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P10, 2026-11-18 (2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -45,13 +45,17 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `topdown/recovery.js` | R_m, u(R_m), t-test, tuzatilgan / tuzatilmagan | QUAM:2012 A4; §7.7.8–7.7.9, §7.16 |
 | `topdown/reproducibility.js` | s_R asosida; laboratoriya s_r tekshiruvi, u(δ̂) | QUAM:2012 §7.6, A6; Nordtest §7; ISO 21748 (repoda yo'q — unverified) |
 | `topdown/level.js` | u(x) = √(s₀² + (x·s₁)²), s₀ va s₁ ni aniqlash | QUAM:2012 E.5.2.1 Eq. [1], E.5.5.2 |
+| `sampling/index.js` | `evaluateSampling` — dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU (P10), §9.1 | EURACHEM/CITAC UfS:2019 §9.4–9.5, A1, A2 |
+| `qualitative/index.js` | `evaluateQualitative` — 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson (P10), §9.2 | EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 |
+| `micro/index.js` | `evaluateMicro` — log₁₀ sanoq: texnik, matritsa, Puasson (P10, **BETA**), §9.3 | ISO 19036 (repoda yo'q — unverified) |
+| `medical/index.js` | `evaluateMedical` — IQC darajalari: u = √(u_cal² + u_Rw²) (P10, **BETA**), §9.4 | ISO/TS 20914 (repoda yo'q — unverified) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
 Bog'liqlik: `engine` hech narsaga bog'liq emas. `report → engine` (faqat natija maydonlari), `ui → report, engine`.
 
 ## 2. Kirish: `modelSpec`
 
-REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `evaluate()` uni `evaluateRegression()` ga uzatadi. TOP_DOWN rejimi — `uc-topdown/1` (§8), `evaluateTopDown()`. Quyidagi uch ko'rinish — bir o'lchamli GUM baholashi uchun (`spec.js::normalize`):
+REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `evaluate()` uni `evaluateRegression()` ga uzatadi. TOP_DOWN rejimi — `uc-topdown/1` (§8), `evaluateTopDown()`. Maxsus rejimlar (P10) — `uc-sampling/1`, `uc-qualitative/1`, `uc-micro/1`, `uc-medical/1` (§9). Quyidagi uch ko'rinish — bir o'lchamli GUM baholashi uchun (`spec.js::normalize`):
 
 1. **`uc-model/1`** — kanonik format (P04 shablon interpreteri shuni yaratadi);
 2. **`{ format: 'calc-state/v2', state }`** — UI holati (`uc_state_v2`), test misollari (`tests/cases/**.json`);
@@ -332,3 +336,77 @@ Validatsiya va sifat nazorati ma'lumotlaridan noaniqlik. `evaluate(spec)` yoki `
 **k va ν_eff** (egasi qarori 2026-11-17). Standart k = 2 (Nordtest §3.2, 6-qadam; QUAM A6); hisobotda "k = 2, P ≈ 95 %". Boshqa qiymat — `settings.k`. ν_eff **ma'lumot uchun** hisoblanadi (JCGM 100:2008 G.4.1 Eq. G.2b): ν_eff = u_c⁴ / Σ(u_i⁴/ν_i), bunda ν(R_w) — manbalari bo'yicha Welch–Satterthwaite (nazorat qatori n − 1; dublikatlar — juftliklar soni; tayyor s — n − 1 yoki ∞; chegaralar — ∞), ν(bias) = N − 1 (PT raundlari / CRM lar / recovery soni; bitta CRM — o'lchashlar soni − 1; kamida 1), recovery R_m — n − 1, qolganlari ∞; chiqarilgan hissalar kirmaydi. ν_eff < 30 (`NU_EFF_WARN_BELOW`) bo'lsa — `topdown_nu_low` va `kSuggested = t_P(⌊ν_eff⌋)` (P = `settings.P`, standart 0,9545). **k avtomatik o'zgarmaydi.**
 
 Testlar: `tests/cases/nordtest/*.json` (6 ta verified), `tests/cases/quam/quam-a4-recovery.json`, `quam-a6-empirical.json` (verified), `tests/engine/topdown.test.js`, `tests/ui/topdown.test.js`, `tests/ui/topdown-app.test.js`, `tests/templates/topdown.test.js`.
+
+## 9. Maxsus rejimlar (P10)
+
+To'rt mustaqil modul; har biri o'z formati bilan, `evaluate(spec)` formatga qarab uzatadi. Natijalar **yaxlitlanmaydi** (hisobot — `src/js/report.js::specialSection`). Har birida `{engineVersion, mode, format, approach, approachRef, warnings[{code, severity, ref}]}`; xato — `{error, detail}`.
+
+### 9.1. Namuna olish: `uc-sampling/1` — verified
+
+Dublikat usuli, muvozanatli dizayn: n ob'ekt × 2 namuna × 2 tahlil (UfS:2019 §9.4–9.5).
+
+```js
+/** @typedef {Object} SamplingSpec
+ * @property {'uc-sampling/1'} format
+ * @property {({id?:string, values:[S1A1,S1A2,S2A1,S2A2]} | number[])[]} targets
+ * @property {'classical'|'robust'} [method='classical']
+ * @property {boolean} [logTransform]          // ᶠU = exp(k·s_G,meas) (UfS Eq. 5)
+ * @property {string} [unit], {{value:number}} [measurement], {{k?:number}} [settings]   // k standart 2
+ *
+ * @typedef {Object} SamplingResult
+ * @property {'SAMPLING'} mode, {'DUPLICATE_CLASSICAL_ANOVA'|'DUPLICATE_ROBUST_ANOVA'} approach
+ * @property {Summary} classical, robust       // ikkalasi ham har doim hisoblanadi (taqqoslash uchun)
+ *   Summary: { mean, s:{between, sampling, analysis, measurement, total}, variancePct:{…}, relU:{sampling, analysis, measurement}, negative:string[], ss? }
+ * @property {number} mean, sBetween, sSamp, sAnal, sTotal, uc (= s_meas), k, U, relU, relUSamp, relUAnal   // tanlangan usul bo'yicha
+ * @property {{meanLog, geometricMean, sG:{…}, uncertaintyFactor:{sampling, analysis, measurement}}|null} log
+ * @property {number|null} y, absU             // absU = |y|·relU/100
+ */
+```
+
+| Formula | Manba | Holat |
+|---|---|---|
+| Klassik ichma-ich ANOVA: SS, MS; σ_a² = MS_a; σ_s² = (MS_s − MS_a)/2; σ_t² = (MS_t − MS_s)/4 | UfS:2019 Appendix C3; Figure A1.2 (p. 41), Figure A2.2 (p. 48) | **verified** (to'liq aniqlikda) |
+| s_meas² = s_samp² + s_anal²; U′ = 2·100·s_meas/x̄ | UfS:2019 Eq. 1–2 (§9.5.2), Eq. 4 (p. 20) | **verified** |
+| ᶠU = exp(2·s_G,meas) (loge qiymatlarda klassik ANOVA) | UfS:2019 Eq. 5 (§9.5.3); Table A2.3 (p. 49) | **verified** (2,6207) |
+| Robust ANOVA (Huber, c = 1,5; β = 0,7785) | UfS:2019 Appendix C3, [53] RANOVA — kod repoda yo'q | **verified 4 qiymatli raqamgacha** (qayta tiklangan algoritm, RISKS R-21) |
+
+Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi (jimgina emas). Boshqa ogohlantirishlar: `sampling_few_targets` (< 8), `sampling_fitness` (o'lchash dispersiyasi > 20 %), `sampling_robust_reconstructed`, `sampling_robust_no_convergence`, `sampling_bias_not_included` (har doim), `zero_u`. Xatolar: `sampling_bad_spec`, `sampling_bad_data`, `sampling_too_few`, `sampling_unbalanced`, `sampling_bad_method`, `sampling_log_nonpositive`, `sampling_zero_mean`.
+
+### 9.2. Sifatli (binar) testlar: `uc-qualitative/1` — verified
+
+```js
+/** @typedef {Object} QualitativeSpec
+ * @property {'uc-qualitative/1'} format
+ * @property {{tp:number, fn:number, fp:number, tn:number}} [table]   // yoki
+ * @property {{fp:number, fn:number}} [rates]                          // ulushlar (0…1), jadvalsiz
+ * @property {number} [prevalence]             // P(+), 0…1 — posterior ehtimollar uchun
+ * @property {{P?:number, ciMethod?:'wilson'|'clopper_pearson'}} [settings]   // P — ishonch darajasi (standart 0,95);
+ *                                            // ciMethod — hisobotdagi interval usuli (standart 'wilson'; laboratoriya sozlamasi)
+ *
+ * @typedef {Object} QualitativeResult
+ * @property {'QUALITATIVE'} mode
+ * @property {Rate} sensitivity, specificity, falsePositiveRate, falseNegativeRate, {Rate|null} ppvStudy, npvStudy
+ * @property {'wilson'|'clopper_pearson'} ciMethod   // qo'llanilgan usul — hisobotda nomi va P bilan yoziladi
+ *   Rate: { value, x, n, ci:{low, high}, wilson:{low, high}, clopperPearson:{low, high} }   // ci — tanlangan usul intervali
+ * @property {number} lrPositive (TP/FP), lrNegative (FN/TN), {number|null} studyPrevalence, prevalence, posteriorPositive, posteriorNegative
+ */
+```
+
+| Formula | Manba | Holat |
+|---|---|---|
+| SS = tp/(tp + fn); SP = tn/(tn + fp); FP = 1 − SP; FN = 1 − SS | AQA:2021 §3.2 | **verified** |
+| Wilson score intervali | AQA:2021 §4.4 Eq. (8)–(11); Table E6.2 (p. 36) | **verified** |
+| LR(+) = TP/FP; PP = O·LR/(O·LR + 1) | AQA:2021 §4.2, §4.3 Eq. (6); Example E3 (p. 28) | **verified** |
+| Clopper–Pearson (aniq binomial) — loyiha qo'shimchasi (AQA:2021 da yo'q) | mustaqil ochiq dastur: SciPy 1.18.1 — `scipy.stats.binomtest(x, n).proportion_ci(confidence_level=P, method="exact")` | tekshirilgan — 7 nuqta, 10⁻¹⁰ (qiymatlar sessiyada hisoblangan; RISKS R-21) + analitik: x = n → (α/2)^(1/n) |
+
+**Interval usuli (egasi qarori 2026-11-18, RISKS R-21).** Standart — Wilson; `settings.ciMethod: 'clopper_pearson'` — laboratoriya sozlamasi (`LAB_DEFAULTS.ciMethod`, "Laboratoriya sozlamalari" oynasi). `Rate.ci` — tanlangan usul intervali; `wilson` va `clopperPearson` har doim natijada saqlanadi (ekrandagi solishtirish uchun). Bosma hisobotda faqat tanlangan usul intervali, usul nomi va P chiqadi. Noto'g'ri `ciMethod` → `qualitative_bad_data`. Ogohlantirishlar: `qualitative_zero_false`, `qualitative_small_n` (< 30 holat), `qualitative_prevalence_study`, `qualitative_cp_project_addition` (info; faqat Clopper–Pearson tanlanganda). Xatolar: `qualitative_bad_spec`, `qualitative_bad_data`, `qualitative_no_positive_cases`, `qualitative_no_negative_cases`.
+
+### 9.3. Mikrobiologiya: `uc-micro/1` — BETA, unverified
+
+`{ result:{value, sumCounts}, technical?:{pairs:[[x1,x2]…]} | {s}, matrix?:{u}, unit?, settings?:{k=2, lowCountThreshold=10} }` → `{ mode:'MICROBIOLOGY', unverified:true, y (= log₁₀ N), uTech, uMatrix, uPoisson (= 0,4343/√ΣC), uc, k, U, interval:{low: 10^(y−U), high: 10^(y+U)}, intervalLog, budget[] }`. Har doim `micro_unverified` (warning); `micro_low_count`, `micro_no_technical`, `micro_few_pairs`. Xatolar: `micro_bad_spec`, `micro_bad_data`, `micro_zero_count`, `micro_need_result`.
+
+### 9.4. Tibbiy laboratoriya: `uc-medical/1` — BETA, unverified
+
+`{ unit, levels:[{id?, values[] | (mean, cv | sd, n?), uCal?, uBias?}], uCal?:{value, relative:true | unit}, uBias?, measurement?:{value}, settings?:{k=2} }` → `{ mode:'MEDICAL', unverified:true, levels:[{id, mean, n, sd, cv, uRw, uCal, uBias, u:{abs, rel}, U:{abs, rel}, budget[]}], y, appliedLevel, absU, relU }`. Nisbiy ↔ mutlaq o'tkazish har bir darajaning o'z o'rtachasi orqali; kattalikda `unit` yoki `relative: true` bo'lmasa — `medical_need_scale`, aralash — `medical_mixed_scale`. Har doim `medical_unverified` (warning); `medical_no_calibrator`, `medical_few_iqc`, `zero_u`.
+
+Testlar: `tests/cases/ufs/*.json` (4), `tests/cases/aqa/*.json` (4) — verified; `tests/engine/special-modes.test.js`, `tests/ui/special.test.js`.

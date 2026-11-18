@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "SP-04",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "general",
+  "evaluationMode": "MEDICAL",
+  "title": {
+    "uz": "Tibbiy laboratoriya: IQC darajalari bo'yicha noaniqlik — BETA",
+    "ru": "Медицинская лаборатория: неопределённость по уровням IQC — BETA",
+    "en": "Medical laboratory: uncertainty by IQC level — BETA"
+  },
+  "description": {
+    "uz": "Har bir IQC darajasi (L1/L2/L3) uchun u = √(u_cal² + u_Rw²), kerak bo'lsa bias noaniqligi bilan; natija nisbiy (%) va mutlaq ko'rinishda.",
+    "ru": "Для каждого уровня IQC (L1/L2/L3): u = √(u_cal² + u_Rw²), при необходимости с неопределённостью смещения; результат в относительном (%) и абсолютном виде.",
+    "en": "For each IQC level (L1/L2/L3): u = √(u_cal² + u_Rw²), with the bias uncertainty if needed; the result is given in relative (%) and absolute form."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P10 shabloni (DRAFT, BETA). Yondashuv ISO/TS 20914 ga tayanadi; standart matni repozitoriyda yo'q — tekshirilmagan. Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P10 (DRAFT, BETA). Подход основан на ISO/TS 20914; текста стандарта в репозитории нет — не проверено. Все числовые поля пусты — лаборатория вводит собственные данные.",
+    "en": "P10 template (DRAFT, BETA). The approach follows ISO/TS 20914; the text of the standard is not in the repository — unverified. All numeric fields are empty — the laboratory enters its own data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#11-maxsus-rejimlar-p10",
+  "measurand": {
+    "symbol": "c",
+    "name": {
+      "uz": "Analit konsentratsiyasi",
+      "ru": "Концентрация аналита",
+      "en": "Analyte concentration"
+    },
+    "unit": "mmol/L"
+  },
+  "model": {
+    "formula": "u = sqrt(u_cal^2 + u_Rw^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob «Maxsus rejimlar» oynasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в окне «Специальные режимы».",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Special modes window."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "c",
+      "name": {
+        "uz": "O'lchangan konsentratsiya",
+        "ru": "Измеренная концентрация",
+        "en": "Measured concentration"
+      },
+      "unit": "mmol/L",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "special": {
+    "hint": {
+      "uz": "CV_Rw uzoq muddatli IQC ma'lumotidan olinadi (reagent va kalibrator partiyalari almashishini qamrashi kerak). u_cal — kalibrator ishlab chiqaruvchisi ma'lumotidan.",
+      "ru": "CV_Rw берётся из долговременных данных IQC (должны охватывать смену партий реагентов и калибраторов). u_cal — по данным изготовителя калибратора.",
+      "en": "CV_Rw comes from long-term IQC data (covering changes of reagent and calibrator lots). u_cal comes from the calibrator manufacturer."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab+owner",
+      "blocking": true,
+      "text": {
+        "uz": "⚠ BETA: ISO/TS 20914 matni repozitoriyda yo'q — hisob manba misoli bilan tasdiqlanmagan. Shablon tasdiqlanishidan (APPROVED) oldin standart yoki laboratoriya Excel'i bilan solishtirilishi shart.",
+        "ru": "⚠ BETA: текста ISO/TS 20914 в репозитории нет — расчёт не подтверждён примером из источника. До утверждения шаблона (APPROVED) обязательна сверка со стандартом или лабораторным Excel.",
+        "en": "⚠ BETA: the text of ISO/TS 20914 is not in the repository — the calculation is not confirmed by a source example. Before the template is APPROVED it must be checked against the standard or a laboratory spreadsheet."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

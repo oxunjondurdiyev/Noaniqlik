@@ -805,3 +805,14 @@ details.rg-card > summary { cursor: pointer; }
   /* X11 / X12 va boshqa ogohlantirishlar chop etilgan hisobotda ham ko'rinadi (egasi qarori 2026-11-17) */
   .td-report .warn-box, .td-report .td-note { display: block !important; visibility: visible !important; border: 1px solid #999; padding: .3em .5em; font-size: 9pt; margin-bottom: .5em; color: #000; }
 }
+
+/* ─── P10: MAXSUS REJIMLAR (src/ui/special/) ──────────────────── */
+.sp-modes { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0 1rem; }
+.sp-mode { padding: .45rem .9rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-muted); font: inherit; font-size: .86rem; cursor: pointer; }
+.sp-mode.active { border-color: var(--accent); color: var(--text); font-weight: 600; }
+.sp-2x2 { width: auto; margin-bottom: .8rem; }
+.sp-2x2 input { width: 7rem; text-align: right; font-family: var(--font-mono, monospace); }
+.sp-2x2 th { text-transform: none; }
+@media print {
+  .sp-report .warn-box, .sp-report .td-note { display: block !important; visibility: visible !important; }
+}
