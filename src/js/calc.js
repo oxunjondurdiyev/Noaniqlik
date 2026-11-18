@@ -10,6 +10,8 @@
 import * as engine from '../engine/index.js';
 import { roundResult, roundHalfAway, roundUpAway } from '../report/rounding.js';
 import { fmt, fmtSci } from '../report/format.js';
+import { newMeta, metaFor } from '../io/calc-meta.js';
+import { createSections } from '../report/sections.js';
 import { findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText } from '../report/findings.js';
 
 const Calc = Object.freeze({
@@ -44,7 +46,10 @@ const Calc = Object.freeze({
   validateAcceptance: engine.validateAcceptance,
   MODEL_KINDS: engine.MODEL_KINDS,
   MC_SEED: engine.MC_SEED,
+  // P05b: hisob identifikatori (eksport va hisobot xeshi bir xil bo'lishi uchun)
+  newMeta, metaFor,
   // hisobot qatlami
+  createSections,
   roundResult, roundHalfAway, roundUpAway, fmt, fmtSci,
   findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText,
 });

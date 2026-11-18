@@ -35,6 +35,7 @@ const Points = (() => {
       label: (label || '').trim() || (idx >= 0 ? pts[idx].label : defaultLabel(pts.length + 1)),
       snapshot: snapshot(st),
       result: r,
+      meta: clone(st.calcMeta || null),            // P05b: nuqta hisobining id / vaqti
       acceptances: clone(st.acceptances || {}),   // P05a: shu nuqtadagi qabul qilingan topilmalar (bosma hisobotda izohi bilan)
     };
     if (idx >= 0) pts[idx] = entry; else pts.push(entry);
@@ -46,7 +47,7 @@ const Points = (() => {
   function load(id) {
     const p = list().find(x => x.id === id);
     if (!p) return;
-    appState.set({ ...clone(p.snapshot), typeA: {}, combined: p.result, currentPoint: id, acceptances: clone(p.acceptances || {}) });
+    appState.set({ ...clone(p.snapshot), typeA: {}, combined: p.result, currentPoint: id, acceptances: clone(p.acceptances || {}), calcMeta: clone(p.meta || null) });
   }
 
   function remove(id) {

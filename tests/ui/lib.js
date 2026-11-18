@@ -3,11 +3,13 @@
 'use strict';
 const E = require('../../src/engine/index.js');
 const F = require('../../src/report/findings.js');
+const { createSections } = require('../../src/report/sections.js');
 
 const reportBridge = {
   lint: E.lint, lintReported: E.lintReported, FINDING_CODES: E.FINDING_CODES, MIN_ACCEPT_COMMENT: E.MIN_ACCEPT_COMMENT,
   validateAcceptance: E.validateAcceptance, MODEL_KINDS: E.MODEL_KINDS, MC_SEED: E.MC_SEED,
   findingsBlockHTML: F.findingsBlockHTML, findingsStatus: F.findingsStatus, findingText: F.findingText,
+  createSections,
   watermarkHTML: F.watermarkHTML, criticalMarkHTML: F.criticalMarkHTML, reportMarks: F.reportMarks, modelKindText: F.modelKindText,
 };
 
