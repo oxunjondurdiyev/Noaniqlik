@@ -126,26 +126,76 @@ export function createSections(environment) {
 
   function confKind(r) { return ['error', 'value'].includes(r.modelKind) ? r.modelKind : 'unknown'; }
   function confPending(r) { return !!r.conf && (r.conf.pending || confKind(r) === 'unknown' || r.deviation === null || r.deviation === undefined); }
-  function confLines(r, conf) {
-    const c = conf || r.conf, s = escHtml(r.symbol);
+  /* Qaror qoidasi va muvofiqlik bayonoti (P05b). Ref: JCGM 106:2012 §7–8; ILAC G8:09/2019 §4.2, §5.2;
+     ISO/IEC 17025:2017 §7.1.3, §7.8.6 (ILAC G8 §2.3, §2.6–2.7 dagi iqtiboslar bo'yicha).
+     Chegara yoki qaror qoidasi berilmagan bo'lsa bayonot CHIQMAYDI (faqat eslatma). Eski saqlangan natijada
+     (ENGINE < 2.5.0 — `decision` maydoni yo'q) ham bayonot berilmaydi: qayta hisoblash kerak. */
+  const VERDICT_KEYS = { pass: 'dr_pass', fail: 'dr_fail', conditional_pass: 'dr_cond_pass', conditional_fail: 'dr_cond_fail' };
+  function verdictBadge(d) {
+    const cls = d.verdict === 'pass' ? 'badge-green' : d.verdict === 'fail' ? 'badge-red' : 'badge-orange';
+    return `<span class="badge ${cls}" data-decision-verdict="${escHtml(d.verdict)}">${escHtml(i18n.t(VERDICT_KEYS[d.verdict]))}</span>`;
+  }
+  function decisionOf(r, decision) { return decision !== undefined ? decision : (r.decision === undefined ? null : r.decision); }
+  /** Jadval katagi uchun qisqa ko'rinish */
+  function decisionCell(r, decision) {
+    const d = decisionOf(r, decision);
+    if (!d) return '—';
+    if (d.error) return `<span class="badge badge-red">${escHtml(i18n.t('dr_error_short'))}</span>`;
+    if (d.pending) return `<span class="badge badge-orange" data-conf-pending="1">${escHtml(i18n.t(d.pending === 'rule' ? 'dr_pending_rule_short' : 'mk_pending_short'))}</span>`;
+    return verdictBadge(d);
+  }
+  function limitText(v) { return v === null || v === undefined ? '—' : Calc.fmtSci(v, 6); }
+  function decisionLines(r, decision) {
+    const d = decisionOf(r, decision);
+    const s = escHtml(r.symbol);
+    if (!d) {
+      // eski natija (decision maydoni yo'q), lekin chegara bor: qayta hisoblash so'raladi
+      return r.decision === undefined && r.conf && r.conf.mpe > 0 && !confPending(r)
+        ? [`<span data-decision-pending="recalc">⚠ ${escHtml(i18n.t('dr_pending_recalc'))}</span>`] : [];
+    }
+    if (d.pending === 'rule') return [`<span data-decision-pending="rule">⚠ ${escHtml(i18n.t('dr_pending_rule'))}</span>`];
+    if (d.pending === 'limit') return [`<span data-decision-pending="limit">⚠ ${escHtml(i18n.t('dr_pending_limit'))}</span>`];
+    if (d.pending) return [];                                   // model turi / nominal — yuqorida (mk_pending)
+    if (d.error) return [`<span data-decision-error="${escHtml(d.error)}">⚠ ${escHtml(i18n.t('dr_error'))} (${escHtml(d.error)})</span>`];
+    const u = unitOf(r);
+    const pctOf = v => (v * 100 >= 99.995 ? '> 99,99' : v * 100 < 0.005 ? '< 0,01' : (v * 100).toFixed(2));
     const lines = [];
-    if (!c) return lines;
+    const tol = d.type === 'two_sided' ? `${limitText(d.lower)} ≤ ${s} ≤ ${limitText(d.upper)}` : (d.type === 'upper' ? `${s} ≤ ${limitText(d.upper)}` : `${s} ≥ ${limitText(d.lower)}`);
+    lines.push(`<span data-decision-limits="${escHtml(d.type)}">${escHtml(i18n.t('dr_limits'))}: ${tol}${u}</span>`);
+    const ruleText = d.rule === 'simple' ? i18n.t('dr_rule_simple')
+      : i18n.t(d.r < 0 ? 'dr_rule_guard_reject' : 'dr_rule_guard').replace('{r}', String(d.r)).replace('{w}', Calc.fmtSci(Math.abs(d.w), 3));
+    lines.push(`<span data-decision-rule="${escHtml(d.rule)}">${escHtml(i18n.t('dr_rule'))}: ${escHtml(ruleText)}${u}; ${escHtml(i18n.t('dr_statement_' + d.statement))}</span>`);
+    const acc = d.type === 'two_sided' ? `[${limitText(d.acceptLower)}; ${limitText(d.acceptUpper)}]` : (d.type === 'upper' ? `≤ ${limitText(d.acceptUpper)}` : `≥ ${limitText(d.acceptLower)}`);
+    lines.push(`${escHtml(i18n.t('dr_accept'))}: ${acc}${u}${d.tur !== null ? `;   TUR = ${d.tur.toFixed(2)}` : ''}`);
+    lines.push(`<span data-decision-pc="1">${escHtml(i18n.t('dr_pc'))}: p<sub>c</sub> = ${pctOf(d.pc)} %;   ${escHtml(i18n.t(d.riskKind === 'consumer' ? 'dr_risk_consumer' : 'dr_risk_producer'))}: ${pctOf(d.specificRisk)} % <span class="text-xs text-muted">(${escHtml(i18n.t('dr_normal'))})</span></span>`);
+    lines.push(`<span data-decision-statement="${escHtml(d.verdict)}"><strong>${escHtml(i18n.t('dr_result'))}:</strong> ${verdictBadge(d)}</span>`);
+    lines.push(`<span data-decision-agreement="${d.agreement ? '1' : '0'}">${escHtml(i18n.t('dr_agreement'))}: ${d.agreement ? escHtml(d.agreement) : escHtml(i18n.t('dr_agreement_none'))}</span>`);
+    return lines;
+  }
+  function confLines(r, conf, decision) {
+    const c = conf || r.conf, s = escHtml(r.symbol);
+    const d = decisionOf(r, decision);
+    const lines = [];
+    if (!c && !d) return lines;
     lines.push(`<span data-model-kind-line="${confKind(r)}">${modelKindLine(r)}</span>`);
-    if (confPending(r)) {
+    if (c && confPending(r)) {
       if (c.mpe > 0) lines.push(`MPE = ±${Calc.fmtSci(c.mpe, 4)}${unitOf(r)};   U / MPE = ${(c.ratio !== null && c.ratio !== undefined ? c.ratio : r.U / c.mpe).toFixed(3)}`);
       lines.push(`<span data-conf-pending="${escHtml((c.pending) || 'model_kind')}">⚠ ${escHtml(i18n.t(c.pending === 'nominal' ? 'mk_pending_nominal' : 'mk_pending'))}</span>`);
       return lines;
     }
+    if (!c && d && (d.pending === 'model_kind' || d.pending === 'nominal')) {
+      lines.push(`<span data-conf-pending="${escHtml(d.pending)}">⚠ ${escHtml(i18n.t(d.pending === 'nominal' ? 'mk_pending_nominal' : 'mk_pending'))}</span>`);
+      return lines;
+    }
     // og'ish belgisi: |E| yoki |Y − Y_nom|
     const dev = confKind(r) === 'value' ? `|${s} − ${escHtml(String(r.nominal))}|` : `|${s}|`;
-    if (c.mpe > 0) {
+    if (c && c.mpe > 0) {
       lines.push(`MPE = ±${Calc.fmtSci(c.mpe, 4)}${unitOf(r)};   U / MPE = ${c.ratio.toFixed(3)}`);
-      lines.push(`${i18n.t('conf_simple')}: ${dev} ≤ MPE  →  ${confLabel(c.simple, false)}`);
-      lines.push(`${i18n.t('conf_guarded')}: ${dev} + U ≤ MPE  →  ${confLabel(c.guarded, true)}`);
       if (c.ratio > 1) lines.push(`⚠ ${i18n.t('w_u_gt_mpe')}`);
-    } else {
+    } else if (c) {
       lines.push(i18n.t('conf_zero_mpe'));
     }
+    lines.push(...decisionLines(r, decision));
     if (r.gamma !== null && r.gamma !== undefined) lines.push(`${i18n.t('conf_gamma')}: γ = ${dev} / ${i18n.t('set_range').toLowerCase()} · 100 = ${r.gamma.toFixed(3)} %`);
     return lines;
   }
@@ -381,7 +431,7 @@ export function createSections(environment) {
   function pointDetail(r, snap, title, rr, k, extra) {
     const p9 = l => `<p style="font-size:9pt;margin:.25em 0">${l}</p>`;
     const ex = extra || {};
-    const conf = confLines(r, ex.conf);
+    const conf = confLines(r, ex.conf, ex.decision);
     return `
       ${title ? `<div class="print-point-title">${escHtml(title)}</div>` : ''}
       ${findingsHtml(r, { scope: 'gum', print: true, spec: snap, acceptances: ex.acceptances, showEmpty: true })}
@@ -418,12 +468,13 @@ export function createSections(environment) {
 
   function summaryTable(rows) {
     const anyConf = rows.some(x => x.conf && x.conf.mpe > 0);
+    const anyDecision = anyConf || rows.some(x => decisionOf(x.r, x.decision));
     const sym = escHtml(rows[0].r.symbol), unit = rows[0].r.unit ? ', ' + escHtml(rows[0].r.unit) : '';
     return `
       <table class="print-table">
         <thead><tr>
           <th>${i18n.t('pt_col')}</th><th>${sym}${unit}</th><th>U${unit}</th><th>k</th><th>ν_eff</th>
-          ${anyConf ? `<th>MPE</th><th>${i18n.t('conf_guarded')}</th>` : ''}
+          ${anyConf ? `<th>MPE</th>` : ''}${anyDecision ? `<th>${i18n.t('dr_col')}</th>` : ''}
         </tr></thead>
         <tbody>
           ${rows.map(x => `<tr>
@@ -432,8 +483,8 @@ export function createSections(environment) {
             <td class="num">${x.rr.Uround.toFixed(x.rr.digits)}</td>
             <td class="num">${x.k.toFixed(2)}</td>
             <td class="num">${nuText(x.r.nuEff)}</td>
-            ${anyConf ? `<td class="num">${x.conf && x.conf.mpe > 0 ? Calc.fmtSci(x.conf.mpe, 3) : '—'}</td>
-              <td>${x.conf ? (x.conf.pending ? escHtml(i18n.t('mk_pending_short')) : i18n.t(CONF_KEYS[x.conf.guarded])) : '—'}</td>` : ''}
+            ${anyConf ? `<td class="num">${x.conf && x.conf.mpe > 0 ? Calc.fmtSci(x.conf.mpe, 3) : '—'}</td>` : ''}
+            ${anyDecision ? `<td data-summary-decision="1">${x.conf && x.conf.pending ? escHtml(i18n.t('mk_pending_short')) : decisionCell(x.r, x.decision)}</td>` : ''}
           </tr>`).join('')}
         </tbody>
       </table>`;
@@ -795,6 +846,7 @@ export function createSections(environment) {
   // Yagona escape: src/ui/escape.js (P02)
 
   return {
+    decisionLines, decisionCell, decisionOf, verdictBadge,
     unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

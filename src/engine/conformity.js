@@ -8,6 +8,8 @@
         ILAC G8:09/2019 (yo'q — tekshirilmagan).
 ═══════════════════════════════════════════════════════════════ */
 
+import { decide } from './decision.js';
+
 /** Model turlari: 'error' — E = X − X_ref; 'value' — Y (nominal bilan); 'unknown' — ko'rsatilmagan. */
 export const MODEL_KINDS = ['error', 'value', 'unknown'];
 
@@ -36,7 +38,7 @@ export function pendingConformity(U, mpe, pending) {
  * Ref: COOMET R/GM/32:2017 §5.7.3 (docs/references da yo'q — tekshirilmagan).
  * @param {{k:number, uc:number, y:number, deviation?:number, conf?:{mpe:number, pending?:string}}[]} results
  * @param {boolean} uniformK
- * @returns {{k:number, U:number, conf:object|null}[]}
+ * @returns {{k:number, U:number, conf:object|null, decision:object|null|undefined}[]}
  */
 export function multiPointCoverage(results, uniformK) {
   const kmax = results.reduce((m, r) => Math.max(m, r.k), 0);
@@ -51,6 +53,12 @@ export function multiPointCoverage(results, uniformK) {
       if (r.conf.pending || dev === undefined || dev === null || !isFinite(dev)) conf = pendingConformity(U, r.conf.mpe, r.conf.pending || 'model_kind');
       else conf = conformity(dev, U, r.conf.mpe);
     }
-    return { k, U, conf };
+    // P05b: qaror qoidasi (result.decision) yagona k bilan qayta qo'llanadi — U o'zgargani uchun w = r·U ham o'zgaradi
+    let decision = r.decision === undefined ? undefined : r.decision;
+    if (decision && !decision.pending && !decision.error && U !== r.U) {
+      const d = decide({ value: decision.value, u: decision.u, U, lower: decision.lower, upper: decision.upper, rule: decision.rule, r: decision.r, statement: decision.statement });
+      decision = d.error ? { pending: null, error: d.error, detail: d.detail || null, lower: decision.lower, upper: decision.upper } : { ...d, pending: null, agreement: decision.agreement || '' };
+    }
+    return { k, U, conf, decision };
   });
 }
