@@ -49,7 +49,7 @@
 > | Fayl | Vazifasi (P10) |
 > |---|---|
 > | `src/engine/sampling/index.js` | `evaluateSampling` (format `uc-sampling/1`): dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU |
-> | `src/engine/qualitative/index.js` | `evaluateQualitative` (`uc-qualitative/1`): 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson |
+> | `src/engine/qualitative/index.js` | `evaluateQualitative` (`uc-qualitative/1`): 2×2 jadval, SS, SP, LR, posterior; interval — Wilson (standart) yoki Clopper–Pearson (laboratoriya sozlamasi `ciMethod`) |
 > | `src/engine/micro/index.js` | `evaluateMicro` (`uc-micro/1`): log₁₀ sanoq — **BETA, unverified** |
 > | `src/engine/medical/index.js` | `evaluateMedical` (`uc-medical/1`): IQC darajalari — **BETA, unverified** |
 > | `src/ui/special/build.js`, `view.js` | oyna holati → modelSpec; qo'yilgan jadvalni o'qish; shakllar HTML'i (sof, Node'da test qilinadi) |

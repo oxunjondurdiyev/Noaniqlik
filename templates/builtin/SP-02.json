@@ -73,11 +73,11 @@
     },
     {
       "id": "Q2",
-      "owner": "lab+owner",
+      "owner": "lab",
       "text": {
-        "uz": "⚠ Ishonch intervali: AQA:2021 Wilson intervalini qo'llaydi; loyiha talabnomasida Clopper–Pearson ko'rsatilgan. Dastur ikkalasini beradi — hisobotda qaysi biri ishlatilishini laboratoriya (yoki egasi) belgilaydi.",
-        "ru": "⚠ Доверительный интервал: AQA:2021 применяет интервал Уилсона; в задании проекта указан Клоппер–Пирсон. Программа выдаёт оба — какой использовать в протоколе, определяет лаборатория (или владелец).",
-        "en": "⚠ Confidence interval: AQA:2021 uses the Wilson interval; the project brief names Clopper–Pearson. The program gives both — the laboratory (or the owner) decides which one is reported."
+        "uz": "Ishonch intervali (egasi qarori 2026-11-18): hisobotga standart bo'yicha Wilson intervali chiqadi (AQA:2021 §4.4). Laboratoriya Clopper–Pearson usulini qo'llasa — \"Laboratoriya sozlamalari\" da \"Ishonch intervali usuli\" ni o'zgartiradi; hisobotda faqat tanlangan usul intervali, uning nomi va P chiqadi.",
+        "ru": "Доверительный интервал (решение владельца 2026-11-18): в протокол по умолчанию выводится интервал Уилсона (AQA:2021 §4.4). Если лаборатория применяет метод Клоппера–Пирсона — меняет «Метод доверительного интервала» в настройках лаборатории; в протоколе выводится только интервал выбранного метода, его название и P.",
+        "en": "Confidence interval (owner decision 2026-11-18): the report shows the Wilson interval by default (AQA:2021 §4.4). A laboratory that uses the Clopper–Pearson method changes \"Confidence interval method\" in the laboratory settings; the report then shows only the interval of the selected method, its name and P."
       }
     }
   ],

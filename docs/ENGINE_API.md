@@ -380,12 +380,14 @@ Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi
  * @property {{tp:number, fn:number, fp:number, tn:number}} [table]   // yoki
  * @property {{fp:number, fn:number}} [rates]                          // ulushlar (0…1), jadvalsiz
  * @property {number} [prevalence]             // P(+), 0…1 — posterior ehtimollar uchun
- * @property {{P?:number}} [settings]          // ishonch darajasi, standart 0,95
+ * @property {{P?:number, ciMethod?:'wilson'|'clopper_pearson'}} [settings]   // P — ishonch darajasi (standart 0,95);
+ *                                            // ciMethod — hisobotdagi interval usuli (standart 'wilson'; laboratoriya sozlamasi)
  *
  * @typedef {Object} QualitativeResult
  * @property {'QUALITATIVE'} mode
  * @property {Rate} sensitivity, specificity, falsePositiveRate, falseNegativeRate, {Rate|null} ppvStudy, npvStudy
- *   Rate: { value, x, n, wilson:{low, high}, clopperPearson:{low, high} }
+ * @property {'wilson'|'clopper_pearson'} ciMethod   // qo'llanilgan usul — hisobotda nomi va P bilan yoziladi
+ *   Rate: { value, x, n, ci:{low, high}, wilson:{low, high}, clopperPearson:{low, high} }   // ci — tanlangan usul intervali
  * @property {number} lrPositive (TP/FP), lrNegative (FN/TN), {number|null} studyPrevalence, prevalence, posteriorPositive, posteriorNegative
  */
 ```
@@ -395,9 +397,9 @@ Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi
 | SS = tp/(tp + fn); SP = tn/(tn + fp); FP = 1 − SP; FN = 1 − SS | AQA:2021 §3.2 | **verified** |
 | Wilson score intervali | AQA:2021 §4.4 Eq. (8)–(11); Table E6.2 (p. 36) | **verified** |
 | LR(+) = TP/FP; PP = O·LR/(O·LR + 1) | AQA:2021 §4.2, §4.3 Eq. (6); Example E3 (p. 28) | **verified** |
-| Clopper–Pearson (aniq binomial) | Clopper & Pearson (1934) — repoda yo'q | unverified (analitik tekshiruv: x = n → (α/2)^(1/n)) |
+| Clopper–Pearson (aniq binomial) — loyiha qo'shimchasi (AQA:2021 da yo'q) | mustaqil ochiq dastur: SciPy 1.18.1 — `scipy.stats.binomtest(x, n).proportion_ci(confidence_level=P, method="exact")` | tekshirilgan — 7 nuqta, 10⁻¹⁰ (qiymatlar sessiyada hisoblangan; RISKS R-21) + analitik: x = n → (α/2)^(1/n) |
 
-Ikkala interval ham har doim beriladi — qaysi biri hisobotda ishlatilishi egasining qarori (RISKS R-21). Ogohlantirishlar: `qualitative_zero_false`, `qualitative_small_n` (< 30 holat), `qualitative_prevalence_study`, `qualitative_cp_unverified`. Xatolar: `qualitative_bad_spec`, `qualitative_bad_data`, `qualitative_no_positive_cases`, `qualitative_no_negative_cases`.
+**Interval usuli (egasi qarori 2026-11-18, RISKS R-21).** Standart — Wilson; `settings.ciMethod: 'clopper_pearson'` — laboratoriya sozlamasi (`LAB_DEFAULTS.ciMethod`, "Laboratoriya sozlamalari" oynasi). `Rate.ci` — tanlangan usul intervali; `wilson` va `clopperPearson` har doim natijada saqlanadi (ekrandagi solishtirish uchun). Bosma hisobotda faqat tanlangan usul intervali, usul nomi va P chiqadi. Noto'g'ri `ciMethod` → `qualitative_bad_data`. Ogohlantirishlar: `qualitative_zero_false`, `qualitative_small_n` (< 30 holat), `qualitative_prevalence_study`, `qualitative_cp_project_addition` (info; faqat Clopper–Pearson tanlanganda). Xatolar: `qualitative_bad_spec`, `qualitative_bad_data`, `qualitative_no_positive_cases`, `qualitative_no_negative_cases`.
 
 ### 9.3. Mikrobiologiya: `uc-micro/1` — BETA, unverified
 
