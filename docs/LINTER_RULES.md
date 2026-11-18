@@ -81,8 +81,8 @@ Bu qoidalar `evaluate()` natijasida chiqmaydi (9 ta etalon nuqtaning GUM topilma
 | **M2** | `mc_nonnormal_correlation` | **error** | JCGM 101:2008 §6.4.8.1, §6.4.8.4 Note, C.5 | Korrelyatsiyalangan kirishlar orasida normal bo'lmagani bor (t — kam kuzatuv, to'g'ri burchakli …) — **MCM natijasi berilmaydi** | "Juftlangan" belgisini olib tashlash (agar juft bo'lmasa); Gauss yaqinlashuvini yoqish; GUM natijasi |
 | | `mc_correlation_gaussian_approx` | warning | shu | Laboratoriya sozlamasi bilan guruh N(x, U_x) bilan yaqinlashtirilgan | Natijani yaqinlashuv deb ko'rsatish |
 | **M3** | `mc_lpu_not_validated` | warning | JCGM 101:2008 §8.1.1, §8.1.3 (Eq. 19, 20) | d_low yoki d_high > δ — GUM natijasi tasdiqlanmadi; hisobotda MCM intervali natija sifatida chiqadi | MCM intervalini (interval turi, P, M, generator, urug', n_dig bilan) ko'rsatish |
-| **M4** | `mc_not_converged` | warning | JCGM 101:2008 §7.9.4 k), §7.9.3 Note 1 | Adaptiv protsedura M chegarasiga yetdi, 2s ≤ δ bajarilmadi | n_dig = 1, M chegarasini oshirish |
-| | `mc_variance_undefined` | warning | JCGM 101:2008 §7.6 Note 2, §6.4.9.4, C.6 Note | Kirishga ν ≤ 2 bo'lgan t-taqsimot tayinlangan (n ≤ 3) — u(y) mavjud emas | n ≥ 4 yoki s_p (usul 2); interval ko'rsatish |
+| **M4** | `mc_not_converged` | warning | JCGM 101:2008 §7.9.4 k), §7.9.3 Note 1, §8.2 | Talab qilingan sonli toleransga erishilmadi: adaptiv protsedura M chegarasiga yetdi yoki qat'iy M da tekshiruv uchun δ/5 ta'minlanmadi; erishilgan tolerans hisobotda | n_dig = 1; laboratoriya sozlamasida δ |
+| | `mc_variance_undefined` | warning | JCGM 101:2008 §7.6 Note 2, §6.4.9.4, C.6 Note | Kirishga ν ≤ 2 bo'lgan t-taqsimot tayinlangan (n ≤ 3) — u(y) aniqlanmagan, faqat qamrov intervali | n ≥ 4 yoki s_p (usul 2); interval ko'rsatish |
 | | `mc_legacy_rng` | info | JCGM 101:2008 C.3.2.1 | Eski generator (xorshift32) bilan takrorlangan natija | Yangi hisobot uchun standart generator |
 
 ### 2.3. Modul ogohlantirishlari topilma sifatida (kodlar o'zgarmagan)
@@ -132,9 +132,9 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 18 | D1 | TUR = T / (2U) (simmetrik ±MPE da MPE / U); **TUR < 1** → warning (`decision_low_tur`); **1 ≤ TUR < 4** → info (`decision_tur_below_4`) (egasi o'zgartirdi, 2026-11-18) | JCGM 106 §7.6.2 (C_m), ILAC G8 §1.13 (TUR = TL/U); 4:1 — amaliyotdagi qoida, manbasi repoda yo'q (unverified) |
 | 19 | D1 | p_c har doim normal taqsimot bilan; ν_eff < **30** da info (t-taqsimotga o'tilmaydi) | JCGM 106 §7.2.3–7.2.4: normal — odatiy faraz |
 | 20 | D1 | nobinar bayonot: qabul oralig'ida — `pass`; tolerantlik ichida, lekin himoya zonasida — `conditional_pass`; tolerantlikdan tashqarida, chegaradan w gacha — `conditional_fail`; undan nari — `fail` | ILAC G8 §4.2.3 |
-| 21 | M2 (P06) | normal bo'lmagan korrelyatsiyada MCM natijasi **berilmaydi** (error); Gauss yaqinlashuvi — faqat sozlama bilan, warning | JCGM 101 §6.4.8.4 Note: boshqa birgalikdagi taqsimot uchun tanlash usuli "would need to be provided" |
-| 22 | M3 | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; adaptiv protsedura δ bilan (δ/5 emas — §8.2 tavsiyasi sozlama sifatida) | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
-| 23 | M4 | `mc_variance_undefined` chegarasi ν ≤ 2; warning | §7.6 Note 2: "fewer than three degrees of freedom" |
+| 21 | M2 (P06) — **egasi tasdiqladi (2026-11-18)** | normal bo'lmagan korrelyatsiyada MCM natijasi **berilmaydi** (error), topilmada "LPU natijasi amal qiladi"; Gauss yaqinlashuvi — faqat sozlama bilan, warning; ko'p o'lchovli t — P07 | JCGM 101 §6.4.8.4 Note: boshqa birgalikdagi taqsimot uchun tanlash usuli "would need to be provided" |
+| 22 | M3 — **egasi qarori (2026-11-18)** | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; GUM tekshiruvida MCM toleransi **δ/5** (§8.2), oddiy MCM da δ; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
+| 23 | M4 — **egasi qarori (2026-11-18)** | `mc_variance_undefined` chegarasi ν ≤ 2; warning; bunday kirishda mezon avtomatik faqat interval uchlari, u(y) berilmaydi. `mc_not_converged` — adaptiv M chegarasi **yoki** qat'iy M da tekshiruv toleransiga erishilmagani | §7.6 Note 2: "fewer than three degrees of freedom" |
 
 ## 5. Tekshiruv
 

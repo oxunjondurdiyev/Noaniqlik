@@ -34,7 +34,7 @@
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 (yopildi — MC qismi) |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
-| R-23 | Monte-Karlo 2.0: ochiq qarorlar (10-test toleransi, ν ≤ 2 da mezon, normal bo'lmagan korrelyatsiya, usul 3, δ/5), boshqa JS dvigatellarida bit darajasidagi takrorlanuvchanlik tekshirilmagan, log-normal unverified | O | P06 → egasi |
+| R-23 | Monte-Karlo 2.0: egasi qarorlari qabul qilindi (2026-11-18); qoldiq — ko'p o'lchovli t (P07), Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06 (qarorlar bajarildi) → P07, P13 |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
@@ -45,28 +45,46 @@
 | R-16 | **yopildi (MC)** | Web Worker + progress + bekor qilish; worker'siz bo'laklab. Chromium: M = 10⁶ — 1,0 s, asosiy oqimda eng uzun to'xtash 12 ms | `appState.set` dagi to'liq `JSON.stringify` va qayta chizish — o'zgarmagan (past ustuvorlik) |
 | R-05 | o'zgarmadi | MC topilmalari (M2–M4) ham bosma hisobotda; LPU tasdiqlanmasa MCM intervali natija sifatida | — |
 
-#### R-23. Monte-Karlo 2.0: ochiq qarorlar va tekshirilmagan qism (O)
+#### R-23. Monte-Karlo 2.0: egasi qarorlari (2026-11-18) va qoldiq xavf (O)
 
-Egasi qarori kutilayotganlar (savollar — `tests/cases/DISCREPANCIES.md` Q-3, Q-5…Q-8):
+Egasi qarorlari (savollar va javoblar — `tests/cases/DISCREPANCIES.md` Q-3, Q-5…Q-8):
 
-1. **10-test, n_dig = 2** — qo'llanma qiymati shu aniqlikda emas (D-04); tolerans moslashtirilmagan.
-2. **ν ≤ 2 da adaptiv mezon** — standart mezon barqarorlashmaydi; `criteria: 'interval'` sozlamasi bor, standart emas.
-3. **Normal bo'lmagan korrelyatsiya** — standart: natija berilmaydi. Oqibat: juftlangan kuzatuvli hisoblarda (masalan, zichlik etaloni) MCM endi ishlamaydi (2.5.0 da korrelyatsiyani e'tiborsiz qoldirib ishlar edi). Copula / ko'p o'lchovli t — qo'shilmagan.
-4. **A tur usul 3** — MCM da t₍n−1₎ (avval Gauss).
-5. **§8.2 (δ/5)** — standart emas.
-6. **§8.1.3 dagi δ** — GUM u_c dan olinadi (egasi ko'rsatmasi; u_c = 0 bo'lsa δ = 0 → LPU rad etiladi). Manba matni "δ associated with u(y)" deydi — MCM u(y) mavjud bo'lmagan holatlar (ν ≤ 2) uchun GUM u_c barqarorroq.
-7. **Bitta urug'dan to'rtta holat** — MurmurHash3 fmix32 (JCGM 101 bu usulni belgilamaydi); to'rtta holatni to'g'ridan-to'g'ri berish ham mumkin.
-8. **Musbat yarim aniqlangan kovariatsiya** (r = ±1) qabul qilinadi; manfiy xos qiymatli matritsa — `invalid_covariance`.
-9. **M chegarasi** 10⁷ (eng ko'pi 2·10⁷ — xotira 160 MB).
+| # | Masala | Qaror | Holat |
+|---|---|---|---|
+| 1 | 10-test, n_dig = 2 (Q-3) | (b): tolerans = δ + 2·s_ref; qo'llanma qiymati o'zgarmaydi; test majburiy | bajarildi (2,9·10⁻⁴ / 2,3·10⁻⁴ — D-04) |
+| 2 | ν ≤ 2 da mezon (Q-5) | avtomatik faqat interval uchlari; hisobotda "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali" | bajarildi |
+| 3 | Normal bo'lmagan korrelyatsiya (Q-6) | natija berilmaydi; topilmada "LPU natijasi amal qiladi"; ko'p o'lchovli t — P07 | bajarildi; P07 — PLAN |
+| 4 | A tur usul 3 (Q-7) | t₍n−1₎ — tasdiqlandi | bajarildi |
+| 5 | §8.2 (Q-8) | GUM tekshiruvida δ/5, oddiy MCM da δ; erishilgan tolerans hisobotda; δ ga tushirish — laboratoriya sozlamasi, belgi bilan | bajarildi |
 
-Tekshirilmagan / cheklovlar:
+Qarorlarning oqibatlari (egasi bilishi kerak):
 
-- **Bit darajasidagi takrorlanuvchanlik** Node 22 va Chromium 157 (V8) da tekshirilgan. R(0, 1) ketma-ketligi har qanday muhitda bir xil (faqat IEEE 754 amallari), lekin Gauss / t / arksinus `Math.log`, `sin`, `cos`, `pow` ga tayanadi — Firefox va Safari da oxirgi xonalarda farq bo'lishi mumkin. To'liq kafolat uchun bu funksiyalarning o'z (fdlibm) nusxasi kerak — qilinmagan.
+- **n_dig = 2 va δ/5 birga ko'p hisobda M chegarasiga (10⁷, ≈ 7–10 s) olib boradi.** Masalan JCGM 101 §9.3 (massa): talab δ/5 = 1·10⁻⁴, M = 10⁷ da erishilgan 2s = 2,7·10⁻⁴ (manba bu misolda n_dig = 1 ishlatgan — 0,63·10⁶ sinov). Gazoanalizator 2-nuqta: talab 1·10⁻⁵, erishilgan 5,8·10⁻⁵. Bunday holatda natija `mc_not_converged` ogohlantirishi va "erishilgan 2s" bilan chiqadi — qarorga muvofiq. Tezlashtirish: n_dig = 1 yoki laboratoriya sozlamasida δ.
+- **Juftlangan kuzatuvli hisoblarda MCM ishlamaydi** (zichlik etaloni ham) — P07 da ko'p o'lchovli t qo'shilguncha; LPU natijasi amal qiladi.
+- Gauss yaqinlashuvi (`nonNormalCorrelation: 'gaussian'`) panelda sozlama sifatida qoldi (natija shunday belgilanadi) — olib tashlash kerak bo'lsa ayting.
+
+Aniqlik kiritilishi kerak bo'lgan ikki joy:
+
+- **Q-3 dagi arifmetika:** qarorda "δ + 2·s_ref ≈ 3,2·10⁻⁴" deyilgan; δ = 5·10⁻⁵ va s_ref = 1,2·10⁻⁴ / 0,9·10⁻⁴ bilan formula 2,9·10⁻⁴ / 2,3·10⁻⁴ beradi. Testga qattiqroq (formula bo'yicha) qiymatlar yozildi. 3,2·10⁻⁴ kerak bo'lsa — bitta son o'zgaradi.
+- **Q-6 dagi havola:** ko'p o'lchovli t-taqsimot JCGM 102:2011 da §5.3.2 (§6.5 — qamrov sohasi). Hujjatlarda §5.3.2 yozildi.
+
+Loyiha qarorlari (o'zgarmagan, e'tiroz bo'lmagan):
+
+- §8.1.3 dagi δ — GUM u_c dan (u_c = 0 bo'lsa δ = 0 → LPU rad etiladi).
+- Bitta urug'dan to'rtta holat — MurmurHash3 fmix32.
+- Musbat yarim aniqlangan kovariatsiya (r = ±1) qabul qilinadi; manfiy xos qiymatli matritsa — `invalid_covariance`.
+- M chegarasi 10⁷ (eng ko'pi 2·10⁷ — xotira 160 MB).
+
+Qoldiq xavf:
+
+- **Firefox / Safari da bit darajasidagi takrorlanuvchanlik tekshirilmagan — P13 da tekshiriladi** (egasi qarori). R(0, 1) ketma-ketligi har qanday muhitda bir xil (faqat IEEE 754 amallari), lekin Gauss / t / arksinus `Math.log`, `sin`, `cos`, `pow` ga tayanadi — oxirgi xonalarda farq bo'lishi mumkin. Node 22 va Chromium 157 (V8) da tekshirilgan. To'liq kafolat uchun bu funksiyalarning o'z (fdlibm) nusxasi kerak bo'ladi.
 - **Log-normal** — JCGM 101 da yo'q; momentlar bo'yicha mustaqil tekshiruv (unverified).
 - **Eng qisqa interval uchlari** sekin barqarorlashadi (D-18) — adaptiv mezon buni to'liq ushlamaydi.
 - Generator sifati: χ², KS, ketma-ket korrelyatsiya — mustaqil tekshiruv; TestU01 BigCrush o'tkazilmagan (manbaning bayoniga tayanilgan, C.3.2.2).
-- Laboratoriya sozlamalari oynasida MC bo'limi yo'q (`settings.mc` — API orqali va natijalar panelida); shablon sxemasi (`schemas/methodology.schema.json`) yangi taqsimot nomlarini (trap, ctrap, exp, lognorm) hali qabul qilmaydi.
-- Eski hisoblarning MC natijasi saqlanmagan (hech qachon saqlanmagan); takrorlash uchun `rng: 'xorshift32-legacy'` va o'sha M beriladi.
+- Shablon muharriri (UI) da β / d maydonlari yo'q — yangi taqsimotlar shablonga JSON orqali kiritiladi (sxema va interpretator qabul qiladi).
+- Eski hisoblarning MC natijasi saqlanmagan; takrorlash uchun `rng: 'xorshift32-legacy'` va o'sha M beriladi.
+
+**Yopilganlar (shu PR):** laboratoriya sozlamalari oynasida MC bo'limi (rejim, n_dig, tekshiruv toleransi); shablon sxemasida yangi taqsimot nomlari (`trap` + `beta`, `ctrap` + `d`, `exp`, `lognorm`).
 
 ### P05b natijasi (2026-11-18, branch `feat/p05b-reports-io`, ENGINE_VERSION 2.5.0)
 

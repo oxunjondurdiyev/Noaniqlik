@@ -524,8 +524,9 @@ const res = job.result();
 | `interval` | `'shortest'` \| `'symmetric'` | `'shortest'` | barqarorlik mezoni va §8 tekshiruvi shu tur bo'yicha; natijada ikkalasi ham bor |
 | `seed` | butun 0 … 2³² − 1 yoki `[i1, i2, i3, i4]` | 20261110 | natijada va hisobotda yoziladi |
 | `rng` | `'wichmann-hill-2006'` \| `'xorshift32-legacy'` | `'wichmann-hill-2006'` | legacy — faqat takrorlash (qat'iy M, korrelyatsiyasiz) |
-| `tolDivisor` | ≥ 1 | 1 | 5 → §8.2 (δ/5), M ≈ 25 marta ko'p |
-| `criteria` | `'all'` \| `'interval'` | `'all'` | `'all'` — §7.9.4 k) (y, u(y), y_low, y_high); `'interval'` — faqat interval uchlari, δ GUM u_c dan (ν ≤ 2 holati uchun; egasi qarori kutilmoqda — Q-5) |
+| `validation` | `true` \| `false` | `true` | `true` — GUM natijasini tekshirish (§8): MCM toleransi δ/5 (§8.2); `false` — oddiy MCM: δ, `validated: null` (egasi qarori Q-8) |
+| `tolDivisor` | ≥ 1 | `validation ? 5 : 1` | tekshiruvda 5 dan kichik qiymat — laboratoriya sozlamasi ("δ ga tushirish"): `validation.lowered`, hisobotda belgi |
+| `criteria` | `'auto'` \| `'all'` \| `'interval'` | `'auto'` | `'all'` — §7.9.4 k) (y, u(y), y_low, y_high); `'interval'` — faqat interval uchlari, δ GUM u_c dan; `'auto'` — ν ≤ 2 bo'lgan t-kirish bo'lsa `'interval'`, aks holda `'all'` (egasi qarori Q-5) |
 | `nonNormalCorrelation` | `'refuse'` \| `'gaussian'` | `'refuse'` | §12.4 |
 | `onProgress`, `shouldCancel` | funksiya | — | har blokdan keyin; bekor qilinsa `{ error: 'mc_cancelled' }` |
 
@@ -538,15 +539,17 @@ Noto'g'ri qiymat → `{ error: 'mc_bad_option', detail: <maydon> }`.
   engineVersion, mode: 'MC',
   rng: { name: 'wichmann-hill-2006', seed }, seed,        // + M — hisobotga
   M, blocks, blockSize, P,
-  mean, u,                                                // §7.6 Eq. (16), (17) — barcha M qiymatdan
+  mean, u,                                                // §7.6 Eq. (16), (17) — barcha M qiymatdan; ν ≤ 2 li t-kirish bo'lsa u: null
+  uDefined, uSample,                                      // uDefined: false → "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali"; uSample — tanlanma s.o. (ma'lumot uchun)
   interval: 'shortest' | 'symmetric',
   low, high,                                              // eng qisqa interval (§7.7.2)
   symLow, symHigh,                                        // ehtimollik bo'yicha simmetrik
   intervalLow, intervalHigh, mcHalf,                      // tanlangan tur
-  adaptive: { enabled, nDig, maxM, tolDivisor, criteria, converged, reachedMax, nDigAchieved, delta, s: { y, u, low, high } },
+  adaptive: { enabled, nDig, maxM, tolDivisor, criteria, criteriaAuto, converged, reachedMax, nDigAchieved, delta, s: { y, u, low, high } },
   nDig, nDigAchieved,                                     // yetilgan n_dig: 2·max(s) ≤ δ(n_dig) bajariladigan eng katta qiymat
   gumY, gumUc, gumU, gumLow, gumHigh,
-  delta, dLow, dHigh, validated,                          // §8.1.3; δ — GUM u_c dan, n_dig bo'yicha
+  delta, dLow, dHigh, validated,                          // §8.1.3; δ — GUM u_c dan, n_dig bo'yicha; validation: false → validated: null
+  validation: { requested, tolDivisor, required, achieved, met, lowered },   // talab (δ/5 yoki δ) va erishilgan tolerans (2·max s)
   correlated, correlation: { handled, groups: [{ inputs, method: 'mvn' | 'gaussian-approx', nonNormal }] },
   varianceUndefined: [{ input, source, nu }],             // t, ν ≤ 2 (§7.6 Note 2)
   sampling: [{ input, joint, parts: [{ kind: 'A' | 'B', name, dist, nu? }] }],
@@ -564,7 +567,7 @@ X_i = x_i + (A tur qismi) + Σ (B tur manbalari · ko'paytuvchi); har bir qism �
 |---|---|---|
 | A tur, usul 1 | (s/√n)·t₍n−1₎ | §6.4.9.2, §6.4.9.5 |
 | A tur, usul 2 (s_p) | (s_p/√n)·t₍ν_p₎ | §6.4.9.6 |
-| A tur, usul 3 | (s/√n)·t₍n−1₎ — standart og'ishi u_A (Eq. 13); loyiha qarori | §6.4.9.4 |
+| A tur, usul 3 | (s/√n)·t₍n−1₎ — standart og'ishi u_A (Eq. 13); egasi tasdiqladi (2026-11-18) | §6.4.9.4 |
 | A tur, ↑/↓ | (s_p/√n)·t₍n−2₎ + histerezis R(−h/2, h/2) | §6.4.9.6, §6.4.2 |
 | `normal` | N(0, (a/k)²); `nu` chekli → t_ν(0, (a/k)²) | §6.4.7, §6.4.9.7–8 |
 | `rect`, `resol` | R(−a, a); R(−a/2, a/2) | §6.4.2 |
@@ -582,16 +585,17 @@ X_i = x_i + (A tur qismi) + Σ (B tur manbalari · ko'paytuvchi); har bir qism �
 `result.pairs[].cov ≠ 0` bo'lgan kirishlar guruhlanadi (bog'langan komponentlar).
 
 - Guruhdagi **barcha** kirishlar normal (A tur qismi yo'q yoki ν = ∞; B tur — faqat `normal`, ν siz) → N(x, U_x), Cholesky U_x = RᵀR, X = x + Rᵀz (§6.4.8, C.5, Table C.4).
-- Aks holda: `nonNormalCorrelation: 'refuse'` → `{ error: 'mc_nonnormal_correlation', detail, findings: [M2] }` — natija **berilmaydi**; `'gaussian'` → guruh N(x, U_x) bilan yaqinlashtiriladi (U_x: u²(x_i) va cov), natijada `method: 'gaussian-approx'` va M2 ogohlantirishi. Copula va ko'p o'lchovli t — qo'shilmagan (egasi qarori, Q-6).
+- Aks holda: `nonNormalCorrelation: 'refuse'` → `{ error: 'mc_nonnormal_correlation', detail, findings: [M2] }` — natija **berilmaydi**; `'gaussian'` → guruh N(x, U_x) bilan yaqinlashtiriladi (U_x: u²(x_i) va cov), natijada `method: 'gaussian-approx'` va M2 ogohlantirishi. Topilma matni: "LPU (GUM) natijasi amal qiladi". Copula qo'shilmaydi; ko'p o'lchovli t (JCGM 102:2011 §5.3.2) — P07 (egasi qarori, 2026-11-18).
 - U_x musbat (yarim) aniqlanmagan → `{ error: 'invalid_covariance' }`; "tuzatish" (C.5.2 Note 2) qo'llanilmaydi. r = ±1 (rang yetishmaydigan, lekin yaroqli matritsa) — qabul qilinadi (C.5.2 Note 3).
 
 ### 12.5. Takrorlanuvchanlik
 
 - Bir xil kirish + bir xil `seed` + bir xil sozlama → aynan bir xil natija (bloklarga / worker'ga bog'liq emas).
-- R(0, 1) ketma-ketligi faqat IEEE 754 amallaridan (×, mod, ÷, +, ⌊⌋) iborat — har qanday JS muhitida bit darajasida bir xil. Gauss, t, arksinus, eksponensial, log-normal `Math.log / sin / cos / pow / exp` dan foydalanadi: ECMAScript ularning oxirgi bitini kafolatlamaydi. **Node 22 va Chromium (V8) da natijalar bit darajasida bir xil — tekshirildi**; boshqa dvigatellarda (SpiderMonkey, JavaScriptCore) oxirgi xonalarda farq bo'lishi mumkin (tekshirilmagan — R-23).
+- R(0, 1) ketma-ketligi faqat IEEE 754 amallaridan (×, mod, ÷, +, ⌊⌋) iborat — har qanday JS muhitida bit darajasida bir xil. Gauss, t, arksinus, eksponensial, log-normal `Math.log / sin / cos / pow / exp` dan foydalanadi: ECMAScript ularning oxirgi bitini kafolatlamaydi. **Node 22 va Chromium (V8) da natijalar bit darajasida bir xil — tekshirildi**; boshqa dvigatellarda (SpiderMonkey, JavaScriptCore) oxirgi xonalarda farq bo'lishi mumkin (tekshirilmagan — P13 da tekshiriladi, R-23).
 - Eski hisob: `{ rng: 'xorshift32-legacy', M }` — 2.5.0 natijasi.
 
 ### 12.6. Brauzer (`src/ui/mc/`)
 
 `window.UCMonteCarlo.run(spec, opts, onProgress)` → `{ promise, cancel(), via() }`. Modulli Web Worker (`src/ui/mc/worker.js` → `src/engine/index.js`); worker yuklanmasa — asosiy oqimda ≈ 25 ms li bo'laklar. CSP: `script-src 'self'` (o'zgarmagan).
 
+Laboratoriya sozlamalari (`LAB_DEFAULTS`, sozlamalar oynasi): `mcMode` (`adaptive` \| `fixed`), `mcNDig` (1 \| 2), `mcTolerance` (`delta5` \| `delta`) — panel shulardan boshlanadi; `delta` tanlansa tekshiruv `tolDivisor: 1` bilan bajariladi va hisobotda belgilanadi.

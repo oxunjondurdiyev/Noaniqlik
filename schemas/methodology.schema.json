@@ -194,10 +194,12 @@
         "name": { "$ref": "#/definitions/text" },
         "legacyName": { "type": "string" },
         "kind": { "enum": ["certificate", "specification", "resolution", "drift", "environment", "procedure", "reference", "sample_variability", "other"] },
-        "distribution": { "enum": ["normal", "rect", "triang", "ushape", "resol"] },
-        "allowedDistributions": { "type": "array", "items": { "enum": ["normal", "rect", "triang", "ushape", "resol"] }, "uniqueItems": true },
+        "distribution": { "enum": ["normal", "rect", "triang", "ushape", "resol", "trap", "ctrap", "exp", "lognorm"] },
+        "allowedDistributions": { "type": "array", "items": { "enum": ["normal", "rect", "triang", "ushape", "resol", "trap", "ctrap", "exp", "lognorm"] }, "uniqueItems": true },
         "halfWidth": { "$ref": "#/definitions/number_or_expr" },
         "k": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "beta": { "type": "number", "minimum": 0, "maximum": 1 },
+        "d": { "$ref": "#/definitions/number_or_expr" },
         "nu": { "type": ["number", "null"] },
         "sensitivity": { "type": ["number", "null"] },
         "unit": { "type": "string" },
@@ -245,7 +247,7 @@
           "type": "object",
           "additionalProperties": {
             "type": "object", "additionalProperties": false,
-            "properties": { "halfWidth": { "$ref": "#/definitions/number_or_expr" }, "k": { "type": ["number", "null"] }, "distribution": { "enum": ["normal", "rect", "triang", "ushape", "resol"] } }
+            "properties": { "halfWidth": { "$ref": "#/definitions/number_or_expr" }, "k": { "type": ["number", "null"] }, "distribution": { "enum": ["normal", "rect", "triang", "ushape", "resol", "trap", "ctrap", "exp", "lognorm"] } }
           }
         }
       }

@@ -189,7 +189,8 @@ test('panel: rejim (adaptiv — standart), n_dig = 2, interval turi, urug\'; ish
   const set = (k, v) => { const el = doc.querySelector(`[data-mc-opt="${k}"]`); el.value = v; el.dispatchEvent(new w.Event('change')); };
   set('interval', 'symmetric'); set('nDig', '1'); set('seed', '77');
   doc.querySelector('#btn-mc').click();
-  assert.deepEqual(JSON.parse(JSON.stringify(called.opts)), { mode: 'adaptive', M: 1000000, nDig: 1, interval: 'symmetric', seed: 77, nonNormalCorrelation: 'refuse' });
+  assert.deepEqual(JSON.parse(JSON.stringify(called.opts)), { mode: 'adaptive', M: 1000000, nDig: 1, interval: 'symmetric', seed: 77, nonNormalCorrelation: 'refuse', validation: true });
+  assert.equal(panel.querySelector('[data-mc-opt="validation"]').value, 'validation');     // standart — GUM tekshiruvi (δ/5)
   // bajarilayotganda: progress va bekor qilish tugmasi
   assert.ok(doc.querySelector('[data-mc-cancel]'));
   assert.equal(doc.querySelector('#btn-mc').disabled, true);
@@ -265,5 +266,85 @@ test('B tur manbalari ro\'yxatida yangi taqsimotlar (trap, ctrap, exp, lognorm) 
   for (const d of E.MC_DISTRIBUTIONS) {
     assert.match(src, new RegExp(`value: '${d}',\\s+labelKey: 'dist_${d}'`), d);
     for (const lang of ['uz', 'ru', 'en']) { w.i18n.lang = lang; assert.notEqual(w.i18n.t('dist_' + d), 'dist_' + d, `${lang}.dist_${d}`); }
+  }
+});
+
+test('egasi qarorlari (2026-11-18): Q-8 — GUM tekshiruvi δ/5, oddiy MCM δ; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi; erishilgan tolerans satri', async () => {
+  const run = extra => {
+    let called = null;
+    const UCMonteCarlo = { run: (s, o) => { called = o; return { promise: Promise.resolve(E.monteCarlo(s, o)), cancel() {} }; } };
+    const w = page('uz', stateOf(SPEC), { UCMonteCarlo, ...extra });
+    return { w, opts: () => JSON.parse(JSON.stringify(called)) };
+  };
+  // (1) standart: tekshiruv, tolDivisor berilmaydi → dvigatel δ/5 ni qo'llaydi
+  let x = run();
+  let set = (k, v) => { const el = x.w.document.querySelector(`[data-mc-opt="${k}"]`); el.value = v; el.dispatchEvent(new x.w.Event('change')); };
+  set('nDig', '1');
+  x.w.document.querySelector('#btn-mc').click();
+  await tick();
+  assert.equal(x.opts().validation, true);
+  assert.equal(x.opts().tolDivisor, undefined);
+  let tol = x.w.document.querySelector('[data-mc-tolerance]');
+  assert.equal(tol.dataset.mcTolerance, 'met');
+  assert.match(tol.textContent, /talab δ\/5 = .*erishilgan 2s = /);
+  assert.equal(x.w.document.querySelector('[data-mc-tol-lowered]'), null);
+  assert.equal(x.w.document.querySelector('[data-report-mark="mc_tol"]'), null);
+  // (2) oddiy MCM: δ, §8 xulosasi (tasdiqlandi / tasdiqlanmadi) yo'q, M3 yo'q
+  x = run();
+  set = (k, v) => { const el = x.w.document.querySelector(`[data-mc-opt="${k}"]`); el.value = v; el.dispatchEvent(new x.w.Event('change')); };
+  set('validation', 'mcm'); set('nDig', '1');
+  x.w.document.querySelector('#btn-mc').click();
+  await tick();
+  assert.equal(x.opts().validation, false);
+  const text = x.w.document.querySelector('#results-content').textContent;
+  assert.ok(!text.includes(x.w.i18n.t('mc_valid')) && !text.includes(x.w.i18n.t('mc_not_valid')));
+  assert.equal(x.w.document.querySelector('[data-finding="mc_lpu_not_validated"]'), null);
+  assert.match(x.w.document.querySelector('[data-mc-tolerance]').textContent, /talab δ = /);
+  // (3) laboratoriya sozlamasi mcTolerance: 'delta' → tolDivisor = 1; hisobotda belgi (satr va belgi)
+  const lab = { ...require('../../src/storage/index.js').LAB_DEFAULTS, mcTolerance: 'delta', mcNDig: 1, mcMode: 'adaptive' };
+  x = run({ UCTemplates: { labSettings: () => lab, reportNoticeHTML: () => '', evaluateState: s => ({ state: s, result: E.evaluate(s) }) } });
+  assert.equal(x.w.document.querySelector('[data-mc-opt="nDig"]').value, '1');                  // laboratoriya sozlamasidan
+  x.w.document.querySelector('#btn-mc').click();
+  await tick();
+  assert.equal(x.opts().tolDivisor, 1);
+  assert.equal(x.w.document.querySelector('[data-mc-tol-lowered]').textContent, x.w.i18n.t('mc_tol_lowered'));
+  assert.equal(x.w.document.querySelector('[data-report-mark="mc_tol"]').textContent, x.w.i18n.t('mark_mc_tol_delta'));
+  const D = require('../../src/storage/index.js').LAB_DEFAULTS;
+  assert.deepEqual([D.mcMode, D.mcNDig, D.mcTolerance], ['adaptive', 2, 'delta5']);
+});
+
+test('egasi qarori Q-5: ν ≤ 2 da hisobotda "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali" — uch tilda; u soni ko\'rsatilmaydi', () => {
+  const gas = load('excel/excel-gas-p2-mc');
+  const r = E.evaluate(gas);
+  const mc = E.monteCarlo(gas, { mode: 'fixed', M: 20000 });
+  const expected = { uz: "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali", ru: 'u(y) не определена (ν ≤ 2), только интервал охвата', en: 'u(y) undefined (ν ≤ 2), coverage interval only' };
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, stateOf(gas));
+    const S = w.Calc.createSections({ t: k => w.i18n.t(k), esc: s => String(s), acceptances: () => ({}), canAccept: () => false, lab: () => ({}) });
+    const d = w.document.createElement('div');
+    d.innerHTML = S.mcLines(r, mc).map(l => `<p>${l}</p>`).join('');
+    assert.equal(d.querySelector('[data-mc-u-undefined]').textContent, expected[lang]);
+    assert.ok(!/u = /.test(d.querySelector('p').textContent), lang);
+    const marks = w.Calc.reportMarks(r, { t: k => w.i18n.t(k), mc });
+    assert.ok(marks.find(m => m.key === 'mc_u').text.includes(expected[lang].slice(0, 12)), lang);
+    assert.equal(d.querySelector('[data-mc-tolerance]').dataset.mcTolerance, 'not-met');            // M = 2·10⁴: δ/5 ga erishilmagan — erishilgani ko'rsatiladi
+  }
+});
+
+test('egasi qarori Q-6: rad etilgan hisobda topilma "LPU (GUM) natijasi amal qiladi" deydi — uch tilda', () => {
+  const w = page('uz', {});
+  for (const [lang, re] of [['uz', /LPU \(GUM\) natijasi amal qiladi/], ['ru', /Действует результат LPU \(GUM\)/], ['en', /The LPU \(GUM\) result stands/]]) {
+    w.i18n.lang = lang;
+    assert.match(w.i18n.t('w_mc_nonnormal_correlation'), re);
+    assert.match(w.i18n.t('fix_mc_nonnormal_correlation'), /JCGM 102:2011 §5\.3\.2/);
+  }
+});
+
+test('laboratoriya sozlamalari oynasida Monte-Karlo bo\'limi: rejim, n_dig, tekshiruv toleransi (saqlanadi)', () => {
+  const src = read('src/ui/tpl/app.js');
+  for (const id of ['lab-mcMode', 'lab-mcNDig', 'lab-mcTolerance']) assert.ok(src.includes(`id="${id}"`) && src.includes(`$('${id}')`), id);
+  const w = page('uz', {});
+  for (const k of ['lab_mc_mode', 'lab_mc_ndig', 'lab_mc_tolerance', 'lab_mc_tol_delta5', 'lab_mc_tol_delta']) {
+    for (const lang of ['uz', 'ru', 'en']) { w.i18n.lang = lang; assert.notEqual(w.i18n.t(k), k, `${lang}.${k}`); }
   }
 });

@@ -86,7 +86,7 @@ test('bir xil urug\' + bir xil kirish → aynan bir xil natija; boshqa urug\' �
 
 test('§7.9.4 adaptiv protsedura: blok M = max(J, 10⁴); to\'xtash sharti 2s ≤ δ; natijada M, bloklar soni, yetilgan n_dig', () => {
   const s = load('jcgm101/jcgm101-9-2-2-mcm');
-  const r = E.monteCarlo(s);                                   // standart: adaptiv, n_dig = 2
+  const r = E.monteCarlo(s, { validation: false });            // oddiy MCM: adaptiv, n_dig = 2, tolerans δ
   assert.equal(r.adaptive.enabled, true);
   assert.equal(r.nDig, 2);
   assert.equal(r.blockSize, 10000);
@@ -98,8 +98,12 @@ test('§7.9.4 adaptiv protsedura: blok M = max(J, 10⁴); to\'xtash sharti 2s �
   for (const k of ['y', 'u', 'low', 'high']) assert.ok(2 * sv[k] <= r.adaptive.delta, `${k}: 2s = ${2 * sv[k]}, δ = ${r.adaptive.delta}`);
   assert.equal(r.adaptive.delta, 0.05);                        // §9.2.2.6: u(y) = 2,0 → δ = 0,05
   assert.ok(r.nDigAchieved >= 2);
-  // δ/5 (§8.2): taxminan 25 marta ko'p sinov
-  const r5 = E.monteCarlo(s, { tolDivisor: 5 });
+  // standart — GUM tekshiruvi, δ/5 (§8.2; egasi qarori Q-8): taxminan 25 marta ko'p sinov
+  const r5 = E.monteCarlo(s);
+  assert.deepEqual([r5.validation.requested, r5.validation.tolDivisor, r5.validation.met, r5.validation.lowered], [true, 5, true, false]);
+  assert.equal(r.validation.requested, false);
+  assert.equal(r.validated, null);                             // oddiy MCM da §8 xulosasi berilmaydi
+  assert.equal(r5.validated, true);
   assert.equal(r5.adaptive.delta, 0.01);
   assert.ok(r5.M > 10 * r.M && r5.M < 80 * r.M, `${r5.M} / ${r.M}`);
   // J = ⌈100/(1 − p)⌉: p = 0,999 → blok 10⁵
@@ -110,7 +114,7 @@ test('§7.9.4 adaptiv protsedura: blok M = max(J, 10⁴); to\'xtash sharti 2s �
 
 test('adaptiv: M chegarasiga yetilsa natija ogohlantirish bilan chiqadi (M4 mc_not_converged); barqarorlashganda — yo\'q', () => {
   const s = load('jcgm101/jcgm101-9-2-2-mcm');
-  const r = E.monteCarlo(s, { nDig: 3, maxM: 30000 });
+  const r = E.monteCarlo(s, { nDig: 3, maxM: 30000, validation: false });
   assert.equal(r.M, 30000);
   assert.equal(r.adaptive.converged, false);
   assert.equal(r.adaptive.reachedMax, true);
@@ -119,8 +123,14 @@ test('adaptiv: M chegarasiga yetilsa natija ogohlantirish bilan chiqadi (M4 mc_n
   const f = r.findings.find(x => x.code === 'mc_not_converged');
   assert.equal(f.severity, 'warning');
   assert.match(f.ref, /JCGM 101:2008 §7\.9\.4/);
-  assert.ok(!codes(E.monteCarlo(s)).includes('mc_not_converged'));                 // salbiy holat
-  assert.ok(!codes(E.monteCarlo(s, { mode: 'fixed', M: 20000 })).includes('mc_not_converged'));
+  assert.ok(!codes(E.monteCarlo(s)).includes('mc_not_converged'));                 // salbiy holat (δ/5 ga erishilgan)
+  assert.ok(!codes(E.monteCarlo(s, { mode: 'fixed', M: 20000, validation: false })).includes('mc_not_converged'));
+  // qat'iy M + GUM tekshiruvi: §8.2 dagi δ/5 ga erishilmagan → ogohlantirish va erishilgan tolerans natijada (egasi qarori Q-8)
+  const f20 = E.monteCarlo(s, { mode: 'fixed', M: 20000 });
+  assert.ok(codes(f20).includes('mc_not_converged'));
+  assert.equal(f20.validation.met, false);
+  assert.equal(f20.validation.required, 0.01);
+  assert.ok(f20.validation.achieved > 0.01);
 });
 
 test('§8.1.3 GUM bilan solishtirish: d_low, d_high, δ (GUM u_c dan); chiziqli normal model — tasdiqlanadi (M3 yo\'q)', () => {
@@ -137,6 +147,7 @@ test('§8.1.3 GUM bilan solishtirish: d_low, d_high, δ (GUM u_c dan); chiziqli 
   assert.deepEqual(r.findings, []);
 });
 
+
 test('nochiziqli model Y = X², x̄ = 0: LPU rad etiladi — M3 mc_lpu_not_validated; MCM intervali [0; …]', () => {
   // GUM 1-tartib: c = 2x = 0 → u_c = 0, U = 0 (JCGM 101 §9.4.2.2.1 dagi holatning bir o'lchovli ko'rinishi).
   // Analitik: X ~ N(0, u²) → Y = u²·χ²₁: E(Y) = u², V(Y) = 2u⁴; 95 % kvantil = u²·3,841 (χ²₁ jadvali) — mustaqil hisob.
@@ -147,6 +158,7 @@ test('nochiziqli model Y = X², x̄ = 0: LPU rad etiladi — M3 mc_lpu_not_valid
   assert.ok(g.findings.some(f => f.code === 'zero_u'));
   const r = E.monteCarlo(s, { tolDivisor: 1, maxM: 2000000 });
   assert.equal(r.validated, false);
+  assert.equal(r.validation.lowered, true);                    // δ/5 o'rniga δ — belgilanadi
   assert.equal(r.delta, 0);
   const f = r.findings.find(x => x.code === 'mc_lpu_not_validated');
   assert.ok(f, codes(r).join());
@@ -231,8 +243,27 @@ test('dispersiyasi mavjud bo\'lmagan kirish (t, ν ≤ 2): M4 mc_variance_undefi
   assert.equal(f.value, '2');
   assert.match(f.ref, /§7\.6 Note 2/);
   assert.deepEqual(gas.varianceUndefined, [{ input: 'I', source: '', nu: 2 }]);
+  // Egasi qarori Q-5 (2026-11-18): ν ≤ 2 bo'lgan t-kirishda u(y) aniqlanmagan — natijada u: null, mezon avtomatik 'interval'
+  assert.equal(gas.u, null);
+  assert.equal(gas.uDefined, false);
+  assert.ok(gas.uSample > 0);
+  assert.deepEqual([gas.adaptive.criteria, gas.adaptive.criteriaAuto], ['interval', true]);
+  // adaptiv: δ GUM u_c dan (u_c = 0,0083 → δ = 5·10⁻⁵), faqat interval uchlari — barqarorlashadi (avval hech qachon)
+  const ad = E.monteCarlo(load('excel/excel-gas-p2-mc'), { validation: false, nDig: 1 });
+  assert.equal(ad.adaptive.converged, true);
+  assert.equal(ad.adaptive.delta, 0.0005);
+  assert.ok(2 * Math.max(ad.adaptive.s.low, ad.adaptive.s.high) <= 0.0005);
+  assert.ok(ad.M < 2000000, String(ad.M));
+  // B tur normal + ν = 2 (sertifikat, §6.4.9.7) ham shunday
+  const b2 = E.monteCarlo(spec('Y = X', { X: { b: [{ ...N1, nu: 2 }] } }), { mode: 'fixed', M: 20000 });
+  assert.equal(b2.uDefined, false);
+  assert.equal(b2.adaptive.criteria, 'interval');
+  // ν > 2: u(y) aniqlangan, mezon 'all'; aniq 'all' so'ralsa — o'zgartirilmaydi
   const dens = E.monteCarlo(load('jcgm101/jcgm101-9-5-mcm'), { mode: 'fixed', M: 20000 });
   assert.ok(!codes(dens).includes('mc_variance_undefined'));
+  assert.ok(dens.u > 0 && dens.uDefined === true);
+  assert.deepEqual([dens.adaptive.criteria, dens.adaptive.criteriaAuto], ['all', true]);
+  assert.equal(E.monteCarlo(load('excel/excel-gas-p2-mc'), { mode: 'fixed', M: 20000, criteria: 'all' }).adaptive.criteria, 'all');
 });
 
 test('A tur: usul 1 — t_{n−1}(x̄, s²/n) (§6.4.9.2); usul 3 — o\'sha t-taqsimot (u_A = uning standart og\'ishi, Eq. 13)', () => {
@@ -297,6 +328,9 @@ test('sozlamalar: son — qat\'iy M (eski imzo); noto\'g\'ri qiymat → mc_bad_o
   }
   assert.equal(E.MC_DEFAULTS.mode, 'adaptive');
   assert.equal(E.MC_DEFAULTS.nDig, 2);
+  assert.equal(E.MC_DEFAULTS.validation, true);
+  assert.equal(E.MC_DEFAULTS.criteria, 'auto');
+  assert.equal(E.VALIDATION_TOL_DIVISOR, 5);
   assert.equal(E.monteCarlo(s, { seed: '42', mode: 'fixed', M: 20000 }).seed, 42);
   assert.equal(E.monteCarlo({ format: 'nope' }).error, 'bad_spec');
 });

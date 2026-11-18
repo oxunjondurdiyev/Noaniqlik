@@ -8,7 +8,7 @@ export { evaluate, prepareModel } from './evaluate.js';
 // P06: Monte-Karlo 2.0 (JCGM 101:2008) — adaptiv protsedura, generator va taqsimotlar src/engine/mc/ da
 export {
   monteCarlo, createMonteCarlo, mcOptions, numericalTolerance, coverageIntervals,
-  MC_SEED, MC_DEFAULTS, MC_LIMITS, MC_MODES, MC_INTERVALS, MC_CRITERIA, MC_NONNORMAL_CORRELATION, RNG_DEFAULT, RNG_LEGACY, RNG_NAMES,
+  MC_SEED, MC_DEFAULTS, MC_LIMITS, MC_MODES, MC_INTERVALS, MC_CRITERIA, MC_NONNORMAL_CORRELATION, VALIDATION_TOL_DIVISOR, RNG_DEFAULT, RNG_LEGACY, RNG_NAMES,
 } from './montecarlo.js';
 export { monteCarloLegacy } from './mc/legacy.js';
 export { wichmannHill, xorshift32, createRng, whState } from './mc/rng.js';

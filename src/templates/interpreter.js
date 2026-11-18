@@ -23,6 +23,9 @@
      • unit       — har bir kirish va natija birligi (units.js o'lchamlik tekshiruvi).
 ═══════════════════════════════════════════════════════════════ */
 import { evaluate, toModel, typeAx, typeB as typeBStd, valueOrExpr, parseUnit, pairKey, isBlank, toNum, splitFormula, parse, analyzeDimensions, dimText } from '../engine/index.js';
+
+/** U / k ko'rinishida beriladigan taqsimotlar (k sertifikatdan): normal va log-normal (P06) */
+const KDIST = d => d === 'normal' || d === 'lognorm';
 import { variables } from '../engine/parser.js';
 import { validate } from './validator.js';
 
@@ -413,8 +416,10 @@ function uiEntry(s, lang) {
     distribution: s.distribution, sourceId: s.id, correlated: s.correlated !== undefined ? s.correlated : s.distribution !== 'resol' };
   if (s.unit !== undefined) e.unit = s.unit;
   if (s.instrument) e.instrument = s.instrument;
-  if (s.distribution === 'normal' && s.k !== null && s.k !== undefined) e.k = s.k;
-  if (s.distribution === 'normal' && s.k === null) e.kRequired = true;
+  if (KDIST(s.distribution) && s.k !== null && s.k !== undefined) e.k = s.k;
+  if (KDIST(s.distribution) && s.k === null) e.kRequired = true;
+  // P06: parametrli taqsimotlar — β (trapetsiya), d (egri trapetsiya). Ref: JCGM 101:2008 §6.4.3, §6.4.4
+  for (const key of ['beta', 'd']) if (s[key] !== undefined) e[key] = s[key];
   return Object.assign(e, uiExtra(s, lang));
 }
 
@@ -524,9 +529,10 @@ export function buildState(tpl, data = {}, opts = {}) {
       distribution: user.distribution || p.distribution || s.distribution,
     };
     const k = pick('k');
-    if (entry.distribution === 'normal' && k !== null && k !== undefined && !isBlank(k)) entry.k = toNum(k);
+    if (KDIST(entry.distribution) && k !== null && k !== undefined && !isBlank(k)) entry.k = toNum(k);
+    for (const key of ['beta', 'd']) { const v = pick(key); if (v !== null && v !== undefined && !isBlank(v)) entry[key] = toNum(v); }
     // k = null shablonda — sertifikatdan kiritilishi shart (dvigatelning standart k = 2 si jimgina olinmaydi)
-    if (entry.distribution === 'normal' && k === null) {
+    if (KDIST(entry.distribution) && k === null) {
       missing.push({ type: 'k', id: s.id, symbol: s.input });
       if (opts.ui) entry.kRequired = true;
     }
@@ -659,7 +665,7 @@ export function prepareState(state, opts = {}) {
     let hw;
     try { hw = valueOrExpr(c.halfWidth, params, means); } catch (_) { hw = NaN; }
     const mult = c.sensitivity === undefined || c.sensitivity === null || c.sensitivity === '' ? 1 : Number(c.sensitivity) || 0;
-    const u = Math.abs(mult) * typeBStd(hw, c.distribution, c.k);
+    const u = Math.abs(mult) * typeBStd(hw, c.distribution, c.k, c);
     return isFinite(u) ? u : 0;
   };
   // Ikki marta hisoblash tekshiruvi: u²(umumiy) + u²(nuqta) ≤ u²(sertifikat) = (U/k)²
@@ -783,7 +789,7 @@ export function missingInState(state) {
     if (!c.sourceId || pointRowIgnored(c, corrs)) continue;
     const hw = c.halfWidthExpr !== undefined ? c.halfWidthExpr : c.halfWidth;
     if (isBlank(hw)) out.push({ type: 'halfWidth', id: c.sourceId, name: c.name, symbol: c.param });
-    if (c.distribution === 'normal' && c.kRequired && !(toNum(c.k) > 0)) out.push({ type: 'k', id: c.sourceId, name: c.name, symbol: c.param });
+    if (KDIST(c.distribution) && c.kRequired && !(toNum(c.k) > 0)) out.push({ type: 'k', id: c.sourceId, name: c.name, symbol: c.param });
     if (typeof hw === 'string' && !isBlank(hw) && !isFinite(toNum(hw)) && auxNames.length) {
       try {
         variables(parse(hw, [...params, ...auxNames])).forEach(v => {
@@ -806,7 +812,7 @@ export function specOf(prepared) {
   const spec = toModel(prepared);
   spec.typeB = spec.typeB.map(c => {
     const out = {};
-    for (const k of ['name', 'input', 'halfWidth', 'distribution', 'k', 'nu', 'sensitivity', 'unit']) if (c[k] !== undefined) out[k] = c[k];
+    for (const k of ['name', 'input', 'halfWidth', 'distribution', 'k', 'beta', 'd', 'nu', 'sensitivity', 'unit']) if (c[k] !== undefined) out[k] = c[k];
     return out;
   });
   return spec;

@@ -28,9 +28,13 @@ export const MC_INTERVALS = Object.freeze(['shortest', 'symmetric']);
 /** Normal bo'lmagan kirish korrelyatsiyada qatnashsa: 'refuse' — natija berilmaydi (standart); 'gaussian' — guruh
     ko'p o'lchovli Gauss bilan yaqinlashtiriladi va natija shunday belgilanadi (laboratoriya sozlamasi). */
 export const MC_NONNORMAL_CORRELATION = Object.freeze(['refuse', 'gaussian']);
-/** To'xtash mezoni: 'all' — y, u(y), y_low, y_high (§7.9.4 k); 'interval' — faqat interval uchlari, δ GUM u_c dan
-    (dispersiyasi mavjud bo'lmagan kirishlar uchun laboratoriya sozlamasi — §7.6 Note 2; egasi qarori kutilmoqda). */
-export const MC_CRITERIA = Object.freeze(['all', 'interval']);
+/** To'xtash mezoni: 'all' — y, u(y), y_low, y_high (§7.9.4 k); 'interval' — faqat interval uchlari, δ GUM u_c dan.
+    'auto' (standart; egasi qarori 2026-11-18, Q-5): ν ≤ 2 bo'lgan t-kirish bo'lsa 'interval', aks holda 'all' —
+    ν ≤ 2 da t-taqsimotning dispersiyasi cheksiz (§6.4.9.4), Y ning standart og'ishi mavjud emas (§7.6 Note 2),
+    shuning uchun u(y) bo'yicha mezon hech qachon bajarilmaydi; qamrov intervali esa aniqlangan. */
+export const MC_CRITERIA = Object.freeze(['auto', 'all', 'interval']);
+/** §8 tekshiruvi uchun MCM natijalarining toleransi: δ/5. Ref: JCGM 101:2008 §8.2 (34-bet). Egasi qarori 2026-11-18 (Q-8). */
+export const VALIDATION_TOL_DIVISOR = 5;
 
 /** Chegaralar va standart qiymatlar — yagona joy. maxM xotira bilan cheklangan (2·10⁷ × 8 bayt = 160 MB). */
 export const MC_LIMITS = Object.freeze({ minM: 10000, maxM: 20000000, minNDig: 1, maxNDig: 4 });
@@ -42,8 +46,10 @@ export const MC_DEFAULTS = Object.freeze({
   interval: 'shortest',
   rng: RNG_DEFAULT,
   seed: MC_SEED,
-  tolDivisor: 1,             // 5 — §8.2 bo'yicha δ/5 (taxminan 25 marta ko'p sinov)
-  criteria: 'all',
+  validation: true,          // GUM natijasini tekshirish (§8). false — oddiy MCM: tolerans δ, xulosa (validated) berilmaydi
+  tolDivisor: null,          // null → validation ? 5 (§8.2: δ/5) : 1. validation da 1 … 5 dan kichik qiymat — laboratoriya
+                             // sozlamasi ("δ ga tushirish"): natijada validation.lowered, hisobotda belgi
+  criteria: 'auto',
   nonNormalCorrelation: 'refuse',
 });
 
@@ -95,7 +101,8 @@ export function mcOptions(settings, opts) {
   const out = {
     mode: pick('mode'), interval: pick('interval'), rng: pick('rng'), seed: pick('seed'),
     criteria: pick('criteria'), nonNormalCorrelation: pick('nonNormalCorrelation'),
-    nDig: Number(pick('nDig')), M: Number(pick('M')), maxM: Number(pick('maxM')), tolDivisor: Number(pick('tolDivisor')),
+    nDig: Number(pick('nDig')), M: Number(pick('M')), maxM: Number(pick('maxM')),
+    validation: pick('validation') !== false && pick('validation') !== 'false',
     onProgress: typeof o.onProgress === 'function' ? o.onProgress : null,
     shouldCancel: typeof o.shouldCancel === 'function' ? o.shouldCancel : null,
   };
@@ -107,6 +114,9 @@ export function mcOptions(settings, opts) {
   if (!MC_CRITERIA.includes(out.criteria)) return bad('criteria');
   if (!MC_NONNORMAL_CORRELATION.includes(out.nonNormalCorrelation)) return bad('nonNormalCorrelation');
   if (!Number.isInteger(out.nDig) || out.nDig < MC_LIMITS.minNDig || out.nDig > MC_LIMITS.maxNDig) return bad('nDig');
+  // Ref: JCGM 101:2008 §8.2 — tekshiruv uchun δ/5; oddiy MCM (§7.9.4) — δ
+  const td = pick('tolDivisor');
+  out.tolDivisor = td === null || td === undefined ? (out.validation ? VALIDATION_TOL_DIVISOR : 1) : Number(td);
   if (!(out.tolDivisor >= 1) || !isFinite(out.tolDivisor)) return bad('tolDivisor');
   if (!isFinite(out.M) || !isFinite(out.maxM)) return bad('M');
   out.M = Math.max(MC_LIMITS.minM, Math.min(MC_LIMITS.maxM, Math.round(out.M)));
@@ -285,6 +295,14 @@ export function createMonteCarlo(spec, opts) {
   const env = {};
   inputs.forEach(inp => { env[inp.name] = inp.mean; });
 
+  // Dispersiyasi mavjud bo'lmagan kirish: t-taqsimot, ν ≤ 2. Ref: JCGM 101:2008 §6.4.9.4 (V(X) faqat ν > 2 da),
+  //      §7.6 Note 2 (30-bet), C.6 Note (63-bet). Bunday kirish bo'lsa u(y) aniqlanmagan — faqat qamrov intervali.
+  const heavy = [];
+  inputs.forEach((inp, i) => inp.parts.forEach(p => {
+    if (p.dist === 't' && p.nu <= 2 && !grouped.has(i)) heavy.push({ input: inp.name, source: p.kind === 'A' ? '' : p.name, nu: p.nu });
+  }));
+  const criteria = o.criteria === 'auto' ? (heavy.length ? 'interval' : 'all') : o.criteria;
+
   const P = res.P;
   // Ref: JCGM 101:2008 §7.9.4 b) — M = max(J, 10⁴), J — 100/(1 − p) dan kichik bo'lmagan eng kichik butun son
   const blockSize = Math.max(Math.ceil(100 / (1 - P) - 1e-9), 10000);
@@ -372,10 +390,10 @@ export function createMonteCarlo(spec, opts) {
     const s = { y: sOfMean(full), u: sOfMean(blocks.u), low: sOfMean(blocks.low), high: sOfMean(blocks.high) };
     // Ref: JCGM 101:2008 §7.9.4 i), j) — δ barcha qiymatlardan olingan u(y) uchun (§7.9.2);
     //      'interval' mezoni: δ GUM u_c(y) dan (u(y) mavjud bo'lmasligi mumkin — §7.6 Note 2)
-    const uRef = o.criteria === 'interval' ? res.uc : pooled().u;
+    const uRef = criteria === 'interval' ? res.uc : pooled().u;
     const delta = numericalTolerance(uRef, o.nDig) / o.tolDivisor;
     // Ref: JCGM 101:2008 §7.9.4 k) — 2s_y, 2s_u(y), 2s_ylow, 2s_yhigh ning birortasi δ dan katta bo'lsa davom etiladi
-    const worst = o.criteria === 'interval' ? Math.max(s.low, s.high) : Math.max(s.y, s.u, s.low, s.high);
+    const worst = criteria === 'interval' ? Math.max(s.low, s.high) : Math.max(s.y, s.u, s.low, s.high);
     return { s, uRef, delta, worst, ok: 2 * worst <= delta, ratio: delta > 0 ? 2 * worst / delta : (worst > 0 ? Infinity : 0) };
   }
 
@@ -419,32 +437,36 @@ export function createMonteCarlo(spec, opts) {
     const dLow = Math.abs(res.y - res.U - low), dHigh = Math.abs(res.y + res.U - high);
     // Yetilgan n_dig: 2·max(s) ≤ δ(n_dig) bajariladigan eng katta n_dig (0 — hatto 1 ta raqam ham ta'minlanmagan)
     let nDigAchieved = null;
-    if (stat && all.u > 0) {
+    if (stat && all.u > 0 && stat.uRef > 0) {
       nDigAchieved = 0;
       for (let d = 1; d <= MC_LIMITS.maxNDig + 2; d++) {
         if (2 * stat.worst <= numericalTolerance(stat.uRef, d)) nDigAchieved = d; else break;
       }
     }
-    // Dispersiyasi mavjud bo'lmagan kirish: t-taqsimot, ν ≤ 2. Ref: JCGM 101:2008 §7.6 Note 2; C.6 Note
-    const heavy = [];
-    inputs.forEach((inp, i) => inp.parts.forEach(p => {
-      if (p.dist === 't' && p.nu <= 2 && !(grouped.has(i))) heavy.push({ input: inp.name, source: p.kind === 'A' ? '' : p.name, nu: p.nu });
-    }));
+    const uDefined = heavy.length === 0;
+    // §8 tekshiruvi (egasi qarori Q-8): MCM natijalari δ/5 toleransga yetgan bo'lishi kerak (§8.2); yetilmagan bo'lsa
+    // erishilgan tolerans (2·max s) natijada va hisobotda. Oddiy MCM (validation: false) — xulosa berilmaydi.
+    const required = stat ? stat.delta : null, achieved = stat ? 2 * stat.worst : null;
+    const validation = {
+      requested: o.validation, tolDivisor: o.tolDivisor, required, achieved,
+      met: stat ? stat.ok : null,
+      lowered: o.validation && o.tolDivisor < VALIDATION_TOL_DIVISOR,
+    };
     const out = {
       engineVersion: res.engineVersion, mode: 'MC',
       rng: { name: rng.name, seed: o.seed }, seed: o.seed,
       M: n, blocks: blocks.n.length, blockSize, P,
-      mean: all.mean, u: all.u,
+      mean: all.mean, u: uDefined ? all.u : null, uSample: all.u, uDefined,
       interval: o.interval, low: ci.low, high: ci.high, symLow: ci.symLow, symHigh: ci.symHigh,
       intervalLow: low, intervalHigh: high, mcHalf: (high - low) / 2,
       adaptive: {
-        enabled: adaptive, nDig: o.nDig, maxM: adaptive ? o.maxM : null, tolDivisor: o.tolDivisor, criteria: o.criteria,
+        enabled: adaptive, nDig: o.nDig, maxM: adaptive ? o.maxM : null, tolDivisor: o.tolDivisor, criteria, criteriaAuto: o.criteria === 'auto',
         converged: adaptive ? converged : null, reachedMax: adaptive ? reachedMax : false, nDigAchieved,
         delta: stat ? stat.delta : null, s: stat ? stat.s : null,
       },
       nDig: o.nDig, nDigAchieved,
       gumLow: res.y - res.U, gumHigh: res.y + res.U, gumU: res.U, gumY: res.y, gumUc: res.uc,
-      delta, dLow, dHigh, validated: dLow <= delta && dHigh <= delta,
+      delta, dLow, dHigh, validated: o.validation ? dLow <= delta && dHigh <= delta : null, validation,
       correlated: corr.length > 0,
       correlation: { handled: true, groups: corr.map(g => g.info) },
       varianceUndefined: heavy,
@@ -467,7 +489,8 @@ function finishLegacy(spec, r) {
     ...r, mode: 'MC', legacy: true,
     rng: { name: RNG_LEGACY, seed: r.seed },
     blocks: 1, blockSize: r.M, interval: 'shortest', intervalLow: r.low, intervalHigh: r.high,
-    adaptive: { enabled: false, nDig: 2, maxM: null, tolDivisor: 1, criteria: 'all', converged: null, reachedMax: false, nDigAchieved: null, delta: null, s: null },
+    uSample: r.u, uDefined: true, validation: { requested: true, tolDivisor: 1, required: null, achieved: null, met: null, lowered: false },
+    adaptive: { enabled: false, nDig: 2, maxM: null, tolDivisor: 1, criteria: 'all', criteriaAuto: false, converged: null, reachedMax: false, nDigAchieved: null, delta: null, s: null },
     nDig: 2, nDigAchieved: null,
     correlation: { handled: false, groups: [] },
     varianceUndefined: [], sampling: [],
@@ -479,7 +502,7 @@ function finishLegacy(spec, r) {
 /**
  * Monte-Karlo (bir chaqiruvda, sinxron). Node testlari va oddiy foydalanish uchun; brauzerda — src/ui/mc/ (Web Worker).
  * @param {object} spec           modelSpec (evaluate bilan bir xil)
- * @param {object|number} [opts]  { mode:'adaptive'|'fixed', M, maxM, nDig, interval, seed, rng, tolDivisor, criteria,
+ * @param {object|number} [opts]  { mode:'adaptive'|'fixed', M, maxM, nDig, interval, seed, rng, validation, tolDivisor, criteria,
  *                                  nonNormalCorrelation, onProgress, shouldCancel }; son — qat'iy M
  */
 export function monteCarlo(spec, opts) {

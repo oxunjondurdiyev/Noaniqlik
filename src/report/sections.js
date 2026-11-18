@@ -214,18 +214,31 @@ export function createSections(environment) {
     const ad = mc.adaptive || {};
     const nDig = mc.nDig || 2;
     const lines = [
-      `M = ${mc.M.toLocaleString()};  ${i18n.t('res_y')} = ${Calc.fmtSci(mc.mean, 8)};  u = ${Calc.fmtSci(mc.u)}`,
+      // Egasi qarori (Q-5): ν ≤ 2 bo'lgan t-kirishda u(y) aniqlanmagan (JCGM 101:2008 §6.4.9.4, §7.6 Note 2) — son ko'rsatilmaydi
+      `M = ${mc.M.toLocaleString()};  ${i18n.t('res_y')} = ${Calc.fmtSci(mc.mean, 8)};  ` +
+        (mc.uDefined === false ? `<span data-mc-u-undefined="1">${i18n.t('mc_u_undefined')}</span>` : `u = ${Calc.fmtSci(mc.u)}`),
       `<span data-mc-interval="${shortest ? 'shortest' : 'symmetric'}">${i18n.t(mainKey)} (${pct(mc.P)} %): [${main[0].toFixed(d)}; ${main[1].toFixed(d)}]  →  ${i18n.t('mc_half')} ${Calc.fmtSci((main[1] - main[0]) / 2, 3)}</span>`,
       `${i18n.t(otherKey)} (${pct(mc.P)} %): [${other[0].toFixed(d)}; ${other[1].toFixed(d)}]`,
       `GUM: [${mc.gumLow.toFixed(d)}; ${mc.gumHigh.toFixed(d)}]  →  U = ${Calc.fmtSci(mc.gumU, 3)}`,
-      `JCGM 101 §8: n_dig = ${nDig};  δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ` +
-        (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>` : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span>`),
+    ];
+    const val = mc.validation || {};
+    // §8 xulosasi faqat tekshiruv so'ralganda (oddiy MCM da berilmaydi — egasi qarori Q-8)
+    if (mc.validated !== null && mc.validated !== undefined) {
+      lines.push(`JCGM 101 §8: n_dig = ${nDig};  δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ` +
+        (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>` : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span>`));
+    }
+    // MCM natijalarining sonli toleransi: talab (§8.2: δ/5; oddiy MCM: δ) va erishilgani (2·max s); δ ga tushirilgan bo'lsa — belgi
+    if (val.required !== null && val.required !== undefined) {
+      lines.push(`<span data-mc-tolerance="${val.met ? 'met' : 'not-met'}">${i18n.t('mc_tol_line')}: ${i18n.t('mc_tol_required')} ${val.tolDivisor > 1 ? 'δ/' + val.tolDivisor : 'δ'} = ${Calc.fmtSci(val.required, 2)};  ` +
+        `${i18n.t('mc_tol_achieved')} = ${Calc.fmtSci(val.achieved, 2)}` +
+        (val.lowered ? `;  <strong data-mc-tol-lowered="1">${i18n.t('mc_tol_lowered')}</strong>` : '') + '</span>');
+    }
+    lines.push(
       `<span data-mc-run="1">${i18n.t('mc_generator')}: ${escHtml(rngName)};  ${i18n.t('mc_seed')} = ${escHtml(String(mc.seed))};  ` +
         `${i18n.t(ad.enabled ? 'mc_mode_adaptive' : 'mc_mode_fixed')}` +
         (ad.enabled ? ` (JCGM 101 §7.9.4): ${i18n.t('mc_blocks')} ${mc.blocks} × ${mc.blockSize.toLocaleString()} — ${i18n.t(ad.converged ? 'mc_converged' : 'mc_not_converged')}` : '') +
-        (mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? `;  ${i18n.t('mc_ndig_achieved')} = ${mc.nDigAchieved}` : '') + '</span>',
-    ];
-    if (!mc.validated) {
+        (mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? `;  ${i18n.t('mc_ndig_achieved')} = ${mc.nDigAchieved}` : '') + '</span>');
+    if (mc.validated === false) {
       lines.push(`<strong data-mc-result="1">${i18n.t('mc_result_instead')}: ${escHtml(r.symbol)} = ${mc.mean.toFixed(d)}${unitOf(r)};  ` +
         `${i18n.t(mainKey)} (${pct(mc.P)} %): [${main[0].toFixed(d)}; ${main[1].toFixed(d)}]${unitOf(r)}</strong>`);
     }

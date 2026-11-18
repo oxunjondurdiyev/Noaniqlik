@@ -27,6 +27,9 @@ export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js'
  */
 export const LAB_DEFAULTS = Object.freeze({
   P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson', criticalMode: 'mark',
+  // P06 (egasi qarorlari 2026-11-18): Monte-Karlo — adaptiv M (standart) yoki qat'iy; n_dig; §8 tekshiruvi toleransi
+  // 'delta5' (JCGM 101 §8.2, standart) yoki 'delta' (tushirilgan — hisobotda belgi bilan)
+  mcMode: 'adaptive', mcNDig: 2, mcTolerance: 'delta5',
 });
 export const LAB_SETTINGS_KEY = 'lab';
 

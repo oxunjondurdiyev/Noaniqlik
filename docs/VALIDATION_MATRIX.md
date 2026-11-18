@@ -46,9 +46,9 @@
 | Talab (band) | Funksiya | Test | Holat |
 |---|---|---|---|
 | Taqsimotlarni tarqatish, M = 10⁶ (§7) | `montecarlo.js::monteCarlo` | `jcgm101-9-2-2-mcm` (normal), `-9-2-3-mcm` (to'g'ri burchakli, analitik ±3,88), `-9-2-4-mcm`, `-9-3-mcm` (nochiziqli) | ✅ (manba δ bilan) |
-| Ehtimollik bo'yicha simmetrik interval (§7.7.2) | `coverageIntervals` (`symLow` / `symHigh`) | `jcgm101-9-2-*-mcm`, `excel-gas-p2-mc*` | ✅ / ⚠️ D-04 |
+| Ehtimollik bo'yicha simmetrik interval (§7.7.2) | `coverageIntervals` (`symLow` / `symHigh`) | `jcgm101-9-2-*-mcm`, `excel-gas-p2-mc*` | ✅ |
 | Eng qisqa interval (§7.7.2) | `coverageIntervals` (`low` / `high`) | `jcgm101-9-3-mcm`, `-9-4-mcm-*`, `-9-5-mcm` | ✅ (D-18) |
-| I uchun siljitilgan-masshtablangan t (§6.4.9) | `mc/distributions.js::sampleT` | `excel-gas-p2-mc-ndig1` (10-test, n_dig = 1) ✅; `excel-gas-p2-mc` (n_dig = 2) | ⚠️ D-04 (savol Q-3, qayta) |
+| I uchun siljitilgan-masshtablangan t (§6.4.9) | `mc/distributions.js::sampleT` | `excel-gas-p2-mc` (10-test, n_dig = 2), `excel-gas-p2-mc-ndig1` | ✅ (D-04 — egasi qarori Q-3 (b)) |
 | Raqamli tolerans δ, GUF validatsiyasi (§7.9.2, §8) | `numericalTolerance`, `monteCarlo` (`delta`, `validated`) | `montecarlo.test.js`; `jcgm101-*-mcm-adaptive` | ✅ |
 | Ko'p o'lchamli normal, korrelyatsiya (§6.4.8) | `cholesky`, `sampleMvn` | `jcgm101-9-4-mcm-*-r09` (Table 9) | ✅ |
 | t, arksinus, egri trapetsiya kirish taqsimotlari (Table 10) | `mc/distributions.js` | `jcgm101-9-5-mcm` (Table 11) | ✅ |
@@ -280,7 +280,10 @@ Manba — JCGM 101:2008 (repoda). "Mustaqil tekshiruv" — manba qiymati emas, s
 | Nochiziqli model Y = X², x̄ = 0 — LPU rad etiladi | M3 | `montecarlo.test.js` (analitik: u²·χ²₁) | ✅ mustaqil hisob |
 | Normal bo'lmagan korrelyatsiya → natija yo'q + M2; `invalid_covariance` | `createMonteCarlo` | `montecarlo.test.js` | ✅ (loyiha qarori, R-23) |
 | Eski generator bilan 2.5.0 natijasini takrorlash | `mc/legacy.js` | `mc-legacy.test.js` (6 hisob, `Object.is`) | ✅ (regressiya) |
-| 10-test: gazoanalizator 2-nuqta | `monteCarlo` | n_dig = 1 — ✅; n_dig = 2 — todo | ⚠️ D-04, Q-3 |
+| 10-test: gazoanalizator 2-nuqta (qo'llanma 9.1-jadval) | `monteCarlo` | `excel-gas-p2-mc` — n_dig = 2, tolerans δ + 2·s_ref (egasi qarori Q-3 (b)); `excel-gas-p2-mc-ndig1` | ✅ (D-04 yopildi) |
+| ν ≤ 2: u(y) aniqlanmagan, mezon faqat interval uchlari (§6.4.9.4, §7.6 Note 2; egasi qarori Q-5) | `createMonteCarlo` (`criteria: 'auto'`, `uDefined`) | `montecarlo.test.js`; `tests/ui/mc.test.js` (matn uch tilda) | ✅ |
+| GUM tekshiruvida MCM toleransi δ/5 (§8.2; egasi qarori Q-8); erishilgan tolerans hisobotda; δ ga tushirish belgilanadi | `mcOptions` (`validation`, `tolDivisor`), `result.validation` | `montecarlo.test.js`; `tests/ui/mc.test.js` | ✅ |
+| Shablon sxemasida yangi taqsimotlar (trap, ctrap, exp, lognorm) | `schemas/methodology.schema.json`, `src/templates/interpreter.js` | `tests/templates/workflow.test.js` | ✅ |
 | Web Worker, progress, bekor qilish; worker'siz bo'laklab (R-16) | `src/ui/mc/` | `tests/ui/mc.test.js`; **Chromium 157 (headless), haqiqiy CSP bilan:** worker — M = 10⁶ 1,0 s, asosiy oqimda eng uzun to'xtash 12 ms, 63 kadr; worker'siz — 1,1 s, 70 ms; konsolda xato yo'q | ✅ |
 | LPU natijalari o'zgarmagan | `evaluate` | 61 misolning natija JSON'i 2.5.0 (`c1cccce`) bilan bayt darajasida bir xil; 9 Excel nuqtasi | ✅ |
 

@@ -251,9 +251,12 @@ const Results = (() => {
   let mcUi = null;      // paneldagi tanlovlar (hisob sozlamasi settings.mc dan boshlanadi)
   let mcJob = null;     // { cancel, info } — bajarilayotgan hisob
   function mcDefaults() {
-    const lab = (appState.get('settings') || {}).mc || {};
+    // ustuvorlik: hisob sozlamasi (settings.mc) → laboratoriya sozlamalari (mcMode, mcNDig, mcTolerance) → dvigatel standarti
+    const L = window.UCTemplates && window.UCTemplates.labSettings ? (window.UCTemplates.labSettings() || {}) : {};
+    const lab = { mode: L.mcMode, nDig: L.mcNDig, ...((appState.get('settings') || {}).mc || {}) };
     const d = (window.Calc && Calc.MC_DEFAULTS) || {};
     return {
+      validation: lab.validation !== false, lowered: L.mcTolerance === 'delta',
       mode: lab.mode || d.mode || 'adaptive', M: Number(lab.M) || 1000000, nDig: Number(lab.nDig) || d.nDig || 2,
       interval: lab.interval || d.interval || 'shortest', seed: lab.seed !== undefined ? lab.seed : (d.seed !== undefined ? d.seed : Calc.MC_SEED),
       gaussian: lab.nonNormalCorrelation === 'gaussian',
@@ -262,7 +265,10 @@ const Results = (() => {
   function mcOpts() {
     const u = mcUi || mcDefaults();
     const seed = /^\d+$/.test(String(u.seed).trim()) ? Number(String(u.seed).trim()) : u.seed;
-    return { mode: u.mode, M: u.M, nDig: u.nDig, interval: u.interval, seed, nonNormalCorrelation: u.gaussian ? 'gaussian' : 'refuse' };
+    const o = { mode: u.mode, M: u.M, nDig: u.nDig, interval: u.interval, seed, nonNormalCorrelation: u.gaussian ? 'gaussian' : 'refuse', validation: u.validation !== false };
+    // §8 tekshiruvi: standart δ/5 (JCGM 101 §8.2); δ ga tushirish — faqat laboratoriya sozlamasi (hisobotda belgilanadi)
+    if (o.validation && u.lowered) o.tolDivisor = 1;
+    return o;
   }
   function mcProgressText(info) {
     return info ? `M = ${Number(info.M).toLocaleString()}` + (info.expected ? ` / ≈ ${Number(info.expected).toLocaleString()}` : '') : '';
@@ -273,7 +279,7 @@ const Results = (() => {
     if (!mcUi) mcUi = mcDefaults();
     box.querySelectorAll('[data-mc-opt]').forEach(inp => inp.addEventListener('change', () => {
       const k = inp.dataset.mcOpt;
-      mcUi[k] = inp.type === 'checkbox' ? inp.checked : (k === 'M' || k === 'nDig' ? Number(inp.value) : inp.value.trim());
+      mcUi[k] = inp.type === 'checkbox' ? inp.checked : (k === 'M' || k === 'nDig' ? Number(inp.value) : k === 'validation' ? inp.value !== 'mcm' : inp.value.trim());
       if (k === 'mode') box.querySelector('[data-mc-opt="M"]').disabled = mcUi.mode !== 'fixed';
     }));
     const runBtn = box.querySelector('#btn-mc'), cancelBtn = box.querySelector('[data-mc-cancel]');
@@ -352,6 +358,10 @@ const Results = (() => {
     return `
       <div class="section-title">${i18n.t('mc_title')}</div>
       <div class="mc-row" data-mc-panel="1">
+        <select data-mc-opt="validation" title="${escHtml(i18n.t('mc_purpose'))}" ${running ? 'disabled' : ''}>
+          <option value="validation" ${u.validation !== false ? 'selected' : ''}>${i18n.t(u.lowered ? 'mc_purpose_validation_delta' : 'mc_purpose_validation')}</option>
+          <option value="mcm" ${u.validation === false ? 'selected' : ''}>${i18n.t('mc_purpose_mcm')}</option>
+        </select>
         <select data-mc-opt="mode" title="${escHtml(i18n.t('mc_mode'))}" ${running ? 'disabled' : ''}>
           <option value="adaptive" ${sel('adaptive', u.mode)}>${i18n.t('mc_mode_adaptive')}</option>
           <option value="fixed" ${sel('fixed', u.mode)}>${i18n.t('mc_mode_fixed')}</option>
@@ -384,7 +394,7 @@ const Results = (() => {
       ${mc ? mcLines(r, mc).map(l => `<div class="formula-box">${l}</div>`).join('') +
         (mc.correlated ? `<div class="text-xs text-muted">${i18n.t('mc_corr_note')}</div>` : '') +
         sec().mcFindingsHtml(mc) +
-        (!mc.validated ? `<div class="text-xs text-muted">${i18n.t('mc_advice')}</div>` : '') : ''}`;
+        (mc.validated === false ? `<div class="text-xs text-muted">${i18n.t('mc_advice')}</div>` : '') : ''}`;
   }
 
   function templateNotice() {

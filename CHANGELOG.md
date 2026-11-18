@@ -15,13 +15,14 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 1. **Generator almashdi:** xorshift32 → kengaytirilgan Wichmann–Hill (JCGM 101:2008 C.3.3, Table C.2). Urug' o'zgarmagan (20261110), lekin ketma-ketlik boshqa.
 2. **Tanlash formulalari JCGM 101 bo'yicha:** Gauss — Box–Muller (Table C.3; avval Marsaglia qutbli usuli), t — Table C.5 (avval gamma orqali), uchburchak — a + (b − a)/2·(r₁ + r₂), arksinus — sin 2πr.
 3. **Interval indekslari §7.7.2 bo'yicha** aniq: q = pM yoki ⌊pM + ½⌋; [y₍ᵣ₎, y₍ᵣ₊q₎]; simmetrik r = (M − q)/2 yoki ⌊(M − q + 1)/2⌋ (avval bir indeksga farq qilar edi).
-4. **Standart rejim — adaptiv** (§7.9.4, n_dig = 2): M endi oldindan berilmaydi (qat'iy M — sozlama).
+4. **Standart rejim — adaptiv** (§7.9.4, n_dig = 2): M endi oldindan berilmaydi (qat'iy M — sozlama). **GUM tekshiruvida MCM toleransi δ/5** (§8.2; egasi qarori) — oddiy MCM da δ.
+7. **ν ≤ 2 bo'lgan t-kirishda** (n ≤ 3 kuzatuv) u(y) berilmaydi (`u: null`) — faqat qamrov intervali; to'xtash mezoni avtomatik interval uchlari bo'yicha (egasi qarori).
 5. **Korrelyatsiya hisobga olinadi** (avval e'tiborsiz qoldirilar edi): normal kirishlar — ko'p o'lchovli Gauss; normal bo'lmagan kirish korrelyatsiyada qatnashsa — **natija berilmaydi** (`mc_nonnormal_correlation`). Masalan, zichlik misolida (juftlangan kuzatuvlar) 2.5.0 MCM natija berar edi (korrelyatsiyasiz — noto'g'ri), 2.6.0 — bermaydi.
 6. **A tur, usul 3:** MCM da t₍n−1₎(x̄, s²/n) (standart og'ishi aynan u_A) — avval N(0, u_A²). Loyiha qarori (R-23).
 
 **Eski natijani takrorlash:** `monteCarlo(spec, { rng: 'xorshift32-legacy', M })` 2.5.0 natijasini bit darajasida qaytaradi (kod `src/engine/mc/legacy.js` ga o'zgarishsiz ko'chirilgan; 6 ta hisob bo'yicha test — `tests/engine/mc-legacy.test.js`). Yangi hisoblar uni ishlatmaydi; ishlatilsa `mc_legacy_rng` topilmasi chiqadi.
 
-**10-test (gazoanalizator 2-nuqta, `[−0,0111; 0,0469]`):** n_dig = 1 (majburiy, `excel-gas-p2-mc-ndig1`) — o'tadi; n_dig = 2 — **o'tmaydi, tolerans va algoritm moslashtirilmagan** (todo, D-04; raqamlar va Q-3 bo'yicha savol — `tests/cases/DISCREPANCIES.md`).
+**10-test (gazoanalizator 2-nuqta, `[−0,0111; 0,0469]`):** **majburiy, o'tadi** — egasi qarori Q-3 (b), 2026-11-18: n_dig = 2, tolerans = δ + 2·s_ref (5·10⁻⁵ + 2·1,2·10⁻⁴ = 2,9·10⁻⁴ quyi uch; 2,3·10⁻⁴ yuqori uch; s_ref — qo'llanma qiymati olingan bitta M = 10⁶ simulyatsiyasining tarqoqligi, mustaqil 8 takror). Natija [−0,010 99; 0,046 88], farq 1,1·10⁻⁴ / 2·10⁻⁵. Qo'llanma qiymati o'zgartirilmagan. Batafsil — `tests/cases/DISCREPANCIES.md` D-04.
 
 ### Qo'shilganlar
 
@@ -35,7 +36,8 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Web Worker** (`src/ui/mc/`, RISKS R-16): hisob modulli worker'da, progress va bekor qilish bilan; worker bo'lmasa — asosiy oqimda ≈ 25 ms li bo'laklar. **CSP o'zgarmadi** (`script-src 'self'` — worker shu qoida ostida; `worker-src` qo'shilmadi). Chromium da M = 10⁶: 1,0 s, asosiy oqimdagi eng uzun to'xtash 12 ms.
 - **Hisobot:** MCM bo'limida interval turi, P, M, generator, urug', n_dig (so'ralgan / yetilgan), rejim; MC topilmalari bosmada ham chiqadi.
 - **Test misollari:** JCGM 101 §9.4 (Table 8, 9 — 6 ta MCM), §9.5 (Table 11, adaptiv), Table 2, 4, 6 ning adaptiv qatorlari — **verified** (jami 61 verified, 2 unverified; pending yo'q).
-- **Egasi qarori kerak:** `docs/RISKS.md` R-23; `tests/cases/DISCREPANCIES.md` Q-3 (qayta), Q-5…Q-8.
+- **Egasi qarorlari (2026-11-18, `docs/RISKS.md` R-23) — shu versiyada bajarilgan:** Q-3 (b) — 10-test toleransi; Q-5 — ν ≤ 2 da `criteria: 'interval'` avtomatik, hisobotda "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali"; Q-6 — normal bo'lmagan korrelyatsiyada natija berilmaydi, topilmada "LPU natijasi amal qiladi" (ko'p o'lchovli t — P07); Q-7 — usul 3 da t₍n−1₎ tasdiqlandi; Q-8 — `validation` (standart `true`: δ/5; `false`: δ, §8 xulosasi berilmaydi), `result.validation { requested, tolDivisor, required, achieved, met, lowered }`, erishilgan tolerans hisobotda, δ ga tushirish — laboratoriya sozlamasi `mcTolerance: 'delta'` (hisobotda belgi). `mc_not_converged` endi qat'iy M da ham chiqadi (tekshiruv so'ralgan, δ/5 ga erishilmagan).
+- **Laboratoriya sozlamalari:** `mcMode`, `mcNDig`, `mcTolerance` (sozlamalar oynasida). **Shablon sxemasi:** `trap` (+ `beta`), `ctrap` (+ `d`), `exp`, `lognorm`.
 ## [2.5.1] — P05 bo'yicha egasi qarorlari (2026-11-18)
 
 **ENGINE_VERSION: 2.5.0 → 2.5.1** (patch). **y, u_c, ν_eff, k, U, `conf`, `decision` o'zgarmadi** — faqat ikki topilmaning darajasi va bitta yangi topilma kodi. 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmadi; etalon nuqtalardagi topilmalar ro'yxati ham o'zgarmadi.

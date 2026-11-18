@@ -1,6 +1,7 @@
 /* M4 — Monte-Karlo: sonli barqarorlik va generator (P06).
-   • mc_not_converged (warning) — adaptiv protsedura M ning yuqori chegarasiga yetdi, lekin 2s ≤ δ sharti bajarilmadi.
-     Ref: JCGM 101:2008 §7.9.4 k) (32-bet), §7.9.3 Note 1 ("cannot be guaranteed").
+   • mc_not_converged (warning) — talab qilingan sonli toleransga erishilmadi: adaptiv protsedura M ning yuqori chegarasiga
+     yetdi (2s ≤ δ bajarilmadi) yoki qat'iy M da §8 tekshiruvi uchun δ/5 (§8.2) ta'minlanmadi. Erishilgan tolerans — natijada.
+     Ref: JCGM 101:2008 §7.9.4 k) (32-bet), §7.9.3 Note 1 ("cannot be guaranteed"), §8.2 (34-bet).
    • mc_variance_undefined (warning) — kirishga ν ≤ 2 bo'lgan t-taqsimot tayinlangan (masalan, n ≤ 3 kuzatuv):
      Y ning standart og'ishi mavjud bo'lmasligi mumkin, u(y) va δ ma'nosiz; qamrov intervali esa aniqlanadi.
      Ref: JCGM 101:2008 §7.6 Note 2 (30-bet); §6.4.9.4 (V(X) faqat n > 3 da); C.6 Note (63-bet).
@@ -11,7 +12,7 @@ import { finding } from '../util.js';
 const rule = {
   id: 'M4',
   severity: 'warning',
-  ref: 'JCGM 101:2008 §7.9.4 k), §7.9.3 Note 1',
+  ref: 'JCGM 101:2008 §7.9.4 k), §7.9.3 Note 1, §8.2',
   modes: ['MC'],
   codes: {
     mc_not_converged: {},
@@ -22,7 +23,11 @@ const rule = {
     if (result.error) return [];
     const out = [];
     const a = result.adaptive || {};
-    if (a.enabled && a.reachedMax && !a.converged) out.push(finding(rule, 'mc_not_converged', { value: result.M }));
+    // adaptiv: M chegarasi; qat'iy M: §8 tekshiruvi so'ralgan, lekin talab qilingan tolerans (§8.2: δ/5) ga erishilmagan
+    const v = result.validation || {};
+    if ((a.enabled && a.reachedMax && !a.converged) || (!a.enabled && v.requested && v.met === false)) {
+      out.push(finding(rule, 'mc_not_converged', { value: result.M }));
+    }
     for (const h of result.varianceUndefined || []) {
       out.push(finding(rule, 'mc_variance_undefined', { param: h.input, source: h.source, value: h.nu, ref: rule.codes.mc_variance_undefined.ref }));
     }

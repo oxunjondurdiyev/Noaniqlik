@@ -8,7 +8,7 @@ Bu faylda uch turdagi farqlar qayd etilgan:
 
 > **P03 holati (2026-11-13, ENGINE_VERSION 2.0.0, `src/engine/`):** D-01, D-02, D-07 — **yopildi (P03)**; D-09 — 2-tartibli hadlar qo'shildi (diagnostika), U = 0 ni bloklash — P05; D-03 — todo (Q-2); D-04 — n_dig = 2 todo → P06 (Q-3); D-05 — manba nuansi. Yangi: D-11 (GUM Table G.2 nuansi). Egasining Q-1…Q-4 javoblari pastda.
 
-> **P06 holati (2026-11-18, ENGINE_VERSION 2.6.0):** D-04 — n_dig = 2 varianti **yopilmadi** (qo'llanma qiymatining o'zi δ(n_dig = 2) aniqligida emas) — raqamlar pastda, qaror Q-3 (qayta); yangi D-18 (eng qisqa interval uchlarining tarqoqligi); yangi savollar Q-5…Q-8.
+> **P06 holati (2026-11-18, ENGINE_VERSION 2.6.0):** D-04 — **yopildi** egasi qarori Q-3 (b) bilan (tolerans = δ + 2·s_ref; 10-test majburiy); yangi D-18 (eng qisqa interval uchlarining tarqoqligi); Q-5…Q-8 ga egasi javob berdi (pastda).
 
 P01 dagi dvigatel: `src/js/calc.js`, `ENGINE_VERSION` 1.0.0. Hech bir farq **hisobotda ko'rinadigan (yaxlitlangan) natijani o'zgartirmaydi**: 9 ta Excel nuqtasining `expectedDisplay` qiymatlari (U va y) hammasi mos keladi.
 
@@ -19,7 +19,7 @@ P01 dagi dvigatel: `src/js/calc.js`, `ENGINE_VERSION` 1.0.0. Hech bir farq **his
 | **D-01** — **yopildi (P03)** | `excel-gas-p1`, `excel-term-p1`, `-p3`, `-p4`: k, U | k = 2,000 002 443 899 6 (`NORMSINV(0,97725)`, masalan `Nuqta_1!D38`) | 2,000 002 405 781 | −1,9·10⁻⁸ | ν katta bo'lganda dvigatel normal kvantilni `erf` ning Abramowitz–Stegun 7.1.26 approksimatsiyasi bilan hisoblaydi (xatosi ~10⁻⁷). Mustaqil tekshiruv: Python `statistics.NormalDist().inv_cdf(0.97725)` = 2,000 002 443 899 6 — Excel bilan mos. **Dvigatel xatosi** (RISKS R-03). | P03 (t-kvantil 1e-6 aniqlik talabi) |
 | **D-02** — **yopildi (P03)** | `excel-term-p2` (ν_eff = 1438), `excel-term-p5` (ν_eff = 3416): k, U | Excel: ν_eff ≥ 1000 bo'lsa k = z (normal), `Nuqta_2!D39` = 2,000 002 | t(⌊ν⌋): 2,001 742 (p2), 2,000 735 (p5) | +8,7·10⁻⁴, +3,7·10⁻⁴ | k tanlash chegarasi har xil: Excel normal kvantilga ν ≥ 1000 da o'tadi, dvigatel ν ≤ 5000 gacha t-taqsimotni ishlatadi (ν = 5000 da sakrash — R-03). GUM G.4.1/G.6.4 bo'yicha t(ν_eff) to'g'ri, normalga o'tish — konventsiya. **Metrologik qaror egasida — Q-1.** | P03 |
 | **D-03** — todo (Q-2) | `excel-term-p2`, `-p3`, `-p5`: ν_eff | `Nuqta_2!D38` = 1438,575 53 | 1438,576 41 | +6·10⁻⁷ … +2,7·10⁻⁶ | Excel B tur komponentlariga ν = 10⁹ qo'yadi (cheksizlik o'rniga, `Nuqta_i!L27:L35`); bu Welch–Satterthwaite maxrajiga kichik hissa qo'shadi. Dvigatel ν_B = ∞ (GUM G.4.2). Dvigatel xatosi emas, **Excel konventsiyasi**. Tolerans qarori — Q-2. | P03 (yoki tolerans qarori) |
-| **D-04** — n_dig = 1 majburiy; n_dig = 2 **todo (P06 da yopilmadi — Q-3 qayta so'ralgan)** | `excel-gas-p2-mc` (10-test): 95,45 % MC intervali | qo'llanma 9.1-jadval: [−0,0111; 0,0469] | **P06, ENGINE 2.6.0** (Wichmann–Hill, urug' 20261110), ehtimollik bo'yicha simmetrik: adaptiv n_dig = 2 — [−0,010 99; 0,046 88] (M = 10⁷, barqarorlashmadi); M = 2·10⁷ — [−0,011 02; 0,046 89] | Δ = 1,1·10⁻⁴; 2·10⁻⁵ (δ = 5·10⁻⁵ da); 2·10⁷ da 8·10⁻⁵; 1·10⁻⁵ | Batafsil — pastda "D-04: P06 raqamlari". Qisqasi: qo'llanma qiymati bitta M = 10⁶ simulyatsiyasidan (uchning s.o. 1,1·10⁻⁴) va 4 xonagacha yaxlitlangan; quyi uchning "haqiqiy" qiymati −0,011 02 ± 0,000 02, ya'ni qo'llanmadagi −0,0111 dan 8·10⁻⁵ ga farq qiladi — δ(n_dig = 2) = 5·10⁻⁵ dan katta. **Dvigatel xatosi emas; tolerans va algoritm moslashtirilmagan.** n_dig = 1 (δ = 5·10⁻⁴) bilan `excel-gas-p2-mc-ndig1` o'tadi. | egasi qarori (Q-3) |
+| **D-04** — **yopildi (egasi qarori Q-3 (b), 2026-11-18)** | `excel-gas-p2-mc` (10-test): 95,45 % MC intervali | qo'llanma 9.1-jadval: [−0,0111; 0,0469] | ENGINE 2.6.0, standart sozlama (adaptiv, n_dig = 2, GUM tekshiruvi δ/5; ν = 2 → mezon faqat interval uchlari): [−0,010 99; 0,046 88] (M = 10⁷ — chegara; erishilgan 2s = 5,8·10⁻⁵) | Δ = 1,1·10⁻⁴; 2·10⁻⁵ | Qo'llanma qiymati bitta M = 10⁶ simulyatsiyasidan — tarqoqligi (s_ref: mustaqil 8 takrorda 1,2·10⁻⁴ / 0,9·10⁻⁴) toleransga kiritildi: **tolerans = δ + 2·s_ref = 2,9·10⁻⁴ (quyi), 2,3·10⁻⁴ (yuqori)**; δ = 5·10⁻⁵ (n_dig = 2). Test majburiy (todo emas). Qo'llanma qiymati o'zgartirilmagan. Batafsil — pastda. | yopildi |
 | **D-05** | `jcgm100-h2-X`: u_c(X) | Table H.3: 0,295 Ω | 0,295 58 Ω (→ 0,296) | +2·10⁻³ | 1-yondashuv (5.2.2 Eq. 16, juftlangan korrelyatsiya bilan) aniq hisobda 0,2956 beradi. Manbadagi 0,295 aslida 2-yondashuv qiymati (Table H.4: X_k lardan s/√5 = 0,2948). GUM ikkala yondashuv bir xil deydi (H.2.4), lekin 3-xonada farq bor. R va Z mos. **Manba nuansi**, dvigatel xatosi emas. | — (manba) |
 
 ### P03 da yopilgan farqlar — qanday yopildi
@@ -48,7 +48,9 @@ Qo'llanma (9.1-jadval, "Monte-Karlo (10⁶)"): E = 0,0179; [−0,0111; 0,0469].
 
 Eng qisqa interval (ma'lumot uchun): M = 2·10⁷ da [−0,011 21; 0,046 70]; M = 10⁶ da uchlarning s.o. 2,8·10⁻⁴ / 3,1·10⁻⁴. MCM u(y): 20 urug'da 0,0216 … 0,0421 (mavjud emas).
 
-**Xulosa.** (1) Qo'llanma qiymati yangi dvigatel bilan statistik jihatdan mos (bitta M = 10⁶ simulyatsiyasining tarqoqligi ichida). (2) n_dig = 2 dagi δ = 5·10⁻⁵ tolerans bilan u **o'tmaydi va o'tishi mumkin emas**: qo'llanmadagi −0,0111 ning o'zi "haqiqiy" −0,011 02 dan 8·10⁻⁵ uzoqda. (3) Standart adaptiv mezon (§7.9.4 k) bu misolda hech qachon barqarorlashmaydi, chunki u(y) mavjud emas. Qarorlar — pastda Q-3 (qayta) va Q-5.
+**Egasi qarori (2026-11-18, Q-3 (b)).** Dvigatelda n_dig = 2; 10-test toleransi = δ + 2·s_ref, s_ref — shu jadvaldan oldingi (P01) mustaqil 8 takrordagi standart og'ish (1,2·10⁻⁴ / 0,9·10⁻⁴). Egasi yig'indini ≈ 3,2·10⁻⁴ deb ko'rsatgan; formula bo'yicha 5·10⁻⁵ + 2·1,2·10⁻⁴ = 2,9·10⁻⁴ (quyi uch) va 5·10⁻⁵ + 2·0,9·10⁻⁴ = 2,3·10⁻⁴ (yuqori uch) chiqadi — testga shu qattiqroq qiymatlar yozildi (ikkalasi ham 3,2·10⁻⁴ dan kichik; farq egasiga xabar qilindi). Standart sozlamadagi natija [−0,010 99; 0,046 88] — farq 1,1·10⁻⁴ va 2·10⁻⁵, test o'tadi. Quyidagi jadval — qaror qabul qilinishidan oldingi (mezon `'all'` standart bo'lgan) holat; hozir ν ≤ 2 da mezon avtomatik `'interval'` (Q-5).
+
+**Xulosa (qarordan oldin).** (1) Qo'llanma qiymati yangi dvigatel bilan statistik jihatdan mos (bitta M = 10⁶ simulyatsiyasining tarqoqligi ichida). (2) n_dig = 2 dagi δ = 5·10⁻⁵ tolerans bilan u **o'tmaydi va o'tishi mumkin emas**: qo'llanmadagi −0,0111 ning o'zi "haqiqiy" −0,011 02 dan 8·10⁻⁵ uzoqda. (3) Standart adaptiv mezon (§7.9.4 k) bu misolda hech qachon barqarorlashmaydi, chunki u(y) mavjud emas. Qarorlar — pastda Q-3 (qayta) va Q-5.
 
 ### P03 da topilgan yangi nuans
 
@@ -99,23 +101,21 @@ Eng qisqa interval (ma'lumot uchun): M = 2·10⁷ da [−0,011 21; 0,046 70]; M 
 - **Q-3 →** hozir n_dig = 1 (`excel-gas-p2-mc-ndig1` — majburiy), n_dig = 2 (`excel-gas-p2-mc`) — P06 ga bog'langan todo.
 - **Q-4 → tasdiqlandi.** H.1, S2, A1 dagi toleranslar saqlanadi, sababi `tolerance.*.reason` da.
 
-## Egasiga savollar (P06, 2026-11-18) — javob kutilmoqda
+## Egasining javoblari (P06, 2026-11-18)
 
-- **Q-3 (qayta, D-04).** 10-test (gazoanalizator 2-nuqta) uchun majburiy tolerans. Raqamlar — yuqorida "D-04: P06 raqamlari". Variantlar:
-  - (a) **n_dig = 1 majburiy bo'lib qoladi** (δ = 5·10⁻⁴; hozir o'tadi), n_dig = 2 varianti todo sifatida qoladi yoki olib tashlanadi — manba qiymati shu aniqlikda emas;
-  - (b) n_dig = 2, lekin tolerans = δ + qo'llanma qiymatining noaniqligi (½ oxirgi xona 5·10⁻⁵ + bitta M = 10⁶ simulyatsiyasining 2 s.o. ≈ 2,2·10⁻⁴) ≈ 3,2·10⁻⁴ — "statistik moslik" testi;
-  - (c) qo'llanmadagi qiymatni aniqroq hisob bilan yangilash (M ≥ 2·10⁷: [−0,0110; 0,0469]) — bu laboratoriya hujjatini o'zgartirish, faqat egasi qila oladi; shundan keyin n_dig = 2 testi majburiy bo'ladi.
-  - Tavsiya: hozir (a), keyin (c).
-- **Q-5.** ν ≤ 2 bo'lgan kirish (n ≤ 3 kuzatuv) da adaptiv mezon. u(y) mavjud emas (§7.6 Note 2), shuning uchun §7.9.4 k) sharti hech qachon bajarilmaydi — hisob har doim M chegarasigacha boradi (10⁷, ≈ 6 s) va `mc_not_converged` chiqadi. Variantlar:
-  - (a) joriy holat (§7.9.4 so'zma-so'z; ogohlantirish bilan);
-  - (b) bunday holatda avtomatik `criteria: 'interval'` (faqat interval uchlari, δ — GUM u_c dan) — hozir sozlama sifatida bor, standart emas;
-  - (c) bunday holatda qat'iy M (masalan 10⁶) va "yetilgan n_dig" ni ko'rsatish.
-- **Q-6.** Normal bo'lmagan kirish korrelyatsiyada (masalan, juftlangan kuzatuvlar — t-taqsimot; zichlik misoli). Hozir: natija berilmaydi + M2; sozlama bilan — belgilangan Gauss yaqinlashuvi. Boshqa variantlar (qo'shilmagan):
-  - (b) Gauss copula — har bir kirish o'z taqsimotini saqlaydi, bog'liqlik normal ballar orqali; kamchiligi: berilgan r aniq saqlanmaydi (rang korrelyatsiyasi), manba — JCGM 101 da yo'q;
-  - (c) juftlangan A tur kuzatuvlari uchun ko'p o'lchovli t (JCGM 102:2011 §5.3.2 — repoda yo'q, P07 da);
-  - (d) Gauss yaqinlashuvini standart qilish (ogohlantirish bilan).
-- **Q-7.** A tur usul 3 (kichik tanlama) MCM da: (a) t₍n−1₎(x̄, s²/n) — joriy (standart og'ishi aynan u_A, JCGM 101 §6.4.9.4); (b) N(0, u_A²) — 2.5.0 dagi kabi.
-- **Q-8.** §8.2: GUM tekshiruvi uchun MCM natijalarini δ/5 tolerans bilan olish tavsiya etiladi (M ≈ 25 marta ko'p; §9 misollarida ≈ 10⁶). Hozir standart — δ (`tolDivisor: 1`, tez); δ/5 — sozlama. Standart qaysi bo'lsin?
+- **Q-3 → (b).** Dvigatelda n_dig = 2; 10-test toleransi = δ + 2·s_ref (s_ref — D-04 dagi mustaqil 8 takror). Qo'llanma qiymati o'zgartirilmaydi. 10-test todo dan chiqarildi. **Bajarildi.**
+- **Q-5 →** ν ≤ 2 bo'lgan istalgan t-kirishda (JCGM 101 §6.4.9: ν > 2 bo'lmasa dispersiya cheksiz) `criteria: 'interval'` avtomatik; hisobotda "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali" (uch tilda). **Bajarildi** (`criteria: 'auto'` — standart; natijada `u: null`, `uDefined: false`).
+- **Q-6 →** hozirgidek: normal bo'lmagan korrelyatsiyada MCM natijasi berilmaydi; topilmada sabab va "LPU natijasi amal qiladi". Ko'p o'lchovli t — P07 ga. **Bajarildi** (matnlar); P07 — `docs/PLAN.md`. Eslatma: egasi "JCGM 102:2011 §6.5" deb ko'rsatgan; PDF da ko'p o'lchovli t-taqsimot — **§5.3.2** (11-bet), §6.5 — "Coverage region for the output quantity". Kod va hujjatlarda §5.3.2 yozildi.
+- **Q-7 → tasdiqlandi.** A tur usul 3 MCM da t₍n−1₎(x̄, s²/n); s.o. = s/√n·√((n−1)/(n−3)) = usul 3 dagi u_A (JCGM 101 §6.4.9.4).
+- **Q-8 →** §8 GUM tekshiruvida standart δ/5 (JCGM 101 §8.2), oddiy MCM da δ; M chegarasiga yetilsa erishilgan tolerans hisobotda; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi bilan. **Bajarildi** (`validation`, `tolDivisor`, `result.validation`; laboratoriya sozlamasi `mcTolerance`).
+
+## Egasiga savollar (P06, 2026-11-18) — tarix
+
+- **Q-3 (qayta, D-04).** 10-test toleransi: (a) n_dig = 1 majburiy bo'lib qoladi; (b) n_dig = 2, tolerans = δ + qo'llanma qiymatining noaniqligi; (c) qo'llanma qiymatini yangilash.
+- **Q-5.** ν ≤ 2 da adaptiv mezon: (a) §7.9.4 so'zma-so'z; (b) avtomatik `criteria: 'interval'`; (c) qat'iy M.
+- **Q-6.** Normal bo'lmagan korrelyatsiya: natija berilmaydi / Gauss copula / ko'p o'lchovli t / Gauss yaqinlashuvi standart.
+- **Q-7.** A tur usul 3 MCM da: t₍n−1₎ yoki N(0, u_A²).
+- **Q-8.** §8.2 dagi δ/5 standart bo'lsinmi.
 
 ## Egasiga savollar (P01, tarix)
 
