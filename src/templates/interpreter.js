@@ -34,7 +34,7 @@ export const STATUSES = ['DRAFT', 'REVIEWED', 'APPROVED', 'RETIRED'];
 /** UI dagi P03 standart sozlamalari (app.js loadPreset bilan bir xil) */
 export const APP_DEFAULTS = Object.freeze({ paired: true, P: 0.9545 });
 /** APPROVED holatda standart bo'yicha qulflanadigan bo'limlar */
-export const DEFAULT_LOCKED = ['model', 'variants', 'constants', 'inputs', 'typeBSources', 'correlations', 'measurand'];
+export const DEFAULT_LOCKED = ['model', 'outputs', 'variants', 'constants', 'inputs', 'typeBSources', 'correlations', 'measurand'];   // 'outputs' — P07b (vektor model formulalari)
 
 const LANGS = ['uz', 'ru', 'en'];
 const clone = o => (o === undefined ? undefined : JSON.parse(JSON.stringify(o)));
@@ -124,6 +124,23 @@ export function checkTemplate(tpl, schema) {
     if (c.sharedInstrument && !(tpl.typeBSources || []).some(s => c.inputs.includes(s.input) && s.instrument === c.sharedInstrument)) {
       errors.push(`correlation ${c.id}: no source with instrument "${c.sharedInstrument}"`);
     }
+  }
+  // P07b: qo'shimcha chiqishlar (vektor model, JCGM 102:2011 §6.2) — belgi takrorlanmasligi, formula tahlil qilinishi,
+  // formuladagi belgilar ma'lum bo'lishi, chap tomondagi belgi `symbol` bilan mos kelishi
+  if (Array.isArray(tpl.outputs)) {
+    const mainSymbols = [tpl.measurand && tpl.measurand.symbol, ...((tpl.variants || []).map(v => v.measurand && v.measurand.symbol))].filter(Boolean);
+    const seen = new Set();
+    tpl.outputs.forEach((o, n) => {
+      const tag = `output ${n + 1} (${o.symbol})`;
+      if (seen.has(o.symbol) || mainSymbols.includes(o.symbol)) errors.push(`${tag}: duplicate output symbol`);
+      if (symbols.includes(o.symbol)) errors.push(`${tag}: symbol is already an input or constant`);
+      seen.add(o.symbol);
+      const sp = splitFormula(o.formula);
+      if (!sp.expr) { errors.push(`${tag}: formula required`); return; }
+      if (sp.symbol && sp.symbol !== o.symbol) errors.push(`${tag}: formula left-hand side "${sp.symbol}" differs from the symbol`);
+      try { formulaSymbols(o.formula, symbols); }
+      catch (e) { errors.push(`${tag}: formula does not parse (${e.message})`); }
+    });
   }
   const variants = tpl.variants && tpl.variants.length ? tpl.variants.map(v => v.id) : [''];
   if (tpl.variants && tpl.variants.length) {

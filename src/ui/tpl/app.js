@@ -11,6 +11,7 @@
 import * as Interp from '../../templates/interpreter.js';
 import * as Store from '../../storage/index.js';
 import * as View from './view.js';
+import { outputsHTML, addOutput, removeOutput, setOutputField } from './outputs.js';
 
 const $ = id => document.getElementById(id);
 const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang });
@@ -292,6 +293,7 @@ function editorHTML(tpl) {
         <td><input type="text" data-ed-unit="${n}" value="${esc(i.unit)}" ${dis('inputs')} /></td>
         <td><input type="text" data-ed-name="${n}" value="${esc(i.name.uz)}" ${dis('inputs')} /></td></tr>`).join('')}
     </tbody></table>
+    ${Interp.isRegression(tpl) || Interp.isTopDown(tpl) || Interp.isSpecial(tpl) ? '' : outputsHTML(tpl, { ...ctx(), lang: window.i18n.lang }, locked.includes('outputs'))}
     <div class="tpl-ed-sub">${esc(t('ed_json'))}</div>
     <textarea id="ed-json" class="mono tpl-ed-json" spellcheck="false">${esc(JSON.stringify(tpl, null, 2))}</textarea>
     <div id="ed-check" class="${chk.valid ? 'tpl-ok' : 'tpl-missing'}">${chk.valid ? esc(t('ed_valid')) : esc(t('ed_invalid')) + ':<ul>' + chk.errors.map(e => `<li>${esc(e)}</li>`).join('') + '</ul>'}</div>
@@ -311,6 +313,24 @@ function openEditor(tpl, isNew = false) {
   editing = { tpl: clone(tpl), isNew };
   const body = openModal(editorHTML(editing.tpl));
   body.querySelectorAll('#ed-formula, #ed-unit, [data-ed-unit], [data-ed-name]').forEach(inp => inp.addEventListener('change', syncFormToJson));
+  // P07b: qo'shimcha chiqishlar jadvali → JSON (har bir o'zgarishda tekshiruv)
+  body.querySelectorAll('[data-ed-out]').forEach(inp => inp.addEventListener('change', () => {
+    const tpl = readJson();
+    if (!tpl) return;
+    const next = setOutputField(tpl, Number(inp.dataset.edOut), inp.dataset.edOutField, inp.value, window.i18n.lang);
+    $('ed-json').value = JSON.stringify(next, null, 2);
+    if (inp.dataset.edOutField === 'symbol') redrawEditor(next); else showCheck(next);
+  }));
+}
+
+/** Muharrirni joriy JSON bilan qayta chizish (saqlanmagan o'zgarishlar va "kim / sabab" maydonlari saqlanadi) */
+function redrawEditor(tpl) {
+  const by = ($('ed-by') || {}).value || '', reason = ($('ed-reason') || {}).value || '';
+  const base = editing.tpl, isNew = editing.isNew;
+  openEditor(tpl, isNew);
+  editing.tpl = base;                       // "saqlangan" holat o'zgarmaydi — applyEdit va holat o'tishlari shunga nisbatan
+  if ($('ed-by')) $('ed-by').value = by;
+  if ($('ed-reason')) $('ed-reason').value = reason;
 }
 
 function readJson() {
@@ -357,6 +377,8 @@ async function onEditorAction(e) {
   const cur = readJson();
   if (!cur) return;
   if (act === 'check') { showCheck(cur); return; }
+  if (act === 'add-output') { redrawEditor(addOutput(cur)); return; }
+  if (act === 'del-output') { redrawEditor(removeOutput(cur, Number(btn.dataset.n))); return; }
   if (act === 'save') {
     if (!reason) { toast(t('ed_need_reason'), 'error'); return; }
     const base = editing.isNew ? cur : editing.tpl;
