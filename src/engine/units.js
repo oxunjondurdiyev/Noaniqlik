@@ -201,6 +201,14 @@ export function analyzeDimensions(ast, unitsByVar) {
         }
         return { d: [...ZERO], c: a.c, aff: false };
       }
+      case 'fn2': {
+        // atan2(a; b): argumentlar bir xil o'lchamlikda bo'lishi kerak; natija — o'lchamsiz (burchak, rad)
+        const a = walk(n.a), b = walk(n.b);
+        if (a.d && b.d && !a.c && !b.c && !dimEqual(a.d, b.d)) {
+          problems.push({ code: 'unit_mismatch', severity: 'error', detail: `${n.f}(${text(n.a)} [${dimText(a.d)}]; ${text(n.b)} [${dimText(b.d)}])` });
+        }
+        return { d: [...ZERO], c: a.c && b.c, aff: false };
+      }
       default: return { d: null, c: false, aff: false };
     }
   }

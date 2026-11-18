@@ -1,0 +1,118 @@
+{
+  "id": "jcgm102-9-3-x001-r09-mcm",
+  "title": "JCGM 102 9.3: koordinata almashtirish (Dekart → qutb), x1 = 0.001, r(x1, x2) = 0.9 — MCM (atan2)",
+  "domain": "elektr (kompleks kattalik)",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.3.3.2, Table 7 (MCM qatori)",
+    "page": "45"
+  },
+  "notes": "Y2 = atan2(X2, X1) — to'rt kvadrantli arktangens (§9.3.1.1). Manba M = 10⁷ va Mersenne Twister ishlatgan; bu yerda M = 3·10⁶ (ikki chiqishli MCM xotira chegarasi), Wichmann–Hill, urug' 20261110.",
+  "status": "verified",
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2"
+      ],
+      "measurements": {
+        "X1": [
+          0.001
+        ],
+        "X2": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y1 = sqrt(X1 ^ 2 + X2 ^ 2)",
+        "unit": "1"
+      },
+      "outputs": [
+        {
+          "formula": "Y1 = sqrt(X1 ^ 2 + X2 ^ 2)",
+          "unit": "1"
+        },
+        {
+          "formula": "Y2 = atan2(X2; X1)",
+          "unit": "rad"
+        }
+      ],
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {
+        "X1|X2": 0.00009
+      },
+      "typeB": [
+        {
+          "name": "u(x1) = 0.010",
+          "param": "X1",
+          "halfWidth": 0.01,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(x2) = 0.010",
+          "param": "X2",
+          "halfWidth": 0.01,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "mc": {
+      "mode": "fixed",
+      "M": 3000000
+    }
+  },
+  "expected": {
+    "y.Y1": {
+      "value": 0.012,
+      "ref": "Table 7, x1 = 0.001, MCM (M = 10⁷): y1 = 0.012"
+    },
+    "y.Y2": {
+      "value": -0.556,
+      "ref": "Table 7, x1 = 0.001, MCM (M = 10⁷): y2 = -0.556"
+    },
+    "u.Y1": {
+      "value": 0.008,
+      "ref": "Table 7, x1 = 0.001, MCM (M = 10⁷): u(y1) = 0.008"
+    },
+    "u.Y2": {
+      "value": 1.599,
+      "ref": "Table 7, x1 = 0.001, MCM (M = 10⁷): u(y2) = 1.599"
+    },
+    "r.Y1.Y2": {
+      "value": -0.07,
+      "ref": "Table 7, x1 = 0.001, MCM (M = 10⁷): r(y1, y2) = -0.070"
+    }
+  },
+  "tolerance": {
+    "y.Y1": {
+      "abs": 0.00052,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,0000042 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "y.Y2": {
+      "abs": 0.0034,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,00099 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "u.Y1": {
+      "abs": 0.00052,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,0000038 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "u.Y2": {
+      "abs": 0.0014,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,00031 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "r.Y1.Y2": {
+      "abs": 0.0026,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,00074 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    }
+  }
+}

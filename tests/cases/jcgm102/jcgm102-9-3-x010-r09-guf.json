@@ -97,5 +97,5 @@
       "abs": 1e-12
     }
   },
-  "notes": "Model x1 > 0 da arctan(X2/X1) ko'rinishida (GUM yondashuvi uchun yetarli). MCM qatorlari (Table 6, 7) to'rt kvadrantli arctan (atan2) ni talab qiladi — formulalar tahlilchisida yo'q, shuning uchun MCM qismi test qilinmagan (docs/RISKS.md R-24)."
+  "notes": "Model x1 > 0 da arctan(X2/X1) ko'rinishida (GUM yondashuvi uchun yetarli). MCM qatorlari (Table 6, 7) to'rt kvadrantli arctan (atan2) bilan — alohida misollar: jcgm102-9-3-*-mcm (P07b)."
 }

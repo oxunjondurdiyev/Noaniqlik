@@ -125,7 +125,31 @@ for (const r of [0, 0.9]) {
         'u.Y1': { value: u1, ref: `${tab}, GUF: u(y1) = ${u1.toFixed(3)}` }, 'u.Y2': { value: u2, ref: `${tab}, GUF: u(y2) = ${u2.toFixed(3)}` },
         'r.Y1.Y2': { value: r, ref: `${tab}, GUF: r(y1, y2) = ${r.toFixed(3)}` } },
       tolerance: { default: { abs: 0.0005, reason: 'manbadagi oxirgi xonaning yarmi (3 kasr xona)' }, 'y.Y2': { abs: 1e-12 } },
-      notes: 'Model x1 > 0 da arctan(X2/X1) ko\'rinishida (GUM yondashuvi uchun yetarli). MCM qatorlari (Table 6, 7) to\'rt kvadrantli arctan (atan2) ni talab qiladi — formulalar tahlilchisida yo\'q, shuning uchun MCM qismi test qilinmagan (docs/RISKS.md R-24).' });
+      notes: 'Model x1 > 0 da arctan(X2/X1) ko\'rinishida (GUM yondashuvi uchun yetarli). MCM qatorlari (Table 6, 7) to\'rt kvadrantli arctan (atan2) bilan — alohida misollar: jcgm102-9-3-*-mcm (P07b).' });
+  }
+}
+
+/* ── §9.3 MCM qatorlari (P07b): Y2 = atan2(X2, X1) — to'rt kvadrantli arktangens (§9.3.1.1, Eq. 25 izohi).
+   Manba M = 10⁷ (§9.3.2.1.4); bu yerda M = 3·10⁶ — ikki chiqishli MCM ning xotira chegarasi (maxTrialsFor(2) ≈ 3,33·10⁶).
+   Tolerans o'sha qoida bo'yicha: ½ oxirgi xona + 2·√2·s (s — M = 3·10⁶ dagi o'lchangan tarqoqlik, 8 ta urug'). ── */
+const T6M = { 0.001: [0.013, -0.001, 0.007, 1.744, 0.000], 0.010: [0.015, 0.000, 0.008, 1.117, 0.000], 0.100: [0.101, 0.000, 0.010, 0.101, 0.000] };
+const T7M = { 0.001: [0.012, -0.556, 0.008, 1.599, -0.070], 0.010: [0.015, -0.343, 0.008, 0.903, 0.352], 0.100: [0.101, -0.009, 0.010, 0.102, 0.882] };
+for (const r of [0, 0.9]) {
+  for (const x1 of [0.001, 0.010, 0.100]) {
+    const [y1, y2, u1, u2, r12] = (r ? T7M : T6M)[x1], tab = r ? 'Table 7' : 'Table 6', xs = String(x1).replace('0.', '').padEnd(3, '0');
+    const row = `${tab}, x1 = ${x1.toFixed(3)}, MCM (M = 10⁷)`;
+    mcCase({ id: `jcgm102-9-3-x${xs}-r${r ? '09' : '0'}-mcm`,
+      title: `JCGM 102 9.3: koordinata almashtirish (Dekart → qutb), x1 = ${x1.toFixed(3)}, r(x1, x2) = ${r} — MCM (atan2)`, domain: 'elektr (kompleks kattalik)',
+      source: { doc: DOC, section: `${r ? '9.3.3.2' : '9.3.2'}, ${tab} (MCM qatori)`, page: r ? '45' : '44' },
+      notes: 'Y2 = atan2(X2, X1) — to\'rt kvadrantli arktangens (§9.3.1.1). Manba M = 10⁷ va Mersenne Twister ishlatgan; bu yerda M = 3·10⁶ (ikki chiqishli MCM xotira chegarasi), Wichmann–Hill, urug\' 20261110.' },
+    calc({ params: ['X1', 'X2'], measurements: { X1: [x1], X2: [0] }, directions: [], model: { formula: 'Y1 = sqrt(X1 ^ 2 + X2 ^ 2)', unit: '1' },
+      outputs: [{ formula: 'Y1 = sqrt(X1 ^ 2 + X2 ^ 2)', unit: '1' }, { formula: 'Y2 = atan2(X2; X1)', unit: 'rad' }],
+      settings: { paired: false, P: 0.95 }, covB: r ? { 'X1|X2': r * 0.01 * 0.01 } : {},
+      typeB: [{ name: 'u(x1) = 0.010', param: 'X1', halfWidth: 0.01, distribution: 'normal', k: 1 }, { name: 'u(x2) = 0.010', param: 'X2', halfWidth: 0.01, distribution: 'normal', k: 1 }] }),
+    { mode: 'fixed', M: 3e6 },
+    { 'y.Y1': [y1, half(3), `${row}: y1 = ${y1.toFixed(3)}`], 'y.Y2': [y2, half(3), `${row}: y2 = ${y2.toFixed(3)}`],
+      'u.Y1': [u1, half(3), `${row}: u(y1) = ${u1.toFixed(3)}`], 'u.Y2': [u2, half(3), `${row}: u(y2) = ${u2.toFixed(3)}`],
+      'r.Y1.Y2': [r12, half(3), `${row}: r(y1, y2) = ${r12.toFixed(3)}`] });
   }
 }
 
