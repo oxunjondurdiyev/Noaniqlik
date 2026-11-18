@@ -1,0 +1,242 @@
+{
+  "id": "ufs-a2-lead-classical",
+  "title": "UfS A2: ifloslangan tuproqda qo'rg'oshin — klassik ANOVA va noaniqlik koeffitsiyenti ᶠU (loge)",
+  "status": "verified",
+  "domain": "namuna olish (atrof-muhit)",
+  "source": {
+    "doc": "EURACHEM/CITAC UfS:2019 (2nd ed.)",
+    "section": "Example A2: Table A2.2, Figure A2.2 (Classical ANOVA), §6.2, Table A2.3",
+    "page": "47–49",
+    "note": "10 ob'ekt × 2 × 2 (Table A2.2). ᶠU = exp(2·s_G,meas) (Eq. 5): loge o'zgartirilgan qiymatlarda klassik ANOVA."
+  },
+  "modelSpec": {
+    "format": "uc-sampling/1",
+    "method": "classical",
+    "logTransform": true,
+    "unit": "mg/kg",
+    "targets": [
+      {
+        "id": "A4",
+        "values": [
+          787,
+          769,
+          811,
+          780
+        ]
+      },
+      {
+        "id": "B7",
+        "values": [
+          338,
+          327,
+          651,
+          563
+        ]
+      },
+      {
+        "id": "C1",
+        "values": [
+          289,
+          297,
+          211,
+          204
+        ]
+      },
+      {
+        "id": "D9",
+        "values": [
+          662,
+          702,
+          238,
+          246
+        ]
+      },
+      {
+        "id": "E8",
+        "values": [
+          229,
+          215,
+          208,
+          218
+        ]
+      },
+      {
+        "id": "F7",
+        "values": [
+          346,
+          374,
+          525,
+          520
+        ]
+      },
+      {
+        "id": "G7",
+        "values": [
+          324,
+          321,
+          77,
+          73
+        ]
+      },
+      {
+        "id": "H5",
+        "values": [
+          56,
+          61,
+          116,
+          120
+        ]
+      },
+      {
+        "id": "I9",
+        "values": [
+          189,
+          189,
+          176,
+          168
+        ]
+      },
+      {
+        "id": "J5",
+        "values": [
+          61,
+          61,
+          91,
+          119
+        ]
+      }
+    ]
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "classical.mean": {
+      "value": 317.8,
+      "ref": "Figure A2.2 (p. 48): Classical Mean"
+    },
+    "classical.s.total": {
+      "value": 240.19,
+      "ref": "Figure A2.2 (p. 48): Total Sdev"
+    },
+    "classical.s.between": {
+      "value": 197.55,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.s.sampling": {
+      "value": 135.43,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.s.analysis": {
+      "value": 17.99,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.s.measurement": {
+      "value": 136.62,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.variancePct.between": {
+      "value": 67.65,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.variancePct.sampling": {
+      "value": 31.79,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.variancePct.analysis": {
+      "value": 0.56,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.variancePct.measurement": {
+      "value": 32.35,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.relU.sampling": {
+      "value": 85.23,
+      "ref": "Figure A2.2 (p. 48): Expanded relative uncertainty (95 %)"
+    },
+    "classical.relU.analysis": {
+      "value": 11.32,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "classical.relU.measurement": {
+      "value": 85.98,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "log.meanLog": {
+      "value": 5.478,
+      "ref": "Table A2.3 (p. 49): Mean"
+    },
+    "log.geometricMean": {
+      "value": 239.4,
+      "ref": "§6.2 (p. 49): geometric mean 239.4 mg/kg"
+    },
+    "log.sG.total": {
+      "value": 0.82337,
+      "ref": "Table A2.3 (p. 49)"
+    },
+    "log.sG.between": {
+      "value": 0.66775,
+      "ref": "Table A2.3 (p. 49)"
+    },
+    "log.sG.sampling": {
+      "value": 0.4784,
+      "ref": "Table A2.3 (p. 49)"
+    },
+    "log.sG.analysis": {
+      "value": 0.0567,
+      "ref": "Table A2.3 (p. 49)"
+    },
+    "log.sG.measurement": {
+      "value": 0.4817,
+      "ref": "Table A2.3 (p. 49)"
+    },
+    "log.uncertaintyFactor.sampling": {
+      "value": 2.6032,
+      "ref": "Figure A2.2 (p. 48): Uncertainty Factor (95 %)"
+    },
+    "log.uncertaintyFactor.analysis": {
+      "value": 1.12,
+      "ref": "Figure A2.2 (p. 48)"
+    },
+    "log.uncertaintyFactor.measurement": {
+      "value": 2.6207,
+      "ref": "Figure A2.2 (p. 48); §6.2: exp(2·0.4817)"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.005
+    },
+    "classical.mean": {
+      "abs": 0.05
+    },
+    "log.meanLog": {
+      "abs": 0.0005
+    },
+    "log.geometricMean": {
+      "abs": 0.05
+    },
+    "log.sG.total": {
+      "abs": 5e-06
+    },
+    "log.sG.between": {
+      "abs": 5e-06
+    },
+    "log.sG.sampling": {
+      "abs": 5e-05
+    },
+    "log.sG.analysis": {
+      "abs": 5e-05
+    },
+    "log.sG.measurement": {
+      "abs": 5e-05
+    },
+    "log.uncertaintyFactor.sampling": {
+      "abs": 5e-05
+    },
+    "log.uncertaintyFactor.measurement": {
+      "abs": 5e-05
+    }
+  }
+}

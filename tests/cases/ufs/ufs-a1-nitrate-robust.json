@@ -1,0 +1,165 @@
+{
+  "id": "ufs-a1-nitrate-robust",
+  "title": "UfS A1: issiqxona salatida nitrat — robust ANOVA, s_samp, s_anal, s_meas, U' = 16,4 %",
+  "status": "verified",
+  "domain": "namuna olish (oziq-ovqat)",
+  "source": {
+    "doc": "EURACHEM/CITAC UfS:2019 (2nd ed.)",
+    "section": "Example A1: Table A1.1, Figure A1.2 (ROBUST ANOVA RESULTS), §6",
+    "page": "40–42",
+    "note": "Robust ANOVA — RANOVA dasturi ([53]) chiqishi. Dastur kodi repoda yo'q; dvigatel algoritmni qayta tiklagan va manba bilan 4 qiymatli raqamgacha mos (DISCREPANCIES D-16)."
+  },
+  "modelSpec": {
+    "format": "uc-sampling/1",
+    "method": "robust",
+    "unit": "mg/kg",
+    "targets": [
+      {
+        "id": "A",
+        "values": [
+          3898,
+          4139,
+          4466,
+          4693
+        ]
+      },
+      {
+        "id": "B",
+        "values": [
+          3910,
+          3993,
+          4201,
+          4126
+        ]
+      },
+      {
+        "id": "C",
+        "values": [
+          5708,
+          5903,
+          4061,
+          3782
+        ]
+      },
+      {
+        "id": "D",
+        "values": [
+          5028,
+          4754,
+          5450,
+          5416
+        ]
+      },
+      {
+        "id": "E",
+        "values": [
+          4640,
+          4401,
+          4248,
+          4191
+        ]
+      },
+      {
+        "id": "F",
+        "values": [
+          5182,
+          5023,
+          4662,
+          4839
+        ]
+      },
+      {
+        "id": "G",
+        "values": [
+          3028,
+          3224,
+          3023,
+          2901
+        ]
+      },
+      {
+        "id": "H",
+        "values": [
+          3966,
+          4283,
+          4131,
+          3788
+        ]
+      }
+    ]
+  },
+  "run": {
+    "method": "path"
+  },
+  "expected": {
+    "mean": {
+      "value": 4408.3237,
+      "ref": "Figure A1.2 (p. 41): ROBUST Mean = 4408.3237"
+    },
+    "sTotal": {
+      "value": 670.57617,
+      "ref": "Figure A1.2 (p. 41): Standard Deviation (Total)"
+    },
+    "sBetween": {
+      "value": 565.39868,
+      "ref": "Figure A1.2 (p. 41): Between-target"
+    },
+    "sSamp": {
+      "value": 319.04834,
+      "ref": "Figure A1.2 (p. 41): Sampling; §6: s_samp = 319.05 mg kg-1"
+    },
+    "sAnal": {
+      "value": 167.94308,
+      "ref": "Figure A1.2 (p. 41): Analysis; §6: s_anal = 167.94"
+    },
+    "uc": {
+      "value": 360.5506,
+      "ref": "Figure A1.2 (p. 41): Measurement; §6: s_meas = 360.55 mg kg-1"
+    },
+    "variancePct.between": {
+      "value": 71.090791,
+      "ref": "Figure A1.2 (p. 41): Percentage Variance"
+    },
+    "variancePct.sampling": {
+      "value": 22.636889,
+      "ref": "Figure A1.2 (p. 41)"
+    },
+    "variancePct.analysis": {
+      "value": 6.2723172,
+      "ref": "Figure A1.2 (p. 41)"
+    },
+    "variancePct.measurement": {
+      "value": 28.909209,
+      "ref": "Figure A1.2 (p. 41)"
+    },
+    "relUSamp": {
+      "value": 14.474814,
+      "ref": "Figure A1.2 (p. 41): Relative Uncertainty (% at 95 % confidence); p. 42: 14.5 %"
+    },
+    "relUAnal": {
+      "value": 7.6193626,
+      "ref": "Figure A1.2 (p. 41); p. 42: 7.6 %"
+    },
+    "relU": {
+      "value": 16.357719,
+      "ref": "Figure A1.2 (p. 41); p. 42: U_meas' = 16.4 %"
+    },
+    "k": {
+      "value": 2,
+      "ref": "p. 42: U_meas' = 2*100*360.55/4408"
+    }
+  },
+  "expectedWarnings": [
+    "sampling_robust_reconstructed",
+    "sampling_fitness"
+  ],
+  "tolerance": {
+    "default": {
+      "rel": 0.0002,
+      "reason": "RANOVA dasturi natijasini qayta tiklash (dastur kodi repoda yo'q): manba bilan 4 qiymatli raqamgacha mos"
+    },
+    "k": {
+      "abs": 0
+    }
+  }
+}
