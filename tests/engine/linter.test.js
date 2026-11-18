@@ -54,7 +54,8 @@ test('har bir qoida — alohida modul: { id, severity, ref, modes, codes, check 
 
 test('manbasi repoda yo\'q qoidada ref ichida "(unverified)" bor; repodagi hujjatlarga havolalar belgilanmagan', () => {
   // docs/references/ da YO'Q hujjatlar (CLAUDE.md "Joriy holat"): ularga havola faqat "(unverified)" bilan
-  const missing = /ILAC P14|ILAC G8|JCGM 10[26]|GUM-6|COOMET|ISO\/IEC 17025|ISO 5725/;
+  // P05b: ILAC P14:09/2020, ILAC G8:09/2019 va JCGM 106:2012 repoga qo'shildi — ularga havolalar endi belgisiz
+  const missing = /JCGM 102|GUM-6|COOMET|ISO 5725|ISO 14253/;
   for (const [code, c] of Object.entries(E.FINDING_CODES)) {
     if (c.rule === 'W2') continue;   // P08–P10 modullarining o'z ref matnlari (o'zgarmagan)
     for (const part of c.ref.split(';')) {
@@ -62,7 +63,10 @@ test('manbasi repoda yo\'q qoidada ref ichida "(unverified)" bor; repodagi hujja
     }
   }
   // unverified bayrog'i: manbaning hech biri repoda bo'lmagan qoidalar
-  for (const code of ['below_cmc', 'grubbs_outlier', 'model_kind_unknown', 'coomet_small']) assert.equal(E.FINDING_CODES[code].unverified, true, code);
+  for (const code of ['grubbs_outlier', 'coomet_small']) assert.equal(E.FINDING_CODES[code].unverified, true, code);
+  for (const code of ['below_cmc', 'model_kind_unknown']) assert.equal(E.FINDING_CODES[code].unverified, false, code);   // P05b: manba qo'shildi
+  // ISO/IEC 17025 (pullik, repoda yo'q) faqat ILAC G8 dagi iqtibos orqali keltiriladi
+  for (const [code, c] of Object.entries(E.FINDING_CODES)) if (c.rule !== 'W2' && /ISO\/IEC 17025/.test(c.ref)) assert.match(c.ref, /ILAC G8:09\/2019 §2\.\d/, code);
   assert.equal(E.FINDING_CODES.x1_mpe_in_budget.unverified, false);
 });
 
@@ -269,11 +273,11 @@ test('X8: U = 0 → zero_u (error); manbalar bor bo\'lsa — yo\'q', () => {
   assert.ok(!has(run(), 'zero_u'));
 });
 
-test('X8: U < CMC → below_cmc (error, unverified — ILAC P14 repoda yo\'q); U ≥ CMC — yo\'q; U avtomatik almashtirilmaydi', () => {
+test('X8: U < CMC → below_cmc (error; ILAC P14:09/2020 §5.5); U ≥ CMC — yo\'q; U avtomatik almashtirilmaydi', () => {
   const r = run({ settings: { cmc: 1 } });
   const f = find(r, 'below_cmc');
-  assert.deepEqual([f.rule, f.severity, f.unverified], ['X8', 'error', true]);
-  assert.match(f.ref, /ILAC P14:09\/2020 §5\.3 \(unverified\)/);
+  assert.deepEqual([f.rule, f.severity, f.unverified], ['X8', 'error', undefined]);
+  assert.match(f.ref, /^ILAC P14:09\/2020 §5\.5;/);
   assert.ok(r.U < 1);                                           // U o'zgarmagan
   assert.ok(!has(run({ settings: { cmc: 0.0001 } }), 'below_cmc'));
 });

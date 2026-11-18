@@ -341,6 +341,40 @@ const TypeB = (() => {
             <input type="text" inputmode="decimal" data-set="cmc" value="${escHtml(String(settings.cmc ?? ''))}" placeholder="—" autocomplete="off" />
           </div>
         </div>
+        <div class="settings-grid" data-decision-settings="1">
+          <div class="form-group">
+            <label>${i18n.t('set_decision_rule')}</label>
+            <select data-set="decisionRule">
+              <option value="" ${!settings.decisionRule ? 'selected' : ''}>${escHtml(i18n.t('set_decision_none'))}</option>
+              <option value="simple" ${settings.decisionRule === 'simple' ? 'selected' : ''}>${escHtml(i18n.t('set_decision_simple'))}</option>
+              <option value="guard_band" ${settings.decisionRule === 'guard_band' ? 'selected' : ''}>${escHtml(i18n.t('set_decision_guard'))}</option>
+            </select>
+          </div>
+          <div class="form-group" ${settings.decisionRule === 'guard_band' ? '' : 'hidden'}>
+            <label title="${escHtml(i18n.t('set_guard_r_hint'))}">${i18n.t('set_guard_r')} ⓘ</label>
+            <input type="text" inputmode="decimal" data-set="guardR" class="mono" list="guard-r-presets" value="${escHtml(String(settings.guardR ?? ''))}" placeholder="1" autocomplete="off" />
+            <datalist id="guard-r-presets">${(Calc.GUARD_PRESETS || []).filter(p => p.r > 0).map(p => `<option value="${p.r}"></option>`).join('')}</datalist>
+          </div>
+          <div class="form-group" ${settings.decisionRule ? '' : 'hidden'}>
+            <label>${i18n.t('set_decision_statement')}</label>
+            <select data-set="decisionStatement">
+              <option value="binary" ${settings.decisionStatement !== 'non_binary' ? 'selected' : ''}>${escHtml(i18n.t('set_decision_binary'))}</option>
+              <option value="non_binary" ${settings.decisionStatement === 'non_binary' ? 'selected' : ''}>${escHtml(i18n.t('set_decision_non_binary'))}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label title="${escHtml(i18n.t('set_tol_hint'))}">${i18n.t('set_tol_lower')} ⓘ</label>
+            <input type="text" inputmode="decimal" data-set="tolLower" class="mono" value="${escHtml(String(settings.tolLower ?? ''))}" placeholder="—" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label title="${escHtml(i18n.t('set_tol_hint'))}">${i18n.t('set_tol_upper')} ⓘ</label>
+            <input type="text" inputmode="decimal" data-set="tolUpper" class="mono" value="${escHtml(String(settings.tolUpper ?? ''))}" placeholder="—" autocomplete="off" />
+          </div>
+          <div class="form-group" ${settings.decisionRule ? '' : 'hidden'}>
+            <label>${i18n.t('set_agreement')}</label>
+            <input type="text" data-set="agreement" maxlength="200" value="${escHtml(String(settings.agreement ?? ''))}" autocomplete="off" />
+          </div>
+        </div>
         <p class="text-muted text-xs">${i18n.t('conf_hint')}</p>
       </div>`;
 
@@ -433,7 +467,8 @@ const TypeB = (() => {
       if (ta) typeA[p] = ta;
     });
 
-    appState.set({ typeA, combined: result });
+    // P05b: hisob identifikatori va vaqti — JSON eksport va hisobot xeshi shu meta bilan (src/io/calc-meta.js)
+    appState.set({ typeA, combined: result, calcMeta: Calc.newMeta() });
     if (tplRT) tplRT.saveCalculation(state, result);   // IndexedDB + audit izi (P04)
     showToast(i18n.t('toast_calc_done'), 'success');
     switchTab('results');

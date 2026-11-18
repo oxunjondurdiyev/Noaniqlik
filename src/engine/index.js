@@ -11,6 +11,8 @@ export { typeA, typeAx, correlation } from './typeA.js';
 export { typeB, getDivisor, getDivisorLabel, DIVISORS, valueOrExpr } from './typeB.js';
 export { coverage, coverageFactor, NU_RULES, DEFAULT_NU_RULE } from './coverage.js';
 export { conformity, pendingConformity, multiPointCoverage, MODEL_KINDS } from './conformity.js';
+// P05b: qaror qoidasi (JCGM 106:2012, ILAC G8:09/2019)
+export { decide, decisionInput, conformanceProbability, DECISION_RULES, DECISION_STATEMENTS, GUARD_PRESETS } from './decision.js';
 export { splitFormula, tokenize, parse, compile, compileAst, derivative, toText } from './parser.js';
 export { sensitivities, numericDerivative, higherDerivatives, secondOrderVariance, secondOrderTerms } from './sensitivity.js';
 export { normalQuantile, normalCdf, tQuantile, tCoverage, tTail2, lgamma, lbeta, ibeta } from './special.js';

@@ -5,5 +5,7 @@
    2.2.0 — P09 (src/engine/topdown/, format 'uc-topdown/1'; GUM va regressiya natijalari o'zgarmagan);
    2.3.0 — P10 (sampling/, qualitative/, micro/ (beta), medical/ (beta); mavjud rejimlar natijalari o'zgarmagan);
    2.4.0 — P05a (linter/: result.findings; model turi — settings.modelKind, result.modelKind / deviation;
-           y, u_c, ν_eff, k, U o'zgarmagan. Model turi ko'rsatilmagan hisobda muvofiqlik bayonoti berilmaydi — R-07). */
-export const ENGINE_VERSION = '2.4.0';
+           y, u_c, ν_eff, k, U o'zgarmagan. Model turi ko'rsatilmagan hisobda muvofiqlik bayonoti berilmaydi — R-07);
+   2.5.0 — P05b (decision.js: qaror qoidasi — w = r·U, TUR, muvofiqlik ehtimoli p_c, bir / ikki tomonlama chegaralar —
+           JCGM 106:2012, ILAC G8:09/2019; result.decision. y, u_c, ν_eff, k, U va conf o'zgarmagan). */
+export const ENGINE_VERSION = '2.5.0';

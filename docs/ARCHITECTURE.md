@@ -4,6 +4,26 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P05b (2026-11-18, `feat/p05b-reports-io`).** Import/eksport, hisobot shakllari, qaror qoidasi (bog'liqlik: `ui → io → storage`, `ui → report → engine`; `io` va `report` — sof, DOM siz):
+>
+> | Fayl | Vazifasi (P05b) |
+> |---|---|
+> | `src/engine/decision.js` | qaror qoidasi (`result.decision`): w = r·U, TUR, p_c, bir / ikki tomonlama chegaralar; linter qoidasi `linter/rules/d01-decision-rule.js` |
+> | `src/report/sections.js` | `createSections(env)` — GUM, regressiya, top-down, maxsus rejim bo'limlari (`src/js/report.js` dan ko'chirildi) |
+> | `src/report/forms.js`, `summary.js`, `requisites.js`, `normative.js`, `footer.js` | 4 ta rasmiy shakl; ko'p nuqtali yig'ma jadval; rekvizitlar va ularning tekshiruvi; normativ havolalar; hisobot pasti (versiya, build, xesh, QR) |
+> | `src/io/calc-json.js`, `calc-meta.js`, `calc-state.js` | `uc-calc/1` hujjati: yasash, kanonik xesh, o'qish, qayta hisob; hisob ID / sanasi |
+> | `src/io/import.js`, `csv.js`, `table-text.js` | `.xlsx` / `.csv` o'qish (chegaralar, formulasiz), CSV tahlilchi / yozuvchi, qo'yilgan jadval va ustunlarni moslashtirish |
+> | `src/io/export-table.js`, `xlsx-write.js` | natijadan varaqlar modeli; `.xlsx` yozish |
+> | `src/io/vendor.js` | vendor kutubxonalarning yagona kirish nuqtasi — dinamik `import()` (`loadXlsx`, `loadQr`) |
+> | `src/storage/canonical.js` | `canonicalizeJcs`, `jcsHash` (RFC 8785) |
+> | `src/ui/io/app.js` | import / eksport tugmalari, ustunlarni moslashtirish oynasi, jadvallarga qo'yish (`window.UCIO`) |
+> | `src/ui/report/app.js` | hisobot shakli va rekvizitlar oynasi (`window.UCReport`); build ma'lumoti |
+> | `src/js/report.js` | faqat DOM ulanishi: bo'limlarni `src/report/` dan oladi, chop etish oynasi, qaror qoidasi tanlovi |
+> | `src/js/i18n-io.js`, `i18n-report.js` | P05b matnlari (uz/ru/en) |
+> | `vendor/sheetjs/0.20.3/`, `vendor/qrcode-generator/2.0.4/` | tashqi kutubxonalar (LICENSE, SHA-256 — `vendor/README.md`) |
+>
+> Skript tartibi: `… i18n-linter → i18n-io → i18n-report → i18n-admin → state → calc → … → findings/app → report/app → tpl/app → regression/app → topdown/app → special/app → io/app`. Yangi brauzer kalitlari: `localStorage` `uc_report_lab_v1` (laboratoriya rekvizitlari, logotip, tanlangan shakl), `sessionStorage` `uc_report_doc_v1` (hujjatga xos va shaxsiy maydonlar — yorliq yopilganda o'chadi). Firebase'ga yangi maydon yozilmaydi.
+>
 > **Yangilanish — P02 (2026-11-13, `p02-security`).** Quyidagi bo'limlar P00 holatini tasvirlaydi; xavfsizlik qatlami o'zgardi:
 >
 > | Fayl | Vazifasi (P02) |

@@ -185,7 +185,7 @@ function calculate() {
   if (bad.length) result = { error: 'regression_bad_data', detail: bad.join(', ') };
   else if (!spec.points.length && state.template) result = { error: 'regression_too_few_points', detail: t('tpl_missing_regression_points') };
   else result = evaluate(spec);
-  last = { result, plots: result.error ? '' : plotsHTML(result, ctx()) };
+  last = { result, spec, plots: result.error ? '' : plotsHTML(result, ctx()) };   // spec — P05b: JSON eksport (dvigatelga aynan berilgan kirish)
   renderResult();
   if (result.error) toast(`${t('err_' + result.error)}${result.detail ? ' — ' + result.detail : ''}`, 'error', 5000);
   else if (result.warnings.some(w => w.code === 'regression_chi2_fail')) toast(t('rg_chi2_fail'), 'error', 6000);
@@ -295,6 +295,8 @@ function bind() {
 window.UCRegression = Object.freeze({
   current: () => last,
   getState: () => JSON.parse(JSON.stringify(state)),
+  // P05b: fayldan import / hisob faylini ochish (src/ui/io/app.js)
+  setState: s => { state = { ...defaults(), ...s }; if (!Array.isArray(state.rows) || !state.rows.length) state.rows = defaults().rows; last = null; save(); render(); },
   loadTemplate,
   calculate,
   buildSpec,

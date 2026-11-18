@@ -20,7 +20,7 @@ const { escHtml } = require('../../src/ui/escape.js');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js'];
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js'];
 
 /** report.js ni jsdom'da yuklash; state — appState holati (combined, points, settings …) */
 function load(lang, state, opts) {
@@ -33,7 +33,7 @@ function load(lang, state, opts) {
   w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci, monteCarlo: E.monteCarlo, multiPointCoverage: E.multiPointCoverage, ...reportBridge };
   const st = { points: [], summary: {}, settings: {}, acceptances: {}, ...state };
   w.appState = { get: k => (k ? st[k] : st), set: p => Object.assign(st, p), subscribe() {} };
-  w.Points = { summary: (pts, uk) => E.multiPointCoverage(pts.map(p => p.result), uk).map((c, i) => ({ id: pts[i].id, label: pts[i].label, r: pts[i].result, k: c.k, U: c.U, conf: c.conf, rr: roundResult(pts[i].result.y, c.U, pts[i].result.roundUp) })), snapshot: s => s };
+  w.Points = { summary: (pts, uk) => reportBridge.summaryRows(pts, uk), snapshot: s => s };   // src/js/points.js::summary bilan bir xil
   w.toasts = [];
   w.showToast = (m, type) => w.toasts.push({ m, type });
   w.printed = 0;
@@ -51,7 +51,7 @@ const BASE = () => ({
   params: ['X', 'Xref'], n: 5,
   measurements: { X: [10.02, 10.01, 10.03, 10.02, 10.01], Xref: [10] },
   directions: [], model: { formula: 'E = X - Xref', unit: 'V' },
-  settings: { paired: false, P: 0.9545, modelKind: 'error', mpe: 0.5 }, covB: {},
+  settings: { paired: false, P: 0.9545, modelKind: 'error', mpe: 0.5, decisionRule: 'simple', agreement: 'Sh-1' }, covB: {},   // P05b: qaror qoidasi — bayonot uchun majburiy
   typeB: [
     { name: 'Etalon sertifikati (U, k = 2)', param: 'Xref', halfWidth: 0.004, distribution: 'normal', k: 2 },
     { name: 'Asbob rezolyutsiyasi', param: 'X', halfWidth: 0.01, distribution: 'resol' },
@@ -82,7 +82,7 @@ test('blok: har bir topilmada nima topildi (manba nomi va raqam) / nima uchun (m
     const why = x1.querySelector('.finding-why').textContent;
     assert.ok(why.startsWith(w.i18n.t('fnd_why') + ':'), lang);
     assert.ok(why.includes(w.i18n.t('why_x1_mpe_in_budget')), lang);
-    assert.match(why, /\[JCGM 100:2008 3\.4\.5, F\.2\.4\.2; ILAC P14:09\/2020 §5\.4 \(unverified\)/);
+    assert.match(why, /\[JCGM 100:2008 3\.4\.5, F\.2\.4\.2; ILAC P14:09\/2020 §5\.4; JCGM 106:2012 §7\.6\.5/);
     // qanday tuzatish
     assert.equal(x1.querySelector('.finding-fix').textContent, `${w.i18n.t('fnd_fix')}: ${w.i18n.t('fix_x1_mpe_in_budget')}`);
     // darajalar: error — warn-box ichida; info — alohida (ko'k)
@@ -152,12 +152,12 @@ test('qabul qilish UI: tugma faqat warning / error da; qabul qilingan topilma iz
   }
 });
 
-test('bosma hisobot: barcha topilmalar chiqadi; qabul qilinmagan error → "RASMIY EMAS" suv belgisi; qabul qilingach — belgi yo\'q, izoh bor', () => {
+test('bosma hisobot: barcha topilmalar chiqadi; qabul qilinmagan error → "RASMIY EMAS" suv belgisi; qabul qilingach — belgi yo\'q, izoh bor', async () => {
   const st = withMpe();
   const r = E.evaluate(st);
   for (const lang of LANGS) {
     const w = load(lang, { ...st, combined: r }, { findingsApi: true });
-    w.document.getElementById('btn-print').click();
+    await w.Results.printReport();
     assert.equal(w.printed, 1);
     const p = w.document.getElementById('print-report');
     for (const f of r.findings) assert.ok(p.querySelector(`[data-finding-id="${f.id.replace(/"/g, '\\"')}"]`), `${lang}: ${f.id}`);
@@ -168,7 +168,7 @@ test('bosma hisobot: barcha topilmalar chiqadi; qabul qilinmagan error → "RASM
   assert.deepEqual(['uz', 'ru', 'en'].map(l => load(l, {}).i18n.t('fnd_unofficial')), ['RASMIY EMAS', 'НЕОФИЦИАЛЬНО', 'NOT OFFICIAL']);
   const x1 = r.findings.find(f => f.code === 'x1_mpe_in_budget');
   const w = load('uz', { ...st, combined: r, acceptances: { [x1.id]: { comment: 'Etalon vositaning xatosi — nomi tuzatiladi', role: 'employee', at: '2026-11-18T11:00:00Z', value: x1.value } } }, { findingsApi: true });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   const p = w.document.getElementById('print-report');
   assert.equal(p.querySelector('[data-report-watermark]'), null);
   assert.match(p.querySelector('[data-finding="x1_mpe_in_budget"] [data-finding-accepted]').textContent, /Etalon vositaning xatosi — nomi tuzatiladi/);
@@ -201,12 +201,12 @@ test('ranglar: error — qizil, warning — sariq, info — ko\'k (CSS)', () => 
   assert.match(css, /\.finding-info \{ border-color: #2563eb;/);
 });
 
-test('R-05: U = 0 va U < CMC — bosma hisobotda aniq belgi (standart); laboratoriya sozlamasi "block" → hisobot chiqmaydi', () => {
+test('R-05: U = 0 va U < CMC — bosma hisobotda aniq belgi (standart); laboratoriya sozlamasi "block" → hisobot chiqmaydi', async () => {
   const zero = { ...BASE(), typeB: [], measurements: { X: [10, 10, 10], Xref: [10] } };
   const rz = E.evaluate(zero);
   assert.equal(rz.U, 0);
   let w = load('uz', { ...zero, combined: rz }, { lab: { criticalMode: 'mark', cmcMode: 'warn' } });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   assert.equal(w.printed, 1);
   let p = w.document.getElementById('print-report');
   assert.equal(p.querySelector('[data-report-critical]').dataset.reportCritical, 'zero_u');
@@ -215,7 +215,7 @@ test('R-05: U = 0 va U < CMC — bosma hisobotda aniq belgi (standart); laborato
   assert.ok(p.querySelector('[data-report-watermark]'));
   // bloklash
   w = load('uz', { ...zero, combined: rz }, { lab: { criticalMode: 'block', cmcMode: 'warn' } });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   assert.equal(w.printed, 0);
   assert.equal(w.toasts[0].m, w.i18n.t('fnd_blocked_zero_u'));
   assert.equal(w.document.getElementById('print-report').innerHTML, '');
@@ -223,12 +223,12 @@ test('R-05: U = 0 va U < CMC — bosma hisobotda aniq belgi (standart); laborato
   const cmc = { ...BASE(), settings: { ...BASE().settings, cmc: 1 } };
   const rc = E.evaluate(cmc);
   w = load('uz', { ...cmc, combined: rc }, { lab: { criticalMode: 'mark', cmcMode: 'warn' } });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   p = w.document.getElementById('print-report');
   assert.equal(p.querySelector('[data-report-critical]').dataset.reportCritical, 'below_cmc');
   for (const lab of [{ criticalMode: 'block', cmcMode: 'warn' }, { criticalMode: 'mark', cmcMode: 'block' }]) {   // P04 dagi cmcMode ham ishlaydi
     w = load('uz', { ...cmc, combined: rc }, { lab });
-    w.document.getElementById('btn-print').click();
+    await w.Results.printReport();
     assert.equal(w.printed, 0, JSON.stringify(lab));
     assert.equal(w.toasts[0].m, w.i18n.t('cmc_blocked'));
   }
@@ -237,7 +237,7 @@ test('R-05: U = 0 va U < CMC — bosma hisobotda aniq belgi (standart); laborato
   assert.match(read('src/ui/tpl/app.js'), /id="lab-criticalMode"/);
 });
 
-test('hisobot belgilari: ν qoidasi (floor / interpolate), MC seed va M, k = 2, BETA / unverified, dvigatel versiyasi', () => {
+test('hisobot belgilari: ν qoidasi (floor / interpolate), MC seed va M, k = 2, BETA / unverified, dvigatel versiyasi', async () => {
   const c = ctx('uz');
   const keys = (r, o) => F.reportMarks(r, { t: c.t, ...(o || {}) }).map(m => m.key);
   const st = BASE();
@@ -258,7 +258,7 @@ test('hisobot belgilari: ν qoidasi (floor / interpolate), MC seed va M, k = 2, 
   assert.deepEqual(F.reportMarks({ error: 'x' }, { t: c.t }), []);
   // bosma hisobotda va ekranda
   const w = load('uz', { ...st, combined: r });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   const p = w.document.getElementById('print-report');
   assert.match(p.querySelector('[data-report-mark="nu_rule"]').textContent, /ν qoidasi: /);
   assert.ok(p.querySelector('[data-report-mark="engine"]').textContent.endsWith(E.ENGINE_VERSION));
@@ -271,7 +271,7 @@ test('hisobot belgilari: ν qoidasi (floor / interpolate), MC seed va M, k = 2, 
   assert.ok(w.document.querySelector('#print-report .warn-box [data-finding="micro_unverified"]'));
 });
 
-test('R-07: model turi har bir hisobda ko\'rsatiladi; "unknown" da muvofiqlik bayonoti yo\'q va tanlov so\'raladi; eski saqlangan natija ham', () => {
+test('R-07: model turi har bir hisobda ko\'rsatiladi; "unknown" da muvofiqlik bayonoti yo\'q va tanlov so\'raladi; eski saqlangan natija ham', async () => {
   for (const lang of LANGS) {
     const st = BASE();
     const r = E.evaluate(st);
@@ -295,13 +295,13 @@ test('R-07: model turi har bir hisobda ko\'rsatiladi; "unknown" da muvofiqlik ba
     assert.ok(el.querySelector('[data-model-kind-chooser] select[data-model-kind]'));
     assert.equal(el.querySelectorAll('.formula-box .badge-green, .formula-box .badge-red').length, 0);   // hukm yo'q
     assert.ok(el.querySelector('[data-finding="model_kind_unknown"]'));
-    w.document.getElementById('btn-print').click();
+    await w.Results.printReport();
     const p = w.document.getElementById('print-report');
     assert.ok(p.querySelector('[data-conf-pending]') && p.querySelector('[data-model-kind-info="unknown"]'));
     assert.equal(p.querySelector('[data-model-kind-chooser]'), null);
   }
   // eski saqlangan natija (ENGINE ≤ 2.3.0): modelKind / deviation / findings maydonlari yo'q, conf da eski hukm bor
-  const st = { ...BASE(), settings: { paired: false, P: 0.9545, mpe: 0.5 } };
+  const st = { ...BASE(), settings: { paired: false, P: 0.9545, mpe: 0.5, decisionRule: 'simple' } };
   const old = E.evaluate({ ...st, settings: { ...st.settings, modelKind: 'error' } });
   delete old.modelKind; delete old.deviation; delete old.nominal; delete old.findings;
   assert.equal(old.conf.simple, 'ok');
@@ -314,41 +314,43 @@ test('R-07: model turi har bir hisobda ko\'rsatiladi; "unknown" da muvofiqlik ba
   assert.ok(el.querySelector('[data-model-kind-chooser]'));
 });
 
-test('R-07: "kattalik qiymati (nominal bilan)" — |Y − nominal| MPE bilan solishtiriladi; ko\'p nuqtali jadvalda tanlanmagan nuqta belgilanadi', () => {
+test('R-07: "kattalik qiymati (nominal bilan)" — |Y − nominal| MPE bilan solishtiriladi; ko\'p nuqtali jadvalda tanlanmagan nuqta belgilanadi', async () => {
   const val = { params: ['Y'], n: 4, measurements: { Y: [100.4, 100.4, 100.5, 100.3] }, model: { formula: '', unit: 'g' }, directions: [], covB: {},
-    settings: { modelKind: 'value', nominal: 100, mpe: 0.5 }, typeB: [{ name: 'Rezolyutsiya', param: 'Y', halfWidth: 0.1, distribution: 'resol' }] };
+    settings: { modelKind: 'value', nominal: 100, mpe: 0.5, decisionRule: 'simple' }, typeB: [{ name: 'Rezolyutsiya', param: 'Y', halfWidth: 0.1, distribution: 'resol' }] };
   const r = E.evaluate(val);
   const w = load('uz', { ...val, combined: r });
   w.Results.render();
   const el = w.document.getElementById('results-content');
   assert.match(el.querySelector('[data-model-kind-info]').textContent, /kattalik qiymati Y \(nominal bilan\); Nominal qiymat = 100/);
-  assert.ok([...el.querySelectorAll('.formula-box')].some(b => b.textContent.includes('|Y − 100| ≤ MPE')));
+  // P05b: chegaralar nominal atrofida — [nominal − MPE; nominal + MPE]
+  assert.match(el.querySelector('[data-decision-limits="two_sided"]').textContent, /99\.5\d* ≤ Y ≤ 100\.5/);
+  assert.equal(el.querySelector('[data-decision-statement]').dataset.decisionStatement, 'pass');
   assert.ok(el.querySelector('.formula-box .badge-green'));
   // ko'p nuqtali: bitta nuqta model turi bilan, ikkinchisi — eski (tanlanmagan)
   const good = E.evaluate(BASE());
   const legacy = JSON.parse(JSON.stringify(good)); delete legacy.modelKind; delete legacy.deviation;
   const pts = [{ id: 'a', label: 'P1', snapshot: BASE(), result: good }, { id: 'b', label: 'P2', snapshot: BASE(), result: legacy }];
   const w2 = load('uz', { ...BASE(), combined: good, points: pts });
-  w2.document.getElementById('btn-print').click();
+  await w2.Results.printReport();
   const rows = w2.document.querySelectorAll('#print-report .print-table')[0].querySelectorAll('tbody tr');
   assert.match(rows[0].lastElementChild.textContent, /Muvofiq/i);
   assert.equal(rows[1].lastElementChild.textContent, w2.i18n.t('mk_pending_short'));
 });
 
-test('ko\'p nuqtali bosma hisobot: har bir nuqtaning topilmalari va o\'z qabul izohlari; bitta nuqtada qabul qilinmagan error → suv belgisi', () => {
+test('ko\'p nuqtali bosma hisobot: har bir nuqtaning topilmalari va o\'z qabul izohlari; bitta nuqtada qabul qilinmagan error → suv belgisi', async () => {
   const bad = withMpe();
   const rb = E.evaluate(bad), rg = E.evaluate(BASE());
   const x1 = rb.findings.find(f => f.code === 'x1_mpe_in_budget');
   const acc = { [x1.id]: { comment: 'Shu nuqta uchun asoslangan qabul', role: 'admin', at: '2026-11-18T10:00:00Z', value: x1.value } };
   const mk = accB => [{ id: 'a', label: 'P1', snapshot: BASE(), result: rg, acceptances: {} }, { id: 'b', label: 'P2', snapshot: bad, result: rb, acceptances: accB }];
   let w = load('uz', { ...BASE(), combined: rg, points: mk({}) });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   let p = w.document.getElementById('print-report');
   assert.ok(p.querySelector('[data-report-watermark]'));
   assert.equal(p.querySelectorAll('[data-findings]').length, 2);
   assert.equal(p.querySelectorAll('[data-finding="x1_mpe_in_budget"]').length, 1);
   w = load('uz', { ...BASE(), combined: rg, points: mk(acc) });
-  w.document.getElementById('btn-print').click();
+  await w.Results.printReport();
   p = w.document.getElementById('print-report');
   assert.equal(p.querySelector('[data-report-watermark]'), null);
   assert.match(p.querySelector('[data-finding="x1_mpe_in_budget"] [data-finding-accepted]').textContent, /Shu nuqta uchun asoslangan qabul/);

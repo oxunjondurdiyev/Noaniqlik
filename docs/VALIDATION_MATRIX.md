@@ -215,7 +215,7 @@ Qoidalar va manbalari — [LINTER_RULES.md](LINTER_RULES.md). Linter hisob natij
 |---|---|---|---|
 | Kalibrlanayotgan asbob MPE si byudjetda bo'lmasligi (JCGM 100:2008 3.4.5, F.2.4.2; CLAUDE.md) | X1 `x01-mpe-in-budget.js` | `linter.test.js`; `linter-fixtures.test.js` — gazoanalizator qo'llanmasidagi asl protsedura (`.docx` iqtiboslari: u(Δк) = 0,23136; U = 0,463) | ✅ |
 | Noaniqlik nol bo'la olmaydi (JCGM 100:2008 3.3.1, F.2.2.1) | X8 `zero_u` (error) | `linter-fixtures.test.js` — nol nuqtada «0 ± 0»; `linter.test.js` | ✅ |
-| U ≥ CMC (ILAC P14 §5.3 — repoda yo'q) | X8 `below_cmc` (error) | `linter.test.js` | ❔ |
+| U ≥ CMC (ILAC P14:09/2020 §5.5) | X8 `below_cmc` (error) | `linter.test.js` | ✅ (havola P05b da PDF bilan solishtirildi) |
 | Sertifikat U / k (4.3.3); ikki marta hisoblamaslik (4.3.10); korrelyatsiya (5.2.2–5.2.5); rezolyutsiya δ/(2√3) (F.2.2.1) | X2, X3, X4, X5 | `linter.test.js` (ijobiy + salbiy) | ✅ |
 | Birliklar (5.1.3; GUM-6 — repoda yo'q) | X6 | `linter.test.js` | ✅ / ❔ |
 | k = 2 ning ishonchliligi (EA-4/02 M:2022 §5.1–5.5; JCGM 100 G.6.6) | X7 | `linter.test.js` | ✅ (chegaralar — loyiha qarori) |
@@ -230,3 +230,26 @@ Qoidalar va manbalari — [LINTER_RULES.md](LINTER_RULES.md). Linter hisob natij
 | Barcha topilmalar bosma hisobotda; "RASMIY EMAS"; U = 0 / U < CMC belgisi yoki bloklash; ν qoidasi, MC seed va M, BETA (RISKS R-05) | `src/report/findings.js`; `src/js/report.js` | `tests/ui/findings.test.js` (jsdom); brauzerda (Chromium) boshidan oxirigacha ko'rildi | ✅ |
 | Matnlar uch tilda; i18n'dan tashqari matn yo'q (RISKS R-13) | `i18n-linter.js`, `i18n-admin.js` | `tests/i18n.test.js` (skaner: `tests/tools/hardcoded-text.js`) | ✅ |
 | Mavjud natijalar o'zgarmagan | `evaluate` | 55 misolning natija JSON'i 2.3.0 bilan bayt darajasida bir xil (yangi maydonlardan tashqari); 9 Excel nuqtasi, 10-test | ✅ |
+
+## 11. P05b: import/eksport, hisobot shakllari, qaror qoidasi
+
+| Talab (band) | Funksiya | Test | Holat |
+|---|---|---|---|
+| Muvofiqlik ehtimoli p_c, normal taqsimot (JCGM 106:2012 §7.3.3 Example 1 — p. 15: p_c = 0,92; Example 2: 0,99; §7.4 — p. 16; Table 1) | `src/engine/decision.js::conformanceProbability` | `tests/engine/decision.test.js` (sahifa havolasi bilan) | ✅ |
+| Himoya zonasi w = r·U, qabul oralig'i (JCGM 106:2012 §8.3.2; §8.3.2.3 — p. 22) | `decide` | `decision.test.js` | ✅ |
+| r = 0; 0,83; 1; 1,5; 3 uchun eng katta noto'g'ri qabul ehtimoli (ILAC G8:09/2019 Table 1 — p. 12) | `decide` (`maxFalseAccept`) | `decision.test.js` | ✅ |
+| Binar / nobinar bayonot (ILAC G8:09/2019 §4.2.1–4.2.3) | `decide` (`statement`, `verdict`) | `decision.test.js` | ✅ |
+| TUR = T / (2U) (JCGM 106 §7.6.2 C_m; ILAC G8 §1.13) | `decide` (`tur`) | `decision.test.js` | ✅ (ta'rif — loyiha qarori, R-22) |
+| Bir va ikki tomonlama chegaralar (JCGM 106 §7.3, §8.3.3) | `decide`, `decisionInput` | `decision.test.js` | ✅ |
+| Qoida yoki chegara yo'q → bayonot yo'q (ISO/IEC 17025 §7.1.3 — ILAC G8 §2.3 orqali) | `decisionInput` (`pending`), D1 | `decision.test.js`; `linter.test.js`; `tests/report/forms.test.js` | ✅ |
+| Ko'p nuqtali hisobot = Excel "Xulosa" jadvali (gazoanalizator 3 nuqta, termometr 5 nuqta; katak havolalari testda) | `src/report/summary.js::summaryRows`, `forms.js::buildReport` | `tests/report/forms.test.js` | ✅ |
+| 4 ta shakl; rekvizitlar yetishmasa ogohlantirish (ISO/IEC 17025:2017 §7.8.2.1, §7.8.3.1, §7.8.4.1 — repoda yo'q) | `forms.js`, `requisites.js::missingRequisites` | `forms.test.js` | ❔ (rekvizitlar ro'yxati unverified) |
+| Normativ havolalar hisobot tilida; ekvivalent faqat tasdiqlangani (JCGM 106 = ISO/IEC Guide 98-4:2012 — ILAC G8 §9 [2]) | `normative.js` | `forms.test.js` | ✅ (GOST 34100.3 — qo'shilmagan, R-22) |
+| Kanonik JSON (RFC 8785 JCS) SHA-256; kalitlar tartibiga bog'liq emas | `src/storage/canonical.js::canonicalizeJcs`, `jcsHash` | `tests/io/calc-json.test.js` | ✅ |
+| JSON eksport → import → qayta hisob bit darajasida bir xil | `src/io/calc-json.js` (`buildCalcDoc`, `parseCalcDoc`, `reproduce`) | `calc-json.test.js`; `tests/ui/io.test.js` | ✅ |
+| Hisobot pasti: versiya, build, shablon, hisob ID / sana, xesh, QR; bosma xesh = eksport xeshi | `footer.js` | `forms.test.js`; brauzerda (Chromium) ko'rildi | ✅ |
+| `.xlsx` / `.csv` import: hajm, qator, ustun, varaq, ZIP chegaralari; formula bajarilmaydi; HTML / skript escape | `src/io/import.js`, `csv.js`, `table-text.js`; `src/ui/io/app.js` | `tests/io/import.test.js`, `table-text.test.js`, `tests/ui/io.test.js` | ✅ |
+| `.xlsx` / `.csv` eksport: sonlar yaxlitlanmagan; formula-inyeksiya zararsizlantirilgan | `export-table.js`, `xlsx-write.js`, `csv.js` | `tests/io/export.test.js` | ✅ |
+| Vendor: aniq versiya, LICENSE, SHA-256; npm `xlsx` yo'q; faqat dinamik import; CSP o'zgarmagan; `src/io/` da tarmoq chaqiruvi yo'q | `vendor/`, `src/io/vendor.js` | `tests/security/vendor.test.js`; `import.test.js` | ✅ |
+| Shaxsiy rekvizitlar Firebase'ga yozilmaydi (faqat `sessionStorage`) | `src/ui/report/app.js`, `requisites.js::splitRequisites` | `forms.test.js`; brauzerda saqlash joylari tekshirildi | ✅ |
+| Mavjud natijalar o'zgarmagan | `evaluate` | 52 misolning natija JSON'i 2.4.0 bilan bir xil (`engineVersion`, `decision`, D1, `ref` dan tashqari); 9 Excel nuqtasi, 10-test | ✅ |

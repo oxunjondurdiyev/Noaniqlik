@@ -12,6 +12,7 @@ import { coverage, DEFAULT_NU_RULE } from './coverage.js';
 import { sensitivities, higherDerivatives, secondOrderTerms } from './sensitivity.js';
 import { conformity, pendingConformity, MODEL_KINDS } from './conformity.js';
 import { lint } from './linter/index.js';
+import { decide, decisionInput } from './decision.js';
 import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
 import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
@@ -271,6 +272,20 @@ function evaluateCore(spec) {
     catch (_) { return { error: 'bad_mpe' }; }
     conf = deviation !== null ? conformity(deviation, U, mpe) : pendingConformity(U, mpe, modelKind === 'value' ? 'nominal' : 'model_kind');
   }
+  // Qaror qoidasi (P05b). Ref: JCGM 106:2012 §7–8; ILAC G8:09/2019 §4.2, §5.2; ISO/IEC 17025:2017 §7.1.3, §7.8.6
+  // (ILAC G8 §2.3, §2.6–2.7 dagi iqtiboslar bo'yicha). Chegara yoki qoida berilmagan bo'lsa bayonot berilmaydi
+  // (decision.pending) — foydalanuvchidan so'raladi. `conf` (P00: oddiy / himoyalangan w = U) moslik uchun o'zgarmagan.
+  let decision = null;
+  const dIn = decisionInput(settings, { y, uc, U, mpe: conf ? conf.mpe : null, modelKind, nominal });
+  if (dIn) {
+    if (dIn.spec) {
+      const d = decide(dIn.spec);
+      decision = d.error ? { pending: null, error: d.error, detail: d.detail || null, lower: dIn.spec.lower, upper: dIn.spec.upper }
+                         : { ...d, pending: null, agreement: isBlank(settings.agreement) ? '' : String(settings.agreement).trim() };
+    } else {
+      decision = { pending: dIn.pending, lower: dIn.lower === undefined ? null : dIn.lower, upper: dIn.upper === undefined ? null : dIn.upper };
+    }
+  }
   const range = toNum(settings.range);
   // keltirilgan xato γ = |og'ish| / diapazon · 100 — og'ish (E yoki Y − Y_nom) ma'lum bo'lsagina (R-07)
   const gamma = isFinite(range) && range > 0 && deviation !== null ? Math.abs(deviation) / range * 100 : null;
@@ -324,6 +339,7 @@ function evaluateCore(spec) {
     inputs: inputs.map(({ rowVals, deviations, values, warnings: w, ...rest }) => rest),
     pairs, budget, verify, conf, gamma, warnings, notes, units, secondOrder, cmc: isFinite(cmc) ? cmc : null,
     modelKind, nominal: modelKind === 'value' && isFinite(nominal) ? nominal : null, deviation,
+    decision,
     y, mean: y, uc2, uc, ucNoCorr, uc2FirstOrder: Math.max(0, uc2First),
     corrEffectPct: ucNoCorr > 0 ? (uc - ucNoCorr) / ucNoCorr * 100 : 0,
     nuEff, k, U, coverage: coverageInfo,

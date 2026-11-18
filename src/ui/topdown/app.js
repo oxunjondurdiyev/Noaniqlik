@@ -85,7 +85,7 @@ function calculate() {
   const { spec, bad } = buildSpec(state);
   if (labSettings().rounding) spec.settings = { ...(spec.settings || {}), ...labSettings() };
   const result = bad.length ? { error: 'topdown_bad_data', detail: bad.map(b => t('td_f_' + b)).join(', ') } : evaluate(spec);
-  last = { result };
+  last = { result, spec };   // spec — P05b: JSON eksport (dvigatelga aynan berilgan kirish)
   state.step = 3;
   save();
   render();

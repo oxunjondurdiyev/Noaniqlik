@@ -31,17 +31,21 @@ test('9 ta to\'g\'ri etalon nuqtada `error` darajasidagi topilma yo\'q', () => {
   }
 });
 
-test('9 ta etalon nuqtadagi topilmalar ro\'yxati (regressiya nazorati): faqat info, kutilgan kodlar', () => {
+test('9 ta etalon nuqtadagi topilmalar ro\'yxati (regressiya nazorati): error yo\'q; kutilgan kodlar', () => {
   const got = Object.fromEntries(NINE.map(id => { const r = E.evaluate(load(id).modelSpec); return [id, r.findings.map(f => `${f.severity}:${f.code}`).sort()]; }));
-  const gas = ['info:n_small', 'info:x10_no_drift'];
+  // P05b: MPE berilgan, lekin qaror qoidasi tanlanmagan nuqtalarda `decision_rule_missing` (warning) — etalon Excel
+  // fayllarida qaror qoidasi ko'rsatilmagan, shuning uchun misollarga qoida QO'SHILMAGAN (bayonot berilmaydi).
+  const D = 'warning:decision_rule_missing';
+  const gas = ['info:n_small', 'info:x10_no_drift', D];
   assert.deepEqual(got, {
     'excel-density': [],
-    'excel-gas-p1': ['info:n_small', 'info:x10_no_drift', 'info:zero_s'],     // 4,000 mA × 3: s = 0, kalibrator rezolyutsiyasi byudjetda
+    // 4,000 mA × 3: s = 0, kalibrator rezolyutsiyasi byudjetda; MPE = ko'rsatishning 4 % i = 0 (nol nuqta) → chegara yo'q
+    'excel-gas-p1': ['info:n_small', 'info:x10_no_drift', 'info:zero_s'],
     'excel-gas-p2': gas, 'excel-gas-p3': gas,
-    'excel-term-p1': ['info:zero_s'],
-    'excel-term-p2': [], 'excel-term-p3': [],
-    'excel-term-p4': ['info:x5_resolution_rect', 'info:zero_s'],
-    'excel-term-p5': [],
+    'excel-term-p1': ['info:zero_s', D],
+    'excel-term-p2': [D], 'excel-term-p3': [D],
+    'excel-term-p4': ['info:x5_resolution_rect', 'info:zero_s', D],
+    'excel-term-p5': [D],
   });
 });
 

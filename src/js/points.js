@@ -35,6 +35,7 @@ const Points = (() => {
       label: (label || '').trim() || (idx >= 0 ? pts[idx].label : defaultLabel(pts.length + 1)),
       snapshot: snapshot(st),
       result: r,
+      meta: clone(st.calcMeta || null),            // P05b: nuqta hisobining id / vaqti
       acceptances: clone(st.acceptances || {}),   // P05a: shu nuqtadagi qabul qilingan topilmalar (bosma hisobotda izohi bilan)
     };
     if (idx >= 0) pts[idx] = entry; else pts.push(entry);
@@ -46,7 +47,7 @@ const Points = (() => {
   function load(id) {
     const p = list().find(x => x.id === id);
     if (!p) return;
-    appState.set({ ...clone(p.snapshot), typeA: {}, combined: p.result, currentPoint: id, acceptances: clone(p.acceptances || {}) });
+    appState.set({ ...clone(p.snapshot), typeA: {}, combined: p.result, currentPoint: id, acceptances: clone(p.acceptances || {}), calcMeta: clone(p.meta || null) });
   }
 
   function remove(id) {
@@ -73,14 +74,8 @@ const Points = (() => {
    * Uround/resultText stored by older versions are ignored.
    */
   function summary(pts, uniformK) {
-    const items = (pts || list()).filter(p => p.result && !p.result.error);
-    const cov = Calc.multiPointCoverage(items.map(p => p.result), uniformK);
-    return items.map((p, i) => {
-      const r = p.result;
-      const { k, U, conf } = cov[i];
-      const rr = Calc.roundResult(r.y, U, r.roundUp);
-      return { id: p.id, label: p.label, r, k, U, rr, conf };
-    });
+    // P05b: qatorlar src/report/summary.js da (sof modul) — qaror qoidasi ham yagona k bilan qayta qo'llanadi
+    return Calc.summaryRows(pts || list(), uniformK);
   }
 
   return { save, load, remove, startNew, clearAll, summary, list, snapshot };
