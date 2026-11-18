@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.4.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.6.0
 
-> Holat: P05a, 2026-11-18 (2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P06, 2026-11-18 (2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -31,7 +31,10 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `special.js` | ln Γ, ln B, I_x(a,b), Φ, Φ⁻¹ (Wichura AS241), t-taqsimot CDF/kvantil | A&S 26.5, 26.7 |
 | `units.js` | birliklarni tahlil qilish, o'lchamlik vektori, affin °C ↔ K, AST bo'yicha o'lchamlik | GUM-6 §11 (tekshirilmagan) |
 | `conformity.js` | MPE bilan muvofiqlik, ko'p nuqtali bir xil k | ISO/IEC 17025 §7.8.6; COOMET §5.7.3 (tekshirilmagan) |
-| `montecarlo.js` | MCM (P01 dagi bilan bir xil; Monte-Karlo 2.0 — P06) | JCGM 101:2008 |
+| `montecarlo.js` | `monteCarlo`, `createMonteCarlo` — adaptiv / qat'iy M, intervallar, GUM tekshiruvi, korrelyatsiya (P06), §12 | JCGM 101:2008 §7.7, §7.9, §8 |
+| `mc/rng.js` | R(0, 1): kengaytirilgan Wichmann–Hill; `xorshift32` (faqat eski natijani takrorlash) | JCGM 101:2008 C.3.3, Table C.2 |
+| `mc/distributions.js` | tanlash: to'g'ri burchakli, egri trapetsiya, trapetsiya, uchburchak, arksinus, Gauss, t, eksponensial, log-normal (unverified), ko'p o'lchovli Gauss (Cholesky) | JCGM 101:2008 §6.4, C.4–C.6 |
+| `mc/legacy.js` | ENGINE ≤ 2.5.0 dagi MCM — o'zgarishsiz (audit izi) | — |
 | `regression/index.js` | `evaluateRegression(spec)` — REGRESSION rejimi (P08), §7 | JCGM 100:2008 H.3; QUAM:2012 E.4 |
 | `regression/fit.js`, `linalg.js` | polinom (1–3-daraja) OLS / WLS / GLS — oqartirish + Householder QR | H.3.2 Eq. (H.13); QUAM Eq. (E3.4) |
 | `regression/wtls.js` | to'g'ri chiziq, u(x_i) va u(y_i) (iterativ WTLS) | York et al. 2004 (repoda yo'q — unverified) |
@@ -49,7 +52,7 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `qualitative/index.js` | `evaluateQualitative` — 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson (P10), §9.2 | EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 |
 | `micro/index.js` | `evaluateMicro` — log₁₀ sanoq: texnik, matritsa, Puasson (P10, **BETA**), §9.3 | ISO 19036 (repoda yo'q — unverified) |
 | `medical/index.js` | `evaluateMedical` — IQC darajalari: u = √(u_cal² + u_Rw²) (P10, **BETA**), §9.4 | ISO/TS 20914 (repoda yo'q — unverified) |
-| `linter/index.js`, `linter/rules/*.js` | `lint(spec, result, ctx)` — metrologik linter: X1–X12, A1–A4, M1, W1, W2 (P05a), §10 | [LINTER_RULES.md](LINTER_RULES.md) |
+| `linter/index.js`, `linter/rules/*.js` | `lint(spec, result, ctx)` — metrologik linter: X1–X12, A1–A4, M1, D1, W1, W2 (P05a, P05b); M2–M4 — Monte-Karlo natijasi uchun (P06), §10, §12 | [LINTER_RULES.md](LINTER_RULES.md) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
 Bog'liqlik: `engine` hech narsaga bog'liq emas. `report → engine` (faqat natija maydonlari), `ui → report, engine`.
@@ -491,3 +494,108 @@ Kirish (`settings`): `decisionRule` (`'simple'` | `'guard_band'` | bo'sh), `guar
 `createSections({t, esc, acceptances, canAccept, lab})` — bo'limlar (GUM, regressiya, top-down, maxsus); `summaryRows(points, uniformK)`; `buildReport({form, mode, lang, t, esc, result, points, requisites, footer, …})` — `REPORT_FORMS = ['calibration_certificate', 'test_report', 'budget', 'conformity']`; `missingRequisites(form, req)`; `normativeRefs(lang, {form, mode, decision, monteCarlo})`; `footerModel`, `footerHTML`, `qrSvg`, `qrPayload(id, hash)`. Hammasi sof (DOM siz); DOM ulanishi — `src/js/report.js`, sozlamalar — `src/ui/report/app.js` (`window.UCReport`).
 
 Testlar: `tests/engine/decision.test.js`, `tests/io/*.test.js`, `tests/report/forms.test.js`, `tests/ui/io.test.js`, `tests/security/vendor.test.js`.
+
+## 12. Monte-Karlo 2.0 (P06)
+
+Manba: JCGM 101:2008 (`docs/references/JCGM_101_2008_GUM-S1_MonteCarlo.pdf`). Har bir formula ustida `// Ref: JCGM 101:2008 §…`.
+
+```js
+import { monteCarlo, createMonteCarlo } from './src/engine/index.js';
+
+const mc = monteCarlo(modelSpec);                       // standart: adaptiv, n_dig = 2, eng qisqa interval, urug' 20261110
+const mc2 = monteCarlo(modelSpec, { mode: 'fixed', M: 1e6, interval: 'symmetric', seed: 7 });
+const old = monteCarlo(modelSpec, { rng: 'xorshift32-legacy', M: 200000 });   // 2.5.0 natijasi — bit darajasida
+monteCarlo(modelSpec, 200000);                          // eski imzo: son = qat'iy M (yangi generator bilan)
+
+// bo'laklab (Web Worker / asosiy oqim): natija bo'laklarga bog'liq emas
+const job = createMonteCarlo(modelSpec, opts);          // → { error } | { step, result, options, blockSize }
+let info; do { info = job.step(1); } while (!info.done);   // info: { done, M, target, expected, blocks, progress, ratio }
+const res = job.result();
+```
+
+### 12.1. Sozlamalar (`opts`; standart — `MC_DEFAULTS`; hisob / laboratoriya sozlamasi — `settings.mc`, `opts` ustun)
+
+| Maydon | Qiymat | Standart | Izoh |
+|---|---|---|---|
+| `mode` | `'adaptive'` \| `'fixed'` | `'adaptive'` | §7.9.4; qat'iy M — laboratoriya sozlamasi |
+| `nDig` | 1 … 4 | 2 | §7.9.2: δ = ½·10^l |
+| `M` | 10⁴ … 2·10⁷ | 10⁶ | faqat `fixed` |
+| `maxM` | 2·10⁴ … 2·10⁷ | 10⁷ | adaptiv rejim chegarasi; yetilsa `mc_not_converged` |
+| `interval` | `'shortest'` \| `'symmetric'` | `'shortest'` | barqarorlik mezoni va §8 tekshiruvi shu tur bo'yicha; natijada ikkalasi ham bor |
+| `seed` | butun 0 … 2³² − 1 yoki `[i1, i2, i3, i4]` | 20261110 | natijada va hisobotda yoziladi |
+| `rng` | `'wichmann-hill-2006'` \| `'xorshift32-legacy'` | `'wichmann-hill-2006'` | legacy — faqat takrorlash (qat'iy M, korrelyatsiyasiz) |
+| `validation` | `true` \| `false` | `true` | `true` — GUM natijasini tekshirish (§8): MCM toleransi δ/5 (§8.2); `false` — oddiy MCM: δ, `validated: null` (egasi qarori Q-8) |
+| `tolDivisor` | ≥ 1 | `validation ? 5 : 1` | tekshiruvda 5 dan kichik qiymat — laboratoriya sozlamasi ("δ ga tushirish"): `validation.lowered`, hisobotda belgi |
+| `criteria` | `'auto'` \| `'all'` \| `'interval'` | `'auto'` | `'all'` — §7.9.4 k) (y, u(y), y_low, y_high); `'interval'` — faqat interval uchlari, δ GUM u_c dan; `'auto'` — ν ≤ 2 bo'lgan t-kirish bo'lsa `'interval'`, aks holda `'all'` (egasi qarori Q-5) |
+| `nonNormalCorrelation` | `'refuse'` \| `'gaussian'` | `'refuse'` | §12.4 |
+| `onProgress`, `shouldCancel` | funksiya | — | har blokdan keyin; bekor qilinsa `{ error: 'mc_cancelled' }` |
+
+Noto'g'ri qiymat → `{ error: 'mc_bad_option', detail: <maydon> }`.
+
+### 12.2. Natija
+
+```js
+{
+  engineVersion, mode: 'MC',
+  rng: { name: 'wichmann-hill-2006', seed }, seed,        // + M — hisobotga
+  M, blocks, blockSize, P,
+  mean, u,                                                // §7.6 Eq. (16), (17) — barcha M qiymatdan; ν ≤ 2 li t-kirish bo'lsa u: null
+  uDefined, uSample,                                      // uDefined: false → "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali"; uSample — tanlanma s.o. (ma'lumot uchun)
+  interval: 'shortest' | 'symmetric',
+  low, high,                                              // eng qisqa interval (§7.7.2)
+  symLow, symHigh,                                        // ehtimollik bo'yicha simmetrik
+  intervalLow, intervalHigh, mcHalf,                      // tanlangan tur
+  adaptive: { enabled, nDig, maxM, tolDivisor, criteria, criteriaAuto, converged, reachedMax, nDigAchieved, delta, s: { y, u, low, high } },
+  nDig, nDigAchieved,                                     // yetilgan n_dig: 2·max(s) ≤ δ(n_dig) bajariladigan eng katta qiymat
+  gumY, gumUc, gumU, gumLow, gumHigh,
+  delta, dLow, dHigh, validated,                          // §8.1.3; δ — GUM u_c dan, n_dig bo'yicha; validation: false → validated: null
+  validation: { requested, tolDivisor, required, achieved, met, lowered },   // talab (δ/5 yoki δ) va erishilgan tolerans (2·max s)
+  correlated, correlation: { handled, groups: [{ inputs, method: 'mvn' | 'gaussian-approx', nonNormal }] },
+  varianceUndefined: [{ input, source, nu }],             // t, ν ≤ 2 (§7.6 Note 2)
+  sampling: [{ input, joint, parts: [{ kind: 'A' | 'B', name, dist, nu? }] }],
+  findings: [...]                                         // M2–M4 (docs/LINTER_RULES.md)
+}
+```
+
+Xatolar: `mc_nonnormal_correlation` (+ `findings`), `invalid_covariance`, `mc_nonfinite` (model ayrim sinovlarda aniqlanmagan), `mc_lognormal_nonpositive`, `bad_dist_param`, `mc_bad_option`, `mc_cancelled` va `evaluate()` xatolari.
+
+### 12.3. Kirish taqsimotlari
+
+X_i = x_i + (A tur qismi) + Σ (B tur manbalari · ko'paytuvchi); har bir qism — o'rtachasi 0.
+
+| Qism | Taqsimot | Ref |
+|---|---|---|
+| A tur, usul 1 | (s/√n)·t₍n−1₎ | §6.4.9.2, §6.4.9.5 |
+| A tur, usul 2 (s_p) | (s_p/√n)·t₍ν_p₎ | §6.4.9.6 |
+| A tur, usul 3 | (s/√n)·t₍n−1₎ — standart og'ishi u_A (Eq. 13); egasi tasdiqladi (2026-11-18) | §6.4.9.4 |
+| A tur, ↑/↓ | (s_p/√n)·t₍n−2₎ + histerezis R(−h/2, h/2) | §6.4.9.6, §6.4.2 |
+| `normal` | N(0, (a/k)²); `nu` chekli → t_ν(0, (a/k)²) | §6.4.7, §6.4.9.7–8 |
+| `rect`, `resol` | R(−a, a); R(−a/2, a/2) | §6.4.2 |
+| `triang` | T(−a, a) | §6.4.5 |
+| `ushape` | U(−a, a) | §6.4.6 |
+| `trap` (`beta`) | Trap(−a, a, β), 0 ≤ β ≤ 1; u = a·√((1 + β²)/6) | §6.4.4 |
+| `ctrap` (`d`) | CTrap(−a, a, d), 0 < d < a; u = √(a²/3 + d²/9) | §6.4.3 |
+| `exp` | Ex(1/a) − a (a — kattalik bahosi x); u = a | §6.4.10 |
+| `lognorm` | E = x_i, V = (a/k)²; x_i > 0 shart | **unverified** (JCGM 101 da yo'q) |
+
+`rect` + `nu` MCM da avtomatik `ctrap` ga aylantirilmaydi (§9.5.2.9 dagi d = a·(ishonchsizlik ulushi) — foydalanuvchi `ctrap` ni o'zi tanlaydi).
+
+### 12.4. Korrelyatsiya
+
+`result.pairs[].cov ≠ 0` bo'lgan kirishlar guruhlanadi (bog'langan komponentlar).
+
+- Guruhdagi **barcha** kirishlar normal (A tur qismi yo'q yoki ν = ∞; B tur — faqat `normal`, ν siz) → N(x, U_x), Cholesky U_x = RᵀR, X = x + Rᵀz (§6.4.8, C.5, Table C.4).
+- Aks holda: `nonNormalCorrelation: 'refuse'` → `{ error: 'mc_nonnormal_correlation', detail, findings: [M2] }` — natija **berilmaydi**; `'gaussian'` → guruh N(x, U_x) bilan yaqinlashtiriladi (U_x: u²(x_i) va cov), natijada `method: 'gaussian-approx'` va M2 ogohlantirishi. Topilma matni: "LPU (GUM) natijasi amal qiladi". Copula qo'shilmaydi; ko'p o'lchovli t (JCGM 102:2011 §5.3.2) — P07 (egasi qarori, 2026-11-18).
+- U_x musbat (yarim) aniqlanmagan → `{ error: 'invalid_covariance' }`; "tuzatish" (C.5.2 Note 2) qo'llanilmaydi. r = ±1 (rang yetishmaydigan, lekin yaroqli matritsa) — qabul qilinadi (C.5.2 Note 3).
+
+### 12.5. Takrorlanuvchanlik
+
+- Bir xil kirish + bir xil `seed` + bir xil sozlama → aynan bir xil natija (bloklarga / worker'ga bog'liq emas).
+- R(0, 1) ketma-ketligi faqat IEEE 754 amallaridan (×, mod, ÷, +, ⌊⌋) iborat — har qanday JS muhitida bit darajasida bir xil. Gauss, t, arksinus, eksponensial, log-normal `Math.log / sin / cos / pow / exp` dan foydalanadi: ECMAScript ularning oxirgi bitini kafolatlamaydi. **Node 22 va Chromium (V8) da natijalar bit darajasida bir xil — tekshirildi**; boshqa dvigatellarda (SpiderMonkey, JavaScriptCore) oxirgi xonalarda farq bo'lishi mumkin (tekshirilmagan — P13 da tekshiriladi, R-23).
+- Eski hisob: `{ rng: 'xorshift32-legacy', M }` — 2.5.0 natijasi.
+
+### 12.6. Brauzer (`src/ui/mc/`)
+
+`window.UCMonteCarlo.run(spec, opts, onProgress)` → `{ promise, cancel(), via() }`. Modulli Web Worker (`src/ui/mc/worker.js` → `src/engine/index.js`); worker yuklanmasa — asosiy oqimda ≈ 25 ms li bo'laklar. CSP: `script-src 'self'` (o'zgarmagan).
+
+Laboratoriya sozlamalari (`LAB_DEFAULTS`, sozlamalar oynasi): `mcMode` (`adaptive` \| `fixed`), `mcNDig` (1 \| 2), `mcTolerance` (`delta5` \| `delta`) — panel shulardan boshlanadi; `delta` tanlansa tekshiruv `tolDivisor: 1` bilan bajariladi va hisobotda belgilanadi.

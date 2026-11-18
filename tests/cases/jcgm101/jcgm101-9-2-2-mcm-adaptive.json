@@ -1,0 +1,130 @@
+{
+  "id": "jcgm101-9-2-2-mcm-adaptive",
+  "title": "JCGM 101 9.2.2: additiv model (normal kirishlar), adaptiv MCM, GUM tekshiruvi (8.1)",
+  "status": "verified",
+  "domain": "umumiy (o'lchamsiz)",
+  "source": {
+    "doc": "JCGM 101:2008 (GUM-S1)",
+    "section": "9.2.2, Table 2 (Adaptive MCM qatorlari)",
+    "page": "35–37"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2",
+        "X3",
+        "X4"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ],
+        "X3": [
+          0
+        ],
+        "X4": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y = X1 + X2 + X3 + X4",
+        "unit": "1"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "X1",
+          "param": "X1",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X2",
+          "param": "X2",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X3",
+          "param": "X3",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X4",
+          "param": "X4",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "interval": "symmetric",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 2,
+      "tolDivisor": 5
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 0.0,
+      "ref": "Table 2, Adaptive MCM: y = 0.00"
+    },
+    "u": {
+      "value": 2.0,
+      "ref": "Table 2, Adaptive MCM: u(y) = 2.00"
+    },
+    "interval": {
+      "low": -3.92,
+      "high": 3.92,
+      "ref": "Table 2, Adaptive MCM (2-qator): [–3.92, 3.92]"
+    },
+    "M": {
+      "value": 1100000.0,
+      "ref": "Table 2, Adaptive MCM: M = 1.23×10⁶ va 1.02×10⁶ (o'rtachasi 1,1·10⁶)"
+    },
+    "validated": {
+      "value": 1,
+      "ref": "Table 2, Adaptive MCM: GUF validated — Yes (d_low, d_high ≤ δ = 0.05)"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 0.01,
+      "reason": "9.2.2.6, 8.2: MCM natijalari δ/5 = 0,01 tolerans bilan"
+    },
+    "u": {
+      "abs": 0.01,
+      "reason": "δ/5 = 0,01"
+    },
+    "interval": {
+      "abs": 0.015,
+      "reason": "δ/5 = 0,01 + ½ oxirgi xona (0,005)"
+    },
+    "M": {
+      "rel": 0.6,
+      "reason": "M — tasodifiy; manbaning ikki qo'llanishi 1,23·10⁶ va 1,02·10⁶ — faqat tartibi (±60 %)"
+    },
+    "validated": {
+      "abs": 0
+    }
+  },
+  "notes": "Manba adaptiv protsedurani δ/5 bilan qo'llagan (9.1.2, 8.2) — tolDivisor = 5. Sinovlar soni M tasodifiy kattalik (manbaning ikki qo'llanishida ham har xil), shuning uchun faqat tartibi solishtiriladi."
+}

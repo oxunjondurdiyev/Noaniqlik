@@ -66,3 +66,15 @@ Har bir misol — bitta JSON fayl. Ishga tushirish: `npm test` (`tests/run-cases
 Holat va manbalar bo'yicha to'liq jadval: [docs/VALIDATION_MATRIX.md](../../docs/VALIDATION_MATRIX.md).
 
 `tests/cases/excel/*.json` (9 ta Excel nuqtasi) `node tests/tools/build-excel-cases.js` bilan Excel'dan yaratilgan. Qo'lda o'zgartirmang: kerak bo'lsa skriptni o'zgartirib, qayta yarating va diff'ni ko'rib chiqing.
+
+## Monte-Karlo misollari (P06)
+
+`run.method: "monteCarlo"` bo'lgan misollarda:
+
+- `run.interval` — `"shortest"` yoki `"symmetric"` (kutilgan interval shu tur bilan solishtiriladi);
+- `run.mc` — `monteCarlo()` sozlamalari (`docs/ENGINE_API.md` §12.1): masalan `{ "mode": "adaptive", "nDig": 2, "tolDivisor": 5 }` yoki `{ "mode": "fixed", "M": 1000000 }`. `run.mc` bo'lmasa — qat'iy `run.M` (eski misollar);
+- qo'shimcha kattaliklar: `M` (sinovlar soni), `d_low`, `d_high`, `validated` (0 / 1), `converged` (0 / 1);
+- generator — Wichmann–Hill, urug' 20261110 (natija takrorlanuvchan).
+
+**Tolerans qoidasi.** Manbadagi natija nechta raqam bilan berilgan bo'lsa — shunga mos (½ oxirgi xona yoki manbadagi δ). Manba bitta simulyatsiya natijasini bergan va δ ni ko'rsatmagan bo'lsa, ustiga ikki mustaqil simulyatsiya farqining ikki standart og'ishi (2·√2·s) qo'shiladi; s `tests/tools/mc-scatter.js` bilan o'lchanadi va `tolerance.*.reason` da yoziladi. Tolerans misolni "o'tkazish uchun" kengaytirilmaydi — o'tmagan misol `knownDiscrepancies` ga yoziladi (masalan D-04).
+

@@ -5,10 +5,17 @@
 ═══════════════════════════════════════════════════════════════ */
 export { ENGINE_VERSION } from './version.js';
 export { evaluate, prepareModel } from './evaluate.js';
-export { monteCarlo, MC_SEED } from './montecarlo.js';
+// P06: Monte-Karlo 2.0 (JCGM 101:2008) — adaptiv protsedura, generator va taqsimotlar src/engine/mc/ da
+export {
+  monteCarlo, createMonteCarlo, mcOptions, numericalTolerance, coverageIntervals,
+  MC_SEED, MC_DEFAULTS, MC_LIMITS, MC_MODES, MC_INTERVALS, MC_CRITERIA, MC_NONNORMAL_CORRELATION, VALIDATION_TOL_DIVISOR, RNG_DEFAULT, RNG_LEGACY, RNG_NAMES,
+} from './montecarlo.js';
+export { monteCarloLegacy } from './mc/legacy.js';
+export { wichmannHill, xorshift32, createRng, whState } from './mc/rng.js';
+export { MC_DISTRIBUTIONS, cholesky } from './mc/distributions.js';
 export { normalize, toModel, FORMATS } from './spec.js';
 export { typeA, typeAx, correlation } from './typeA.js';
-export { typeB, getDivisor, getDivisorLabel, DIVISORS, valueOrExpr } from './typeB.js';
+export { typeB, getDivisor, getDivisorLabel, DIVISORS, DIST_PARAMS, distParamError, valueOrExpr } from './typeB.js';
 export { coverage, coverageFactor, NU_RULES, DEFAULT_NU_RULE } from './coverage.js';
 export { conformity, pendingConformity, multiPointCoverage, MODEL_KINDS } from './conformity.js';
 // P05b: qaror qoidasi (JCGM 106:2012, ILAC G8:09/2019)

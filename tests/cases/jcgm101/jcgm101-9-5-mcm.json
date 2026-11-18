@@ -1,15 +1,175 @@
 {
-  "modelSpec": null,
-  "expected": {},
   "id": "jcgm101-9-5-mcm",
-  "title": "JCGM 101 9.5: KMD kalibrlash, MCM (Table 10, 11)",
-  "status": "pending",
-  "enabledIn": "P06",
+  "title": "JCGM 101 9.5: KMD kalibrlash, adaptiv MCM (eng qisqa 99 % interval)",
+  "status": "verified",
   "domain": "uzunlik",
   "source": {
     "doc": "JCGM 101:2008 (GUM-S1)",
-    "section": "9.5.2–9.5.4, Table 10, Table 11 (MCM: 838 nm, 36 nm, [745, 932])",
+    "section": "9.5.2 (Table 10 — taqsimotlar), 9.5.3.2 (adaptiv MCM, δ = 0,5, n_dig = 2), 9.5.4 (Table 11)",
     "page": "51–55"
   },
-  "statusReason": "siljitilgan-masshtablangan t, arksinus va egri trapetsiya taqsimotlari dvigatelda yo'q — P06."
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "lS",
+        "d",
+        "alphaS",
+        "theta",
+        "dalpha",
+        "dtheta"
+      ],
+      "measurements": {
+        "lS": [
+          50000623
+        ],
+        "d": [
+          215
+        ],
+        "alphaS": [
+          1.15e-05
+        ],
+        "theta": [
+          -0.1
+        ],
+        "dalpha": [
+          0
+        ],
+        "dtheta": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "dL = lS + d - lS * (dalpha * theta + alphaS * dtheta) - 50000000",
+        "unit": "nm"
+      },
+      "settings": {
+        "paired": false,
+        "P": 0.99
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "L_s ~ t_18(50 000 623 nm, (25 nm)²) — Table 10",
+          "param": "lS",
+          "halfWidth": 25,
+          "distribution": "normal",
+          "k": 1,
+          "nu": 18
+        },
+        {
+          "name": "D ~ t_24(215 nm, (6 nm)²) — Table 10",
+          "param": "d",
+          "halfWidth": 6,
+          "distribution": "normal",
+          "k": 1,
+          "nu": 24
+        },
+        {
+          "name": "d1 ~ t_5(0 nm, (4 nm)²) — Table 10",
+          "param": "d",
+          "halfWidth": 4,
+          "distribution": "normal",
+          "k": 1,
+          "nu": 5
+        },
+        {
+          "name": "d2 ~ t_8(0 nm, (7 nm)²) — Table 10",
+          "param": "d",
+          "halfWidth": 7,
+          "distribution": "normal",
+          "k": 1,
+          "nu": 8
+        },
+        {
+          "name": "α_s ~ R(9,5; 13,5)·10⁻⁶ °C⁻¹ — Table 10",
+          "param": "alphaS",
+          "halfWidth": 2e-06,
+          "distribution": "rect"
+        },
+        {
+          "name": "θ0 ~ N(−0,1 °C, (0,2 °C)²) — Table 10",
+          "param": "theta",
+          "halfWidth": 0.2,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "Δ ~ U(−0,5; 0,5) °C — Table 10",
+          "param": "theta",
+          "halfWidth": 0.5,
+          "distribution": "ushape"
+        },
+        {
+          "name": "δα ~ CTrap(−1,0; 1,0; 0,1)·10⁻⁶ °C⁻¹ — Table 10",
+          "param": "dalpha",
+          "halfWidth": 1e-06,
+          "distribution": "ctrap",
+          "d": 1e-07
+        },
+        {
+          "name": "δθ ~ CTrap(−0,050; 0,050; 0,025) °C — Table 10",
+          "param": "dtheta",
+          "halfWidth": 0.05,
+          "distribution": "ctrap",
+          "d": 0.025
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "interval": "shortest",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 2,
+      "validation": false
+    }
+  },
+  "expected": {
+    "y": {
+      "value": 838,
+      "ref": "Table 11, MCM: δL = 838 nm"
+    },
+    "u": {
+      "value": 36,
+      "ref": "Table 11, MCM: u(δL) = 36 nm"
+    },
+    "interval": {
+      "low": 745,
+      "high": 932,
+      "ref": "Table 11, MCM: eng qisqa 99 % interval [745, 932] nm"
+    },
+    "converged": {
+      "value": 1,
+      "ref": "9.5.3.2: adaptiv MCM (7.9) δ = 0,5 bilan barqarorlashgan"
+    },
+    "M": {
+      "value": 1260000.0,
+      "ref": "9.5.4.2: 1.26 × 10⁶ trials were taken by the adaptive Monte Carlo procedure"
+    }
+  },
+  "tolerance": {
+    "y": {
+      "abs": 1.0,
+      "reason": "½ oxirgi xona (0,5 nm) + 9.5.3.2 dagi sonli tolerans δ = 0,5 nm"
+    },
+    "u": {
+      "abs": 0.5,
+      "reason": "manbadagi oxirgi xonaning yarmi (36 nm)"
+    },
+    "interval": {
+      "abs": 2.0,
+      "reason": "½ oxirgi xona (0,5 nm) + 2·√2·s, s = 0,51 nm — adaptiv protsedura (n_dig = 2) natijasidagi eng qisqa interval uchining urug'dan-urug'ga standart og'ishi (12 ta urug', tests/tools/mc-scatter.js). 9.5.3.2 dagi δ = 0,5 nm bloklar bo'yicha o'rtachaning barqarorligini bildiradi; yig'ma tanlanmadan olingan eng qisqa interval uchi undan sekinroq barqarorlashadi (DISCREPANCIES.md D-18)"
+    },
+    "converged": {
+      "abs": 0
+    },
+    "M": {
+      "rel": 0.6,
+      "reason": "M — tasodifiy kattalik (12 ta urug'da 0,99…1,50·10⁶); faqat tartibi (±60 %)"
+    }
+  },
+  "notes": "Taqsimot parametrlari Table 10 da bosilgan qiymatlar bilan (σ = 25, 6, 4, 7 nm; 13/√5 = 5,81 va 10/2,57 = 3,89, 20/3 = 6,67 emas — 9.5.4.1: \"using the information summarized in table 10\"). D, d1, d2 — bitta kirish (d) ning uchta t-manbasi (model (37) da ular faqat yig'indi sifatida qatnashadi). Chiziqlashtirilgan model (37). Manba 1,26·10⁶ sinov olgan (9.5.4.2). Manba adaptiv protsedurani δ = 0,5 bilan qo'llagan (9.5.3.2) — oddiy MCM (`validation: false`, tolerans δ; §8.2 dagi δ/5 emas)."
 }

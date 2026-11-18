@@ -1,6 +1,6 @@
 {
   "id": "excel-gas-p2-mc",
-  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test), n_dig = 2 — todo → P06",
+  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test), adaptiv MCM, n_dig = 2 — majburiy (egasi qarori Q-3 (b), 2026-11-18)",
   "status": "verified",
   "domain": "fizik-kimyo/gaz tahlili",
   "modelSpec": {
@@ -64,8 +64,11 @@
   },
   "run": {
     "method": "monteCarlo",
-    "M": 1000000,
-    "interval": "symmetric"
+    "interval": "symmetric",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 2
+    }
   },
   "expected": {
     "y": {
@@ -93,14 +96,14 @@
       "abs": 5e-05,
       "reason": "manbadagi oxirgi xonaning yarmi"
     },
-    "interval": {
-      "abs": 5e-05,
-      "reason": "JCGM 101:2008 7.9.2: u_c(y) = 0,0083 (GUM), n_dig = 2 → 83×10⁻⁴ → δ = ½·10⁻⁴"
+    "interval.low": {
+      "abs": 0.00029,
+      "reason": "Egasi qarori Q-3 (b), 2026-11-18: tolerans = δ + 2·s_ref. δ = 5·10⁻⁵ (JCGM 101:2008 7.9.2: u_c(y) = 0,0083, n_dig = 2); s_ref = 1,2·10⁻⁴ — quyi uchning mustaqil 8 takrordagi (M = 10⁶, OS CSPRNG) standart og'ishi (DISCREPANCIES.md D-04). 5·10⁻⁵ + 2·1,2·10⁻⁴ = 2,9·10⁻⁴. Qo'llanma qiymati bitta M = 10⁶ simulyatsiyasidan olingan — uning tarqoqligi toleransga kiritilgan; qiymatning o'zi o'zgartirilmagan"
+    },
+    "interval.high": {
+      "abs": 0.00023,
+      "reason": "Egasi qarori Q-3 (b): δ + 2·s_ref = 5·10⁻⁵ + 2·0,9·10⁻⁴ = 2,3·10⁻⁴ (s_ref — yuqori uchning mustaqil 8 takrordagi standart og'ishi, D-04)"
     }
   },
-  "knownDiscrepancies": {
-    "interval.low": "D-04",
-    "interval.high": "D-04"
-  },
-  "notes": "Qo'llanmadagi interval E bahosiga nisbatan simmetrik (yarim kenglik 0,029) — ehtimollik bo'yicha simmetrik interval (JCGM 101 7.7.3) bilan solishtiriladi. Dvigatelning eng qisqa intervali [−0,0113; 0,0465] (PLAN P01). Egasi qarori Q-3: n_dig = 2 varianti P06 (adaptiv M) ga bog'langan todo (D-04); hozir majburiy — excel-gas-p2-mc-ndig1."
+  "notes": "Qo'llanmadagi interval E bahosiga nisbatan simmetrik (yarim kenglik 0,029) — ehtimollik bo'yicha simmetrik interval (JCGM 101 7.7.2) bilan solishtiriladi. Dvigatel standart sozlamada: adaptiv protsedura, n_dig = 2, GUM tekshiruvi (δ/5). I ga t₂ tayinlangan (n = 3) → u(y) aniqlanmagan, mezon avtomatik faqat interval uchlari bo'yicha (egasi qarori Q-5); talab δ/5 = 1·10⁻⁵ ga M = 10⁷ chegarasida erishilmaydi (erishilgan 2s ≈ 5,8·10⁻⁵) — natija [−0,010 99; 0,046 88] ogohlantirish bilan. Qo'llanmadan farq: 1,1·10⁻⁴; 2·10⁻⁵. Egasi qarori Q-3 (b): tolerans = δ + 2·s_ref; egasi ≈ 3,2·10⁻⁴ deb ko'rsatgan, formula bo'yicha (uchlar uchun alohida s_ref bilan) 2,9·10⁻⁴ va 2,3·10⁻⁴ chiqadi — qattiqroq qiymatlar olindi (ikkalasi ham 3,2·10⁻⁴ dan kichik). Batafsil — DISCREPANCIES.md D-04."
 }

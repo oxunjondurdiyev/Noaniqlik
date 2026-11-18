@@ -144,6 +144,9 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P06 — Monte-Karlo 2.0 (JCGM 101:2008)
 
+> **Holat: bajarildi (2026-11-18, `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0).** Generator — kengaytirilgan Wichmann–Hill (`src/engine/mc/rng.js`), taqsimotlar (`mc/distributions.js`), adaptiv protsedura §7.9.4 (n_dig = 2), simmetrik va eng qisqa interval, §8 tekshiruvi (δ/5), ko'p o'lchovli Gauss, linter M2–M4, Web Worker (`src/ui/mc/`). JCGM 101 §9.2–9.5 — verified. **Egasi qarorlari (2026-11-18, R-23):** 10-test majburiy (tolerans δ + 2·s_ref); ν ≤ 2 da mezon faqat interval; normal bo'lmagan korrelyatsiyada MCM natijasi berilmaydi (LPU amal qiladi); usul 3 — t₍n−1₎; GUM tekshiruvida δ/5. Laboratoriya sozlamalarida MC bo'limi va shablon sxemasida yangi taqsimotlar — qilindi. **Keyingi bosqichlarga:** ko'p o'lchovli t (JCGM 102:2011 §5.3.2) — P07; Firefox / Safari takrorlanuvchanligi — P13.
+
+
 - **Fayllar:** `src/engine/montecarlo.js` (+ `rng.js`, `distributions.js`), Web Worker (progress bilan).
 - **Ichida:** urug'li PRNG (JCGM 101 C.3 talablariga mos: kengaytirilgan Wichmann–Hill yoki xoshiro128**/Mersenne Twister — tanlov asoslanadi), seed hisobotga; taqsimotlar: normal, to'g'ri burchakli, uchburchak, trapetsiya, egri trapetsiya, arksinus, siljitilgan-masshtablangan t (§6.4.9), log-normal, eksponensial, ko'p o'lchamli normal (Cholesky, C.5); korrelyatsiya (normal bo'lmaganlar uchun cheklov ochiq); adaptiv M (§7.9.4, n_dig = 2); eng qisqa va simmetrik interval; §8 validatsiya.
 - **Nima buzilishi mumkin:** RNG almashsa MC raqamlari o'zgaradi (10-test qayta baholanadi); Worker yo'llari.
@@ -151,6 +154,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 - **Bog'liq xavflar:** R-06, R-16.
 
 ## P07 — Ko'p o'zgaruvchili modellar (JCGM 102:2011)
+
+> **P06 dan o'tgan vazifa (egasi qarori 2026-11-18, R-23):** juftlangan A tur kuzatuvlari uchun **ko'p o'lchovli t-taqsimot** t_ν(x̄, S/n) (JCGM 102:2011 §5.3.2 — PDF `docs/references/` da) Monte-Karloga qo'shiladi; shundan keyin normal bo'lmagan (t-taqsimotli) korrelyatsiyalangan kirishlarda MCM natija beradi (hozir — `mc_nonnormal_correlation`, LPU natijasi amal qiladi). Test manbasi — JCGM 102 §9 misollari.
 
 - **Fayllar:** `src/engine/` — vektor chiqish, Jacobian, U_y = C·U_x·Cᵀ, ko'p o'lchamli MCM; UI: bir nechta formula, chiqishlar kovariatsiya matritsasi, qamrov sohasi.
 - **Nima buzilishi mumkin:** P03 API'si vektorga tayyor bo'lmasa — katta refaktor (shuning uchun P03 da `outputs[]`). Bir o'lchamli natijalar o'zgarmasligi kerak.

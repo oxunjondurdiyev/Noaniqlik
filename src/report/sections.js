@@ -28,7 +28,8 @@ export function createSections(environment) {
   const Calc = { lint, lintReported, roundResult, fmtSci, findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText };
 
   const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_triang',
-                      ushape: 'dist_ushape', resol: 'dist_resol' };
+                      ushape: 'dist_ushape', resol: 'dist_resol',
+                      trap: 'dist_trap', ctrap: 'dist_ctrap', exp: 'dist_exp', lognorm: 'dist_lognorm' };   // P06 (JCGM 101:2008 §6.4)
 
   function unitOf(r) { return r.unit ? ' ' + escHtml(r.unit) : ''; }
   function pct(P) { return (P * 100).toFixed(2).replace(/\.?0+$/, ''); }
@@ -200,15 +201,54 @@ export function createSections(environment) {
     return lines;
   }
 
+  /* Monte-Karlo natijasi (P06). Hisobotda majburiy: interval turi, P, M, generator, urug', n_dig (JCGM 101:2008 §7.9, §8).
+     Tekshiruv (§8.1.3) tanlangan interval turi bo'yicha; ikkinchi tur — ma'lumot uchun. LPU tasdiqlanmasa,
+     natija sifatida MCM intervali ko'rsatiladi (M3 topilmasi bilan birga). */
   function mcLines(r, mc) {
     const d = rounded(r).digits + 1;
-    return [
-      `M = ${mc.M.toLocaleString()};  ${i18n.t('res_y')} = ${Calc.fmtSci(mc.mean, 8)};  u = ${Calc.fmtSci(mc.u)}`,
-      `${i18n.t('mc_interval')} (${pct(mc.P)} %): [${mc.low.toFixed(d)}; ${mc.high.toFixed(d)}]  →  ${i18n.t('mc_half')} ${Calc.fmtSci(mc.mcHalf, 3)}`,
+    const shortest = (mc.interval || 'shortest') !== 'symmetric';
+    const main = shortest ? [mc.low, mc.high] : [mc.symLow, mc.symHigh];
+    const other = shortest ? [mc.symLow, mc.symHigh] : [mc.low, mc.high];
+    const mainKey = shortest ? 'mc_interval' : 'mc_interval_sym', otherKey = shortest ? 'mc_interval_sym' : 'mc_interval';
+    const rngName = mc.rng && mc.rng.name ? mc.rng.name : 'xorshift32-legacy';
+    const ad = mc.adaptive || {};
+    const nDig = mc.nDig || 2;
+    const lines = [
+      // Egasi qarori (Q-5): ν ≤ 2 bo'lgan t-kirishda u(y) aniqlanmagan (JCGM 101:2008 §6.4.9.4, §7.6 Note 2) — son ko'rsatilmaydi
+      `M = ${mc.M.toLocaleString()};  ${i18n.t('res_y')} = ${Calc.fmtSci(mc.mean, 8)};  ` +
+        (mc.uDefined === false ? `<span data-mc-u-undefined="1">${i18n.t('mc_u_undefined')}</span>` : `u = ${Calc.fmtSci(mc.u)}`),
+      `<span data-mc-interval="${shortest ? 'shortest' : 'symmetric'}">${i18n.t(mainKey)} (${pct(mc.P)} %): [${main[0].toFixed(d)}; ${main[1].toFixed(d)}]  →  ${i18n.t('mc_half')} ${Calc.fmtSci((main[1] - main[0]) / 2, 3)}</span>`,
+      `${i18n.t(otherKey)} (${pct(mc.P)} %): [${other[0].toFixed(d)}; ${other[1].toFixed(d)}]`,
       `GUM: [${mc.gumLow.toFixed(d)}; ${mc.gumHigh.toFixed(d)}]  →  U = ${Calc.fmtSci(mc.gumU, 3)}`,
-      `JCGM 101 §8: δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ` +
-        (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>` : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span>`),
     ];
+    const val = mc.validation || {};
+    // §8 xulosasi faqat tekshiruv so'ralganda (oddiy MCM da berilmaydi — egasi qarori Q-8)
+    if (mc.validated !== null && mc.validated !== undefined) {
+      lines.push(`JCGM 101 §8: n_dig = ${nDig};  δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ` +
+        (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>` : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span>`));
+    }
+    // MCM natijalarining sonli toleransi: talab (§8.2: δ/5; oddiy MCM: δ) va erishilgani (2·max s); δ ga tushirilgan bo'lsa — belgi
+    if (val.required !== null && val.required !== undefined) {
+      lines.push(`<span data-mc-tolerance="${val.met ? 'met' : 'not-met'}">${i18n.t('mc_tol_line')}: ${i18n.t('mc_tol_required')} ${val.tolDivisor > 1 ? 'δ/' + val.tolDivisor : 'δ'} = ${Calc.fmtSci(val.required, 2)};  ` +
+        `${i18n.t('mc_tol_achieved')} = ${Calc.fmtSci(val.achieved, 2)}` +
+        (val.lowered ? `;  <strong data-mc-tol-lowered="1">${i18n.t('mc_tol_lowered')}</strong>` : '') + '</span>');
+    }
+    lines.push(
+      `<span data-mc-run="1">${i18n.t('mc_generator')}: ${escHtml(rngName)};  ${i18n.t('mc_seed')} = ${escHtml(String(mc.seed))};  ` +
+        `${i18n.t(ad.enabled ? 'mc_mode_adaptive' : 'mc_mode_fixed')}` +
+        (ad.enabled ? ` (JCGM 101 §7.9.4): ${i18n.t('mc_blocks')} ${mc.blocks} × ${mc.blockSize.toLocaleString()} — ${i18n.t(ad.converged ? 'mc_converged' : 'mc_not_converged')}` : '') +
+        (mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? `;  ${i18n.t('mc_ndig_achieved')} = ${mc.nDigAchieved}` : '') + '</span>');
+    if (mc.validated === false) {
+      lines.push(`<strong data-mc-result="1">${i18n.t('mc_result_instead')}: ${escHtml(r.symbol)} = ${mc.mean.toFixed(d)}${unitOf(r)};  ` +
+        `${i18n.t(mainKey)} (${pct(mc.P)} %): [${main[0].toFixed(d)}; ${main[1].toFixed(d)}]${unitOf(r)}</strong>`);
+    }
+    return lines;
+  }
+  /** MC topilmalari (M2–M4) — ekranda va bosma hisobotda (yashirilmaydi) */
+  function mcFindingsHtml(mc, o) {
+    const list = mc && Array.isArray(mc.findings) ? mc.findings : [];
+    if (!list.length) return '';
+    return Calc.findingsBlockHTML(list, { ...fctx(), scope: 'mc', print: !!(o && o.print), acceptances: {}, canAccept: false });
   }
 
   function renderKPIs(r) {
@@ -462,7 +502,7 @@ export function createSections(environment) {
       <div class="print-section">${i18n.t('res_statement')}</div>
       <p style="font-size:11pt;margin:.5em 0"><strong>${statement(r, rr, k)}</strong></p>
       ${p9(ilacNote(r))}
-      ${ex.mc ? `<div class="print-section">${i18n.t('mc_title')}</div>${mcLines(r, ex.mc).map(p9).join('')}` : ''}
+      ${ex.mc ? `<div class="print-section">${i18n.t('mc_title')}</div>${mcLines(r, ex.mc).map(p9).join('')}${mcFindingsHtml(ex.mc, { print: true })}` : ''}
       ${marksHtml(r, { mc: ex.mc })}`;
   }
 
@@ -847,6 +887,6 @@ export function createSections(environment) {
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

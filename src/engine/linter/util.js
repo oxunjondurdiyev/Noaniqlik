@@ -8,7 +8,7 @@ import { normalize } from '../spec.js';
 import { isBlank, toNum } from '../util.js';
 
 export const SEVERITIES = ['error', 'warning', 'info'];
-export const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL'];
+export const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MC']; // 'MC' — monteCarlo() natijasi (P06)
 
 /** Loyiha qarorlari (egasi tasdiqlagan, 2026-11-18 — docs/LINTER_RULES.md §4). Me'yoriy hujjatlarda bunday aniq sonlar yo'q,
     faqat ko'rsatilgan joylardagi tavsiyalar bor. */

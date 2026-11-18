@@ -233,3 +233,40 @@ test('interpreter va validator sof: DOM/brauzer xotirasiga bog\'liq emas', () =>
     assert.ok(!/\b(document|window|localStorage|indexedDB)\b/.test(src), f);
   }
 });
+
+test('P06: shablon sxemasi yangi taqsimot nomlarini qabul qiladi (trap + beta, ctrap + d, exp, lognorm); interpretator parametrlarni dvigatelga uzatadi', () => {
+  const E = require('../../src/engine/index.js');
+  const base = JSON.parse(JSON.stringify(byId['legacy-gas_analyzer']));
+  const src = base.typeBSources.find(x => x.distribution === 'rect');
+  const variants = [
+    [{ distribution: 'trap', beta: 0.5 }, a => a * Math.sqrt(1.25 / 6)],        // JCGM 101:2008 §6.4.4.3
+    [{ distribution: 'ctrap', d: 0.001 }, a => Math.sqrt(a * a / 3 + 1e-6 / 9)], // §6.4.3.3, Eq. (4)
+    [{ distribution: 'exp' }, a => a],                                           // §6.4.10.3
+  ];
+  for (const [patch, uOf] of variants) {
+    const tpl = JSON.parse(JSON.stringify(base));
+    const s0 = tpl.typeBSources.find(x => x.id === src.id);
+    delete s0.allowedDistributions;
+    Object.assign(s0, patch);
+    const v = validate(schema, tpl);
+    assert.equal(v.valid, true, `${patch.distribution}: ${JSON.stringify(v.errors || []).slice(0, 300)}`);
+    const b = T.buildState(tpl, { useSample: true, point: 1 });
+    const entry = b.state.typeB.find(c => c.sourceId === src.id);
+    assert.equal(entry.distribution, patch.distribution);
+    if (patch.beta !== undefined) assert.equal(entry.beta, 0.5);
+    if (patch.d !== undefined) assert.equal(entry.d, 0.001);
+    const r = E.evaluate(T.specOf(T.prepareState(b.state)));
+    assert.equal(r.error, undefined, patch.distribution);
+    const row = r.budget.find(x => x.kind === 'B' && x.dist === patch.distribution);
+    const a = Math.abs(E.valueOrExpr(entry.halfWidth, b.state.params, Object.fromEntries(r.inputs.map(i => [i.name, i.mean]))));
+    assert.ok(Math.abs(row.u - uOf(a)) < 1e-12 * Math.max(1, uOf(a)), `${patch.distribution}: u = ${row.u}, kutilgan ${uOf(a)}`);
+  }
+  // noto'g'ri parametr sxemada rad etiladi (β > 1); noma'lum taqsimot nomi ham
+  for (const bad of [{ distribution: 'trap', beta: 1.5 }, { distribution: 'weibull' }]) {
+    const tpl = JSON.parse(JSON.stringify(base));
+    const s0 = tpl.typeBSources.find(x => x.id === src.id);
+    delete s0.allowedDistributions;
+    Object.assign(s0, bad);
+    assert.equal(validate(schema, tpl).valid, false, JSON.stringify(bad));
+  }
+});
