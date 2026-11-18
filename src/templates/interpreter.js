@@ -89,6 +89,7 @@ export function checkTemplate(tpl, schema) {
     if (!r.valid) return { valid: false, errors, warnings };
   }
   if (isRegression(tpl)) return checkRegressionTemplate(tpl, errors, warnings);
+  if (isTopDown(tpl)) return checkTopDownTemplate(tpl, errors, warnings);
   const inputs = tpl.inputs || [];
   const consts = tpl.constants || [];
   const symbols = [...inputs.map(i => i.symbol), ...consts.map(c => c.symbol)];
@@ -267,6 +268,86 @@ export function buildRegressionSpec(tpl, data = {}, opts = {}) {
   return { spec, meta, missing };
 }
 
+/* ─── TOP_DOWN rejimi (P09) ─────────────────────────────── */
+
+export const isTopDown = tpl => !!tpl && tpl.evaluationMode === 'TOP_DOWN';
+
+/** R_w / s_R ta'rif bo'yicha qamraydigan toifalar (src/engine/topdown/index.js BASE_COVERS bilan bir xil). */
+const TD_BASE_COVERS = ['repeatability', 'intermediate_precision'];
+
+/** TOP_DOWN shablonining semantik tekshiruvi (formula tavsifiy — tahlil qilinmaydi). */
+function checkTopDownTemplate(tpl, errors, warnings) {
+  const td = tpl.topDown;
+  if (!td) { errors.push('topDown: section required for evaluationMode TOP_DOWN'); return { valid: false, errors, warnings }; }
+  const sym = (tpl.inputs || []).map(i => i.symbol);
+  if (new Set(sym).size !== sym.length) errors.push('duplicate symbols');
+  if ((tpl.typeBSources || []).length) errors.push('topDown: typeBSources are not used in TOP_DOWN mode (use topDown.additional for effects not covered by R_w)');
+  if (tpl.variants && tpl.variants.length) errors.push('topDown: variants are not supported in TOP_DOWN mode');
+  if (td.basis === 'within') {
+    if (!(td.rwSources || []).length) errors.push('topDown.rwSources: at least one source of u(R_w) required for basis "within"');
+  } else {
+    if ((td.rwSources || []).length) errors.push(`topDown.rwSources: not used with basis "${td.basis}"`);
+    if (td.biasSource && td.biasSource !== 'none') errors.push(`topDown.biasSource: not used with basis "${td.basis}"`);
+  }
+  if (td.basis === 'level' && td.scale !== 'absolute') errors.push('topDown: basis "level" requires scale "absolute" (QUAM:2012 E.5.2.1)');
+  if (td.scale === 'absolute' && isBlank(tpl.measurand && tpl.measurand.unit)) errors.push('topDown: scale "absolute" requires measurand.unit');
+  if (['recovery', 'recovery_quam'].includes(td.biasSource) && td.scale !== 'relative') errors.push('topDown: recovery requires scale "relative"');
+  // X12: empirik kattalikda usul bias'i ta'rif bo'yicha 0 (QUAM:2012 §7.9.2). Bias manbasi taqiqlanmaydi (tayanch qiymat shu usul
+  // bilan olingan bo'lishi mumkin, §7.9.3) — usta "tayanch qiymat qaysi usul bilan olingan" savolini majburiy beradi (R-20).
+  if (tpl.isEmpiricalMeasurand === true && td.biasSource && td.biasSource !== 'none') {
+    warnings.push('topDown: X12 — bias source for an empirical measurand: the wizard will require the reference-method answer (QUAM:2012 §7.9.2–7.9.3)');
+  }
+  // X11: qo'shimcha hissa toifasi nazorat namunasi qamraydigan toifalar ichida bo'lmasligi kerak
+  const covers = new Set([...TD_BASE_COVERS, ...(td.basis === 'sR' ? ['reproducibility'] : []), ...(td.covers || [])]);
+  const ids = (td.additional || []).map(a => a.id);
+  if (new Set(ids).size !== ids.length) errors.push('topDown.additional: duplicate ids');
+  for (const a of td.additional || []) {
+    if (covers.has(a.category)) errors.push(`topDown.additional.${a.id}: X11 — category "${a.category}" is already covered by the top-down basis (double counting)`);
+  }
+  for (const k of ['linkedTemplate', 'regressionTemplate']) if (td[k] && td[k] === tpl.id) errors.push(`topDown.${k}: self reference`);
+  for (const i of tpl.inputs || []) if (i.unit && !isBlank(i.unit) && !parseUnit(i.unit)) warnings.push(`unit "${i.unit}" of ${i.symbol} not recognised`);
+  checkTexts(tpl, errors);
+  return { valid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * TOP_DOWN shabloni → usta (wizard) boshlang'ich holati (src/ui/topdown/build.js::defaults bilan birlashtiriladi).
+ * Raqam o'ylab topilmaydi: barcha sonli maydonlar bo'sh, qo'shimcha hissalarning u qiymati — ''.
+ * @returns {{state:object, meta:object} | {error:string}}
+ */
+export function buildTopDownState(tpl, opts = {}) {
+  if (!isTopDown(tpl) || !tpl.topDown) return { error: 'not_topdown_template' };
+  const td = tpl.topDown;
+  const lang = opts.lang || 'en';
+  const state = {
+    step: 1,
+    basis: td.basis,
+    rwSources: td.basis === 'within' ? [...(td.rwSources || [])] : [],
+    bias: td.basis === 'within' ? (td.biasSource || 'none') : 'none',
+    scale: td.basis === 'level' ? 'absolute' : td.scale,
+    unit: (tpl.measurand && tpl.measurand.unit) || '',
+    empirical: tpl.isEmpiricalMeasurand === true,
+    covers: [...(td.covers || [])],
+    additional: (td.additional || []).map(a => ({ name: tr(a.name, lang), category: a.category, u: '' })),
+  };
+  const meta = {
+    id: tpl.id, version: tpl.version, status: tpl.status, title: clone(tpl.title),
+    mode: 'TOP_DOWN', demo: false, variant: '',
+    standards: clone(tpl.standards || []), labCount: tpl.labCount ?? null,
+    openQuestions: (tpl.openQuestions || []).length,
+    measurand: { symbol: tpl.measurand.symbol, unit: tpl.measurand.unit },
+    isEmpiricalMeasurand: tpl.isEmpiricalMeasurand === true,
+    ...(td.linkedTemplate ? { linkedTemplate: td.linkedTemplate } : {}),
+    ...(td.regressionTemplate ? { regressionTemplate: td.regressionTemplate } : {}),
+    ...(opts.ui ? {
+      measurandName: tr(tpl.measurand.name, lang), hint: tr(td.hint, lang), sourceNote: tr(tpl.sourceNote, lang),
+      additionalHints: (td.additional || []).filter(a => a.hint).map(a => ({ id: a.id, text: tr(a.hint, lang) })),
+      openQuestionList: (tpl.openQuestions || []).map(q => ({ id: q.id, text: tr(q.text, lang), owner: q.owner, blocking: !!q.blocking })),
+    } : {}),
+  };
+  return { state, meta };
+}
+
 /* ─── Shablon → hisob holati ───────────────────────────── */
 
 /** P04b: split = 'unknown' bo'lsa nuqtaga xos qator ishlatilmaydi (umumiy qatorda sertifikatning to'liq U si) */
@@ -302,6 +383,7 @@ function uiEntry(s, lang) {
  */
 export function buildState(tpl, data = {}, opts = {}) {
   if (isRegression(tpl)) return { error: 'regression_template' }; // P08: buildRegressionSpec ishlatiladi
+  if (isTopDown(tpl)) return { error: 'topdown_template' }; // P09: buildTopDownState → usta (src/ui/topdown/)
   const lang = opts.lang || 'en';
   const variant = resolveVariant(tpl, data.variant);
   if (!variant) return { error: 'bad_variant', detail: data.variant };

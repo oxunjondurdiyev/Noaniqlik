@@ -1,0 +1,79 @@
+{
+  "id": "quam-a6-empirical",
+  "title": "QUAM A6: yem tarkibidagi xom kletchatka — empirik usul, s_R + quritish sharti",
+  "status": "verified",
+  "domain": "oziq-ovqat / yem",
+  "source": {
+    "doc": "EURACHEM/CITAC QUAM:2012 (3rd ed.)",
+    "section": "Example A6: A6.4 (Drying temperature and time), A6.5, Table A6.4, Table A6.5",
+    "page": "85, 86",
+    "note": "Empirik (usul bilan belgilanadigan) kattalik: usul bias'i ta'rif bo'yicha 0 (§7.9.2). 2,5 % m/m daraja uchun s_R = 0,29 % m/m va quritish (doimiy massagacha) hissasi 0,115 % m/m. s_R hamkorlik sinovida matritsa va namuna tayyorlashni qamragan (A6.4, p. 84)."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "REPRODUCIBILITY",
+    "isEmpiricalMeasurand": true,
+    "scale": {
+      "unit": "% m/m"
+    },
+    "reproducibility": {
+      "sR": 0.29,
+      "unit": "% m/m",
+      "covers": [
+        "matrix",
+        "sample_preparation"
+      ]
+    },
+    "additional": [
+      {
+        "id": "drying",
+        "category": "time",
+        "u": 0.115,
+        "unit": "% m/m"
+      }
+    ],
+    "measurement": {
+      "value": 2.5,
+      "unit": "% m/m"
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "uc": {
+      "value": 0.31,
+      "ref": "Table A6.4 (p. 86): √(0.29² + 0.115²) = 0.31 % m/m"
+    },
+    "relUc": {
+      "value": 12,
+      "ref": "Table A6.4 (p. 86): relative standard uncertainty 0.12"
+    },
+    "k": {
+      "value": 2,
+      "ref": "A6.5 (p. 86): coverage factor k of 2"
+    },
+    "U": {
+      "value": 0.62,
+      "ref": "Table A6.5 (p. 86): expanded uncertainty 0.62 % m/m"
+    },
+    "relU": {
+      "value": 25,
+      "ref": "Table A6.5 (p. 86): 25 % of fibre content"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.005
+    },
+    "k": {
+      "abs": 0
+    },
+    "relUc": {
+      "abs": 0.5
+    },
+    "relU": {
+      "abs": 0.5
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "nordtest-tr537-recovery",
+  "title": "Nordtest TR 537 §6.3: u(bias) qo'shimcha (spike) tiklanish sinovlaridan",
+  "status": "verified",
+  "domain": "analitik kimyo",
+  "source": {
+    "doc": "Nordtest TR 537 ed. 4 (2017)",
+    "section": "§6.3 Recovery",
+    "page": "23",
+    "note": "6 ta matritsa uchun tiklanish 95, 98, 97, 96, 99, 96 %. u(C_recovery) = √(u(conc)² + u(vol)²) = √(0,6² + 0,76²). Manba bu bo'limda faqat u(bias) ni beradi — test faqat bias qismini hisoblaydi (run.part: bias)."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "NORDTEST",
+    "scale": {
+      "relative": true
+    },
+    "relativeUnit": "%",
+    "bias": {
+      "type": "recovery",
+      "relative": true,
+      "recoveries": [
+        95,
+        98,
+        97,
+        96,
+        99,
+        96
+      ],
+      "uRefComponents": [
+        {
+          "id": "conc",
+          "u": 0.6
+        },
+        {
+          "id": "vol",
+          "u": 0.76
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "topdown",
+    "part": "bias"
+  },
+  "expected": {
+    "bias.rms": {
+      "value": 3.44,
+      "ref": "§6.3 (p. 23): RMSbias = 3.44 %"
+    },
+    "bias.uRef": {
+      "value": 1.0,
+      "ref": "§6.3 (p. 23): u(Crecovery) = √(0.6² + 0.76²) = 1.0 %"
+    },
+    "bias.u": {
+      "value": 3.6,
+      "ref": "§6.3 (p. 23): u(bias) = √(3.44² + 1.0²) = 3.6 %"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.05
+    },
+    "bias.rms": {
+      "abs": 0.005
+    }
+  }
+}

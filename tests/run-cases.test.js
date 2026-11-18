@@ -20,7 +20,9 @@ test('tests/cases: identifikatorlar yagona, majburiy maydonlar bor', () => {
     assert.ok(c.title && c.domain && c.source && c.source.doc, `${c.id}: title/domain/source.doc`);
     if (c.status === 'verified') {
       const regression = c.modelSpec && c.modelSpec.format === 'uc-regression/1'; // P08
-      assert.ok(c.modelSpec && (regression ? Array.isArray(c.modelSpec.points) && (c.run || {}).method === 'regression' : c.modelSpec.state), `${c.id}: modelSpec`);
+      const topdown = c.modelSpec && c.modelSpec.format === 'uc-topdown/1'; // P09
+      assert.ok(c.modelSpec && (regression ? Array.isArray(c.modelSpec.points) && (c.run || {}).method === 'regression'
+        : topdown ? (c.run || {}).method === 'topdown' && !!c.modelSpec.approach : c.modelSpec.state), `${c.id}: modelSpec`);
       for (const [q, e] of Object.entries({ ...c.expected, ...c.expectedDisplay })) {
         assert.ok(e.ref, `${c.id}.${q}: manba havolasi (ref) yo'q`);
       }

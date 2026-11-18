@@ -18,10 +18,10 @@ const ctx = lang => ({ t: k => TR[lang][k] ?? k, esc: escHtml, lang });
 const entries = templates.map(x => ({ tpl: x.tpl, local: false }));
 const frag = html => JSDOM.fragment(html);
 
-test('katalog: 4 bo\'lim (qurilish, oziq-ovqat/kimyo, elektr, kalibrlash), 36 karta (35 + P08 R-01)', () => {
+test('katalog: 4 bo\'lim (qurilish, oziq-ovqat/kimyo, elektr, kalibrlash), 40 karta (35 + P08 R-01 + P09 TD-01…TD-04)', () => {
   const f = frag(V.catalogHTML(entries, '', ctx('uz')));
   assert.deepEqual([...f.querySelectorAll('[data-section]')].map(s => s.dataset.section), ['construction', 'food_chem', 'electrical', 'calibration']);
-  assert.equal(f.querySelectorAll('.tpl-card').length, 36);
+  assert.equal(f.querySelectorAll('.tpl-card').length, 40);
   assert.match(f.textContent, /Qurilish materiallari va metallar/);
   assert.match(frag(V.catalogHTML(entries, '', ctx('ru'))).textContent, /Электробезопасность/);
 });

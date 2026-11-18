@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "TD-04",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "TOP_DOWN",
+  "title": {
+    "uz": "Og'ir metallar (AAS): top-down, u(R_w) + u(bias), kalibrlash R-01 bilan",
+    "ru": "Тяжёлые металлы (ААС): top-down, u(R_w) + u(bias), градуировка по R-01",
+    "en": "Heavy metals (AAS): top-down, u(R_w) + u(bias), calibration with R-01"
+  },
+  "description": {
+    "uz": "Konsentratsiya kalibrlash egri chizig'idan topiladi (R-01, Regressiya yorlig'i). Yakuniy natija noaniqligi: nazorat namunasidan u(R_w) va CRM dan u(bias). Kalibrlash hissasi u(c₀) nazorat namunasi har safar yangi kalibrlash bilan o'lchansa R_w ichida bo'ladi.",
+    "ru": "Концентрация находится по градуировочной кривой (R-01, вкладка «Регрессия»). Неопределённость итогового результата: u(R_w) по контрольной пробе и u(bias) по CRM. Вклад градуировки u(c₀) уже входит в R_w, если контрольная проба измеряется каждый раз с новой градуировкой.",
+    "en": "The concentration is found from the calibration curve (R-01, Regression tab). Uncertainty of the final result: u(R_w) from the control sample and u(bias) from a CRM. The calibration contribution u(c₀) is already inside R_w when the control sample is measured with a fresh calibration each time."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P09 shabloni (DRAFT). Usul: Nordtest TR 537 ed. 4 §3.2 (p. 10), §6.1 (CRM, p. 20); kalibrlash — EURACHEM/CITAC QUAM:2012 Example A5, Appendix E.4 (R-01 shabloni). Barcha raqamli maydonlar bo'sh — laboratoriya o'z sifat nazorati va validatsiya ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P09 (DRAFT). Метод: Nordtest TR 537 ed. 4 §3.2 (с. 10), §6.1 (CRM, с. 20); градуировка — EURACHEM/CITAC QUAM:2012, пример A5, приложение E.4 (шаблон R-01). Все числовые поля пусты — лаборатория вводит собственные данные контроля качества и валидации.",
+    "en": "P09 template (DRAFT). Method: Nordtest TR 537 ed. 4 §3.2 (p. 10), §6.1 (CRM, p. 20); calibration — EURACHEM/CITAC QUAM:2012 Example A5, Appendix E.4 (template R-01). All numeric fields are empty — the laboratory enters its own quality control and validation data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#10-top_down-rejimi-p09",
+  "measurand": {
+    "symbol": "w",
+    "name": {
+      "uz": "Metallning massaviy ulushi",
+      "ru": "Массовая доля металла",
+      "en": "Mass fraction of the metal"
+    },
+    "unit": "mg/kg"
+  },
+  "model": {
+    "formula": "u_c = sqrt(u_Rw^2 + u_bias^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob Top-down ustasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в мастере Top-down.",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Top-down wizard."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "w",
+      "name": {
+        "uz": "Namunadagi metall miqdori",
+        "ru": "Содержание металла в пробе",
+        "en": "Metal content of the sample"
+      },
+      "unit": "mg/kg",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "topDown": {
+    "basis": "within",
+    "rwSources": [
+      "control_series"
+    ],
+    "biasSource": "crm",
+    "scale": "relative",
+    "covers": [
+      "calibration"
+    ],
+    "regressionTemplate": "R-01",
+    "additional": [
+      {
+        "id": "u_prep",
+        "category": "sample_preparation",
+        "u": null,
+        "name": {
+          "uz": "Namuna tayyorlash (parchalash), agar nazorat namunasi bu bosqichdan o'tmasa",
+          "ru": "Подготовка пробы (разложение), если контрольная проба не проходит этот этап",
+          "en": "Sample preparation (digestion) if the control sample does not go through this step"
+        },
+        "hint": {
+          "uz": "Nazorat namunasi parchalash bosqichidan o'tsa — bu qatorni o'chiring (R_w qamraydi). O'tmasa — real namunalar dublikatlaridan s_r, %.",
+          "ru": "Если контрольная проба проходит разложение — удалите эту строку (охвачено R_w). Если нет — s_r по дубликатам реальных проб, %.",
+          "en": "If the control sample goes through digestion, delete this row (covered by R_w). If not — s_r from duplicates of real samples, %."
+        }
+      }
+    ],
+    "hint": {
+      "uz": "Kalibrlash «R_w qamraydigan omillar» da belgilangan: R-01 dagi u(c₀) ni qo'shimcha hissa sifatida qo'shsangiz X11 (ikki marta hisoblash) ogohlantirishi chiqadi. Agar nazorat namunasi kalibrlashsiz (bir martalik egri chiziq bilan) o'lchansa — belgini olib tashlang va u(c₀) ni qo'shing.",
+      "ru": "Градуировка отмечена в «факторах, охваченных R_w»: если добавить u(c₀) из R-01 как дополнительный вклад, появится предупреждение X11 (двойной учёт). Если контрольная проба измеряется без новой градуировки (по разовой кривой) — снимите отметку и добавьте u(c₀).",
+      "en": "Calibration is ticked among the effects covered by R_w: adding u(c₀) from R-01 as an additional contribution raises the X11 (double counting) warning. If the control sample is measured without a fresh calibration (a single curve), untick it and add u(c₀)."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ CRM matritsasi va daraja namunalarga mos bo'lishi kerak; har bir CRM kamida 5 ta turli seriyada o'lchanadi (Nordtest TR 537 §6.1). CRM bo'lmasa — PT yoki recovery.",
+        "ru": "⚠ Матрица и уровень CRM должны соответствовать пробам; каждый CRM измеряется не менее чем в 5 разных сериях (Nordtest TR 537 §6.1). Если CRM нет — PT или извлечение.",
+        "en": "⚠ The CRM matrix and level must match the samples; each CRM is measured in at least 5 different series (Nordtest TR 537 §6.1). Without a CRM use PT or recovery."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

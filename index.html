@@ -674,6 +674,7 @@
         <button class="tab-btn" data-tab="typeb" data-i18n="tab_typeb">Type B</button>
         <button class="tab-btn" data-tab="results" data-i18n="tab_results">Results</button>
         <button class="tab-btn" data-tab="regression" data-i18n="tab_regression">Regression</button>
+        <button class="tab-btn" data-tab="topdown" data-i18n="tab_topdown">Top-down</button>
       </div>
 
       <!-- TAB: DATA ENTRY -->
@@ -752,6 +753,11 @@
       <!-- TAB: REGRESSION (P08) — kalibrlash egri chizig'i; mazmunni src/ui/regression/app.js chizadi -->
       <div class="tab-panel" id="tab-regression">
         <div id="regression-root"></div>
+      </div>
+
+      <!-- TAB: TOP-DOWN (P09) — validatsiya / sifat nazorati ma'lumotlaridan noaniqlik; mazmunni src/ui/topdown/app.js chizadi -->
+      <div class="tab-panel" id="tab-topdown">
+        <div id="topdown-root"></div>
       </div>
 
     </main>
@@ -867,6 +873,7 @@
 <script src="src/js/i18n-engine.js"></script>
 <script src="src/js/i18n-templates.js"></script>
 <script src="src/js/i18n-regression.js"></script>
+<script src="src/js/i18n-topdown.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
 <script src="src/js/table.js"></script>
@@ -876,6 +883,7 @@
 <script src="src/js/app.js"></script>
 <script type="module" src="src/ui/tpl/app.js"></script>
 <script type="module" src="src/ui/regression/app.js"></script>
+<script type="module" src="src/ui/topdown/app.js"></script>
 <script src="src/ui/index-auth.js"></script>
 
 </body>

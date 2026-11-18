@@ -773,3 +773,35 @@ details.rg-card > summary { cursor: pointer; }
   .rg-report .warn-box { border: 1px solid #999; padding: .3em .5em; font-size: 9pt; margin-bottom: .5em; }
 }
 .rg-table th, .rg-report th { text-transform: none; }
+
+/* ─── P09: TOP-DOWN ustasi (src/ui/topdown/) ──────────────────── */
+.td-steps { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; margin: .4rem 0 1rem; }
+.td-step-btn { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .8rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-muted); font: inherit; font-size: .86rem; cursor: pointer; }
+.td-step.active .td-step-btn { border-color: var(--accent); color: var(--text); font-weight: 600; }
+.td-step.done .td-step-btn { color: var(--text); }
+.td-step-n { display: inline-grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--border); font-size: .76rem; font-weight: 700; }
+.td-step.active .td-step-n { background: var(--accent); color: #fff; }
+.td-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .5rem; margin: .4rem 0 .9rem; }
+.td-choice { display: flex; gap: .55rem; align-items: flex-start; padding: .55rem .7rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: .86rem; }
+.td-choice input { margin-top: .2rem; flex: none; }
+.td-choice span { display: flex; flex-direction: column; gap: .15rem; }
+.td-choice small { font-size: .76rem; line-height: 1.35; }
+.td-choice:has(input:checked) { border-color: var(--accent); }
+.td-area { font-family: var(--font-mono, monospace); width: 100%; min-height: 6rem; }
+.td-count { display: block; margin-top: .15rem; }
+.td-covers { display: flex; flex-wrap: wrap; gap: .35rem .9rem; margin: .3rem 0 .9rem; font-size: .84rem; }
+.td-cover { display: inline-flex; align-items: center; gap: .3rem; }
+.td-add-table input, .td-add-table select { width: 100%; min-width: 7rem; }
+.td-nav { margin-top: 1rem; }
+.td-report .td-result td { font-size: 1rem; }
+.td-report .td-excluded td { color: var(--text-muted); text-decoration: line-through; }
+.td-report .td-excluded td:last-child { text-decoration: none; }
+.td-report .td-total td { border-top: 2px solid var(--border); }
+.td-report th { text-transform: none; }
+.td-unanswered { border-left: 3px solid var(--warning); padding-left: .6rem; }
+@media print {
+  .td-report .td-result td { font-size: 11pt; }
+  /* X11 / X12 va boshqa ogohlantirishlar chop etilgan hisobotda ham ko'rinadi (egasi qarori 2026-11-17) */
+  .td-report .warn-box, .td-report .td-note { display: block !important; visibility: visible !important; border: 1px solid #999; padding: .3em .5em; font-size: 9pt; margin-bottom: .5em; color: #000; }
+}

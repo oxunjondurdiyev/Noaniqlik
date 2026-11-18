@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "TD-02",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "food_chem",
+  "evaluationMode": "TOP_DOWN",
+  "isEmpiricalMeasurand": true,
+  "title": {
+    "uz": "Oziq-ovqat mahsulotida namlik (quritish usuli): empirik kattalik, s_R + rejim parametrlari",
+    "ru": "Влажность пищевого продукта (метод высушивания): эмпирическая величина, s_R + параметры режима",
+    "en": "Moisture in food (oven-drying method): empirical measurand, s_R + method parameters"
+  },
+  "description": {
+    "uz": "Namlik quritish usuli bilan belgilanadi (usul bias'i ta'rif bo'yicha 0). Noaniqlik: standart usuldagi s_R (laboratoriya s_r tekshiruvi bilan) va quritish harorati hamda vaqti bardoshliligi hissalari.",
+    "ru": "Влажность определяется методом высушивания (смещение метода по определению равно 0). Неопределённость: s_R стандартного метода (с проверкой s_r лаборатории) и вклады устойчивости к температуре и времени сушки.",
+    "en": "Moisture is defined by the drying method (method bias is zero by definition). Uncertainty: s_R of the standard method (with a check of the laboratory s_r) and robustness contributions of drying temperature and time."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P09 shabloni (DRAFT). Usul: EURACHEM/CITAC QUAM:2012 §7.6, §7.9 (pp. 17–22) va Example A6 (pp. 81–86, empirik usul, s_R + quritish sharti). Barcha raqamli maydonlar bo'sh — laboratoriya o'z sifat nazorati va validatsiya ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P09 (DRAFT). Метод: EURACHEM/CITAC QUAM:2012 §7.6, §7.9 (с. 17–22) и пример A6 (с. 81–86, эмпирический метод, s_R + условия сушки). Все числовые поля пусты — лаборатория вводит собственные данные контроля качества и валидации.",
+    "en": "P09 template (DRAFT). Method: EURACHEM/CITAC QUAM:2012 §7.6, §7.9 (pp. 17–22) and Example A6 (pp. 81–86, empirical method, s_R + drying conditions). All numeric fields are empty — the laboratory enters its own quality control and validation data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#10-top_down-rejimi-p09",
+  "measurand": {
+    "symbol": "W",
+    "name": {
+      "uz": "Namlikning massaviy ulushi",
+      "ru": "Массовая доля влаги",
+      "en": "Mass fraction of moisture"
+    },
+    "unit": "% m/m"
+  },
+  "model": {
+    "formula": "u_c = sqrt(s_R^2 + u_T^2 + u_t^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob Top-down ustasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в мастере Top-down.",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Top-down wizard."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "W",
+      "name": {
+        "uz": "Namunadagi namlik",
+        "ru": "Влажность пробы",
+        "en": "Moisture of the sample"
+      },
+      "unit": "% m/m",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "topDown": {
+    "basis": "sR",
+    "scale": "absolute",
+    "covers": [],
+    "additional": [
+      {
+        "id": "u_T",
+        "category": "temperature",
+        "u": null,
+        "name": {
+          "uz": "Quritish harorati bardoshliligi",
+          "ru": "Устойчивость к температуре сушки",
+          "en": "Robustness to drying temperature"
+        },
+        "hint": {
+          "uz": "Sezgirlik (natijaning haroratga bog'liqligi) × harorat noaniqligi; ruxsat etilgan ±ΔT oralig'i uchun to'g'ri burchakli taqsimot: ΔT/√3 (QUAM Table A6.3, Note 3–4).",
+          "ru": "Чувствительность (зависимость результата от температуры) × неопределённость температуры; для допуска ±ΔT — прямоугольное распределение: ΔT/√3 (QUAM, табл. A6.3, прим. 3–4).",
+          "en": "Sensitivity (dependence of the result on temperature) × uncertainty of the temperature; for a tolerance ±ΔT use a rectangular distribution: ΔT/√3 (QUAM Table A6.3, Notes 3–4)."
+        }
+      },
+      {
+        "id": "u_t",
+        "category": "time",
+        "u": null,
+        "name": {
+          "uz": "Quritish vaqti / doimiy massa mezoni",
+          "ru": "Время сушки / критерий постоянной массы",
+          "en": "Drying time / constant-mass criterion"
+        },
+        "hint": {
+          "uz": "Ketma-ket tortishlar orasidagi ruxsat etilgan farq ±Δm dan: (Δm/√3) / namuna massasi × 100 (QUAM A6.4, p. 85).",
+          "ru": "Из допустимой разности последовательных взвешиваний ±Δm: (Δm/√3) / масса навески × 100 (QUAM A6.4, с. 85).",
+          "en": "From the permitted difference between successive weighings ±Δm: (Δm/√3) / sample mass × 100 (QUAM A6.4, p. 85)."
+        }
+      }
+    ],
+    "hint": {
+      "uz": "s_R va s_r — standart usulning o'zida yoki hamkorlik sinovi hisobotida berilgan qiymatlar (R va r berilgan bo'lsa: s = chegara / 2,8). Usul bias'i qo'shilmaydi (X12).",
+      "ru": "s_R и s_r — значения из самого стандартного метода или отчёта о совместном испытании (если даны R и r: s = предел / 2,8). Смещение метода не добавляется (X12).",
+      "en": "s_R and s_r are the values given in the standard method or in the collaborative study report (if R and r are given: s = limit / 2.8). No method bias is added (X12)."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab+owner",
+      "text": {
+        "uz": "⚠ Standart usulda s_R berilmagan bo'lsa, asos sifatida laboratoriyaning o'z u(R_w) qiymati olinadi (1-qadamda «O'z laboratoriyamiz ma'lumoti»); laboratoriya s_r tekshiruvi (ISO 21748) — tekshirilmagan (unverified).",
+        "ru": "⚠ Если в стандартном методе s_R не приведено, за основу берётся собственное u(R_w) лаборатории (на шаге 1 — «Данные своей лаборатории»); проверка s_r лаборатории (ISO 21748) не проверена (unverified).",
+        "en": "⚠ If the standard method gives no s_R, the laboratory's own u(R_w) is used as the basis (step 1 — own laboratory data); the laboratory s_r check (ISO 21748) is unverified."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "nordtest-tr537-bod-crm",
+  "title": "Nordtest TR 537, Example A: oqova suvda BOD — ichki sifat nazorati + bitta CRM",
+  "status": "verified",
+  "domain": "atrof-muhit (suv)",
+  "source": {
+    "doc": "Nordtest TR 537 ed. 4 (2017)",
+    "section": "§8.2 Example A",
+    "page": "28",
+    "note": "Kirishlar manbadagi 2–3-qadam qiymatlari: s = 2,6 % (nazorat namunasi), bias 4,3 %, s_bias = 2,6 % (n = 19), u(Cref) = 1,2 %."
+  },
+  "modelSpec": {
+    "format": "uc-topdown/1",
+    "approach": "NORDTEST",
+    "scale": {
+      "relative": true
+    },
+    "relativeUnit": "%",
+    "rw": {
+      "components": [
+        {
+          "type": "stated",
+          "s": 2.6,
+          "relative": true
+        }
+      ]
+    },
+    "bias": {
+      "type": "crm",
+      "relative": true,
+      "items": [
+        {
+          "id": "CRM",
+          "bias": 4.3,
+          "sBias": 2.6,
+          "n": 19,
+          "uRef": 1.2
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "topdown"
+  },
+  "expected": {
+    "bias.u": {
+      "value": 4.5,
+      "ref": "Example A, 4-qadam (p. 28): √(4.3² + (2.6/√19)² + 1.2²) = 4.5 %"
+    },
+    "uc": {
+      "value": 5.2,
+      "ref": "Example A, 5-qadam (p. 28): u_c = √(2.6² + 4.5²) = 5.2 %"
+    },
+    "U": {
+      "value": 10.4,
+      "ref": "Example A, 6-qadam (p. 28): U = 2 · 5.2 = 10.4 ≈ 11 %"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.05
+    },
+    "U": {
+      "abs": 0.1,
+      "reason": "manba U ni yaxlitlangan u_c = 5,2 dan hisoblagan"
+    }
+  }
+}

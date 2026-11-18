@@ -22,3 +22,9 @@ export {
   fitPolynomial, fitWtls, predict, inversePredict, uRangeFunction, uRangeAt, URANGE_MODES,
   chi2Cdf, chi2Quantile, gammaP,
 } from './regression/index.js';
+// P09: top-down va empirik kattaliklar (format 'uc-topdown/1')
+export {
+  evaluateTopDown, TOPDOWN_FORMAT, TOPDOWN_APPROACHES, TOPDOWN_CATEGORIES, TOPDOWN_WARNINGS, TOPDOWN_ERRORS, APPROACH_REF,
+  evaluateRw, duplicateSd, evaluateBias, evaluateRecovery, evaluateReproducibility, levelUncertainty, fitLevelModel,
+  makeContext, REFERENCE_METHODS, NU_EFF_WARN_BELOW, RW_TYPES, DUPLICATE_RELATIVE_METHODS, BIAS_TYPES, RECOVERY_CORRECTIONS, ROBUST_SD_FACTOR, MIN_PT_ROUNDS, LIMIT_FACTOR,
+} from './topdown/index.js';

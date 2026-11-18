@@ -1,5 +1,5 @@
 /* i18n: har bir matn kaliti uch tilda (uz/ru/en) bo'lishi shart (CLAUDE.md).
-   src/js/i18n.js + i18n-ext.js + i18n-engine.js + i18n-templates.js + i18n-regression.js (P08) jsdom'da yuklanadi. */
+   src/js/i18n.js + i18n-ext.js + i18n-engine.js + i18n-templates.js + i18n-regression.js (P08) + i18n-topdown.js (P09) jsdom'da yuklanadi. */
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -13,7 +13,7 @@ const LANGS = ['uz', 'ru', 'en'];
 function loadTranslations() {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   // Ikkala fayl bitta skript sifatida (top-level const TRANSLATIONS umumiy bo'lishi uchun)
-  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
+  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
   return dom.window.eval(src + '\n;TRANSLATIONS');
 }
 
@@ -120,4 +120,44 @@ test('P08: i18n-regression.js oldingi fayllardagi kalitlarni bosib ketmaydi', ()
   const mine = [...fs.readFileSync(path.join(ROOT, 'src/js/i18n-regression.js'), 'utf8').matchAll(/^\s{6}([a-z0-9_]+):/gm)].map(m => m[1]);
   assert.ok(mine.length > 300);
   assert.deepEqual([...new Set(mine.filter(k => k in base.en))], []);
+});
+
+test('P09: i18n-topdown.js oldingi fayllardagi kalitlarni bosib ketmaydi', () => {
+  const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
+  const base = dom.window.eval(['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;TRANSLATIONS');
+  const mine = [...fs.readFileSync(path.join(ROOT, 'src/js/i18n-topdown.js'), 'utf8').matchAll(/^\s{6}([a-zA-Z0-9_]+):/gm)].map(m => m[1]);
+  assert.ok(mine.length > 600, String(mine.length));
+  assert.deepEqual([...new Set(mine.filter(k => k in base.en))], []);
+});
+
+test('P09: top-down ogohlantirish (X11, X12 …) va xato kodlari uch tilda; UI kalitlari va dinamik oilalar lug\'atda bor', () => {
+  const E = require('../src/engine/index.js');
+  const B = require('../src/ui/topdown/build.js');
+  const missing = [];
+  const need = k => { for (const l of LANGS) if (!T[l][k]) missing.push(`${l}.${k}`); };
+  Object.keys(E.TOPDOWN_WARNINGS).forEach(c => need('w_' + c));
+  E.TOPDOWN_ERRORS.forEach(c => need('err_' + c));
+  E.TOPDOWN_CATEGORIES.forEach(c => need('td_cat_' + c));
+  E.TOPDOWN_APPROACHES.forEach(a => need('td_approach_' + a));
+  B.BASES.forEach(b => { need('td_basis_' + b); need('td_basis_' + b + '_d'); });
+  B.RW_SOURCES.forEach(s => { need('td_src_' + s); need('td_src_' + s + '_d'); });
+  B.BIAS_SOURCES.forEach(s => { need('td_bias_' + s); need('td_bias_' + s + '_d'); });
+  E.DUPLICATE_RELATIVE_METHODS.forEach(m => need('td_dup_' + m));
+  E.RECOVERY_CORRECTIONS.forEach(c => need('td_corr_' + c));
+  ['relative', 'absolute'].forEach(s => { need('td_scale_' + s); need('td_scale_' + s + '_d'); });
+  ['rw', 'bias', 'recovery', 'sR', 'uDelta', 'level_constant', 'level_proportional'].forEach(k => need('td_row_' + k));
+  [1, 2, 3].forEach(n => need('td_step' + n));
+  // buildSpec qaytaradigan "bad" maydon nomlari
+  const src = fs.readFileSync(path.join(ROOT, 'src/ui/topdown/build.js'), 'utf8');
+  for (const m of src.matchAll(/(?:one|list)\(st\.\w+, '(\w+)'\)|bad\.push\('(\w+)'\)/g)) need('td_f_' + (m[1] || m[2]));
+  // literal kalitlar: src/ui/topdown/*.js (t('…'), ctx.t('…')) va report.js (yuqoridagi umumiy test)
+  const dir = path.join(ROOT, 'src/ui/topdown');
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js'))) {
+    const code = fs.readFileSync(path.join(dir, f), 'utf8');
+    for (const m of code.matchAll(/\bt\('([a-z0-9_A-Z]+)'\)/g)) need(m[1]);
+    for (const m of code.matchAll(/, '(td_[a-z0-9_A-Z]+)'/g)) if (!m[1].endsWith('_')) need(m[1]); // '_' bilan tugasa — dinamik oila (yuqorida)
+  }
+  assert.deepEqual([...new Set(missing)], []);
+  // X11 va X12 matnlarida {v} o'rinbosari bor (qaysi omil / qaysi hissa)
+  for (const l of LANGS) for (const k of ['w_x11_double_counting', 'w_x12_empirical_bias']) assert.match(T[l][k], /\{v\}/, `${l}.${k}`);
 });

@@ -4,6 +4,27 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.2.0] — P09: top-down va empirik kattaliklar (2026-11-17)
+
+**ENGINE_VERSION: 2.1.0 → 2.2.0** (minor: yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `uc-model/1`, `calc-state/v2` va `uc-regression/1` yo'lidagi 35 ta test misolining (GUM, MC, regressiya) to'liq natija JSON'i 2.1.0 bilan bayt darajasida bir xil (`engineVersion` maydonidan tashqari; P09 da skript bilan solishtirildi). 9 ta etalon Excel nuqtasi, 10-test (MC) va shablon natijalari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.
+
+- **Dvigatel** `src/engine/topdown/` (sof ES modullar), yangi format `uc-topdown/1` (`evaluate()` uni `evaluateTopDown()` ga uzatadi; `docs/ENGINE_API.md` §8):
+  - **Nordtest TR 537 ed. 4:** u(R_w) — nazorat namunasi qatoridan (s), dublikatlar farqidan (s = √(Σd²/(2n))), nazorat kartasi chegaralaridan yoki tayyor s / CV % dan; u(bias) = √(RMS_bias² + u(C_ref)²) — CRM, PT raundlari yoki recovery'dan; u_c = √(u(R_w)² + u(bias)²), U = k·u_c (k = 2), mutlaq va nisbiy (%) ko'rinishda;
+  - **EURACHEM QUAM:2012 recovery:** R_m, u(R_m) = s/√n, R_m ning 1 dan farqi t-test bilan; tuzatilgan (1/R_m) va tuzatilmagan variantlar;
+  - **s_R asosida** (QUAM §7.6, A6; Nordtest §7): u_c = √(s_R² + Σu_i²), s = chegara/2,8. ISO 21748 ga xos qism (laboratoriya s_r ni χ² bilan tekshirish, s_R ni moslash, u(δ̂)) — **unverified** (standart pullik, repoda yo'q);
+  - **darajaga bog'liq noaniqlik:** u(x) = √(s₀² + (x·s₁)²) — QUAM:2012 E.5.2.1 Eq. [1] (p. 117); s₀, s₁ ni aniqlash — E.5.5.2;
+  - **gibrid:** asos qamramagan omillar (`additional[]`); **empirik kattalik** (`isEmpiricalMeasurand`): usul bias'i 0 (QUAM §7.9.2), noaniqlik s_r, s_R va rejim parametrlari bardoshliligidan;
+  - **nisbiy va mutlaq noaniqlik aralashmaydi:** har bir kattalikda `unit` yoki `relative: true`; aralash qo'shish — xato `topdown_mixed_scale`.
+- **X11 va X12** (P05 linteri yo'qligi sababli hozircha `warnings[]` da, har birida `{code, severity, ref, rule}`): X11 — R_w / s_R / bias qamragan omil gibrid qismda yana qo'shilgan; X12 — empirik kattalikda bias qo'shilgan (hissa u_c ga kiritilmaydi). Matnlar uz/ru/en.
+- **Manbadan tekshirilgan misollar:** `nordtest-tr537-nh4n` `pending` → **`verified`** (TR 537 ed. 4 §3.2, p. 10; Appendix 4, p. 40 — 15 kattalik; Gemini T15 raqamlari ishlatilmagan); yangi: `nordtest-tr537-nh4n-dup-low`, `-dup-high` (Appendix 5), `nordtest-tr537-oxygen-dup` (Appendix 6), `nordtest-tr537-bod-crm`, `-bod-pt` (§8.2), `nordtest-tr537-recovery` (§6.3), `quam-a4-recovery` (A4, pp. 65–68), `quam-a6-empirical` (A6, pp. 85–86). Jami 8 ta yangi verified misol.
+- **UI:** "Top-down" yorlig'i — usta (wizard): 1) ma'lumot turi; 2) jadval kiritish yoki Excel'dan qo'yish (o'nlik vergul); 3) byudjet va natija. Hisobot bo'limi — `src/js/report.js::topdownSection`: y, U, nisbiy U %, k, yondashuv nomi (ISO/IEC 17025:2017 §7.8.3.1 c)). Matnlar — `src/js/i18n-topdown.js` (uz/ru/en). Yangi `localStorage` kaliti `uc_topdown_v1` (faqat sifat nazorati ma'lumoti; shaxsiy ma'lumot yo'q).
+- **Shablonlar:** `evaluationMode: "TOP_DOWN"` — sxemada `topDown` bo'limi, `buildTopDownState`; DRAFT shablonlar `TD-01` (suvda NH₄-N), `TD-02` (oziq-ovqat namligi, empirik), `TD-03` (beton mustahkamligi, empirik; T-03 bilan bog'langan), `TD-04` (AAS og'ir metallar; R-01 bilan). Raqamli maydonlari bo'sh.
+- **Egasi qarorlari (2026-11-17, `docs/RISKS.md` R-20) — shu versiyada amalga oshirildi:**
+  - **X12:** empirik kattalikka bias / recovery / u(δ̂) kiritilganda "tayanch qiymat qaysi usul bilan olingan" savoli majburiy (`referenceMethod`). Javobsiz — hissa u_c ga qo'shiladi va X12 chiqadi (konservativ); "boshqa usul / ta'rif" — hissa chiqariladi (QUAM §7.9.2); "shu usul" — qo'shiladi (§7.9.3);
+  - **X11:** hissa hisobda qoladi, ogohlantirish chop etilgan hisobotda ham chiqadi va yashirilmaydi;
+  - **k = 2**, hisobotda "k = 2, P ≈ 95 %"; ν_eff hisoblanadi va ko'rsatiladi (Welch–Satterthwaite: ν(R_w) = n − 1, ν(bias) CRM / PT soni bo'yicha); ν_eff < 30 → ogohlantirish va t_P(⌊ν_eff⌋) taklifi, k avtomatik o'zgarmaydi;
+  - `per_pair` standart; tuzatilmagan ahamiyatli recovery — hissa u(R_m) + ogohlantirish.
+
 ## [2.1.0] — P08: regressiya va kalibrlash egri chiziqlari, "U — diapazon" (2026-11-17)
 
 **ENGINE_VERSION: 2.0.0 → 2.1.0** (minor: yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `uc-model/1` va `calc-state/v2` yo'lidagi barcha test misollarining (32 ta, MC bilan) to'liq natija JSON'i 2.0.0 bilan bayt darajasida bir xil (`engineVersion` maydonidan tashqari). 9 ta etalon Excel nuqtasi, 10-test (MC) va 11 ta eski shablon natijasi o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.

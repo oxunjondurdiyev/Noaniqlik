@@ -760,12 +760,162 @@ const Results = (() => {
     window.print();
   }
 
+  /* ─── P09: TOP_DOWN rejimi hisobot bo'limi ───────────────────────
+     Natija sinov protokoliga mos ko'rinishda — ISO/IEC 17025:2017 §7.8.3.1 c): noaniqlik o'lchanayotgan
+     kattalik birligida yoki unga nisbatan (foizda). Ko'rsatiladi: y, U, nisbiy U %, k, qo'llanilgan yondashuv nomi.
+     Byudjet, u(R_w) / u(bias) / recovery / s_R tafsilotlari, X11 / X12 va boshqa ogohlantirishlar.
+     P05 gacha shu faylda; yaxlitlash faqat shu yerda (Calc.roundResult: U ≤ 2 qiymatli raqam). */
+  function tdNum(v, sig) { return v === null || v === undefined || !isFinite(v) ? '—' : Calc.fmtSci(v, sig || 4); }
+  function tdU2(u, up) { // noaniqlik: ko'pi bilan 2 qiymatli raqam (ILAC P14 §5)
+    if (u === null || u === undefined || !isFinite(u)) return '—';
+    const rr = Calc.roundResult(0, u, !!up);
+    return rr.Uround.toFixed(rr.digits);
+  }
+  function tdScaleUnit(r) { return r.unit === '1' ? '' : ' ' + escHtml(r.unit); }
+  function tdWarnings(r) {
+    if (!r.warnings || !r.warnings.length) return '';
+    const sev = r.warnings.filter(w => w.severity !== 'info'), info = r.warnings.filter(w => w.severity === 'info');
+    const tag = w => (w.rule ? `<span class="badge badge-orange">${escHtml(w.rule)}</span> ` : '');
+    return (sev.length ? `<div class="warn-box td-warnings" data-td-warnings="1">${sev.map(w => `<div data-td-warning="${escHtml(w.code)}">⚠ ${tag(w)}${rgWarnText(w)} <span class="text-xs text-muted">[${escHtml(w.ref)}]</span></div>`).join('')}</div>` : '') +
+      info.map(w => `<div class="text-xs text-muted td-note" data-td-warning="${escHtml(w.code)}">ⓘ ${rgWarnText(w)}</div>`).join('');
+  }
+  function tdBudgetName(b) {
+    if (b.kind === 'additional') return `${escHtml(b.name || b.id)} <span class="text-xs text-muted">(${i18n.t('td_cat_' + b.category)})</span>`;
+    return i18n.t('td_row_' + (b.id === 'uDelta' ? 'uDelta' : b.kind));
+  }
+  function tdBudget(r, cls) {
+    return `<h4 class="rg-h">${i18n.t('td_budget')}</h4>
+      <table class="${cls}" data-td-budget="1"><thead><tr><th>${i18n.t('td_col_component')}</th><th>u${tdScaleUnit(r)}</th><th>u²</th><th>ν</th><th>${i18n.t('td_col_share')}</th><th>${i18n.t('td_col_note')}</th></tr></thead>
+        <tbody>${r.budget.map(b => `<tr data-td-row="${escHtml(b.id)}"${b.included ? '' : ' class="td-excluded"'}>
+          <td>${tdBudgetName(b)}</td><td class="num">${tdNum(b.u)}</td><td class="num">${tdNum(b.variance)}</td><td class="num">${rgNu(b.nu)}</td>
+          <td class="num">${b.included ? b.share.toFixed(1) : '—'}</td>
+          <td>${b.flag ? `<span class="badge badge-orange" data-td-flag="${escHtml(b.flag)}">${escHtml(b.flag)}</span> ` : ''}${b.included ? '' : i18n.t('td_excluded')}</td></tr>`).join('')}
+          <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">${tdNum(r.uc2)}</td><td class="num">${rgNu(r.nuEff)}</td><td class="num">100.0</td><td></td></tr>
+        </tbody></table>`;
+  }
+  function tdRw(r, cls) {
+    if (!r.rw) return '';
+    return `<h4 class="rg-h">${i18n.t('td_rw_title')}</h4>
+      <table class="${cls}" data-td-rw="1"><thead><tr><th>${i18n.t('td_col_source')}</th><th>n</th><th>${i18n.t('td_col_mean')}</th><th>s</th><th>u${tdScaleUnit(r)}</th></tr></thead>
+        <tbody>${r.rw.components.map(c => `<tr><td>${i18n.t('td_src_' + c.type)}${c.relativeMethod ? ` <span class="text-xs text-muted">(${i18n.t('td_dup_' + c.relativeMethod)})</span>` : ''}</td>
+          <td class="num">${c.n === null || c.n === undefined ? '—' : escHtml(String(c.n))}</td><td class="num">${tdNum(c.mean)}</td><td class="num">${tdNum(c.s)}</td><td class="num">${tdNum(c.u)}</td></tr>`).join('')}
+          <tr class="td-total"><td><strong>u(R_w)</strong></td><td></td><td></td><td></td><td class="num"><strong>${tdNum(r.rw.u)}</strong></td></tr></tbody></table>`;
+  }
+  function tdBias(r, cls) {
+    const b = r.bias;
+    if (!b) return '';
+    const single = b.formula === 'single_crm';
+    return `<h4 class="rg-h">${i18n.t('td_bias_title')}: ${i18n.t('td_bias_' + b.type)}</h4>
+      <table class="${cls}" data-td-bias="1"><thead><tr><th>#</th><th>bias${tdScaleUnit(r)}</th><th>u(C_ref)${tdScaleUnit(r)}</th></tr></thead>
+        <tbody>${b.items.map(it => `<tr><td>${escHtml(it.id)}</td><td class="num">${tdNum(it.bias)}</td><td class="num">${tdNum(it.uRef)}</td></tr>`).join('')}</tbody></table>
+      <p class="rg-line">${single ? `bias = ${tdNum(b.rms)}; s_bias/√n = ${tdNum(b.sMean)}` : `RMS_bias = ${tdNum(b.rms)} (N = ${b.n})`}; u(C_ref) = ${tdNum(b.uRef)};
+        <strong>u(bias) = ${tdNum(b.u)}${tdScaleUnit(r)}</strong> — <span class="mono">${single ? '√(bias² + (s_bias/√n)² + u(C_ref)²)' : '√(RMS_bias² + u(C_ref)²)'}</span></p>`;
+  }
+  function tdRecovery(r) {
+    const c = r.recovery;
+    if (!c) return '';
+    return `<h4 class="rg-h">${i18n.t('td_rec_title')}</h4>
+      <p class="rg-line" data-td-recovery="${c.significant ? 'significant' : 'not_significant'}">R_m = ${tdNum(c.Rm)}${tdScaleUnit(r)}; s = ${tdNum(c.s)}; n = ${c.n};
+        u(R_m) = s/√n = ${tdNum(c.uRm)}; t = |1 − R_m|/u(R_m) = ${tdNum(c.t, 3)}; t_crit(${Math.round(c.P * 100)} %, ν = ${c.nu}) = ${tdNum(c.tCrit, 4)}
+        <span class="badge ${c.significant ? 'badge-orange' : 'badge-green'}">${i18n.t(c.significant ? 'td_rec_sig' : 'td_rec_nosig')}</span></p>
+      <p class="rg-line"><strong>${i18n.t('td_rec_correction')}:</strong> <span data-td-correction="${escHtml(c.correction)}">${i18n.t('td_corr_' + c.correction)}</span>;
+        ${i18n.t('td_rec_contrib')} = ${tdNum(c.u)}${tdScaleUnit(r)}${r.yCorrected !== null ? `; ${i18n.t('td_y_corrected')} = ${tdNum(r.yCorrected, 6)}${rgUnit(r.yUnit)}` : ''}</p>`;
+  }
+  function tdRepro(r) {
+    const p = r.reproducibility;
+    if (!p) return '';
+    const l = p.lab;
+    return `<h4 class="rg-h">${i18n.t('td_sr_title')}</h4>
+      <p class="rg-line" data-td-sr="1">s_R = ${tdNum(p.sR)}${tdScaleUnit(r)}${p.sr !== null ? `; s_r = ${tdNum(p.sr)}${tdScaleUnit(r)}` : ''}${p.sRUsed !== p.sR ? `; s_R′ = ${tdNum(p.sRUsed)}${tdScaleUnit(r)}` : ''}</p>
+      ${l ? `<p class="rg-line" data-td-labcheck="${l.pass ? 'pass' : 'fail'}"><strong>${i18n.t('td_lab_check')}:</strong> s_lab = ${tdNum(l.s)} (n = ${escHtml(String(l.n))}); s_lab/s_r = ${tdNum(l.ratio, 3)};
+        χ² = ${tdNum(l.chi2, 4)} ${l.pass ? '≤' : '&gt;'} ${tdNum(l.chi2Crit, 4)} <span class="badge ${l.pass ? 'badge-green' : 'badge-orange'}">${i18n.t(l.pass ? 'td_lab_pass' : 'td_lab_fail')}</span>
+        <span class="badge badge-orange">unverified</span></p>` : ''}`;
+  }
+  function tdLevel(r) {
+    const l = r.level;
+    if (!l) return '';
+    return `<h4 class="rg-h">${i18n.t('td_level_title')}</h4>
+      <p class="rg-line" data-td-level="1"><span class="mono">u(x) = √(s₀² + (x·s₁)²)</span>; s₀ = ${tdNum(l.s0)}${tdScaleUnit(r)}; s₁ = ${tdNum(l.s1)}; x = ${tdNum(l.x, 6)}${tdScaleUnit(r)}</p>`;
+  }
+
+  /**
+   * Top-down bo'limi (ekran va bosma hisobot uchun bir xil mazmun).
+   * @param {object} r  evaluate({format:'uc-topdown/1', …}) natijasi
+   * @param {{print?:boolean}} [o]
+   */
+  function topdownSection(r, o) {
+    const opt = o || {};
+    if (!r) return '';
+    if (r.error) return `<div class="warn-box" data-td-error="${escHtml(r.error)}">⚠ ${rgErrText(r.error, r.detail)}</div>`;
+    const cls = opt.print ? 'print-table' : 'data-table math-head';
+    const approach = `${i18n.t('td_approach_' + r.approach)}${r.hybrid ? ' + ' + i18n.t('td_hybrid') : ''}`;
+    // Natija: y ± U (o'lchanayotgan kattalik birligida) va nisbiy U, % — ISO/IEC 17025:2017 §7.8.3.1 c)
+    const yShown = r.yCorrected !== null ? r.yCorrected : r.y;
+    const hasAbs = yShown !== null && r.absU !== null;
+    const rr = hasAbs ? Calc.roundResult(yShown, r.absU, r.roundUp) : null;
+    const unit = rgUnit(r.absUnit);
+    const yCell = yShown === null ? '—' : (rr ? rr.yround.toFixed(rr.digits) : tdNum(yShown, 6)) + unit;
+    const uCell = r.absU === null ? '—' : tdU2(r.absU, r.roundUp) + unit;
+    const relCell = r.relU === null ? '—' : tdU2(r.relU, r.roundUp) + ' %';
+    const statement = rr
+      ? `(${rr.resultText})${unit}; U<sub>rel</sub> = ${relCell}`
+      : (r.scale === 'relative' ? `U<sub>rel</sub> = ${relCell}` : `U = ${uCell}`);
+    return `<div class="rg-report td-report" data-td-report="1">
+      <div class="${opt.print ? 'print-section' : 'rg-section-title'}">${i18n.t('td_report_section')}</div>
+      ${tdWarnings(r)}
+      <table class="${cls} td-result" data-td-result="1"><thead><tr>
+        <th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>${i18n.t('td_col_approach')}</th></tr></thead>
+        <tbody><tr><td class="num" data-td-y="1">${yCell}</td><td class="num" data-td-u="1"><strong>${uCell}</strong></td>
+          <td class="num" data-td-urel="1"><strong>${relCell}</strong></td><td class="num" data-td-k="1">${escHtml(String(r.k))}</td>
+          <td data-td-approach="${escHtml(r.approach)}">${approach}<div class="text-xs text-muted">${escHtml(r.approachRef)}</div></td></tr></tbody></table>
+      <p class="rg-line" data-td-statement="1"><strong>${i18n.t('td_statement')}:</strong> ${statement}; <span data-td-kline="1">k = ${escHtml(String(r.k))}${r.k === 2 ? ', P ≈ 95 %' : ''}</span>; ${i18n.t('td_col_approach')}: ${approach}.</p>
+      <p class="rg-line" data-td-nueff="${isFinite(r.nuEff) ? r.nuEff.toFixed(1) : 'inf'}"><strong>ν<sub>eff</sub></strong> = ${rgNu(r.nuEff)} (${i18n.t('td_nu_note')})${
+        r.kSuggested !== null ? `; <span data-td-ksuggested="1">${i18n.t('td_k_suggested').replace('{P}', pct(r.P)).replace('{nu}', String(Math.max(1, Math.floor(r.nuEff))))} = ${r.kSuggested.toFixed(2)}</span> — ${i18n.t('td_k_unchanged')}` : ''}</p>
+      <p class="rg-line"><strong>${i18n.t('td_scale')}:</strong> <span data-td-scale="${escHtml(r.scale)}">${i18n.t('td_scale_' + r.scale)}${tdScaleUnit(r) ? ' (' + escHtml(r.unit) + ')' : ''}</span>;
+        u_c = ${tdNum(r.uc)}${tdScaleUnit(r)}; U = k·u_c = ${tdNum(r.U)}${tdScaleUnit(r)}${r.y === null && r.scale === 'relative' ? `. ${i18n.t('td_no_y')}` : ''}</p>
+      ${r.isEmpiricalMeasurand ? `<p class="rg-line" data-td-empirical="1">ⓘ ${i18n.t('td_empirical_note')}</p>` : ''}
+      ${tdBudget(r, cls)}
+      ${tdRw(r, cls)}${tdBias(r, cls)}${tdRecovery(r)}${tdRepro(r)}${tdLevel(r)}
+      <p class="rg-line text-muted text-xs">${i18n.t('rg_ref_line')}: ${i18n.t('td_ref_text')}. ${i18n.t('rg_engine')}: ${escHtml(r.engineVersion)}</p>
+    </div>`;
+  }
+
+  /** Faqat top-down hisoboti ("Chop etish"). meta — shablon belgilari (DRAFT). */
+  function printTopdown(r, o) {
+    const opt = o || {};
+    if (!r || r.error) { showToast(i18n.t('td_empty'), 'error'); return; }
+    const now = new Date().toLocaleDateString();
+    const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
+    document.getElementById('print-report').innerHTML = `
+      <div class="print-report-header">
+        <div>
+          <div class="print-report-title">${i18n.t('report_title')}</div>
+          <div class="print-report-meta">${i18n.t('td_report_standard')}</div>
+        </div>
+        <div style="text-align:right;font-size:9pt;color:#555">
+          <div>${i18n.t('report_date')}: ${now}</div>
+          <div>${i18n.t('report_lab')}: _______________________</div>
+          <div>${i18n.t('report_operator')}: ____________________</div>
+        </div>
+      </div>
+      ${notice}
+      ${topdownSection(r, { print: true })}
+      <div class="print-footer">
+        <span>${i18n.t('td_report_standard')}</span>
+        <span>${i18n.t('report_date')}: ${now}</span>
+        <span>UncertaintyCalc</span>
+      </div>`;
+    document.body.classList.add('print-report-mode');
+    window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
+    window.print();
+  }
+
   function isBlankCell(v) { return v === '' || v === null || v === undefined; }
 
   // Yagona escape: src/ui/escape.js (P02)
   const escHtml = window.escHtml;
 
-  return { init, render, regressionSection, printRegression };
+  return { init, render, regressionSection, printRegression, topdownSection, printTopdown };
 
 })();
 
