@@ -131,11 +131,11 @@ test('Monte-Karlo: seed natijada, bir xil kirish → aynan bir xil natija', () =
   const a = E.monteCarlo(GAS.modelSpec, 20000), b = E.monteCarlo(GAS.modelSpec, 20000);
   assert.equal(a.seed, E.MC_SEED);
   assert.equal(a.low, b.low); assert.equal(a.high, b.high); assert.equal(a.u, b.u);
-  // P06: zichlik misolida kirishlar juftlangan kuzatuvlar orqali korrelyatsiyalangan (t-taqsimot) — MCM natijasi
-  // berilmaydi (2.5.0 gacha korrelyatsiya e'tiborsiz qoldirilar edi — RISKS R-06); GUM natijasi o'zgarmagan
+  // P07: zichlik misolida kirishlar juftlangan kuzatuvlar orqali korrelyatsiyalangan — ko'p o'lchovli t-taqsimot
+  // (JCGM 102:2011 §5.3.2; 2.6.0 da natija berilmas edi — mc_nonnormal_correlation). GUM natijasi o'zgarmagan.
   const d = E.monteCarlo(DENS.modelSpec, 20000);
-  assert.equal(d.error, 'mc_nonnormal_correlation');
-  assert.equal(d.findings[0].rule, 'M2');
+  assert.equal(d.error, undefined);
+  assert.deepEqual(d.correlation.groups, [{ inputs: ['m', 'V'], method: 'multivariate-t', nu: 3, n: 5, nonNormal: [] }]);
 });
 
 test('ko\'p nuqtali bir xil k (COOMET §5.7.3) dvigatelda: multiPointCoverage', () => {

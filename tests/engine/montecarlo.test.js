@@ -214,8 +214,9 @@ test('normal bo\'lmagan kirish korrelyatsiyada → natija berilmaydi + M2 (error
   assert.deepEqual({ rule: r.findings[0].rule, code: r.findings[0].code, severity: r.findings[0].severity, value: r.findings[0].value },
     { rule: 'M2', code: 'mc_nonnormal_correlation', severity: 'error', value: 'X1' });
   assert.match(r.findings[0].ref, /JCGM 101:2008 §6\.4\.8/);
-  // A tur (juftlangan kuzatuvlar, t-taqsimot) korrelyatsiyasi ham normal emas
-  const paired = spec('Y = A - B', { A: { obs: [10.1, 10.3, 10.2, 10.4] }, B: { obs: [5.0, 5.2, 5.05, 5.3] } }, { settings: { paired: true } });
+  // A tur juftlangan kuzatuvlar: P07 dan — ko'p o'lchovli t (pastdagi alohida test). Shartlari bajarilmasa (usul 2,
+  // ya'ni s_p bilan) — avvalgidek rad etiladi
+  const paired = spec('Y = A - B', { A: { obs: [10.1, 10.3, 10.2, 10.4] }, B: { obs: [5.0, 5.2, 5.05, 5.3] } }, { settings: { paired: true, typeA: { A: { method: 2, sp: 0.1, nup: 20 } } } });
   assert.ok(E.evaluate(paired).pairs[0].cov !== 0);
   assert.equal(E.monteCarlo(paired, 20000).error, 'mc_nonnormal_correlation');
   // laboratoriya sozlamasi: Gauss yaqinlashuvi — natija bor, lekin aniq belgilangan
@@ -367,4 +368,61 @@ test('MCM natijasi: interval turi, P, M, generator, urug\', n_dig — hammasi na
   assert.equal(r.P, 0.95);
   assert.equal(r.interval, 'shortest');
   assert.ok(r.high - r.low <= r.symHigh - r.symLow);            // eng qisqa interval simmetrikdan uzun emas
+});
+
+/* ── P07: ko'p o'lchovli t-taqsimot (JCGM 102:2011 §5.3.2) — juftlangan A tur kuzatuvlari ── */
+test('P07 §5.3.2: juftlangan A tur kirishlar — t_ν(x̄, S/n), ν = n − N; E(X) = x̄, V(X) = ν/(ν − 2)·S/n (sonli tekshiruv)', () => {
+  // N = 2, n = 8 → ν = 6. Model Y = A (bitta kirishning chegaraviy taqsimoti) va Y = A + B (kovariatsiya)
+  const A = [10.1, 10.3, 10.2, 10.4, 10.05, 10.35, 10.15, 10.25], B = [5.0, 5.2, 5.05, 5.3, 4.95, 5.25, 5.1, 5.12];
+  const n = 8, N = 2, nu = n - N;
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const mA = mean(A), mB = mean(B);
+  const S = (x, mx, y, my) => x.reduce((s, v, k) => s + (v - mx) * (y[k] - my), 0) / nu;      // §5.3.2.1: S = (1/ν)·Σ(…)(…)ᵀ
+  const VA = nu / (nu - 2) * S(A, mA, A, mA) / n, VB = nu / (nu - 2) * S(B, mB, B, mB) / n, VAB = nu / (nu - 2) * S(A, mA, B, mB) / n;
+  const st = f => spec(f, { A: { obs: A }, B: { obs: B } }, { settings: { paired: true } });
+  const a = E.monteCarlo(st('Y = A + 0 * B'), { mode: 'fixed', M: 400000 });
+  assert.deepEqual(a.correlation.groups, [{ inputs: ['A', 'B'], method: 'multivariate-t', nu: 6, n: 8, nonNormal: [] }]);
+  assert.deepEqual(a.sampling.map(x => [x.joint, x.parts[0].dist, x.parts[0].nu]), [[true, 'multivariate-t', 6], [true, 'multivariate-t', 6]]);
+  assert.ok(Math.abs(a.mean - mA) < 4 * Math.sqrt(VA / 400000), `E(A): ${a.mean} vs ${mA}`);
+  assert.ok(Math.abs(a.u * a.u - VA) < 0.03 * VA, `V(A): ${a.u * a.u} vs ${VA}`);                 // t₆: 4-moment chekli
+  const sum = E.monteCarlo(st('Y = A + B'), { mode: 'fixed', M: 400000 });
+  const Vsum = VA + VB + 2 * VAB;
+  assert.ok(Math.abs(sum.u * sum.u - Vsum) < 0.03 * Vsum, `V(A + B): ${sum.u * sum.u} vs ${Vsum}`);
+  const dif = E.monteCarlo(st('Y = A - B'), { mode: 'fixed', M: 400000 });
+  const Vdif = VA + VB - 2 * VAB;
+  assert.ok(Math.abs(dif.u * dif.u - Vdif) < 0.03 * Vdif, `V(A − B): ${dif.u * dif.u} vs ${Vdif}`);
+  assert.ok(VAB > 0 && Vdif < Vsum);                                                              // kovariatsiya haqiqatan hisobga olingan
+  // chegaraviy taqsimot — t_ν(x̄_A, S_AA/n): (A − x̄)/√(S_AA/n) ning 97,5 % kvantili t₀.₉₅(6) = 2,447 (JCGM 100:2008 Table G.2)
+  const q = (a.symHigh - mA) / Math.sqrt(S(A, mA, A, mA) / n);
+  assert.ok(Math.abs(q - 2.447) < 0.03, String(q));
+  assert.equal(a.uDefined, true);
+  assert.ok(!codes(a).some(c => /correlation/.test(c)));
+  // LPU o'zgarmagan: GUM yo'li juftlangan korrelyatsiyani avvalgidek hisoblaydi
+  assert.ok(Math.abs(sum.gumUc ** 2 - (S(A, mA, A, mA) + S(B, mB, B, mB) + 2 * S(A, mA, B, mB)) * nu / (n - 1) / n) < 1e-15);
+});
+
+test('P07 §5.3.2: n ≤ N → aniq xato mc_t_dof (ν ≤ 0); ν ≤ 2 → u(y) aniqlanmagan, mezon faqat interval (Q-5); B tur manbalari qo\'shiladi', () => {
+  const two = spec('Y = A + B', { A: { obs: [1.0, 1.2] }, B: { obs: [2.0, 2.3] } }, { settings: { paired: true } });
+  assert.equal(E.evaluate(two).error, undefined);
+  const e = E.monteCarlo(two, 20000);
+  assert.equal(e.error, 'mc_t_dof');
+  assert.equal(e.detail, 'A, B: n = 2, N = 2');
+  assert.equal(e.mean, undefined);
+  // n = 4, N = 2 → ν = 2: dispersiya mavjud emas (§5.3.2.3: V(X) faqat ν > 2 da)
+  const four = spec('Y = A + B', { A: { obs: [1.0, 1.2, 1.1, 1.3] }, B: { obs: [2.0, 2.3, 2.1, 2.2] } }, { settings: { paired: true } });
+  const h = E.monteCarlo(four, { mode: 'fixed', M: 20000 });
+  assert.equal(h.uDefined, false);
+  assert.equal(h.u, null);
+  assert.equal(h.adaptive.criteria, 'interval');
+  assert.deepEqual(h.varianceUndefined, [{ input: 'A', source: '', nu: 2 }, { input: 'B', source: '', nu: 2 }]);
+  assert.ok(codes(h).includes('mc_variance_undefined'));
+  // B tur manbasi juftlangan kirishga mustaqil qo'shiladi: dispersiya = t qismi + a²/3
+  const A = [10.1, 10.3, 10.2, 10.4, 10.05, 10.35, 10.15, 10.25], B = [5.0, 5.2, 5.05, 5.3, 4.95, 5.25, 5.1, 5.12];
+  const base = spec('Y = A + 0 * B', { A: { obs: A }, B: { obs: B } }, { settings: { paired: true } });
+  const withB = spec('Y = A + 0 * B', { A: { obs: A, b: [{ halfWidth: 0.3, distribution: 'rect' }] }, B: { obs: B } }, { settings: { paired: true } });
+  const u0 = E.monteCarlo(base, { mode: 'fixed', M: 300000 }).u, u1 = E.monteCarlo(withB, { mode: 'fixed', M: 300000 }).u;
+  assert.ok(Math.abs(u1 * u1 - (u0 * u0 + 0.09 / 3)) < 0.02 * u1 * u1, `${u1 * u1} vs ${u0 * u0 + 0.03}`);
+  // to'liqmas qatorlar (bo'sh katak) — ko'p o'lchovli t qo'llanilmaydi, natija berilmaydi
+  const gap = spec('Y = A + B', { A: { obs: [1.0, 1.2, 1.1, 1.3, 1.15] }, B: { obs: [2.0, 2.3, '', 2.2, 2.1] } }, { settings: { paired: true } });
+  assert.equal(E.monteCarlo(gap, 20000).error, 'mc_nonnormal_correlation');
 });

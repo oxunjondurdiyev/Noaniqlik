@@ -21,6 +21,10 @@ const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const load = id => JSON.parse(read('tests/cases/' + id + '.json')).modelSpec;
 const SPEC = load('jcgm101/jcgm101-9-3-mcm');
 const OPTS = { mode: 'fixed', M: 60000, seed: 11 };
+// Rad etiladigan hisob: korrelyatsiyalangan kirishlardan biri to'g'ri burchakli (ko'p o'lchovli t ham, Gauss ham qo'llanilmaydi)
+const REFUSED = { format: 'calc-state/v2', state: { params: ['X1', 'X2'], measurements: { X1: [0], X2: [0] }, directions: [], model: { formula: 'Y = X1 + X2', unit: '1' },
+  settings: { paired: false, P: 0.95 }, covB: { 'X1|X2': 0.3 },
+  typeB: [{ name: 'a', param: 'X1', halfWidth: 1, distribution: 'rect' }, { name: 'b', param: 'X2', halfWidth: 1, distribution: 'normal', k: 1 }] } };
 
 test('worker moduli: progress xabarlari va natija; natija dvigatelni to\'g\'ridan-to\'g\'ri chaqirish bilan bir xil', () => {
   const msgs = [];
@@ -143,7 +147,7 @@ test('bajaruvchi: asosiy oqimda bekor qilish — keyingi bo\'lakda to\'xtaydi; d
   assert.deepEqual(await job.promise, { error: 'mc_cancelled', mode: 'MC' });
   const bad = await r.run({ format: 'nope' }, {}).promise;
   assert.equal(bad.error, 'bad_spec');
-  const refused = await r.run(load('excel/excel-density'), OPTS).promise;
+  const refused = await r.run(REFUSED, OPTS).promise;
   assert.equal(refused.error, 'mc_nonnormal_correlation');
   assert.equal(refused.findings[0].rule, 'M2');
 });
@@ -223,7 +227,7 @@ test('panel: rejim (adaptiv — standart), n_dig = 2, interval turi, urug\'; ish
 });
 
 test('panel: rad etilgan hisob (normal bo\'lmagan korrelyatsiya) — xato matni va M2 topilmasi uch tilda; natija satrlari yo\'q', async () => {
-  const spec = load('excel/excel-density');
+  const spec = REFUSED;
   for (const lang of ['uz', 'ru', 'en']) {
     const UCMonteCarlo = { run: (s, o) => ({ promise: Promise.resolve(E.monteCarlo(s, o)), cancel() {} }) };
     const w = page(lang, stateOf(spec), { UCMonteCarlo });
