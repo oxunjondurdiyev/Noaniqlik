@@ -28,11 +28,13 @@ import m03 from './rules/m03-mc-validation.js';
 import m04 from './rules/m04-mc-convergence.js';
 import mv01 from './rules/mv01-output-correlation.js';
 import d01 from './rules/d01-decision-rule.js';
+import l01 from './rules/l01-standard-validity.js';
+import l02 from './rules/l02-cmc-scope.js';
 import w01 from './rules/w01-gum-warnings.js';
 import w02 from './rules/w02-module-warnings.js';
 
 /** Barcha qoidalar (tartib — hisobotdagi tartibga ta'sir qilmaydi: topilmalar darajasi bo'yicha saralanadi). */
-export const RULES = Object.freeze([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, a01, a02, a03, a04, m01, m02, m03, m04, mv01, d01, w01, w02]);
+export const RULES = Object.freeze([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, a01, a02, a03, a04, m01, m02, m03, m04, mv01, d01, l01, l02, w01, w02]);
 
 /** Kod → { rule, severity, ref, modes, unverified } — hujjat (docs/LINTER_RULES.md), i18n testi va UI uchun. */
 export const FINDING_CODES = Object.freeze(Object.fromEntries(RULES.flatMap(r =>
