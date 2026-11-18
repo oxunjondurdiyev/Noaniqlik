@@ -37,6 +37,7 @@
         "unit": "% об."
       },
       "settings": {
+        "modelKind": "error",
         "paired": false,
         "P": 0.9545,
         "rounding": "up",

@@ -256,6 +256,8 @@
         "paired": { "type": "boolean" },
         "secondOrder": { "type": "boolean" },
         "rounding": { "enum": ["normal", "up"] },
+        "modelKind": { "enum": ["error", "value", "unknown"], "description": "Model natijasi: error — ko'rsatish xatosi E = X − X_ref; value — kattalik qiymati Y (nominal bilan). Muvofiqlik bayonoti uchun majburiy (RISKS R-07)." },
+        "nominal": { "type": ["number", "string"], "description": "modelKind = value uchun nominal qiymat (MPE bilan |Y − nominal| solishtiriladi)" },
         "mpe": { "type": ["number", "string"] },
         "range": { "type": ["number", "string"] },
         "cmc": { "type": ["number", "string"] },

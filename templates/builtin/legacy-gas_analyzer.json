@@ -106,6 +106,7 @@
     "P": 0.9545,
     "kMethod": "nu",
     "rounding": "up",
+    "modelKind": "error",
     "mpe": "0.04 * abs((I - 4) * 1.25)",
     "range": "20",
     "cmc": ""

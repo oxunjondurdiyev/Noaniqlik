@@ -1,7 +1,7 @@
 // Shared definitions of the two calibration templates (also used by presets.js generator check)
 const gas = {
   params: ['I', 'Ce'], formula: 'E = (I - 4) * 1.25 - Ce', unit: '% об.',
-  settings: { paired: false, P: 0.9545, rounding: 'up', mpe: '0.04 * abs((I - 4) * 1.25)', range: 20 },
+  settings: { paired: false, P: 0.9545, rounding: 'up', modelKind: 'error', mpe: '0.04 * abs((I - 4) * 1.25)', range: 20 },
   points: [
     { label: '0 % (N₂)', I: [4, 4, 4],            Ce: [0],  pgs: 0.004,  pgsDist: 'rect' },
     { label: '10 %',     I: [12.01, 12.024, 12.009], Ce: [10], pgs: 0.008, pgsDist: 'rect' },
@@ -11,7 +11,7 @@ const gas = {
 const Tdirs = ['↑','↑','↑','↓','↓','↓','↑','↑','↑','↓','↓','↓'];
 const term = {
   params: ['Te', 'Tv', 'Ce'], formula: 'Cv = Te + Ce - Tv', unit: '°C',
-  settings: { paired: false, P: 0.9545, rounding: 'up', mpe: '1', typeA: { Tv: { method: 1, directional: true } } },
+  settings: { paired: false, P: 0.9545, rounding: 'up', modelKind: 'error', mpe: '1', typeA: { Tv: { method: 1, directional: true } } },
   points: [
     { nom: 10, Ce: 0.004, imm: 0.02, Te: [10.06,10.059,10.059,10.06,10.059,10.061,10.06,10.06,10.057,10.056,10.056,10.057], Tv: [9.5,9.5,9.5,10,10,10,9.5,9.5,9.5,10,10,10] },
     { nom: 30, Ce: 0.005, imm: 0.03, Te: [30.08,30.075,30.08,30.077,30.078,30.082,30.08,30.079,30.08,30.078,30.083,30.082], Tv: [29.5,29.5,29.5,30,30,30,30,29.5,29.5,30.5,30,30.5] },
