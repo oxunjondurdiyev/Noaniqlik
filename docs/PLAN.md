@@ -144,6 +144,9 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P06 — Monte-Karlo 2.0 (JCGM 101:2008)
 
+> **Holat: bajarildi (2026-11-18, `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0).** Generator — kengaytirilgan Wichmann–Hill (`src/engine/mc/rng.js`), taqsimotlar (`mc/distributions.js`), adaptiv protsedura §7.9.4 (n_dig = 2), simmetrik va eng qisqa interval, §8 tekshiruvi, ko'p o'lchovli Gauss, linter M2–M4, Web Worker (`src/ui/mc/`). JCGM 101 §9.2–9.5 — verified. **10-test n_dig = 2 da o'tmadi — tolerans moslashtirilmagan** (D-04; Q-3 qayta so'ralgan). Ochiq qarorlar — `docs/RISKS.md` R-23, `tests/cases/DISCREPANCIES.md` Q-3, Q-5…Q-8. Qilinmagan: laboratoriya sozlamalari oynasida MC bo'limi; shablon sxemasida yangi taqsimot nomlari.
+
+
 - **Fayllar:** `src/engine/montecarlo.js` (+ `rng.js`, `distributions.js`), Web Worker (progress bilan).
 - **Ichida:** urug'li PRNG (JCGM 101 C.3 talablariga mos: kengaytirilgan Wichmann–Hill yoki xoshiro128**/Mersenne Twister — tanlov asoslanadi), seed hisobotga; taqsimotlar: normal, to'g'ri burchakli, uchburchak, trapetsiya, egri trapetsiya, arksinus, siljitilgan-masshtablangan t (§6.4.9), log-normal, eksponensial, ko'p o'lchamli normal (Cholesky, C.5); korrelyatsiya (normal bo'lmaganlar uchun cheklov ochiq); adaptiv M (§7.9.4, n_dig = 2); eng qisqa va simmetrik interval; §8 validatsiya.
 - **Nima buzilishi mumkin:** RNG almashsa MC raqamlari o'zgaradi (10-test qayta baholanadi); Worker yo'llari.

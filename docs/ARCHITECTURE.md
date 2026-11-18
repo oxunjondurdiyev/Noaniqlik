@@ -4,6 +4,22 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P06 (2026-11-18, `feat/p06-montecarlo`).** Monte-Karlo 2.0 (bog'liqlik: `ui/mc → engine`; `engine/mc` — sof, DOM siz):
+>
+> | Fayl | Vazifasi (P06) |
+> |---|---|
+> | `src/engine/montecarlo.js` | `monteCarlo`, `createMonteCarlo` (bloklab bajaruvchi): adaptiv / qat'iy M, intervallar, GUM tekshiruvi, korrelyatsiya guruhlari |
+> | `src/engine/mc/rng.js` | R(0, 1): kengaytirilgan Wichmann–Hill; `xorshift32` (eski) |
+> | `src/engine/mc/distributions.js` | taqsimotlardan tanlash, Cholesky, ko'p o'lchovli Gauss |
+> | `src/engine/mc/legacy.js` | 2.5.0 dagi MCM — o'zgarishsiz (takrorlash uchun) |
+> | `src/engine/linter/rules/m02-…`, `m03-…`, `m04-…` | Monte-Karlo natijasi uchun linter qoidalari (rejim `MC`) |
+> | `src/ui/mc/worker.js` | modulli Web Worker: `src/engine/index.js` ni import qiladi; xabarlar `run` → `progress` / `result` |
+> | `src/ui/mc/runner.js` | bajaruvchi: Worker yoki asosiy oqimda ≈ 25 ms li bo'laklar; bekor qilish (sof — muhit `env` orqali) |
+> | `src/ui/mc/app.js` | `window.UCMonteCarlo` |
+> | `src/js/report.js` | Monte-Karlo paneli (rejim, M, n_dig, interval turi, urug', progress, bekor qilish); `src/report/sections.js::mcLines`, `mcFindingsHtml` |
+>
+> Skript tartibi: … `src/ui/io/app.js` → **`src/ui/mc/app.js`** (modul) → `src/ui/index-auth.js`. CSP o'zgarmagan (worker `script-src 'self'` ostida).
+
 > **Yangilanish — P05b (2026-11-18, `feat/p05b-reports-io`).** Import/eksport, hisobot shakllari, qaror qoidasi (bog'liqlik: `ui → io → storage`, `ui → report → engine`; `io` va `report` — sof, DOM siz):
 >
 > | Fayl | Vazifasi (P05b) |

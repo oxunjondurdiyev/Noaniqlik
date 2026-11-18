@@ -1,6 +1,6 @@
 {
   "id": "excel-gas-p2-mc",
-  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test), n_dig = 2 — todo → P06",
+  "title": "Gazoanalizator 2-nuqta: Monte-Karlo 95,45 % intervali (10-test), adaptiv MCM, n_dig = 2 — todo (D-04, Q-3 qayta so'ralgan)",
   "status": "verified",
   "domain": "fizik-kimyo/gaz tahlili",
   "modelSpec": {
@@ -105,5 +105,5 @@
     "interval.low": "D-04",
     "interval.high": "D-04"
   },
-  "notes": "Qo'llanmadagi interval E bahosiga nisbatan simmetrik (yarim kenglik 0,029) — ehtimollik bo'yicha simmetrik interval (JCGM 101 7.7.3) bilan solishtiriladi. Dvigatelning eng qisqa intervali [−0,0113; 0,0465] (PLAN P01). Egasi qarori Q-3: n_dig = 2 varianti P06 (adaptiv M) ga bog'langan todo (D-04); hozir majburiy — excel-gas-p2-mc-ndig1."
+  "notes": "Qo'llanmadagi interval E bahosiga nisbatan simmetrik (yarim kenglik 0,029) — ehtimollik bo'yicha simmetrik interval (JCGM 101 7.7.2) bilan solishtiriladi. P06 (ENGINE 2.6.0): adaptiv protsedura (7.9.4), n_dig = 2 — I ga t₂ tayinlangani uchun (n = 3) u(y) mavjud emas (7.6 Note 2), protsedura M = 10⁷ chegarasiga yetadi; natija [−0,010 99; 0,046 88]. M = 2·10⁷ da [−0,011 02; 0,046 89] (uchlarning s.o. ≈ 2·10⁻⁵). Qo'llanma qiymati bitta M = 10⁶ simulyatsiyasidan (uchning s.o. 1,1·10⁻⁴) va 4 xonagacha yaxlitlangan — δ(n_dig = 2) = 5·10⁻⁵ aniqlikda takrorlanmaydi. Tolerans va algoritm MOSLASHTIRILMAGAN (egasi ko'rsatmasi); raqamlar — DISCREPANCIES.md D-04, qaror — Q-3 (qayta). Majburiy test — excel-gas-p2-mc-ndig1 (δ = 5·10⁻⁴)."
 }

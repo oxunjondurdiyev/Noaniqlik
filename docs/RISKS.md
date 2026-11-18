@@ -21,7 +21,7 @@
 | R-03 | t-kvantil: ν `floor` qilinadi, ν=5000 da sakrash, `erf` approksimatsiyasi | O | P03 |
 | R-04 | Yaxlitlash dvigatel ichida; manfiy sonlarda assimetriya; ROUNDUP 3 raqam ko'rsatadi | Y | P03/P05 |
 | R-05 | Chop etilgan hisobotda ogohlantirishlar (U=0, U<CMC) yo'q | K | P05a (yopildi) |
-| R-06 | Monte-Karlo: xorshift32, qat'iy seed, adaptiv M yo'q, korrelyatsiya yo'q | Y | P06 |
+| R-06 | Monte-Karlo: xorshift32, qat'iy seed, adaptiv M yo'q, korrelyatsiya yo'q | Y | P06 (yopildi) |
 | R-07 | Muvofiqlik `|y|` ni xato deb faraz qiladi | Y | P05a, P05b (yopildi) |
 | R-08 | Manfiy dispersiya jimgina 0 ga kesiladi | O | P03 |
 | R-09 | `localStorage` versiyasiz, migratsiyasiz; saqlangan natijalar dvigatel versiyasiz | Y | P04 |
@@ -31,10 +31,42 @@
 | R-13 | i18n'dan tashqari qattiq matnlar; admin sahifalari bir tilli | O | P05a (yopildi) |
 | R-14 | CDN skriptlar SRI'siz, CSP yo'q | O | P02 |
 | R-15 | Trial limiti va to'lov holati faqat mijoz tomonda | O | P02 |
-| R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
+| R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 (yopildi — MC qismi) |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
+| R-23 | Monte-Karlo 2.0: ochiq qarorlar (10-test toleransi, ν ≤ 2 da mezon, normal bo'lmagan korrelyatsiya, usul 3, δ/5), boshqa JS dvigatellarida bit darajasidagi takrorlanuvchanlik tekshirilmagan, log-normal unverified | O | P06 → egasi |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
+
+### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
+
+| ID | Holat | Nima qilindi | Qoldiq xavf |
+|---|---|---|---|
+| R-06 | **yopildi** | Generator — kengaytirilgan Wichmann–Hill (JCGM 101 C.3.3; aniqlik isboti va testlar); urug' natijada, hisobotda va UI da (o'zgartiriladi); taqsimotlar JCGM 101 §6.4 bo'yicha (trapetsiya, egri trapetsiya, eksponensial, log-normal qo'shildi); adaptiv M (§7.9.4); korrelyatsiya (ko'p o'lchovli Gauss; normal bo'lmaganda natija berilmaydi); A tur usul 3 — t₍n−1₎; §9.2–9.5 misollari verified | R-23 |
+| R-16 | **yopildi (MC)** | Web Worker + progress + bekor qilish; worker'siz bo'laklab. Chromium: M = 10⁶ — 1,0 s, asosiy oqimda eng uzun to'xtash 12 ms | `appState.set` dagi to'liq `JSON.stringify` va qayta chizish — o'zgarmagan (past ustuvorlik) |
+| R-05 | o'zgarmadi | MC topilmalari (M2–M4) ham bosma hisobotda; LPU tasdiqlanmasa MCM intervali natija sifatida | — |
+
+#### R-23. Monte-Karlo 2.0: ochiq qarorlar va tekshirilmagan qism (O)
+
+Egasi qarori kutilayotganlar (savollar — `tests/cases/DISCREPANCIES.md` Q-3, Q-5…Q-8):
+
+1. **10-test, n_dig = 2** — qo'llanma qiymati shu aniqlikda emas (D-04); tolerans moslashtirilmagan.
+2. **ν ≤ 2 da adaptiv mezon** — standart mezon barqarorlashmaydi; `criteria: 'interval'` sozlamasi bor, standart emas.
+3. **Normal bo'lmagan korrelyatsiya** — standart: natija berilmaydi. Oqibat: juftlangan kuzatuvli hisoblarda (masalan, zichlik etaloni) MCM endi ishlamaydi (2.5.0 da korrelyatsiyani e'tiborsiz qoldirib ishlar edi). Copula / ko'p o'lchovli t — qo'shilmagan.
+4. **A tur usul 3** — MCM da t₍n−1₎ (avval Gauss).
+5. **§8.2 (δ/5)** — standart emas.
+6. **§8.1.3 dagi δ** — GUM u_c dan olinadi (egasi ko'rsatmasi; u_c = 0 bo'lsa δ = 0 → LPU rad etiladi). Manba matni "δ associated with u(y)" deydi — MCM u(y) mavjud bo'lmagan holatlar (ν ≤ 2) uchun GUM u_c barqarorroq.
+7. **Bitta urug'dan to'rtta holat** — MurmurHash3 fmix32 (JCGM 101 bu usulni belgilamaydi); to'rtta holatni to'g'ridan-to'g'ri berish ham mumkin.
+8. **Musbat yarim aniqlangan kovariatsiya** (r = ±1) qabul qilinadi; manfiy xos qiymatli matritsa — `invalid_covariance`.
+9. **M chegarasi** 10⁷ (eng ko'pi 2·10⁷ — xotira 160 MB).
+
+Tekshirilmagan / cheklovlar:
+
+- **Bit darajasidagi takrorlanuvchanlik** Node 22 va Chromium 157 (V8) da tekshirilgan. R(0, 1) ketma-ketligi har qanday muhitda bir xil (faqat IEEE 754 amallari), lekin Gauss / t / arksinus `Math.log`, `sin`, `cos`, `pow` ga tayanadi — Firefox va Safari da oxirgi xonalarda farq bo'lishi mumkin. To'liq kafolat uchun bu funksiyalarning o'z (fdlibm) nusxasi kerak — qilinmagan.
+- **Log-normal** — JCGM 101 da yo'q; momentlar bo'yicha mustaqil tekshiruv (unverified).
+- **Eng qisqa interval uchlari** sekin barqarorlashadi (D-18) — adaptiv mezon buni to'liq ushlamaydi.
+- Generator sifati: χ², KS, ketma-ket korrelyatsiya — mustaqil tekshiruv; TestU01 BigCrush o'tkazilmagan (manbaning bayoniga tayanilgan, C.3.2.2).
+- Laboratoriya sozlamalari oynasida MC bo'limi yo'q (`settings.mc` — API orqali va natijalar panelida); shablon sxemasi (`schemas/methodology.schema.json`) yangi taqsimot nomlarini (trap, ctrap, exp, lognorm) hali qabul qilmaydi.
+- Eski hisoblarning MC natijasi saqlanmagan (hech qachon saqlanmagan); takrorlash uchun `rng: 'xorshift32-legacy'` va o'sha M beriladi.
 
 ### P05b natijasi (2026-11-18, branch `feat/p05b-reports-io`, ENGINE_VERSION 2.5.0)
 
@@ -135,7 +167,7 @@
 - **Korrelyatsiya hisobga olinmaydi** (`correlated` bayrog'i va izoh bor) — korrelyatsiyali modelda MC "validatsiya" noto'g'ri xulosa beradi.
 - A tur namunasi `uA·t_ν`: usul 3 (COOMET, ν=∞, kengaytirilgan uA) va ↑/↓ uchun JCGM 101 §6.4.9 ga to'liq mos emas.
 - Trapetsiya, egri trapetsiya, eksponensial, log-normal taqsimotlar yo'q.
-- **Chora (P06).**
+- **Chora (P06).** **Yopildi (2026-11-18, ENGINE 2.6.0)** — yuqorida "P06 natijasi"; ochiq qarorlar — R-23.
 
 ### R-07. Muvofiqlik `|y|` ni xato deb oladi (Y)
 - `conformity(y, U, mpe)` (`calc.js:342`) `|y|` ni MPE bilan solishtiradi. Model natijasi **xato** (E = …) bo'lsa to'g'ri; agar model o'lchangan qiymatni beradi (ρ = m/V) va foydalanuvchi MPE kiritsa — natija ma'nosiz, ogohlantirish yo'q.
@@ -268,4 +300,5 @@
 - Trial (`uc_trial_count`) `localStorage` ni tozalash bilan tiklanadi. `upgradePlan` (`auth.js:392`) to'lovsiz tarifni o'zgartiradi. Click/Payme merchant ID lari to'ldirilmagan (`auth.js:403-409`).
 
 ### R-16. Ishlash (P)
-- MC asosiy oqimda, M=10⁶ da bir necha soniya UI qotadi. Har bir `appState.set` butun holatni `JSON.stringify` qiladi va bir nechta komponent to'liq qayta chiziladi.
+- **MC qismi yopildi (P06):** hisob Web Worker'da (`src/ui/mc/`), progress va bekor qilish bilan; worker'siz — bo'laklab.
+- (P00) MC asosiy oqimda, M=10⁶ da bir necha soniya UI qotadi. Har bir `appState.set` butun holatni `JSON.stringify` qiladi va bir nechta komponent to'liq qayta chiziladi.

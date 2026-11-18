@@ -4,6 +4,39 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.6.0] — P06: Monte-Karlo 2.0 (JCGM 101:2008) (2026-11-18)
+
+**ENGINE_VERSION: 2.5.0 → 2.6.0** (minor). **LPU natijalari (y, u_c, ν_eff, k, U, `conf`, `decision`, `findings`) o'zgarmadi:** 61 ta test misolining `evaluate()` natija JSON'i 2.5.0 (`c1cccce`) bilan **bayt darajasida bir xil** (`engineVersion` dan tashqari; skript bilan solishtirildi). 9 ta etalon Excel nuqtasi o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.
+
+### ⚠ Monte-Karlo raqamlari o'zgardi (alohida qayd)
+
+`monteCarlo()` ning barcha sonli natijalari 2.5.0 dan farq qiladi. Sabablar:
+
+1. **Generator almashdi:** xorshift32 → kengaytirilgan Wichmann–Hill (JCGM 101:2008 C.3.3, Table C.2). Urug' o'zgarmagan (20261110), lekin ketma-ketlik boshqa.
+2. **Tanlash formulalari JCGM 101 bo'yicha:** Gauss — Box–Muller (Table C.3; avval Marsaglia qutbli usuli), t — Table C.5 (avval gamma orqali), uchburchak — a + (b − a)/2·(r₁ + r₂), arksinus — sin 2πr.
+3. **Interval indekslari §7.7.2 bo'yicha** aniq: q = pM yoki ⌊pM + ½⌋; [y₍ᵣ₎, y₍ᵣ₊q₎]; simmetrik r = (M − q)/2 yoki ⌊(M − q + 1)/2⌋ (avval bir indeksga farq qilar edi).
+4. **Standart rejim — adaptiv** (§7.9.4, n_dig = 2): M endi oldindan berilmaydi (qat'iy M — sozlama).
+5. **Korrelyatsiya hisobga olinadi** (avval e'tiborsiz qoldirilar edi): normal kirishlar — ko'p o'lchovli Gauss; normal bo'lmagan kirish korrelyatsiyada qatnashsa — **natija berilmaydi** (`mc_nonnormal_correlation`). Masalan, zichlik misolida (juftlangan kuzatuvlar) 2.5.0 MCM natija berar edi (korrelyatsiyasiz — noto'g'ri), 2.6.0 — bermaydi.
+6. **A tur, usul 3:** MCM da t₍n−1₎(x̄, s²/n) (standart og'ishi aynan u_A) — avval N(0, u_A²). Loyiha qarori (R-23).
+
+**Eski natijani takrorlash:** `monteCarlo(spec, { rng: 'xorshift32-legacy', M })` 2.5.0 natijasini bit darajasida qaytaradi (kod `src/engine/mc/legacy.js` ga o'zgarishsiz ko'chirilgan; 6 ta hisob bo'yicha test — `tests/engine/mc-legacy.test.js`). Yangi hisoblar uni ishlatmaydi; ishlatilsa `mc_legacy_rng` topilmasi chiqadi.
+
+**10-test (gazoanalizator 2-nuqta, `[−0,0111; 0,0469]`):** n_dig = 1 (majburiy, `excel-gas-p2-mc-ndig1`) — o'tadi; n_dig = 2 — **o'tmaydi, tolerans va algoritm moslashtirilmagan** (todo, D-04; raqamlar va Q-3 bo'yicha savol — `tests/cases/DISCREPANCIES.md`).
+
+### Qo'shilganlar
+
+- **Generator** (`src/engine/mc/rng.js`): kengaytirilgan Wichmann–Hill, C.3.3.3 dagi 64 bitli shakl; eng katta ko'paytma 47 003 · 2 147 483 542 = 100 938 168 924 626 < 2⁵³ — suzuvchi nuqtada aniq (BigInt kerak emas; testda BigInt va Table C.2 dagi 32 bitli shakl bilan solishtirilgan). Bitta butun urug'dan to'rtta holat — MurmurHash3 fmix32 (loyiha qarori). Natijada `{ rng: { name: 'wichmann-hill-2006', seed }, M }`. R(0, 1) ketma-ketligi Node va Chromium da bit darajasida bir xil (tekshirildi).
+- **Taqsimotlar** (`src/engine/mc/distributions.js`, JCGM 101 §6.4, C.4–C.6): normal, to'g'ri burchakli, uchburchak, trapetsiya, egri trapetsiya, arksinus, siljitilgan-masshtablangan t, eksponensial, ko'p o'lchovli normal (Cholesky); log-normal (JCGM 101 da yo'q — **unverified**, momentlar bo'yicha mustaqil tekshiruv).
+- **B tur manbalarida yangi taqsimotlar** (GUF da ham): `trap` (β), `ctrap` (d), `exp`, `lognorm`; noto'g'ri parametr — `bad_dist_param`. B tur `normal` + chekli ν → MCM da t_ν (§6.4.9.7).
+- **Adaptiv Monte-Karlo** (§7.9.4): blok M = max(J, 10⁴); to'xtash — 2s_y, 2s_u(y), 2s_ylow, 2s_yhigh ≤ δ; n_dig sozlanadi (standart 2); M chegarasi (standart 10⁷, eng ko'pi 2·10⁷) — yetilsa `mc_not_converged`; natijada M, bloklar soni, yetilgan n_dig. `tolDivisor: 5` — §8.2 (δ/5). Qat'iy M — `mode: 'fixed'`.
+- **Intervallar va tekshiruv:** ehtimollik bo'yicha simmetrik va eng qisqa (§7.7.2) — ikkalasi natijada; §8.1.3: δ (GUM u_c dan, n_dig bo'yicha), d_low, d_high, `validated`. LPU tasdiqlanmasa — `mc_lpu_not_validated` va hisobotda MCM intervali natija sifatida.
+- **Korrelyatsiya:** ko'p o'lchovli Gauss (§6.4.8, C.5); musbat (yarim) aniqlanmagan matritsa — `invalid_covariance` (jimgina tuzatilmaydi; r = ±1 — musbat yarim aniqlangan, qabul qilinadi); normal bo'lmagan kirish — rad etish yoki (sozlama bilan) belgilangan Gauss yaqinlashuvi.
+- **Linter:** yangi rejim `MC` va qoidalar **M2** (`mc_nonnormal_correlation` — error, `mc_correlation_gaussian_approx` — warning), **M3** (`mc_lpu_not_validated`), **M4** (`mc_not_converged`, `mc_variance_undefined`, `mc_legacy_rng`); MC natijasida `findings`.
+- **Web Worker** (`src/ui/mc/`, RISKS R-16): hisob modulli worker'da, progress va bekor qilish bilan; worker bo'lmasa — asosiy oqimda ≈ 25 ms li bo'laklar. **CSP o'zgarmadi** (`script-src 'self'` — worker shu qoida ostida; `worker-src` qo'shilmadi). Chromium da M = 10⁶: 1,0 s, asosiy oqimdagi eng uzun to'xtash 12 ms.
+- **Hisobot:** MCM bo'limida interval turi, P, M, generator, urug', n_dig (so'ralgan / yetilgan), rejim; MC topilmalari bosmada ham chiqadi.
+- **Test misollari:** JCGM 101 §9.4 (Table 8, 9 — 6 ta MCM), §9.5 (Table 11, adaptiv), Table 2, 4, 6 ning adaptiv qatorlari — **verified** (jami 61 verified, 2 unverified; pending yo'q).
+- **Egasi qarori kerak:** `docs/RISKS.md` R-23; `tests/cases/DISCREPANCIES.md` Q-3 (qayta), Q-5…Q-8.
+
 ## [2.5.0] — P05b: import/eksport, rasmiy hisobot shakllari, qaror qoidasi (2026-11-18)
 
 **ENGINE_VERSION: 2.4.0 → 2.5.0** (minor: yangi imkoniyat). **y, u_c, ν_eff, k, U, `conf` o'zgarmadi:** modelSpec'i bor 52 ta test misolining (GUM, MC, regressiya, top-down, maxsus rejimlar) to'liq natija JSON'i 2.4.0 (`feat/p05a-linter`) bilan bir xil — `engineVersion`, yangi `decision` maydoni, yangi D1 topilmalari va aniqlashtirilgan `ref` matnlaridan tashqari (skript bilan solishtirildi). 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.

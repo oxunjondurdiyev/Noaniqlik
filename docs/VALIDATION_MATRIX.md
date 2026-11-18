@@ -41,17 +41,17 @@
 |---|---|---|---|
 | U — 2 qiymatli raqam, "yuqoriga" / "odatiy" rejim; y — U razryadigacha | `src/report/rounding.js::roundResult` | 9 ta Excel nuqtasi `expectedDisplay` (`Nuqta_i!D41/D42`, `D42/D43`, `3_Hisob!D73/D74`); 0,0999 → 0,10; −0,125 → −0,13 — `tests/engine/rounding.test.js` | ✅ (egasi qarorlari, P03) |
 
-## 3. Monte-Karlo (JCGM 101:2008)
+## 3. Monte-Karlo (JCGM 101:2008) — P06 da yangilandi, batafsil [§12](#12-p06-monte-karlo-20-srcenginemc-montecarlojs)
 
 | Talab (band) | Funksiya | Test | Holat |
 |---|---|---|---|
 | Taqsimotlarni tarqatish, M = 10⁶ (§7) | `montecarlo.js::monteCarlo` | `jcgm101-9-2-2-mcm` (normal), `-9-2-3-mcm` (to'g'ri burchakli, analitik ±3,88), `-9-2-4-mcm`, `-9-3-mcm` (nochiziqli) | ✅ (manba δ bilan) |
-| Ehtimollik bo'yicha simmetrik interval (§7.7.3) | `monteCarlo` (`symLow`/`symHigh`) | `jcgm101-9-2-*-mcm`, `excel-gas-p2-mc*` | ✅ / ⚠️ D-04 |
-| Eng qisqa interval (§7.7.4) | `monteCarlo` (`low`/`high`) | `jcgm101-9-3-mcm` | ✅ |
-| I uchun siljitilgan-masshtablangan t (§6.4.9) | `monteCarlo` (student) | `excel-gas-p2-mc` (10-test) | ⚠️ D-04 (savol Q-3) |
-| Raqamli tolerans δ, GUF validatsiyasi (§7.9.2, §8) | `monteCarlo` (`delta`, `validated`) | tolerans qoidasi sifatida ishlatilgan | qisman (adaptiv M ⏳ P06) |
-| Ko'p o'lchamli normal, korrelyatsiya (§6.4.8) | — | `jcgm101-9-4-mcm` | ⏳ P06 |
-| t, arksinus, egri trapetsiya kirish taqsimotlari (Table 10) | — | `jcgm101-9-5-mcm` | ⏳ P06 |
+| Ehtimollik bo'yicha simmetrik interval (§7.7.2) | `coverageIntervals` (`symLow` / `symHigh`) | `jcgm101-9-2-*-mcm`, `excel-gas-p2-mc*` | ✅ / ⚠️ D-04 |
+| Eng qisqa interval (§7.7.2) | `coverageIntervals` (`low` / `high`) | `jcgm101-9-3-mcm`, `-9-4-mcm-*`, `-9-5-mcm` | ✅ (D-18) |
+| I uchun siljitilgan-masshtablangan t (§6.4.9) | `mc/distributions.js::sampleT` | `excel-gas-p2-mc-ndig1` (10-test, n_dig = 1) ✅; `excel-gas-p2-mc` (n_dig = 2) | ⚠️ D-04 (savol Q-3, qayta) |
+| Raqamli tolerans δ, GUF validatsiyasi (§7.9.2, §8) | `numericalTolerance`, `monteCarlo` (`delta`, `validated`) | `montecarlo.test.js`; `jcgm101-*-mcm-adaptive` | ✅ |
+| Ko'p o'lchamli normal, korrelyatsiya (§6.4.8) | `cholesky`, `sampleMvn` | `jcgm101-9-4-mcm-*-r09` (Table 9) | ✅ |
+| t, arksinus, egri trapetsiya kirish taqsimotlari (Table 10) | `mc/distributions.js` | `jcgm101-9-5-mcm` (Table 11) | ✅ |
 
 ## 4. Boshqa manbalar
 
@@ -253,3 +253,34 @@ Qoidalar va manbalari — [LINTER_RULES.md](LINTER_RULES.md). Linter hisob natij
 | Vendor: aniq versiya, LICENSE, SHA-256; npm `xlsx` yo'q; faqat dinamik import; CSP o'zgarmagan; `src/io/` da tarmoq chaqiruvi yo'q | `vendor/`, `src/io/vendor.js` | `tests/security/vendor.test.js`; `import.test.js` | ✅ |
 | Shaxsiy rekvizitlar Firebase'ga yozilmaydi (faqat `sessionStorage`) | `src/ui/report/app.js`, `requisites.js::splitRequisites` | `forms.test.js`; brauzerda saqlash joylari tekshirildi | ✅ |
 | Mavjud natijalar o'zgarmagan | `evaluate` | 52 misolning natija JSON'i 2.4.0 bilan bir xil (`engineVersion`, `decision`, D1, `ref` dan tashqari); 9 Excel nuqtasi, 10-test | ✅ |
+
+## 12. P06: Monte-Karlo 2.0 (`src/engine/mc/`, `montecarlo.js`)
+
+Manba — JCGM 101:2008 (repoda). "Mustaqil tekshiruv" — manba qiymati emas, statistik yoki qo'lda hisob.
+
+| Talab (band) | Funksiya | Test | Holat |
+|---|---|---|---|
+| Kengaytirilgan Wichmann–Hill: a, b, c, d konstantalari (C.3.3.2, Table C.2 — p. 61) | `mc/rng.js` (`WH_A…WH_D`) | `mc-rng.test.js`: konstantalar; d_j = a_j·b_j + c_j | ✅ |
+| 64 bitli shakl i_j = (a_j·i_j) mod d_j (C.3.3.3) = Table C.2 dagi 32 bitli shakl; ko'paytma < 2⁵³ | `wichmannHill`, `wichmannHillStep32` | `mc-rng.test.js`: 10⁵ qadam × 3 urug'; BigInt bilan 2·10⁴ qadam; eng katta ko'paytma 100 938 168 924 626 | ✅ (manbaning ikki ta'rifi o'zaro) |
+| Generator sifati (C.3.2.1 a) | `wichmannHill` | χ² (100 katak, N = 10⁶), Kolmogorov–Smirnov (N = 10⁵), ketma-ket korrelyatsiya (kechikish 1…10), juftliklar 20 × 20 — 3 urug' | ✅ mustaqil tekshiruv (manbada sonli test qiymatlari yo'q; BigCrush — manbaning o'z bayoni, C.3.2.2) |
+| Bir xil urug' → har qanday kompyuterda bir xil natija (C.3.2.1 c) | `wichmannHill` | muzlatilgan qiymatlar (`fixtures/mc-rng-golden.json`); Node 22 ↔ Chromium 157 — R(0, 1) va to'liq MCM natijasi (qat'iy va adaptiv) bit darajasida bir xil | ✅ (V8); boshqa JS dvigatellari — tekshirilmagan (R-23) |
+| Box–Muller (C.4, Table C.3 — p. 62) | `makeGauss` | `mc-distributions.test.js`: formula, momentlar, KS | ✅ |
+| t-taqsimot (C.6, Table C.5 — p. 63) | `sampleT` | KS: ν = 2; 3; 5; 8; 18; 24; 6,93; dispersiya ν/(ν − 2) | ✅ |
+| To'g'ri burchakli (§6.4.2), uchburchak (§6.4.5), arksinus (§6.4.6), eksponensial (§6.4.10) — E, V va tanlash formulasi | `sampleRect`, `sampleTriang`, `sampleArcsine`, `sampleExp` | momentlar (4,5 standart xato) + KS | ✅ |
+| Trapetsiya (§6.4.4: E, V, Eq. 7) | `sampleTrap`, `typeB` (`trap`) | momentlar, KS; β = 0 / 1 chegaralari | ✅ |
+| Egri trapetsiya (§6.4.3, Eq. 3–4; misol 10,0 V ± 0,1 V, d = 0,05 → u = 0,060 V — p. 21) | `sampleCTrap`, `typeB` (`ctrap`) | momentlar; Eq. (3) zichligini integrallab KS; misol qiymati | ✅ |
+| Log-normal | `lognormalParams` | momentlar, KS | ❔ unverified (JCGM 101 da yo'q) — mustaqil tekshiruv |
+| Ko'p o'lchovli Gauss, Cholesky (C.5, Table C.4; misol C.5.3 — p. 63) | `cholesky`, `sampleMvn` | RᵀR = V; tanlanma kovariatsiyasi; musbat aniqlanmagan → null | ✅ |
+| δ = ½·10^l (§7.9.2, Examples 1–3 — p. 31) | `numericalTolerance` | `montecarlo.test.js` (3 misol + §9 dagi δ lar) | ✅ |
+| Intervallar: q, r (§7.7.2 — p. 30) | `coverageIntervals` | qo'lda hisoblangan misollar | ✅ |
+| Adaptiv protsedura (§7.9.4 — p. 32): M = max(J, 10⁴), 2s ≤ δ | `createMonteCarlo` | `montecarlo.test.js`; Table 2 (M 1,30·10⁶ — manbada 1,23 va 1,02·10⁶), Table 4 (0,05·10⁶ — 0,03 va 0,08), Table 6 (0,63·10⁶ — 0,72), Table 11 (0,99…1,50·10⁶, 12 urug' — 1,26) | ✅ |
+| GUM tekshiruvi (§8.1.3): Table 2 — Yes; Table 4 — No (d = 2,8 / 2,9); Table 6 GUF1 — No (d_low 0,045 1, d_high 0,043 0) | `monteCarlo` (`dLow`, `dHigh`, `validated`) | `jcgm101-9-2-2-mcm-adaptive`, `-9-2-4-mcm-adaptive`, `-9-3-mcm-adaptive` | ✅ |
+| §9.4 solishtirish yo'qotishi: Table 8 (r = 0), Table 9 (r = 0,9) — 6 holat, M = 10⁶ | `monteCarlo` | `jcgm101-9-4-mcm-x0-r0` … `-x005-r09` (tolerans: ½ oxirgi xona + o'lchangan tarqoqlik — `tests/tools/mc-scatter.js`) | ✅ |
+| §9.5 KMD: Table 11 MCM — 838 nm, 36 nm, [745, 932] nm (99 %) | `monteCarlo` (adaptiv, n_dig = 2) | `jcgm101-9-5-mcm` | ✅ (D-18) |
+| Nochiziqli model Y = X², x̄ = 0 — LPU rad etiladi | M3 | `montecarlo.test.js` (analitik: u²·χ²₁) | ✅ mustaqil hisob |
+| Normal bo'lmagan korrelyatsiya → natija yo'q + M2; `invalid_covariance` | `createMonteCarlo` | `montecarlo.test.js` | ✅ (loyiha qarori, R-23) |
+| Eski generator bilan 2.5.0 natijasini takrorlash | `mc/legacy.js` | `mc-legacy.test.js` (6 hisob, `Object.is`) | ✅ (regressiya) |
+| 10-test: gazoanalizator 2-nuqta | `monteCarlo` | n_dig = 1 — ✅; n_dig = 2 — todo | ⚠️ D-04, Q-3 |
+| Web Worker, progress, bekor qilish; worker'siz bo'laklab (R-16) | `src/ui/mc/` | `tests/ui/mc.test.js`; **Chromium 157 (headless), haqiqiy CSP bilan:** worker — M = 10⁶ 1,0 s, asosiy oqimda eng uzun to'xtash 12 ms, 63 kadr; worker'siz — 1,1 s, 70 ms; konsolda xato yo'q | ✅ |
+| LPU natijalari o'zgarmagan | `evaluate` | 61 misolning natija JSON'i 2.5.0 (`c1cccce`) bilan bayt darajasida bir xil; 9 Excel nuqtasi | ✅ |
+

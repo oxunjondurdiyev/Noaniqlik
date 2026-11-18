@@ -1,8 +1,8 @@
-# Metrologik linter qoidalari (`src/engine/linter/`) — ENGINE_VERSION 2.4.0
+# Metrologik linter qoidalari (`src/engine/linter/`) — ENGINE_VERSION 2.6.0
 
 > Holat: P05a, 2026-11-18. Linter `evaluate()` natijasiga **`result.findings`** ni yozadi. U **hisobni o'zgartirmaydi**: y, u_c, ν_eff, k, U — avvalgidek (55 ta test misolida 2.3.0 bilan bayt darajasida bir xil).
 > Har bir qoida — alohida modul (`src/engine/linter/rules/*.js`): `{ id, severity, ref, modes, codes, check(spec, result, ctx) → findings[] }`.
-> Rejimlar: `GUM`, `REGRESSION`, `TOP_DOWN`, `SAMPLING`, `QUALITATIVE`, `MICRO`, `MEDICAL`.
+> Rejimlar: `GUM`, `REGRESSION`, `TOP_DOWN`, `SAMPLING`, `QUALITATIVE`, `MICRO`, `MEDICAL`; **`MC`** (P06, 2.6.0) — `monteCarlo()` natijasi uchun (§2.2a).
 > Matnlar (nima topildi / nima uchun / qanday tuzatish) — `src/js/i18n-linter.js`, uch tilda: `w_<kod>`, `why_<kod>`, `fix_<kod>`.
 
 **Manba belgisi.** `ref` da hujjat nomi va bandi yoziladi. `docs/references/` da **yo'q** hujjatga havola `(unverified)` bilan belgilanadi (GUM-6, COOMET R/GM/32, ISO/IEC 17025, ISO 5725-2). ILAC P14:09/2020, ILAC G8:09/2019 va JCGM 106:2012 repoda bor — ularga havolalar P05b da PDF bilan solishtirilgan. Hech bir manbasi repoda bo'lmagan qoida/kod — `unverified: true` (jadvalda ❔).
@@ -71,6 +71,19 @@ X9 hisobot qatlami satrlarini tekshiradi: `lintReported({ y, U })`. Hisobot har 
 | | `decision_low_tur` | info | GUM | JCGM 106:2012 §7.6.4, §7.6.5, §8.2.2; ILAC G8:09/2019 §1.13, §5.3 | TUR = T / (2U) < 1 — o'lchash tolerantlikni ajrata olmaydi | Noaniqlikni kamaytirish yoki qoidani qayta ko'rish |
 | | `decision_normal_assumed` | info | GUM | JCGM 106:2012 §7.2.3, §7.2.4 | p_c normal taqsimot farazida hisoblangan, lekin ν_eff < 30 | Ehtiyotkorlik bilan talqin qilish |
 
+### 2.2a. Monte-Karlo natijasi uchun qoidalar (P06; rejim `MC` — `monteCarlo()` natijasidagi `findings`)
+
+Bu qoidalar `evaluate()` natijasida chiqmaydi (9 ta etalon nuqtaning GUM topilmalari o'zgarmagan). Manba — JCGM 101:2008 (repoda, verified).
+
+| Qoida | Kod | Daraja | Ref | Nima tekshiriladi | Tuzatish |
+|---|---|---|---|---|---|
+| **M2** | `mc_nonnormal_correlation` | **error** | JCGM 101:2008 §6.4.8.1, §6.4.8.4 Note, C.5 | Korrelyatsiyalangan kirishlar orasida normal bo'lmagani bor (t — kam kuzatuv, to'g'ri burchakli …) — **MCM natijasi berilmaydi** | "Juftlangan" belgisini olib tashlash (agar juft bo'lmasa); Gauss yaqinlashuvini yoqish; GUM natijasi |
+| | `mc_correlation_gaussian_approx` | warning | shu | Laboratoriya sozlamasi bilan guruh N(x, U_x) bilan yaqinlashtirilgan | Natijani yaqinlashuv deb ko'rsatish |
+| **M3** | `mc_lpu_not_validated` | warning | JCGM 101:2008 §8.1.1, §8.1.3 (Eq. 19, 20) | d_low yoki d_high > δ — GUM natijasi tasdiqlanmadi; hisobotda MCM intervali natija sifatida chiqadi | MCM intervalini (interval turi, P, M, generator, urug', n_dig bilan) ko'rsatish |
+| **M4** | `mc_not_converged` | warning | JCGM 101:2008 §7.9.4 k), §7.9.3 Note 1 | Adaptiv protsedura M chegarasiga yetdi, 2s ≤ δ bajarilmadi | n_dig = 1, M chegarasini oshirish |
+| | `mc_variance_undefined` | warning | JCGM 101:2008 §7.6 Note 2, §6.4.9.4, C.6 Note | Kirishga ν ≤ 2 bo'lgan t-taqsimot tayinlangan (n ≤ 3) — u(y) mavjud emas | n ≥ 4 yoki s_p (usul 2); interval ko'rsatish |
+| | `mc_legacy_rng` | info | JCGM 101:2008 C.3.2.1 | Eski generator (xorshift32) bilan takrorlangan natija | Yangi hisobot uchun standart generator |
+
 ### 2.3. Modul ogohlantirishlari topilma sifatida (kodlar o'zgarmagan)
 
 | Qoida | Kodlar | Daraja | Rejim | Ref |
@@ -116,6 +129,9 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 18 | D1 | TUR = T / (2U) (simmetrik ±MPE da MPE / U); `decision_low_tur` chegarasi **TUR < 1**, faqat info | JCGM 106 §7.6.2 (C_m), ILAC G8 §1.13 (TUR = TL/U); chegara soni manbada yo'q |
 | 19 | D1 | p_c har doim normal taqsimot bilan; ν_eff < **30** da info (t-taqsimotga o'tilmaydi) | JCGM 106 §7.2.3–7.2.4: normal — odatiy faraz |
 | 20 | D1 | nobinar bayonot: qabul oralig'ida — `pass`; tolerantlik ichida, lekin himoya zonasida — `conditional_pass`; tolerantlikdan tashqarida, chegaradan w gacha — `conditional_fail`; undan nari — `fail` | ILAC G8 §4.2.3 |
+| 21 | M2 (P06) | normal bo'lmagan korrelyatsiyada MCM natijasi **berilmaydi** (error); Gauss yaqinlashuvi — faqat sozlama bilan, warning | JCGM 101 §6.4.8.4 Note: boshqa birgalikdagi taqsimot uchun tanlash usuli "would need to be provided" |
+| 22 | M3 | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; adaptiv protsedura δ bilan (δ/5 emas — §8.2 tavsiyasi sozlama sifatida) | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
+| 23 | M4 | `mc_variance_undefined` chegarasi ν ≤ 2; warning | §7.6 Note 2: "fewer than three degrees of freedom" |
 
 ## 5. Tekshiruv
 
@@ -125,3 +141,4 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 - `tests/ui/findings.test.js` — blok, uch til, escape, bosma hisobot, suv belgisi, belgilar, model turi.
 
 9 ta etalon nuqtadagi topilmalar (hammasi info): gaz 1 — `zero_s`, `n_small`, `x10_no_drift`; gaz 2, 3 — `n_small`, `x10_no_drift`; termometr 1 — `zero_s`; termometr 4 — `zero_s`, `x5_resolution_rect`; zichlik, termometr 2, 3, 5 — topilma yo'q.
+- `tests/engine/montecarlo.test.js`, `tests/engine/mc-legacy.test.js` — M2, M3, M4: har biri uchun ijobiy va salbiy holat (P06).
