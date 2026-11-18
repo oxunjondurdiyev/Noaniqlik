@@ -17,9 +17,7 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 
 Kerak bo'ladigan qo'shimcha manbalar (hali yo'q):
 - JCGM 102:2011;
-- JCGM 106:2012;
 - JCGM GUM-6:2020;
-- ILAC P14:09/2020, ILAC G8:09/2019;
 - NIST Uncertainty Machine User's Manual;
 - COOMET R/GM/32:2017.
 
