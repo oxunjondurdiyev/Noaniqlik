@@ -1,5 +1,5 @@
 {
-  "sha256": "7607091e6fd0164f04ea760a4aa581ebbbbee2a6b77a8a7e3fd72a55fbe94f66",
+  "sha256": "669e673196d0978be5e7ae76167348d5c5ac3ecedace9537f5c87716a071cfae",
   "engineVersion": "2.4.0",
   "files": 58,
   "ref": "src/engine/ + src/report/ (P03: dvigatel ajratildi; P08: regression/; P09: topdown/; P10: maxsus rejimlar; P05a: linter/)"

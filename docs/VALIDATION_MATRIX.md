@@ -1,6 +1,6 @@
 # Validatsiya matritsasi (RTM): me'yoriy talab → dvigatel funksiyasi → test → holat
 
-> Holat: P10, 2026-11-18 (P03/P04 qatorlari o'zgarmagan; regressiya — §7; top-down — §8; maxsus rejimlar — §9). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.3.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
+> Holat: P05a, 2026-11-18 (P03/P04 qatorlari o'zgarmagan; regressiya — §7; top-down — §8; maxsus rejimlar — §9; linter — §10). Dvigatel `src/engine/*` (ES modullar), `ENGINE_VERSION` 2.4.0, API — [ENGINE_API.md](ENGINE_API.md). Yaxlitlash — `src/report/rounding.js`.
 > Test misollari — `tests/cases/` ([README](../tests/cases/README.md)), farqlar — [DISCREPANCIES.md](../tests/cases/DISCREPANCIES.md). Asos: ISO/IEC 17025:2017 §7.11.2 (dasturiy ta'minot validatsiyasi; to'liq paket — P13).
 >
 > Holat belgilari: ✅ — `verified` testlar o'tadi; ⚠️ — o'tadi, lekin ma'lum farq bor (todo, D-ID); ⏳ — `pending` (bosqich ko'rsatilgan); ❔ — `unverified` (manba yo'q).
@@ -206,3 +206,27 @@
 | "Maxsus rejimlar" oynasi: Excel'dan qo'yish, o'nlik vergul, bo'sh maydon ≠ 0, escape (XSS), CSP | `src/ui/special/*` | `tests/ui/special.test.js` (kontroller jsdom'da boshidan oxirigacha) | ✅ |
 | Mavjud natijalar o'zgarmagan | `evaluate` (format bo'yicha uzatish) | 43 misolning natija JSON'i 2.2.0 bilan bayt darajasida bir xil (P10 da tekshirildi); 9 Excel nuqtasi, 10-test | ✅ |
 | Mutatsiyaga sezgirlik (P10) | qo'lda: σ_s² dagi /2 olib tashlandi (22 test yiqildi); robust τ² bo'luvchisi n → n − 1 (21); Wilson dagi z²/(4n²) hadi (7); Clopper–Pearson parametri (2); Puasson 1/√C → 1/C (2); kvadratlar yig'indisi → oddiy yig'indi (3) | — | ✅ |
+
+## 10. P05a: metrologik linter (`src/engine/linter/`), asoslangan qabul, hisobot belgilari
+
+Qoidalar va manbalari — [LINTER_RULES.md](LINTER_RULES.md). Linter hisob natijasini o'zgartirmaydi.
+
+| Talab (band) | Funksiya | Test | Holat |
+|---|---|---|---|
+| Kalibrlanayotgan asbob MPE si byudjetda bo'lmasligi (JCGM 100:2008 3.4.5, F.2.4.2; CLAUDE.md) | X1 `x01-mpe-in-budget.js` | `linter.test.js`; `linter-fixtures.test.js` — gazoanalizator qo'llanmasidagi asl protsedura (`.docx` iqtiboslari: u(Δк) = 0,23136; U = 0,463) | ✅ |
+| Noaniqlik nol bo'la olmaydi (JCGM 100:2008 3.3.1, F.2.2.1) | X8 `zero_u` (error) | `linter-fixtures.test.js` — nol nuqtada «0 ± 0»; `linter.test.js` | ✅ |
+| U ≥ CMC (ILAC P14 §5.3 — repoda yo'q) | X8 `below_cmc` (error) | `linter.test.js` | ❔ |
+| Sertifikat U / k (4.3.3); ikki marta hisoblamaslik (4.3.10); korrelyatsiya (5.2.2–5.2.5); rezolyutsiya δ/(2√3) (F.2.2.1) | X2, X3, X4, X5 | `linter.test.js` (ijobiy + salbiy) | ✅ |
+| Birliklar (5.1.3; GUM-6 — repoda yo'q) | X6 | `linter.test.js` | ✅ / ❔ |
+| k = 2 ning ishonchliligi (EA-4/02 M:2022 §5.1–5.5; JCGM 100 G.6.6) | X7 | `linter.test.js` | ✅ (chegaralar — loyiha qarori) |
+| U ≤ 2 qiymatli raqam, y — U xonasigacha (JCGM 100 7.2.6) | X9 `lintReported`; hisobot o'z satrlarini tekshiradi | `linter.test.js` (`rounding.js` chiqishi har doim o'tadi) | ✅ |
+| Etalon drifti (EA-4/02 M:2022 App. C, S2.4) | X10 (info) | `linter.test.js` | ✅ |
+| X11, X12 (Nordtest TR 537 §3.2; QUAM:2012 §7.9) — R-20 qarorlari saqlangan | X11, X12 (dvigatel belgisidan) | `linter.test.js`; `tests/engine/topdown.test.js`, `tests/ui/topdown*.test.js` (o'zgarmagan holda o'tadi) | ✅ |
+| Ulush > 90 %; n < 3; ν ≤ 0; Grubbs (ISO 5725-2 — repoda yo'q) | A1, A2, A3, A4 | `linter.test.js` | ✅ / ❔ (A4) |
+| Modul ogohlantirishlari `result.findings` da, kodlar o'zgarmagan | W1, W2 | `linter.test.js` (har bir ogohlantirish — bitta topilma) | ✅ |
+| 9 ta etalon nuqtada `error` yo'q | `lint` | `linter-fixtures.test.js` (topilmalar ro'yxati qayd etilgan — faqat info) | ✅ |
+| Model turi; muvofiqlik \|y\| ni xato deb faraz qilmaydi (RISKS R-07; ISO/IEC 17025 §7.8.6, JCGM 106 — repoda yo'q) | `evaluate` (`modelKind`, `deviation`), `conformity`, M1 | `linter.test.js`; `api.test.js`; `tests/ui/findings.test.js`; migratsiya — `tests/storage/*.test.js` | ❔ (loyiha qoidasi) |
+| Asoslangan qabul: izoh ≥ 10 belgi; audit zanjiri (rol, vaqt, topilma id, izoh) — ISO/IEC 17025 §7.5, §7.11.3 | `src/storage/acceptance.js`; `withAcceptances`, `reportStatus` | `tests/storage/acceptance.test.js`; `linter.test.js` | ✅ |
+| Barcha topilmalar bosma hisobotda; "RASMIY EMAS"; U = 0 / U < CMC belgisi yoki bloklash; ν qoidasi, MC seed va M, BETA (RISKS R-05) | `src/report/findings.js`; `src/js/report.js` | `tests/ui/findings.test.js` (jsdom); brauzerda (Chromium) boshidan oxirigacha ko'rildi | ✅ |
+| Matnlar uch tilda; i18n'dan tashqari matn yo'q (RISKS R-13) | `i18n-linter.js`, `i18n-admin.js` | `tests/i18n.test.js` (skaner: `tests/tools/hardcoded-text.js`) | ✅ |
+| Mavjud natijalar o'zgarmagan | `evaluate` | 55 misolning natija JSON'i 2.3.0 bilan bayt darajasida bir xil (yangi maydonlardan tashqari); 9 Excel nuqtasi, 10-test | ✅ |

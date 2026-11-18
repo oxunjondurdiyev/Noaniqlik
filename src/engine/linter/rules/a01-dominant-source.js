@@ -17,7 +17,7 @@ const rule = {
     const top = rows.reduce((m, b) => (b.share > m.share ? b : m), rows[0]);
     if (!(top.share > THRESHOLDS.dominantSharePct)) return [];
     const name = top.kind === 'A' ? `${top.name} (A)` : (top.name || top.id || top.kind);
-    return [finding(rule, 'dominant_source', { key: '', source: name, value: `${short(top.share, 3)} %${top.dist ? '; ' + top.dist : ''}` })];
+    return [finding(rule, 'dominant_source', { key: '', source: name, value: `${short(top.share, 3)} %` })];
   },
 };
 export default rule;
