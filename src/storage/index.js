@@ -7,7 +7,8 @@ export { LocalAdapter, DB_NAME, DB_VERSION } from './local-adapter.js';
 export { RemoteAdapter, REMOTE_ENDPOINTS } from './remote-adapter.js';
 export { makeEntry, verifyChain, GENESIS } from './audit.js';
 export { canonicalize, sha256Hex, hashOf } from './canonical.js';
-export { migrateLegacy, LEGACY_KEY, BACKUP_KEY, MIGRATION_KEY, LEGACY_CALC_ID } from './migrate.js';
+export { migrateLegacy, upgradeCalcState, CALC_STATE_SCHEMA, LEGACY_KEY, BACKUP_KEY, MIGRATION_KEY, LEGACY_CALC_ID } from './migrate.js';
+export { acceptFinding, revokeAcceptance, acceptancesFromAudit, cleanRole, ACCEPT_ACTION, REVOKE_ACTION, ACCEPT_ENTITY, MIN_COMMENT, ACCEPTABLE_SEVERITIES } from './acceptance.js';
 export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js';
 
 /**
@@ -21,9 +22,11 @@ export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js'
  *   secondOrder  — 2-tartibli hadlarni u_c ga qo'shish (GUM 5.1.2 Note; standartda o'chiq)
  *   cmcMode      — 'warn' (U < CMC → ogohlantirish) | 'block' (hisobot bloklanadi)
  *   ciMethod     — sifatli testlar ishonch intervali: 'wilson' (standart, AQA:2021) | 'clopper_pearson' (P10, R-21)
+ *   criticalMode — U = 0, u_c = 0 yoki U < CMC bo'lgan natija: 'mark' (standart — hisobot aniq belgi bilan chiqadi) |
+ *                  'block' (hisobot chop etilmaydi) (P05a, RISKS R-05). cmcMode: 'block' avvalgidek ishlaydi.
  */
 export const LAB_DEFAULTS = Object.freeze({
-  P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson',
+  P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson', criticalMode: 'mark',
 });
 export const LAB_SETTINGS_KEY = 'lab';
 

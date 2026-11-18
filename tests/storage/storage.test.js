@@ -87,7 +87,14 @@ for (const f of ['uc_state_v2.density.json', 'uc_state_v2.gas-points.json']) {
     assert.equal(ls.getItem('uc_state_v2'), raw, 'eski kalit o\'chirilmaydi');
     assert.equal(ls.getItem('uc_state_v2_backup'), raw);
     const rec = await db.get('calculations', S.LEGACY_CALC_ID);
-    assert.deepEqual(rec.state, JSON.parse(raw), 'holat o\'zgarishsiz');
+    // P05a (RISKS R-07): yagona qo'shimcha — settings.modelKind = 'unknown' (holatda va har bir nuqta snapshot'ida);
+    // u olib tashlansa holat asl matn bilan AYNAN bir xil — foydalanuvchi kiritgan hech bir qiymat o'zgarmagan
+    const noKind = st => { const { modelKind, ...rest } = st.settings || {}; return { ...st, settings: rest }; };
+    assert.equal(rec.state.settings.modelKind, 'unknown');
+    assert.equal(rec.schema, S.CALC_STATE_SCHEMA);
+    const back = noKind(rec.state);
+    if (back.points) back.points = back.points.map(p => { assert.equal(p.snapshot.settings.modelKind, 'unknown'); return { ...p, snapshot: noKind(p.snapshot) }; });
+    assert.deepEqual(back, JSON.parse(raw), 'holat o\'zgarishsiz (model turidan tashqari)');
     // natija bir xil: joriy holat va har bir saqlangan nuqta
     const orig = JSON.parse(raw);
     assert.equal(JSON.stringify(evaluate(rec.state)), JSON.stringify(evaluate(orig)));
