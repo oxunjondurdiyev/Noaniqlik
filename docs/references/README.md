@@ -15,6 +15,8 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 | `EURACHEM_CITAC_AQA_2021.pdf` | EURACHEM/CITAC Guide — Assessment of performance and uncertainty in qualitative chemical analysis (AQA) | 1st ed., 2021 (ISBN 978-0-948926-39-6) |
 | `ILAC_G8_09_2019.pdf` | ILAC-G8 — Guidelines on Decision Rules and Statements of Conformity | 09/2019 (© ILAC; reproduction for accreditation/standardisation purposes permitted with acknowledgement) |
 | `ILAC_P14_09_2020.pdf` | ILAC-P14 — ILAC Policy for Measurement Uncertainty in Calibration | 09/2020 (© ILAC; same terms) |
+| `ILAC_P10_07_2020.pdf` | ILAC-P10 — ILAC Policy on Metrological Traceability of Measurement Results | 07/2020 (© ILAC; same terms) |
+| `ILAC_G24_OIML_D10_2022.pdf` | ILAC-G24 / OIML D 10 — Guidelines for the determination of recalibration intervals of measuring equipment | Edition 2022 (© ILAC / OIML) |
 
 Kerak bo'ladigan qo'shimcha manbalar (hali yo'q):
 - JCGM GUM-6:2020;
