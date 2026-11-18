@@ -272,7 +272,8 @@ function evaluateCore(spec) {
     conf = deviation !== null ? conformity(deviation, U, mpe) : pendingConformity(U, mpe, modelKind === 'value' ? 'nominal' : 'model_kind');
   }
   const range = toNum(settings.range);
-  const gamma = isFinite(range) && range > 0 ? Math.abs(y) / range * 100 : null;
+  // keltirilgan xato γ = |og'ish| / diapazon · 100 — og'ish (E yoki Y − Y_nom) ma'lum bo'lsagina (R-07)
+  const gamma = isFinite(range) && range > 0 && deviation !== null ? Math.abs(deviation) / range * 100 : null;
 
   // O'lchamlik tahlili (ixtiyoriy; birliksiz eski hisoblar — faqat eslatma). Ref: JCGM GUM-6:2020 §11 (tekshirilmagan)
   const notes = [];

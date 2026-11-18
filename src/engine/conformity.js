@@ -43,11 +43,13 @@ export function multiPointCoverage(results, uniformK) {
   return results.map(r => {
     const k = uniformK ? kmax : r.k;
     const U = k * r.uc;
-    // og'ish — natijadagi `deviation` (P05a: E yoki Y − Y_nom); eski saqlangan natijada (ENGINE ≤ 2.3.0, maydon yo'q) — y
+    // og'ish — natijadagi `deviation` (P05a: E yoki Y − Y_nom). Model turi ko'rsatilmagan yoki eski saqlangan natijada
+    // (ENGINE ≤ 2.3.0 — `deviation` maydoni yo'q) |y| xato deb FARAZ QILINMAYDI: bayonot berilmaydi (R-07).
     let conf = null;
     if (r.conf) {
-      if (r.conf.pending) conf = pendingConformity(U, r.conf.mpe, r.conf.pending);
-      else conf = conformity(r.deviation !== undefined && r.deviation !== null ? r.deviation : r.y, U, r.conf.mpe);
+      const dev = r.deviation;
+      if (r.conf.pending || dev === undefined || dev === null || !isFinite(dev)) conf = pendingConformity(U, r.conf.mpe, r.conf.pending || 'model_kind');
+      else conf = conformity(dev, U, r.conf.mpe);
     }
     return { k, U, conf };
   });
