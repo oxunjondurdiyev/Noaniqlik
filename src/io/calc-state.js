@@ -8,7 +8,7 @@
 ═══════════════════════════════════════════════════════════════ */
 
 /** Muharrir holatining dvigatel o'qiydigan maydonlari (src/js/points.js::KEYS bilan bir xil) */
-export const GUM_KEYS = Object.freeze(['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'settings', 'covB', 'units', 'template']);
+export const GUM_KEYS = Object.freeze(['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'settings', 'covB', 'units', 'template']);   // 'outputs' — P07 (bir nechta chiqish)
 const FORBIDDEN = ['__proto__', 'constructor', 'prototype'];
 const clone = v => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
 const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -80,6 +80,8 @@ export function gumStateFromInput(input) {
   if (st.directions !== undefined && !(Array.isArray(st.directions) && st.directions.every(d => typeof d === 'string'))) return { ok: false, reason: 'bad_state' };
   const model = st.model || {};
   if (['formula', 'unit'].some(k => model[k] !== undefined && typeof model[k] !== 'string')) return { ok: false, reason: 'bad_state' };
+  // P07: bir nechta chiqish — [{ formula, unit }]
+  if (st.outputs !== undefined && st.outputs !== null && !(Array.isArray(st.outputs) && st.outputs.length <= 50 && st.outputs.every(o => isObj(o) && typeof o.formula === 'string' && (o.unit === undefined || typeof o.unit === 'string')))) return { ok: false, reason: 'bad_state' };
   return {
     ok: true,
     state: {
@@ -90,6 +92,7 @@ export function gumStateFromInput(input) {
       directions: st.directions ? st.directions.map(d => (d === '↑' || d === '↓' ? d : '')) : undefined,
       typeB: clone(st.typeB || []).map((c, i) => (typeof c.id === 'string' && c.id ? c : { ...c, id: 'tb_imp_' + i })),
       model: st.model ? clone(st.model) : { formula: '', unit: '' },
+      outputs: Array.isArray(st.outputs) && st.outputs.length > 1 ? clone(st.outputs) : undefined,
       settings: clone(st.settings || {}),
       covB: st.covB ? clone(st.covB) : undefined,
       units: st.units ? clone(st.units) : undefined,

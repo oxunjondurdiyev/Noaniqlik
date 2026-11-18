@@ -7,7 +7,7 @@
 
 const Points = (() => {
 
-  const KEYS = ['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'settings', 'covB', 'units', 'template'];
+  const KEYS = ['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'settings', 'covB', 'units', 'template'];   // 'outputs' — P07
 
   function clone(v) { return v === undefined ? undefined : JSON.parse(JSON.stringify(v)); }
 

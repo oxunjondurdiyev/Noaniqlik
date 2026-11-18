@@ -67,6 +67,15 @@ const Table = (() => {
   }
 
   /* ── Measurement model: y = f(x1…xN) ── */
+  /* P07: state.outputs — to'liq ro'yxat (≥ 2 element) yoki yo'q. Birinchi element har doim state.model bilan bir xil. */
+  function extraOutputs(state) {
+    const o = state && Array.isArray(state.outputs) ? state.outputs : [];
+    return o.length > 1 ? o.slice(1) : [];
+  }
+  function outputsPatch(model, extras) {
+    return { outputs: extras.length ? [{ formula: model.formula || '', unit: model.unit || '' }].concat(extras) : undefined };
+  }
+
   function renderModelBox() {
     const box = document.getElementById('model-box');
     if (!box) return;
@@ -92,6 +101,23 @@ const Table = (() => {
             <input type="text" id="model-unit" value="${escHtml(model.unit || '')}" placeholder="g/cm³" autocomplete="off" />
           </div>
         </div>
+        <div class="model-outputs" data-model-outputs="1">
+          ${extraOutputs(state).map((o, j) => `
+          <div class="model-row" data-out-row="${j}">
+            <div class="form-group model-formula-group">
+              <label>${i18n.t('model_output_n')} ${j + 2}</label>
+              <input type="text" class="mono" data-out-formula="${j}" value="${escHtml(o.formula || '')}"
+                placeholder="${escHtml(i18n.t('model_output_ph'))}" autocomplete="off" autocorrect="off" spellcheck="false" />
+            </div>
+            <div class="form-group model-unit-group">
+              <label>${i18n.t('model_unit')}</label>
+              <input type="text" data-out-unit="${j}" value="${escHtml(o.unit || '')}" autocomplete="off" />
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" data-out-remove="${j}" title="${escHtml(i18n.t('model_remove_output'))}">✕</button>
+          </div>`).join('')}
+          <button type="button" class="btn btn-outline btn-sm" data-out-add="1">+ ${i18n.t('model_add_output')}</button>
+          <span class="text-muted text-xs">${i18n.t('model_outputs_hint')}</span>
+        </div>
         <div class="model-chips">${chips}
           <span class="text-muted text-xs">+ − × / ^ ( ) · sqrt ln log exp sin cos tan abs pi</span>
         </div>
@@ -115,9 +141,26 @@ const Table = (() => {
       const cur = appState.get('model') || {};
       const formula = fEl.value.trim();
       const unit = box.querySelector('#model-unit').value.trim();
-      if (cur.formula !== formula || cur.unit !== unit) appState.set({ model: { formula, unit }, combined: null });
+      if (cur.formula !== formula || cur.unit !== unit) appState.set({ model: { formula, unit }, ...outputsPatch({ formula, unit }, extraOutputs(appState.get())), combined: null });
       updateModelStatus();
     };
+    // P07: qo'shimcha chiqishlar (vektor model, JCGM 102:2011 §6.2) — state.outputs = [asosiy formula, …qo'shimchalar]
+    const setExtras = extras => appState.set({ ...outputsPatch(appState.get('model') || {}, extras), combined: null });
+    box.querySelectorAll('[data-out-formula], [data-out-unit]').forEach(inp => inp.addEventListener('change', () => {
+      const extras = extraOutputs(appState.get()).map(o => ({ ...o }));
+      const j = Number(inp.dataset.outFormula !== undefined ? inp.dataset.outFormula : inp.dataset.outUnit);
+      if (!extras[j]) return;
+      if (inp.dataset.outFormula !== undefined) extras[j].formula = inp.value.trim(); else extras[j].unit = inp.value.trim();
+      setExtras(extras);
+    }));
+    box.querySelectorAll('[data-out-remove]').forEach(btn => btn.addEventListener('click', () => {
+      const extras = extraOutputs(appState.get()).map(o => ({ ...o }));
+      extras.splice(Number(btn.dataset.outRemove), 1);
+      setExtras(extras);
+      renderModelBox();
+    }));
+    const addBtn = box.querySelector('[data-out-add]');
+    if (addBtn) addBtn.addEventListener('click', () => { setExtras(extraOutputs(appState.get()).map(o => ({ ...o })).concat([{ formula: '', unit: '' }])); renderModelBox(); });
     fEl.addEventListener('input', updateModelStatus);
     fEl.addEventListener('change', saveModel);
     box.querySelector('#model-unit').addEventListener('change', saveModel);

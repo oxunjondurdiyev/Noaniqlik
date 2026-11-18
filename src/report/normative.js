@@ -19,6 +19,7 @@ const DOCS = {
   iso17025: 'ISO/IEC 17025:2017',
   jcgm100: 'JCGM 100:2008 (GUM)',
   jcgm101: 'JCGM 101:2008',
+  jcgm102: 'JCGM 102:2011',
   jcgm106: 'JCGM 106:2012',
   ea402: 'EA-4/02 M:2022',
   ilacP14: 'ILAC P14:09/2020',
@@ -39,7 +40,8 @@ export function normativeRefs(lang, o) {
   const opt = o || {};
   const mode = opt.mode || 'GUM';
   const keys = ['iso17025'];
-  if (mode === 'GUM' || mode === 'REGRESSION') keys.push('jcgm100');
+  if (mode === 'GUM' || mode === 'REGRESSION' || mode === 'MULTIVARIATE') keys.push('jcgm100');
+  if (mode === 'MULTIVARIATE') keys.push('jcgm102');   // P07: vektor natija
   if (mode === 'GUM' && opt.form !== 'test_report') keys.push('ea402');
   if (opt.form === 'calibration_certificate' || opt.form === 'budget') keys.push('ilacP14');
   if (mode === 'REGRESSION') keys.push('quam');

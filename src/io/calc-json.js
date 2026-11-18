@@ -20,7 +20,7 @@ import { canonicalizeJcs, jcsHash, portable, fromPortable } from '../storage/can
 export const CALC_FORMAT = 'uc-calc/1';
 export const APP_NAME = 'UncertaintyCalc';
 export const MAX_JSON_BYTES = 5 * 1024 * 1024;   // import chegarasi (5 MB)
-const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL'];
+const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MULTIVARIATE'];   // 'MULTIVARIATE' — P07 (vektor natija)
 const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype'];
 
 export function modeOfResult(result) {
