@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.6.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.7.0
 
-> Holat: P06, 2026-11-18 (2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P07, 2026-11-18 (2.7.0: vektor chiqish, JCGM 102:2011 — [§13](#13-kop-ozgaruvchili-modellar-p07); 2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -69,7 +69,7 @@ REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `ev
 /**
  * @typedef {Object} ModelSpec            // format 'uc-model/1'
  * @property {'uc-model/1'} format
- * @property {OutputSpec[]} outputs       // hozir aynan bitta element (P07 — vektor chiqish)
+ * @property {OutputSpec[]} outputs       // bitta element — bir o'lchovli natija (o'zgarmagan); bir nechta — vektor natija (§13)
  * @property {InputSpec[]} inputs
  * @property {('↑'|'↓'|'')[]} [directions] // qatorlar bo'yicha o'qish yo'nalishi (barcha kirishlar uchun umumiy)
  * @property {TypeBSpec[]} [typeB]
@@ -585,7 +585,8 @@ X_i = x_i + (A tur qismi) + Σ (B tur manbalari · ko'paytuvchi); har bir qism �
 `result.pairs[].cov ≠ 0` bo'lgan kirishlar guruhlanadi (bog'langan komponentlar).
 
 - Guruhdagi **barcha** kirishlar normal (A tur qismi yo'q yoki ν = ∞; B tur — faqat `normal`, ν siz) → N(x, U_x), Cholesky U_x = RᵀR, X = x + Rᵀz (§6.4.8, C.5, Table C.4).
-- Aks holda: `nonNormalCorrelation: 'refuse'` → `{ error: 'mc_nonnormal_correlation', detail, findings: [M2] }` — natija **berilmaydi**; `'gaussian'` → guruh N(x, U_x) bilan yaqinlashtiriladi (U_x: u²(x_i) va cov), natijada `method: 'gaussian-approx'` va M2 ogohlantirishi. Topilma matni: "LPU (GUM) natijasi amal qiladi". Copula qo'shilmaydi; ko'p o'lchovli t (JCGM 102:2011 §5.3.2) — P07 (egasi qarori, 2026-11-18).
+- Aks holda: `nonNormalCorrelation: 'refuse'` → `{ error: 'mc_nonnormal_correlation', detail, findings: [M2] }` — natija **berilmaydi**; `'gaussian'` → guruh N(x, U_x) bilan yaqinlashtiriladi (U_x: u²(x_i) va cov), natijada `method: 'gaussian-approx'` va M2 ogohlantirishi. Topilma matni: "LPU (GUM) natijasi amal qiladi". Copula qo'shilmaydi.
+- **Juftlangan A tur kuzatuvlari (2.7.0):** guruhdagi barcha kirishlar usul 1, n bir xil, bo'sh katak yo'q, guruh ichida B tur kovariatsiyasi yo'q bo'lsa — **ko'p o'lchovli t** t_ν(x̄, S/n), ν = n − N (JCGM 102:2011 §5.3.2): ξ = x̄ + L·z·√(ν / w), S/n = L·Lᵀ, w ~ χ²_ν; natijada `inputCorrelation.groups[].method: 'multivariate-t'`, `nu`, `n`. B tur manbalari mustaqil qo'shiladi. n ≤ N → `{ error: 'mc_t_dof' }`. ν ≤ 2 → Q-5 qoidasi (`u: null`). Bu yo'l `'gaussian'` sozlamasidan ustun.
 - U_x musbat (yarim) aniqlanmagan → `{ error: 'invalid_covariance' }`; "tuzatish" (C.5.2 Note 2) qo'llanilmaydi. r = ±1 (rang yetishmaydigan, lekin yaroqli matritsa) — qabul qilinadi (C.5.2 Note 3).
 
 ### 12.5. Takrorlanuvchanlik
@@ -599,3 +600,47 @@ X_i = x_i + (A tur qismi) + Σ (B tur manbalari · ko'paytuvchi); har bir qism �
 `window.UCMonteCarlo.run(spec, opts, onProgress)` → `{ promise, cancel(), via() }`. Modulli Web Worker (`src/ui/mc/worker.js` → `src/engine/index.js`); worker yuklanmasa — asosiy oqimda ≈ 25 ms li bo'laklar. CSP: `script-src 'self'` (o'zgarmagan).
 
 Laboratoriya sozlamalari (`LAB_DEFAULTS`, sozlamalar oynasi): `mcMode` (`adaptive` \| `fixed`), `mcNDig` (1 \| 2), `mcTolerance` (`delta5` \| `delta`) — panel shulardan boshlanadi; `delta` tanlansa tekshiruv `tolDivisor: 1` bilan bajariladi va hisobotda belgilanadi.
+
+## 13. Ko'p o'zgaruvchili modellar (P07)
+
+Manba: JCGM 102:2011 (`docs/references/`). Modullar: `src/engine/multivariate/` — `linalg.js`, `lpu.js`, `region.js`, `montecarlo.js`. `evaluate()` va `monteCarlo()` chiqishlar soni > 1 bo'lsa shu yo'lga o'tadi (`isMultiOutput(state)`); bitta chiqishda kod yo'li va natija 2.6.0 bilan bit darajasida bir xil.
+
+### 13.1. Kirish
+
+- `uc-model/1`: `outputs: [{ symbol, formula, unit?, settings? }, …]` (kamida 1; 0 → `multi_output`).
+- `calc-state/v2`: `state.outputs = [{ formula: 'R = …', unit }, …]`; birinchi element `state.model` bilan bir xil. `outputs` yo'q yoki uzunligi 1 — bir o'lchovli hisob.
+- Chiqishga xos sozlamalar (`OUTPUT_SETTINGS`: `mpe`, `modelKind`, `nominal`, `range`, `cmc`, qaror qoidasi maydonlari) faqat `outputs[j].settings` orqali; umumiy `settings` dagi shu maydonlar vektor hisobda e'tiborga olinmaydi (bitta MPE bir nechta kattalikka qo'llanilmasin).
+
+### 13.2. Natija (`mode: 'MULTIVARIATE'`)
+
+```js
+{ engineVersion, mode: 'MULTIVARIATE', P, m, N, symbols, outputs: [{ symbol, unit, y, u, k, U, nuEff, … }],
+  results: [/* har bir chiqishning to'liq bir o'lchovli natijasi (byudjet bilan) */],
+  inputs, pairs, sensitivity /* C_x, m × N */, inputCovariance /* U_x */, y,
+  covariance /* U_y */, correlation, coverageRegion, findings }
+```
+
+- **U_y = C_x·U_x·C_xᵀ** — §6.2.1.3, Eq. (3). C_x — bir o'lchovli yo'ldagi sezgirlik koeffitsiyentlari; U_x — u²(x_i) va `pairs[].cov` dan.
+- `coverageRegion` (§6.5): `{ P, m, distribution: 'gaussian', ellipsoid: { kp, kp2 }, rectangle: { q, kq, intervals }, lambdaMax, lambdaMin, singular, ellipse? }`; k_p² = χ²_{m;P} (Table 1), k_q = Φ⁻¹((1 + q)/2), q = 1 − (1 − P)/m (Table 2). `ellipse` (faqat m = 2): yarim o'qlar, burchak, yuz. `singular` — λ_min / λ_max < 10⁻⁹ (chiqishlar chiziqli bog'liq, masalan Z² = R² + X²).
+- `outputs[j].U` — har bir chiqishning **alohida** kengaytirilgan noaniqligi (bir o'lchovli qoida bo'yicha); birgalikdagi qamrov — faqat `coverageRegion`. Hisobot ikkalasini ajratib yozadi.
+- Xatolar: `invalid_covariance`, `duplicate_output`; chiqishga xos xato `output: j` bilan.
+
+### 13.3. Ko'p o'lchovli Monte-Karlo
+
+`monteCarlo(spec, opts)` / `createMonteCarlo` — §12 dagi sozlamalar; natija `multivariate: true`:
+
+```js
+{ mode: 'MC', multivariate: true, rng, M, blocks, P, m, symbols, y, u, covariance, correlation,
+  coverageRegion: { distribution: 'mcm', ellipsoid: { kp }, rectangle: { kq, intervals }, marginal: { q, intervals }, … },
+  adaptive, nDig, validation, comparison, validated, findings }
+```
+
+- Ellipsoid: (η − y)ᵀ·U_y⁻¹·(η − y) ≤ k_p², k_p — d² qiymatlarining P-kvantili (§7.7.2). To'g'ri burchakli soha — §7.7.3.
+- Adaptiv protsedura — §7.8: kamida `MC_MIN_BLOCKS` = 10 blok; barqarorlik y_j, u(y_j), λ_max, k_p, k_q bo'yicha. M chegarasi — `maxTrialsFor(m)` = ⌊2·10⁷ / (m + 1)⌋.
+- §8 tekshiruvi: y_j, u(y_j), k_p, k_q bo'yicha (`comparison[]`), standart tolerans δ/5.
+- ν ≤ 2 bo'lgan t-kirishda: adaptiv yo'q, `u`, `covariance`, ellipsoid, to'g'ri burchakli soha — `null`; faqat `marginal.intervals`.
+- Eski generator (`xorshift32-legacy`) — `mc_bad_option`.
+
+### 13.4. Qilinmagan (RISKS R-24)
+
+Oshkormas model h(Y, X) = 0 (§6.3); eng kichik qamrov sohasi (§7.7.4); parserda `atan2` yo'q.

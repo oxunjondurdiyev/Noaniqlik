@@ -35,11 +35,11 @@ test('Node\'da ES modul sifatida: import { evaluate } from "./src/engine/index.j
   assert.equal(typeof m.evaluate, 'function');
   const r = m.evaluate(DENS.modelSpec);
   assert.ok(!r.error);
-  assert.equal(r.engineVersion, '2.6.0');
+  assert.equal(r.engineVersion, '2.7.0');
 });
 
-test('ENGINE_VERSION = 2.6.0 (semver)', () => {
-  assert.equal(E.ENGINE_VERSION, '2.6.0');
+test('ENGINE_VERSION = 2.7.0 (semver)', () => {
+  assert.equal(E.ENGINE_VERSION, '2.7.0');
 });
 
 test('natija: outputs[] (bitta element) va yuqori darajadagi maydonlar bir xil', () => {
@@ -70,10 +70,14 @@ test('modelSpec formatlari: uc-model/1 ↔ calc-state/v2 ↔ eski state — bir 
   assert.deepEqual(m.inputs.map(i => i.name), ['m', 'V']);
 });
 
-test('uc-model/1: bir nechta chiqish hozircha xato (P07), noma\'lum format — xato', () => {
+test('uc-model/1: bir nechta chiqish — vektor natija (P07, JCGM 102:2011 §6.2); chiqishsiz yoki noma\'lum format — xato', () => {
   const m = E.toModel(DENS.modelSpec.state);
   m.outputs.push({ formula: 'z = m * V' });
-  assert.equal(E.evaluate(m).error, 'multi_output');
+  const mv = E.evaluate(m);
+  assert.equal(mv.mode, 'MULTIVARIATE');
+  assert.equal(mv.outputs.length, 2);
+  assert.equal(mv.outputs[0].y, E.evaluate(DENS.modelSpec).y);          // birinchi chiqish — bitta formulali hisob bilan aynan bir xil
+  assert.equal(E.evaluate({ ...m, outputs: [] }).error, 'multi_output');
   assert.equal(E.evaluate({ format: 'xyz/9' }).error, 'bad_spec');
 });
 
@@ -131,11 +135,11 @@ test('Monte-Karlo: seed natijada, bir xil kirish → aynan bir xil natija', () =
   const a = E.monteCarlo(GAS.modelSpec, 20000), b = E.monteCarlo(GAS.modelSpec, 20000);
   assert.equal(a.seed, E.MC_SEED);
   assert.equal(a.low, b.low); assert.equal(a.high, b.high); assert.equal(a.u, b.u);
-  // P06: zichlik misolida kirishlar juftlangan kuzatuvlar orqali korrelyatsiyalangan (t-taqsimot) — MCM natijasi
-  // berilmaydi (2.5.0 gacha korrelyatsiya e'tiborsiz qoldirilar edi — RISKS R-06); GUM natijasi o'zgarmagan
+  // P07: zichlik misolida kirishlar juftlangan kuzatuvlar orqali korrelyatsiyalangan — ko'p o'lchovli t-taqsimot
+  // (JCGM 102:2011 §5.3.2; 2.6.0 da natija berilmas edi — mc_nonnormal_correlation). GUM natijasi o'zgarmagan.
   const d = E.monteCarlo(DENS.modelSpec, 20000);
-  assert.equal(d.error, 'mc_nonnormal_correlation');
-  assert.equal(d.findings[0].rule, 'M2');
+  assert.equal(d.error, undefined);
+  assert.deepEqual(d.correlation.groups, [{ inputs: ['m', 'V'], method: 'multivariate-t', nu: 3, n: 5, nonNormal: [] }]);
 });
 
 test('ko\'p nuqtali bir xil k (COOMET §5.7.3) dvigatelda: multiPointCoverage', () => {

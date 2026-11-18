@@ -14,6 +14,7 @@
 import { lint, lintReported } from '../engine/index.js';
 import { roundResult } from './rounding.js';
 import { fmtSci } from './format.js';
+import { ellipseSvg } from './ellipse.js';
 import { findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText } from './findings.js';
 
 /**
@@ -881,12 +882,116 @@ export function createSections(environment) {
     return fn ? fn(r, opt) : '';
   }
 
+  /* ─── P07: vektor natija (JCGM 102:2011) ───────────────────────────
+     Har bir chiqish — alohida qator (y_i, u(y_i), U_i — bir o'lchamli qoidalar bilan yaxlitlangan); chiqishlarning
+     korrelyatsiya matritsasi; qamrov sohasi: turi, P, k_p (gipper-ellipsoid, §6.5.3 a) va k_q (gipper-to'rtburchak, §6.5.3 b).
+     Korrelyatsiya koeffitsiyenti 3 kasr xona bilan (JCGM 102 jadvallaridagi kabi); |r| > 0,99 bo'lsa 1 − |r| ham
+     ko'rsatiladi (§3.21 Note 5, Table 11) — ko'rinish LOYIHA QARORI (egasi tasdig'ini kutadi, RISKS R-24). */
+  function corrText(v) {
+    if (!isFinite(v)) return '—';
+    const base = v.toFixed(3);
+    return Math.abs(v) > 0.99 && Math.abs(v) < 1 ? `${base} (1 − |r| = ${Calc.fmtSci(1 - Math.abs(v), 3)})` : base;
+  }
+  function mvOutputsTable(r, cls) {
+    return `<table class="${cls || 'data-table'}" data-mv-outputs="1"><thead><tr>
+        <th>${i18n.t('mv_col_output')}</th><th>y</th><th>u(y)</th><th>k</th><th>U (${pct(r.P)} %)</th><th>ν_eff</th><th>${i18n.t('mv_col_statement')}</th>
+      </tr></thead><tbody>${r.results.map((x, j) => {
+        const rr = rounded(x);
+        return `<tr data-mv-output="${escHtml(r.symbols[j])}"><td class="mono">${escHtml(r.symbols[j])}${x.unit ? ', ' + escHtml(x.unit) : ''}</td>
+          <td class="num">${rr.yround.toFixed(rr.digits)}</td><td class="num">${Calc.fmtSci(x.uc)}</td><td class="num">${x.k.toFixed(2)}</td>
+          <td class="num">${rr.Uround.toFixed(rr.digits)}</td><td class="num">${nuText(x.nuEff)}</td>
+          <td>${escHtml(r.symbols[j])} = (${rr.yround.toFixed(rr.digits)} ± ${rr.Uround.toFixed(rr.digits)})${unitOf(x)}</td></tr>`;
+      }).join('')}</tbody></table>`;
+  }
+  function mvMatrix(symbols, M, cls, attr) {
+    return `<table class="${cls || 'data-table'}" ${attr}><thead><tr><th></th>${symbols.map(s => `<th class="mono">${escHtml(s)}</th>`).join('')}</tr></thead>
+      <tbody>${M.map((row, i) => `<tr><th class="mono">${escHtml(symbols[i])}</th>${row.map((v, j) => `<td class="num">${i === j ? '1' : corrText(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+  function mvRegionLines(r) {
+    const g = r.coverageRegion, lines = [];
+    const u = r.results.map(x => x.unit || '');
+    if (g.ellipsoid) {
+      lines.push(`<span data-mv-region="ellipsoid">${i18n.t(g.m === 2 ? 'mv_region_ellipse' : 'mv_region_ellipsoid')} (P = ${pct(g.P)} %): (η − y)ᵀ U_y⁻¹ (η − y) = k_p²;  k_p = ${g.ellipsoid.kp.toFixed(2)}` +
+        (g.distribution === 'gaussian' ? `  (${i18n.t('mv_region_gauss')}, χ²(${g.m}))` : `  (${i18n.t('mv_region_mcm')})`) +
+        (g.singular ? `  — ${i18n.t('mv_region_singular')}` : '') + '</span>');
+    }
+    if (g.rectangle) {
+      lines.push(`<span data-mv-region="rectangle">${i18n.t('mv_region_rectangle')} (P ≥ ${pct(g.P)} %): y_j ± k_q·u(y_j);  k_q = ${g.rectangle.kq.toFixed(2)};  ` +
+        g.rectangle.intervals.map((iv, j) => `${escHtml(r.symbols[j])}: [${Calc.fmtSci(iv[0], 5)}; ${Calc.fmtSci(iv[1], 5)}]${u[j] ? ' ' + escHtml(u[j]) : ''}`).join(';  ') + '</span>');
+    }
+    return lines;
+  }
+  function mvPlot(r, mc) {
+    const g = r.coverageRegion;
+    if (r.m !== 2 || !g.ellipse || g.singular) return '';
+    const lab = j => r.symbols[j] + (r.results[j].unit ? ', ' + r.results[j].unit : '');
+    return `<div class="region-plot-box">${ellipseSvg({ y: r.y, ellipse: g.ellipse, rectangle: g.rectangle.intervals, labels: [lab(0), lab(1)], esc: escHtml })}
+      <div class="text-xs text-muted">${i18n.t('mv_plot_caption')}</div></div>`;
+  }
+  /** Vektor MCM natijasi satrlari (§7.6–7.8, §8) */
+  function mvMcLines(r, mc) {
+    const lines = [`M = ${mc.M.toLocaleString()};  ` + mc.symbols.map((s, j) => `${escHtml(s)} = ${Calc.fmtSci(mc.y[j], 8)}` + (mc.uDefined ? `, u = ${Calc.fmtSci(mc.u[j])}` : '')).join(';  ')];
+    if (!mc.uDefined) {
+      lines.push(`<span data-mc-u-undefined="1">${i18n.t('mc_u_undefined')}</span>`);
+      lines.push(`<span data-mv-mc-intervals="1">${i18n.t('mc_interval_sym')} (${pct(mc.P)} %): ` + mc.symbols.map((s, j) => `${escHtml(s)}: [${Calc.fmtSci(mc.intervals[j][0], 6)}; ${Calc.fmtSci(mc.intervals[j][1], 6)}]`).join(';  ') + '</span>');
+    } else {
+      const pairs = [];
+      for (let i = 0; i < mc.m; i++) for (let j = i + 1; j < mc.m; j++) pairs.push(`r(${escHtml(mc.symbols[i])}, ${escHtml(mc.symbols[j])}) = ${corrText(mc.correlation[i][j])}`);
+      lines.push(pairs.join(';  '));
+      const g = mc.coverageRegion;
+      lines.push(`<span data-mv-mc-region="1">${i18n.t('mv_region_title')} (${i18n.t('mv_region_mcm')}, P = ${pct(mc.P)} %): ` +
+        (g.ellipsoid ? `k_p = ${g.ellipsoid.kp.toFixed(2)} (GUM: ${mc.gum.kp.toFixed(2)})` : i18n.t('mv_region_singular')) +
+        (g.rectangle ? `;  k_q = ${g.rectangle.kq.toFixed(2)} (GUM: ${mc.gum.kq.toFixed(2)})` : '') + '</span>');
+      if (mc.validated !== null && mc.validated !== undefined) {
+        const bad = (mc.comparison || []).filter(c => !c.ok).map(c => (c.q === 'lambdaMax' ? 'λ_max' : c.q === 'kp' ? 'k_p' : c.q === 'kq' ? 'k_q' : `${c.q}(${escHtml(c.output)})`));
+        lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>`
+          : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span> (${bad.join(', ')})`));
+      }
+      const v = mc.validation || {};
+      if (v.items && v.items.length) {
+        const worst = v.items.reduce((a, b) => (b.required > 0 && b.achieved / b.required > (a.required > 0 ? a.achieved / a.required : 0) ? b : a), v.items[0]);
+        lines.push(`<span data-mc-tolerance="${v.met ? 'met' : 'not-met'}">${i18n.t('mc_tol_line')}: ${i18n.t('mc_tol_required')} ${v.tolDivisor > 1 ? 'δ/' + v.tolDivisor : 'δ'} = ${Calc.fmtSci(worst.required, 2)};  ` +
+          `${i18n.t('mc_tol_achieved')} = ${Calc.fmtSci(worst.achieved, 2)}` + (v.lowered ? `;  <strong data-mc-tol-lowered="1">${i18n.t('mc_tol_lowered')}</strong>` : '') + '</span>');
+      }
+    }
+    const ad = mc.adaptive || {};
+    lines.push(`<span data-mc-run="1">${i18n.t('mc_generator')}: ${escHtml(mc.rng.name)};  ${i18n.t('mc_seed')} = ${escHtml(String(mc.seed))};  ${i18n.t(ad.enabled ? 'mc_mode_adaptive' : 'mc_mode_fixed')}` +
+      (ad.enabled ? ` (JCGM 102 §7.8.3): ${i18n.t('mc_blocks')} ${mc.blocks} × ${mc.blockSize.toLocaleString()} — ${i18n.t(ad.converged ? 'mc_converged' : 'mc_not_converged')}` : '') + '</span>');
+    return lines;
+  }
+  /**
+   * Vektor natija bo'limi (ekran va bosma).
+   * @param {{print?:boolean, mc?:object, acceptances?:object}} o
+   */
+  function multivariateSection(r, o) {
+    const opt = o || {};
+    if (!r) return '';
+    const cls = opt.print ? 'print-table' : 'data-table';
+    const wrap = l => (opt.print ? `<p style="font-size:9pt;margin:.25em 0">${l}</p>` : `<div class="formula-box">${l}</div>`);
+    const title = k => (opt.print ? `<div class="print-section">${i18n.t(k)}</div>` : `<div class="section-title">${i18n.t(k)}</div>`);
+    const mc = opt.mc && opt.mc.multivariate ? opt.mc : null;
+    return `<div data-mv-section="1">
+      ${title('mv_title')}
+      ${wrap(`${i18n.t('mv_method')}: U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2);  m = ${r.m},  N = ${r.N}`)}
+      ${findingsHtml(r, { scope: 'gum', print: !!opt.print, acceptances: opt.acceptances, showEmpty: true })}
+      ${mvOutputsTable(r, cls)}
+      ${title('mv_corr_title')}
+      ${mvMatrix(r.symbols, r.correlation, cls, 'data-mv-correlation="1"')}
+      ${title('mv_region_title')}
+      ${mvRegionLines(r).map(wrap).join('')}
+      ${mvPlot(r, mc)}
+      ${mc ? title('mc_title') + mvMcLines(r, mc).map(wrap).join('') + mcFindingsHtml(mc, { print: !!opt.print }) : ''}
+      ${opt.print ? r.results.map((x, j) => `<div class="print-section">${escHtml(r.symbols[j])}: ${i18n.t('mv_budget_of')}</div>${budgetTable(x, 'print-table')}`).join('') : ''}
+      ${marksHtml(r.results[0], { mc: null })}
+    </div>`;
+  }
+
   function isBlankCell(v) { return v === '' || v === null || v === undefined; }
 
   // Yagona escape: src/ui/escape.js (P02)
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

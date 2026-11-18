@@ -67,6 +67,12 @@ const Results = (() => {
     return comb && Array.isArray(comb.budget) && Array.isArray(comb.inputs) ? comb : null;
   }
 
+  /* P07: vektor natija (bir nechta chiqish) */
+  function currentMulti() {
+    const comb = appState.get('combined');
+    return comb && comb.mode === 'MULTIVARIATE' && Array.isArray(comb.results) ? comb : null;
+  }
+
   function acceptancesOf(scope) { return window.UCFindings ? window.UCFindings.acceptances(scope) : {}; }
   /** @param {{scope?:string, print?:boolean, acceptances?:object, spec?:object, legacy?:string, legacyOn?:string, showEmpty?:boolean}} o */
   /* P05b: qaror qoidasi tanlanmagan bo'lsa — natijalar sahifasidan tanlash (sozlamaga yoziladi va qayta hisoblanadi) */
@@ -203,6 +209,19 @@ const Results = (() => {
   function render() {
     const el = document.getElementById('results-content');
     if (!el) return;
+    const mv = currentMulti();
+    if (mv) {
+      el.innerHTML = `
+        <div class="page-header-row">
+          <button class="btn btn-outline btn-sm" id="btn-print-mv">${i18n.t('btn_report')}</button>
+        </div>
+        ${sec().multivariateSection(mv, { mc: lastMC && !lastMC.error ? lastMC : null })}
+        ${renderMC(mv)}`;
+      const pb = el.querySelector('#btn-print-mv');
+      if (pb) pb.addEventListener('click', () => { printReport(); });
+      bindMC(el);
+      return;
+    }
     const r = current();
     const pts = appState.get('points') || [];
 
@@ -391,7 +410,7 @@ const Results = (() => {
         <span class="text-muted text-xs">${i18n.t('mc_hint')}</span>
       </div>
       ${err ? `<div class="formula-box" data-mc-error="${escHtml(err.error)}" style="border-color:var(--danger)">${escHtml(mcErrorText(err))}</div>${sec().mcFindingsHtml(err)}` : ''}
-      ${mc ? mcLines(r, mc).map(l => `<div class="formula-box">${l}</div>`).join('') +
+      ${mc && mc.multivariate ? '' : mc ? mcLines(r, mc).map(l => `<div class="formula-box">${l}</div>`).join('') +
         (mc.correlated ? `<div class="text-xs text-muted">${i18n.t('mc_corr_note')}</div>` : '') +
         sec().mcFindingsHtml(mc) +
         (mc.validated === false ? `<div class="text-xs text-muted">${i18n.t('mc_advice')}</div>` : '') : ''}`;
@@ -446,6 +465,12 @@ const Results = (() => {
 
   function printReport() {
     const state = appState.get();
+    const mv    = currentMulti();
+    if (mv) {
+      const mc = lastMC && !lastMC.error ? lastMC : null;
+      return printMode(mv, { input: Points.snapshot(state), meta: state.template || null }, { scope: 'gum', emptyKey: 'results_empty', mode: () => 'MULTIVARIATE',
+        body: x => sec().multivariateSection(x, { print: true, mc }) });
+    }
     const r     = current();
     const pts   = (state.points || []).filter(p => p.result && !p.result.error);
 

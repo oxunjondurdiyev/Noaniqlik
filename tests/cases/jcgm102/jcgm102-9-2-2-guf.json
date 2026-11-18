@@ -1,0 +1,128 @@
+{
+  "id": "jcgm102-9-2-2-guf",
+  "title": "JCGM 102 9.2.2: additiv ikki chiqishli model (har bir X_i — standart Gauss) — GUM yondashuvi, U_y = C_x U_x C_xᵀ",
+  "status": "verified",
+  "domain": "umumiy (o'lchamsiz)",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.2.2, Table 3",
+    "page": "36"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ],
+        "X3": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y1 = X1 + X3",
+        "unit": "1"
+      },
+      "outputs": [
+        {
+          "formula": "Y1 = X1 + X3",
+          "unit": "1"
+        },
+        {
+          "formula": "Y2 = X2 + X3",
+          "unit": "1"
+        }
+      ],
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "X1 ~ N(0, 1)",
+          "param": "X1",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X2 ~ N(0, 1)",
+          "param": "X2",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X3 ~ N(0, 1²)",
+          "param": "X3",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "evaluate"
+  },
+  "expected": {
+    "y.Y1": {
+      "value": 0,
+      "ref": "Table 3, GUF: y1 = 0.000"
+    },
+    "y.Y2": {
+      "value": 0,
+      "ref": "Table 3, GUF: y2 = 0.000"
+    },
+    "u.Y1": {
+      "value": 1.414,
+      "ref": "Table 3, GUF: u(y1) = 1.414"
+    },
+    "u.Y2": {
+      "value": 1.414,
+      "ref": "Table 3, GUF: u(y2) = 1.414"
+    },
+    "r.Y1.Y2": {
+      "value": 0.5,
+      "ref": "Table 3, GUF: r(y1, y2) = 0.500"
+    },
+    "kp": {
+      "value": 2.45,
+      "ref": "Table 3, GUF: kp = 2.45 (Table 1, m = 2)"
+    },
+    "kq": {
+      "value": 2.24,
+      "ref": "Table 3, GUF: kq = 2.24 (Table 2, m = 2)"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (3 kasr xona)"
+    },
+    "y.Y1": {
+      "abs": 1e-12
+    },
+    "y.Y2": {
+      "abs": 1e-12
+    },
+    "kp": {
+      "abs": 0.005,
+      "reason": "manbadagi oxirgi xonaning yarmi (2 kasr xona)"
+    },
+    "kq": {
+      "abs": 0.005,
+      "reason": "manbadagi oxirgi xonaning yarmi (2 kasr xona)"
+    }
+  }
+}

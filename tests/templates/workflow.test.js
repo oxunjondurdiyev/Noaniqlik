@@ -57,7 +57,7 @@ test('katalog: index.json papkadagi barcha shablonlarni sanaydi; fayl nomi = id'
   const files = fs.readdirSync(TPL_DIR).filter(f => f.endsWith('.json') && f !== 'index.json').sort();
   assert.deepEqual(templates.map(x => x.file).sort(), files);
   for (const { file, tpl } of templates) assert.equal(file, tpl.id + '.json');
-  assert.equal(templates.length, 44); // 11 legacy + 24 T-* + R-01 (P08) + TD-01…TD-04 (P09) + SP-01…SP-04 (P10)
+  assert.equal(templates.length, 45); // + MV-01 (P07); 11 legacy + 24 T-* + R-01 (P08) + TD-01…TD-04 (P09) + SP-01…SP-04 (P10)
 });
 
 test('katalog: barcha shablonlar sxemadan va semantik tekshiruvdan o\'tadi', () => {
@@ -73,7 +73,7 @@ test('qidiruv standart shifri bo\'yicha: "10180" → T-03; "ГОСТ 8735" → T
   assert.deepEqual(find('ГОСТ 8735'), ['T-06', 'T-07', 'T-09']);
   assert.deepEqual(find('60335'), ['T-22', 'T-23', 'T-24']);
   assert.deepEqual(find('22567.6'), ['T-17']);  // variant standarti
-  assert.ok(find('').length === 44);
+  assert.ok(find('').length === 45);
   assert.deepEqual(find('beton qorishmasi'), ['T-04']);
 });
 
@@ -269,4 +269,30 @@ test('P06: shablon sxemasi yangi taqsimot nomlarini qabul qiladi (trap + beta, c
     Object.assign(s0, bad);
     assert.equal(validate(schema, tpl).valid, false, JSON.stringify(bad));
   }
+});
+
+test('P07: shablonda `outputs` (bir nechta formula) — MV-01 (R, X, Z; DRAFT, raqamsiz) vektor holatni quradi; mavjud shablonlar o\'zgarmagan', () => {
+  const E = require('../../src/engine/index.js');
+  const tpl = byId['MV-01'];
+  assert.equal(tpl.status, 'DRAFT');
+  assert.deepEqual(tpl.outputs.map(o => o.symbol), ['X', 'Z']);
+  // raqamsiz: yarim kenglik, k va kuzatuvlar yo'q
+  assert.ok(tpl.typeBSources.every(s => s.halfWidth === null && s.k === null));
+  assert.equal(validate(schema, tpl).valid, true);
+  // boshqa hech bir shablonda `outputs` yo'q (ular bitta chiqishli bo'lib qoladi)
+  assert.deepEqual(templates.filter(x => x.tpl.outputs).map(x => x.tpl.id), ['MV-01']);
+  // laboratoriya ma'lumotlari bilan (JCGM 102:2011 Table 8, 52-bet — n = 6) → vektor natija
+  const b = T.buildState(tpl, {
+    observations: { V: [5.007, 4.994, 5.005, 4.990, 4.999, 4.999], I: [0.019663, 0.019639, 0.019640, 0.019685, 0.019678, 0.019661], phi: [1.0456, 1.0438, 1.0468, 1.0428, 1.0433, 1.0445] },
+    sources: { V_cert: { include: false }, I_cert: { include: false }, phi_cert: { include: false } },
+  });
+  assert.equal(b.state.outputs.length, 3);
+  assert.deepEqual(b.state.outputs.map(o => o.formula), ['R = V / I * cos(phi)', 'X = V / I * sin(phi)', 'Z = V / I']);
+  const r = E.evaluate(T.specOf(T.prepareState(b.state)));
+  assert.equal(r.error, undefined);
+  assert.equal(r.mode, 'MULTIVARIATE');
+  assert.deepEqual(r.symbols, ['R', 'X', 'Z']);
+  // Table 11 (54-bet), GUF: R = 127,732 Ω; r(R, X) = −0,588
+  assert.ok(Math.abs(r.y[0] - 127.732) < 0.0015);
+  assert.ok(Math.abs(r.correlation[0][1] + 0.588) < 0.0005);
 });

@@ -20,6 +20,8 @@ import {
   lognormalParams, cholesky, sampleMvn,
 } from './mc/distributions.js';
 import { monteCarloLegacy } from './mc/legacy.js';
+import { isMultiOutput } from './multivariate/lpu.js';
+import { createMultivariateMonteCarlo } from './multivariate/montecarlo.js';
 
 export { MC_SEED, RNG_DEFAULT, RNG_LEGACY, RNG_NAMES };
 
@@ -223,6 +225,157 @@ function correlationGroups(res) {
   return Object.values(groups).filter(g => g.length > 1).map(idx => ({ idx, cov }));
 }
 
+/* ── Tanlovchi (bir va ko'p chiqishli MCM uchun umumiy) ─────────── */
+
+/**
+ * Juftlangan A tur kuzatuvlari guruhi ko'p o'lchovli t-taqsimotga mosmi: guruh ichidagi kovariatsiya faqat
+ * kuzatuvlardan (covB = 0), har bir kirish — oddiy A tur (usul 1, ↑/↓ siz), bir xil n, barcha qatorlar to'liq.
+ * @returns {null|{n:number, rows:number[][]}}  rows[k] — k-chi kirishning n ta kuzatuvi
+ */
+function pairedObservations(state, res, idx) {
+  const names = idx.map(i => res.inputs[i].name);
+  for (const p of res.pairs) {
+    if (names.includes(p.a) && names.includes(p.b) && p.covB !== 0) return null;
+  }
+  const rows = [];
+  let n = -1;
+  for (const i of idx) {
+    const inp = res.inputs[i];
+    if (inp.method !== 1 || inp.directional || !(inp.uA > 0)) return null;
+    const raw = ((state.measurements || {})[inp.name] || []).map(toNum);
+    if (!raw.length || !raw.every(v => isFinite(v))) return null;      // bo'sh katak — qatorlar mos kelmaydi
+    if (n < 0) n = raw.length; else if (raw.length !== n) return null;
+    rows.push(raw);
+  }
+  return { n, rows };
+}
+
+/**
+ * Kirish kattaliklarini tanlovchi. draw() — bitta sinov: env[nom] = x_i,r (tartib o'zgarmas: avval mustaqil kirishlar,
+ * so'ng ko'p o'lchovli Gauss guruhlari, so'ng ko'p o'lchovli t guruhlari — 2.6.0 dagi ketma-ketlik saqlangan).
+ * @returns {{error:string}|{inputs, env, draw, grouped:Set<number>, corr:object[], heavy:object[], groupsInfo:object[]}}
+ */
+export function createSampler(spec, state, res, o, rng) {
+  let plan;
+  try { plan = buildPlan(state, res); }
+  catch (_) { return { error: 'bad_halfwidth' }; }
+  if (plan.error) return plan;
+  const inputs = plan.inputs;
+  const u = rng.next;
+  const gauss = makeGauss(u);
+
+  // Korrelyatsiya. Ref: JCGM 101:2008 §6.4.8 (N(x, U_x)), C.5 (Table C.4), §9.4.3.1.3
+  const groups = correlationGroups(res);
+  const grouped = new Set();
+  const corr = [];
+  const tgroups = [];
+  const tIdx = new Set();
+  for (const g of groups) {
+    const names = g.idx.map(i => inputs[i].name);
+    const gaussian = g.idx.every(i => isGaussianInput(inputs[i]));
+    if (!gaussian) {
+      // P07 (egasi qarori Q-6): juftlangan (bir vaqtda olingan) A tur kuzatuvlari — ko'p o'lchovli t-taqsimot.
+      // Ref: JCGM 102:2011 §5.3.2.1 (11–12-betlar): N ta kirishning n ta kuzatuvi → t_ν(x̄, S/n), ν = n − N,
+      //      S = (1/ν)·Σ (x_r − x̄)(x_r − x̄)ᵀ. n > N shart.
+      const po = pairedObservations(state, res, g.idx);
+      if (po) {
+        const N = g.idx.length, n = po.n, nu = n - N;
+        if (nu <= 0) {
+          return { mode: 'MC', error: 'mc_t_dof', detail: `${names.join(', ')}: n = ${n}, N = ${N}` };
+        }
+        const means = po.rows.map(r => r.reduce((a, b) => a + b, 0) / n);
+        // S/n = M/(ν·n), M — kvadratlar va ko'paytmalar yig'indisi matritsasi (§9.4.2.2, §9.4.2.4)
+        const V = po.rows.map((ri, a) => po.rows.map((rj, b) => {
+          let sum = 0;
+          for (let k = 0; k < n; k++) sum += (ri[k] - means[a]) * (rj[k] - means[b]);
+          return sum / (nu * n);
+        }));
+        const R = cholesky(V);            // V = RᵀR; §5.3.2.4 dagi L = Rᵀ (quyi uchburchak)
+        if (!R) return { error: 'invalid_covariance', detail: names.join(', ') };
+        g.idx.forEach(i => tIdx.add(i));
+        tgroups.push({
+          idx: g.idx, R, nu, z: new Float64Array(N), out: new Float64Array(N),
+          extra: g.idx.map(i => inputs[i].parts.filter(p => p.kind !== 'A').map(p => partSampler(p, u, gauss))),
+          info: { inputs: names, method: 'multivariate-t', nu, n, nonNormal: [] },
+        });
+        continue;
+      }
+    }
+    if (!gaussian && o.nonNormalCorrelation !== 'gaussian') {
+      const nonNormal = g.idx.filter(i => !isGaussianInput(inputs[i])).map(i => inputs[i].name);
+      // Normal bo'lmagan kirish korrelyatsiyada (va ko'p o'lchovli t shartlari bajarilmagan): JCGM 101 faqat ko'p
+      // o'lchovli Gauss uchun tanlash usulini beradi (§6.4.8.4 Note) — natija berilmaydi (copula qo'shilmagan; egasi qarori).
+      const info = { mode: 'MC', error: 'mc_nonnormal_correlation', detail: nonNormal.join(', '),
+                     correlation: { handled: false, groups: [{ inputs: names, nonNormal, method: 'refused' }] } };
+      info.findings = lint(spec, info);
+      return info;
+    }
+    const V = g.idx.map(i => g.idx.map(j => (i === j ? inputs[i].u * inputs[i].u : (g.cov[i + ',' + j] || 0))));
+    const R = cholesky(V);
+    // Kovariatsiya matritsasi musbat (yarim) aniqlanmagan — jimgina tuzatilmaydi (C.5.2 Note 2 dagi "repair" yo'q)
+    if (!R) return { error: 'invalid_covariance', detail: names.join(', ') };
+    g.idx.forEach(i => grouped.add(i));
+    corr.push({ idx: g.idx, R, z: new Float64Array(g.idx.length), out: new Float64Array(g.idx.length),
+                info: { inputs: names, method: gaussian ? 'mvn' : 'gaussian-approx',
+                        nonNormal: g.idx.filter(i => !isGaussianInput(inputs[i])).map(i => inputs[i].name) } });
+  }
+
+  const single = inputs.map((inp, i) => (grouped.has(i) || tIdx.has(i) ? null : { name: inp.name, mean: inp.mean, samplers: inp.parts.map(p => partSampler(p, u, gauss)) }))
+    .filter(Boolean);
+  const env = {};
+  inputs.forEach(inp => { env[inp.name] = inp.mean; });
+
+  // Dispersiyasi mavjud bo'lmagan kirish: t-taqsimot, ν ≤ 2. Ref: JCGM 101:2008 §6.4.9.4 (V(X) faqat ν > 2 da),
+  //      §7.6 Note 2 (30-bet), C.6 Note (63-bet); JCGM 102:2011 §5.3.2.3 (V(X) faqat ν > 2 da).
+  //      Bunday kirish bo'lsa u(y) aniqlanmagan — faqat qamrov intervali (egasi qarori Q-5).
+  const heavy = [];
+  inputs.forEach((inp, i) => {
+    if (grouped.has(i)) return;
+    if (tIdx.has(i)) return;
+    inp.parts.forEach(p => {
+      if (p.dist === 't' && p.nu <= 2) heavy.push({ input: inp.name, source: p.kind === 'A' ? '' : p.name, nu: p.nu });
+    });
+  });
+  tgroups.forEach(g => g.idx.forEach(i => {
+    if (g.nu <= 2) heavy.push({ input: inputs[i].name, source: '', nu: g.nu });
+    inputs[i].parts.forEach(p => {
+      if (p.kind !== 'A' && p.dist === 't' && p.nu <= 2) heavy.push({ input: inputs[i].name, source: p.name, nu: p.nu });
+    });
+  }));
+
+  const ns = single.length, ng = corr.length, nt = tgroups.length;
+  function draw() {
+    for (let i = 0; i < ns; i++) {
+      const s = single[i], sm = s.samplers;
+      let x = s.mean;
+      for (let k = 0; k < sm.length; k++) x += sm[k]();
+      env[s.name] = x;
+    }
+    for (let gi = 0; gi < ng; gi++) {
+      const g = corr[gi];
+      // Ref: JCGM 101:2008 Table C.4 c) — X = μ + Rᵀz
+      sampleMvn(gauss, g.R, g.z, g.out);
+      for (let k = 0; k < g.idx.length; k++) { const inp = inputs[g.idx[k]]; env[inp.name] = inp.mean + g.out[k]; }
+    }
+    for (let gi = 0; gi < nt; gi++) {
+      const g = tgroups[gi];
+      // Ref: JCGM 102:2011 §5.3.2.4 — ξ = x̄ + L·z·√(ν/w), z_i ~ N(0, 1), w ~ χ²_ν, S/n = LLᵀ
+      sampleMvn(gauss, g.R, g.z, g.out);
+      let w = 0;
+      for (let k = 0; k < g.nu; k++) { const c = gauss(); w += c * c; }   // χ²_ν — ν ta mustaqil N(0, 1) kvadratlari yig'indisi (ν = n − N butun)
+      const scale = Math.sqrt(g.nu / w);
+      for (let k = 0; k < g.idx.length; k++) {
+        const inp = inputs[g.idx[k]], ex = g.extra[k];
+        let x = inp.mean + g.out[k] * scale;
+        for (let q = 0; q < ex.length; q++) x += ex[q]();
+        env[inp.name] = x;
+      }
+    }
+  }
+  const groupsInfo = corr.map(g => g.info).concat(tgroups.map(g => g.info));
+  return { inputs, env, draw, grouped, tIdx, corr, heavy, groupsInfo, correlated: ng + nt > 0 };
+}
+
 /* ── Bajaruvchi ─────────────────────────────────────────────────── */
 
 /**
@@ -235,6 +388,8 @@ export function createMonteCarlo(spec, opts) {
   const norm = normalize(spec);
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;
+  // P07: vektor chiqish — ko'p o'lchovli Monte-Karlo (JCGM 102:2011 §7); bitta chiqishda quyidagi yo'l o'zgarmagan
+  if (isMultiOutput(state)) return createMultivariateMonteCarlo(spec, state, opts, evaluate);
   const o = mcOptions(state.settings, opts);
   if (o.error) return o;
 
@@ -255,52 +410,11 @@ export function createMonteCarlo(spec, opts) {
   if (res.error) return res;
   const rng = createRng(o.rng, o.seed);
   if (!rng) return { error: 'mc_bad_option', detail: 'seed' };
-  let plan;
-  try { plan = buildPlan(state, res); }
-  catch (_) { return { error: 'bad_halfwidth' }; }
-  if (plan.error) return plan;
-  const inputs = plan.inputs;
+  const smp = createSampler(spec, state, res, o, rng);
+  if (smp.error) return smp;
+  const { inputs, env, grouped, corr, heavy } = smp;
+  const draw = smp.draw;
   const { f } = prepareModel(state);
-  const u = rng.next;
-  const gauss = makeGauss(u);
-
-  // Korrelyatsiya. Ref: JCGM 101:2008 §6.4.8 (N(x, U_x)), C.5 (Table C.4), §9.4.3.1.3
-  const groups = correlationGroups(res);
-  const grouped = new Set();
-  const corr = [];
-  for (const g of groups) {
-    const names = g.idx.map(i => inputs[i].name);
-    const gaussian = g.idx.every(i => isGaussianInput(inputs[i]));
-    if (!gaussian && o.nonNormalCorrelation !== 'gaussian') {
-      const nonNormal = g.idx.filter(i => !isGaussianInput(inputs[i])).map(i => inputs[i].name);
-      // Normal bo'lmagan kirish korrelyatsiyada: JCGM 101 faqat ko'p o'lchovli Gauss uchun tanlash usulini beradi
-      // (§6.4.8.4 Note) — natija berilmaydi (copula va shunga o'xshash usullar qo'shilmagan; egasi qarori).
-      const info = { mode: 'MC', error: 'mc_nonnormal_correlation', detail: nonNormal.join(', '),
-                     correlation: { handled: false, groups: [{ inputs: names, nonNormal, method: 'refused' }] } };
-      info.findings = lint(spec, info);
-      return info;
-    }
-    const V = g.idx.map(i => g.idx.map(j => (i === j ? inputs[i].u * inputs[i].u : (g.cov[i + ',' + j] || 0))));
-    const R = cholesky(V);
-    // Kovariatsiya matritsasi musbat (yarim) aniqlanmagan — jimgina tuzatilmaydi (C.5.2 Note 2 dagi "repair" yo'q)
-    if (!R) return { error: 'invalid_covariance', detail: names.join(', ') };
-    g.idx.forEach(i => grouped.add(i));
-    corr.push({ idx: g.idx, R, z: new Float64Array(g.idx.length), out: new Float64Array(g.idx.length),
-                info: { inputs: names, method: gaussian ? 'mvn' : 'gaussian-approx',
-                        nonNormal: g.idx.filter(i => !isGaussianInput(inputs[i])).map(i => inputs[i].name) } });
-  }
-
-  const single = inputs.map((inp, i) => (grouped.has(i) ? null : { name: inp.name, mean: inp.mean, samplers: inp.parts.map(p => partSampler(p, u, gauss)) }))
-    .filter(Boolean);
-  const env = {};
-  inputs.forEach(inp => { env[inp.name] = inp.mean; });
-
-  // Dispersiyasi mavjud bo'lmagan kirish: t-taqsimot, ν ≤ 2. Ref: JCGM 101:2008 §6.4.9.4 (V(X) faqat ν > 2 da),
-  //      §7.6 Note 2 (30-bet), C.6 Note (63-bet). Bunday kirish bo'lsa u(y) aniqlanmagan — faqat qamrov intervali.
-  const heavy = [];
-  inputs.forEach((inp, i) => inp.parts.forEach(p => {
-    if (p.dist === 't' && p.nu <= 2 && !grouped.has(i)) heavy.push({ input: inp.name, source: p.kind === 'A' ? '' : p.name, nu: p.nu });
-  }));
   const criteria = o.criteria === 'auto' ? (heavy.length ? 'interval' : 'all') : o.criteria;
 
   const P = res.P;
@@ -323,20 +437,8 @@ export function createMonteCarlo(spec, opts) {
       grown.set(ys.subarray(0, n));
       ys = grown;
     }
-    const ns = single.length, ng = corr.length;
     for (let t = 0; t < size; t++) {
-      for (let i = 0; i < ns; i++) {
-        const s = single[i], sm = s.samplers;
-        let x = s.mean;
-        for (let k = 0; k < sm.length; k++) x += sm[k]();
-        env[s.name] = x;
-      }
-      for (let gi = 0; gi < ng; gi++) {
-        const g = corr[gi];
-        // Ref: JCGM 101:2008 Table C.4 c) — X = μ + Rᵀz
-        sampleMvn(gauss, g.R, g.z, g.out);
-        for (let k = 0; k < g.idx.length; k++) { const inp = inputs[g.idx[k]]; env[inp.name] = inp.mean + g.out[k]; }
-      }
+      draw();
       // Ref: JCGM 101:2008 §7.4.1 — y_r = f(x_r)
       const y = f(env);
       if (!isFinite(y)) nonFinite++;
@@ -467,12 +569,12 @@ export function createMonteCarlo(spec, opts) {
       nDig: o.nDig, nDigAchieved,
       gumLow: res.y - res.U, gumHigh: res.y + res.U, gumU: res.U, gumY: res.y, gumUc: res.uc,
       delta, dLow, dHigh, validated: o.validation ? dLow <= delta && dHigh <= delta : null, validation,
-      correlated: corr.length > 0,
-      correlation: { handled: true, groups: corr.map(g => g.info) },
+      correlated: smp.correlated,
+      correlation: { handled: true, groups: smp.groupsInfo },
       varianceUndefined: heavy,
       sampling: inputs.map((inp, i) => ({
-        input: inp.name, joint: grouped.has(i),
-        parts: inp.parts.map(p => ({ kind: p.kind, name: p.name || '', dist: p.dist, ...(p.nu !== undefined && isFinite(p.nu) ? { nu: p.nu } : {}) })),
+        input: inp.name, joint: grouped.has(i) || smp.tIdx.has(i),
+        parts: (smp.tIdx.has(i) ? [{ kind: 'A', dist: 'multivariate-t', nu: smp.groupsInfo.find(g => g.method === 'multivariate-t' && g.inputs.includes(inp.name)).nu }].concat(inp.parts.filter(p => p.kind !== 'A')) : inp.parts).map(p => ({ kind: p.kind, name: p.name || '', dist: p.dist, ...(p.nu !== undefined && isFinite(p.nu) ? { nu: p.nu } : {}) })),
       })),
       unit: res.unit, symbol: res.symbol,
     };

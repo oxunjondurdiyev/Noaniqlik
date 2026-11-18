@@ -287,3 +287,27 @@ Manba — JCGM 101:2008 (repoda). "Mustaqil tekshiruv" — manba qiymati emas, s
 | Web Worker, progress, bekor qilish; worker'siz bo'laklab (R-16) | `src/ui/mc/` | `tests/ui/mc.test.js`; **Chromium 157 (headless), haqiqiy CSP bilan:** worker — M = 10⁶ 1,0 s, asosiy oqimda eng uzun to'xtash 12 ms, 63 kadr; worker'siz — 1,1 s, 70 ms; konsolda xato yo'q | ✅ |
 | LPU natijalari o'zgarmagan | `evaluate` | 61 misolning natija JSON'i 2.5.0 (`c1cccce`) bilan bayt darajasida bir xil; 9 Excel nuqtasi | ✅ |
 
+
+## 13. P07: ko'p o'zgaruvchili modellar (`src/engine/multivariate/`)
+
+Manba — JCGM 102:2011 (repoda). Sahifa raqamlari — PDF bo'yicha, test misollarining `source` maydonida.
+
+| Talab (band) | Funksiya | Test | Holat |
+|---|---|---|---|
+| U_y = C_x·U_x·C_xᵀ (§6.2.1.3, Eq. (3)); §6.2.2 Example 1 | `evaluateMultivariate` | `tests/engine/multivariate.test.js` | ✅ verified |
+| Ellipsoid k_p (§6.5.3, Table 1 — 20 qiymat), to'g'ri burchakli k_q (§6.5.4, Table 2) | `ellipsoidFactor`, `rectangleFactor` | `multivariate.test.js` | ✅ verified |
+| Ikki o'lchovli soha, yuzlar (§6.5.2.3 Example 1–2, 21-bet) | `gaussianRegion`, `ellipseOf` | `multivariate.test.js` | ✅ verified (D-19) |
+| MCM ellipsoidi (§7.7.2, Cholesky misoli), to'g'ri burchakli (§7.7.3) | `createMultivariateMonteCarlo` | `multivariate.test.js` | ✅ verified |
+| §9.2.2–9.2.4 (Table 3–5): GUF, MCM, adaptiv MCM (§7.8), §8 xulosasi | — | `tests/cases/jcgm102/jcgm102-9-2-*` (12 ta) | ✅ verified. k_p GUF 2,45; MCM 2,45 / 2,38 / 2,28; k_q 2,21 / 2,15 / 1,87. §8: 9.2.2 tasdiqlanadi, 9.2.3 va 9.2.4 — yo'q (manba bilan bir xil) |
+| §9.3 (Table 6–7), GUF qatorlari, 6 holat | — | `jcgm102-9-3-*-guf` | ✅ verified; MCM qatorlari — **yo'q** (`atan2`, R-24) |
+| §9.4 (Table 11): GUF va MCM (ko'p o'lchovli t, ν = 3) | — | `jcgm102-9-4-guf`, `jcgm102-9-4-mcm` | ✅ verified (D-20) |
+| JCGM 100 H.2 vektor sifatida (r(R,X) = −0,588; r(R,Z) = −0,485; r(X,Z) = 0,993) | — | `tests/cases/jcgm100/jcgm100-h2-vector.json` | ✅ verified (`u.X` — D-05) |
+| Ko'p o'lchovli t (§5.3.2): o'rtacha, kovariatsiya ν/(ν − 2)·S/n, marginal t-kvantil; n ≤ N → `mc_t_dof` | `createSampler` (`montecarlo.js`) | `tests/engine/montecarlo.test.js` | ✅ mustaqil tekshiruv (taqsimot xossalari) + §9.4 |
+| Adaptiv M: §9.2.3 — 0,27·10⁶ (manba 0,35–0,45·10⁶), §9.2.4 — 1,52·10⁶ (manba 1,49–1,85·10⁶) | — | `*-mcm-adaptive` | ✅ (M urug'ga bog'liq; test — faqat yaqinlashganlik va qiymatlar) |
+| U_x musbat aniqlanmagan → `invalid_covariance` | `evaluateMultivariate` | `multivariate.test.js` | ✅ |
+| m = 1: 2.6.0 bilan bit darajasida bir xil | `evaluate`, `monteCarlo` | barcha mavjud misollar; nazorat skripti (176 / 188 MC natijasi aynan; 12 tasi — juftlangan kuzatuvlar, CHANGELOG) | ✅ |
+| `uc-calc/1` vektor natija: eksport → import → qayta hisob | `src/io/calc-json.js` | `tests/ui/multivariate.test.js` | ✅ |
+| Hisobot: chiqishlar jadvali, korrelyatsiya matritsasi, qamrov sohasi, ellips SVG; uch til | `src/report/sections.js::multivariateSection`, `ellipse.js` | `tests/ui/multivariate.test.js` | ✅ (jsdom; real brauzerda qo'lda ko'rilmagan) |
+| Linter MV1 | `linter/rules/mv01-output-correlation.js` | `multivariate.test.js`, `linter.test.js` | ✅ (chegara — egasi tasdig'ini kutadi) |
+| Shablon `outputs`, MV-01 | sxema, interpreter | `tests/templates/workflow.test.js` | ✅ |
+| Oshkormas model (§6.3; §6.3.2, §9.5), eng kichik soha (§7.7.4) | — | — | ❌ qilinmagan (R-24) |

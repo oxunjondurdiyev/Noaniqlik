@@ -585,6 +585,8 @@ export function buildState(tpl, data = {}, opts = {}) {
     measurements,
     directions,
     model: { formula: variant.formula, unit: variant.measurand.unit || '' },
+    // P07: qo'shimcha chiqishlar (shablonda `outputs`) → vektor model: state.outputs = [asosiy, …qo'shimchalar]
+    ...(Array.isArray(tpl.outputs) && tpl.outputs.length ? { outputs: [{ formula: variant.formula, unit: variant.measurand.unit || '' }].concat(tpl.outputs.map(o => ({ formula: o.formula, unit: o.unit || '' }))) } : {}),
     settings,
     covB: {},
     typeB,

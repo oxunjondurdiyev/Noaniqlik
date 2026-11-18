@@ -155,6 +155,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P07 — Ko'p o'zgaruvchili modellar (JCGM 102:2011)
 
+> **Holat: bajarildi (2026-11-18, `feat/p07-multivariate`, ENGINE_VERSION 2.7.0).** Vektor LPU (`src/engine/multivariate/`), qamrov sohasi (ellipsoid, to'g'ri burchakli), ko'p o'lchovli MCM (adaptiv §7.8, tekshiruv §8), ko'p o'lchovli t (§5.3.2 — Q-6 yopildi), `outputs[]`, hisobot / UI, MV-01, linter MV1. Verified: JCGM 102 Table 1–7 (GUF), 11; JCGM 100 H.2. **Qilinmagan (R-24):** oshkormas modellar (§6.3, §9.5), eng kichik qamrov sohasi (§7.7.4), `atan2` (§9.3 MCM). **Egasi qarori kerak:** MV1 chegarasi 0,5; r ni ko'rsatish formati.
+
 > **P06 dan o'tgan vazifa (egasi qarori 2026-11-18, R-23):** juftlangan A tur kuzatuvlari uchun **ko'p o'lchovli t-taqsimot** t_ν(x̄, S/n) (JCGM 102:2011 §5.3.2 — PDF `docs/references/` da) Monte-Karloga qo'shiladi; shundan keyin normal bo'lmagan (t-taqsimotli) korrelyatsiyalangan kirishlarda MCM natija beradi (hozir — `mc_nonnormal_correlation`, LPU natijasi amal qiladi). Test manbasi — JCGM 102 §9 misollari.
 
 - **Fayllar:** `src/engine/` — vektor chiqish, Jacobian, U_y = C·U_x·Cᵀ, ko'p o'lchamli MCM; UI: bir nechta formula, chiqishlar kovariatsiya matritsasi, qamrov sohasi.

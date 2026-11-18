@@ -21,6 +21,7 @@ import { evaluateSampling, SAMPLING_FORMAT } from './sampling/index.js';
 import { evaluateQualitative, QUALITATIVE_FORMAT } from './qualitative/index.js';
 import { evaluateMicro, MICRO_FORMAT } from './micro/index.js';
 import { evaluateMedical, MEDICAL_FORMAT } from './medical/index.js';
+import { evaluateMultivariate, isMultiOutput, MULTIVARIATE_MODE } from './multivariate/lpu.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -49,7 +50,15 @@ export function evaluate(spec) {
   const result = evaluateCore(spec);
   // P05a: metrologik linter — hisobni o'zgartirmaydi, faqat result.findings ni to'ldiradi (docs/LINTER_RULES.md).
   // result.warnings — eski maydon, bir versiya davomida moslik uchun qoladi (deprecated, 2.4.0).
-  if (result && !result.error) result.findings = lint(spec, result);
+  if (result && !result.error) {
+    if (result.mode === MULTIVARIATE_MODE) {
+      // P07: har bir chiqishning o'z topilmalari + vektor natija qoidalari (MV1); daraja bo'yicha saralanadi
+      const order = { error: 0, warning: 1, info: 2 };
+      const own = result.outputFindings || [];
+      delete result.outputFindings;
+      result.findings = own.concat(lint(spec, result)).sort((a, b) => order[a.severity] - order[b.severity]);
+    } else result.findings = lint(spec, result);
+  }
   return result;
 }
 
@@ -65,6 +74,8 @@ function evaluateCore(spec) {
   const norm = normalize(spec);
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;
+  // P07: vektor chiqish (JCGM 102:2011 §6.2). Bitta chiqishda — quyidagi (o'zgarmagan) yo'l.
+  if (isMultiOutput(state)) return evaluateMultivariate(state, st => evaluate(st));
 
   const params   = state.params || [];
   const model    = state.model || {};

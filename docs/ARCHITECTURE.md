@@ -4,6 +4,20 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P07 (2026-11-18, `feat/p07-multivariate`).** Ko'p o'zgaruvchili modellar (bog'liqlik: `engine/multivariate → engine/mc, engine/linter`; sof, DOM siz):
+>
+> | Fayl | Vazifasi (P07) |
+> |---|---|
+> | `src/engine/multivariate/linalg.js` | matritsa amallari: ko'paytirish, C·U·Cᵀ, Cholesky (qat'iy), simmetrik xos qiymatlar (Jacobi), korrelyatsiya matritsasi |
+> | `src/engine/multivariate/lpu.js` | `evaluateMultivariate`: har bir chiqish — bir o'lchovli yo'l; U_y = C_x·U_x·C_xᵀ; `isMultiOutput`, `singleState` |
+> | `src/engine/multivariate/region.js` | qamrov sohasi: ellipsoid (χ²), to'g'ri burchakli soha, ikki o'lchovli ellips parametrlari |
+> | `src/engine/multivariate/montecarlo.js` | ko'p o'lchovli MCM (adaptiv §7.8, tekshiruv §8) — `createMonteCarlo` shu yerga uzatadi |
+> | `src/engine/montecarlo.js::createSampler` | kirishlardan tanlash (bir va ko'p o'lchovli MCM uchun umumiy); juftlangan kuzatuvlar — ko'p o'lchovli t |
+> | `src/engine/linter/rules/mv01-output-correlation.js` | MV1 |
+> | `src/report/ellipse.js`, `sections.js::multivariateSection` | ellips SVG (skriptsiz), vektor natija bo'limi |
+> | `src/js/table.js` (model kartasi), `src/js/report.js` | qo'shimcha chiqish formulalari; natijalar sahifasi va bosma hisobot (`state.outputs`, `uc-calc/1` rejimi `MULTIVARIATE`) |
+> | `templates/builtin/MV-01.json` | vektor model shabloni (DRAFT, raqamsiz) |
+
 > **Yangilanish — P06 (2026-11-18, `feat/p06-montecarlo`).** Monte-Karlo 2.0 (bog'liqlik: `ui/mc → engine`; `engine/mc` — sof, DOM siz):
 >
 > | Fayl | Vazifasi (P06) |

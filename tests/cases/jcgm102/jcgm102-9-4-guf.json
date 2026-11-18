@@ -1,0 +1,136 @@
+{
+  "id": "jcgm102-9-4-guf",
+  "title": "JCGM 102 9.4: qarshilik va reaktivlikni bir vaqtda o'lchash (R, X, Z) — GUM yondashuvi, n = 6",
+  "status": "verified",
+  "domain": "elektr",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.4, Table 8 (kuzatuvlar), Table 11 (natija)",
+    "page": "52–54"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "V",
+        "I",
+        "phi"
+      ],
+      "measurements": {
+        "V": [
+          5.007,
+          4.994,
+          5.005,
+          4.99,
+          4.999,
+          4.999
+        ],
+        "I": [
+          19.663,
+          19.639,
+          19.64,
+          19.685,
+          19.678,
+          19.661
+        ],
+        "phi": [
+          1.0456,
+          1.0438,
+          1.0468,
+          1.0428,
+          1.0433,
+          1.0445
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "R = V / I * 1000 * cos(phi)",
+        "unit": "Ω"
+      },
+      "outputs": [
+        {
+          "formula": "R = V / I * 1000 * cos(phi)",
+          "unit": "Ω"
+        },
+        {
+          "formula": "X = V / I * 1000 * sin(phi)",
+          "unit": "Ω"
+        },
+        {
+          "formula": "Z = V / I * 1000",
+          "unit": "Ω"
+        }
+      ],
+      "settings": {
+        "paired": true,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": []
+    }
+  },
+  "run": {
+    "method": "evaluate"
+  },
+  "expected": {
+    "y.R": {
+      "value": 127.732,
+      "ref": "Table 11, GUF: R = 127.732 Ω"
+    },
+    "y.X": {
+      "value": 219.847,
+      "ref": "Table 11, GUF: X = 219.847 Ω"
+    },
+    "y.Z": {
+      "value": 254.26,
+      "ref": "Table 11, GUF: Z = 254.260 Ω"
+    },
+    "u.R": {
+      "value": 0.058,
+      "ref": "Table 11, GUF: u(R) = 0.058 Ω"
+    },
+    "u.X": {
+      "value": 0.241,
+      "ref": "Table 11, GUF: u(X) = 0.241 Ω"
+    },
+    "u.Z": {
+      "value": 0.193,
+      "ref": "Table 11, GUF: u(Z) = 0.193 Ω"
+    },
+    "r.R.X": {
+      "value": -0.588,
+      "ref": "Table 11, GUF: r(R, X) = −0.588"
+    },
+    "r.R.Z": {
+      "value": -0.485,
+      "ref": "Table 11, GUF: r(R, Z) = −0.485"
+    },
+    "one_minus_r.X.Z": {
+      "value": 0.00749,
+      "ref": "Table 11, GUF: 1 − r(X, Z) = 0.749 × 10⁻²"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi"
+    },
+    "y.R": {
+      "abs": 0.0015,
+      "reason": "Table 8 dagi 6-to'plam 1–5-to'plamlar o'rtachasining yaxlitlangan qiymati (φ: 1,044 5 — o'rtacha 1,044 46), shuning uchun o'rtachalar oxirgi xonada siljiydi: ½ oxirgi xona (0,0005) + shu siljish ta'siri (≤ 0,001)"
+    },
+    "y.X": {
+      "abs": 0.0015,
+      "reason": "Table 8 dagi 6-to'plam 1–5-to'plamlar o'rtachasining yaxlitlangan qiymati (φ: 1,044 5 — o'rtacha 1,044 46), shuning uchun o'rtachalar oxirgi xonada siljiydi: ½ oxirgi xona (0,0005) + shu siljish ta'siri (≤ 0,001)"
+    },
+    "y.Z": {
+      "abs": 0.0015,
+      "reason": "Table 8 dagi 6-to'plam 1–5-to'plamlar o'rtachasining yaxlitlangan qiymati (φ: 1,044 5 — o'rtacha 1,044 46), shuning uchun o'rtachalar oxirgi xonada siljiydi: ½ oxirgi xona (0,0005) + shu siljish ta'siri (≤ 0,001)"
+    },
+    "one_minus_r.X.Z": {
+      "abs": 0.000005,
+      "reason": "manbadagi oxirgi xonaning yarmi (0,749 × 10⁻²)"
+    }
+  },
+  "notes": "Kirishlar juftlangan kuzatuvlar (A tur, korrelyatsiya — JCGM 100:2008 5.2.3). U_y singular (Z² = R² + X², 9.4.2.3 Note 2) — outputs_singular topilmasi."
+}

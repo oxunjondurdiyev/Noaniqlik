@@ -4,6 +4,34 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.7.0] — P07: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
+
+**ENGINE_VERSION: 2.6.0 → 2.7.0** (minor). **Bitta chiqishli hisoblar o'zgarmadi:** barcha mavjud test misollarining `evaluate()` natijasi 2.6.0 bilan **bit darajasida bir xil** (`engineVersion` dan tashqari); 9 ta etalon Excel nuqtasi, 10-test va JCGM 100 / 101 misollari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi. `monteCarlo()` ning 188 ta nazorat natijasidan 176 tasi bit darajasida bir xil; qolgan 12 tasi — quyida.
+
+### ⚠ O'zgargan Monte-Karlo natijalari (alohida qayd)
+
+1. **Juftlangan A tur kuzatuvlari (bir xil n, qatorma-qator) endi natija beradi.** 2.6.0 da bunday kirishlar korrelyatsiyada bo'lsa `mc_nonnormal_correlation` xatosi qaytar edi (zichlik etaloni, JCGM 100 H.2). 2.7.0 da ular **ko'p o'lchovli t-taqsimot** t_ν(x̄, S/n), ν = n − N dan tanlanadi (JCGM 102:2011 §5.3.2, 11-bet; egasi qarori Q-6, 2026-11-18). Shart: guruhdagi barcha kirishlar usul 1 (o'rtacha), n bir xil, bo'sh katak yo'q, guruh ichida B tur kovariatsiyasi yo'q. Shart bajarilmasa — avvalgidek `mc_nonnormal_correlation`.
+2. **n ≤ N** (kuzatuvlar soni guruhdagi kattaliklar sonidan ko'p emas) — aniq xato `mc_t_dof` (S singular, taqsimot aniqlanmagan); jimgina yaqinlashtirilmaydi.
+3. **ν ≤ 2** bo'lsa Q-5 qoidasi amal qiladi: u(y) berilmaydi, faqat qamrov intervali.
+4. **`nonNormalCorrelation: 'gaussian'` sozlamasi** yuqoridagi shart bajarilgan guruhga endi qo'llanilmaydi — ko'p o'lchovli t ustun (aniqroq taqsimot); sozlama faqat t qo'llab bo'lmaydigan guruhlarda ishlaydi.
+
+Boshqa barcha MCM natijalari (mustaqil kirishlar, Gauss guruhlari) o'zgarmagan — tasodifiy sonlar ketma-ketligi saqlangan.
+
+### Qo'shilganlar
+
+- **Vektor LPU** (`src/engine/multivariate/lpu.js`): `outputs[]` da bir nechta formula → har bir chiqish o'zgarmagan bir o'lchovli yo'l bilan baholanadi, so'ng C_x (m × N), **U_y = C_x·U_x·C_xᵀ** (JCGM 102 §6.2.1.3, Eq. (3)), korrelyatsiya matritsasi. Umumiy kirishlar orqali chiqishlar kovariatsiyasi avtomatik. Kompleks kattaliklar — haqiqiy va mavhum qism alohida chiqish sifatida. U_x musbat (yarim) aniqlanmagan → `invalid_covariance` (tuzatilmaydi). Takror belgi → `duplicate_output`.
+- **Qamrov sohasi** (`multivariate/region.js`): ellipsoid k_p² = χ²_{m;P} (§6.5.2–6.5.3, Table 1 — 20 qiymatning hammasi testda), to'g'ri burchakli soha k_q (§6.5.4, Table 2); m = 2 da ellips yarim o'qlari, burchagi, yuzi. Hisobotda soha turi, P, k_p, k_q.
+- **Ko'p o'lchovli Monte-Karlo** (`multivariate/montecarlo.js`): P06 dagi `createMonteCarlo`, Wichmann–Hill va Worker qayta ishlatiladi; y, U_y, MCM ellipsoidi (§7.7.2, Cholesky orqali), to'g'ri burchakli soha (§7.7.3); adaptiv protsedura §7.8 (kamida 10 blok; y_j, u(y_j), λ_max, k_p, k_q bo'yicha); §8 tekshiruvi (standart δ/5). ν ≤ 2 da — faqat chiqishlar bo'yicha marginal intervallar.
+- **Format:** `uc-model/1` da `outputs[]` bir nechta; `calc-state/v2` da `state.outputs`; natijada `outputs[]`, `covariance`, `correlation`, `coverageRegion`; `uc-calc/1` rejimi `MULTIVARIATE` (eksport → import → qayta hisob bit darajasida bir xil). Bitta chiqishli hujjatlar o'zgarmagan.
+- **Linter:** MV1 — `outputs_correlated` (info, |r| > 0,5 — **loyiha chegarasi, egasi tasdig'ini kutadi**), `outputs_singular` (info).
+- **UI / hisobot:** model kartasida qo'shimcha chiqish formulalari; natijalar jadvali (y_i, u, k, U, ν_eff), korrelyatsiya matritsasi, qamrov sohasi, ikki chiqishda ellips grafigi (SVG, skriptsiz — CSP o'zgarmagan); bosma hisobotda har bir chiqish byudjeti; normativ havola JCGM 102:2011.
+- **Shablonlar:** sxemada ixtiyoriy `outputs` massivi; `MV-01` (R, X, Z — DRAFT, raqamsiz). Mavjud 44 shablon o'zgarmagan.
+- **Test misollari (verified, sahifa havolasi bilan):** JCGM 102 §9.2.2–9.2.4 (Table 3–5: GUF, MCM, adaptiv MCM, §8 xulosasi), §9.3 GUF (Table 6–7, 6 holat), §9.4 (Table 11: GUF va MCM), JCGM 100 H.2 vektor sifatida; §6.2.2 Example 1, §6.5.2.3, §7.7.2 misollari. Jami 82 verified, 2 unverified.
+
+### Qilinmaganlar (`docs/RISKS.md` R-24)
+
+Oshkormas modellar h(Y, X) = 0 (§6.3; §6.3.2 va §9.5 misollari), eng kichik qamrov sohasi (§7.7.4), §9.3 ning MCM qatorlari (parserda `atan2` yo'q), ko'p chiqish + ko'p nuqta birikmasi (UI).
+
 ## [2.6.0] — P06: Monte-Karlo 2.0 (JCGM 101:2008) (2026-11-18)
 
 **ENGINE_VERSION: 2.5.1 → 2.6.0** (minor). **LPU natijalari (y, u_c, ν_eff, k, U, `conf`, `decision`, `findings`) o'zgarmadi:** 61 ta test misolining `evaluate()` natija JSON'i 2.5.0 (`c1cccce`) bilan **bayt darajasida bir xil** (`engineVersion` dan tashqari; skript bilan solishtirildi). 9 ta etalon Excel nuqtasi o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.

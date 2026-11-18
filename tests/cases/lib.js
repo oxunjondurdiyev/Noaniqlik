@@ -71,6 +71,27 @@ function pickTopDown(q) {
   };
 }
 
+// P07: vektor natija (LPU — mode 'MULTIVARIATE'; MCM — multivariate: true). Kattalik nomlari:
+//   y.<belgi>, u.<belgi>, r.<a>.<b>, one_minus_r.<a>.<b>, kp, kq, M, validated, converged, ok.<kp|kq|lambdaMax|y|u>
+function pickMultivariate(q) {
+  return r => {
+    const idx = s => r.symbols.indexOf(s);
+    const p = String(q).split('.');
+    const mc = r.mode === 'MC';
+    if (p[0] === 'y') return r.y[idx(p[1])];
+    if (p[0] === 'u') return mc ? r.u[idx(p[1])] : r.outputs[idx(p[1])].uc;
+    if (p[0] === 'r') return r.correlation[idx(p[1])][idx(p[2])];
+    if (p[0] === 'one_minus_r') return 1 - r.correlation[idx(p[1])][idx(p[2])];
+    if (q === 'kp') return r.coverageRegion.ellipsoid.kp;
+    if (q === 'kq') return r.coverageRegion.rectangle.kq;
+    if (q === 'M') return r.M;
+    if (q === 'validated') return Number(r.validated);
+    if (q === 'converged') return Number(r.adaptive.converged);
+    if (p[0] === 'ok') return Number(r.comparison.filter(c => c.q === p[1]).every(c => c.ok));
+    return undefined;
+  };
+}
+
 function run(c) {
   const runSpec = c.run || { method: 'evaluate' };
   if (runSpec.method === 'regression') {
@@ -130,7 +151,8 @@ function compare(q, actual, expected, tol) {
 // [{q, actual, expected, ref, tol, known}] — bitta misol uchun barcha tekshiruvlar
 function checks(c) {
   const { r, runSpec } = run(c);
-  const pick = runSpec.method === 'regression'
+  const multi = r && (r.mode === 'MULTIVARIATE' || r.multivariate);
+  const pick = multi ? new Proxy({}, { get: (_, q) => pickMultivariate(String(q)) }) : runSpec.method === 'regression'
     ? new Proxy({}, { get: (_, q) => pickRegression(String(q)) })
     : runSpec.method === 'topdown' || runSpec.method === 'path'
       ? new Proxy({}, { get: (_, q) => pickTopDown(String(q)) })

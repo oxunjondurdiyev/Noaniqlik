@@ -22,7 +22,8 @@ export function normalize(spec) {
 
 function fromModel(m) {
   const outputs = m.outputs || [];
-  if (outputs.length !== 1) return { error: 'multi_output', detail: String(outputs.length) };
+  // P07: bir nechta chiqish (vektor model, JCGM 102:2011 §6.2) — state.outputs; bitta chiqishda yo'l o'zgarmagan
+  if (outputs.length < 1) return { error: 'multi_output', detail: '0' };
   const inputs = m.inputs || [];
   const measurements = {}, units = {}, typeA = {};
   for (const inp of inputs) {
@@ -41,6 +42,7 @@ function fromModel(m) {
       covB: m.covB || {},
       units,
       settings: { ...st, typeA: { ...(st.typeA || {}), ...typeA } },
+      ...(outputs.length > 1 ? { outputs: outputs.map(o => ({ ...o })) } : {}),
     },
   };
 }
@@ -55,7 +57,8 @@ export function toModel(state) {
   delete settings.typeA;
   return {
     format: 'uc-model/1',
-    outputs: [{ formula: (s.model || {}).formula || '', unit: (s.model || {}).unit || '' }],
+    outputs: Array.isArray(s.outputs) && s.outputs.length > 1 ? s.outputs.map(o => ({ ...o }))
+      : [{ formula: (s.model || {}).formula || '', unit: (s.model || {}).unit || '' }],
     inputs: (s.params || []).map(p => ({
       name: p,
       ...(s.units && s.units[p] ? { unit: s.units[p] } : {}),

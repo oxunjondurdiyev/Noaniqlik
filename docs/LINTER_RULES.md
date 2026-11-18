@@ -1,4 +1,4 @@
-# Metrologik linter qoidalari (`src/engine/linter/`) — ENGINE_VERSION 2.6.0
+# Metrologik linter qoidalari (`src/engine/linter/`) — ENGINE_VERSION 2.7.0
 
 > Holat: P05a, 2026-11-18. Linter `evaluate()` natijasiga **`result.findings`** ni yozadi. U **hisobni o'zgartirmaydi**: y, u_c, ν_eff, k, U — avvalgidek (55 ta test misolida 2.3.0 bilan bayt darajasida bir xil).
 > Har bir qoida — alohida modul (`src/engine/linter/rules/*.js`): `{ id, severity, ref, modes, codes, check(spec, result, ctx) → findings[] }`.
@@ -85,6 +85,13 @@ Bu qoidalar `evaluate()` natijasida chiqmaydi (9 ta etalon nuqtaning GUM topilma
 | | `mc_variance_undefined` | warning | JCGM 101:2008 §7.6 Note 2, §6.4.9.4, C.6 Note | Kirishga ν ≤ 2 bo'lgan t-taqsimot tayinlangan (n ≤ 3) — u(y) aniqlanmagan, faqat qamrov intervali | n ≥ 4 yoki s_p (usul 2); interval ko'rsatish |
 | | `mc_legacy_rng` | info | JCGM 101:2008 C.3.2.1 | Eski generator (xorshift32) bilan takrorlangan natija | Yangi hisobot uchun standart generator |
 
+### 2.2b. Vektor natija uchun qoida (P07; rejim `MULTIVARIATE`)
+
+| Qoida | Kod | Daraja | Shart | Manba |
+|---|---|---|---|---|
+| MV1 | `outputs_correlated` | info | chiqishlar juftida \|r(y_i, y_j)\| > 0,5 — natijalar birgalikda ishlatilsa kovariatsiya hisobga olinishi kerak | JCGM 102:2011 §6.5.2.3 a), EXAMPLE 2; §7.8.2.4 (chegara — loyiha qarori, §4 #24) |
+| MV1 | `outputs_singular` | info | U_y singular (λ_min / λ_max < 10⁻⁹) — chiqishlar chiziqli bog'liq; ellipsoid past o'lchamli | JCGM 102:2011 §9.4.2.3 Note 2, §7.8.1.2 Note 6 (chegara — loyiha qarori) |
+
 ### 2.3. Modul ogohlantirishlari topilma sifatida (kodlar o'zgarmagan)
 
 | Qoida | Kodlar | Daraja | Rejim | Ref |
@@ -135,6 +142,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 21 | M2 (P06) — **egasi tasdiqladi (2026-11-18)** | normal bo'lmagan korrelyatsiyada MCM natijasi **berilmaydi** (error), topilmada "LPU natijasi amal qiladi"; Gauss yaqinlashuvi — faqat sozlama bilan, warning; ko'p o'lchovli t — P07 | JCGM 101 §6.4.8.4 Note: boshqa birgalikdagi taqsimot uchun tanlash usuli "would need to be provided" |
 | 22 | M3 — **egasi qarori (2026-11-18)** | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; GUM tekshiruvida MCM toleransi **δ/5** (§8.2), oddiy MCM da δ; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
 | 23 | M4 — **egasi qarori (2026-11-18)** | `mc_variance_undefined` chegarasi ν ≤ 2; warning; bunday kirishda mezon avtomatik faqat interval uchlari, u(y) berilmaydi. `mc_not_converged` — adaptiv M chegarasi **yoki** qat'iy M da tekshiruv toleransiga erishilmagani | §7.6 Note 2: "fewer than three degrees of freedom" |
+| 24 | MV1 (P07) — **egasi tasdig'ini kutadi** | \|r\| > **0,5** → info (`outputs_correlated`); singular chegarasi λ_min / λ_max < 10⁻⁹ → info (`outputs_singular`) | JCGM 102 da son yo'q; 0,5 — X4 dagi chegara bilan bir xil olindi |
 
 ## 5. Tekshiruv
 
@@ -145,3 +153,4 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 
 9 ta etalon nuqtadagi topilmalar (hammasi info): gaz 1 — `zero_s`, `n_small`, `x10_no_drift`; gaz 2, 3 — `n_small`, `x10_no_drift`; termometr 1 — `zero_s`; termometr 4 — `zero_s`, `x5_resolution_rect`; zichlik, termometr 2, 3, 5 — topilma yo'q.
 - `tests/engine/montecarlo.test.js`, `tests/engine/mc-legacy.test.js` — M2, M3, M4: har biri uchun ijobiy va salbiy holat (P06).
+- `tests/engine/multivariate.test.js` — MV1: ijobiy va salbiy holat (P07).

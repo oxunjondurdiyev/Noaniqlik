@@ -1,0 +1,113 @@
+{
+  "id": "jcgm102-9-2-3-validation",
+  "title": "JCGM 102 9.2.3: GUM natijasini MCM bilan tekshirish (§8, n_dig = 2)",
+  "status": "verified",
+  "domain": "umumiy (o'lchamsiz)",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.2.3.4",
+    "page": "39"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ],
+        "X3": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y1 = X1 + X3",
+        "unit": "1"
+      },
+      "outputs": [
+        {
+          "formula": "Y1 = X1 + X3",
+          "unit": "1"
+        },
+        {
+          "formula": "Y2 = X2 + X3",
+          "unit": "1"
+        }
+      ],
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "X1 ~ N(0, 1)",
+          "param": "X1",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X2 ~ N(0, 1)",
+          "param": "X2",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X3 ~ R(−1·√3, 1·√3) (standart og'ishi 1)",
+          "param": "X3",
+          "halfWidth": "1 * sqrt(3)",
+          "distribution": "rect"
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 2
+    }
+  },
+  "expected": {
+    "ok.y": {
+      "value": 1,
+      "ref": "y1, y2 — tasdiqlangan"
+    },
+    "ok.u": {
+      "value": 1,
+      "ref": "u(y1), u(y2) — tasdiqlangan"
+    },
+    "ok.lambdaMax": {
+      "value": 1,
+      "ref": "r(y1, y2) — tasdiqlangan"
+    },
+    "ok.kp": {
+      "value": 0,
+      "ref": "kp — tasdiqlanmagan (\"the values for kp and kq were not validated\")"
+    },
+    "ok.kq": {
+      "value": 0,
+      "ref": "kq — tasdiqlanmagan"
+    },
+    "validated": {
+      "value": 0,
+      "ref": "kp va kq tasdiqlanmagani uchun umumiy xulosa — tasdiqlanmagan"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0
+    }
+  },
+  "notes": "9.2.2.8: n_dig = 2 → δ1 = δ2 = 0,05, ρ = 0,05, κp = κq = 0,05; MCM natijalari δ/5 bilan (8.3 Note 3)."
+}

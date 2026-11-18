@@ -933,3 +933,14 @@ details.rg-card > summary { cursor: pointer; }
 }
 .io-label { font-weight: 700; }
 .io-modal { display: flex; }
+
+/* P07 — vektor natija: qo'shimcha chiqish formulalari, korrelyatsiya matritsasi, qamrov sohasi grafigi */
+.model-outputs { display: flex; flex-direction: column; gap: .4rem; margin-top: .5rem; padding-top: .5rem; border-top: 1px dashed var(--border); }
+.region-plot { display: block; max-width: 100%; height: auto; margin: .6rem 0 .2rem; color: var(--text); }
+.region-plot text { font-size: 11px; fill: currentColor; }
+.region-plot .region-ellipse { stroke: var(--accent); }
+.region-plot .region-rect { stroke: var(--text-muted); }
+@media print {
+  .region-plot { color: #000; break-inside: avoid; }
+  .region-plot .region-ellipse, .region-plot .region-rect { stroke: #000; }
+}
