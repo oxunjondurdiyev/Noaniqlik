@@ -170,6 +170,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P10 — Mikrobiologiya, tibbiy laboratoriya, namuna olish, sifatli testlar
 
+> **Holat: bajarildi (2026-11-18, `feat/p10-micro-sampling-qualitative`, ENGINE_VERSION 2.3.0).** Namuna olish (UfS:2019) va sifatli testlar (AQA:2021) — verified; mikrobiologiya (ISO 19036) va tibbiy laboratoriya (ISO/TS 20914) — BETA / unverified. Ochiq qarorlar — `docs/RISKS.md` R-21.
+
 - **Fayllar:** `src/engine/micro/` (Puasson, log₁₀ shkala), ISO 20914 (tibbiy laboratoriya) yondashuvi, `src/engine/sampling/` (dublikat usuli, (robust) ANOVA — EURACHEM UfS 2019), `src/engine/qualitative/` (aniqlash ehtimoli, LOD₅₀, noto'g'ri musbat/manfiy).
 - **Nima buzilishi mumkin:** yangi modul; ISO 19036, ISO 20914, ISO 29201 pullik — 8-javob bo'yicha manba, aks holda `unverified`.
 - **Qanday tekshiriladi:** EURACHEM UfS (egasi qo'shadi) va boshqa ochiq manba misollari.

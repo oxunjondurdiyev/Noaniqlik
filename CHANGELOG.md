@@ -4,6 +4,20 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.3.0] — P10: mikrobiologiya, tibbiy laboratoriya, namuna olish, sifatli testlar (2026-11-18)
+
+**ENGINE_VERSION: 2.2.0 → 2.3.0** (minor: yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** GUM, MC, regressiya va top-down yo'lidagi 43 ta test misolining to'liq natija JSON'i 2.2.0 (`41a041a`) bilan bayt darajasida bir xil (`engineVersion` maydonidan tashqari; skript bilan solishtirildi). 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.
+
+- **Namuna olish** (`src/engine/sampling/`, `uc-sampling/1`) — **verified.** Dublikat usuli (n ob'ekt × 2 namuna × 2 tahlil): klassik ichma-ich ANOVA va robust ANOVA; s_samp, s_anal, s_meas; U′ = 2·100·s_meas/x̄; noaniqlik koeffitsiyenti ᶠU = exp(2·s_G). Manfiy dispersiya bahosi 0 ga tenglanadi va ogohlantirish chiqadi. Manba: EURACHEM/CITAC UfS:2019 A1 (pp. 40–42), A2 (pp. 47–49) — klassik natijalar to'liq aniqlikda, robust natijalar 4 qiymatli raqamgacha mos (RANOVA dasturi kodi repoda yo'q — algoritm qayta tiklangan, D-16).
+- **Sifatli (binar) testlar** (`src/engine/qualitative/`, `uc-qualitative/1`) — **verified.** 2×2 jadval: SS, SP, noto'g'ri musbat/manfiy ulushlar, PPV/NPV, LR(+), LR(−), posterior ehtimol (Bayes); ishonch intervallari — Wilson (AQA:2021 Eq. 8–11, Table E6.2) va Clopper–Pearson (aniq; faqat analitik tekshiruv). Manba: EURACHEM/CITAC AQA:2021 Example E3 (p. 28), 7.6 (p. 36).
+- **Mikrobiologiya** (`src/engine/micro/`, `uc-micro/1`) — **BETA, unverified** (ISO 19036 repoda yo'q): log₁₀ shkala; texnik, matritsa va Puasson (0,4343/√ΣC) hissalari; asimmetrik interval [10^(y−U); 10^(y+U)]; past sanoqda ogohlantirish.
+- **Tibbiy laboratoriya** (`src/engine/medical/`, `uc-medical/1`) — **BETA, unverified** (ISO/TS 20914 repoda yo'q): IQC darajalari bo'yicha u = √(u_cal² + u_Rw²), kerak bo'lsa bias; nisbiy va mutlaq ko'rinishda.
+- **UI:** "Maxsus rejimlar" yorlig'i (4 rejim; jadvalni Excel'dan qo'yish, o'nlik vergul); hisobot bo'limlari `src/js/report.js::specialSection` — natija, qo'llanilgan yondashuv va manbasi, cheklovlar, ogohlantirishlar (BETA belgisi bosma hisobotda ham). Matnlar — `src/js/i18n-special.js` (uz/ru/en). Yangi `localStorage` kaliti `uc_special_v1` (shaxsiy ma'lumot yo'q).
+- **Shablonlar:** `evaluationMode` — `SAMPLING`, `QUALITATIVE`, `MICROBIOLOGY`, `MEDICAL`; sxemada `special` bo'limi, `buildSpecialState`; DRAFT shablonlar `SP-01…SP-04` (raqamsiz). BETA rejim shablonini APPROVED ga o'tkazib bo'lmaydi.
+- **Manbadan tekshirilgan yangi misollar (8 ta):** `ufs-a1-nitrate-classical`, `ufs-a1-nitrate-robust`, `ufs-a2-lead-classical`, `ufs-a2-lead-robust`, `aqa-e6-sarscov2`, `aqa-e3-emit-opiates`, `-methadone`, `-cocaine`.
+- **Top-down (R-20) — egasi qarorlari (2026-11-18), hujjatlarda qayd etildi:** ν(bias) = N − 1 tasdiqlandi; usta jonli saytda brauzerda ko'rib chiqildi (`41a041a`). Kod o'zgarmadi.
+- **Egasi hal qilishi kerak** (`docs/RISKS.md` R-21): sifatli testlar hisobotida Wilson yoki Clopper–Pearson (hozir ikkalasi ko'rsatiladi — manbalar zid); BETA modullar uchun manba.
+
 ## [2.2.0] — P09: top-down va empirik kattaliklar (2026-11-17)
 
 **ENGINE_VERSION: 2.1.0 → 2.2.0** (minor: yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `uc-model/1`, `calc-state/v2` va `uc-regression/1` yo'lidagi 35 ta test misolining (GUM, MC, regressiya) to'liq natija JSON'i 2.1.0 bilan bayt darajasida bir xil (`engineVersion` maydonidan tashqari; P09 da skript bilan solishtirildi). 9 ta etalon Excel nuqtasi, 10-test (MC) va shablon natijalari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.

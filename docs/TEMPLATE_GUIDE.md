@@ -33,6 +33,7 @@ Shablon — bitta o'lchash yoki sinov metodikasining JSON tavsifi: o'lchash mode
 | `decisionRule` | qaror qoidasi (to'liq — P05) |
 | `evaluationMode`, `regression` | `GUM_BOTTOM_UP` (standart) yoki `REGRESSION` — kalibrlash egri chizig'i ([9-bo'lim](#9-regression-rejimi-p08)) |
 | `evaluationMode: "TOP_DOWN"`, `topDown`, `isEmpiricalMeasurand` | validatsiya va sifat nazorati ma'lumotlaridan noaniqlik ([10-bo'lim](#10-top_down-rejimi-p09)) |
+| `evaluationMode: "SAMPLING"` / `"QUALITATIVE"` / `"MICROBIOLOGY"` / `"MEDICAL"`, `special` | maxsus rejimlar ([11-bo'lim](#11-maxsus-rejimlar-p10)) |
 
 **Bitta asbob korrelyatsiyasi** — batafsil [8-bo'lim](#8-bitta-asbob-korrelyatsiyasi-p04b). Qisqasi: asbob kalibrlash manbasi ikki qatorga bo'linadi — umumiy qism (`share: "common"`, `correlated: true`) va nuqtaga xos qism (`share: "point"`, `correlated: false`). Korrelyatsiyaga faqat umumiy qism kiradi. Ajratish qobiliyati (`resol`) va jarayon manbalari — `correlated: false`.
 
@@ -247,3 +248,32 @@ Ichki shablonlar (hammasi **DRAFT**, raqamli maydonlari bo'sh):
 | [`TD-04`](../templates/builtin/TD-04.json) | Og'ir metallar (AAS) | u(R_w) + CRM; kalibrlash R_w ichida | Nordtest §3.2, §6.1; `regressionTemplate: "R-01"` |
 
 Test: `tests/templates/topdown.test.js`.
+
+## 11. Maxsus rejimlar (P10)
+
+To'rt rejim "Maxsus rejimlar" yorlig'ida ochiladi: shablon → `buildSpecialState` → oyna → `evaluate()` ([ENGINE_API §9](ENGINE_API.md#9-maxsus-rejimlar-p10)).
+
+| `evaluationMode` | Mazmun | Manba | Holat |
+|---|---|---|---|
+| `SAMPLING` | namuna olish noaniqligi: dublikat usuli, ichma-ich ANOVA | EURACHEM/CITAC UfS:2019 | verified |
+| `QUALITATIVE` | sifatli (binar) test: 2×2 jadval, SS, SP, ishonch intervallari | EURACHEM/CITAC AQA:2021 | verified |
+| `MICROBIOLOGY` | mikrobiologik sanoq, log₁₀ shkala | ISO 19036 (repoda yo'q) | **BETA** |
+| `MEDICAL` | tibbiy laboratoriya, IQC darajalari | ISO/TS 20914 (repoda yo'q) | **BETA** |
+
+```json
+"evaluationMode": "SAMPLING",
+"measurand": { "symbol": "c", "name": {…}, "unit": "mg/kg" },
+"model": { "formula": "s_meas = sqrt(s_samp^2 + s_anal^2)", "note": {…} },
+"inputs": [{ "symbol": "c", "unit": "mg/kg", "kind": "observation", "name": {…} }],
+"typeBSources": [],
+"special": { "method": "classical", "logTransform": false, "hint": {…} }
+```
+
+Qoidalar:
+
+1. `special` bo'limi majburiy. Maydonlari: `hint` (uch tilda); faqat `SAMPLING` uchun — `method` (`classical` / `robust`) va `logTransform`. **Raqamli maydon yo'q** — o'lchashlar, sanoqlar va IQC ma'lumotini laboratoriya oynada kiritadi.
+2. `typeBSources` va `variants` ishlatilmaydi; `model.formula` tavsifiy.
+3. `MEDICAL` uchun `measurand.unit` majburiy (nisbiy ↔ mutlaq o'tkazish birlik bilan bajariladi).
+4. **BETA rejimlar** (`MICROBIOLOGY`, `MEDICAL`) manba misoli bilan tasdiqlanmagan: shablon tekshiruvi ogohlantirish beradi, **APPROVED holatiga o'tkazish — xato**. Natija va bosma hisobotda "BETA" belgisi va `*_unverified` ogohlantirishi chiqadi.
+
+Ichki shablonlar (hammasi **DRAFT**, raqamsiz): [`SP-01`](../templates/builtin/SP-01.json) (namuna olish), [`SP-02`](../templates/builtin/SP-02.json) (sifatli test), [`SP-03`](../templates/builtin/SP-03.json) (mikrobiologiya, BETA), [`SP-04`](../templates/builtin/SP-04.json) (tibbiy laboratoriya, BETA). Test: `tests/ui/special.test.js`.
