@@ -7,9 +7,13 @@ export { LocalAdapter, DB_NAME, DB_VERSION } from './local-adapter.js';
 export { RemoteAdapter, REMOTE_ENDPOINTS } from './remote-adapter.js';
 export { makeEntry, verifyChain, GENESIS } from './audit.js';
 export { canonicalize, sha256Hex, hashOf, canonicalizeJcs, jcsHash, portable, fromPortable } from './canonical.js';
-export { migrateLegacy, upgradeCalcState, CALC_STATE_SCHEMA, LEGACY_KEY, BACKUP_KEY, MIGRATION_KEY, LEGACY_CALC_ID } from './migrate.js';
+export { migrateLegacy, migrateSchema, upgradeCalcState, CALC_STATE_SCHEMA, SCHEMA_KEY, LEGACY_KEY, BACKUP_KEY, MIGRATION_KEY, LEGACY_CALC_ID } from './migrate.js';
 export { acceptFinding, revokeAcceptance, acceptancesFromAudit, cleanRole, ACCEPT_ACTION, REVOKE_ACTION, ACCEPT_ENTITY, MIN_COMMENT, ACCEPTABLE_SEVERITIES } from './acceptance.js';
 export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js';
+export {
+  REGISTRY_STORE, REGISTRY_RECORD_FORMAT, REGISTRY_SCHEMA, REGISTRY_RECORD_KINDS, CMC_TABLE_ID,
+  canEditRegistry, newRegistryId, listRegistry, getRegistry, saveRegistry, removeRegistry, registryHistory, importRegistry,
+} from './registry.js';
 
 /**
  * Laboratoriya standart sozlamalari (org settings). Hisob boshlanganda (shablon yuklanganda) qo'llanadi;
@@ -24,12 +28,14 @@ export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js'
  *   ciMethod     — sifatli testlar ishonch intervali: 'wilson' (standart, AQA:2021) | 'clopper_pearson' (P10, R-21)
  *   criticalMode — U = 0, u_c = 0 yoki U < CMC bo'lgan natija: 'mark' (standart — hisobot aniq belgi bilan chiqadi) |
  *                  'block' (hisobot chop etilmaydi) (P05a, RISKS R-05). cmcMode: 'block' avvalgidek ishlaydi.
+ *   expiryWarnDays — etalon amal qilish muddati tugashiga necha kun qolganda ogohlantirish (linter L1, info; P11) — standart 30
  */
 export const LAB_DEFAULTS = Object.freeze({
   P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson', criticalMode: 'mark',
   // P06 (egasi qarorlari 2026-11-18): Monte-Karlo — adaptiv M (standart) yoki qat'iy; n_dig; §8 tekshiruvi toleransi
   // 'delta5' (JCGM 101 §8.2, standart) yoki 'delta' (tushirilgan — hisobotda belgi bilan)
   mcMode: 'adaptive', mcNDig: 2, mcTolerance: 'delta5',
+  expiryWarnDays: 30,
 });
 export const LAB_SETTINGS_KEY = 'lab';
 

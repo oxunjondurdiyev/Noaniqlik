@@ -7,16 +7,17 @@
    standard_no_validity    (warning)  o'lchash sanasi yoki amal qilish muddati ko'rsatilmagan — muddat tekshirilmadi.
    standard_no_traceability (warning) akkreditatsiya belgisi / kodi yo'q va yo'l CIPM MRA qamragan NMI emas —
                                       kuzatuvchanlik dalili yo'q (ILAC P10:07/2020 §2, 1) – 3b), Note 3; p. 6–7).
-   Ref: ISO/IEC 17025:2017 §6.4, §6.5 (unverified — standart repoda yo'q); ILAC P10:07/2020 §2 (p. 6–8).
+   Ref: ILAC P10:07/2020 §2 (p. 6–8) — verified. ISO/IEC 17025:2017 §6.4, §6.5 — unverified (standart repoda yo'q).
+   Muddat chegarasining o'zi ("muddati o'tgan → error") — loyiha qarori: ILAC P10 muddat haqida gapirmaydi.
    Chegaralar va darajalar — loyiha qarori (docs/LINTER_RULES.md §4 #25–#27). */
 import { finding, gumState, typeBOf, THRESHOLDS } from '../util.js';
 import { validityStatus, hasTraceabilityEvidence } from '../../lab/registry.js';
 
-const REF_17025 = 'ISO/IEC 17025:2017 §6.4, §6.5 (unverified)';
 const rule = {
   id: 'L1',
   severity: 'error',
-  ref: `${REF_17025}; ILAC P10:07/2020 §2`,
+  // ISO/IEC 17025:2017 §6.4, §6.5 repoda yo'q — `ref` da faqat tekshirilgan manba (ILAC P10) ko'rsatiladi
+  ref: 'ILAC P10:07/2020 §2 (p. 6–7)',
   modes: ['GUM'],
   codes: {
     standard_expired: {},

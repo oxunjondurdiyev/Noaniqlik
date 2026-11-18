@@ -34,7 +34,8 @@ const str = v => (v === null || v === undefined ? '' : String(v).trim());
 export function cleanPoint(p) {
   const o = p || {};
   const x = num(o.x), c = num(o.correction), U = num(o.U), k = num(o.k), nu = num(o.nu);
-  return { x, correction: Number.isFinite(c) ? c : null, U, k: Number.isFinite(k) && k > 0 ? k : null, nu: Number.isFinite(nu) && nu > 0 ? nu : null };
+  // bo'sh / son bo'lmagan qiymat — null (NaN emas: yozuv JSON va kanonik xesh uchun yaroqli bo'lishi kerak)
+  return { x: Number.isFinite(x) ? x : null, correction: Number.isFinite(c) ? c : null, U: Number.isFinite(U) ? U : null, k: Number.isFinite(k) && k > 0 ? k : null, nu: Number.isFinite(nu) && nu > 0 ? nu : null };
 }
 
 export function cleanCalibration(c) {
@@ -43,7 +44,7 @@ export function cleanCalibration(c) {
     certificate: str(o.certificate), calibrator: str(o.calibrator), accreditation: str(o.accreditation),
     route: TRACEABILITY_ROUTES.includes(o.route) ? o.route : '', traceability: str(o.traceability),
     date: isDate(o.date) ? str(o.date).slice(0, 10) : '', validUntil: isDate(o.validUntil) ? str(o.validUntil).slice(0, 10) : '',
-    points: (Array.isArray(o.points) ? o.points : []).map(cleanPoint).filter(p => Number.isFinite(p.x) || Number.isFinite(p.U)),
+    points: (Array.isArray(o.points) ? o.points : []).map(cleanPoint).filter(p => p.x !== null || p.U !== null),
   };
 }
 

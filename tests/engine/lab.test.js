@@ -281,5 +281,5 @@ test('yangi linter kodlari ro\'yxatda: L1, L2 (manba belgisi bilan)', () => {
   for (const c of ['standard_expired', 'standard_expiring', 'standard_no_validity', 'standard_no_traceability']) assert.equal(E.FINDING_CODES[c].rule, 'L1', c);
   for (const c of ['outside_scope', 'cmc_x_missing']) assert.equal(E.FINDING_CODES[c].rule, 'L2', c);
   assert.deepEqual([E.FINDING_CODES.standard_expired.severity, E.FINDING_CODES.standard_expiring.severity, E.FINDING_CODES.standard_no_traceability.severity, E.FINDING_CODES.outside_scope.severity], ['error', 'info', 'warning', 'warning']);
-  assert.match(E.FINDING_CODES.standard_expired.ref, /unverified/);
+  assert.match(E.FINDING_CODES.standard_expired.ref, /ILAC P10:07\/2020 §2/);
 });

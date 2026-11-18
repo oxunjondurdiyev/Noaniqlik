@@ -47,6 +47,7 @@ const ready = (async () => {
     db = await new Store.LocalAdapter().open();
     const mig = await Store.migrateLegacy(window.localStorage, db);
     if (mig.status === 'migrated' || mig.status === 'invalid') toast(t('st_migrated'), 'info', 5000);
+    await Store.migrateSchema(db);   // P11: saqlangan hisoblar sxemasi 2 → 3 (qo'lda kiritilgan B tur manbalari o'zgarmaydi)
     locals = migrateLocals(await db.list('templates'));
     labCache = await Store.getLabSettings(db);
   } catch (e) { db = null; }
