@@ -8,7 +8,7 @@ import { normalize } from '../spec.js';
 import { isBlank, toNum } from '../util.js';
 
 export const SEVERITIES = ['error', 'warning', 'info'];
-export const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MC']; // 'MC' — monteCarlo() natijasi (P06)
+export const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MC', 'MULTIVARIATE']; // 'MC' — monteCarlo() natijasi (P06)
 
 /** Loyiha qarorlari (egasi tasdiqlagan, 2026-11-18 — docs/LINTER_RULES.md §4). Me'yoriy hujjatlarda bunday aniq sonlar yo'q,
     faqat ko'rsatilgan joylardagi tavsiyalar bor. */
@@ -28,6 +28,7 @@ export const THRESHOLDS = Object.freeze({
   grubbsMinN: 3,               // A4
   unusualKMin: 1,              // X5: normal taqsimot bo'luvchisi k < 1
   unusualKMax: 4,              // X5: … yoki k > 4
+  outputCorrelationAbs: 0.5,   // MV1: chiqishlar orasidagi |r| chegarasi (P07; manbada son yo'q — egasi tasdig'ini kutadi)
   maxReportedDigits: 2,        // X9: U ning qiymatli raqamlari (JCGM 100:2008 7.2.6; egasi qarori)
 });
 

@@ -20,6 +20,8 @@ import {
   lognormalParams, cholesky, sampleMvn,
 } from './mc/distributions.js';
 import { monteCarloLegacy } from './mc/legacy.js';
+import { isMultiOutput } from './multivariate/lpu.js';
+import { createMultivariateMonteCarlo } from './multivariate/montecarlo.js';
 
 export { MC_SEED, RNG_DEFAULT, RNG_LEGACY, RNG_NAMES };
 
@@ -386,6 +388,8 @@ export function createMonteCarlo(spec, opts) {
   const norm = normalize(spec);
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;
+  // P07: vektor chiqish — ko'p o'lchovli Monte-Karlo (JCGM 102:2011 §7); bitta chiqishda quyidagi yo'l o'zgarmagan
+  if (isMultiOutput(state)) return createMultivariateMonteCarlo(spec, state, opts, evaluate);
   const o = mcOptions(state.settings, opts);
   if (o.error) return o;
 

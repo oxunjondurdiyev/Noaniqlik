@@ -41,7 +41,7 @@ test('har bir qoida — alohida modul: { id, severity, ref, modes, codes, check 
   assert.equal(files.length, E.LINTER_RULES.length);
   const ids = E.LINTER_RULES.map(r => r.id);
   assert.equal(new Set(ids).size, ids.length);
-  for (const id of ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'A1', 'A2', 'A3', 'A4', 'M1', 'M2', 'M3', 'M4']) assert.ok(ids.includes(id), id);
+  for (const id of ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'A1', 'A2', 'A3', 'A4', 'M1', 'M2', 'M3', 'M4', 'MV1']) assert.ok(ids.includes(id), id);
   for (const r of E.LINTER_RULES) {
     assert.ok(E.SEVERITIES.includes(r.severity), r.id);
     assert.equal(typeof r.ref, 'string');
@@ -49,13 +49,14 @@ test('har bir qoida — alohida modul: { id, severity, ref, modes, codes, check 
     assert.equal(typeof r.check, 'function');
     assert.ok(Object.keys(r.codes).length >= 1, r.id);
   }
-  assert.deepEqual(E.LINTER_MODES, ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MC']);   // 'MC' — P06
+  assert.deepEqual(E.LINTER_MODES, ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MC', 'MULTIVARIATE']);   // 'MC' — P06; 'MULTIVARIATE' — P07
 });
 
 test('manbasi repoda yo\'q qoidada ref ichida "(unverified)" bor; repodagi hujjatlarga havolalar belgilanmagan', () => {
   // docs/references/ da YO'Q hujjatlar (CLAUDE.md "Joriy holat"): ularga havola faqat "(unverified)" bilan
   // P05b: ILAC P14:09/2020, ILAC G8:09/2019 va JCGM 106:2012 repoga qo'shildi — ularga havolalar endi belgisiz
-  const missing = /JCGM 102|GUM-6|COOMET|ISO 5725|ISO 14253/;
+  // P07: JCGM 102:2011 repoga qo'shildi (PR #18) — unga havolalar endi belgisiz
+  const missing = /GUM-6|COOMET|ISO 5725|ISO 14253/;
   for (const [code, c] of Object.entries(E.FINDING_CODES)) {
     if (c.rule === 'W2') continue;   // P08–P10 modullarining o'z ref matnlari (o'zgarmagan)
     for (const part of c.ref.split(';')) {

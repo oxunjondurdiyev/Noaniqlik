@@ -1,0 +1,156 @@
+{
+  "id": "jcgm102-9-4-mcm",
+  "title": "JCGM 102 9.4: R, X, Z — MCM, kirishlar ko'p o'lchovli t-taqsimot t₃(x̄, M/(νn)) (5.3.2), M = 10⁶",
+  "domain": "elektr",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.4.2.4 (ν = n − N = 3), Table 11 (MCM qatori)",
+    "page": "52–54"
+  },
+  "notes": "ν = 3: dispersiya mavjud, lekin 4-moment cheksiz — u va r baholari sekin barqarorlashadi (tarqoqlik katta, toleransda hisobga olingan). Aniq qiymatlar — \"Alt. GUF\" qatori (V(X) = (n − 1)/(n − N − 2)·U_x): 0,130; 0,540; 0,431.",
+  "status": "verified",
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "V",
+        "I",
+        "phi"
+      ],
+      "measurements": {
+        "V": [
+          5.007,
+          4.994,
+          5.005,
+          4.99,
+          4.999,
+          4.999
+        ],
+        "I": [
+          19.663,
+          19.639,
+          19.64,
+          19.685,
+          19.678,
+          19.661
+        ],
+        "phi": [
+          1.0456,
+          1.0438,
+          1.0468,
+          1.0428,
+          1.0433,
+          1.0445
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "R = V / I * 1000 * cos(phi)",
+        "unit": "Ω"
+      },
+      "outputs": [
+        {
+          "formula": "R = V / I * 1000 * cos(phi)",
+          "unit": "Ω"
+        },
+        {
+          "formula": "X = V / I * 1000 * sin(phi)",
+          "unit": "Ω"
+        },
+        {
+          "formula": "Z = V / I * 1000",
+          "unit": "Ω"
+        }
+      ],
+      "settings": {
+        "paired": true,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": []
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "mc": {
+      "mode": "fixed",
+      "M": 1000000
+    }
+  },
+  "expected": {
+    "y.R": {
+      "value": 127.732,
+      "ref": "Table 11, MCM: R = 127.732 Ω"
+    },
+    "y.X": {
+      "value": 219.847,
+      "ref": "Table 11, MCM: X = 219.847 Ω"
+    },
+    "y.Z": {
+      "value": 254.26,
+      "ref": "Table 11, MCM: Z = 254.260 Ω"
+    },
+    "u.R": {
+      "value": 0.13,
+      "ref": "Table 11, MCM: u(R) = 0.130 Ω"
+    },
+    "u.X": {
+      "value": 0.536,
+      "ref": "Table 11, MCM: u(X) = 0.536 Ω"
+    },
+    "u.Z": {
+      "value": 0.429,
+      "ref": "Table 11, MCM: u(Z) = 0.429 Ω"
+    },
+    "r.R.X": {
+      "value": -0.587,
+      "ref": "Table 11, MCM: r(R, X) = −0.587"
+    },
+    "r.R.Z": {
+      "value": -0.482,
+      "ref": "Table 11, MCM: r(R, Z) = −0.482"
+    },
+    "one_minus_r.X.Z": {
+      "value": 0.0077,
+      "ref": "Table 11, MCM: 1 − r(X, Z) = 0.770 × 10⁻²"
+    }
+  },
+  "tolerance": {
+    "y.R": {
+      "abs": 0.0017,
+      "reason": "½ oxirgi xona (0,0015) + 2·√2·s, s = 0,000061 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "y.X": {
+      "abs": 0.0026,
+      "reason": "½ oxirgi xona (0,0015) + 2·√2·s, s = 0,00039 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "y.Z": {
+      "abs": 0.0025,
+      "reason": "½ oxirgi xona (0,0015) + 2·√2·s, s = 0,00034 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "u.R": {
+      "abs": 0.0055,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,0017 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "u.X": {
+      "abs": 0.044,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,015 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "u.Z": {
+      "abs": 0.043,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,015 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "r.R.X": {
+      "abs": 0.022,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,0076 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "r.R.Z": {
+      "abs": 0.031,
+      "reason": "½ oxirgi xona (0,0005) + 2·√2·s, s = 0,011 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    },
+    "one_minus_r.X.Z": {
+      "abs": 0.00044,
+      "reason": "½ oxirgi xona (0,000005) + 2·√2·s, s = 0,00015 — bitta simulyatsiyaning urug'dan-urug'ga standart og'ishi (8 ta urug', tests/tools/gen-jcgm102-cases.js)"
+    }
+  }
+}

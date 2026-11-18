@@ -1,0 +1,127 @@
+{
+  "id": "jcgm102-9-2-2-mcm-adaptive",
+  "title": "JCGM 102 9.2.2: additiv model (har bir X_i — standart Gauss) — adaptiv MCM (§7.8.3, n_dig = 3)",
+  "status": "verified",
+  "domain": "umumiy (o'lchamsiz)",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.2.2, Table 3 (Adaptive MCM qatorlari); 9.2.2.3 (n_dig = 3)",
+    "page": "36"
+  },
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "params": [
+        "X1",
+        "X2",
+        "X3"
+      ],
+      "measurements": {
+        "X1": [
+          0
+        ],
+        "X2": [
+          0
+        ],
+        "X3": [
+          0
+        ]
+      },
+      "directions": [],
+      "model": {
+        "formula": "Y1 = X1 + X3",
+        "unit": "1"
+      },
+      "outputs": [
+        {
+          "formula": "Y1 = X1 + X3",
+          "unit": "1"
+        },
+        {
+          "formula": "Y2 = X2 + X3",
+          "unit": "1"
+        }
+      ],
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "covB": {},
+      "typeB": [
+        {
+          "name": "X1 ~ N(0, 1)",
+          "param": "X1",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X2 ~ N(0, 1)",
+          "param": "X2",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "X3 ~ N(0, 1²)",
+          "param": "X3",
+          "halfWidth": 1,
+          "distribution": "normal",
+          "k": 1
+        }
+      ]
+    }
+  },
+  "run": {
+    "method": "monteCarlo",
+    "mc": {
+      "mode": "adaptive",
+      "nDig": 3,
+      "validation": false
+    }
+  },
+  "expected": {
+    "M": {
+      "value": 400000,
+      "ref": "Table 3, Adaptive MCM: M = 0.35 × 10⁶ va 0.45 × 10⁶ (o'rtachasi)"
+    },
+    "converged": {
+      "value": 1,
+      "ref": "9.2.2: adaptiv protsedura barqarorlashgan"
+    },
+    "kp": {
+      "value": 2.45,
+      "ref": "Table 3, Adaptive MCM: kp = 2.45"
+    },
+    "kq": {
+      "value": 2.21,
+      "ref": "Table 3, Adaptive MCM: kq = 2.21 (2.22 va 2.21)"
+    },
+    "r.Y1.Y2": {
+      "value": 0.5,
+      "ref": "Table 3, Adaptive MCM: r(y1, y2) = 0.502 va 0.501"
+    }
+  },
+  "tolerance": {
+    "M": {
+      "rel": 0.6,
+      "reason": "M — tasodifiy kattalik (manbaning ikki qo'llanishida ham har xil) — faqat tartibi (±60 %)"
+    },
+    "converged": {
+      "abs": 0
+    },
+    "kp": {
+      "abs": 0.01,
+      "reason": "n_dig = 3: κ_p = 0,005 (7.8.2.7) + ½ oxirgi xona (0,005)"
+    },
+    "kq": {
+      "abs": 0.015,
+      "reason": "n_dig = 3: κ_q = 0,005 + ½ oxirgi xona (0,005); manbaning ikki qo'llanishi 2,22 va 2,21"
+    },
+    "r.Y1.Y2": {
+      "abs": 0.0075,
+      "reason": "n_dig = 3: ρ (λ_max dan) = 0,0005 … 0,005 + manbaning ikki qo'llanishi orasidagi farq (0,002) + ½ oxirgi xona"
+    }
+  },
+  "notes": "Manba adaptiv protsedurada y, u, r, k_p va k_q ning barchasi barqarorlashishini talab qilgan (9.2.2.3) — dvigatel ham shunday (λ_max orqali r)."
+}

@@ -70,10 +70,14 @@ test('modelSpec formatlari: uc-model/1 ↔ calc-state/v2 ↔ eski state — bir 
   assert.deepEqual(m.inputs.map(i => i.name), ['m', 'V']);
 });
 
-test('uc-model/1: bir nechta chiqish hozircha xato (P07), noma\'lum format — xato', () => {
+test('uc-model/1: bir nechta chiqish — vektor natija (P07, JCGM 102:2011 §6.2); chiqishsiz yoki noma\'lum format — xato', () => {
   const m = E.toModel(DENS.modelSpec.state);
   m.outputs.push({ formula: 'z = m * V' });
-  assert.equal(E.evaluate(m).error, 'multi_output');
+  const mv = E.evaluate(m);
+  assert.equal(mv.mode, 'MULTIVARIATE');
+  assert.equal(mv.outputs.length, 2);
+  assert.equal(mv.outputs[0].y, E.evaluate(DENS.modelSpec).y);          // birinchi chiqish — bitta formulali hisob bilan aynan bir xil
+  assert.equal(E.evaluate({ ...m, outputs: [] }).error, 'multi_output');
   assert.equal(E.evaluate({ format: 'xyz/9' }).error, 'bad_spec');
 });
 
