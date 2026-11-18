@@ -8,7 +8,7 @@
 ═══════════════════════════════════════════════════════════════ */
 
 /** Muharrir holatining dvigatel o'qiydigan maydonlari (src/js/points.js::KEYS bilan bir xil) */
-export const GUM_KEYS = Object.freeze(['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'settings', 'covB', 'units', 'template']);   // 'outputs' — P07 (bir nechta chiqish)
+export const GUM_KEYS = Object.freeze(['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'implicit', 'settings', 'covB', 'units', 'template']);   // 'outputs' — P07 (bir nechta chiqish); 'implicit' — P07b (h(Y, X) = 0)
 const FORBIDDEN = ['__proto__', 'constructor', 'prototype'];
 const clone = v => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
 const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);

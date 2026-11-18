@@ -1,0 +1,119 @@
+{
+  "id": "jcgm102-9-5-2-single",
+  "title": "JCGM 102 9.5.2: qarshilik termometri bilan bitta Selsiy haroratini o'lchash — oshkor bo'lmagan model (1 + Aθ + Bθ²)R0 − r·RS = 0",
+  "status": "verified",
+  "domain": "harorat",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.5.2, Table 12, Table 13, Eq. (31)",
+    "page": "55–56"
+  },
+  "notes": "θ Nyuton usuli bilan (boshlang'ich yaqinlashuv 20 °C); u(θ) — Eq. (8): C_y U_y C_yᵀ = C_x U_x C_xᵀ. Sezgirlik matritsalari c_y = 0,389 Ω/°C va C_x — tests/engine/implicit.test.js da (C_x ning uchinchi elementi bo'yicha D-21).",
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "directions": [],
+      "covB": {
+        "R0|A": -2.0925e-10,
+        "R0|B": 5.060000000000001e-12,
+        "A|B": -2.84823e-13
+      },
+      "params": [
+        "R0",
+        "A",
+        "B",
+        "RS",
+        "r"
+      ],
+      "measurements": {
+        "R0": [
+          99.9961
+        ],
+        "A": [
+          0.0039096
+        ],
+        "B": [
+          -6e-7
+        ],
+        "RS": [
+          99.99947
+        ],
+        "r": [
+          1.0780057
+        ]
+      },
+      "typeB": [
+        {
+          "name": "u(R0)",
+          "param": "R0",
+          "halfWidth": 0.0005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(A)",
+          "param": "A",
+          "halfWidth": 0.0000027,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(B)",
+          "param": "B",
+          "halfWidth": 1.1e-7,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(RS)",
+          "param": "RS",
+          "halfWidth": 0.0001,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r)",
+          "param": "r",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        }
+      ],
+      "implicit": {
+        "unknowns": [
+          {
+            "name": "θ",
+            "start": 20,
+            "unit": "°C"
+          }
+        ],
+        "equations": [
+          "(1 + A*θ + B*θ^2)*R0 - r*RS"
+        ]
+      }
+    }
+  },
+  "run": {
+    "method": "evaluate"
+  },
+  "expected": {
+    "y": {
+      "value": 20.0232,
+      "ref": "§9.5.2.5 (p. 56): θ̂ = 20.023 2 °C"
+    },
+    "uc": {
+      "value": 0.0045,
+      "ref": "§9.5.2.6 (p. 56): u(θ̂) = 0.004 5 °C"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.00005,
+      "reason": "manbadagi oxirgi xonaning yarmi (4 kasr xona)"
+    }
+  }
+}

@@ -504,6 +504,12 @@ const TypeB = (() => {
         multi_output: i18n.t('err_multi_output'),
         duplicate_output: i18n.t('err_duplicate_output') + (result.detail ? ': «' + result.detail + '»' : ''),
         invalid_covariance: i18n.t('err_invalid_covariance') + (result.detail ? ': ' + result.detail : ''),
+        implicit_bad_spec: i18n.t('err_implicit_bad_spec'),
+        implicit_bad_equation: i18n.t('err_implicit_bad_equation') + (result.detail ? ': «' + result.detail + '»' : ''),
+        implicit_bad_start: i18n.t('err_implicit_bad_start') + (result.detail ? ': ' + result.detail : ''),
+        implicit_name_clash: i18n.t('err_implicit_name_clash') + (result.detail ? ': ' + result.detail : ''),
+        implicit_no_convergence: i18n.t('err_implicit_no_convergence'),
+        implicit_singular: i18n.t('err_implicit_singular'),
         bad_spec:     i18n.t('err_bad_spec'),
       }[result.error] || i18n.t('toast_need_data');
       showToast(msg, 'error', 4500);
