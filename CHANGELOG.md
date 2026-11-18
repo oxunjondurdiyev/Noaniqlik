@@ -4,6 +4,15 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.5.1] — P05 bo'yicha egasi qarorlari (2026-11-18)
+
+**ENGINE_VERSION: 2.5.0 → 2.5.1** (patch). **y, u_c, ν_eff, k, U, `conf`, `decision` o'zgarmadi** — faqat ikki topilmaning darajasi va bitta yangi topilma kodi. 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmadi; etalon nuqtalardagi topilmalar ro'yxati ham o'zgarmadi.
+
+- **X7** (`x7_k2_low_dof`): ν_eff < 10 → **warning**; 10 ≤ ν_eff < 30 → **info** (avval ν_eff < 30 da doim warning). Ref: JCGM 100:2008 G.6.6 ("say greater than 10").
+- **D1:** `decision_low_tur` (TUR < 1) — **warning** (avval info); yangi `decision_tur_below_4` (1 ≤ TUR < 4) — info, **unverified** (4:1 — amaliyotdagi qoida, manbasi repoda yo'q).
+- **Qaror qoidasini oldindan qo'yish:** `decisionPreset({template, lab})` — shablondagi `decisionRule` yoki laboratoriya sozlamasidagi standart qoida natijalar sahifasidagi tanlov oynasiga oldindan qo'yiladi; `settings.decisionRule` ga faqat foydalanuvchi tasdiqlagach yoziladi. Tasdiqlanmasa bayonot chiqmaydi (dvigatel xatti-harakati o'zgarmagan: qoida bo'sh → `decision.pending = 'rule'`).
+- Hujjatlar: `docs/LINTER_RULES.md` §4 (1–20-bandlar tasdiqlandi, 3 va 18 o'zgartirildi), `docs/RISKS.md` R-22 (qarorlar qayd etildi; build identifikatori (b) va versiyalangan modul URL'lari — P13).
+
 ## [2.5.0] — P05b: import/eksport, rasmiy hisobot shakllari, qaror qoidasi (2026-11-18)
 
 **ENGINE_VERSION: 2.4.0 → 2.5.0** (minor: yangi imkoniyat). **y, u_c, ν_eff, k, U, `conf` o'zgarmadi:** modelSpec'i bor 52 ta test misolining (GUM, MC, regressiya, top-down, maxsus rejimlar) to'liq natija JSON'i 2.4.0 (`feat/p05a-linter`) bilan bir xil — `engineVersion`, yangi `decision` maydoni, yangi D1 topilmalari va aniqlashtirilgan `ref` matnlaridan tashqari (skript bilan solishtirildi). 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.

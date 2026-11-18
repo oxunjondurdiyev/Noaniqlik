@@ -476,7 +476,7 @@ Kirish (`settings`): `decisionRule` (`'simple'` | `'guard_band'` | bo'sh), `guar
  */
 ```
 
-`decide(o)`, `conformanceProbability(y, u, lower, upper)`, `decisionInput(settings, ctx)`, `DECISION_RULES`, `DECISION_STATEMENTS`, `GUARD_PRESETS` — `src/engine/decision.js`. Hukm U (hisobotdagi k bilan) bo'yicha; `multiPointCoverage` yagona k bilan qayta hisoblaydi. `conf` (P05a) — moslik uchun qoladi; hisobot faqat `decision` dan hukm chiqaradi.
+`decide(o)`, `conformanceProbability(y, u, lower, upper)`, `decisionInput(settings, ctx)`, `decisionPreset({template, lab})` (2.5.1: shablon / laboratoriya qoidasini tanlov oynasiga oldindan qo'yish — tasdiqlanmaguncha `settings` ga yozilmaydi), `DECISION_RULES`, `DECISION_STATEMENTS`, `GUARD_PRESETS` — `src/engine/decision.js`. Hukm U (hisobotdagi k bilan) bo'yicha; `multiPointCoverage` yagona k bilan qayta hisoblaydi. `conf` (P05a) — moslik uchun qoladi; hisobot faqat `decision` dan hukm chiqaradi.
 
 ### 11.2. Hisob hujjati `uc-calc/1` (`src/io/calc-json.js`)
 

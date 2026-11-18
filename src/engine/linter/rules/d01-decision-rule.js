@@ -20,7 +20,9 @@ const rule = {
     decision_rule_missing: {},
     decision_no_agreement: { severity: 'info', ref: 'ILAC G8:09/2019 §2.3 (ISO/IEC 17025:2017 §7.1.3), §4.2.3' },
     decision_invalid: { severity: 'error', ref: 'JCGM 106:2012 §8.3.2.2' },
-    decision_low_tur: { severity: 'info', ref: 'JCGM 106:2012 §7.6.4, §7.6.5, §8.2.2; ILAC G8:09/2019 §1.13, §5.3' },
+    decision_low_tur: { severity: 'warning', ref: 'JCGM 106:2012 §7.6.4, §7.6.5, §8.2.2; ILAC G8:09/2019 §1.13, §5.3' },
+    // 1 ≤ TUR < 4: "4:1" — amaliyotdagi qoida; manbasi docs/references/ da yo'q → unverified (egasi qarori 2026-11-18)
+    decision_tur_below_4: { severity: 'info', ref: 'ILAC G8:09/2019 §1.13 (TUR ta\'rifi); TUR ≥ 4:1 — amaliyot (unverified)', unverified: true },
     decision_normal_assumed: { severity: 'info', ref: 'JCGM 106:2012 §7.2.3, §7.2.4' },
   },
   check(spec, result) {
@@ -32,7 +34,8 @@ const rule = {
     if (d.error) return [finding(rule, 'decision_invalid', { value: d.error, severity: 'error', ref: c.decision_invalid.ref })];
     const out = [];
     if (!d.agreement) out.push(finding(rule, 'decision_no_agreement', { severity: 'info', ref: c.decision_no_agreement.ref }));
-    if (d.tur !== null && d.tur < 1) out.push(finding(rule, 'decision_low_tur', { value: `TUR = ${short(d.tur, 3)}`, severity: 'info', ref: c.decision_low_tur.ref }));
+    if (d.tur !== null && d.tur < THRESHOLDS.turWarn) out.push(finding(rule, 'decision_low_tur', { value: `TUR = ${short(d.tur, 3)}`, severity: 'warning', ref: c.decision_low_tur.ref }));
+    else if (d.tur !== null && d.tur < THRESHOLDS.turInfo) out.push(finding(rule, 'decision_tur_below_4', { value: `TUR = ${short(d.tur, 3)}`, severity: 'info', ref: c.decision_tur_below_4.ref, unverified: true }));
     if (isFinite(result.nuEff) && result.nuEff < THRESHOLDS.k2MinNuEff) out.push(finding(rule, 'decision_normal_assumed', { value: `ν_eff = ${short(result.nuEff, 3)}`, severity: 'info', ref: c.decision_normal_assumed.ref }));
     return out;
   },

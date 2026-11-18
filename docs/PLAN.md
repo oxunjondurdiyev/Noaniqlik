@@ -192,6 +192,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P13 — Validatsiya paketi (ISO/IEC 17025:2017 §7.11.2)
 
+> **P05 dan ko'chirilgan (egasi qarori, 2026-11-18):** build identifikatori — deploy'da `build.json` (commit SHA) va **versiyalangan modul URL'lari** (kesh: deploydan keyin ~10 daqiqa eski va yangi ES modullar aralashib, konsolda `export` xatosi chiqdi). CI / build qadami qo'shishdan oldin variantlar egasiga yoziladi (`docs/RISKS.md` R-22).
+
 - **Fayllar:** `docs/validation/`, `validation-report.js` (test natijalaridan avtomatik), `ASSESSOR_FAQ.md`, izlanuvchanlik matritsasi (P01 dagi `VALIDATION_MATRIX.md` asosida), foydalanuvchi qo'llanmasi (3 tilda), README yangilash; NIST UM va (imkon bo'lsa) PTB TraCIM bilan o'zaro tekshiruv.
 - **Qanday tekshiriladi:** har bir talab kamida bitta yashil testga bog'langan; mustaqil ko'rib chiqish.
 

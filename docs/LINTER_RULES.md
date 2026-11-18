@@ -37,7 +37,7 @@
 | | `x5_unusual_divisor` | warning | GUM | JCGM 100:2008 4.3.3, 4.3.4 | Normal taqsimotda k < 1 yoki k > 4 | To'g'ri k |
 | **X6** | `unit_budget`, `unit_output`, `unit_affine`, `unit_pow` | warning | GUM | JCGM 100:2008 5.1.3; JCGM GUM-6:2020 §11 (unverified) | Dvigatelning o'lchamlik tahlili (P03) — kodlar o'zgarmagan | Birlikni o'tkazish / ko'paytuvchi |
 | | `x6_source_units_differ` | warning | GUM | shu | Manba birligi kirish birligidan (yoki shu kirishning boshqa manbasidan) farq qiladi — masshtab ham (mK va K), ko'paytuvchi 1 | Birlikni o'tkazish / ko'paytuvchi |
-| **X7** | `x7_k2_low_dof` | warning | GUM | EA-4/02 M:2022 §5.1, §5.3, §5.5, Appendix E; JCGM 100:2008 G.6.6 | k = 2 qat'iy, ν_eff < 30 | k = t(ν_eff) yoki ko'proq kuzatuv / s_p |
+| **X7** | `x7_k2_low_dof` | warning (ν_eff < 10) / info (10 ≤ ν_eff < 30) | GUM | EA-4/02 M:2022 §5.1, §5.3, §5.5, Appendix E; JCGM 100:2008 G.6.6 | k = 2 qat'iy, ν_eff < 30 | k = t(ν_eff) yoki ko'proq kuzatuv / s_p |
 | | `x7_k2_few_observations` | warning | GUM | shu | k = 2 qat'iy, A tur ulushi > 30 % va n < 10 | shu |
 | **X8** | `zero_u` | **error** | GUM, TOP_DOWN, SAMPLING, MICRO, MEDICAL | JCGM 100:2008 3.3.1, F.2.2.1 | U = 0 yoki u_c = 0 | B tur manbalarni kiritish |
 | | `below_cmc` | **error** | GUM | ILAC P14:09/2020 §5.5; EA-4/02 M:2022 Appendix A | U < CMC (dastur U ni avtomatik almashtirmaydi) | Byudjetni tekshirish; asoslab qabul qilish |
@@ -68,7 +68,8 @@ X9 hisobot qatlami satrlarini tekshiradi: `lintReported({ y, U })`. Hisobot har 
 | **D1** (P05b) | `decision_rule_missing` | warning | GUM | ILAC G8:09/2019 §2.3, §2.6 (ISO/IEC 17025:2017 §7.1.3, §7.8.6.1); JCGM 106:2012 §8 | MPE yoki tolerantlik chegarasi kiritilgan, qaror qoidasi tanlanmagan — muvofiqlik bayonoti berilmaydi | Qaror qoidasini tanlash (oddiy qabul yoki himoya zonasi w = r·U) |
 | | `decision_no_agreement` | info | GUM | ILAC G8:09/2019 §2.3, §4.2.3 | Qaror qoidasi tanlangan, mijoz bilan kelishuv raqami yo'q | Kelishuv / shartnoma raqamini kiritish |
 | | `decision_invalid` | **error** | GUM | JCGM 106:2012 §8.3.2.2 | Chegaralar noto'g'ri (yuqori ≤ quyi), r son emas yoki himoya zonasi qabul oralig'ini yo'q qiladi (2w > T) | Chegara / r ni tuzatish |
-| | `decision_low_tur` | info | GUM | JCGM 106:2012 §7.6.4, §7.6.5, §8.2.2; ILAC G8:09/2019 §1.13, §5.3 | TUR = T / (2U) < 1 — o'lchash tolerantlikni ajrata olmaydi | Noaniqlikni kamaytirish yoki qoidani qayta ko'rish |
+| | `decision_low_tur` | warning | GUM | JCGM 106:2012 §7.6.4, §7.6.5, §8.2.2; ILAC G8:09/2019 §1.13, §5.3 | TUR = T / (2U) < 1 — o'lchash tolerantlikni ajrata olmaydi | Noaniqlikni kamaytirish yoki qoidani qayta ko'rish |
+| | `decision_tur_below_4` ❔ | info | GUM | ILAC G8:09/2019 §1.13 (TUR ta'rifi); TUR ≥ 4:1 — amaliyot (unverified) | 1 ≤ TUR < 4 | Himoya zonasini ko'rib chiqish yoki noaniqlikni kamaytirish |
 | | `decision_normal_assumed` | info | GUM | JCGM 106:2012 §7.2.3, §7.2.4 | p_c normal taqsimot farazida hisoblangan, lekin ν_eff < 30 | Ehtiyotkorlik bilan talqin qilish |
 
 ### 2.3. Modul ogohlantirishlari topilma sifatida (kodlar o'zgarmagan)
@@ -90,7 +91,9 @@ X9 hisobot qatlami satrlarini tekshiradi: `lintReported({ y, U })`. Hisobot har 
 - `error` qabul qilinmaguncha hisobot "RASMIY EMAS" suv belgisi bilan chiqadi (har sahifada).
 - U = 0, u_c = 0, U < CMC: laboratoriya sozlamasi `criticalMode` — `mark` (standart: hisobot aniq belgi bilan) yoki `block` (hisobot chop etilmaydi). P04 dagi `cmcMode: 'block'` avvalgidek ishlaydi.
 
-## 4. Loyiha qarorlari — egasi tasdig'ini kutadi
+## 4. Loyiha qarorlari — egasi tasdiqladi (2026-11-18)
+
+**Holat:** 1–2, 4–17, 19–20-bandlar o'zgarishsiz tasdiqlandi; 3 va 18-bandlar egasi o'zgartirgan ko'rinishda (quyida). Yangi chegara yoki daraja qo'shilsa — shu jadvalga yoziladi va egasidan so'raladi.
 
 Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo'q yoki boshqa son bor. Qiymatlar `LINTER_THRESHOLDS` da (`src/engine/linter/util.js`).
 
@@ -98,7 +101,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 |---|---|---|---|
 | 1 | A1 | ulush > **90 %** → info | son yo'q; EA-4/02 S9.3–S9.4: ustun bo'lmagan hadlar / ustun had ≤ 0,3 |
 | 2 | X4 | \|r\| > **0,5** **va** t-test (α = 0,05) bo'yicha ahamiyatli; kamida 3 juft qator | JCGM 100 5.2.5: "present and significant" — son yo'q |
-| 3 | X7 | ν_eff < **30** | JCGM 100 G.6.6: "say greater than 10" |
+| 3 | X7 | ν_eff < **10** → warning; **10 ≤ ν_eff < 30** → info (egasi o'zgartirdi, 2026-11-18) | JCGM 100 G.6.6: "say greater than 10" — 10 chegarasi manbadan; 30 — loyiha chegarasi |
 | 4 | X7 | A tur ulushi > **30 %** va n < 10 | n < 10 — EA-4/02 §5.3; ulush chegarasi manbada yo'q |
 | 5 | A2 | n < **3** → warning; 3 ≤ n < 5 → info | son yo'q; Table E.1: n = 2 → 76 %, n = 3 → 52 % |
 | 6 | A4 | Grubbs, ikki tomonlama, **α = 0,05**, n ≥ 3; faqat info | ISO 5725-2 repoda yo'q (bir tomonlama 5 % / 1 % bo'lishi mumkin) |
@@ -112,8 +115,8 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 14 | Qabul | izoh ≥ 10 belgi; qabul topilma qiymatiga bog'langan; rol sifatida faqat `admin` / `employee` / `superadmin` / `guest` | — |
 | 15 | Suv belgisi | faqat qabul qilinmagan `error` da; warning — belgisiz | — |
 | 16 | R-07 | model turi ko'rsatilmagan hisobda muvofiqlik bayonoti **va** keltirilgan xato γ berilmaydi | — |
-| 17 | D1 (P05b) | qaror qoidasi tanlanmagan bo'lsa bayonot **berilmaydi** (dastur standart qoidani o'zi tanlamaydi); `decision_rule_missing` — warning | ISO/IEC 17025 §7.1.3 (ILAC G8 §2.3): qoida mijoz bilan kelishiladi |
-| 18 | D1 | TUR = T / (2U) (simmetrik ±MPE da MPE / U); `decision_low_tur` chegarasi **TUR < 1**, faqat info | JCGM 106 §7.6.2 (C_m), ILAC G8 §1.13 (TUR = TL/U); chegara soni manbada yo'q |
+| 17 | D1 (P05b) | qaror qoidasi tanlanmagan bo'lsa bayonot **berilmaydi**; `decision_rule_missing` — warning. Laboratoriya sozlamasi / shablondagi qoida tanlov oynasiga oldindan qo'yiladi, lekin foydalanuvchi tasdiqlamaguncha qo'llanmaydi (`decisionPreset`; egasi qarori 2026-11-18) | ISO/IEC 17025 §7.1.3 (ILAC G8 §2.3): qoida mijoz bilan kelishiladi |
+| 18 | D1 | TUR = T / (2U) (simmetrik ±MPE da MPE / U); **TUR < 1** → warning (`decision_low_tur`); **1 ≤ TUR < 4** → info (`decision_tur_below_4`) (egasi o'zgartirdi, 2026-11-18) | JCGM 106 §7.6.2 (C_m), ILAC G8 §1.13 (TUR = TL/U); 4:1 — amaliyotdagi qoida, manbasi repoda yo'q (unverified) |
 | 19 | D1 | p_c har doim normal taqsimot bilan; ν_eff < **30** da info (t-taqsimotga o'tilmaydi) | JCGM 106 §7.2.3–7.2.4: normal — odatiy faraz |
 | 20 | D1 | nobinar bayonot: qabul oralig'ida — `pass`; tolerantlik ichida, lekin himoya zonasida — `conditional_pass`; tolerantlikdan tashqarida, chegaradan w gacha — `conditional_fail`; undan nari — `fail` | ILAC G8 §4.2.3 |
 
