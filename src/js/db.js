@@ -19,7 +19,7 @@ const DB = (() => {
 
   function getDb() {
     if (!window.firebaseDb) {
-      throw new Error('Firebase ulanmagan. firebase-config.js ni tekshiring.');
+      throw new Error(window.i18n ? window.i18n.t('auth_err_no_db') : 'auth_err_no_db');
     }
     return window.firebaseDb;
   }

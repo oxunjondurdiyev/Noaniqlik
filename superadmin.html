@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Super Admin — UncertaintyCalc</title>
+  <title data-i18n="sa_page_title">Super Admin — UncertaintyCalc</title>
   <link rel="stylesheet" href="src/css/theme.css" />
   <link rel="stylesheet" href="src/css/components.css" />
   <link rel="stylesheet" href="src/css/auth.css" />
@@ -225,21 +225,26 @@
         <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span style="font-weight:700;font-size:1rem">UncertaintyCalc</span>
+      <div class="lang-switcher" style="margin-left:auto">
+        <button class="lang-btn" data-lang="uz">UZ</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
     </div>
-    <h1>Super Admin</h1>
-    <p>Faqat vakolatli xodimlar uchun. Kirish Firebase Authentication orqali; huquq — <code>superadmin</code> claim (docs/SECURITY_SETUP.md).</p>
+    <h1 data-i18n="sa_title">Super Admin</h1>
+    <p data-i18n="sa_login_note">Faqat vakolatli xodimlar uchun. Kirish Firebase Authentication orqali; huquq — «superadmin» claim (docs/SECURITY_SETUP.md).</p>
 
     <div class="auth-error" id="sa-login-error"></div>
 
     <div class="auth-group">
-      <label>Login</label>
-      <input type="text" id="sa-login-inp" placeholder="login yoki email" autocomplete="username" />
+      <label data-i18n="c_login">Login</label>
+      <input type="text" id="sa-login-inp" placeholder="login yoki email" data-i18n-ph="sa_login_ph" autocomplete="username" />
     </div>
     <div class="auth-group">
-      <label>Parol</label>
+      <label data-i18n="c_password">Parol</label>
       <input type="password" id="sa-pwd-inp" placeholder="••••••••" autocomplete="current-password" />
     </div>
-    <button class="btn btn-primary w-full" id="sa-btn-login" style="margin-top:.5rem">Kirish →</button>
+    <button class="btn btn-primary w-full" id="sa-btn-login" style="margin-top:.5rem" data-i18n="auth_signin_btn">Kirish →</button>
   </div>
 </div>
 
@@ -252,13 +257,18 @@
         <rect width="56" height="56" rx="14" fill="var(--accent)"/>
         <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Super Admin Panel
+      <span data-i18n="sa_panel">Super Admin Panel</span>
     </div>
     <div style="display:flex;align-items:center;gap:.75rem">
-      <span class="live-dot">Real-time</span>
-      <a href="index.html" class="btn btn-sm btn-ghost">← Kalkulyator</a>
-      <button class="btn btn-sm btn-ghost" id="sa-btn-logout">Chiqish</button>
-      <button class="icon-btn" id="sa-btn-theme" title="Mavzu">
+      <span class="live-dot" data-i18n="sa_realtime">Real-time</span>
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="uz">UZ</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="btn btn-sm btn-ghost" data-i18n="c_to_calc">← Kalkulyator</a>
+      <button class="btn btn-sm btn-ghost" id="sa-btn-logout" data-i18n="c_logout">Chiqish</button>
+      <button class="icon-btn" id="sa-btn-theme" title="Mavzuni almashtirish" data-i18n-title="c_theme_toggle">
         <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
@@ -269,27 +279,27 @@
 
     <!-- Statistika -->
     <div class="sa-stats" id="sa-stats-row">
-      <div class="sa-stat"><span class="sa-stat-value" id="stat-total">—</span><span class="sa-stat-label">Jami tashkilotlar</span></div>
-      <div class="sa-stat"><span class="sa-stat-value" id="stat-active">—</span><span class="sa-stat-label">Faol (aktiv)</span></div>
-      <div class="sa-stat"><span class="sa-stat-value" id="stat-pending">—</span><span class="sa-stat-label">To'lov kutilmoqda</span></div>
-      <div class="sa-stat"><span class="sa-stat-value" id="stat-today">—</span><span class="sa-stat-label">Bugun ro'yxatdan o'tdi</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-total">—</span><span class="sa-stat-label" data-i18n="sa_stat_total">Jami tashkilotlar</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-active">—</span><span class="sa-stat-label" data-i18n="sa_stat_active">Faol (aktiv)</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-pending">—</span><span class="sa-stat-label" data-i18n="sa_stat_pending">To'lov kutilmoqda</span></div>
+      <div class="sa-stat"><span class="sa-stat-value" id="stat-today">—</span><span class="sa-stat-label" data-i18n="sa_stat_today">Bugun ro'yxatdan o'tdi</span></div>
     </div>
 
     <!-- Tashkilotlar jadvali -->
     <div class="sa-card">
       <div class="sa-card-header">
-        <span class="sa-card-title">Ro'yxatdan o'tgan tashkilotlar</span>
-        <span class="live-dot" id="update-label">Yangilanmoqda…</span>
+        <span class="sa-card-title" data-i18n="sa_orgs_title">Ro'yxatdan o'tgan tashkilotlar</span>
+        <span class="live-dot" id="update-label" data-i18n="sa_updating">Yangilanmoqda…</span>
       </div>
 
       <!-- Filter -->
       <div class="filter-row">
-        <input type="text" id="sa-search" placeholder="Ism, INN yoki login bo'yicha qidirish…" />
-        <button class="filter-btn active" data-filter="all">Barchasi</button>
-        <button class="filter-btn" data-filter="active">Faol</button>
-        <button class="filter-btn" data-filter="inactive">Nofaol</button>
-        <button class="filter-btn" data-filter="pending">Kutilmoqda</button>
-        <button class="filter-btn" data-filter="requests">Tarif so'rovlari</button>
+        <input type="text" id="sa-search" placeholder="Ism, INN yoki login bo'yicha qidirish…" data-i18n-ph="sa_search_ph" />
+        <button class="filter-btn active" data-filter="all" data-i18n="sa_f_all">Barchasi</button>
+        <button class="filter-btn" data-filter="active" data-i18n="c_active">Faol</button>
+        <button class="filter-btn" data-filter="inactive" data-i18n="c_inactive">Nofaol</button>
+        <button class="filter-btn" data-filter="pending" data-i18n="c_pending">Kutilmoqda</button>
+        <button class="filter-btn" data-filter="requests" data-i18n="sa_f_requests">Tarif so'rovlari</button>
       </div>
 
       <!-- Jadval -->
@@ -298,18 +308,18 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Tashkilot / Ism</th>
-              <th>INN</th>
-              <th>Telefon</th>
-              <th>Tarif</th>
-              <th>To'lov</th>
-              <th>Holat</th>
-              <th>Sana</th>
-              <th>Amallar</th>
+              <th data-i18n="sa_col_org">Tashkilot / Ism</th>
+              <th data-i18n="c_inn">INN</th>
+              <th data-i18n="c_phone">Telefon</th>
+              <th data-i18n="c_plan">Tarif</th>
+              <th data-i18n="sa_col_payment">To'lov</th>
+              <th data-i18n="c_status">Holat</th>
+              <th data-i18n="c_date">Sana</th>
+              <th data-i18n="sa_col_actions">Amallar</th>
             </tr>
           </thead>
           <tbody id="sa-org-tbody">
-            <tr><td colspan="9" class="sa-empty">Yuklanmoqda…</td></tr>
+            <tr><td colspan="9" class="sa-empty" data-i18n="c_loading">Yuklanmoqda…</td></tr>
           </tbody>
         </table>
       </div>
@@ -318,13 +328,13 @@
     <!-- Auth'dan qo'lda o'chirilishi kerak bo'lgan hisoblar -->
     <div class="sa-card" style="margin-top:1.5rem">
       <div class="sa-card-header">
-        <span class="sa-card-title">Auth'dan o'chirilishi kerak hisoblar (<span id="sa-cleanup-count">0</span>)</span>
-        <span class="org-meta">Firebase konsoli → Authentication → Users → UID bo'yicha o'chiring, keyin "Bajarildi"</span>
+        <span class="sa-card-title"><span data-i18n="sa_cleanup_title">Auth'dan o'chirilishi kerak hisoblar</span> (<span id="sa-cleanup-count">0</span>)</span>
+        <span class="org-meta" data-i18n="sa_cleanup_hint">Firebase konsoli → Authentication → Users → UID bo'yicha o'chiring, keyin «Bajarildi»</span>
       </div>
       <div style="overflow-x:auto">
         <table class="org-table">
-          <thead><tr><th>UID</th><th>Eski login</th><th>Sabab</th><th>Sana</th><th></th></tr></thead>
-          <tbody id="sa-cleanup-tbody"><tr><td colspan="5" class="sa-empty">Yuklanmoqda…</td></tr></tbody>
+          <thead><tr><th>UID</th><th data-i18n="sa_col_old_login">Eski login</th><th data-i18n="sa_col_reason">Sabab</th><th data-i18n="c_date">Sana</th><th></th></tr></thead>
+          <tbody id="sa-cleanup-tbody"><tr><td colspan="5" class="sa-empty" data-i18n="c_loading">Yuklanmoqda…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -336,6 +346,9 @@
 <script src="vendor/firebase/9.23.0/firebase-app-compat.js"></script>
 <script src="vendor/firebase/9.23.0/firebase-auth-compat.js"></script>
 <script src="vendor/firebase/9.23.0/firebase-firestore-compat.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-admin.js"></script>
+<script src="src/ui/lang-switch.js"></script>
 <script src="src/ui/escape.js"></script>
 <script src="src/ui/toast.js"></script>
 <script src="src/js/firebase-config.js"></script>

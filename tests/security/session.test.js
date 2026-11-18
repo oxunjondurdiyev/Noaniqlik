@@ -16,6 +16,8 @@ function boot(seed) {
   let dbCalls = 0;
   w.DB = { get: async () => { dbCalls++; return { active: true }; }, getAll: async () => { dbCalls++; return []; } };
   w.firebaseAuth = { onAuthStateChanged: cb => setTimeout(() => cb(null), 0), signOut: async () => {} };
+  // P05 (R-13): xato matnlari i18n'dan — lug'at brauzerdagidek yuklanadi (uz)
+  w.eval(src('src/js/i18n.js') + '\n;\n' + src('src/js/i18n-admin.js') + '\n;i18n.setLang("uz");');
   w.eval(src('src/js/auth-core.js'));
   w.eval('var LOGIN_EMAIL_DOMAIN = "example.test";');
   w.eval(src('src/js/auth.js'));

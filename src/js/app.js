@@ -53,11 +53,12 @@
     banner.style.display = '';
     if (remaining <= 0) {
       banner.className = 'trial-banner trial-danger';
-      banner.innerHTML = `⛔ Bepul hisoblash tugadi — davom etish uchun ro'yxatdan o'ting.`;
+      banner.textContent = i18n.t('trial_over');
     } else {
       banner.className = `trial-banner ${remaining <= 2 ? 'trial-warn' : 'trial-info'}`;
-      banner.innerHTML =
-        `🆓 Bepul sinash: <b>${used}/${FREE_LIMIT}</b> — <b>${remaining} ta</b> qoldi`;
+      // Tarjima escape qilinadi; <b> faqat sonlar atrofida (foydalanuvchi ma'lumoti emas)
+      banner.innerHTML = escHtml(i18n.t('trial_left'))
+        .replace('{used}', `<b>${used}/${FREE_LIMIT}</b>`).replace('{left}', `<b>${remaining}</b>`);
     }
   }
 
@@ -128,6 +129,7 @@
   /* ─── LANGUAGE — event delegation ───────────────── */
   function initLang() {
     i18n.apply();
+    document.addEventListener('langchange', updateTrialBanner);
     document.addEventListener('click', e => {
       const btn = e.target.closest('.lang-btn');
       if (!btn || !btn.dataset.lang) return;
@@ -245,7 +247,8 @@
           m[p] = arr;
         });
         const tb = pd.typeBComponents.map((c, i) => ({
-          ...c, ...((pt.patch || {})[c.name] || {}), id: 'tb_' + i + '_' + Math.random().toString(36).slice(2, 6),
+          ...c, ...((pt.patch || {})[c.name] || {}), name: PresetText.component(c.name),
+          id: 'tb_' + i + '_' + Math.random().toString(36).slice(2, 6),
         }));
         appState.set({ measurements: m, typeB: tb, typeA: {}, combined: null, currentPoint: null });
         Points.save(pt.label);
@@ -265,7 +268,7 @@
 
     // Load TypeB components
     if (pd.typeBComponents) {
-      TypeB.loadPresetComponents(pd.typeBComponents);
+      TypeB.loadPresetComponents(PresetText.localized(pd.typeBComponents));
     }
 
     // Auto-compute TypeA if sample data provided
@@ -301,8 +304,8 @@
     paramList.innerHTML = state.params.map((p, i) => `
       <div class="param-item" data-idx="${i}">
         <input type="text" value="${escHtml(p)}" data-old="${escHtml(p)}"
-          class="param-name-input" placeholder="name" />
-        <button class="btn-icon-remove" data-param="${escHtml(p)}" title="Remove">
+          class="param-name-input" placeholder="${escHtml(i18n.t('ph_param_name'))}" />
+        <button class="btn-icon-remove" data-param="${escHtml(p)}" title="${escHtml(i18n.t('c_remove'))}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -325,7 +328,7 @@
     paramList.querySelectorAll('.btn-icon-remove').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!appState.removeParam(btn.dataset.param)) {
-          showToast('Need at least 1 parameter', 'error');
+          showToast(i18n.t('toast_need_param'), 'error');
         }
       });
     });
@@ -349,7 +352,7 @@
       const names = ['a','b','c','d','e','f','g','h','p','q','r','s','t','u','v','w'];
       let newName = names.find(n => !state.params.includes(n)) || `x${state.params.length + 1}`;
       if (!appState.addParam(newName)) {
-        showToast('Parameter already exists', 'error');
+        showToast(i18n.t('toast_param_exists'), 'error');
       }
     });
 
@@ -375,7 +378,7 @@
           renderSidebar();
           Table.render();
           TypeB.render();
-          showToast(`Preset loaded: ${preset.name}`, 'success');
+          showToast(i18n.tf('toast_preset_loaded', { name: PresetText.title(e.target.value) }), 'success');
         }
         e.target.value = '';
       }
@@ -383,7 +386,7 @@
 
     // Reset
     document.getElementById('btn-reset').addEventListener('click', () => {
-      if (confirm('Start a new session? All data will be cleared.')) {
+      if (confirm(i18n.t('confirm_new_session'))) {
         appState.reset();
         showScreen('home');
       }

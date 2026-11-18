@@ -7,6 +7,8 @@
      hodisalar sahifa skriptida addEventListener (delegatsiya) bilan.
    • Sof funksiyalar: (ma'lumot) → HTML satr. Node'da test qilinadi
      (tests/security/xss.test.js).
+   • Matnlar i18n orqali (src/js/i18n-admin.js); tarjima ham escHtml() dan o'tadi.
+     i18n yuklanmagan muhitda (Node testlari) kalitning o'zi chiqadi.
 ═══════════════════════════════════════════════════════════════ */
 (function (root) {
   'use strict';
@@ -15,6 +17,15 @@
   const Core = (typeof module !== 'undefined' && module.exports) ? require('../js/auth-core.js') : root.AuthCore;
 
   const COPY_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+  // i18n: brauzerda window.i18n; Node testlarida yo'q — kalit qaytadi. Natija har doim escape qilinadi.
+  function tr(key, vars) {
+    const i = root && root.i18n;
+    if (!i) return vars ? key + ' ' + Object.values(vars).join(' ') : key;
+    return vars ? i.tf(key, vars) : i.t(key);
+  }
+  const t = (key, vars) => esc(tr(key, vars));
+  const priceK = plan => (plan.priceMonthly / 1000).toFixed(0);
 
   function planOf(org, plans) {
     plans = plans || Core.PLANS;
@@ -27,20 +38,20 @@
     return `
       <div style="display:flex;flex-direction:column;gap:.4rem">
         <div style="display:flex;justify-content:space-between">
-          <span style="color:var(--text-muted)">Ism</span>
+          <span style="color:var(--text-muted)">${t('c_name')}</span>
           <span style="font-weight:500">${esc(Core.orgDisplayName(org))}</span>
         </div>
         <div style="display:flex;justify-content:space-between">
-          <span style="color:var(--text-muted)">Login</span>
+          <span style="color:var(--text-muted)">${t('c_login')}</span>
           <span style="font-family:monospace">${esc(org.login)}</span>
         </div>
         <div style="display:flex;justify-content:space-between">
-          <span style="color:var(--text-muted)">Tarif</span>
-          <span>${esc(plan.name)} — ${esc((plan.priceMonthly / 1000).toFixed(0))}K UZS/oy</span>
+          <span style="color:var(--text-muted)">${t('c_plan')}</span>
+          <span>${esc(plan.name)} — ${t('c_price_month', { n: priceK(plan) })}</span>
         </div>
         <div style="display:flex;justify-content:space-between">
-          <span style="color:var(--text-muted)">To'lov holati</span>
-          <span style="color:#eab308">⏳ Kutilmoqda</span>
+          <span style="color:var(--text-muted)">${t('auth_pay_status')}</span>
+          <span style="color:#eab308">${t('auth_pay_pending')}</span>
         </div>
       </div>`;
   }
@@ -54,8 +65,8 @@
     const yyyymm      = now.toISOString().slice(0, 7).replace('-', '');
     const invoiceNo   = `INV-${String(org.inn || '').replace(/[^0-9]/g, '')}-${yyyymm}`;
     const today       = now.toISOString().slice(0, 10);
-    const maxLbl      = plan.maxUsers === -1 ? 'Cheksiz' : plan.maxUsers + ' ta';
-    const priceStr    = price.toLocaleString('uz-UZ');
+    const maxLbl      = plan.maxUsers === -1 ? tr('inv_unlimited') : tr('inv_count', { n: plan.maxUsers });
+    const priceStr    = price.toLocaleString('uz-UZ');   // raqam formati (minglik ajratgich) — til emas
 
     const S = {
       wrap:    'font-family:Inter,sans-serif;color:#1a1a2e;font-size:14px;line-height:1.6;background:#fff;padding:2rem;',
@@ -89,51 +100,51 @@
     <div style="${S.header}">
       <div>
         <div style="${S.brandN}">UncertaintyCalc</div>
-        <div style="${S.brandS}">ISO/IEC 17025 Noaniqlik kalkulyatori</div>
+        <div style="${S.brandS}">${t('c_brand_tagline')}</div>
       </div>
       <div style="${S.titleB}">
-        <div style="${S.title}">Hisob-faktura</div>
-        <div style="${S.no}">№ ${esc(invoiceNo)}</div>
-        <div style="${S.date}">Sana: ${esc(today)}</div>
+        <div style="${S.title}">${t('inv_title')}</div>
+        <div style="${S.no}">${t('inv_no', { no: invoiceNo })}</div>
+        <div style="${S.date}">${t('inv_date', { date: today })}</div>
       </div>
     </div>
 
     <div style="${S.parties}">
       <div style="${S.party}">
-        <div style="${S.ptitle}">Sotuvchi</div>
-        <div style="${S.pname}">UncertaintyCalc xizmati</div>
-        <div style="${S.prow}">Bank: O'zbekiston Milliy Banki</div>
-        <div style="${S.prow}">Hisob raqam: 20208000000000000000</div>
-        <div style="${S.prow}">MFO: 00912</div>
-        <div style="${S.prow}">STIR: 000000000</div>
+        <div style="${S.ptitle}">${t('inv_seller')}</div>
+        <div style="${S.pname}">${t('inv_seller_name')}</div>
+        <div style="${S.prow}">${t('inv_bank')}</div>
+        <div style="${S.prow}">${t('inv_account', { n: '20208000000000000000' })}</div>
+        <div style="${S.prow}">${t('inv_mfo', { n: '00912' })}</div>
+        <div style="${S.prow}">${t('inv_stir', { n: '000000000' })}</div>
       </div>
       <div style="${S.party}">
-        <div style="${S.ptitle}">Xaridor</div>
+        <div style="${S.ptitle}">${t('inv_buyer')}</div>
         <div style="${S.pname}">${esc(Core.orgDisplayName(org))}</div>
-        <div style="${S.prow}">INN: ${esc(org.inn)}</div>
-        <div style="${S.prow}">Tel: ${esc(org.phone)}</div>
+        <div style="${S.prow}">${t('inv_inn', { v: org.inn ?? '' })}</div>
+        <div style="${S.prow}">${t('inv_tel', { v: org.phone ?? '' })}</div>
       </div>
     </div>
 
     <table style="${S.table}">
       <thead><tr>
         <th style="${S.th}">#</th>
-        <th style="${S.th}">Xizmat nomi</th>
-        <th style="${S.th}">Birlik</th>
-        <th style="${S.thR}">Miqdor</th>
-        <th style="${S.thR}">Narx (so'm)</th>
-        <th style="${S.thR}">Jami (so'm)</th>
+        <th style="${S.th}">${t('inv_col_service')}</th>
+        <th style="${S.th}">${t('inv_col_unit')}</th>
+        <th style="${S.thR}">${t('inv_col_qty')}</th>
+        <th style="${S.thR}">${t('inv_col_price')}</th>
+        <th style="${S.thR}">${t('inv_col_total')}</th>
       </tr></thead>
       <tbody>
         <tr>
           <td style="${S.td}">1</td>
           <td style="${S.td}">
-            <strong>Obuna tarifi — "${esc(plan.name)}"</strong><br>
+            <strong>${t('inv_item', { plan: plan.name })}</strong><br>
             <span style="font-size:.8rem;color:#6b7280">
-              Aktiv xodimlar: ${esc(activeCount)} ta &nbsp;·&nbsp; Tarif limiti: ${esc(maxLbl)}
+              ${t('inv_active_emps', { n: activeCount })} &nbsp;·&nbsp; ${t('inv_plan_limit', { max: maxLbl })}
             </span>
           </td>
-          <td style="${S.td}">oy</td>
+          <td style="${S.td}">${t('inv_month')}</td>
           <td style="${S.tdR}">1</td>
           <td style="${S.tdR};font-weight:600">${esc(priceStr)}</td>
           <td style="${S.tdR};font-weight:700;color:#2563eb">${esc(priceStr)}</td>
@@ -141,25 +152,24 @@
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="5" style="${S.tfootL}">JAMI TO'LOV:</td>
-          <td style="${S.tfootR}">${esc(priceStr)} so'm</td>
+          <td colspan="5" style="${S.tfootL}">${t('inv_total_due')}</td>
+          <td style="${S.tfootR}">${t('inv_amount', { n: priceStr })}</td>
         </tr>
       </tfoot>
     </table>
 
     <div style="${S.note}">
-      * Ushbu hisob-faktura QQS kiritilmagan holda taqdim etilgan.
-      To'lovdan keyin buxgalteriya bo'limiga to'lov tasdig'ini yuboring.
+      ${t('inv_note')}
     </div>
 
     <div style="${S.ref}">
-      <span style="${S.refLbl}">To'lov maqsadi (bank orderida ko'rsating):</span>
-      "${esc(invoiceNo)} raqamli hisob-faktura bo'yicha UncertaintyCalc obuna to'lovi"
+      <span style="${S.refLbl}">${t('inv_purpose_lbl')}</span>
+      ${t('inv_purpose', { no: invoiceNo })}
     </div>
 
     <div style="${S.footer}">
-      <span>UncertaintyCalc — ISO/IEC 17025 Noaniqlik kalkulyatori</span>
-      <span>Yaratildi: ${esc(today)}</span>
+      <span>UncertaintyCalc — ${t('c_brand_tagline')}</span>
+      <span>${t('inv_created', { date: today })}</span>
     </div>
   </div>`;
   }
@@ -167,10 +177,10 @@
   /* ─── ADMIN: TASHKILOT MA'LUMOTI ────────────────────── */
   function orgInfoHTML(org) {
     return `
-    <div class="org-info-item"><label>To'liq ism</label><span>${esc(Core.orgDisplayName(org))}</span></div>
-    <div class="org-info-item"><label>Login</label><span style="font-family:monospace">${esc(org.login)}</span></div>
-    <div class="org-info-item"><label>INN</label><span>${esc(org.inn)}</span></div>
-    <div class="org-info-item"><label>Telefon</label><span>${esc(org.phone)}</span></div>`;
+    <div class="org-info-item"><label>${t('adm_full_name')}</label><span>${esc(Core.orgDisplayName(org))}</span></div>
+    <div class="org-info-item"><label>${t('c_login')}</label><span style="font-family:monospace">${esc(org.login)}</span></div>
+    <div class="org-info-item"><label>${t('c_inn')}</label><span>${esc(org.inn)}</span></div>
+    <div class="org-info-item"><label>${t('c_phone')}</label><span>${esc(org.phone)}</span></div>`;
   }
 
   /* ─── ADMIN: XODIMLAR JADVALI ───────────────────────── */
@@ -179,13 +189,13 @@
     if (!emps || emps.length === 0) {
       return `<div class="admin-empty">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <p>Hali xodim qo'shilmagan. Yuqoridagi forma orqali qo'shing.</p></div>`;
+      <p>${t('adm_emp_empty')}</p></div>`;
     }
     return `
     <table class="emp-table">
       <thead><tr>
-        <th>#</th><th>Ism</th><th>Telefon</th><th>Lavozim</th>
-        <th>Login</th><th>Sana</th><th>Holat</th><th></th>
+        <th>#</th><th>${t('c_name')}</th><th>${t('c_phone')}</th><th>${t('adm_emp_role')}</th>
+        <th>${t('c_login')}</th><th>${t('c_date')}</th><th>${t('c_status')}</th><th></th>
       </tr></thead>
       <tbody>
       ${emps.map((e, i) => `
@@ -197,18 +207,18 @@
           <td>
             <div class="cred-box">
               <span>${esc(e.login)}</span>
-              <button class="copy-btn" data-action="copy" data-value="${esc(e.login)}" title="Nusxa">${COPY_ICON}</button>
+              <button class="copy-btn" data-action="copy" data-value="${esc(e.login)}" title="${t('c_copy')}">${COPY_ICON}</button>
             </div>
           </td>
           <td class="text-muted text-sm">${esc(e.createdAt || '—')}</td>
           <td>
             <span class="status-dot ${e.active ? 'active' : 'inactive'}"></span>
-            ${e.active ? 'Faol' : 'Nofaol'}
+            ${e.active ? t('c_active') : t('c_inactive')}
           </td>
           <td>
             <div style="display:flex;gap:.35rem;flex-wrap:wrap">
-              <button class="btn btn-sm btn-ghost" data-action="reset-password" data-id="${esc(e.id)}" title="Yangi login va parol berish">Parolni tiklash</button>
-              <button class="btn btn-sm btn-danger" data-action="delete" data-id="${esc(e.id)}">O'chirish</button>
+              <button class="btn btn-sm btn-ghost" data-action="reset-password" data-id="${esc(e.id)}" title="${t('adm_reset_pwd_title')}">${t('adm_reset_pwd')}</button>
+              <button class="btn btn-sm btn-danger" data-action="delete" data-id="${esc(e.id)}">${t('adm_delete')}</button>
             </div>
           </td>
         </tr>`).join('')}
@@ -223,7 +233,7 @@
       return `<tr><td colspan="9">
         <div class="sa-empty">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-          Tashkilot topilmadi
+          ${t('sa_org_none')}
         </div></td></tr>`;
     }
     const planName = k => (plans[k] && plans[k].name) || k || '—';
@@ -231,7 +241,7 @@
       const isActive    = org.active === true;
       const isPaid      = org.paymentStatus === 'paid';
       const statusClass = isActive ? 'active' : (isPaid ? 'inactive' : 'pending');
-      const statusLabel = isActive ? 'Faol' : (isPaid ? 'Nofaol' : 'Kutilmoqda');
+      const statusLabel = isActive ? t('c_active') : (isPaid ? t('c_inactive') : t('c_pending'));
       const req = org.requestedPlan && org.requestedPlan !== org.plan && plans[org.requestedPlan] ? org.requestedPlan : null;
       return `
         <tr data-row-id="${esc(org.id)}">
@@ -245,23 +255,23 @@
           <td class="org-meta">
             ${esc(planName(org.plan))}
             ${org.planExpiry ? `<div class="org-meta">→ ${esc(org.planExpiry)}</div>` : ''}
-            ${req ? `<div class="org-meta" style="color:#eab308">So'rov: ${esc(planName(req))}</div>` : ''}
+            ${req ? `<div class="org-meta" style="color:#eab308">${t('sa_request', { plan: planName(req) })}</div>` : ''}
           </td>
           <td>
             <span class="pay-badge ${isPaid ? 'paid' : 'pending'}">
-              ${isPaid ? '✓ To\'langan' : '⏳ Kutilmoqda'}
+              ${isPaid ? t('sa_paid') : t('auth_pay_pending')}
             </span>
           </td>
           <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
           <td class="org-meta">${esc(org.registeredAt || '—')}</td>
           <td>
             <div class="action-row">
-              ${!isPaid ? `<button class="btn btn-xs btn-pay-confirm" data-action="confirm-payment" data-id="${esc(org.id)}">To'lov tasdiqlash</button>` : ''}
+              ${!isPaid ? `<button class="btn btn-xs btn-pay-confirm" data-action="confirm-payment" data-id="${esc(org.id)}">${t('sa_btn_confirm_payment')}</button>` : ''}
               ${!isActive
-                ? `<button class="btn btn-xs btn-activate" data-action="activate" data-id="${esc(org.id)}">Aktivlashtirish</button>`
-                : `<button class="btn btn-xs btn-deactivate" data-action="deactivate" data-id="${esc(org.id)}">Bloklash</button>`}
-              ${req ? `<button class="btn btn-xs btn-pay-confirm" data-action="apply-plan" data-id="${esc(org.id)}" data-plan="${esc(req)}">Tarifni qo'llash</button>` : ''}
-              <button class="btn btn-xs btn-ghost" data-action="extend" data-id="${esc(org.id)}" title="Obuna muddatini 30 kunga uzaytirish">+30 kun</button>
+                ? `<button class="btn btn-xs btn-activate" data-action="activate" data-id="${esc(org.id)}">${t('sa_btn_activate')}</button>`
+                : `<button class="btn btn-xs btn-deactivate" data-action="deactivate" data-id="${esc(org.id)}">${t('sa_btn_block')}</button>`}
+              ${req ? `<button class="btn btn-xs btn-pay-confirm" data-action="apply-plan" data-id="${esc(org.id)}" data-plan="${esc(req)}">${t('sa_btn_apply_plan')}</button>` : ''}
+              <button class="btn btn-xs btn-ghost" data-action="extend" data-id="${esc(org.id)}" title="${t('sa_btn_extend_title')}">${t('sa_btn_extend')}</button>
             </div>
           </td>
         </tr>`;
@@ -271,15 +281,15 @@
   /* ─── SUPER-ADMIN: AUTH'DAN O'CHIRILISHI KERAK HISOBLAR ── */
   function cleanupRowsHTML(list) {
     if (!list || list.length === 0) {
-      return '<tr><td colspan="5" class="sa-empty">Navbat bo\'sh</td></tr>';
+      return `<tr><td colspan="5" class="sa-empty">${t('sa_queue_empty')}</td></tr>`;
     }
     return list.map(c => `
       <tr>
         <td class="org-meta" style="font-family:'JetBrains Mono',monospace">${esc(c.id)}</td>
         <td class="org-meta" style="font-family:'JetBrains Mono',monospace">${esc(c.login)}</td>
-        <td class="org-meta">${c.reason === 'password-reset' ? 'Parol tiklandi' : 'O\'chirildi'}</td>
+        <td class="org-meta">${c.reason === 'password-reset' ? t('sa_reason_reset') : t('sa_reason_deleted')}</td>
         <td class="org-meta">${esc(c.at)}</td>
-        <td><button class="btn btn-xs btn-ghost" data-action="cleanup-done" data-id="${esc(c.id)}" title="Auth konsolida o'chirganingizdan keyin bosing">Bajarildi</button></td>
+        <td><button class="btn btn-xs btn-ghost" data-action="cleanup-done" data-id="${esc(c.id)}" title="${t('sa_btn_done_title')}">${t('sa_btn_done')}</button></td>
       </tr>`).join('');
   }
 

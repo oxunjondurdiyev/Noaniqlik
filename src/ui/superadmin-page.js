@@ -15,6 +15,8 @@
   const T = window.UiTemplates;
   const Core = window.AuthCore;
   const PLANS = AuthManager.PLANS;
+  const t = (key, vars) => (vars ? i18n.tf(key, vars) : i18n.t(key));
+  const TIME_LOCALE = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
 
   /* ─── Mavzu ──────────────────────────────────────────── */
   try {
@@ -57,7 +59,7 @@
     showLoginErr('');
     const login = $('sa-login-inp').value.trim();
     const pwd   = $('sa-pwd-inp').value;
-    if (!login || !pwd) { showLoginErr('Login va parolni kiriting'); return; }
+    if (!login || !pwd) { showLoginErr(t('auth_err_enter_both')); return; }
     const btn = $('sa-btn-login');
     btn.disabled = true;
     try {
@@ -97,6 +99,31 @@
   let allOrgs      = [];
   let activeFilter = 'all';
   let searchQuery  = '';
+  let cleanupList  = null;
+  let lastUpdate   = null;   // { at: Date } | { error: string }
+
+  function renderUpdateLabel() {
+    if (!lastUpdate) return;
+    const el = $('update-label');
+    el.removeAttribute('data-i18n');   // endi matnni shu funksiya boshqaradi (i18n.apply() bosib ketmasin)
+    el.textContent = lastUpdate.error
+      ? t('c_error', { msg: lastUpdate.error })
+      : t('sa_updated', { time: lastUpdate.at.toLocaleTimeString(TIME_LOCALE[i18n.lang] || 'en-GB') });
+  }
+
+  function renderCleanup() {
+    if (!cleanupList) return;
+    $('sa-cleanup-count').textContent = String(cleanupList.length);
+    $('sa-cleanup-tbody').innerHTML = T.cleanupRowsHTML(cleanupList);
+  }
+
+  // Til almashganda: jadvallar keshdagi ma'lumotdan qayta chiziladi
+  document.addEventListener('langchange', () => {
+    if ($('sa-dashboard').style.display !== 'block') return;
+    if (lastUpdate) renderTable();
+    renderCleanup();
+    renderUpdateLabel();
+  });
 
   function startRealtime() {
     stopRealtime();
@@ -104,14 +131,16 @@
       allOrgs = orgs;
       updateStats(orgs);
       renderTable();
-      $('update-label').textContent = 'Yangilandi: ' + new Date().toLocaleTimeString('uz-UZ');
+      lastUpdate = { at: new Date() };
+      renderUpdateLabel();
     }, err => {
-      $('update-label').textContent = 'Xato: ' + (err.code || err.message);
+      lastUpdate = { error: err.code || err.message };
+      renderUpdateLabel();
     }));
     unsubscribers.push(DB.onCollectionSnapshot('authCleanup', list => {
       list.sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));
-      $('sa-cleanup-count').textContent = String(list.length);
-      $('sa-cleanup-tbody').innerHTML = T.cleanupRowsHTML(list);
+      cleanupList = list;
+      renderCleanup();
     }));
   }
 
@@ -172,11 +201,11 @@
 
   const ACTIONS = {
     'confirm-payment': {
-      ask: 'To\'lovni tasdiqlaysizmi? Holat "To\'langan" ga o\'zgaradi.',
+      ask: 'sa_ask_confirm_payment',
       fields: () => ({ paymentStatus: 'paid', paidAt: today() }),
     },
     activate: {
-      ask: 'Tashkilotni aktivlashtirasizmi? Ular tizimga kira oladi.',
+      ask: 'sa_ask_activate',
       fields: org => {
         const f = { active: true, activatedAt: today() };
         if (!org.planExpiry || Date.parse(org.planExpiry) <= Date.now()) f.planExpiry = extendedExpiry(org);
@@ -184,17 +213,17 @@
       },
     },
     deactivate: {
-      ask: 'Tashkilotni bloklaysizmi? Ular tizimga kira olmaydi.',
+      ask: 'sa_ask_deactivate',
       fields: () => ({ active: false }),
     },
     'apply-plan': {
-      ask: 'So\'ralgan tarifni qo\'llaysizmi? Obuna muddati 30 kunga yangilanadi.',
+      ask: 'sa_ask_apply_plan',
       fields: (org, btn) => PLANS[btn.dataset.plan]
         ? { plan: btn.dataset.plan, requestedPlan: DB.deleteField(), planExpiry: extendedExpiry(null) }
         : null,
     },
     extend: {
-      ask: 'Obuna muddatini 30 kunga uzaytirasizmi?',
+      ask: 'sa_ask_extend',
       fields: org => ({ planExpiry: extendedExpiry(org) }),
     },
   };
@@ -205,7 +234,7 @@
     const act = ACTIONS[btn.dataset.action];
     const org = allOrgs.find(o => o.id === btn.dataset.id);
     if (!act || !org) return;
-    if (!confirm(act.ask)) return;
+    if (!confirm(t(act.ask))) return;
     const fields = act.fields(org, btn);
     if (!fields) return;
     btn.disabled = true;
@@ -213,7 +242,7 @@
       await DB.update('organizations', org.id, fields);
       flashRow(org.id);
     } catch (e) {
-      showToast('Xato: ' + (e.code || e.message), 'error');
+      showToast(t('c_error', { msg: e.code || e.message }), 'error');
     } finally {
       btn.disabled = false;
     }
@@ -222,11 +251,11 @@
   $('sa-cleanup-tbody').addEventListener('click', async ev => {
     const btn = ev.target.closest('button[data-action="cleanup-done"]');
     if (!btn) return;
-    if (!confirm('Bu Auth hisobini Firebase konsolida (Authentication → Users) o\'chirdingizmi?\nYozuv navbatdan olib tashlanadi.')) return;
+    if (!confirm(t('sa_ask_cleanup'))) return;
     try {
       await DB.remove('authCleanup', btn.dataset.id);
     } catch (e) {
-      showToast('Xato: ' + (e.code || e.message), 'error');
+      showToast(t('c_error', { msg: e.code || e.message }), 'error');
     }
   });
 

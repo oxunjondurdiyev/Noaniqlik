@@ -8,6 +8,7 @@
   const $ = id => document.getElementById(id);
   const T = window.UiTemplates;
   const PLANS = AuthManager.PLANS;
+  const t = key => i18n.t(key);
 
   function showErr(id, msg) {
     const el = $(id);
@@ -21,15 +22,18 @@
   /* ─── Sessiya → UI (Firebase Auth holatidan) ─────── */
   const navBtn = $('btn-nav-login');
 
+  let _session = null;
+
   function applySession(session) {
+    _session = session;
     if (session && (session.role === 'admin' || session.role === 'employee')) {
       $('topbar-user-name').textContent = session.name || session.login || '';
-      $('topbar-user-role').textContent = session.role === 'admin' ? 'Admin' : 'Xodim';
+      $('topbar-user-role').textContent = session.role === 'admin' ? t('role_admin') : t('role_employee');
       $('topbar-user-badge').style.display = 'flex';
       $('btn-topbar-logout').style.display = '';
       $('btn-admin-link').style.display    = session.role === 'admin' ? '' : 'none';
       if (navBtn) {
-        navBtn.textContent = session.role === 'admin' ? 'Admin Panel' : 'Kalkulyator';
+        navBtn.textContent = session.role === 'admin' ? t('c_admin_panel') : t('c_calc');
         navBtn.dataset.mode = session.role;
       }
     } else {
@@ -37,7 +41,7 @@
       $('btn-topbar-logout').style.display = 'none';
       $('btn-admin-link').style.display    = 'none';
       if (navBtn) {
-        navBtn.textContent = 'Kirish';
+        navBtn.textContent = t('auth_tab_login');
         navBtn.dataset.mode = 'login';
         navBtn.style.display = '';
       }
@@ -46,6 +50,16 @@
 
   AuthManager.ready().then(applySession);
   AuthManager.onChange(applySession);
+
+  // Til almashganda: dinamik matnlar (rol, tugma, to'lov paneli, hisob-faktura, login tekshiruvi) qayta chiziladi
+  document.addEventListener('langchange', () => {
+    applySession(_session);
+    if (_pendingOrg && $('auth-panel-pending').classList.contains('active')) {
+      $('pending-org-info').innerHTML = T.pendingOrgInfoHTML(_pendingOrg, PLANS);
+      if ($('reg-invoice-modal').style.display === 'flex') $('reg-invoice-content').innerHTML = T.invoiceHTML(_pendingOrg, [], PLANS);
+    }
+    checkLoginFormat();
+  });
 
   if (navBtn) {
     navBtn.addEventListener('click', e => {
@@ -128,7 +142,7 @@
     const msg   = $('login-check-msg');
     if (!login) { msg.textContent = ''; return; }
     const ok = window.AuthCore.isValidLogin(login);
-    msg.textContent = ok ? '✓ Format to\'g\'ri' : '✗ 3–32 belgi: a-z, 0-9, ". _ -"';
+    msg.textContent = ok ? t('auth_login_ok') : t('auth_login_bad');
     msg.style.color = ok ? 'var(--success)' : 'var(--danger)';
   }
 
@@ -144,9 +158,9 @@
     showErr('login-error', '');
     const user = $('login-user').value.trim();
     const pwd  = $('login-pwd').value;
-    if (!user || !pwd) { showErr('login-error', 'Login va parolni kiriting'); return; }
+    if (!user || !pwd) { showErr('login-error', t('auth_err_enter_both')); return; }
     const btn = $('btn-do-login');
-    btn.disabled = true; btn.textContent = 'Kirilmoqda…';
+    btn.disabled = true; btn.textContent = t('auth_signing_in');
     try {
       await AuthManager.login(user, pwd);
       $('login-pwd').value = '';
@@ -154,7 +168,7 @@
     } catch (e) {
       showErr('login-error', e.message);
     } finally {
-      btn.disabled = false; btn.textContent = 'Kirish →';
+      btn.disabled = false; btn.textContent = t('auth_signin_btn');
     }
   }
 
@@ -176,14 +190,14 @@
     const empCount   = $('reg-empcount').value;
 
     if (!inn || !phone || !firstName || !lastName || !login || !pwd) {
-      showErr('reg-error', 'Barcha maydonlarni to\'ldiring'); return;
+      showErr('reg-error', t('auth_err_fill_all')); return;
     }
     if (pwd !== pwd2) {
-      showErr('reg-error', 'Parollar mos kelmaydi'); return;
+      showErr('reg-error', t('auth_err_pwd_mismatch')); return;
     }
 
     const btn = $('btn-do-register');
-    btn.disabled = true; btn.textContent = 'Saqlanmoqda…';
+    btn.disabled = true; btn.textContent = t('auth_saving');
     try {
       const registeredOrg = await AuthManager.register({
         inn, phone, firstName, lastName,
@@ -197,7 +211,7 @@
     } catch (e) {
       showErr('reg-error', e.message);
     } finally {
-      btn.disabled = false; btn.textContent = 'Ro\'yxatdan o\'tish →';
+      btn.disabled = false; btn.textContent = t('auth_register_btn');
     }
   });
 

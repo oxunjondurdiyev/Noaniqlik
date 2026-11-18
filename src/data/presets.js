@@ -403,4 +403,25 @@ Object.values(PRESETS).forEach(pd => {
   if (pd.points && !pd.sampleData) pd.sampleData = pd.points[0].data;
 });
 
+/* ─── Ko'rsatiladigan nomlar — i18n (P05, RISKS R-13) ───────────────
+   Yuqoridagi `name` qiymatlari — barqaror identifikator (points[].patch kaliti, templates/builtin/legacy-*
+   dagi legacyName, testlar); foydalanuvchiga chiqadigan matn lug'atdan olinadi:
+     preset nomi      → preset_<kalit>  (gas_analyzer → preset_gas, thermometer → preset_thermo)
+     komponent nomi   → pc_<slug>       (src/js/i18n-admin.js; slug: kichik harf, [^a-z0-9]+ → _)
+   Har bir nom uchun kalit uch tilda borligini tests/i18n.test.js tekshiradi. */
+const PresetText = {
+  TITLE_KEYS: { gas_analyzer: 'preset_gas', thermometer: 'preset_thermo' },
+  titleKey(key) { return PresetText.TITLE_KEYS[key] || 'preset_' + key; },
+  componentKey(name) { return 'pc_' + String(name).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, ''); },
+  title(key) { return window.i18n.t(PresetText.titleKey(key)); },
+  component(name) {
+    const k = PresetText.componentKey(name);
+    const v = window.i18n.t(k);
+    return v === k ? name : v;
+  },
+  // TypeB komponentlari nusxasi — nomlari joriy tilda (asl PRESETS o'zgarmaydi)
+  localized(components) { return components.map(c => ({ ...c, name: PresetText.component(c.name) })); },
+};
+
 window.PRESETS = PRESETS;
+window.PresetText = PresetText;
