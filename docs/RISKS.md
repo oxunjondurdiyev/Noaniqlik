@@ -34,7 +34,8 @@
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 (yopildi — MC qismi) |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
-| R-23 | Monte-Karlo 2.0: egasi qarorlari qabul qilindi (2026-11-18); qoldiq — ko'p o'lchovli t (P07), Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06 (qarorlar bajarildi) → P07, P13 |
+| R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; qoldiq — Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06, P07 → P13 |
+| R-24 | Ko'p o'zgaruvchili modellar (P07): qilinmagan qismlar (oshkormas model, eng kichik qamrov sohasi, `atan2`) va egasi tasdig'ini kutayotgan loyiha qarorlari | O | P07 → egasi qarori |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
@@ -53,7 +54,7 @@ Egasi qarorlari (savollar va javoblar — `tests/cases/DISCREPANCIES.md` Q-3, Q-
 |---|---|---|---|
 | 1 | 10-test, n_dig = 2 (Q-3) | (b): tolerans = δ + 2·s_ref; qo'llanma qiymati o'zgarmaydi; test majburiy | bajarildi (2,9·10⁻⁴ / 2,3·10⁻⁴ — D-04) |
 | 2 | ν ≤ 2 da mezon (Q-5) | avtomatik faqat interval uchlari; hisobotda "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali" | bajarildi |
-| 3 | Normal bo'lmagan korrelyatsiya (Q-6) | natija berilmaydi; topilmada "LPU natijasi amal qiladi"; ko'p o'lchovli t — P07 | bajarildi; P07 — PLAN |
+| 3 | Normal bo'lmagan korrelyatsiya (Q-6) | natija berilmaydi; topilmada "LPU natijasi amal qiladi"; ko'p o'lchovli t — P07 | **yopildi (P07, 2.7.0):** juftlangan A tur kuzatuvlari — t_ν(x̄, S/n), ν = n − N (JCGM 102:2011 §5.3.2); n ≤ N → `mc_t_dof`; boshqa normal bo'lmagan korrelyatsiyada avvalgidek natija berilmaydi |
 | 4 | A tur usul 3 (Q-7) | t₍n−1₎ — tasdiqlandi | bajarildi |
 | 5 | §8.2 (Q-8) | GUM tekshiruvida δ/5, oddiy MCM da δ; erishilgan tolerans hisobotda; δ ga tushirish — laboratoriya sozlamasi, belgi bilan | bajarildi |
 
@@ -271,6 +272,30 @@ Qoldiq xavf:
 - **Linter chegaralari** — `docs/LINTER_RULES.md` §4: 1–2, 4–17, 19–20 tasdiqlandi; 3 (X7: ν_eff < 10 warning, 10 ≤ ν_eff < 30 info) va 18 (D1: TUR < 1 warning, 1 ≤ TUR < 4 info — 4:1 amaliyot, unverified) o'zgartirildi (ENGINE 2.5.1).
 - **Qoldiq xavf:** ZIP-bomba himoyasi ZIP katalogida e'lon qilingan hajmga tayanadi (yolg'on sarlavhali fayl bilan sinalmagan); SheetJS CE yangilanishi qo'lda; GUM eksportida natija joriy kirishlardan qayta hisoblanadi; import voqeasi audit zanjiriga yozilmaydi.
 - **Qilinmagan:** DCC (Digital Calibration Certificate) XML; PDF/A; elektron imzo; `/verify` sahifasi (P11); B tur manbalarini fayldan import; regressiya / top-down / maxsus rejim `.xlsx` varag'ida tarjima qilingan maydon nomlari.
+
+### R-24. Ko'p o'zgaruvchili modellar: qilinmagan qismlar va ochiq qarorlar (O) — P07 (2026-11-18, ENGINE 2.7.0)
+
+Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7.7.3), ko'p o'lchovli MCM (§7, §8), ko'p o'lchovli t (§5.3.2). Verified: Table 1, 2, 3, 4, 5, 6–7 (GUF), 11; JCGM 100 H.2.
+
+**Qilinmagan (majburiy test yo'q, funksiya yo'q):**
+
+| # | Nima | Sabab / oqibat |
+|---|---|---|
+| 1 | Oshkormas model h(Y, X) = 0 (§6.3) | vaqt yetmadi. §6.3.2 misoli va §9.5 (o'lchov bloklari massasi) qamrab olinmagan. Bunday model kiritib bo'lmaydi — foydalanuvchi Y ni oshkor ifodalashi kerak |
+| 2 | Eng kichik qamrov sohasi (§7.7.4) | faqat ellipsoid va to'g'ri burchakli soha. Taqsimot Gaussdan uzoq bo'lsa (§9.2.4 kabi) ellipsoid eng kichik soha emas — hisobotda soha turi aniq yoziladi |
+| 3 | Parserda `atan2` yo'q | §9.3 (fazaga o'tkazish) faqat GUF qatorlari bilan tekshirilgan (`atan(X2/X1)`); MCM qatorlari (Table 6–7) — test yo'q, chunki `atan` chorakni yo'qotadi. `atan2` qo'shish — alohida kichik ish (parser + hosila) |
+| 4 | ν ≤ 2 bo'lgan t-kirishda vektor MCM | faqat marginal intervallar; U_y va soha berilmaydi (Q-5 qoidasining vektor ko'rinishi — loyiha qarori) |
+| 5 | Ko'p chiqish + ko'p nuqta (kalibrlash nuqtalari) birga | UI da qo'llab-quvvatlanmaydi; shablon muharririda `outputs` maydoni yo'q (JSON orqali kiritiladi) |
+| 6 | Brauzerda qo'lda ko'rilmagan | faqat jsdom testlari (`tests/ui/multivariate.test.js`) |
+
+**Egasi tasdig'ini kutayotgan loyiha qarorlari:**
+
+1. **MV1 chegarasi** |r| > 0,5 → info (`docs/LINTER_RULES.md` §4 #24). JCGM 102 da son yo'q.
+2. **Korrelyatsiya koeffitsiyentini ko'rsatish:** 3 o'nlik xona; |r| > 0,99 da qo'shimcha "1 − |r|" (JCGM 102 Table 11 dagi kabi). ILAC P14 r uchun qoida bermaydi.
+3. **Adaptiv mezon:** U_y bo'yicha barqarorlik λ_max orqali (§7.8.2 bo'yicha), har bir kovariatsiya elementi bo'yicha emas.
+4. **Singular chegarasi** λ_min / λ_max < 10⁻⁹.
+5. **Chiqishga xos sozlamalar** (MPE, qaror qoidasi) faqat `outputs[j].settings` orqali; umumiy `settings` dagi MPE vektor hisobda e'tiborga olinmaydi.
+6. **Ko'p o'lchovli t `nonNormalCorrelation: 'gaussian'` sozlamasidan ustun** (2.7.0 da MCM natijasi o'zgargan holat — CHANGELOG).
 
 ### R-10. Hisoblash mantig'ining takrorlanishi (O)
 - `typeB.js:73-81, 204-221` u_B ni mustaqil hisoblaydi; `typeB.js:241` korrelyatsiyani `typeA` (usulsiz) bilan ko'rsatadi, `evaluate` esa `typeAx` bilan. Ekrandagi va hisobotdagi qiymatlar farq qilishi mumkin. Batafsil: ARCHITECTURE.md §4.

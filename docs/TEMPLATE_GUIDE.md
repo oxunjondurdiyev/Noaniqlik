@@ -277,3 +277,19 @@ Qoidalar:
 4. **BETA rejimlar** (`MICROBIOLOGY`, `MEDICAL`) manba misoli bilan tasdiqlanmagan: shablon tekshiruvi ogohlantirish beradi, **APPROVED holatiga o'tkazish — xato**. Natija va bosma hisobotda "BETA" belgisi va `*_unverified` ogohlantirishi chiqadi.
 
 Ichki shablonlar (hammasi **DRAFT**, raqamsiz): [`SP-01`](../templates/builtin/SP-01.json) (namuna olish), [`SP-02`](../templates/builtin/SP-02.json) (sifatli test), [`SP-03`](../templates/builtin/SP-03.json) (mikrobiologiya, BETA), [`SP-04`](../templates/builtin/SP-04.json) (tibbiy laboratoriya, BETA). Test: `tests/ui/special.test.js`.
+
+## 12. Vektor model: bir nechta chiqish (P07)
+
+Bir o'lchashdan bir nechta kattalik olinsa (masalan R, X, Z — JCGM 100 H.2), shablonga ixtiyoriy `outputs` massivi qo'shiladi. Asosiy chiqish — odatdagi `model` (o'zgarmagan); `outputs` — **qo'shimcha** chiqishlar:
+
+```json
+"outputs": [
+  { "symbol": "X", "name": { "uz": "…", "ru": "…", "en": "…" }, "unit": "Ω", "formula": "X = V / I * sin(phi)" }
+]
+```
+
+- `symbol` va `formula` majburiy; belgilar takrorlanmasligi kerak (`duplicate_output`).
+- Barcha chiqishlar bir xil kirish kattaliklaridan foydalanadi; chiqishlar orasidagi kovariatsiya avtomatik hisoblanadi (U_y = C_x·U_x·C_xᵀ, JCGM 102:2011 §6.2).
+- Hisobotda: har bir chiqish alohida qator (y, u, k, U), korrelyatsiya matritsasi va qamrov sohasi (ellipsoid k_p, to'g'ri burchakli k_q).
+- MPE va qaror qoidasi vektor hisobda umumiy sozlamadan olinmaydi (ENGINE_API §13.1).
+- `outputs` siz shablonlar — o'zgarmagan. Namuna: `templates/builtin/MV-01.json` (DRAFT, raqamsiz). Shablon muharririda `outputs` maydoni hali yo'q — JSON orqali.

@@ -14,5 +14,8 @@
    2.6.0 — P06 (Monte-Karlo 2.0, JCGM 101:2008: mc/rng.js — kengaytirilgan Wichmann–Hill; mc/distributions.js; adaptiv
            protsedura §7.9.4; ko'p o'lchovli Gauss; linter M2–M4; B tur: trap, ctrap, exp, lognorm.
            MONTE-KARLO RAQAMLARI O'ZGARDI (yangi generator, JCGM 101 bo'yicha tanlash formulalari, §7.7.2 indekslari);
-           eski natija rng: 'xorshift32-legacy' bilan aynan takrorlanadi. LPU (y, u_c, ν_eff, k, U) o'zgarmagan). */
-export const ENGINE_VERSION = '2.6.0';
+           eski natija rng: 'xorshift32-legacy' bilan aynan takrorlanadi. LPU (y, u_c, ν_eff, k, U) o'zgarmagan).
+   2.7.0 — P07 (JCGM 102:2011: multivariate/ — vektor LPU U_y = C_x·U_x·C_xᵀ, qamrov sohasi §6.5 / §7.7, ko'p o'lchovli
+           MCM §7–8; linter MV1; ko'p o'lchovli t §5.3.2 — juftlangan A tur kuzatuvlarida MCM endi natija beradi
+           (2.6.0 da mc_nonnormal_correlation). Bitta chiqishli LPU va qolgan MCM natijalari bit darajasida o'zgarmagan). */
+export const ENGINE_VERSION = '2.7.0';
