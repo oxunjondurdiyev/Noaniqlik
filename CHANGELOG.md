@@ -6,7 +6,7 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 
 ## [2.6.0] — P06: Monte-Karlo 2.0 (JCGM 101:2008) (2026-11-18)
 
-**ENGINE_VERSION: 2.5.0 → 2.6.0** (minor). **LPU natijalari (y, u_c, ν_eff, k, U, `conf`, `decision`, `findings`) o'zgarmadi:** 61 ta test misolining `evaluate()` natija JSON'i 2.5.0 (`c1cccce`) bilan **bayt darajasida bir xil** (`engineVersion` dan tashqari; skript bilan solishtirildi). 9 ta etalon Excel nuqtasi o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.
+**ENGINE_VERSION: 2.5.1 → 2.6.0** (minor). **LPU natijalari (y, u_c, ν_eff, k, U, `conf`, `decision`, `findings`) o'zgarmadi:** 61 ta test misolining `evaluate()` natija JSON'i 2.5.0 (`c1cccce`) bilan **bayt darajasida bir xil** (`engineVersion` dan tashqari; skript bilan solishtirildi). 9 ta etalon Excel nuqtasi o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi.
 
 ### ⚠ Monte-Karlo raqamlari o'zgardi (alohida qayd)
 
@@ -36,6 +36,14 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Hisobot:** MCM bo'limida interval turi, P, M, generator, urug', n_dig (so'ralgan / yetilgan), rejim; MC topilmalari bosmada ham chiqadi.
 - **Test misollari:** JCGM 101 §9.4 (Table 8, 9 — 6 ta MCM), §9.5 (Table 11, adaptiv), Table 2, 4, 6 ning adaptiv qatorlari — **verified** (jami 61 verified, 2 unverified; pending yo'q).
 - **Egasi qarori kerak:** `docs/RISKS.md` R-23; `tests/cases/DISCREPANCIES.md` Q-3 (qayta), Q-5…Q-8.
+## [2.5.1] — P05 bo'yicha egasi qarorlari (2026-11-18)
+
+**ENGINE_VERSION: 2.5.0 → 2.5.1** (patch). **y, u_c, ν_eff, k, U, `conf`, `decision` o'zgarmadi** — faqat ikki topilmaning darajasi va bitta yangi topilma kodi. 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmadi; etalon nuqtalardagi topilmalar ro'yxati ham o'zgarmadi.
+
+- **X7** (`x7_k2_low_dof`): ν_eff < 10 → **warning**; 10 ≤ ν_eff < 30 → **info** (avval ν_eff < 30 da doim warning). Ref: JCGM 100:2008 G.6.6 ("say greater than 10").
+- **D1:** `decision_low_tur` (TUR < 1) — **warning** (avval info); yangi `decision_tur_below_4` (1 ≤ TUR < 4) — info, **unverified** (4:1 — amaliyotdagi qoida, manbasi repoda yo'q).
+- **Qaror qoidasini oldindan qo'yish:** `decisionPreset({template, lab})` — shablondagi `decisionRule` yoki laboratoriya sozlamasidagi standart qoida natijalar sahifasidagi tanlov oynasiga oldindan qo'yiladi; `settings.decisionRule` ga faqat foydalanuvchi tasdiqlagach yoziladi. Tasdiqlanmasa bayonot chiqmaydi (dvigatel xatti-harakati o'zgarmagan: qoida bo'sh → `decision.pending = 'rule'`).
+- Hujjatlar: `docs/LINTER_RULES.md` §4 (1–20-bandlar tasdiqlandi, 3 va 18 o'zgartirildi), `docs/RISKS.md` R-22 (qarorlar qayd etildi; build identifikatori (b) va versiyalangan modul URL'lari — P13).
 
 ## [2.5.0] — P05b: import/eksport, rasmiy hisobot shakllari, qaror qoidasi (2026-11-18)
 

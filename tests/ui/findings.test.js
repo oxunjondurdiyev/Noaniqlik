@@ -377,3 +377,36 @@ test('topilma yo\'q bo\'lsa ham blok ko\'rinadi (tekshiruv bajarilgani ma\'lum);
   assert.match(x11.querySelector('.finding-what').textContent, /^⚠ X11 /);
   assert.equal(x11.querySelector('.finding-fix').textContent, `${w.i18n.t('fnd_fix')}: ${w.i18n.t('fix_x11_double_counting')}`);
 });
+
+test('P05 qarorlari: laboratoriya / shablon qaror qoidasi oldindan qo\'yiladi, lekin tasdiqlanmaguncha bayonot chiqmaydi (uch tilda)', async () => {
+  for (const lang of LANGS) {
+    const st = { ...BASE(), settings: { paired: false, P: 0.9545, modelKind: 'error', mpe: 0.5 } };       // qoida tanlanmagan
+    st.combined = E.evaluate(st);
+    assert.equal(st.combined.decision.pending, 'rule');
+    // laboratoriya sozlamasi: oddiy qabul
+    const w = load(lang, st, { lab: { decisionRule: 'simple' } });
+    w.TypeB = { calculate() { const cur = w.appState.get(); w.appState.set({ combined: E.evaluate(cur) }); w.Results.render(); } };
+    w.Results.render();
+    const el = w.document.getElementById('results-content');
+    const box = el.querySelector('[data-decision-chooser]');
+    assert.equal(box.getAttribute('data-decision-preset'), 'lab');
+    assert.equal(box.querySelector('[data-decision-rule-select]').value, 'simple');
+    assert.ok(box.querySelector('[data-decision-preset-note]').textContent.length > 20);
+    assert.equal(el.querySelectorAll('.formula-box .badge-green, .formula-box .badge-red').length, 0, 'tasdiqsiz hukm yo\'q');
+    assert.ok(!w.appState.get('settings').decisionRule, 'taklif sozlamaga yozilmagan');
+    await w.Results.printReport();
+    assert.ok(w.document.getElementById('print-report').querySelector('[data-decision-pending="rule"]'), 'bosmada ham bayonot yo\'q');
+    box.querySelector('[data-decision-apply]').click();                                   // foydalanuvchi tasdiqladi
+    assert.equal(w.appState.get('settings').decisionRule, 'simple');
+    assert.equal(w.appState.get('combined').decision.verdict, 'pass');
+    // shablon: himoyalangan qabul (laboratoriya sozlamasidan ustun)
+    const st2 = { ...BASE(), settings: { paired: false, P: 0.9545, modelKind: 'error', mpe: 0.5 }, template: { decisionRule: { type: 'guarded', required: true } } };
+    st2.combined = E.evaluate(st2);
+    const w2 = load(lang, st2, { lab: { decisionRule: 'simple' } });
+    w2.Results.render();
+    const b2 = w2.document.getElementById('results-content').querySelector('[data-decision-chooser]');
+    assert.equal(b2.getAttribute('data-decision-preset'), 'template');
+    assert.equal(b2.querySelector('[data-decision-rule-select]').value, 'guard_band');
+    assert.equal(b2.querySelector('[data-decision-r]').value, '1');
+  }
+});

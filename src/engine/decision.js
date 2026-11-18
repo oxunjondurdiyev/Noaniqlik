@@ -154,3 +154,30 @@ export function decisionInput(settings, ctx) {
   return { spec: { value: ctx.y, u: ctx.uc, U: ctx.U, lower, upper, rule: s.decisionRule,
                    r: isBlank(s.guardR) ? undefined : toNum(s.guardR), statement: isBlank(s.decisionStatement) ? 'binary' : s.decisionStatement } };
 }
+
+/**
+ * Qaror qoidasini OLDINDAN QO'YISH (tasdiqlanmagan taklif) — egasi qarori 2026-11-18 (docs/RISKS.md R-22):
+ * shablondagi `decisionRule` yoki laboratoriya sozlamasidagi standart qoida tanlov oynasiga oldindan qo'yiladi,
+ * lekin `settings.decisionRule` ga FAQAT foydalanuvchi tasdiqlagach yoziladi — tasdiqlanmasa bayonot chiqmaydi.
+ * Ref: ILAC G8:09/2019 §2.3 (ISO/IEC 17025:2017 §7.1.3) — qaror qoidasi mijoz bilan kelishiladi.
+ * Shablon `type`: 'simple' | 'guarded' | 'one_sided_lower' | 'one_sided_upper' | 'none'; laboratoriya: 'simple' | 'guarded'.
+ * Bir tomonlama turda qoida laboratoriya sozlamasidan, chegara (`limit`, son bo'lsa) shablondan olinadi.
+ * @returns {{rule:string, r:number, source:'template'|'lab', tolLower?:number, tolUpper?:number}|null}
+ */
+export function decisionPreset(o) {
+  const src = o || {};
+  const map = v => (v === 'simple' ? 'simple' : (v === 'guarded' || v === 'guard_band' ? 'guard_band' : null));
+  const tpl = src.template && typeof src.template === 'object' ? src.template : null;
+  const lab = map(src.lab);
+  let rule = null, source = null;
+  const extra = {};
+  if (tpl && map(tpl.type)) { rule = map(tpl.type); source = 'template'; }
+  else if (tpl && (tpl.type === 'one_sided_lower' || tpl.type === 'one_sided_upper')) {
+    const lim = toNum(tpl.limit);
+    if (!isBlank(tpl.limit) && isFinite(lim)) extra[tpl.type === 'one_sided_lower' ? 'tolLower' : 'tolUpper'] = lim;
+    if (lab) { rule = lab; source = 'template'; }
+  }
+  if (!rule && lab) { rule = lab; source = 'lab'; }
+  if (!rule) return null;
+  return { rule, r: rule === 'guard_band' ? 1 : 0, source, ...extra };
+}

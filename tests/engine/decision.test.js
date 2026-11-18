@@ -156,7 +156,30 @@ test('evaluate(): model turi ko\'rsatilmagan → pending "model_kind"; "value" +
   assert.ok(bad.findings.some(f => f.code === 'decision_invalid' && f.severity === 'error'));
   // TUR < 1
   const low = val({ mpe: 0.01, nominal: 100.4 });
-  assert.ok(low.decision.tur < 1 && low.findings.some(f => f.code === 'decision_low_tur'));
+  assert.ok(low.decision.tur < 1 && low.findings.some(f => f.code === 'decision_low_tur' && f.severity === 'warning'));
+  // Egasi qarori (2026-11-18): 1 ≤ TUR < 4 → info (4:1 — amaliyot, unverified); TUR ≥ 4 — topilma yo'q
+  const U = low.U;
+  const mid = val({ mpe: 2 * U, nominal: 100.4 });
+  assert.ok(mid.decision.tur >= 1 && mid.decision.tur < 4);
+  const fm = mid.findings.find(f => f.code === 'decision_tur_below_4');
+  assert.ok(fm && fm.severity === 'info' && fm.unverified === true && /unverified/.test(fm.ref));
+  assert.ok(!mid.findings.some(f => f.code === 'decision_low_tur'));
+  const high = val({ mpe: 5 * U, nominal: 100.4 });
+  assert.ok(high.decision.tur >= 4 && !high.findings.some(f => /tur/.test(f.code)));
+});
+
+test('decisionPreset: shablon / laboratoriya qoidasi faqat TAKLIF — sozlamaga yozilmaguncha bayonot yo\'q (egasi qarori 2026-11-18)', () => {
+  assert.deepEqual(E.decisionPreset({ lab: 'simple' }), { rule: 'simple', r: 0, source: 'lab' });
+  assert.deepEqual(E.decisionPreset({ lab: 'guarded' }), { rule: 'guard_band', r: 1, source: 'lab' });
+  assert.deepEqual(E.decisionPreset({ lab: 'simple', template: { type: 'guarded', required: true } }), { rule: 'guard_band', r: 1, source: 'template' });
+  assert.deepEqual(E.decisionPreset({ lab: 'guarded', template: { type: 'one_sided_lower', limit: '99,5' } }), { rule: 'guard_band', r: 1, source: 'template', tolLower: 99.5 });
+  assert.deepEqual(E.decisionPreset({ lab: 'simple', template: { type: 'one_sided_upper', limit: null } }), { rule: 'simple', r: 0, source: 'template' });
+  assert.deepEqual(E.decisionPreset({ lab: 'simple', template: { type: 'none' } }), { rule: 'simple', r: 0, source: 'lab' });
+  assert.equal(E.decisionPreset({}), null); assert.equal(E.decisionPreset(null), null);
+  assert.equal(E.decisionPreset({ lab: '__proto__', template: { type: 'constructor' } }), null);
+  // taklif dvigatelga ta'sir qilmaydi: decisionRule bo'sh → pending 'rule'
+  const r = E.evaluate({ params: ['E'], measurements: { E: [0.1, 0.12, 0.11] }, model: { formula: '' }, typeB: [], settings: { modelKind: 'error', mpe: 0.5 } });
+  assert.equal(r.decision.pending, 'rule');
 });
 
 test('9 ta etalon nuqta: qaror qoidasi tanlanmagan — bayonot berilmaydi; y, u_c, ν_eff, k, U Excel bilan (run-cases testi) o\'zgarmagan', () => {

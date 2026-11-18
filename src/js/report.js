@@ -70,19 +70,30 @@ const Results = (() => {
   function acceptancesOf(scope) { return window.UCFindings ? window.UCFindings.acceptances(scope) : {}; }
   /** @param {{scope?:string, print?:boolean, acceptances?:object, spec?:object, legacy?:string, legacyOn?:string, showEmpty?:boolean}} o */
   /* P05b: qaror qoidasi tanlanmagan bo'lsa — natijalar sahifasidan tanlash (sozlamaga yoziladi va qayta hisoblanadi) */
+  /* Egasi qarori (2026-11-18): shablon / laboratoriya sozlamasidagi qoida oldindan QO'YILADI, lekin sozlamaga faqat
+     foydalanuvchi "tasdiqlash" ni bosgach yoziladi — tasdiqlanmasa bayonot chiqmaydi. */
+  function decisionPresetNow() {
+    const tpl = appState.get('template');
+    const lab = window.UCTemplates && window.UCTemplates.labSettings ? window.UCTemplates.labSettings() : null;
+    return Calc.decisionPreset ? Calc.decisionPreset({ template: tpl && tpl.decisionRule, lab: lab && lab.decisionRule }) : null;
+  }
   function decisionChooser() {
     const st = appState.get('settings') || {};
-    return `<div class="model-kind-chooser" data-decision-chooser="1">
+    const pre = decisionPresetNow();
+    const rule = pre ? pre.rule : 'guard_band';
+    const r = st.guardR !== undefined && st.guardR !== null && st.guardR !== '' ? st.guardR : (pre && pre.rule === 'guard_band' ? pre.r : '1');
+    return `<div class="model-kind-chooser" data-decision-chooser="1"${pre ? ` data-decision-preset="${escHtml(pre.source)}"` : ''}>
+      ${pre ? `<div class="text-sm" data-decision-preset-note="1">⚖ ${escHtml(i18n.t(pre.source === 'template' ? 'dr_preset_template' : 'dr_preset_lab'))}</div>` : ''}
       <label>${escHtml(i18n.t('dr_choose'))}
         <select data-decision-rule-select="1">
-          <option value="simple">${escHtml(i18n.t('set_decision_simple'))}</option>
-          <option value="guard_band" selected>${escHtml(i18n.t('set_decision_guard'))}</option>
+          <option value="simple" ${rule === 'simple' ? 'selected' : ''}>${escHtml(i18n.t('set_decision_simple'))}</option>
+          <option value="guard_band" ${rule === 'guard_band' ? 'selected' : ''}>${escHtml(i18n.t('set_decision_guard'))}</option>
         </select></label>
       <label>${escHtml(i18n.t('set_guard_r'))}
-        <input type="text" inputmode="decimal" class="mono" data-decision-r="1" value="${escHtml(String(st.guardR ?? '1'))}" autocomplete="off" /></label>
+        <input type="text" inputmode="decimal" class="mono" data-decision-r="1" value="${escHtml(String(r))}" autocomplete="off" /></label>
       <label>${escHtml(i18n.t('set_agreement'))}
         <input type="text" maxlength="200" data-decision-agreement="1" value="${escHtml(String(st.agreement ?? ''))}" autocomplete="off" /></label>
-      <button type="button" class="btn btn-primary btn-sm" data-decision-apply="1">${escHtml(i18n.t('dr_apply'))}</button>
+      <button type="button" class="btn btn-primary btn-sm" data-decision-apply="1">${escHtml(i18n.t(pre ? 'dr_confirm' : 'dr_apply'))}</button>
     </div>`;
   }
   function bindDecision(el) {
@@ -92,6 +103,8 @@ const Results = (() => {
       const rule = box.querySelector('[data-decision-rule-select]').value;
       const settings = { ...(appState.get('settings') || {}), decisionRule: rule,
         guardR: box.querySelector('[data-decision-r]').value.trim().replace(',', '.'), agreement: box.querySelector('[data-decision-agreement]').value.trim() };
+      const pre = decisionPresetNow();   // shablondagi bir tomonlama chegara (son bo'lsa) — faqat chegara hali kiritilmagan bo'lsa
+      for (const k of ['tolLower', 'tolUpper']) if (pre && pre[k] !== undefined && (settings[k] === undefined || settings[k] === null || settings[k] === '')) settings[k] = pre[k];
       appState.set({ settings, combined: null });
       if (window.TypeB && window.TypeB.calculate) window.TypeB.calculate();
     });

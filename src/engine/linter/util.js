@@ -10,7 +10,7 @@ import { isBlank, toNum } from '../util.js';
 export const SEVERITIES = ['error', 'warning', 'info'];
 export const MODES = ['GUM', 'REGRESSION', 'TOP_DOWN', 'SAMPLING', 'QUALITATIVE', 'MICRO', 'MEDICAL', 'MC']; // 'MC' — monteCarlo() natijasi (P06)
 
-/** Loyiha qarorlari (egasi tasdig'ini kutadi — docs/LINTER_RULES.md §4). Me'yoriy hujjatlarda bunday aniq sonlar yo'q,
+/** Loyiha qarorlari (egasi tasdiqlagan, 2026-11-18 — docs/LINTER_RULES.md §4). Me'yoriy hujjatlarda bunday aniq sonlar yo'q,
     faqat ko'rsatilgan joylardagi tavsiyalar bor. */
 export const THRESHOLDS = Object.freeze({
   dominantSharePct: 90,        // A1: bitta manba ulushi
@@ -18,7 +18,10 @@ export const THRESHOLDS = Object.freeze({
   correlationAbs: 0.5,         // X4: |r| chegarasi
   correlationMinPairs: 3,      // X4: r hisoblanadigan eng kam juft qatorlar soni
   correlationAlpha: 0.05,      // X4: ρ = 0 gipotezasi t-testining ahamiyatlilik darajasi
-  k2MinNuEff: 30,              // X7: k = 2 uchun eng kichik ν_eff (JCGM 100:2008 G.6.6 — "say greater than 10")
+  k2WarnNuEff: 10,             // X7: ν_eff < 10 → warning (JCGM 100:2008 G.6.6 — "say greater than 10"; egasi qarori 2026-11-18)
+  k2MinNuEff: 30,              // X7: 10 ≤ ν_eff < 30 → info (loyiha chegarasi; egasi qarori 2026-11-18)
+  turWarn: 1,                  // D1: TUR < 1 → warning (JCGM 106:2012 §7.6.4; egasi qarori 2026-11-18)
+  turInfo: 4,                  // D1: 1 ≤ TUR < 4 → info ("4:1" — amaliyotdagi qoida, manbasi repoda yo'q: unverified)
   k2TypeASharePct: 30,         // X7: A tur ulushi
   k2MinObservations: 10,       // X7: EA-4/02 M:2022 §5.3 — "fewer than ten repeated observations"
   grubbsAlpha: 0.05,           // A4: ikki tomonlama ahamiyatlilik darajasi

@@ -7,7 +7,10 @@
    2.4.0 — P05a (linter/: result.findings; model turi — settings.modelKind, result.modelKind / deviation;
            y, u_c, ν_eff, k, U o'zgarmagan. Model turi ko'rsatilmagan hisobda muvofiqlik bayonoti berilmaydi — R-07);
    2.5.0 — P05b (decision.js: qaror qoidasi — w = r·U, TUR, muvofiqlik ehtimoli p_c, bir / ikki tomonlama chegaralar —
-           JCGM 106:2012, ILAC G8:09/2019; result.decision. y, u_c, ν_eff, k, U va conf o'zgarmagan);
+           JCGM 106:2012, ILAC G8:09/2019; result.decision. y, u_c, ν_eff, k, U va conf o'zgarmagan).
+   2.5.1 — egasi qarorlari (2026-11-18): X7 — ν_eff < 10 warning, 10 ≤ ν_eff < 30 info; D1 — TUR < 1 warning,
+           1 ≤ TUR < 4 info (decision_tur_below_4, unverified); decisionPreset (oldindan qo'yish, tasdiq bilan).
+           Faqat topilmalar darajasi o'zgardi: y, u_c, ν_eff, k, U, conf, decision o'zgarmagan.
    2.6.0 — P06 (Monte-Karlo 2.0, JCGM 101:2008: mc/rng.js — kengaytirilgan Wichmann–Hill; mc/distributions.js; adaptiv
            protsedura §7.9.4; ko'p o'lchovli Gauss; linter M2–M4; B tur: trap, ctrap, exp, lognorm.
            MONTE-KARLO RAQAMLARI O'ZGARDI (yangi generator, JCGM 101 bo'yicha tanlash formulalari, §7.7.2 indekslari);

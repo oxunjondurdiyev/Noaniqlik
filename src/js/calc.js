@@ -60,7 +60,7 @@ const Calc = Object.freeze({
   // hisobot qatlami
   createSections, summaryRows, buildReport, REPORT_FORMS, DEFAULT_FORM, requisiteFields, footerModel, qrSvg,
   cleanRequisites, splitRequisites, missingRequisites, validLogo, MAX_LOGO_BYTES, buildCalcDoc, loadQr,
-  decide: engine.decide, GUARD_PRESETS: engine.GUARD_PRESETS, DECISION_RULES: engine.DECISION_RULES,
+  decide: engine.decide, decisionPreset: engine.decisionPreset, GUARD_PRESETS: engine.GUARD_PRESETS, DECISION_RULES: engine.DECISION_RULES,
   roundResult, roundHalfAway, roundUpAway, fmt, fmtSci,
   findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText,
 });

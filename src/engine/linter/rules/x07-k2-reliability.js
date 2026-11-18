@@ -3,7 +3,8 @@
    §5.3: ishonchlilik ν_eff bilan aniqlanadi; A tur baholashlarining hech biri 10 tadan kam kuzatuvga asoslanmagan
    bo'lsa, mezon bajarilgan hisoblanadi; §5.5 + Appendix E: aks holda k = t_P(ν_eff).
    JCGM 100:2008 G.6.6: ν_eff "say greater than 10" bo'lsa k = 2 ≈ 95 %.
-   Chegaralar ν_eff < 30 va "A tur ulushi > 30 %" — loyiha qarorlari (THRESHOLDS); n < 10 — EA-4/02 §5.3 dan. */
+   Egasi qarori (2026-11-18): ν_eff < 10 → warning (G.6.6 chegarasi); 10 ≤ ν_eff < 30 → info (loyiha chegarasi).
+   "A tur ulushi > 30 %" — loyiha qarori (THRESHOLDS); n < 10 — EA-4/02 §5.3 dan. */
 import { finding, short, THRESHOLDS } from '../util.js';
 
 const rule = {
@@ -15,7 +16,9 @@ const rule = {
   check(spec, result) {
     if (result.kMethod !== 'k2') return [];
     if (isFinite(result.nuEff) && result.nuEff < THRESHOLDS.k2MinNuEff) {
-      return [finding(rule, 'x7_k2_low_dof', { value: `ν_eff = ${short(result.nuEff, 3)}` })];
+      // Ref: JCGM 100:2008 G.6.6 — k = 2 ≈ 95 % faqat ν_eff "say greater than 10" bo'lsa
+      const severity = result.nuEff < THRESHOLDS.k2WarnNuEff ? 'warning' : 'info';
+      return [finding(rule, 'x7_k2_low_dof', { value: `ν_eff = ${short(result.nuEff, 3)}`, severity })];
     }
     const rowsA = (result.budget || []).filter(b => b.kind === 'A' && b.method !== 2);
     const share = rowsA.reduce((s, b) => s + (isFinite(b.share) ? b.share : 0), 0);
