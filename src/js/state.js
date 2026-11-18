@@ -74,6 +74,12 @@ class AppState {
   }
 
   set(updates) {
+    // P07b: oshkor bo'lmagan model (state.implicit — hozircha faqat hisob fayli / API orqali kiritiladi) kirishlar ro'yxati
+    // yoki oshkor formula o'zgartirilganda bekor bo'ladi — eski tenglamalar yangi model bilan jimgina ishlatilmasin.
+    if (updates && this._state.implicit && !('implicit' in updates)) {
+      const f = updates.model && typeof updates.model.formula === 'string' ? updates.model.formula.trim() : '';
+      if ('params' in updates || (f && f !== String((this._state.model || {}).formula || '').trim())) updates = { ...updates, implicit: undefined };
+    }
     this._state = { ...this._state, ...updates };
     this._save();
     this._notify(updates);
