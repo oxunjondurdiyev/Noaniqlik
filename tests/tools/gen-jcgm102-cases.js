@@ -130,7 +130,7 @@ for (const r of [0, 0.9]) {
 }
 
 /* ── §9.3 MCM qatorlari (P07b): Y2 = atan2(X2, X1) — to'rt kvadrantli arktangens (§9.3.1.1, Eq. 25 izohi).
-   Manba M = 10⁷ (§9.3.2.1.4); bu yerda M = 3·10⁶ — ikki chiqishli MCM ning xotira chegarasi (maxTrialsFor(2) ≈ 3,33·10⁶).
+   Manba M = 10⁷ (§9.3.2.1.4); bu yerda M = 3·10⁶ — test vaqti uchun (har bir misol ≈ 3 s).
    Tolerans o'sha qoida bo'yicha: ½ oxirgi xona + 2·√2·s (s — M = 3·10⁶ dagi o'lchangan tarqoqlik, 8 ta urug'). ── */
 const T6M = { 0.001: [0.013, -0.001, 0.007, 1.744, 0.000], 0.010: [0.015, 0.000, 0.008, 1.117, 0.000], 0.100: [0.101, 0.000, 0.010, 0.101, 0.000] };
 const T7M = { 0.001: [0.012, -0.556, 0.008, 1.599, -0.070], 0.010: [0.015, -0.343, 0.008, 0.903, 0.352], 0.100: [0.101, -0.009, 0.010, 0.102, 0.882] };
@@ -141,7 +141,7 @@ for (const r of [0, 0.9]) {
     mcCase({ id: `jcgm102-9-3-x${xs}-r${r ? '09' : '0'}-mcm`,
       title: `JCGM 102 9.3: koordinata almashtirish (Dekart → qutb), x1 = ${x1.toFixed(3)}, r(x1, x2) = ${r} — MCM (atan2)`, domain: 'elektr (kompleks kattalik)',
       source: { doc: DOC, section: `${r ? '9.3.3.2' : '9.3.2'}, ${tab} (MCM qatori)`, page: r ? '45' : '44' },
-      notes: 'Y2 = atan2(X2, X1) — to\'rt kvadrantli arktangens (§9.3.1.1). Manba M = 10⁷ va Mersenne Twister ishlatgan; bu yerda M = 3·10⁶ (ikki chiqishli MCM xotira chegarasi), Wichmann–Hill, urug\' 20261110.' },
+      notes: 'Y2 = atan2(X2, X1) — to\'rt kvadrantli arktangens (§9.3.1.1). Manba M = 10⁷ va Mersenne Twister ishlatgan; bu yerda M = 3·10⁶ (test vaqti uchun; tolerans shu M dagi o'lchangan tarqoqlikdan), Wichmann–Hill, urug\' 20261110.' },
     calc({ params: ['X1', 'X2'], measurements: { X1: [x1], X2: [0] }, directions: [], model: { formula: 'Y1 = sqrt(X1 ^ 2 + X2 ^ 2)', unit: '1' },
       outputs: [{ formula: 'Y1 = sqrt(X1 ^ 2 + X2 ^ 2)', unit: '1' }, { formula: 'Y2 = atan2(X2; X1)', unit: 'rad' }],
       settings: { paired: false, P: 0.95 }, covB: r ? { 'X1|X2': r * 0.01 * 0.01 } : {},

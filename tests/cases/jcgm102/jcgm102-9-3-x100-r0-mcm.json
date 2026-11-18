@@ -7,7 +7,7 @@
     "section": "9.3.2, Table 6 (MCM qatori)",
     "page": "44"
   },
-  "notes": "Y2 = atan2(X2, X1) — to'rt kvadrantli arktangens (§9.3.1.1). Manba M = 10⁷ va Mersenne Twister ishlatgan; bu yerda M = 3·10⁶ (ikki chiqishli MCM xotira chegarasi), Wichmann–Hill, urug' 20261110.",
+  "notes": "Y2 = atan2(X2, X1) — to'rt kvadrantli arktangens (§9.3.1.1). Manba M = 10⁷ va Mersenne Twister ishlatgan; bu yerda M = 3·10⁶ (test vaqti uchun; tolerans shu M dagi o'lchangan tarqoqlikdan), Wichmann–Hill, urug' 20261110.",
   "status": "verified",
   "modelSpec": {
     "format": "calc-state/v2",

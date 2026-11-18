@@ -929,8 +929,9 @@ export function createSections(environment) {
     const g = r.coverageRegion;
     if (r.m !== 2 || !g.ellipse || g.singular) return '';
     const lab = j => r.symbols[j] + (r.results[j].unit ? ', ' + r.results[j].unit : '');
-    return `<div class="region-plot-box">${ellipseSvg({ y: r.y, ellipse: g.ellipse, rectangle: g.rectangle.intervals, labels: [lab(0), lab(1)], esc: escHtml })}
-      <div class="text-xs text-muted">${i18n.t('mv_plot_caption')}</div></div>`;
+    const sm = mc && mc.coverageRegion ? mc.coverageRegion.smallest : null;
+    return `<div class="region-plot-box">${ellipseSvg({ y: r.y, ellipse: g.ellipse, rectangle: g.rectangle.intervals, labels: [lab(0), lab(1)], esc: escHtml, ...(sm ? { smallest: sm } : {}) })}
+      <div class="text-xs text-muted">${i18n.t('mv_plot_caption')}${sm ? ' ' + i18n.t('mv_plot_caption_smallest') : ''}</div></div>`;
   }
   /** Vektor MCM natijasi satrlari (§7.6–7.8, §8) */
   function mvMcLines(r, mc) {
@@ -946,6 +947,13 @@ export function createSections(environment) {
       lines.push(`<span data-mv-mc-region="1">${i18n.t('mv_region_title')} (${i18n.t('mv_region_mcm')}, P = ${pct(mc.P)} %): ` +
         (g.ellipsoid ? `k_p = ${g.ellipsoid.kp.toFixed(2)} (GUM: ${mc.gum.kp.toFixed(2)})` : i18n.t('mv_region_singular')) +
         (g.rectangle ? `;  k_q = ${g.rectangle.kq.toFixed(2)} (GUM: ${mc.gum.kq.toFixed(2)})` : '') + '</span>');
+      // P07b: eng kichik qamrov sohasi (JCGM 102:2011 §7.7.4) — faqat ikki chiqish; to'r, M, yuz va qamragan nuqtalar ulushi yoziladi
+      const sm = g.smallest;
+      if (sm) {
+        const un = [mc.units && mc.units[0], mc.units && mc.units[1]].filter(Boolean).map(escHtml).join('·');
+        lines.push(`<span data-mv-smallest="1">${i18n.t('mv_smallest')} (JCGM 102 §7.7.4, P = ${pct(mc.P)} %): ${i18n.t('mv_smallest_area')} = ${Calc.fmtSci(sm.area, 3)}${un ? ' ' + un : ''};  ` +
+          `${i18n.t('mv_smallest_mesh')} ${sm.mesh} × ${sm.mesh}, ${sm.cells} ${i18n.t('mv_smallest_cells')};  ${sm.count.toLocaleString()} / ${sm.M.toLocaleString()} (${(sm.fraction * 100).toFixed(2)} %) — ${i18n.t('mv_smallest_note')}</span>`);
+      }
       if (mc.validated !== null && mc.validated !== undefined) {
         const bad = (mc.comparison || []).filter(c => !c.ok).map(c => (c.q === 'lambdaMax' ? 'λ_max' : c.q === 'kp' ? 'k_p' : c.q === 'kq' ? 'k_q' : `${c.q}(${escHtml(c.output)})`));
         lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>`

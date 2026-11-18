@@ -3,7 +3,7 @@
    Manba: JCGM 102:2011 §7 (7.6 — y va U_y; 7.7.2 — gipper-ellipsoid; 7.7.3 — gipper-to'rtburchak; 7.8 — adaptiv
    protsedura), §8 (GUM natijasini tekshirish).
    Generator, taqsimotlar va tanlovchi — P06 dagi (montecarlo.js::createSampler, mc/rng.js); yangi generator yo'q.
-   Eng kichik qamrov sohasi (§7.7.4) — qo'llab-quvvatlanmaydi (docs/RISKS.md).
+   Eng kichik qamrov sohasi (§7.7.4) — faqat ikki chiqish (m = 2) uchun (region.js::smallestRegion, P07b); m > 2 — yo'q (docs/RISKS.md).
 ═══════════════════════════════════════════════════════════════ */
 import { prepareModel } from '../evaluate.js';
 import { createRng, RNG_LEGACY } from '../mc/rng.js';
@@ -11,7 +11,7 @@ import { lint } from '../linter/index.js';
 import { mcOptions, createSampler, numericalTolerance, coverageIntervals, MC_LIMITS, VALIDATION_TOL_DIVISOR } from '../montecarlo.js';
 import { singleState } from './lpu.js';
 import { choleskyLower, solveLower, symEigen, correlationMatrix, zeros } from './linalg.js';
-import { rectangleFactor, SINGULAR_RATIO } from './region.js';
+import { rectangleFactor, smallestRegion, SINGULAR_RATIO, SMALLEST_MESH } from './region.js';
 
 /** §7.8.3 f): dastlabki bloklar soni — h ≤ 10 da to'xtash tekshirilmaydi (barvaqt "yaqinlashish"ning oldini oladi, Note 3) */
 export const MIN_BLOCKS = 10;
@@ -104,6 +104,11 @@ export function createMultivariateMonteCarlo(spec, state, opts, evaluate) {
   const o = mcOptions(state.settings, opts);
   if (o.error) return o;
   if (o.rng === RNG_LEGACY) return { error: 'mc_bad_option', detail: 'rng' };   // eski generator faqat bitta chiqishli eski hisoblar uchun
+  // P07b: eng kichik qamrov sohasi to'ri (§7.7.4 b); sozlama: opts.smallestMesh yoki settings.mc.smallestMesh; 0 / false — hisoblanmaydi
+  const meshRaw = opts && typeof opts === 'object' && opts.smallestMesh !== undefined && opts.smallestMesh !== null && opts.smallestMesh !== ''
+    ? opts.smallestMesh : ((state.settings && state.settings.mc && state.settings.mc.smallestMesh !== undefined && state.settings.mc.smallestMesh !== '') ? state.settings.mc.smallestMesh : SMALLEST_MESH.default);
+  const mesh = meshRaw === false ? 0 : Number(meshRaw);
+  if (!Number.isInteger(mesh) || (mesh !== 0 && (mesh < SMALLEST_MESH.min || mesh > SMALLEST_MESH.max))) return { error: 'mc_bad_option', detail: 'smallestMesh' };
   const lpu = evaluate(spec);
   if (lpu.error) return lpu;
   const m = lpu.m;
@@ -252,6 +257,8 @@ export function createMultivariateMonteCarlo(spec, state, opts, evaluate) {
         marginal: { q, intervals: marg.map(x => x.q) },
         lambdaMax: uDefined ? fin.lambdaMax : null, lambdaMin: uDefined ? fin.lambdaMin : null,
         singular: uDefined ? !(fin.lambdaMin > SINGULAR_RATIO * fin.lambdaMax) : null,
+        // Ref: JCGM 102:2011 §7.7.4 — eng kichik qamrov sohasining yaqinlashuvi (faqat m = 2)
+        ...(m === 2 && mesh ? { smallest: smallestRegion(Y[0], Y[1], n, P, mesh) } : {}),
       },
       intervals: marg.map(x => x.P),
       adaptive: { enabled: adaptive, nDig: o.nDig, maxM: adaptive ? target : null, tolDivisor: o.tolDivisor, minBlocks: MIN_BLOCKS,

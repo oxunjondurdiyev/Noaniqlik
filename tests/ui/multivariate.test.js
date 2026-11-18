@@ -163,3 +163,39 @@ test('model kartasi (src/js/table.js): qo\'shimcha chiqish formulalari — qo\'s
     for (const lang of ['uz', 'ru', 'en']) { w.i18n.lang = lang; assert.notEqual(w.i18n.t(k), k, `${lang}.${k}`); }
   }
 });
+
+/* ── P07b ── */
+test('P07b: eng kichik qamrov sohasi (JCGM 102 §7.7.4) hisobotda — yuz, to\'r, nuqtalar ulushi, grafikdagi bo\'yalgan soha; uch tilda; skriptsiz', () => {
+  const r = E.evaluate(ADD), mc = E.monteCarlo(ADD, { mode: 'fixed', M: 50000, validation: false, smallestMesh: 20 });
+  const seen = new Set();
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, {});
+    const html = sections(w).multivariateSection(r, { mc });
+    const d = frag(w, html);
+    const line = d.querySelector('[data-mv-smallest]').textContent;
+    assert.match(line, /JCGM 102 §7\.7\.4/); assert.match(line, /20 × 20/);
+    assert.ok(line.includes(w.i18n.t('mv_smallest')) && line.includes(w.i18n.t('mv_smallest_note')), lang);
+    assert.equal(d.querySelector('[data-region-smallest]').getAttribute('data-region-smallest'), '20');
+    assert.ok(d.querySelector('.region-plot-box').textContent.includes(w.i18n.t('mv_plot_caption_smallest')));
+    assert.ok(!/<script|\son\w+=|javascript:/i.test(html));
+    seen.add(line);
+  }
+  assert.equal(seen.size, 3);
+  // MCM natijasisiz (faqat LPU) — bo'yalgan soha va satr yo'q
+  const w = page('uz', {});
+  const d0 = frag(w, sections(w).multivariateSection(r, {}));
+  assert.equal(d0.querySelectorAll('[data-mv-smallest], [data-region-smallest]').length, 0);
+});
+
+test('P07b: oshkor bo\'lmagan model natijasi hisobotda — tenglama matni, izoh (uch tilda), vektor bo\'lim', () => {
+  const one = E.evaluate(load('jcgm102/jcgm102-9-5-2-single')), many = E.evaluate(load('jcgm102/jcgm102-9-5-3-several'));
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, {});
+    const S = sections(w);
+    assert.ok(S.notesHtml(one).includes(escHtml(w.i18n.t('n_implicit_model'))), lang);
+    assert.match(frag(w, S.pointDetail(one, load('jcgm102/jcgm102-9-5-2-single').state, '', undefined, undefined, {})).textContent, /θ = \(1 \+ A\*θ \+ B\*θ\^2\)\*R0 - r\*RS = 0/);
+    const d = frag(w, S.multivariateSection(many, {}));
+    assert.equal(d.querySelectorAll('[data-mv-outputs] tbody tr').length, 10);
+    for (const e of E.IMPLICIT_ERRORS) assert.ok(w.i18n.t('err_' + e) !== 'err_' + e, `${lang}.err_${e}`);
+  }
+});
