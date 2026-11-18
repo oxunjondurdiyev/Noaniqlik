@@ -1,0 +1,96 @@
+UncertaintyCalc — o'lchash noaniqligini baholash platformasi
+UncertaintyCalc — Measurement Uncertainty Evaluation Platform
+
+Copyright © 2026 Oxunjon Durdiyev. Barcha huquqlar himoyalangan.
+Copyright © 2026 Oxunjon Durdiyev. All rights reserved.
+
+----------------------------------------------------------------------
+O'ZBEKCHA
+----------------------------------------------------------------------
+
+Ushbu dastur (manba kodi, hisoblash yadrosi, shablonlar kutubxonasi,
+ma'lumotlar bazalari, hujjatlar, interfeys va boshqa barcha tarkibiy
+qismlar, bundan buyon — "Dastur") O'zbekiston Respublikasining
+"Elektron hisoblash mashinalari uchun dasturlar va ma'lumotlar
+bazalarini huquqiy muhofaza qilish to'g'risida"gi va "Mualliflik
+huquqi va turdosh huquqlar to'g'risida"gi qonunlari hamda xalqaro
+shartnomalar bilan muhofaza qilinadi.
+
+Muallif va mulkiy huquqlar egasi: Oxunjon Durdiyev.
+
+Huquq egasining yozma ruxsatisiz quyidagilar taqiqlanadi:
+  1) Dasturni yoki uning qismlarini nusxalash, tarqatish, sotish,
+     ijaraga berish, litsenziyalash yoki boshqa yo'l bilan boshqa
+     shaxslarga berish;
+  2) Dasturni o'zgartirish, qayta ishlash, tarjima qilish, undan hosila
+     asar yaratish;
+  3) Dasturni dekompilyatsiya qilish (qonunda to'g'ridan-to'g'ri ruxsat
+     etilgan hollar bundan mustasno);
+  4) Dasturdan tijorat maqsadida foydalanish;
+  5) Mualliflik va huquq egasi to'g'risidagi ushbu bildirishnomani
+     olib tashlash yoki o'zgartirish.
+
+Dasturning manba kodi omma ko'rishi mumkin bo'lgan joyda saqlanishi
+unga hech qanday litsenziya bermaydi. Huquq egasi tomonidan joylashtirilgan
+veb-ilovadan (https://oxunjondurdiyev.github.io/Noaniqlik/) uning foydalanish
+shartlariga muvofiq foydalanish mumkin.
+
+Dastur "qanday bo'lsa, shundayligicha" taqdim etiladi. Hisoblash natijalari
+uchun javobgarlik ularni qo'llagan laboratoriya zimmasida; laboratoriya
+Dasturni ISO/IEC 17025:2017 §7.11.2 bo'yicha o'zi validatsiya qilishi shart.
+
+Uchinchi tomon materiallari ushbu litsenziyaga kirmaydi va o'z
+litsenziyalari bilan tarqatiladi:
+  - vendor/ papkasidagi kutubxonalar — har birining o'z LICENSE fayli
+    (masalan, Firebase JS SDK — Apache-2.0);
+  - docs/references/ papkasidagi me'yoriy hujjatlar — mualliflik huquqi
+    ularni nashr etgan tashkilotlarga (BIPM/JCGM, EURACHEM/CITAC, ILAC,
+    EA, Nordtest) tegishli; shartlari docs/references/README.md da.
+
+Ruxsat so'rash uchun: https://t.me/oxunjon_durdiyev
+
+Eslatma: 2026-11-18 gacha README.md da "MIT" litsenziyasi ko'rsatilgan
+edi. Shu sanadan boshlab chiqarilgan barcha versiyalarga ushbu litsenziya
+qo'llaniladi.
+
+----------------------------------------------------------------------
+ENGLISH
+----------------------------------------------------------------------
+
+This software (source code, computation engine, template library,
+databases, documentation, user interface and all other components,
+the "Software") is protected by the laws of the Republic of Uzbekistan
+"On the legal protection of computer programs and databases" and
+"On copyright and related rights", and by international treaties.
+
+Author and owner of the economic rights: Oxunjon Durdiyev.
+
+Without the prior written permission of the rights holder you may not:
+  1) copy, distribute, sell, rent, sublicense or otherwise make the
+     Software or any part of it available to third parties;
+  2) modify, adapt, translate or create derivative works of the Software;
+  3) decompile the Software, except where expressly permitted by law;
+  4) use the Software for commercial purposes;
+  5) remove or alter this copyright notice.
+
+The public availability of the source code does not grant any licence.
+The web application published by the rights holder
+(https://oxunjondurdiyev.github.io/Noaniqlik/) may be used in accordance
+with its terms of use.
+
+The Software is provided "as is". Responsibility for calculation results
+rests with the laboratory that applies them; the laboratory must validate
+the Software itself in accordance with ISO/IEC 17025:2017 §7.11.2.
+
+Third-party material is not covered by this licence and is distributed
+under its own terms:
+  - libraries in vendor/ — see each library's LICENSE file
+    (e.g. Firebase JS SDK — Apache-2.0);
+  - normative documents in docs/references/ — copyright of the
+    publishing organisations (BIPM/JCGM, EURACHEM/CITAC, ILAC, EA,
+    Nordtest); terms in docs/references/README.md.
+
+Permission requests: https://t.me/oxunjon_durdiyev
+
+Note: until 2026-11-18 README.md stated an "MIT" licence. All versions
+released from that date onward are covered by this licence.
