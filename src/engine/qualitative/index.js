@@ -3,8 +3,11 @@
    Kirish formati: 'uc-qualitative/1' (docs/ENGINE_API.md §9).
    Ref: EURACHEM/CITAC AQA:2021 §3.2–3.3 (TP, FP, TN, FN ulushlari), §4.2 (LR), §4.3 Eq. (6) (posterior ehtimol),
         §4.4 Eq. (8)–(11) (Wilson score 95 % CI), Example E3 (p. 28), Example 7.6 / Table E6.1–E6.2 (p. 36).
-   Ikki ishonch intervali beriladi: Wilson (AQA manbasi — tekshirilgan) va Clopper–Pearson
-   (aniq binomial; AQA da yo'q — manba: Clopper & Pearson, Biometrika 26 (1934) 404, repoda yo'q).
+   Ishonch intervali usuli (egasi qarori 2026-11-18, RISKS R-21): standart — Wilson score (AQA:2021 §4.4, Eq. 8–9);
+   Clopper–Pearson (aniq binomial) — laboratoriya sozlamasi (`settings.ciMethod`), loyiha qo'shimchasi. AQA bir nechta
+   modelni tan oladi ([48]–[54]) va Wilson ni soddaligi uchun tanlagan. Hisobotga faqat tanlangan usul chiqadi;
+   natijada ikkalasi ham saqlanadi (UI ning batafsil ko'rinishida solishtirish uchun).
+   Clopper–Pearson tekshiruvi: mustaqil ochiq dastur — SciPy 1.18.1, scipy.stats.binomtest(x, n).proportion_ci(method='exact').
    Sof modul (brauzer obyektlari yo'q). Natija YAXLITLANMAYDI.
 ═══════════════════════════════════════════════════════════════ */
 import { ENGINE_VERSION } from '../version.js';
@@ -12,12 +15,16 @@ import { isBlank, toNum } from '../util.js';
 import { normalQuantile, ibeta } from '../special.js';
 
 export const QUALITATIVE_FORMAT = 'uc-qualitative/1';
+/** Ishonch intervali usullari; standart — Wilson (egasi qarori 2026-11-18). */
+export const CI_METHODS = ['wilson', 'clopper_pearson'];
+export const DEFAULT_CI_METHOD = 'wilson';
+const CI_FIELD = { wilson: 'wilson', clopper_pearson: 'clopperPearson' };
 
 export const QUALITATIVE_WARNINGS = {
   qualitative_zero_false: { severity: 'warning', ref: 'EURACHEM/CITAC AQA:2021 Example E3 (p. 28): kuzatilgan nol ulush haqiqiy nol degani emas; §4.4 Table 4' },
   qualitative_prevalence_study: { severity: 'info', ref: 'EURACHEM/CITAC AQA:2021 §4.3 (p. 17): PP va PN tarqalganlikka (prevalence) bog\'liq' },
   qualitative_small_n: { severity: 'warning', ref: 'EURACHEM/CITAC AQA:2021 §4.4 (pp. 17–18): 5 ta holatda SS = 100 % uchun 95 % CI 57 %…100 %' },
-  qualitative_cp_unverified: { severity: 'info', ref: 'Clopper & Pearson (1934) — manba docs/references/ da yo\'q; AQA:2021 Wilson intervalini qo\'llaydi' },
+  qualitative_cp_project_addition: { severity: 'info', ref: 'Clopper & Pearson, Biometrika 26 (1934) 404 — loyiha qo\'shimchasi (laboratoriya sozlamasi); AQA:2021 §4.4 Wilson intervalini qo\'llaydi; qiymatlar SciPy 1.18.1 bilan tekshirilgan' },
 };
 export const QUALITATIVE_ERRORS = ['qualitative_bad_spec', 'qualitative_bad_data', 'qualitative_no_positive_cases', 'qualitative_no_negative_cases'];
 /** Kichik tanlanma chegarasi (loyiha parametri): musbat yoki manfiy holatlar soni shundan kam bo'lsa ogohlantirish. */
@@ -45,7 +52,8 @@ function betaQuantile(p, a, b) {
 
 /**
  * Clopper–Pearson (aniq binomial) intervali: quyi = B⁻¹(α/2; x, n − x + 1), yuqori = B⁻¹(1 − α/2; x + 1, n − x).
- * Ref: Clopper & Pearson, Biometrika 26 (1934) 404 — repoda yo'q (unverified); x = n da quyi chegara (α/2)^(1/n) — analitik tekshiruv.
+ * Ref: Clopper & Pearson, Biometrika 26 (1934) 404. Tekshiruv: SciPy 1.18.1 binomtest(…).proportion_ci(method='exact')
+ *      (7/20 → [0,153909; 0,592189]; 97/100 → [0,914824; 0,993770]); x = n da quyi chegara (α/2)^(1/n).
  */
 export function clopperPearsonInterval(x, n, P = 0.95) {
   if (!(n > 0)) return { low: NaN, high: NaN };
@@ -70,8 +78,10 @@ const count = (v, where) => {
   return n;
 };
 
-function rate(x, n, P) {
-  return { x, n, value: x / n, wilson: wilsonInterval(x, n, P), clopperPearson: clopperPearsonInterval(x, n, P) };
+function rate(x, n, P, method) {
+  const r = { x, n, value: x / n, wilson: wilsonInterval(x, n, P), clopperPearson: clopperPearsonInterval(x, n, P) };
+  r.ci = r[CI_FIELD[method]];          // hisobotga chiqadigan (tanlangan) interval
+  return r;
 }
 
 /**
@@ -82,6 +92,8 @@ export function evaluateQualitative(spec) {
   if (!spec || typeof spec !== 'object') return { error: 'qualitative_bad_spec' };
   const P = spec.settings && !isBlank(spec.settings.P) ? toNum(spec.settings.P) : 0.95;
   if (!(P > 0 && P < 1)) return { error: 'qualitative_bad_data', detail: 'settings.P' };
+  const ciMethod = spec.settings && !isBlank(spec.settings.ciMethod) ? spec.settings.ciMethod : DEFAULT_CI_METHOD;
+  if (!CI_METHODS.includes(ciMethod)) return { error: 'qualitative_bad_data', detail: 'settings.ciMethod' };
   const warnings = [];
   const warn = (code, extra) => warnings.push({ code, ...QUALITATIVE_WARNINGS[code], ...(extra || {}) });
   let prev = null;
@@ -98,11 +110,11 @@ export function evaluateQualitative(spec) {
       if (pc === 0) return { error: 'qualitative_no_positive_cases' };
       if (nc === 0) return { error: 'qualitative_no_negative_cases' };
       // Ref: AQA:2021 §3.2 Table 2 (p. 8): TP (SS) = tp/(tp + fn); TN (SP) = tn/(tn + fp); FP = 1 − TN; FN = 1 − TP
-      ss = rate(table.tp, pc, P); sp = rate(table.tn, nc, P);
-      fnr = rate(table.fn, pc, P); fpr = rate(table.fp, nc, P);
+      ss = rate(table.tp, pc, P, ciMethod); sp = rate(table.tn, nc, P, ciMethod);
+      fnr = rate(table.fn, pc, P, ciMethod); fpr = rate(table.fp, nc, P, ciMethod);
       counts = { positiveCases: pc, negativeCases: nc, positiveResults: table.tp + table.fp, negativeResults: table.fn + table.tn, total: pc + nc };
       if (Math.min(pc, nc) < SMALL_N) warn('qualitative_small_n', { value: `${pc} / ${nc}` });
-      warn('qualitative_cp_unverified');
+      if (ciMethod === 'clopper_pearson') warn('qualitative_cp_project_addition');
     } else if (spec.rates) {
       const f = toNum(spec.rates.fp), g = toNum(spec.rates.fn);
       if (!(f >= 0 && f <= 1) || !(g >= 0 && g <= 1)) return { error: 'qualitative_bad_data', detail: 'rates' };
@@ -121,8 +133,8 @@ export function evaluateQualitative(spec) {
   let ppvStudy = null, npvStudy = null, studyPrevalence = null;
   if (table) {
     const pr = table.tp + table.fp, nr = table.fn + table.tn;
-    ppvStudy = pr > 0 ? rate(table.tp, pr, P) : null;
-    npvStudy = nr > 0 ? rate(table.tn, nr, P) : null;
+    ppvStudy = pr > 0 ? rate(table.tp, pr, P, ciMethod) : null;
+    npvStudy = nr > 0 ? rate(table.tn, nr, P, ciMethod) : null;
     studyPrevalence = counts.positiveCases / counts.total;
   }
   // Ref: AQA:2021 §4.3 Eq. (6), (7): posterior ehtimollar berilgan tarqalganlik bilan
@@ -135,7 +147,7 @@ export function evaluateQualitative(spec) {
   return {
     engineVersion: ENGINE_VERSION, mode: 'QUALITATIVE', format: QUALITATIVE_FORMAT,
     approach: 'CONTINGENCY_2X2', approachRef: 'EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4',
-    P, table, counts,
+    P, ciMethod, table, counts,
     sensitivity: ss, specificity: sp, falsePositiveRate: fpr, falseNegativeRate: fnr,
     lrPositive: lrPos, lrNegative: lrNeg,
     ppvStudy, npvStudy, studyPrevalence,

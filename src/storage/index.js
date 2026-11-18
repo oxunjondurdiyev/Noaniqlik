@@ -20,9 +20,10 @@ export { exportAll, importAll, inspectExport, EXPORT_FORMAT } from './export.js'
  *   decisionRule — 'simple' | 'guarded' (muvofiqlik bayonoti; JCGM 106 / ILAC G8 — P05 da to'liq)
  *   secondOrder  — 2-tartibli hadlarni u_c ga qo'shish (GUM 5.1.2 Note; standartda o'chiq)
  *   cmcMode      — 'warn' (U < CMC → ogohlantirish) | 'block' (hisobot bloklanadi)
+ *   ciMethod     — sifatli testlar ishonch intervali: 'wilson' (standart, AQA:2021) | 'clopper_pearson' (P10, R-21)
  */
 export const LAB_DEFAULTS = Object.freeze({
-  P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn',
+  P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson',
 });
 export const LAB_SETTINGS_KEY = 'lab';
 

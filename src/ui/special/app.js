@@ -72,8 +72,15 @@ function render() {
     <div id="sp-result" class="rg-result" aria-live="polite">${resultHTML()}</div>`;
 }
 
+/** Laboratoriya sozlamasi: sifatli testlar ishonch intervali usuli (standart — Wilson; egasi qarori 2026-11-18, R-21) */
+function labCiMethod() {
+  const lab = window.UCTemplates && window.UCTemplates.labSettings ? window.UCTemplates.labSettings() : null;
+  return lab && lab.ciMethod === 'clopper_pearson' ? 'clopper_pearson' : 'wilson';
+}
+
 function calculate() {
   const { spec, bad } = buildSpec(state);
+  if (state.mode === 'qualitative') spec.settings = { ...(spec.settings || {}), ciMethod: labCiMethod() };
   const prefix = { sampling: 'sampling', qualitative: 'qualitative', micro: 'micro', medical: 'medical' }[state.mode];
   const result = bad.length ? { error: `${prefix}_bad_data`, detail: bad.map(b => t('sp_f_' + b)).join(', ') } : evaluate(spec);
   last[state.mode] = result;

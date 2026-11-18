@@ -117,6 +117,39 @@ test('Clopper–Pearson (aniq): x = n → quyi (α/2)^(1/n); x = 0 → yuqori 1 
   near(binTail(7, 20, a.low), 0.025, 1e-9);
 });
 
+test('Clopper–Pearson: mustaqil ochiq dastur qiymatlari — SciPy 1.18.1, scipy.stats.binomtest(x, n).proportion_ci(confidence_level=P, method="exact")', () => {
+  // Qiymatlar P10 sessiyasida SciPy 1.18.1 da hisoblab olingan (mustaqil amalga oshirish; ochiq manba dasturi).
+  const SCIPY = [
+    [7, 20, 0.95, 0.15390920478454118, 0.592188534532828],
+    [97, 100, 0.95, 0.91482394702572, 0.9937700284616936],
+    [100, 100, 0.95, 0.9637833073548235, 1.0],
+    [0, 50, 0.95, 0.0, 0.07112173646419766],
+    [3, 100, 0.95, 0.006229971538306397, 0.08517605297428],
+    [45, 60, 0.95, 0.6214036445204557, 0.8528139262009964],
+    [7, 20, 0.99, 0.11387976326673219, 0.6565685842319213],
+  ];
+  for (const [x, n, P, low, high] of SCIPY) {
+    const c = E.clopperPearsonInterval(x, n, P);
+    near(c.low, low, 1e-10, `${x}/${n} quyi`); near(c.high, high, 1e-10, `${x}/${n} yuqori`);
+  }
+});
+
+test('ishonch intervali usuli (egasi qarori 2026-11-18): standart Wilson; Clopper–Pearson — sozlama; noto\'g\'ri qiymat → xato', () => {
+  const table = { tp: 100, fn: 0, fp: 3, tn: 97 };
+  const d = E.evaluate({ format: 'uc-qualitative/1', table });
+  assert.equal(d.ciMethod, 'wilson'); assert.equal(E.DEFAULT_CI_METHOD, 'wilson');
+  assert.deepEqual(d.specificity.ci, d.specificity.wilson);
+  assert.ok(!codes(d).some(c => /cp_/.test(c)));               // standart holatda Clopper–Pearson haqida xabar yo'q
+  const cp = E.evaluate({ format: 'uc-qualitative/1', table, settings: { ciMethod: 'clopper_pearson' } });
+  assert.equal(cp.ciMethod, 'clopper_pearson');
+  assert.deepEqual(cp.specificity.ci, cp.specificity.clopperPearson);
+  assert.deepEqual(cp.specificity.wilson, d.specificity.wilson);   // ikkalasi ham natijada saqlanadi (batafsil ko'rinish uchun)
+  const w = cp.warnings.find(x => x.code === 'qualitative_cp_project_addition');
+  assert.ok(w && w.severity === 'info' && /AQA:2021/.test(w.ref));
+  assert.equal(E.evaluate({ format: 'uc-qualitative/1', table, settings: { ciMethod: 'wald' } }).error, 'qualitative_bad_data');
+  assert.deepEqual(E.CI_METHODS, ['wilson', 'clopper_pearson']);
+});
+
 test('posterior ehtimol (Bayes): tarqalganlik bilan PP va PN; teng ehtimolda PP = LR/(LR + 1)', () => {
   near(E.posterior(0.5, 1000), 1000 / 1001, 1e-15);
   const r = E.evaluate({ format: 'uc-qualitative/1', table: { tp: 90, fn: 10, fp: 5, tn: 95 }, prevalence: 0.01 });

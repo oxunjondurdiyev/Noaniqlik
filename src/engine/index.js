@@ -34,7 +34,7 @@ export {
   MIN_TARGETS, FITNESS_VARIANCE_PCT, HUBER_C, HUBER_BETA,
 } from './sampling/index.js';
 export {
-  evaluateQualitative, wilsonInterval, clopperPearsonInterval, posterior, QUALITATIVE_FORMAT, QUALITATIVE_WARNINGS, QUALITATIVE_ERRORS, SMALL_N,
+  evaluateQualitative, wilsonInterval, clopperPearsonInterval, posterior, QUALITATIVE_FORMAT, QUALITATIVE_WARNINGS, QUALITATIVE_ERRORS, SMALL_N, CI_METHODS, DEFAULT_CI_METHOD,
 } from './qualitative/index.js';
 export { evaluateMicro, logDuplicateSd, MICRO_FORMAT, MICRO_WARNINGS, MICRO_ERRORS, LOG10_E, LOW_COUNT_DEFAULT } from './micro/index.js';
 export { evaluateMedical, MEDICAL_FORMAT, MEDICAL_WARNINGS, MEDICAL_ERRORS, FEW_IQC } from './medical/index.js';

@@ -12,7 +12,7 @@
 export const STORES = Object.freeze({
   calculations: 'id',            // { id, format: 'calc-state/v2', state, result?, templateRef?, createdAt, updatedAt }
   templates: ['id', 'version'],  // uc-template/1 (har bir versiya alohida yozuv)
-  settings: 'key',               // { key: 'lab', value: {P, kMethod, nuRule, rounding, decisionRule, secondOrder, cmcMode} }
+  settings: 'key',               // { key: 'lab', value: {P, kMethod, nuRule, rounding, decisionRule, secondOrder, cmcMode, ciMethod} }
   registries: 'id',              // etalonlar reestri va h.k. (P11)
   audit: 'seq',                  // append-only (./audit.js)
   meta: 'key',                   // migratsiyalar holati va h.k.

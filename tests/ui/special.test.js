@@ -155,15 +155,20 @@ test('hisobot — namuna olish: s_samp, s_anal, s_meas, U′, klassik va robust 
   assert.match(fu.querySelector('[data-sp-fu]').textContent, /2\.6207/);
 });
 
-test('hisobot — sifatli test: jadval, ulushlar, Wilson va Clopper–Pearson intervallari, LR, posterior (uch tilda)', () => {
+test('hisobot — sifatli test: jadval, ulushlar, Wilson intervali (standart), usul nomi va P, LR, posterior (uch tilda)', () => {
   const r = E.evaluate({ ...E6.modelSpec, prevalence: 0.1 });
   for (const lang of LANGS) {
     const w = loadReport(lang);
     const d = frag(w, w.Results.specialSection(r));
     assert.ok(d.querySelector('[data-sp-table]'));
-    assert.equal(d.querySelector('[data-sp-rate="ss"] [data-sp-wilson]').textContent, '[96.3; 100.0]');   // AQA Table E6.2
-    assert.equal(d.querySelector('[data-sp-rate="sp"] [data-sp-wilson]').textContent, '[91.5; 99.0]');    // manba: 91,6 (D-17)
-    assert.match(d.querySelector('[data-sp-rate="ss"] [data-sp-cp]').textContent, /^\[96\.4; 100\.0\]$/);
+    assert.equal(d.querySelector('[data-sp-rate="ss"] [data-sp-ci="wilson"]').textContent, '[96.3; 100.0]');   // AQA Table E6.2
+    assert.equal(d.querySelector('[data-sp-rate="sp"] [data-sp-ci="wilson"]').textContent, '[91.5; 99.0]');    // manba: 91,6 (D-17)
+    // ekrandagi batafsil ko'rinish: ikkinchi usul solishtirish uchun
+    assert.equal(d.querySelector('[data-sp-rate="ss"] [data-sp-ci-compare="clopper_pearson"]').textContent, '[96.4; 100.0]');
+    const m = d.querySelector('[data-sp-cimethod]');
+    assert.equal(m.dataset.spCimethod, 'wilson');
+    assert.match(m.textContent, /Wilson|Уилсон/); assert.match(m.textContent, /95 %/); assert.match(m.textContent, /AQA:2021 §4\.4/);
+    assert.equal(d.querySelector('[data-sp-warning="qualitative_cp_project_addition"]'), null);
     assert.match(d.querySelector('[data-sp-lr]').textContent, /33\.33/);
     assert.ok(d.querySelector('[data-sp-posterior]'));
     assert.equal(d.querySelector('[data-sp-approach]').dataset.spApproach, 'CONTINGENCY_2X2');
@@ -286,7 +291,8 @@ test('kontroller (jsdom): namuna olish — jadvalni qo\'yish → hisoblash → n
   click('[data-sp-act="calc"]');
   r = w.UCSpecial.current();
   assert.equal(r.mode, 'QUALITATIVE');
-  assert.equal($('[data-sp-rate="ss"] [data-sp-wilson]').textContent, '[96.3; 100.0]');
+  assert.equal($('[data-sp-rate="ss"] [data-sp-ci="wilson"]').textContent, '[96.3; 100.0]');
+  assert.equal(r.ciMethod, 'wilson');                                // laboratoriya sozlamasi yo'q → standart
   // rejimga qaytilganda kiritilgan ma'lumot va natija saqlangan
   click('[data-sp-mode="sampling"]');
   assert.equal($('#sp-saMethod').value, 'robust');
@@ -307,4 +313,50 @@ test('kontroller (jsdom): namuna olish — jadvalni qo\'yish → hisoblash → n
   // saqlangan holatda shaxsiy maydon yo'q
   const saved = JSON.parse(w.localStorage.getItem('uc_special_v1'));
   assert.ok(!Object.keys(saved).some(k => /name|phone|email|inn|stir|fio/i.test(k)));
+});
+
+/* ── Egasi qarori (2026-11-18, R-21): standart — Wilson; Clopper–Pearson — laboratoriya sozlamasi ── */
+
+test('bosma hisobot: faqat tanlangan usul intervali, usul nomi va P; Clopper–Pearson tanlansa — faqat u', () => {
+  for (const lang of LANGS) {
+    const w = loadReport(lang);
+    w.print = () => {};
+    const d = w.document.getElementById('print-report');
+    w.Results.printSpecial(E.evaluate(E6.modelSpec), {});
+    assert.equal(d.querySelector('[data-sp-rate="sp"] [data-sp-ci="wilson"]').textContent, '[91.5; 99.0]');
+    assert.equal(d.querySelectorAll('[data-sp-ci-compare]').length, 0, lang + ': bosmada ikkinchi interval bo\'lmasligi kerak');
+    assert.equal(d.querySelectorAll('[data-sp-rates] thead th').length, 4);
+    assert.match(d.querySelector('[data-sp-cimethod]').textContent, /(Wilson|Уилсон).*95 %/);
+    assert.ok(!/Clopper|Клоппер/.test(d.querySelector('[data-sp-rates]').textContent + d.querySelector('[data-sp-cimethod]').textContent), lang);
+    const cp = E.evaluate({ ...E6.modelSpec, settings: { ciMethod: 'clopper_pearson' } });
+    w.Results.printSpecial(cp, {});
+    assert.equal(d.querySelector('[data-sp-rate="sp"] [data-sp-ci="clopper_pearson"]').textContent, '[91.5; 99.4]');   // SciPy: [0,914824; 0,993770]
+    assert.equal(d.querySelectorAll('[data-sp-ci-compare]').length, 0);
+    assert.equal(d.querySelector('[data-sp-cimethod]').dataset.spCimethod, 'clopper_pearson');
+    assert.ok(!/Wilson|Уилсон/.test(d.querySelector('[data-sp-rates]').textContent), lang);
+    assert.ok(d.querySelector('[data-sp-warning="qualitative_cp_project_addition"]'));
+    assert.ok(!/(sp|td|w)_[a-z_]+|\{[vP]\}/.test(d.textContent), lang);
+    // ekranda Clopper–Pearson tanlanganda Wilson solishtirish uchun ko'rinadi
+    assert.ok(frag(w, w.Results.specialSection(cp)).querySelector('[data-sp-ci-compare="wilson"]'));
+  }
+});
+
+test('laboratoriya sozlamasi "Ishonch intervali usuli": standart Wilson; saqlash maydoni va modal tanlovi bor', async () => {
+  const S = await import(pathToFileURL(path.join(ROOT, 'src/storage/index.js')).href);
+  assert.equal(S.LAB_DEFAULTS.ciMethod, 'wilson');
+  const app = read('src/ui/tpl/app.js');
+  assert.match(app, /id="lab-ciMethod"/);
+  assert.match(app, /ciMethod: \$\('lab-ciMethod'\)\.value/);
+  assert.match(read('src/ui/special/app.js'), /ciMethod: labCiMethod\(\)/);
+});
+
+test('kontroller: laboratoriya sozlamasi Clopper–Pearson bo\'lsa hisob va hisobot shu usulda', () => {
+  w.UCTemplates = { labSettings: () => ({ ciMethod: 'clopper_pearson' }), reportNoticeHTML: () => '' };
+  click('[data-sp-mode="qualitative"]');
+  for (const [k, v] of [['qlTp', '100'], ['qlFn', '0'], ['qlFp', '3'], ['qlTn', '97']]) setValue('#sp-' + k, v);
+  click('[data-sp-act="calc"]');
+  assert.equal(w.UCSpecial.current().ciMethod, 'clopper_pearson');
+  assert.equal($('[data-sp-cimethod]').dataset.spCimethod, 'clopper_pearson');
+  assert.equal($('[data-sp-rate="ss"] [data-sp-ci="clopper_pearson"]').textContent, '[96.4; 100.0]');
+  delete w.UCTemplates;
 });

@@ -955,17 +955,23 @@ const Results = (() => {
   function qualitativeSection(r, opt) {
     const cls = opt.print ? 'print-table' : 'data-table math-head';
     const ci = c => (c ? `[${spPct(c.low)}; ${spPct(c.high)}]` : '—');
-    const row = (key, q) => `<tr data-sp-rate="${key}"><td>${i18n.t('sp_ql_' + key)}</td><td class="num"><strong>${spPct(q.value)}</strong></td><td class="num">${q.n !== undefined ? `${q.x} / ${q.n}` : '—'}</td>
-      <td class="num" data-sp-wilson="1">${ci(q.wilson)}</td><td class="num" data-sp-cp="1">${ci(q.clopperPearson)}</td></tr>`;
-    const lr = v => (isFinite(v) ? tdNum(v, 4) : '∞');
     const t = r.table;
+    // Egasi qarori (2026-11-18, R-21): hisobotga faqat tanlangan usul intervali chiqadi (standart — Wilson);
+    // ekrandagi batafsil ko'rinishda ikkinchisi solishtirish uchun ko'rsatiladi, bosma hisobotda — yo'q.
+    const method = r.ciMethod || 'wilson', other = method === 'wilson' ? 'clopper_pearson' : 'wilson';
+    const field = { wilson: 'wilson', clopper_pearson: 'clopperPearson' };
+    const compare = !opt.print && !!t;
+    const row = (key, q) => `<tr data-sp-rate="${key}"><td>${i18n.t('sp_ql_' + key)}</td><td class="num"><strong>${spPct(q.value)}</strong></td><td class="num">${q.n !== undefined ? `${q.x} / ${q.n}` : '—'}</td>
+      <td class="num" data-sp-ci="${method}"><strong>${ci(q[field[method]])}</strong></td>${compare ? `<td class="num text-muted" data-sp-ci-compare="${other}">${ci(q[field[other]])}</td>` : ''}</tr>`;
+    const lr = v => (isFinite(v) ? tdNum(v, 4) : '∞');
     return spHead(r, opt, `
       ${t ? `<table class="${cls} sp-2x2" data-sp-table="1"><thead><tr><th></th><th>${i18n.t('sp_ql_case_pos')}</th><th>${i18n.t('sp_ql_case_neg')}</th></tr></thead>
         <tbody><tr><th>${i18n.t('sp_ql_res_pos')}</th><td class="num">tp = ${t.tp}</td><td class="num">fp = ${t.fp}</td></tr>
           <tr><th>${i18n.t('sp_ql_res_neg')}</th><td class="num">fn = ${t.fn}</td><td class="num">tn = ${t.tn}</td></tr></tbody></table>` : ''}
-      <table class="${cls}" data-sp-rates="1"><thead><tr><th>${i18n.t('sp_ql_metric')}</th><th>%</th><th>x / n</th><th>${i18n.t('sp_ql_ci_wilson').replace('{P}', pct(r.P))}</th><th>${i18n.t('sp_ql_ci_cp').replace('{P}', pct(r.P))}</th></tr></thead>
+      <table class="${cls}" data-sp-rates="1"><thead><tr><th>${i18n.t('sp_ql_metric')}</th><th>%</th><th>x / n</th><th>${i18n.t('sp_ql_ci').replace('{P}', pct(r.P))} — ${i18n.t('sp_ci_' + method)}</th>${compare ? `<th class="text-muted">${i18n.t('sp_ql_ci_compare')}: ${i18n.t('sp_ci_' + other)}</th>` : ''}</tr></thead>
         <tbody>${row('ss', r.sensitivity)}${row('sp', r.specificity)}${row('fp', r.falsePositiveRate)}${row('fn', r.falseNegativeRate)}
           ${r.ppvStudy ? row('ppv', r.ppvStudy) : ''}${r.npvStudy ? row('npv', r.npvStudy) : ''}</tbody></table>
+      ${t ? `<p class="rg-line" data-sp-cimethod="${escHtml(method)}"><strong>${i18n.t('sp_ql_ci_method')}:</strong> ${i18n.t('sp_ci_' + method)}; P = ${pct(r.P)} % <span class="text-xs text-muted">[${i18n.t('sp_ci_ref_' + method)}]</span></p>` : ''}
       <p class="rg-line" data-sp-lr="1">LR(+) = TP/FP = ${lr(r.lrPositive)}; LR(−) = FN/TN = ${lr(r.lrNegative)}</p>
       ${r.prevalence !== null ? `<p class="rg-line" data-sp-posterior="1"><strong>${i18n.t('sp_ql_posterior')}</strong> (${i18n.t('sp_ql_prev')} ${spPct(r.prevalence)} %): PP = ${spPct(r.posteriorPositive, 2)} %; PN = ${spPct(r.posteriorNegative, 2)} %</p>`
         : (r.studyPrevalence !== null ? `<p class="rg-line text-muted">${i18n.t('sp_ql_study_prev')}: ${spPct(r.studyPrevalence)} %</p>` : '')}`);
