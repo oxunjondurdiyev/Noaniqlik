@@ -11,12 +11,12 @@ let qrPromise = null;
 
 /** SheetJS Community Edition 0.20.3 (Apache-2.0). @returns {Promise<object>} XLSX nomlar fazosi */
 export function loadXlsx() {
-  if (!xlsxPromise) xlsxPromise = import('../../vendor/sheetjs/0.20.3/xlsx.mjs').catch(e => { xlsxPromise = null; throw e; });
+  if (!xlsxPromise) xlsxPromise = import('../../vendor/sheetjs/0.20.3/xlsx.js').catch(e => { xlsxPromise = null; throw e; });
   return xlsxPromise;
 }
 
 /** qrcode-generator 2.0.4 (MIT). @returns {Promise<Function>} qrcode(typeNumber, errorCorrectionLevel) */
 export function loadQr() {
-  if (!qrPromise) qrPromise = import('../../vendor/qrcode-generator/2.0.4/qrcode.mjs').then(m => m.default).catch(e => { qrPromise = null; throw e; });
+  if (!qrPromise) qrPromise = import('../../vendor/qrcode-generator/2.0.4/qrcode.js').then(m => m.default).catch(e => { qrPromise = null; throw e; });
   return qrPromise;
 }
