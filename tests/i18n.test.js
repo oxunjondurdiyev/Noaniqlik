@@ -13,7 +13,7 @@ const LANGS = ['uz', 'ru', 'en'];
 function loadTranslations() {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   // Ikkala fayl bitta skript sifatida (top-level const TRANSLATIONS umumiy bo'lishi uchun)
-  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
+  const src = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
   return dom.window.eval(src + '\n;TRANSLATIONS');
 }
 
@@ -160,4 +160,34 @@ test('P09: top-down ogohlantirish (X11, X12 …) va xato kodlari uch tilda; UI k
   assert.deepEqual([...new Set(missing)], []);
   // X11 va X12 matnlarida {v} o'rinbosari bor (qaysi omil / qaysi hissa)
   for (const l of LANGS) for (const k of ['w_x11_double_counting', 'w_x12_empirical_bias']) assert.match(T[l][k], /\{v\}/, `${l}.${k}`);
+});
+
+test('P10: i18n-special.js oldingi fayllardagi kalitlarni bosib ketmaydi; maxsus rejimlar kodlari va UI kalitlari uch tilda', () => {
+  const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
+  const base = dom.window.eval(['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;TRANSLATIONS');
+  const mine = [...fs.readFileSync(path.join(ROOT, 'src/js/i18n-special.js'), 'utf8').matchAll(/^\s{6}([a-zA-Z0-9_]+):/gm)].map(m => m[1]);
+  assert.ok(mine.length > 400, String(mine.length));
+  assert.deepEqual([...new Set(mine.filter(k => k in base.en))], []);
+  const E = require('../src/engine/index.js');
+  const B = require('../src/ui/special/build.js');
+  const missing = [];
+  const need = k => { for (const l of LANGS) if (!T[l][k]) missing.push(`${l}.${k}`); };
+  for (const tbl of [E.SAMPLING_WARNINGS, E.QUALITATIVE_WARNINGS, E.MICRO_WARNINGS, E.MEDICAL_WARNINGS]) Object.keys(tbl).forEach(c => need('w_' + c));
+  [...E.SAMPLING_ERRORS, ...E.QUALITATIVE_ERRORS, ...E.MICRO_ERRORS, ...E.MEDICAL_ERRORS].forEach(c => need('err_' + c));
+  B.MODES.forEach(m => { need('sp_mode_' + m); need('sp_intro_' + m); });
+  ['SAMPLING', 'QUALITATIVE', 'MICROBIOLOGY', 'MEDICAL'].forEach(m => { need('sp_section_' + m); need('sp_limits_' + m); });
+  ['DUPLICATE_CLASSICAL_ANOVA', 'DUPLICATE_ROBUST_ANOVA', 'CONTINGENCY_2X2', 'LOG10_COUNT', 'IQC_LEVELS'].forEach(a => need('sp_approach_' + a));
+  ['ss', 'sp', 'fp', 'fn', 'ppv', 'npv'].forEach(k => need('sp_ql_' + k));
+  ['technical', 'matrix', 'poisson'].forEach(k => need('sp_mi_u_' + k));
+  ['micro', 'medical'].forEach(k => need('sp_beta_' + k));
+  E.SAMPLING_METHODS.forEach(m => need('sp_sa_' + m));
+  const src = fs.readFileSync(path.join(ROOT, 'src/ui/special/build.js'), 'utf8');
+  for (const m of src.matchAll(/one\(st\.\w+, '(\w+)'\)|bad\.push\('(\w+)'\)/g)) need('sp_f_' + (m[1] || m[2]));
+  const dir = path.join(ROOT, 'src/ui/special');
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js'))) {
+    const code = fs.readFileSync(path.join(dir, f), 'utf8');
+    for (const m of code.matchAll(/\bt\('([a-z0-9_A-Z]+)'\)/g)) need(m[1]);
+    for (const m of code.matchAll(/, '((?:sp|td)_[a-z0-9_A-Z]+)'/g)) if (!m[1].endsWith('_')) need(m[1]);
+  }
+  assert.deepEqual([...new Set(missing)], []);
 });
