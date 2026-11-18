@@ -11,6 +11,7 @@ const P = require('../../src/ui/regression/parse.js');
 const V = require('../../src/ui/regression/view.js');
 const { roundResult, roundHalfAway, roundUpAway } = require('../../src/report/rounding.js');
 const { fmt, fmtSci } = require('../../src/report/format.js');
+const { reportBridge } = require('./lib.js');
 const { escHtml } = require('../../src/ui/escape.js');
 const H3 = require('../cases/jcgm100/jcgm100-h3.json');
 const A5 = require('../cases/quam/quam-a5-calibration.json');
@@ -18,7 +19,7 @@ const A5 = require('../cases/quam/quam-a5-calibration.json');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js']; // report.js top-down bo'limi (P09) kalitlari ham shu yerda tekshiriladi
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js']; // report.js top-down bo'limi (P09) kalitlari ham shu yerda tekshiriladi
 
 /** report.js ni jsdom'da yuklash (brauzerdagi tartib: escape → i18n → report) */
 function loadReport(lang) {
@@ -27,7 +28,7 @@ function loadReport(lang) {
   w.eval(read('src/ui/escape.js'));
   w.__TR = w.eval(I18N_FILES.map(read).join('\n;\n') + '\n;TRANSLATIONS');
   w.i18n.lang = lang;
-  w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci };
+  w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci, ...reportBridge };   // P05a: linter / topilmalar bloki
   w.appState = { get: () => ({}), subscribe() {} };
   w.showToast = () => {};
   w.eval(read('src/js/report.js'));

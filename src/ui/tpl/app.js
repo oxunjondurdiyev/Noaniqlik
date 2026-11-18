@@ -253,12 +253,13 @@ function closeModal() { $('tpl-modal').style.display = 'none'; }
 let editing = null; // { tpl, isNew }
 
 function skeleton() {
-  const txt = (uz, ru, en) => ({ uz, ru, en });
+  // Uch tildagi boshlang'ich matnlar lug'atdan (src/js/i18n-admin.js: tpl_skel_*)
+  const txt = key => window.i18n.all(key);
   return {
     schemaVersion: 'uc-template/1', id: 'LAB-01', version: '0.1.0', status: 'DRAFT', domain: 'TESTING', section: 'general',
-    evaluationMode: 'GUM_BOTTOM_UP', title: txt('Yangi shablon', 'Новый шаблон', 'New template'), standards: [], labCount: null,
-    ref: 'laboratoriya', measurand: { symbol: 'y', name: txt('Natija', 'Результат', 'Result'), unit: '' },
-    model: { formula: 'y = x' }, inputs: [{ symbol: 'x', name: txt('Kirish', 'Входная величина', 'Input'), unit: '', kind: 'observation' }],
+    evaluationMode: 'GUM_BOTTOM_UP', title: txt('tpl_skel_title'), standards: [], labCount: null,
+    ref: 'laboratoriya', measurand: { symbol: 'y', name: txt('tpl_skel_result'), unit: '' },
+    model: { formula: 'y = x' }, inputs: [{ symbol: 'x', name: txt('tpl_skel_input'), unit: '', kind: 'observation' }],
     typeBSources: [],
   };
 }
@@ -406,6 +407,7 @@ function labHTML(l) {
       <label>${esc(t('set_rounding'))}<select id="lab-rounding">${opt('normal', l.rounding, t('set_round_normal'))}${opt('up', l.rounding, t('set_round_up'))}</select></label>
       <label>${esc(t('lab_decision'))}<select id="lab-decisionRule">${opt('simple', l.decisionRule, t('lab_dec_simple'))}${opt('guarded', l.decisionRule, t('lab_dec_guarded'))}</select></label>
       <label>${esc(t('lab_cmc'))}<select id="lab-cmcMode">${opt('warn', l.cmcMode, t('lab_cmc_warn'))}${opt('block', l.cmcMode, t('lab_cmc_block'))}</select></label>
+      <label>${esc(t('lab_critical'))}<select id="lab-criticalMode">${opt('mark', l.criticalMode, t('lab_critical_mark'))}${opt('block', l.criticalMode, t('lab_critical_block'))}</select></label>
       <label>${esc(t('lab_ci_method'))}<select id="lab-ciMethod">${opt('wilson', l.ciMethod, t('sp_ci_wilson'))}${opt('clopper_pearson', l.ciMethod, t('sp_ci_clopper_pearson'))}</select></label>
     </div>
     <label class="model-check"><input type="checkbox" id="lab-secondOrder" ${l.secondOrder ? 'checked' : ''} /> <span>${esc(t('set_second_order'))}</span></label>
@@ -425,7 +427,7 @@ async function onLabAction(e) {
   if (b.dataset.lab === 'close') { closeModal(); return; }
   const v = {
     P: Number($('lab-P').value), kMethod: $('lab-kMethod').value, nuRule: $('lab-nuRule').value, rounding: $('lab-rounding').value,
-    decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
+    decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, criticalMode: $('lab-criticalMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
   };
   if (!db) { toast(t('st_no_idb'), 'error'); return; }
   await Store.saveLabSettings(db, v, { reason: 'lab settings' });
@@ -451,7 +453,7 @@ async function dataHTML() {
       <button type="button" class="btn btn-ghost btn-sm" data-data="close">${esc(t('ed_close'))}</button>
     </div>
     <div class="tpl-ed-sub">${esc(t('st_audit'))}</div>
-    <div class="table-scroll"><table class="data-table text-xs"><thead><tr><th>#</th><th>at</th><th>action</th><th>entity</th><th>id</th><th>actor</th><th>reason</th><th>hash</th></tr></thead><tbody>
+    <div class="table-scroll"><table class="data-table text-xs"><thead><tr><th>#</th>${['at', 'action', 'entity', 'id', 'actor', 'reason', 'hash'].map(c => `<th>${esc(t('st_col_' + c))}</th>`).join('')}</tr></thead><tbody>
       ${audit.slice(-30).reverse().map(a => `<tr><td>${esc(a.seq)}</td><td>${esc(a.at)}</td><td>${esc(a.action)}</td><td>${esc(a.entity)}</td>
         <td class="mono">${esc(Array.isArray(a.entityId) ? a.entityId.join('@') : a.entityId)}</td><td>${esc(a.actor)}</td><td>${esc(a.reason)}</td><td class="mono">${esc(String(a.hash).slice(0, 12))}…</td></tr>`).join('')}
     </tbody></table></div>`;

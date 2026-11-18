@@ -349,7 +349,7 @@ const PRESETS = {
     formula: 'E = (I - 4) * 1.25 - Ce',
     derived: [{ formula: 'E = (I − 4)·1.25 − Ce', symbol: 'E' }],
     settings: { paired: false, P: 0.9545, kMethod: 'nu', rounding: 'up',
-                mpe: '0.04 * abs((I - 4) * 1.25)', range: '20', cmc: '' },
+                modelKind: 'error', mpe: '0.04 * abs((I - 4) * 1.25)', range: '20', cmc: '' },
     typeBComponents: [
       { name: 'Calibrator error (Fluke 725Ex) ±(0.02 %·I + 0.002 mA)', param: 'I', halfWidth: '0.0002 * I + 0.002', distribution: 'rect', sensitivity: 1, unit: 'mA' },
       { name: 'Calibrator resolution d',                               param: 'I', halfWidth: 0.001, distribution: 'resol', sensitivity: 1, unit: 'mA' },
@@ -371,7 +371,7 @@ const PRESETS = {
     formula: 'Cv = Te + Ce - Tv',
     derived: [{ formula: 'Cv = Te + Ce − Tv', symbol: 'Cv' }],
     directions: ['↑','↑','↑','↓','↓','↓','↑','↑','↑','↓','↓','↓'],
-    settings: { paired: false, P: 0.9545, kMethod: 'nu', rounding: 'up', mpe: '1', range: '', cmc: '',
+    settings: { paired: false, P: 0.9545, kMethod: 'nu', rounding: 'up', modelKind: 'error', mpe: '1', range: '', cmc: '',
                 typeA: { Tv: { method: 1, directional: true } } },
     typeBComponents: [
       { name: 'Reference readout resolution',     param: 'Te', halfWidth: 0.001, distribution: 'resol',  sensitivity: 1, unit: '°C' },
@@ -403,4 +403,25 @@ Object.values(PRESETS).forEach(pd => {
   if (pd.points && !pd.sampleData) pd.sampleData = pd.points[0].data;
 });
 
+/* ─── Ko'rsatiladigan nomlar — i18n (P05, RISKS R-13) ───────────────
+   Yuqoridagi `name` qiymatlari — barqaror identifikator (points[].patch kaliti, templates/builtin/legacy-*
+   dagi legacyName, testlar); foydalanuvchiga chiqadigan matn lug'atdan olinadi:
+     preset nomi      → preset_<kalit>  (gas_analyzer → preset_gas, thermometer → preset_thermo)
+     komponent nomi   → pc_<slug>       (src/js/i18n-admin.js; slug: kichik harf, [^a-z0-9]+ → _)
+   Har bir nom uchun kalit uch tilda borligini tests/i18n.test.js tekshiradi. */
+const PresetText = {
+  TITLE_KEYS: { gas_analyzer: 'preset_gas', thermometer: 'preset_thermo' },
+  titleKey(key) { return PresetText.TITLE_KEYS[key] || 'preset_' + key; },
+  componentKey(name) { return 'pc_' + String(name).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, ''); },
+  title(key) { return window.i18n.t(PresetText.titleKey(key)); },
+  component(name) {
+    const k = PresetText.componentKey(name);
+    const v = window.i18n.t(k);
+    return v === k ? name : v;
+  },
+  // TypeB komponentlari nusxasi — nomlari joriy tilda (asl PRESETS o'zgarmaydi)
+  localized(components) { return components.map(c => ({ ...c, name: PresetText.component(c.name) })); },
+};
+
 window.PRESETS = PRESETS;
+window.PresetText = PresetText;

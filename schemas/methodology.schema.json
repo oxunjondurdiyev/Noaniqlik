@@ -159,7 +159,10 @@
         "name": { "$ref": "#/definitions/text" },
         "unit": { "type": "string" },
         "value": { "type": ["number", "null"] },
-        "ref": { "type": "string", "minLength": 1 },
+        "ref": {
+          "description": "Qiymat manbasi. Faqat belgi (standart raqami, 'EURACHEM QUAM A2') — satr; izohli matn bo'lsa — uch tildagi matn (P05, R-13).",
+          "anyOf": [{ "type": "string", "minLength": 1 }, { "$ref": "#/definitions/text" }]
+        },
         "hint": { "$ref": "#/definitions/text" }
       }
     },
@@ -256,6 +259,8 @@
         "paired": { "type": "boolean" },
         "secondOrder": { "type": "boolean" },
         "rounding": { "enum": ["normal", "up"] },
+        "modelKind": { "enum": ["error", "value", "unknown"], "description": "Model natijasi: error — ko'rsatish xatosi E = X − X_ref; value — kattalik qiymati Y (nominal bilan). Muvofiqlik bayonoti uchun majburiy (RISKS R-07)." },
+        "nominal": { "type": ["number", "string"], "description": "modelKind = value uchun nominal qiymat (MPE bilan |Y − nominal| solishtiriladi)" },
         "mpe": { "type": ["number", "string"] },
         "range": { "type": ["number", "string"] },
         "cmc": { "type": ["number", "string"] },

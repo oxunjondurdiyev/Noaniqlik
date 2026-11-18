@@ -12,6 +12,7 @@ const B = require('../../src/ui/topdown/build.js');
 const V = require('../../src/ui/topdown/view.js');
 const { roundResult, roundHalfAway, roundUpAway } = require('../../src/report/rounding.js');
 const { fmt, fmtSci } = require('../../src/report/format.js');
+const { reportBridge } = require('./lib.js');
 const { escHtml } = require('../../src/ui/escape.js');
 const NH4 = require('../cases/nordtest/nordtest-tr537-nh4n.json');
 const DUP = require('../cases/nordtest/nordtest-tr537-nh4n-dup-high.json');
@@ -21,7 +22,7 @@ const A6 = require('../cases/quam/quam-a6-empirical.json');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js'];
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-linter.js'];
 
 /** report.js ni jsdom'da yuklash (brauzerdagi tartib: escape → i18n → report) */
 function loadReport(lang) {
@@ -30,7 +31,7 @@ function loadReport(lang) {
   w.eval(read('src/ui/escape.js'));
   w.__TR = w.eval(I18N_FILES.map(read).join('\n;\n') + '\n;TRANSLATIONS');
   w.i18n.lang = lang;
-  w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci };
+  w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci, ...reportBridge };   // P05a: linter / topilmalar bloki
   w.appState = { get: () => ({}), subscribe() {} };
   w.showToast = () => {};
   w.eval(read('src/js/report.js'));

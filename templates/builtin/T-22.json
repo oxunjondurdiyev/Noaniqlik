@@ -139,7 +139,11 @@
       },
       "unit": "%",
       "value": null,
-      "ref": "Asbob pasporti: ±(a %·o'qish + b raqam)",
+      "ref": {
+        "uz": "Asbob pasporti: ±(a %·o'qish + b raqam)",
+        "ru": "Паспорт прибора: ±(a %·показание + b единиц младшего разряда)",
+        "en": "Instrument specification: ±(a %·reading + b digits)"
+      },
       "hint": {
         "uz": "Asbob pasportidan: ±(a %·o'qish + b raqam) dagi a.",
         "ru": "Из паспорта прибора: a в ±(a %·показание + b ед. мл. разряда).",
@@ -155,7 +159,11 @@
       },
       "unit": "1",
       "value": null,
-      "ref": "Asbob pasporti: ±(a %·o'qish + b raqam)",
+      "ref": {
+        "uz": "Asbob pasporti: ±(a %·o'qish + b raqam)",
+        "ru": "Паспорт прибора: ±(a %·показание + b единиц младшего разряда)",
+        "en": "Instrument specification: ±(a %·reading + b digits)"
+      },
       "hint": {
         "uz": "Asbob pasportidan: ±(a %·o'qish + b raqam) dagi b.",
         "ru": "Из паспорта прибора: b в ±(a %·показание + b ед. мл. разряда).",
@@ -171,7 +179,11 @@
       },
       "unit": "",
       "value": null,
-      "ref": "Asbob pasporti",
+      "ref": {
+        "uz": "Asbob pasporti",
+        "ru": "Паспорт прибора",
+        "en": "Instrument specification"
+      },
       "hint": {
         "uz": "Asbob pasportidan; tanlangan diapazondagi bir xona qiymati.",
         "ru": "Из паспорта прибора; единица младшего разряда на выбранном диапазоне.",

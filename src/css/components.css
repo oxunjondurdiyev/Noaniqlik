@@ -816,3 +816,52 @@ details.rg-card > summary { cursor: pointer; }
 @media print {
   .sp-report .warn-box, .sp-report .td-note { display: block !important; visibility: visible !important; }
 }
+
+/* ═══ P05a: "Tekshiruv natijalari" — linter topilmalari bloki ═══
+   Ranglar: error — qizil, warning — sariq, info — ko'k. Bosma hisobotda blok YASHIRILMAYDI (RISKS R-05). */
+.findings-block { margin: .9rem 0; }
+.findings-head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .45rem; }
+.findings-title { font-weight: 700; font-size: .95rem; }
+.finding-count-error { background: rgba(220, 38, 38, .15); color: #dc2626; }
+.finding-count-warning { background: rgba(217, 119, 6, .16); color: #b45309; }
+.finding-count-info { background: rgba(37, 99, 235, .14); color: #2563eb; }
+.findings-list.warn-box { background: transparent; border: 0; padding: 0; }
+.finding { border-left: 4px solid; border-radius: 6px; padding: .5rem .7rem; margin-bottom: .45rem; font-size: .86rem; line-height: 1.45; }
+.finding-error { border-color: #dc2626; background: rgba(220, 38, 38, .08); }
+.finding-warning { border-color: #d97706; background: rgba(217, 119, 6, .09); }
+.finding-info { border-color: #2563eb; background: rgba(37, 99, 235, .07); }
+.finding-what { font-weight: 600; }
+.finding-why, .finding-fix { margin-top: .2rem; font-size: .8rem; }
+.finding-label { font-weight: 600; }
+.finding-ref { color: var(--text-muted); font-size: .75rem; }
+.finding-rule-error { background: #dc2626; color: #fff; }
+.finding-rule-warning { background: #d97706; color: #fff; }
+.finding-rule-info { background: #2563eb; color: #fff; }
+.finding-accept, .finding-accepted { margin-top: .4rem; }
+.finding-accept-form { margin-top: .35rem; display: flex; flex-direction: column; gap: .3rem; max-width: 34rem; }
+.finding-accept-form[hidden] { display: none; }
+.finding-accept-form textarea { width: 100%; font: inherit; padding: .35rem .5rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input, transparent); color: inherit; }
+.finding-is-accepted { opacity: .92; }
+.finding-accept-comment { margin-top: .2rem; font-size: .8rem; }
+.findings-unofficial, .report-unofficial-banner, .report-critical { border: 2px solid #dc2626; color: #dc2626; font-weight: 700; border-radius: 6px; padding: .4rem .7rem; margin: .4rem 0; }
+.report-marks { margin: .5rem 0; font-size: .78rem; color: var(--text-muted); }
+.report-watermark { display: none; }
+.model-kind-chooser { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .6rem; margin: .5rem 0 .2rem; font-size: .85rem; }
+.model-kind-chooser label { display: flex; flex-direction: column; gap: .2rem; }
+.model-kind-chooser [hidden] { display: none; }
+@media print {
+  /* topilmalar, qabul izohlari va belgilar bosma hisobotda har doim ko'rinadi */
+  .findings-block, .findings-block .warn-box, .findings-block .finding, .findings-block .td-note,
+  .finding-accepted, .findings-unofficial, .report-unofficial-banner, .report-critical, .report-marks {
+    display: block !important; visibility: visible !important; color: #000;
+  }
+  .finding { border: 1px solid #999; border-left-width: 4px; background: none !important; font-size: 9pt; padding: .25em .5em; margin-bottom: .3em; break-inside: avoid; }
+  .finding-error { border-left-color: #000; border-left-style: double; }
+  .finding-why, .finding-fix, .finding-accept-comment, .report-marks { font-size: 8pt; }
+  .finding-ref { color: #333; }
+  .findings-unofficial, .report-unofficial-banner, .report-critical { border-color: #000; color: #000 !important; font-size: 10pt; }
+  .report-marks { color: #333 !important; }
+  /* "RASMIY EMAS" suv belgisi — har bir sahifada (position: fixed bosmada har sahifada takrorlanadi) */
+  .report-watermark { display: block !important; position: fixed; top: 38%; left: 0; right: 0; text-align: center;
+    font-size: 64pt; font-weight: 800; letter-spacing: .08em; color: rgba(0, 0, 0, .13); transform: rotate(-28deg); pointer-events: none; z-index: 0; }
+}

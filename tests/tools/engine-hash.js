@@ -41,7 +41,7 @@ if (require.main === module) {
   if (process.argv.includes('--write')) {
     const out = path.join(ROOT, 'tests/security/engine.sha256.json');
     fs.writeFileSync(out, JSON.stringify({ sha256, engineVersion: version, files: list.length,
-      ref: 'src/engine/ + src/report/ (P03: dvigatel ajratildi; P08: regression/; P09: topdown/)' }, null, 2) + '\n');
+      ref: 'src/engine/ + src/report/ (P03: dvigatel ajratildi; P08: regression/; P09: topdown/; P10: maxsus rejimlar; P05a: linter/)' }, null, 2) + '\n');
     console.log('yozildi:', out);
   }
   console.log(sha256, version, list.length + ' fayl');

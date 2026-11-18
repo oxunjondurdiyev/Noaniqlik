@@ -10,6 +10,7 @@
 import * as engine from '../engine/index.js';
 import { roundResult, roundHalfAway, roundUpAway } from '../report/rounding.js';
 import { fmt, fmtSci } from '../report/format.js';
+import { findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText } from '../report/findings.js';
 
 const Calc = Object.freeze({
   ENGINE_VERSION: engine.ENGINE_VERSION,
@@ -35,8 +36,17 @@ const Calc = Object.freeze({
   parseUnit: engine.parseUnit,
   analyzeDimensions: engine.analyzeDimensions,
   dimText: engine.dimText,
+  // P05a: linter (natijada result.findings; eski saqlangan natijalar uchun Calc.lint(spec, result))
+  lint: engine.lint,
+  lintReported: engine.lintReported,
+  FINDING_CODES: engine.FINDING_CODES,
+  MIN_ACCEPT_COMMENT: engine.MIN_ACCEPT_COMMENT,
+  validateAcceptance: engine.validateAcceptance,
+  MODEL_KINDS: engine.MODEL_KINDS,
+  MC_SEED: engine.MC_SEED,
   // hisobot qatlami
   roundResult, roundHalfAway, roundUpAway, fmt, fmtSci,
+  findingsBlockHTML, findingsStatus, findingText, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText,
 });
 
 window.Calc = Calc;

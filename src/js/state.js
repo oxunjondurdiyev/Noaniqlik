@@ -12,12 +12,13 @@ const DEFAULT_STATE = {
   typeB: [],              // array of TypeBComponent objects
   combined: null,         // combined uncertainty result
   model: { formula: '', unit: '' },          // measurement model y = f(x1…xN)
-  settings: { paired: true, P: 0.9545 },     // paired, P, kMethod, rounding, mpe, range, cmc, typeA{param:{method,sp,nup,directional}}
+  settings: { paired: true, P: 0.9545, modelKind: 'unknown' },   // paired, P, kMethod, rounding, modelKind, nominal, mpe, range, cmc, typeA{param:{method,sp,nup,directional}}
   directions: [],         // per-row reading direction '↑' | '↓' | '' (hysteresis)
   points: [],             // saved calibration points [{ id, label, snapshot, result }]
   currentPoint: null,     // id of the point being edited
   summary: { uniformK: false },
   covB: {},               // Type B covariances between inputs: { 'a|b': value }
+  acceptances: {},        // P05a: asoslangan holda qabul qilingan linter topilmalari { findingId: {comment, role, at, value, seq} }
   theme: 'dark',
   lang: 'en',
 };
@@ -34,6 +35,20 @@ const DEFAULT_STATE = {
 //   unit: string,
 // }
 
+/* P05a (RISKS R-07): eski saqlangan hisoblarda model turi yo'q — 'unknown' oladi (src/storage/migrate.js
+   upgradeCalcState bilan bir xil qoida). Dastur |y| ni xato deb faraz qilmaydi: muvofiqlik bayonoti uchun
+   foydalanuvchidan tanlov so'raladi. Foydalanuvchi kiritgan boshqa hech narsa o'zgarmaydi. */
+function upgradeState(st) {
+  const fix = s => {
+    const settings = s.settings && typeof s.settings === 'object' ? s.settings : {};
+    return ['error', 'value', 'unknown'].includes(settings.modelKind) ? s : { ...s, settings: { ...settings, modelKind: 'unknown' } };
+  };
+  const out = fix(st);
+  if (Array.isArray(out.points)) out.points = out.points.map(p => (p && p.snapshot ? { ...p, snapshot: fix(p.snapshot) } : p));
+  if (!out.acceptances || typeof out.acceptances !== 'object') out.acceptances = {};
+  return out;
+}
+
 class AppState {
   constructor() {
     this._state = this._load();
@@ -43,7 +58,7 @@ class AppState {
   _load() {
     try {
       const raw = localStorage.getItem(STATE_KEY);
-      if (raw) return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+      if (raw) return upgradeState({ ...DEFAULT_STATE, ...JSON.parse(raw) });
     } catch(_) {}
     return { ...DEFAULT_STATE };
   }

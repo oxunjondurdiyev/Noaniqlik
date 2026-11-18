@@ -49,6 +49,7 @@
         "unit": "g/cm³"
       },
       "settings": {
+        "modelKind": "value",
         "paired": true,
         "P": 0.9545
       },

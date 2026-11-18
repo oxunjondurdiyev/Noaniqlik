@@ -35,11 +35,11 @@ test('Node\'da ES modul sifatida: import { evaluate } from "./src/engine/index.j
   assert.equal(typeof m.evaluate, 'function');
   const r = m.evaluate(DENS.modelSpec);
   assert.ok(!r.error);
-  assert.equal(r.engineVersion, '2.3.0');
+  assert.equal(r.engineVersion, '2.4.0');
 });
 
-test('ENGINE_VERSION = 2.3.0 (semver)', () => {
-  assert.equal(E.ENGINE_VERSION, '2.3.0');
+test('ENGINE_VERSION = 2.4.0 (semver)', () => {
+  assert.equal(E.ENGINE_VERSION, '2.4.0');
 });
 
 test('natija: outputs[] (bitta element) va yuqori darajadagi maydonlar bir xil', () => {
@@ -133,10 +133,17 @@ test('Monte-Karlo: seed natijada, bir xil kirish → aynan bir xil natija', () =
 });
 
 test('ko\'p nuqtali bir xil k (COOMET §5.7.3) dvigatelda: multiPointCoverage', () => {
-  const rs = [{ k: 2.1, uc: 1, y: 0.5, conf: { mpe: 3 } }, { k: 2.5, uc: 2, y: 1, conf: null }];
+  // P05a (R-07): og'ish (deviation) natijada aniq beriladi — |y| xato deb faraz qilinmaydi
+  const rs = [{ k: 2.1, uc: 1, y: 0.5, deviation: 0.5, conf: { mpe: 3 } }, { k: 2.5, uc: 2, y: 1, conf: null }];
   const u = E.multiPointCoverage(rs, true);
   assert.deepEqual(u.map(x => x.k), [2.5, 2.5]);
   assert.equal(u[0].U, 2.5);
   assert.equal(u[0].conf.guarded, 'ok');
   assert.deepEqual(E.multiPointCoverage(rs, false).map(x => x.k), [2.1, 2.5]);
+  // model turi ko'rsatilmagan (yoki eski saqlangan natija — deviation yo'q): muvofiqlik bayonoti berilmaydi
+  const old = E.multiPointCoverage([{ k: 2, uc: 1, y: 0.5, conf: { mpe: 3, simple: 'ok', guarded: 'ok' } }], false)[0];
+  assert.deepEqual([old.conf.simple, old.conf.guarded, old.conf.pending], ['na', 'na', 'model_kind']);
+  // 'value' turi: nominal bilan og'ish
+  const v = E.multiPointCoverage([{ k: 2, uc: 0.1, y: 100.4, deviation: 0.4, conf: { mpe: 0.5 } }], false)[0];
+  assert.deepEqual([v.conf.simple, v.conf.guarded], ['ok', 'zone']);
 });

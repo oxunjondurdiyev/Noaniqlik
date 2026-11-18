@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Admin Panel — UncertaintyCalc</title>
+  <title data-i18n="adm_page_title">Admin panel — UncertaintyCalc</title>
   <link rel="stylesheet" href="src/css/theme.css" />
   <link rel="stylesheet" href="src/css/components.css" />
   <link rel="stylesheet" href="src/css/auth.css" />
@@ -23,19 +23,24 @@
         <rect width="56" height="56" rx="14" fill="var(--accent)"/>
         <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span>UncertaintyCalc · Admin Panel</span>
+      <span data-i18n="adm_brand">UncertaintyCalc · Admin panel</span>
     </a>
     <div style="display:flex;align-items:center;gap:.75rem">
       <div class="user-badge">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <div>
           <div class="user-badge-name" id="topbar-name">—</div>
-          <div class="user-badge-role">Admin</div>
+          <div class="user-badge-role" data-i18n="role_admin">Admin</div>
         </div>
       </div>
-      <a href="index.html" class="btn btn-sm btn-ghost">← Kalkulyator</a>
-      <button class="btn btn-sm btn-ghost" id="btn-logout">Chiqish</button>
-      <button class="icon-btn" id="btn-theme" title="Mavzu">
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="uz">UZ</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="btn btn-sm btn-ghost" data-i18n="c_to_calc">← Kalkulyator</a>
+      <button class="btn btn-sm btn-ghost" id="btn-logout" data-i18n="c_logout">Chiqish</button>
+      <button class="icon-btn" id="btn-theme" title="Mavzuni almashtirish" data-i18n-title="c_theme_toggle">
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
@@ -46,18 +51,18 @@
 
     <!-- STATISTIKA -->
     <div class="admin-stats" id="stats-row">
-      <div class="admin-stat"><span class="admin-stat-value">…</span><span class="admin-stat-label">Yuklanmoqda</span></div>
+      <div class="admin-stat"><span class="admin-stat-value">…</span><span class="admin-stat-label" data-i18n="c_loading">Yuklanmoqda…</span></div>
     </div>
 
     <!-- TASHKILOT MA'LUMOTLARI -->
     <div class="admin-card">
       <div class="admin-card-header">
-        <span class="admin-card-title">Tashkilot ma'lumotlari</span>
+        <span class="admin-card-title" data-i18n="adm_org_title">Tashkilot ma'lumotlari</span>
         <span class="text-muted text-sm" id="org-inn-badge"></span>
       </div>
       <div class="admin-card-body">
         <div class="org-info-grid" id="org-info-grid">
-          <div class="text-muted text-sm">Yuklanmoqda…</div>
+          <div class="text-muted text-sm" data-i18n="c_loading">Yuklanmoqda…</div>
         </div>
       </div>
     </div>
@@ -65,7 +70,7 @@
     <!-- OBUNA -->
     <div class="admin-card">
       <div class="admin-card-header">
-        <span class="admin-card-title">Obuna va tarif</span>
+        <span class="admin-card-title" data-i18n="adm_sub_title">Obuna va tarif</span>
         <span class="plan-badge" id="current-plan-badge">…</span>
       </div>
       <div class="admin-card-body">
@@ -74,30 +79,27 @@
         </div>
 
         <div style="margin-top:1.25rem">
-          <p class="text-muted text-sm" style="margin-bottom:.85rem">Tarifni o'zgartirish:</p>
+          <p class="text-muted text-sm" style="margin-bottom:.85rem" data-i18n="adm_change_plan">Tarifni o'zgartirish:</p>
           <div class="plan-upgrade-grid" id="plan-upgrade-grid"></div>
         </div>
 
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-light)">
-          <p class="text-muted text-sm" style="margin-bottom:.75rem">To'lov tizimi orqali obunani yangilash:</p>
+          <p class="text-muted text-sm" style="margin-bottom:.75rem" data-i18n="adm_pay_intro">To'lov tizimi orqali obunani yangilash:</p>
           <div class="payment-row">
             <button class="btn btn-click" id="btn-pay-click">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              Click orqali to'lash
+              <span data-i18n="adm_pay_click">Click orqali to'lash</span>
             </button>
             <button class="btn btn-payme" id="btn-pay-payme">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              Payme orqali to'lash
+              <span data-i18n="adm_pay_payme">Payme orqali to'lash</span>
             </button>
             <button class="btn btn-bank" id="btn-pay-bank">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><path d="M5 15h2M11 15h2"/></svg>
-              Bank o'tkazmasi (Hisob-faktura)
+              <span data-i18n="adm_pay_bank">Bank o'tkazmasi (Hisob-faktura)</span>
             </button>
           </div>
-          <p class="text-muted text-xs" style="margin-top:.6rem">
-            * Click/Payme uchun Merchant ID ni auth.js da sozlang. Bank to'lovida hisob-fakturani yuklab oling yoki chop eting.
-            Tarifni o'zgartirish so'rovi yuboriladi — tarif to'lovdan keyin super-admin tomonidan qo'llanadi.
-          </p>
+          <p class="text-muted text-xs" style="margin-top:.6rem" data-i18n="adm_pay_note">* Click/Payme uchun Merchant ID ni auth.js da sozlang. Bank to'lovida hisob-fakturani yuklab oling yoki chop eting. Tarifni o'zgartirish so'rovi yuboriladi — tarif to'lovdan keyin super-admin tomonidan qo'llanadi.</p>
         </div>
       </div>
     </div>
@@ -105,29 +107,29 @@
     <!-- XODIMLAR -->
     <div class="admin-card">
       <div class="admin-card-header">
-        <span class="admin-card-title">Xodimlar</span>
+        <span class="admin-card-title" data-i18n="adm_emp_title">Xodimlar</span>
         <span class="text-muted text-sm" id="emp-count-label"></span>
       </div>
 
       <!-- Xodim qo'shish -->
       <div class="add-emp-form">
         <div class="form-group">
-          <label>To'liq ism familya <span style="color:var(--danger)">*</span></label>
-          <input type="text" id="inp-emp-name" placeholder="Ahmad Karimov" autocomplete="off" />
+          <label><span data-i18n="adm_emp_name">To'liq ism familya</span> <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="inp-emp-name" placeholder="Ahmad Karimov" data-i18n-ph="adm_emp_name_ph" autocomplete="off" />
         </div>
         <div class="form-group">
-          <label>Telefon raqami <span style="color:var(--danger)">*</span></label>
+          <label><span data-i18n="adm_emp_phone">Telefon raqami</span> <span style="color:var(--danger)">*</span></label>
           <input type="tel" id="inp-emp-phone" placeholder="+998 90 123 45 67" autocomplete="off" />
         </div>
         <div class="form-group">
-          <label>Lavozim <span style="color:var(--danger)">*</span></label>
-          <input type="text" id="inp-emp-role" placeholder="Metrologiya mutaxassisi" autocomplete="off" />
+          <label><span data-i18n="adm_emp_role">Lavozim</span> <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="inp-emp-role" placeholder="Metrologiya mutaxassisi" data-i18n-ph="adm_emp_role_ph" autocomplete="off" />
         </div>
         <div class="form-group">
           <label>&nbsp;</label>
           <button class="btn btn-primary" id="btn-add-emp">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Qo'shish
+            <span data-i18n="adm_emp_add">+ Qo'shish</span>
           </button>
         </div>
       </div>
@@ -148,14 +150,14 @@
     <div class="invoice-modal-header">
       <div class="invoice-modal-title">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Hisob-faktura (Invoice)
+        <span data-i18n="c_invoice_modal">Hisob-faktura (Invoice)</span>
       </div>
       <div style="display:flex;gap:.5rem;align-items:center">
         <button class="btn btn-primary btn-sm" id="btn-invoice-print">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Chop etish / PDF
+          <span data-i18n="c_print_pdf">Chop etish / PDF</span>
         </button>
-        <button class="btn btn-ghost btn-sm" id="btn-invoice-close">✕ Yopish</button>
+        <button class="btn btn-ghost btn-sm" id="btn-invoice-close" data-i18n="c_close">✕ Yopish</button>
       </div>
     </div>
     <div id="invoice-content" class="invoice-content"></div>
@@ -166,14 +168,14 @@
 <div id="cred-modal" class="invoice-modal-overlay" style="display:none">
   <div class="invoice-modal" style="max-width:440px">
     <div class="invoice-modal-header">
-      <div class="invoice-modal-title" id="cred-title">Kirish ma'lumotlari</div>
-      <button class="btn btn-ghost btn-sm" id="btn-cred-close">✕ Yopish</button>
+      <div class="invoice-modal-title" id="cred-title" data-i18n="adm_cred_title">Kirish ma'lumotlari</div>
+      <button class="btn btn-ghost btn-sm" id="btn-cred-close" data-i18n="c_close">✕ Yopish</button>
     </div>
     <div style="padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.75rem">
-      <div class="cred-box"><span class="text-muted text-sm" style="min-width:4.5rem">Login</span><span id="cred-login" style="font-family:monospace"></span>
-        <button class="copy-btn" data-copy-from="cred-login" title="Nusxa"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
-      <div class="cred-box"><span class="text-muted text-sm" style="min-width:4.5rem">Parol</span><span id="cred-password" style="font-family:monospace"></span>
-        <button class="copy-btn" data-copy-from="cred-password" title="Nusxa"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+      <div class="cred-box"><span class="text-muted text-sm" style="min-width:4.5rem" data-i18n="c_login">Login</span><span id="cred-login" style="font-family:monospace"></span>
+        <button class="copy-btn" data-copy-from="cred-login" title="Nusxa olish" data-i18n-title="c_copy"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+      <div class="cred-box"><span class="text-muted text-sm" style="min-width:4.5rem" data-i18n="c_password">Parol</span><span id="cred-password" style="font-family:monospace"></span>
+        <button class="copy-btn" data-copy-from="cred-password" title="Nusxa olish" data-i18n-title="c_copy"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
       <p class="text-muted text-xs" id="cred-note"></p>
     </div>
   </div>
@@ -183,6 +185,9 @@
 <script src="vendor/firebase/9.23.0/firebase-app-compat.js"></script>
 <script src="vendor/firebase/9.23.0/firebase-auth-compat.js"></script>
 <script src="vendor/firebase/9.23.0/firebase-firestore-compat.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-admin.js"></script>
+<script src="src/ui/lang-switch.js"></script>
 <script src="src/ui/escape.js"></script>
 <script src="src/ui/toast.js"></script>
 <script src="src/js/firebase-config.js"></script>

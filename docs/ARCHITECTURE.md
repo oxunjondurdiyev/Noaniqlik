@@ -44,6 +44,21 @@
 
 ---
 
+> **Yangilanish — P05a (2026-11-18, `feat/p05a-linter`).** Linter, asoslangan qabul, hisobot belgilari, i18n (bog'liqlik yo'nalishi o'zgarmagan: `ui → report → engine`, `ui → storage`; `engine` va `storage` bir-biriga bog'liq emas):
+>
+> | Fayl | Vazifasi (P05a) |
+> |---|---|
+> | `src/engine/linter/index.js`, `util.js`, `rules/*.js` (19 qoida) | metrologik linter: `lint()` → `result.findings`; qabul qilishning sof qismi (`withAcceptances`, `reportStatus`) — `docs/LINTER_RULES.md` |
+> | `src/engine/conformity.js`, `evaluate.js` | model turi (`modelKind`, `deviation`) — R-07 |
+> | `src/report/findings.js` | "Tekshiruv natijalari" bloki, "RASMIY EMAS" belgisi, hisobot belgilari (sof, `esc` va `t` tashqaridan) |
+> | `src/storage/acceptance.js`, `migrate.js::upgradeCalcState` | qabul qilish → audit zanjiri; eski hisoblarga `modelKind: 'unknown'` |
+> | `src/ui/findings/app.js` | `window.UCFindings`: qabul qilish / bekor qilish tugmalari (hujjat darajasidagi tinglovchi), doiralar: `gum` (`appState.acceptances`, nuqtalar bilan), `regression` / `topdown` / `special` (`localStorage` `uc_findings_accept_v1` — shaxsiy ma'lumot yo'q) |
+> | `src/js/report.js` | barcha ekran va bosma bo'limlarda yagona topilmalar bloki (eski `data-*-warning` atributlari saqlangan); model turi tanlovi |
+> | `src/js/i18n-linter.js`, `src/js/i18n-admin.js`, `src/ui/lang-switch.js` | linter matnlari; admin / super-admin / auth va qolgan matnlar (R-13); admin sahifalarida til almashtirgich |
+> | `tests/tools/hardcoded-text.js` | HTML/JS dagi i18n'dan tashqari matn skaneri (`tests/i18n.test.js`) |
+>
+> Skript tartibi: `… i18n-special → i18n-linter → i18n-admin → state → … → app → findings/app → tpl/app → …`. `admin.html` va `superadmin.html` endi `i18n.js` + `i18n-admin.js` + `lang-switch.js` ni yuklaydi. §6 dagi "i18n'dan tashqaridagi qattiq matnlar" ro'yxati **yopildi** (qolgan istisnolar — `tests/i18n.test.js` dagi izohli ro'yxat: shablon diagnostika xabarlari inglizcha, "BETA" / "unverified" belgilari).
+>
 > **Yangilanish — P10 (2026-11-18, `feat/p10-micro-sampling-qualitative`).** Maxsus rejimlar (bog'liqlik o'zgarmagan):
 >
 > | Fayl | Vazifasi (P10) |

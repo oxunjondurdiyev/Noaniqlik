@@ -278,7 +278,10 @@ test('U — diapazon: U(X) = a + b·|X| barcha nuqtalarda U(X_j) ≥ U_j; "max" 
 test('evaluate(): uc-regression/1 → mode REGRESSION; uc-model/1 va calc-state/v2 natijalarida regressiya maydonlari yo\'q', () => {
   const r = E.evaluate(H3.modelSpec);
   assert.deepEqual([r.mode, r.format, r.engineVersion, r.method, r.m, r.nParam], ['REGRESSION', 'uc-regression/1', E.ENGINE_VERSION, 'OLS', 11, 2]);
-  assert.deepEqual(E.evaluateRegression(H3.modelSpec), r);
+  // P05a: evaluate() natijaga faqat `findings` ni qo'shadi (linter); qolgan maydonlar evaluateRegression() bilan aynan bir xil
+  const { findings, ...rest } = r;
+  assert.deepEqual(E.evaluateRegression(H3.modelSpec), rest);
+  assert.ok(Array.isArray(findings));
   const g = E.evaluate(require('../cases/excel/excel-density.json').modelSpec);
   assert.equal(g.mode, undefined);
   assert.equal(g.params, undefined);

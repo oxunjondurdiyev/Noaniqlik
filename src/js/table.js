@@ -271,15 +271,15 @@ const Table = (() => {
       const min = Math.min(...sample).toFixed(4);
       const max = Math.max(...sample).toFixed(4);
       const ex  = sample[0];
-      return `<span class="hint-param"><b>${escHtml(p)}</b>: ${escHtml(String(ex))} ${escHtml(preset.unit || '')} &nbsp;<span class="hint-range">(diapason: ${min} … ${max})</span></span>`;
+      return `<span class="hint-param"><b>${escHtml(p)}</b>: ${escHtml(String(ex))} ${escHtml(preset.unit || '')} &nbsp;<span class="hint-range">(${escHtml(i18n.tf('hint_range', { min, max }))})</span></span>`;
     }).filter(Boolean).join('');
 
     box.innerHTML = `
       <div class="table-hint">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.7"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
         <div>
-          <strong>${escHtml(preset.name)}</strong> — quyidagi turdagi qiymatlarni kiriting:
-          <div class="hint-params">${paramHints || `Namunani to'ldirish uchun "Namuna ma'lumotlarni to'ldirish" tugmasini bosing.`}</div>
+          <strong>${escHtml(window.PresetText.title(key))}</strong> ${escHtml(i18n.t('hint_enter_values'))}
+          <div class="hint-params">${paramHints || escHtml(i18n.t('hint_fill_sample'))}</div>
         </div>
       </div>`;
   }

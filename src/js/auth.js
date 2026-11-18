@@ -19,6 +19,12 @@ const AuthManager = (() => {
 
   const Core  = window.AuthCore;
   const PLANS = Core.PLANS;
+  // Foydalanuvchiga ko'rsatiladigan xabarlar — i18n (src/js/i18n-admin.js); chaqiruv paytida o'qiladi
+  const t = (key, vars) => {
+    const i = window.i18n;
+    if (!i) return key;   // i18n.js hali yuklanmagan (juda erta chaqiruv) — kalit
+    return vars ? i.tf(key, vars) : i.t(key);
+  };
 
   // Eski versiyalar yozgan imzosiz sessiya kalitlari — o'chiriladi (R-S4).
   const LEGACY_KEYS = ['uc_session', 'uc_sa_session'];
@@ -35,7 +41,7 @@ const AuthManager = (() => {
   try { LEGACY_KEYS.forEach(k => localStorage.removeItem(k)); } catch { /* storage yo'q */ }
 
   function auth() {
-    if (!window.firebaseAuth) throw new Error('Firebase Auth ulanmagan. firebase-config.js ni tekshiring.');
+    if (!window.firebaseAuth) throw new Error(t('auth_err_no_auth'));
     return window.firebaseAuth;
   }
 
@@ -51,24 +57,24 @@ const AuthManager = (() => {
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
       case 'auth/invalid-login-credentials':
-        return 'Login yoki parol noto\'g\'ri';
+        return t('auth_err_bad_credentials');
       case 'auth/user-disabled':
-        return 'Hisob bloklangan. Administrator bilan bog\'laning';
+        return t('auth_err_disabled');
       case 'auth/too-many-requests':
-        return 'Juda ko\'p urinish. Birozdan keyin qayta urinib ko\'ring';
+        return t('auth_err_too_many');
       case 'auth/email-already-in-use':
-        return 'Bu login band — boshqa login tanlang';
+        return t('auth_err_login_taken');
       case 'auth/weak-password':
-        return 'Parol juda oddiy (kamida 6 belgi)';
+        return t('auth_err_weak_pwd');
       case 'auth/network-request-failed':
-        return 'Tarmoq xatosi. Internet aloqasini tekshiring';
+        return t('auth_err_network');
       case 'auth/configuration-not-found':
       case 'auth/operation-not-allowed':
-        return 'Firebase Authentication (Email/Password) hali yoqilmagan — docs/SECURITY_SETUP.md';
+        return t('auth_err_not_enabled');
       case 'permission-denied':
-        return 'Ruxsat yo\'q (permission-denied)';
+        return t('auth_err_permission');
       default:
-        return (e && e.message) || 'Noma\'lum xato';
+        return (e && e.message) || t('auth_err_unknown');
     }
   }
 
@@ -81,7 +87,7 @@ const AuthManager = (() => {
       return { expired: true };
     }
     if (tok.claims.superadmin === true) {
-      return { role: 'superadmin', uid: user.uid, login: user.email, name: 'Super-admin' };
+      return { role: 'superadmin', uid: user.uid, login: user.email, name: t('role_superadmin') };
     }
 
     const org = await DB.get('organizations', user.uid).catch(() => undefined);
@@ -143,9 +149,9 @@ const AuthManager = (() => {
 
   /* ─── KIRISH ──────────────────────────────────────── */
   async function login(loginStr, password) {
-    if (!loginStr || !password) throw new Error('Login va parolni kiriting');
+    if (!loginStr || !password) throw new Error(t('auth_err_enter_both'));
     const lower = Core.normalizeLogin(loginStr);
-    if (!Core.isValidLogin(lower)) throw new Error('Login yoki parol noto\'g\'ri');
+    if (!Core.isValidLogin(lower)) throw new Error(t('auth_err_bad_credentials'));
 
     let cred;
     try {
@@ -158,14 +164,14 @@ const AuthManager = (() => {
     if (!s || s.role === 'superadmin' || s.expired) {
       await logout();
       throw new Error(s && s.role === 'superadmin'
-        ? 'Super-admin hisobi bilan superadmin.html sahifasidan kiring'
-        : 'Bu hisob o\'chirilgan yoki almashtirilgan. Admin bilan bog\'laning');
+        ? t('auth_err_use_sa_page')
+        : t('auth_err_account_gone'));
     }
     if (s.active === false) {
       await logout();
       throw new Error(s.role === 'admin'
-        ? 'Hisobingiz hali aktivlanmagan. To\'lovni amalga oshiring va admin bilan bog\'laning.'
-        : 'Hisobingiz faolsizlantirilgan. Admin bilan bog\'laning');
+        ? t('auth_err_org_inactive')
+        : t('auth_err_emp_inactive'));
     }
     await applyUser(cred.user);
     return { role: s.role };
@@ -174,11 +180,11 @@ const AuthManager = (() => {
   /* ─── SUPER-ADMIN KIRISHI ─────────────────────────── */
   // Super-admin hisobi konsolda yaratiladi va claim skript bilan beriladi.
   async function loginSuperadmin(loginOrEmail, password) {
-    if (!loginOrEmail || !password) throw new Error('Login va parolni kiriting');
+    if (!loginOrEmail || !password) throw new Error(t('auth_err_enter_both'));
     const v = String(loginOrEmail).trim();
     let email;
     try { email = v.includes('@') ? v : emailFor(v); }
-    catch { throw new Error('Login yoki parol noto\'g\'ri'); }
+    catch { throw new Error(t('auth_err_bad_credentials')); }
     let cred;
     try {
       cred = await auth().signInWithEmailAndPassword(email, password);
@@ -188,7 +194,7 @@ const AuthManager = (() => {
     const tok = await cred.user.getIdTokenResult(true);
     if (tok.claims.superadmin !== true) {
       await logout();
-      throw new Error('Bu hisobda super-admin huquqi yo\'q');
+      throw new Error(t('auth_err_not_superadmin'));
     }
     await applyUser(cred.user);
     return { role: 'superadmin' };
@@ -203,13 +209,13 @@ const AuthManager = (() => {
     login = Core.normalizeLogin(login);
 
     if (!inn || !phone || !firstName || !lastName || !login || !password) {
-      throw new Error('Barcha maydonlarni to\'ldiring');
+      throw new Error(t('auth_err_fill_all'));
     }
-    if (!/^\d{9}$/.test(inn)) throw new Error('INN 9 ta raqamdan iborat bo\'lishi kerak');
+    if (!/^\d{9}$/.test(inn)) throw new Error(t('auth_err_inn'));
     if (!Core.isValidLogin(login)) {
-      throw new Error('Login 3–32 belgi: kichik lotin harflari, raqamlar, "." "_" "-" (boshi va oxiri harf yoki raqam)');
+      throw new Error(t('auth_err_login_format'));
     }
-    if (password.length < 8) throw new Error('Parol kamida 8 belgidan iborat bo\'lishi kerak');
+    if (password.length < 8) throw new Error(t('auth_err_pwd_short'));
 
     const org = {
       inn, phone, firstName, lastName, login,
@@ -233,7 +239,7 @@ const AuthManager = (() => {
       } catch (e) {
         // Yarim yaratilgan hisob qolmasin
         try { await cred.user.delete(); } catch { /* egasi authCleanup orqali */ }
-        throw new Error('Tashkilotni saqlab bo\'lmadi: ' + friendlyAuthError(e));
+        throw new Error(t('auth_err_org_save', { msg: friendlyAuthError(e) }));
       }
       org.id = cred.user.uid;
     } finally {
@@ -266,7 +272,7 @@ const AuthManager = (() => {
           throw new Error(friendlyAuthError(e));
         }
       }
-      throw new Error('Bo\'sh login topilmadi');
+      throw new Error(t('auth_err_no_free_login'));
     } catch (e) {
       await app.delete().catch(() => {});
       throw e;
@@ -283,7 +289,7 @@ const AuthManager = (() => {
 
   function requireAdmin(orgId) {
     const s = _session;
-    if (!s || s.role !== 'admin' || s.orgId !== orgId) throw new Error('Faqat tashkilot admini uchun');
+    if (!s || s.role !== 'admin' || s.orgId !== orgId) throw new Error(t('auth_err_admin_only'));
     return s;
   }
 
@@ -298,14 +304,14 @@ const AuthManager = (() => {
   async function addEmployee(orgId, { name, role, phone }) {
     requireAdmin(orgId);
     const org = await DB.get('organizations', orgId);
-    if (!org) throw new Error('Tashkilot topilmadi');
-    if (org.active !== true) throw new Error('Tashkilot hali aktivlanmagan');
+    if (!org) throw new Error(t('auth_err_org_not_found'));
+    if (org.active !== true) throw new Error(t('auth_err_org_not_active'));
 
     const plan = PLANS[org.plan] || PLANS.basic;
     const allEmps = await getOrgEmployees(orgId);
     const activeCount = allEmps.filter(e => e.active).length;
     if (plan.maxUsers !== -1 && activeCount >= plan.maxUsers) {
-      throw new Error(`Tarif limiti: "${plan.name}" rejasida maksimal ${plan.maxUsers} ta xodim`);
+      throw new Error(t('auth_err_plan_limit', { plan: plan.name, n: plan.maxUsers }));
     }
 
     const parts = String(name).trim().split(/\s+/);
@@ -326,7 +332,7 @@ const AuthManager = (() => {
       await DB.set('employees', acc.uid, emp);
     } catch (e) {
       await finishIsolated(acc, { rollback: true });
-      throw new Error('Xodimni saqlab bo\'lmadi: ' + friendlyAuthError(e));
+      throw new Error(t('auth_err_emp_save', { msg: friendlyAuthError(e) }));
     }
     await finishIsolated(acc, { rollback: false });
     return { ...emp, id: acc.uid, password };
@@ -339,7 +345,7 @@ const AuthManager = (() => {
   async function resetEmployeePassword(orgId, empId) {
     requireAdmin(orgId);
     const old = await DB.get('employees', empId);
-    if (!old || old.orgId !== orgId) throw new Error('Xodim topilmadi');
+    if (!old || old.orgId !== orgId) throw new Error(t('auth_err_emp_not_found'));
 
     const password = Core.genPassword(12);
     const acc = await createAccountIsolated(old.login, password);
@@ -358,7 +364,7 @@ const AuthManager = (() => {
       ]);
     } catch (e) {
       await finishIsolated(acc, { rollback: true });
-      throw new Error('Parolni tiklab bo\'lmadi: ' + friendlyAuthError(e));
+      throw new Error(t('auth_err_reset_failed', { msg: friendlyAuthError(e) }));
     }
     await finishIsolated(acc, { rollback: false });
     return { ...emp, id: acc.uid, password, previousLogin: old.login };
@@ -376,7 +382,7 @@ const AuthManager = (() => {
   async function deleteEmployee(orgId, empId) {
     requireAdmin(orgId);
     const old = await DB.get('employees', empId);
-    if (!old || old.orgId !== orgId) throw new Error('Xodim topilmadi');
+    if (!old || old.orgId !== orgId) throw new Error(t('auth_err_emp_not_found'));
     await DB.batch([
       { op: 'delete', store: 'employees',   id: empId },
       { op: 'set',    store: 'authCleanup', id: empId,
@@ -388,7 +394,7 @@ const AuthManager = (() => {
   // Tarifni (plan, planExpiry) faqat super-admin o'zgartiradi — firestore.rules.
   async function requestPlan(orgId, plan) {
     requireAdmin(orgId);
-    if (!PLANS[plan]) throw new Error('Noma\'lum tarif');
+    if (!PLANS[plan]) throw new Error(t('auth_err_unknown_plan'));
     await DB.update('organizations', orgId, { requestedPlan: plan });
   }
 

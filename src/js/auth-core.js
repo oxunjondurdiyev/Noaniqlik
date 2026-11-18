@@ -14,10 +14,16 @@
   'use strict';
 
   /* ─── OBUNA REJALARI ──────────────────────────────── */
+  // Tarif nomi — i18n (plan_basic / plan_standard / plan_pro, src/js/i18n-admin.js); har o'qilganda joriy tilda.
+  // i18n yuklanmagan muhitda (Node testlari) — tarif kaliti. Bazaga faqat kalit yoziladi (`plan: 'basic'`).
+  function planName(key) {
+    const i = root && root.i18n;
+    return i ? i.t('plan_' + key) : key;
+  }
   const PLANS = {
-    basic:    { name: "Boshlang'ich", maxUsers: 5,  priceMonthly: 99000  },
-    standard: { name: 'Standart',      maxUsers: 20, priceMonthly: 299000 },
-    pro:      { name: 'Pro',           maxUsers: -1, priceMonthly: 599000 },
+    basic:    { get name() { return planName('basic'); },    maxUsers: 5,  priceMonthly: 99000  },
+    standard: { get name() { return planName('standard'); }, maxUsers: 20, priceMonthly: 299000 },
+    pro:      { get name() { return planName('pro'); },      maxUsers: -1, priceMonthly: 599000 },
   };
 
   /* ─── LOGIN ───────────────────────────────────────── */

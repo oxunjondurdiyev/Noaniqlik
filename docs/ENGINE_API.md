@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.3.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.4.0
 
-> Holat: P10, 2026-11-18 (2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P05a, 2026-11-18 (2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -49,6 +49,7 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `qualitative/index.js` | `evaluateQualitative` — 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson (P10), §9.2 | EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 |
 | `micro/index.js` | `evaluateMicro` — log₁₀ sanoq: texnik, matritsa, Puasson (P10, **BETA**), §9.3 | ISO 19036 (repoda yo'q — unverified) |
 | `medical/index.js` | `evaluateMedical` — IQC darajalari: u = √(u_cal² + u_Rw²) (P10, **BETA**), §9.4 | ISO/TS 20914 (repoda yo'q — unverified) |
+| `linter/index.js`, `linter/rules/*.js` | `lint(spec, result, ctx)` — metrologik linter: X1–X12, A1–A4, M1, W1, W2 (P05a), §10 | [LINTER_RULES.md](LINTER_RULES.md) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
 Bog'liqlik: `engine` hech narsaga bog'liq emas. `report → engine` (faqat natija maydonlari), `ui → report, engine`.
@@ -99,6 +100,8 @@ REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `ev
  * @property {boolean} [paired=true]      // juftlangan qatorlardan korrelyatsiya (GUM 5.2.3)
  * @property {boolean} [secondOrder=false]// 5.1.2 Note dagi 2-tartibli hadlarni u_c ga qo'shish
  * @property {number} [nonlinThreshold=0.01] // nochiziqlilik indeksi chegarasi (ogohlantirish)
+ * @property {'error'|'value'|'unknown'} [modelKind='unknown']  // model natijasi: xato E = X − X_ref | qiymat Y (nominal bilan) — §10
+ * @property {number|string} [nominal]    // modelKind = 'value' uchun nominal
  * @property {string|number} [mpe]        // MPE (son yoki ifoda) — muvofiqlik; byudjetga KIRMAYDI
  * @property {number} [range]             // keltirilgan xato uchun diapazon
  * @property {number} [cmc]               // U < CMC → ogohlantirish
@@ -128,10 +131,13 @@ REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `ev
  * @property {BudgetRow[]} budget         // kind: 'A' | 'B' | 'corr' | 'second'; contrib, share (%)
  * @property {SecondOrder|null} secondOrder
  * @property {{checked:boolean, output:string|null}} units   // o'lchamlik tahlili (output — masalan 'L^-3·M')
- * @property {{code:string, param?:string, value?:any}[]} warnings
+ * @property {Finding[]} findings         // P05a: linter topilmalari (§10)
+ * @property {'error'|'value'|'unknown'} modelKind, {number|null} nominal, {number|null} deviation   // og'ish: E yoki Y − Y_nom; ko'rsatilmagan — null
+ * @property {{code:string, param?:string, value?:any}[]} warnings   // DEPRECATED (2.4.0): findings dan foydalaning; bir versiya davomida qoladi
  * @property {{code:string}[]} notes      // ma'lumot (masalan units_unchecked)
- * @property {Object|null} conf           // { mpe, ratio, simple, guarded } — oddiy/himoyalangan qabul
- * @property {number|null} gamma          // keltirilgan xato, %
+ * @property {Object|null} conf           // { mpe, ratio, simple, guarded, pending? } — oddiy/himoyalangan qabul; model turi (yoki nominal)
+ *                                        //   ko'rsatilmagan bo'lsa simple = guarded = 'na', pending = 'model_kind' | 'nominal'
+ * @property {number|null} gamma          // keltirilgan xato, % (= |deviation| / range · 100; deviation yo'q bo'lsa null)
  * @property {Object|null} verify         // GUM H.2, 2-yondashuv: u_A to'g'ridan-to'g'ri va formula bo'yicha
  * @property {boolean} roundUp            // hisobot qatlami uchun: settings.rounding === 'up'
  * @property {string} symbol, formulaText, unit, kMethod, nuRule
@@ -410,3 +416,45 @@ Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi
 `{ unit, levels:[{id?, values[] | (mean, cv | sd, n?), uCal?, uBias?}], uCal?:{value, relative:true | unit}, uBias?, measurement?:{value}, settings?:{k=2} }` → `{ mode:'MEDICAL', unverified:true, levels:[{id, mean, n, sd, cv, uRw, uCal, uBias, u:{abs, rel}, U:{abs, rel}, budget[]}], y, appliedLevel, absU, relU }`. Nisbiy ↔ mutlaq o'tkazish har bir darajaning o'z o'rtachasi orqali; kattalikda `unit` yoki `relative: true` bo'lmasa — `medical_need_scale`, aralash — `medical_mixed_scale`. Har doim `medical_unverified` (warning); `medical_no_calibrator`, `medical_few_iqc`, `zero_u`.
 
 Testlar: `tests/cases/ufs/*.json` (4), `tests/cases/aqa/*.json` (4) — verified; `tests/engine/special-modes.test.js`, `tests/ui/special.test.js`.
+
+## 10. Linter: `result.findings` va model turi (P05a)
+
+`evaluate(spec)` har bir muvaffaqiyatli natijaga `findings` ni qo'shadi (`lint(spec, result)`); rejim funksiyalari (`evaluateRegression`, `evaluateTopDown`, …) to'g'ridan-to'g'ri chaqirilsa `findings` bo'lmaydi — `lint()` ni alohida chaqiring. Linter natijaning boshqa maydonlarini o'zgartirmaydi. Qoidalar, manbalar va loyiha qarorlari — [LINTER_RULES.md](LINTER_RULES.md).
+
+```js
+/**
+ * @typedef {Object} Finding
+ * @property {string} id          // barqaror kalit: '<qoida>/<kod>[:<kirish>/<manba>]' — qabul qilish shu bo'yicha
+ * @property {string} rule        // 'X1' … 'X12', 'A1' … 'A4', 'M1', 'W1' (GUM ogohlantirishlari), 'W2' (modul ogohlantirishlari)
+ * @property {string} code        // matn kaliti: w_<code>, why_<code>, fix_<code>
+ * @property {'error'|'warning'|'info'} severity
+ * @property {string} ref         // manba bandi; repoda yo'q hujjat — "(unverified)"
+ * @property {'GUM'|'REGRESSION'|'TOP_DOWN'|'SAMPLING'|'QUALITATIVE'|'MICRO'|'MEDICAL'} mode
+ * @property {string} [param], [source], [value]   // kirish, manba nomi, raqam (matndagi {p}, {s}, {v})
+ * @property {boolean} [unverified]                // hech bir manbasi repoda yo'q
+ */
+lint(spec, result, ctx?)            // → Finding[] (error, warning, info tartibida); ctx.reported = {y, U} — X9
+lintReported({ y, U }, mode?)       // hisobot qatlami: chop etiladigan satrlar (X9)
+withAcceptances(findings, acc)      // har biriga accepted: null | {comment, role, at}
+reportStatus(findings, acc)         // { official, openErrors[], mustFlag, critical[], counts }
+validateAcceptance(comment)         // { ok, comment } | { ok: false, error: 'accept_comment_short' }  (MIN_ACCEPT_COMMENT = 10)
+LINTER_RULES, FINDING_CODES, LINTER_MODES, LINTER_THRESHOLDS, SEVERITIES
+```
+
+**`warnings[]` — deprecated.** GUM, regressiya, top-down va maxsus rejimlarning `warnings[]` maydoni 2.4.0 da o'zgarmagan holda qoladi (moslik); yangi kod `findings` dan foydalanadi. Kodlar bir xil; farqlar: `zero_u` va `below_cmc` topilma sifatida **error**; `zero_s` → rezolyutsiya manbasi bo'lmasa `x8_zero_s_no_resolution`; `n_small` (info) / `n_lt3` (warning).
+
+**Model turi (RISKS R-07).** `settings.modelKind`:
+
+| Qiymat | Ma'nosi | Muvofiqlik (MPE bilan) | `deviation` |
+|---|---|---|---|
+| `'error'` | ko'rsatish xatosi E = X − X_ref | \|E\| ≤ MPE | y |
+| `'value'` | kattalik qiymati Y, nominal bilan (`settings.nominal`) | \|Y − nominal\| ≤ MPE | y − nominal (nominal yo'q — null) |
+| `'unknown'` (yoki berilmagan) | ko'rsatilmagan (eski hisoblar) | **berilmaydi**: `conf.simple = conf.guarded = 'na'`, `conf.pending = 'model_kind'`; topilma `model_kind_unknown` | null |
+
+`gamma` ham `deviation` dan. `multiPointCoverage(results, uniformK)` har bir natijaning `deviation` maydonidan foydalanadi; maydon yo'q (ENGINE ≤ 2.3.0 da saqlangan natija) yoki `conf.pending` bo'lsa — hukm bermaydi. y, u_c, ν_eff, k, U model turiga bog'liq emas.
+
+**Saqlash qatlami** (`src/storage/`): `acceptFinding(store, {scope, calcId, finding, comment, role})`, `revokeAcceptance`, `acceptancesFromAudit(entries, scope, calcId)` — audit zanjiri; `upgradeCalcState(state)` — eski hisoblarga `modelKind: 'unknown'`; `LAB_DEFAULTS.criticalMode: 'mark' | 'block'`.
+
+**Hisobot qatlami** (`src/report/findings.js`, sof): `findingsBlockHTML(findings, {t, esc, acceptances, print, canAccept, scope})`, `findingsStatus`, `watermarkHTML`, `criticalMarkHTML`, `reportMarks(result, {t, mc})` (ν qoidasi, MC seed va M, BETA / unverified, dvigatel versiyasi), `modelKindText`.
+
+Testlar: `tests/engine/linter.test.js`, `tests/engine/linter-fixtures.test.js`, `tests/storage/acceptance.test.js`, `tests/ui/findings.test.js`.

@@ -10,6 +10,8 @@ const Results = (() => {
 
   function init() {
     document.getElementById('btn-print').addEventListener('click', printReport);
+    document.addEventListener('findingschange', e => { if (!e.detail || e.detail.scope === 'gum') render(); });
+    if (window.UCFindings) window.UCFindings.register('gum', () => { const r = current(); return r ? findingsOf(r, appState.get()) : []; });
     appState.subscribe((changes) => {
       if (!changes || changes.combined !== undefined || changes.points !== undefined ||
           changes.summary !== undefined || changes.currentPoint !== undefined) {
@@ -55,11 +57,75 @@ const Results = (() => {
     return `<span class="badge ${cls}">${txt}</span>`;
   }
 
-  function warningsHtml(r) {
-    const notes = (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('');
-    if (!r.warnings || !r.warnings.length) return notes;
-    return `<div class="warn-box">${r.warnings.map(w =>
-      `<div>⚠ ${i18n.t('w_' + w.code).replace('{p}', escHtml(w.param || '')).replace('{v}', escHtml(w.value ?? ''))}</div>`).join('')}</div>${notes}`;
+  function notesHtml(r) {
+    return (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('');
+  }
+
+  /* ─── P05a: linter topilmalari ("Tekshiruv natijalari") ──────────────
+     Topilmalar dvigatel natijasida (result.findings). Eski versiyada saqlangan natijada bu maydon yo'q —
+     u holda saqlangan kirish (spec) bo'yicha linter qayta ishga tushiriladi (hisob o'zgarmaydi).
+     Blok ekranda ham, bosma hisobotda ham chiqadi; uni yashiradigan parametr yo'q (RISKS R-05).
+     Matn va HTML — src/report/findings.js (sof modul, escHtml bilan). */
+  const fctx = () => ({ t: k => i18n.t(k), esc: escHtml });
+  function findingsOf(r, spec) {
+    if (!r || r.error) return [];
+    let list = Array.isArray(r.findings) ? r.findings : (spec ? Calc.lint(spec, r) : Calc.lint({}, r));
+    // X9 — hisobot qatlamining o'z-o'zini tekshiruvi: chop etiladigan yaxlitlangan satrlar
+    if (!r.mode && isFinite(r.y) && isFinite(r.U)) {
+      const rr = rounded(r);
+      list = list.concat(Calc.lintReported({ y: rr.yround.toFixed(rr.digits), U: rr.Uround.toFixed(rr.digits) }, 'GUM'));
+    }
+    return list;
+  }
+  function acceptancesOf(scope) { return window.UCFindings ? window.UCFindings.acceptances(scope) : {}; }
+  /** @param {{scope?:string, print?:boolean, acceptances?:object, spec?:object, legacy?:string, legacyOn?:string, showEmpty?:boolean}} o */
+  function findingsHtml(r, o) {
+    const opt = o || {};
+    const scope = opt.scope || 'gum';
+    return Calc.findingsBlockHTML(findingsOf(r, opt.spec), { ...fctx(), scope, print: !!opt.print,
+      acceptances: opt.acceptances || acceptancesOf(scope), canAccept: !opt.print && !!window.UCFindings && !opt.readOnly,
+      legacy: opt.legacy, legacyOn: opt.legacyOn, showEmpty: !!opt.showEmpty });
+  }
+  function statusOf(r, o) {
+    const opt = o || {};
+    return Calc.findingsStatus(findingsOf(r, opt.spec), opt.acceptances || acceptancesOf(opt.scope || 'gum'));
+  }
+  /** Hisobotdagi majburiy belgilar: ν qoidasi, MC seed va M, BETA / unverified, dvigatel versiyasi */
+  function marksHtml(r, o) {
+    const marks = Calc.reportMarks(r, { t: k => i18n.t(k), mc: (o && o.mc) || null });
+    if (!marks.length) return '';
+    return `<div class="report-marks" data-report-marks="1">${marks.map(m => `<div class="report-mark" data-report-mark="${escHtml(m.key)}">${escHtml(m.text)}</div>`).join('')}</div>`;
+  }
+  /** "RASMIY EMAS" suv belgisi + U = 0 / U < CMC belgisi (bosma hisobot boshida) */
+  function officialMarksHtml(statuses) {
+    const merged = { official: statuses.every(x => x.official), critical: [...new Set(statuses.flatMap(x => x.critical))] };
+    merged.mustFlag = merged.critical.length > 0;
+    return Calc.watermarkHTML(merged, fctx()) + Calc.criticalMarkHTML(merged, fctx());
+  }
+  /** Laboratoriya sozlamasi bo'yicha bloklash: criticalMode = 'block' (U = 0, U < CMC) yoki cmcMode = 'block' (U < CMC) */
+  function blockedBy(statuses) {
+    const lab = window.UCTemplates ? window.UCTemplates.labSettings() : null;
+    if (!lab) return null;
+    const crit = new Set(statuses.flatMap(x => x.critical));
+    if (lab.criticalMode === 'block' && crit.size) return crit.has('zero_u') ? 'zero_u' : 'below_cmc';
+    if (lab.cmcMode === 'block' && crit.has('below_cmc')) return 'below_cmc';
+    return null;
+  }
+
+  /* Model turi (RISKS R-07): hisobotda har doim ko'rsatiladi; ko'rsatilmagan bo'lsa muvofiqlik bayonoti berilmaydi */
+  function modelKindLine(r) { return escHtml(Calc.modelKindText(r, k => i18n.t(k)).text); }
+  function modelKindChooser() {
+    const cur = (appState.get('settings') || {}).modelKind || 'unknown';
+    const nominal = (appState.get('settings') || {}).nominal;
+    return `<div class="model-kind-chooser" data-model-kind-chooser="1">
+      <label>${escHtml(i18n.t('mk_choose'))}
+        <select data-model-kind="1">
+          ${['unknown', 'error', 'value'].map(k => `<option value="${k}" ${cur === k ? 'selected' : ''}>${escHtml(i18n.t('mk_' + k))}</option>`).join('')}
+        </select></label>
+      <label ${cur === 'value' ? '' : 'hidden'} data-model-nominal-box="1">${escHtml(i18n.t('mk_nominal'))}
+        <input type="text" inputmode="decimal" class="mono" data-model-nominal="1" value="${escHtml(String(nominal ?? ''))}" autocomplete="off" /></label>
+      <button type="button" class="btn btn-primary btn-sm" data-model-kind-apply="1">${escHtml(i18n.t('mk_apply'))}</button>
+    </div>`;
   }
 
   /* k qaysi ν bilan va qaysi qoida bo'yicha olingani (GUM G.4.1 Note 1; CLAUDE.md: qoida hisobotda yoziladi) */
@@ -116,7 +182,7 @@ const Results = (() => {
                 <td class="cell-num mono">${nuText(x.r.nuEff)}</td>
                 ${anyGamma ? `<td class="cell-num mono">${x.r.gamma !== null && x.r.gamma !== undefined ? x.r.gamma.toFixed(3) : '—'}</td>` : ''}
                 ${anyConf ? `<td class="cell-num mono">${x.conf && x.conf.mpe > 0 ? Calc.fmtSci(x.conf.mpe, 3) : '—'}</td>
-                  <td>${x.conf ? confLabel(x.conf.guarded, true) : '—'}</td>` : ''}
+                  <td>${x.conf ? (x.conf.pending ? `<span class="badge badge-orange" data-conf-pending="1">${escHtml(i18n.t('mk_pending_short'))}</span>` : confLabel(x.conf.guarded, true)) : '—'}</td>` : ''}
                 <td style="white-space:nowrap">
                   <button class="btn btn-ghost btn-sm" data-pt-load="${x.id}">${i18n.t('pt_open')}</button>
                   <button class="btn btn-ghost btn-sm" data-pt-del="${x.id}" title="${escHtml(i18n.t('pt_delete'))}">✕</button>
@@ -176,7 +242,9 @@ const Results = (() => {
         <div class="text-xs text-muted" style="margin-top:.45rem">${ilacNote(r)}</div>
       </div>
       ${templateNotice()}
-      ${warningsHtml(r)}
+      ${findingsHtml(r, { scope: 'gum', spec: appState.get(), showEmpty: true })}
+      ${notesHtml(r)}
+      ${marksHtml(r, { mc: lastMC && !lastMC.error ? lastMC : null })}
       ${renderKPIs(r)}
       ${renderConformity(r)}
       ${renderInputs(r)}
@@ -187,6 +255,7 @@ const Results = (() => {
       ${renderMC(r)}
     `;
     bindPoints(el);
+    bindModelKind(el);
     const mcBtn = el.querySelector('#btn-mc');
     if (mcBtn) mcBtn.addEventListener('click', () => {
       mcBtn.disabled = true;
@@ -201,18 +270,32 @@ const Results = (() => {
     });
   }
 
-  function confLines(r) {
-    const c = r.conf, s = escHtml(r.symbol);
+  /* Muvofiqlik (RISKS R-07, P05a): |y| xato deb FARAZ QILINMAYDI. Og'ish model turiga ko'ra:
+     'error' — E (natijaning o'zi), 'value' — Y − Y_nom. Model turi ko'rsatilmagan (yoki eski saqlangan natija —
+     modelKind maydoni yo'q) bo'lsa bayonot berilmaydi va foydalanuvchidan tanlov so'raladi. */
+  function confKind(r) { return ['error', 'value'].includes(r.modelKind) ? r.modelKind : 'unknown'; }
+  function confPending(r) { return !!r.conf && (r.conf.pending || confKind(r) === 'unknown' || r.deviation === null || r.deviation === undefined); }
+  function confLines(r, conf) {
+    const c = conf || r.conf, s = escHtml(r.symbol);
     const lines = [];
-    if (c && c.mpe > 0) {
+    if (!c) return lines;
+    lines.push(`<span data-model-kind-line="${confKind(r)}">${modelKindLine(r)}</span>`);
+    if (confPending(r)) {
+      if (c.mpe > 0) lines.push(`MPE = ±${Calc.fmtSci(c.mpe, 4)}${unitOf(r)};   U / MPE = ${(c.ratio !== null && c.ratio !== undefined ? c.ratio : r.U / c.mpe).toFixed(3)}`);
+      lines.push(`<span data-conf-pending="${escHtml((c.pending) || 'model_kind')}">⚠ ${escHtml(i18n.t(c.pending === 'nominal' ? 'mk_pending_nominal' : 'mk_pending'))}</span>`);
+      return lines;
+    }
+    // og'ish belgisi: |E| yoki |Y − Y_nom|
+    const dev = confKind(r) === 'value' ? `|${s} − ${escHtml(String(r.nominal))}|` : `|${s}|`;
+    if (c.mpe > 0) {
       lines.push(`MPE = ±${Calc.fmtSci(c.mpe, 4)}${unitOf(r)};   U / MPE = ${c.ratio.toFixed(3)}`);
-      lines.push(`${i18n.t('conf_simple')}: |${s}| ≤ MPE  →  ${confLabel(c.simple, false)}`);
-      lines.push(`${i18n.t('conf_guarded')}: |${s}| + U ≤ MPE  →  ${confLabel(c.guarded, true)}`);
+      lines.push(`${i18n.t('conf_simple')}: ${dev} ≤ MPE  →  ${confLabel(c.simple, false)}`);
+      lines.push(`${i18n.t('conf_guarded')}: ${dev} + U ≤ MPE  →  ${confLabel(c.guarded, true)}`);
       if (c.ratio > 1) lines.push(`⚠ ${i18n.t('w_u_gt_mpe')}`);
-    } else if (c) {
+    } else {
       lines.push(i18n.t('conf_zero_mpe'));
     }
-    if (r.gamma !== null && r.gamma !== undefined) lines.push(`${i18n.t('conf_gamma')}: γ = |${s}| / ${i18n.t('set_range').toLowerCase()} · 100 = ${r.gamma.toFixed(3)} %`);
+    if (r.gamma !== null && r.gamma !== undefined) lines.push(`${i18n.t('conf_gamma')}: γ = ${dev} / ${i18n.t('set_range').toLowerCase()} · 100 = ${r.gamma.toFixed(3)} %`);
     return lines;
   }
 
@@ -221,7 +304,22 @@ const Results = (() => {
     if (!lines.length) return '';
     return `
       <div class="section-title">${i18n.t('conf_title')}</div>
-      ${lines.map(l => `<div class="formula-box">${l}</div>`).join('')}`;
+      ${lines.map(l => `<div class="formula-box">${l}</div>`).join('')}
+      ${confPending(r) ? modelKindChooser() : ''}`;
+  }
+
+  /* Model turini natijalar sahifasidan tanlash (eski saqlangan hisoblar uchun so'raladi) → sozlamaga yoziladi va qayta hisoblanadi */
+  function bindModelKind(el) {
+    const box = el.querySelector('[data-model-kind-chooser]');
+    if (!box) return;
+    const sel = box.querySelector('[data-model-kind]'), nomBox = box.querySelector('[data-model-nominal-box]');
+    sel.addEventListener('change', () => { nomBox.hidden = sel.value !== 'value'; });
+    box.querySelector('[data-model-kind-apply]').addEventListener('click', () => {
+      const settings = { ...(appState.get('settings') || {}), modelKind: sel.value };
+      if (sel.value === 'value') settings.nominal = box.querySelector('[data-model-nominal]').value.trim().replace(',', '.');
+      appState.set({ settings, combined: null });
+      if (window.TypeB && window.TypeB.calculate) window.TypeB.calculate();
+    });
   }
 
   function mcLines(r, mc) {
@@ -306,6 +404,7 @@ const Results = (() => {
     return `
       <div class="section-title">${i18n.t('sec_inputs')}</div>
       <div class="formula-box">${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</div>
+      <div class="text-xs text-muted" data-model-kind-info="${confKind(r)}">${modelKindLine(r)}</div>
       <div class="budget-table-wrap">${inputsTable(r, 'data-table math-head')}</div>`;
   }
 
@@ -468,13 +567,17 @@ const Results = (() => {
       </table>`;
   }
 
-  function pointDetail(r, snap, title, rr, k) {
+  /** @param {{acceptances?:object, conf?:object, mc?:object}} [extra]  nuqtaga tegishli qabul qilishlar; yagona k bilan qayta hisoblangan muvofiqlik */
+  function pointDetail(r, snap, title, rr, k, extra) {
     const p9 = l => `<p style="font-size:9pt;margin:.25em 0">${l}</p>`;
-    const conf = confLines(r);
+    const ex = extra || {};
+    const conf = confLines(r, ex.conf);
     return `
       ${title ? `<div class="print-point-title">${escHtml(title)}</div>` : ''}
+      ${findingsHtml(r, { scope: 'gum', print: true, spec: snap, acceptances: ex.acceptances, showEmpty: true })}
       <div class="print-section">${i18n.t('model_title')}</div>
       <p style="font-size:10pt;margin:.4em 0 .6em"><strong>${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</strong></p>
+      ${p9(`<span data-model-kind-info="${confKind(r)}">${modelKindLine(r)}</span>`)}
 
       <div class="print-section">${i18n.t('data_title')}</div>
       ${dataTable(snap)}
@@ -498,7 +601,9 @@ const Results = (() => {
 
       <div class="print-section">${i18n.t('res_statement')}</div>
       <p style="font-size:11pt;margin:.5em 0"><strong>${statement(r, rr, k)}</strong></p>
-      ${p9(ilacNote(r))}`;
+      ${p9(ilacNote(r))}
+      ${ex.mc ? `<div class="print-section">${i18n.t('mc_title')}</div>${mcLines(r, ex.mc).map(p9).join('')}` : ''}
+      ${marksHtml(r, { mc: ex.mc })}`;
   }
 
   function summaryTable(rows) {
@@ -518,7 +623,7 @@ const Results = (() => {
             <td class="num">${x.k.toFixed(2)}</td>
             <td class="num">${nuText(x.r.nuEff)}</td>
             ${anyConf ? `<td class="num">${x.conf && x.conf.mpe > 0 ? Calc.fmtSci(x.conf.mpe, 3) : '—'}</td>
-              <td>${x.conf ? i18n.t(CONF_KEYS[x.conf.guarded]) : '—'}</td>` : ''}
+              <td>${x.conf ? (x.conf.pending ? escHtml(i18n.t('mk_pending_short')) : i18n.t(CONF_KEYS[x.conf.guarded])) : '—'}</td>` : ''}
           </tr>`).join('')}
         </tbody>
       </table>`;
@@ -546,11 +651,14 @@ const Results = (() => {
       showToast(i18n.t('results_empty'), 'error');
       return;
     }
-    // P04: laboratoriya sozlamasi cmcMode = 'block' — U < CMC bo'lsa hisobot chiqmaydi (CLAUDE.md)
-    const lab = window.UCTemplates ? window.UCTemplates.labSettings() : null;
-    const below = [r, ...pts.map(p => p.result)].some(x => x && (x.warnings || []).some(w => w.code === 'below_cmc'));
-    if (lab && lab.cmcMode === 'block' && below) {
-      showToast(i18n.t('cmc_blocked'), 'error', 5000);
+    // P05a (RISKS R-05): U = 0, u_c = 0, U < CMC — hisobot yo bloklanadi (laboratoriya sozlamasi criticalMode / cmcMode
+    // = 'block'), yo aniq belgi bilan chiqadi (standart). Qabul qilinmagan `error` bo'lsa — "RASMIY EMAS" suv belgisi.
+    const statuses = pts.length
+      ? pts.map(p => statusOf(p.result, { spec: p.snapshot, acceptances: p.acceptances || {} }))
+      : [statusOf(r, { spec: state })];
+    const block = blockedBy(statuses);
+    if (block) {
+      showToast(i18n.t(block === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000);
       return;
     }
 
@@ -566,10 +674,10 @@ const Results = (() => {
         ${summaryTable(rows)}
         ${uniformK ? `<p style="font-size:9pt">${i18n.t('pt_uniform_k')}</p>` : ''}
         <p style="font-size:9pt">${ilacNote(rows[0].r)}</p>
-        ${rows.map(x => `<div class="print-page-break"></div>` +
-          pointDetail(x.r, pts.find(p => p.id === x.id).snapshot, x.label, x.rr, x.k)).join('')}`;
+        ${rows.map(x => { const pt = pts.find(p => p.id === x.id); return `<div class="print-page-break"></div>` +
+          pointDetail(x.r, pt.snapshot, x.label, x.rr, x.k, { acceptances: pt.acceptances || {}, conf: x.conf }); }).join('')}`;
     } else {
-      body = pointDetail(r, Points.snapshot(state), '', null, undefined);
+      body = pointDetail(r, Points.snapshot(state), '', null, undefined, { mc: lastMC && !lastMC.error ? lastMC : null });
     }
 
     printEl.innerHTML = `
@@ -584,6 +692,7 @@ const Results = (() => {
           <div>${i18n.t('report_operator')}: ____________________</div>
         </div>
       </div>
+      ${officialMarksHtml(statuses)}
       ${templateNotice()}
       ${body}
       ${regressionAppendix()}
@@ -623,11 +732,8 @@ const Results = (() => {
       return (j === 0 ? v : (p.value < 0 ? '− ' + v.replace(/^-/, '') : '+ ' + v)) + names[j];
     }).join(' ');
   }
-  function rgWarnings(r) {
-    if (!r.warnings || !r.warnings.length) return '';
-    const sev = r.warnings.filter(w => w.severity !== 'info'), info = r.warnings.filter(w => w.severity === 'info');
-    return (sev.length ? `<div class="warn-box rg-warnings" data-rg-warnings="1">${sev.map(w => `<div data-rg-warning="${escHtml(w.code)}">⚠ ${rgWarnText(w)}</div>`).join('')}</div>` : '') +
-      info.map(w => `<div class="text-xs text-muted rg-note" data-rg-warning="${escHtml(w.code)}">ⓘ ${rgWarnText(w)}</div>`).join('');
+  function rgWarnings(r, opt) {   // P05a: yagona "Tekshiruv natijalari" bloki (eski data-rg-warning atributlari saqlangan)
+    return findingsHtml(r, { scope: 'regression', print: !!(opt && opt.print), legacy: 'rg', legacyOn: 'what' });
   }
   function rgChi2(r) {
     const c = r.chi2;
@@ -706,7 +812,7 @@ const Results = (() => {
     const anyPred = (r.inverse && r.inverse.length) || (r.predictions && r.predictions.length);
     return `<div class="rg-report" data-rg-report="1">
       <div class="${opt.print ? 'print-section' : 'rg-section-title'}">${i18n.t('rg_report_section')}</div>
-      ${rgWarnings(r)}
+      ${rgWarnings(r, opt)}
       <p class="rg-line"><strong>${i18n.t('rg_method')}:</strong> <span data-rg-method="${escHtml(r.method)}">${i18n.t('rg_m_' + r.method)}</span>;
         <strong>${i18n.t('rg_degree')}:</strong> ${i18n.t('rg_deg_' + r.degree)}${r.xRef ? `; x₀ = ${escHtml(String(r.xRef))}${rgUnit(r.units.x)}` : ''}</p>
       <p class="rg-line">${i18n.t('rg_points_n')} = ${r.m}; ${i18n.t('rg_nu')} = ${r.nu}; ${sLine}${r.wtls ? `; ${i18n.t('rg_wtls_iter')}: ${r.wtls.iterations}` : ''}</p>
@@ -734,6 +840,8 @@ const Results = (() => {
   function printRegression(r, o) {
     const opt = o || {};
     if (!r || r.error) { showToast(i18n.t('rg_empty'), 'error'); return; }
+    const blk = blockedBy([statusOf(r, { scope: 'regression' })]);
+    if (blk) { showToast(i18n.t(blk === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000); return; }
     const now = new Date().toLocaleDateString();
     const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
     document.getElementById('print-report').innerHTML = `
@@ -748,8 +856,10 @@ const Results = (() => {
           <div>${i18n.t('report_operator')}: ____________________</div>
         </div>
       </div>
+      ${officialMarksHtml([statusOf(r, { scope: 'regression' })])}
       ${notice}
       ${regressionSection(r, { print: true, plots: opt.plots, residualTable: true })}
+      ${marksHtml(r)}
       <div class="print-footer">
         <span>${i18n.t('report_standard')}</span>
         <span>${i18n.t('report_date')}: ${now}</span>
@@ -772,12 +882,8 @@ const Results = (() => {
     return rr.Uround.toFixed(rr.digits);
   }
   function tdScaleUnit(r) { return r.unit === '1' ? '' : ' ' + escHtml(r.unit); }
-  function tdWarnings(r) {
-    if (!r.warnings || !r.warnings.length) return '';
-    const sev = r.warnings.filter(w => w.severity !== 'info'), info = r.warnings.filter(w => w.severity === 'info');
-    const tag = w => (w.rule ? `<span class="badge badge-orange">${escHtml(w.rule)}</span> ` : '');
-    return (sev.length ? `<div class="warn-box td-warnings" data-td-warnings="1">${sev.map(w => `<div data-td-warning="${escHtml(w.code)}">⚠ ${tag(w)}${rgWarnText(w)} <span class="text-xs text-muted">[${escHtml(w.ref)}]</span></div>`).join('')}</div>` : '') +
-      info.map(w => `<div class="text-xs text-muted td-note" data-td-warning="${escHtml(w.code)}">ⓘ ${rgWarnText(w)}</div>`).join('');
+  function tdWarnings(r, opt) {   // P05a: X11 / X12 va boshqalar — linter topilmalari (eski data-td-warning atributlari saqlangan)
+    return findingsHtml(r, { scope: 'topdown', print: !!(opt && opt.print), legacy: 'td' });
   }
   function tdBudgetName(b) {
     if (b.kind === 'additional') return `${escHtml(b.name || b.id)} <span class="text-xs text-muted">(${i18n.t('td_cat_' + b.category)})</span>`;
@@ -862,7 +968,7 @@ const Results = (() => {
       : (r.scale === 'relative' ? `U<sub>rel</sub> = ${relCell}` : `U = ${uCell}`);
     return `<div class="rg-report td-report" data-td-report="1">
       <div class="${opt.print ? 'print-section' : 'rg-section-title'}">${i18n.t('td_report_section')}</div>
-      ${tdWarnings(r)}
+      ${tdWarnings(r, opt)}
       <table class="${cls} td-result" data-td-result="1"><thead><tr>
         <th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>${i18n.t('td_col_approach')}</th></tr></thead>
         <tbody><tr><td class="num" data-td-y="1">${yCell}</td><td class="num" data-td-u="1"><strong>${uCell}</strong></td>
@@ -884,6 +990,8 @@ const Results = (() => {
   function printTopdown(r, o) {
     const opt = o || {};
     if (!r || r.error) { showToast(i18n.t('td_empty'), 'error'); return; }
+    const blk = blockedBy([statusOf(r, { scope: 'topdown' })]);
+    if (blk) { showToast(i18n.t(blk === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000); return; }
     const now = new Date().toLocaleDateString();
     const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
     document.getElementById('print-report').innerHTML = `
@@ -898,8 +1006,10 @@ const Results = (() => {
           <div>${i18n.t('report_operator')}: ____________________</div>
         </div>
       </div>
+      ${officialMarksHtml([statusOf(r, { scope: 'topdown' })])}
       ${notice}
       ${topdownSection(r, { print: true })}
+      ${marksHtml(r)}
       <div class="print-footer">
         <span>${i18n.t('td_report_standard')}</span>
         <span>${i18n.t('report_date')}: ${now}</span>
@@ -914,16 +1024,13 @@ const Results = (() => {
      Namuna olish (dublikat usuli, ANOVA), sifatli test (2×2), mikrobiologiya (BETA), tibbiy laboratoriya (BETA).
      Har bir bo'limda: natija, qo'llanilgan yondashuv nomi va manbasi, cheklovlar, ogohlantirishlar.
      P05 gacha shu faylda; yaxlitlash faqat shu yerda. */
-  function spWarnings(r) {
-    if (!r.warnings || !r.warnings.length) return '';
-    const sev = r.warnings.filter(w => w.severity !== 'info'), info = r.warnings.filter(w => w.severity === 'info');
-    return (sev.length ? `<div class="warn-box td-warnings" data-sp-warnings="1">${sev.map(w => `<div data-sp-warning="${escHtml(w.code)}">⚠ ${rgWarnText(w)} <span class="text-xs text-muted">[${escHtml(w.ref)}]</span></div>`).join('')}</div>` : '') +
-      info.map(w => `<div class="text-xs text-muted td-note" data-sp-warning="${escHtml(w.code)}">ⓘ ${rgWarnText(w)}</div>`).join('');
+  function spWarnings(r, opt) {   // P05a: yagona "Tekshiruv natijalari" bloki (eski data-sp-warning atributlari saqlangan)
+    return findingsHtml(r, { scope: 'special', print: !!(opt && opt.print), legacy: 'sp' });
   }
   function spHead(r, opt, inner) {
     return `<div class="rg-report td-report sp-report" data-sp-report="${escHtml(r.mode)}">
       <div class="${opt.print ? 'print-section' : 'rg-section-title'}">${i18n.t('sp_section_' + r.mode)}${r.unverified ? ' <span class="badge badge-orange" data-sp-beta="1">BETA</span>' : ''}</div>
-      ${spWarnings(r)}
+      ${spWarnings(r, opt)}
       ${inner}
       <p class="rg-line" data-sp-approach="${escHtml(r.approach)}"><strong>${i18n.t('td_col_approach')}:</strong> ${i18n.t('sp_approach_' + r.approach)} <span class="text-xs text-muted">[${escHtml(r.approachRef)}]</span></p>
       <p class="rg-line" data-sp-limits="1"><strong>${i18n.t('sp_limits')}:</strong> ${i18n.t('sp_limits_' + r.mode)}</p>
@@ -1020,6 +1127,8 @@ const Results = (() => {
   function printSpecial(r, o) {
     const opt = o || {};
     if (!r || r.error) { showToast(i18n.t('sp_empty'), 'error'); return; }
+    const blk = blockedBy([statusOf(r, { scope: 'special' })]);
+    if (blk) { showToast(i18n.t(blk === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000); return; }
     const now = new Date().toLocaleDateString();
     const notice = opt.meta && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(opt.meta, r) : '';
     document.getElementById('print-report').innerHTML = `
@@ -1034,8 +1143,10 @@ const Results = (() => {
           <div>${i18n.t('report_operator')}: ____________________</div>
         </div>
       </div>
+      ${officialMarksHtml([statusOf(r, { scope: 'special' })])}
       ${notice}
       ${specialSection(r, { print: true })}
+      ${marksHtml(r)}
       <div class="print-footer">
         <span>${escHtml(r.approachRef)}</span>
         <span>${i18n.t('report_date')}: ${now}</span>
@@ -1051,7 +1162,7 @@ const Results = (() => {
   // Yagona escape: src/ui/escape.js (P02)
   const escHtml = window.escHtml;
 
-  return { init, render, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial };
+  return { init, render, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, findingsOf, findingsHtml, statusOf };
 
 })();
 

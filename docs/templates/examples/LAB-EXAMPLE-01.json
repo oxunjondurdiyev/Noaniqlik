@@ -41,7 +41,11 @@
       },
       "unit": "g/cm³",
       "value": null,
-      "ref": "ma'lumotnoma jadvali (laboratoriya kiritadi)",
+      "ref": {
+        "uz": "ma'lumotnoma jadvali (laboratoriya kiritadi)",
+        "ru": "справочная таблица (вводит лаборатория)",
+        "en": "reference table (entered by the laboratory)"
+      },
       "hint": {
         "uz": "Ma'lumotnoma jadvalidan, o'lchash haroratida.",
         "ru": "Из справочной таблицы при температуре измерения.",

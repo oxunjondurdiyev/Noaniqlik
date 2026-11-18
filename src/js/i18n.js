@@ -637,6 +637,19 @@ class I18n {
     return key;
   }
 
+  /* t() + o'rinbosarlar: tf('adm_days_left', { n: 5 }) → "5 kun qoldi" ({nom} → qiymat) */
+  tf(key, vars) {
+    return this.t(key).replace(/\{(\w+)\}/g, (m, name) =>
+      (vars && vars[name] !== undefined && vars[name] !== null) ? String(vars[name]) : m);
+  }
+
+  /* Kalitning uch tildagi matni: { uz, ru, en } — uch tilli ma'lumot (masalan, yangi shablon skeleti) uchun */
+  all(key) {
+    const out = {};
+    ['uz', 'ru', 'en'].forEach(l => { out[l] = (TRANSLATIONS[l] && TRANSLATIONS[l][key] !== undefined) ? TRANSLATIONS[l][key] : key; });
+    return out;
+  }
+
   setLang(lang) {
     if (!TRANSLATIONS[lang]) return;
     this.lang = lang;
@@ -657,6 +670,14 @@ class I18n {
     document.querySelectorAll('[data-i18n-ph]').forEach(el => {
       el.placeholder = this.t(el.getAttribute('data-i18n-ph'));
     });
+    /* title / aria-label / alt atributlari (P05, R-13) */
+    [['data-i18n-title', 'title'], ['data-i18n-aria', 'aria-label'], ['data-i18n-alt', 'alt']].forEach(([data, attr]) => {
+      document.querySelectorAll('[' + data + ']').forEach(el => {
+        el.setAttribute(attr, this.t(el.getAttribute(data)));
+      });
+    });
+    /* <html lang> tanlangan tilga ergashadi */
+    document.documentElement.lang = this.lang;
     /* active lang button */
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === this.lang);

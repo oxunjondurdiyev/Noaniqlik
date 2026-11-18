@@ -20,20 +20,30 @@
 | R-02 | Sonli hosila qadami h; nochiziqli modelda c=0 → u_c=0 | Y | P03 |
 | R-03 | t-kvantil: ν `floor` qilinadi, ν=5000 da sakrash, `erf` approksimatsiyasi | O | P03 |
 | R-04 | Yaxlitlash dvigatel ichida; manfiy sonlarda assimetriya; ROUNDUP 3 raqam ko'rsatadi | Y | P03/P05 |
-| R-05 | Chop etilgan hisobotda ogohlantirishlar (U=0, U<CMC) yo'q | K | P05 |
+| R-05 | Chop etilgan hisobotda ogohlantirishlar (U=0, U<CMC) yo'q | K | P05a (yopildi) |
 | R-06 | Monte-Karlo: xorshift32, qat'iy seed, adaptiv M yo'q, korrelyatsiya yo'q | Y | P06 |
-| R-07 | Muvofiqlik `|y|` ni xato deb faraz qiladi | Y | P05 |
+| R-07 | Muvofiqlik `|y|` ni xato deb faraz qiladi | Y | P05a (yopildi; qaror qoidasi — P05b) |
 | R-08 | Manfiy dispersiya jimgina 0 ga kesiladi | O | P03 |
 | R-09 | `localStorage` versiyasiz, migratsiyasiz; saqlangan natijalar dvigatel versiyasiz | Y | P04 |
 | R-10 | B tur u_B UI'da dvigateldan mustaqil qayta hisoblanadi | O | P03 |
 | R-11 | Preset va test ma'lumotlari ikki joyda | O | P01 |
 | R-12 | Parser: `:` → bo'lish, `e` konstanta, birliklar yo'q | O | P03 |
-| R-13 | i18n'dan tashqari qattiq matnlar; admin sahifalari bir tilli | O | P05 |
+| R-13 | i18n'dan tashqari qattiq matnlar; admin sahifalari bir tilli | O | P05a (yopildi) |
 | R-14 | CDN skriptlar SRI'siz, CSP yo'q | O | P02 |
 | R-15 | Trial limiti va to'lov holati faqat mijoz tomonda | O | P02 |
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
+
+### P05a natijasi (2026-11-18, branch `feat/p05a-linter`, ENGINE_VERSION 2.4.0)
+
+| ID | Holat | Nima qilindi | Qoldiq xavf |
+|---|---|---|---|
+| R-05 | **yopildi** | Linter topilmalari (`result.findings`) ekranda va barcha bosma hisobotlarda — bitta nuqta, ko'p nuqtali sertifikat (har bir nuqta ostida), regressiya, top-down, maxsus rejimlar; yashiradigan parametr yo'q, bosma CSS `display: block !important`. `zero_u` va `below_cmc` — error: qabul qilinmaguncha "RASMIY EMAS" suv belgisi; har doim alohida "DIQQAT" belgisi; laboratoriya sozlamasi `criticalMode: 'block'` — hisobot chiqmaydi. ν qoidasi, MC seed va M, BETA / unverified belgisi hisobotda | Ko'p nuqtali **jadvalning o'zida** (qator darajasida) belgi yo'q — belgi hisobot boshida va nuqta bo'limida. CMC jadvali (diapazon bo'yicha) — P11. `below_cmc` manbasi (ILAC P14) repoda yo'q — unverified. Suv belgisi brauzerning "fon grafikasi" sozlamasiga bog'liq emas (matn), lekin real printerda ko'rilmagan |
+| R-07 | **yopildi (model turi)** | `settings.modelKind`: `error` / `value` (+ nominal) / `unknown`. Dvigatel \|y\| ni xato deb faraz qilmaydi: ko'rsatilmagan bo'lsa hukm yo'q (`conf.pending`), γ = null, topilma `model_kind_unknown`; natijalar sahifasida tanlov so'raladi. Eski saqlangan hisoblar migratsiyada `unknown`. Har bir hisobotda model turi yoziladi | Qaror qoidasi tanlovi (w = r·U, bir tomonlama chegaralar, muvofiqlik ehtimoli — JCGM 106, ILAC G8) — **P05b**; ikkala hujjat ham repoda yo'q. Shablonlarda `modelKind` faqat `legacy-gas_analyzer` va `legacy-thermometer` da; `decisionRule` li T-shablonlar uchun laboratoriya tanlaydi |
+| R-13 | **yopildi** | admin, super-admin, auth sahifalari va qolgan matnlar uz/ru/en (`i18n-admin.js`, 297 kalit); til almashtirgich; `tests/i18n.test.js` barcha HTML/JS da qattiq matnni qidiradi, istisnolar izohli | Istisnolar: shablon diagnostika xabarlari (`src/templates/interpreter.js`, `validator.js` — ~70 ta, inglizcha, muharrirda ko'rinadi); "BETA" / "unverified" belgilari tarjima qilinmagan; `legacy-warning.js` (i18n ishlamaydigan brauzer uchun, uch tilda bitta satr). Ruscha / inglizcha tarjimalarni soha mutaxassisi ko'rib chiqmagan (INN → "TIN (INN)", MFO, QQS → VAT va h.k.) |
+
+**P05a dagi yangi ochiq masalalar (egasi):** linter chegaralari va darajalari — `docs/LINTER_RULES.md` §4 (16 band, loyiha qarorlari). Rol lokal rejimda faqat Firebase sessiyasidan olinadi (kirmagan foydalanuvchi — `guest`); lokal audit — buzilganini aniqlash darajasida (server — P15). Regressiya / top-down / maxsus rejimlarda qabul qilishlar `localStorage` (`uc_findings_accept_v1`) + audit zanjirida; hisobning o'zi hali IndexedDB da emas (R-19…R-21 dagi qayd o'zgarmagan).
 
 ### P03 natijasi (2026-11-13, branch `feat/p03-engine`, ENGINE_VERSION 2.0.0)
 
