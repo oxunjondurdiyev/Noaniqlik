@@ -187,6 +187,9 @@ function bind() {
   root.addEventListener('change', onInput);
   root.addEventListener('click', onClick);
   document.addEventListener('langchange', render);
+  // P05a: "asoslangan holda qabul qilish" — topilmalar ro'yxati va qabul qilingandan keyin qayta chizish
+  if (window.UCFindings) window.UCFindings.register('topdown', () => (last && last.result && !last.result.error ? window.Results.findingsOf(last.result) : []));
+  document.addEventListener('findingschange', e => { if (e.detail && e.detail.scope === 'topdown') render(); });
 }
 
 window.UCTopDown = Object.freeze({

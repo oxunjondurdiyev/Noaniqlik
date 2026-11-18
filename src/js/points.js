@@ -35,6 +35,7 @@ const Points = (() => {
       label: (label || '').trim() || (idx >= 0 ? pts[idx].label : defaultLabel(pts.length + 1)),
       snapshot: snapshot(st),
       result: r,
+      acceptances: clone(st.acceptances || {}),   // P05a: shu nuqtadagi qabul qilingan topilmalar (bosma hisobotda izohi bilan)
     };
     if (idx >= 0) pts[idx] = entry; else pts.push(entry);
     appState.set({ points: pts, currentPoint: id, combined: r });
@@ -45,7 +46,7 @@ const Points = (() => {
   function load(id) {
     const p = list().find(x => x.id === id);
     if (!p) return;
-    appState.set({ ...clone(p.snapshot), typeA: {}, combined: p.result, currentPoint: id });
+    appState.set({ ...clone(p.snapshot), typeA: {}, combined: p.result, currentPoint: id, acceptances: clone(p.acceptances || {}) });
   }
 
   function remove(id) {
@@ -60,7 +61,7 @@ const Points = (() => {
     const st = appState.get();
     const m = {};
     st.params.forEach(p => { m[p] = Array(st.n).fill(''); });
-    appState.set({ measurements: m, typeA: {}, combined: null, currentPoint: null });
+    appState.set({ measurements: m, typeA: {}, combined: null, currentPoint: null, acceptances: {} });
   }
 
   function clearAll() { appState.set({ points: [], currentPoint: null }); }

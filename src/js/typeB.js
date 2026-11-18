@@ -148,7 +148,7 @@ const TypeB = (() => {
         <input type="text" value="${escHtml(comp.name)}" data-id="${escHtml(comp.id)}" data-field="name"
           placeholder="${i18n.t('label_component')}" />
         <span class="dist-badge ${distCls}">${escHtml(comp.param || '')}</span>
-        <button class="btn btn-sm btn-danger btn-remove-tb" data-id="${escHtml(comp.id)}" title="Remove">
+        <button class="btn btn-sm btn-danger btn-remove-tb" data-id="${escHtml(comp.id)}" title="${escHtml(i18n.t('c_remove'))}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
@@ -318,6 +318,17 @@ const TypeB = (() => {
         <div class="model-card-title" style="margin-top:.9rem">${i18n.t('conf_title')} <span class="text-muted text-xs">ISO/IEC 17025 7.8.6 · JCGM 106 · ILAC G8</span></div>
         <div class="settings-grid">
           <div class="form-group">
+            <label title="${escHtml(i18n.t('mk_hint'))}">${i18n.t('mk_label')} ⓘ</label>
+            <select data-set="modelKind">
+              ${['unknown', 'error', 'value'].map(v =>
+                `<option value="${v}" ${(settings.modelKind || 'unknown') === v ? 'selected' : ''}>${escHtml(i18n.t('mk_' + v))}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group" ${settings.modelKind === 'value' ? '' : 'hidden'}>
+            <label>${i18n.t('mk_nominal')}</label>
+            <input type="text" inputmode="decimal" data-set="nominal" class="mono" value="${escHtml(String(settings.nominal ?? ''))}" autocomplete="off" />
+          </div>
+          <div class="form-group">
             <label title="${escHtml(i18n.t('set_mpe_hint'))}">${i18n.t('set_mpe')} ⓘ</label>
             <input type="text" data-set="mpe" class="mono" value="${escHtml(String(settings.mpe ?? ''))}" placeholder="1   ${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off" />
           </div>
@@ -438,7 +449,7 @@ const TypeB = (() => {
     components.forEach(c => addComponent(c));
   }
 
-  return { init, render, addComponent, loadPresetComponents };
+  return { init, render, addComponent, loadPresetComponents, calculate: calcCombined };
 
 })();
 

@@ -16,6 +16,7 @@ const { validate } = require('../../src/templates/validator.js');
 const { byId, schema } = require('../templates/lib.js');
 const { roundResult, roundHalfAway, roundUpAway } = require('../../src/report/rounding.js');
 const { fmt, fmtSci } = require('../../src/report/format.js');
+const { reportBridge } = require('./lib.js');
 const { escHtml } = require('../../src/ui/escape.js');
 const A1 = require('../cases/ufs/ufs-a1-nitrate-robust.json');
 const A2 = require('../cases/ufs/ufs-a2-lead-classical.json');
@@ -24,14 +25,14 @@ const E6 = require('../cases/aqa/aqa-e6-sarscov2.json');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js'];
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js'];
 function loadReport(lang) {
   const dom = new JSDOM('<!doctype html><body><div id="special-root"></div><button id="btn-print"></button><div id="print-report"></div></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   const w = dom.window;
   w.eval(read('src/ui/escape.js'));
   w.eval(I18N_FILES.map(read).join('\n;\n'));
   w.i18n.lang = lang;
-  w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci };
+  w.Calc = { roundResult, roundHalfAway, roundUpAway, fmt, fmtSci, ...reportBridge };   // P05a: linter / topilmalar bloki
   w.appState = { get: () => ({}), subscribe() {} };
   w.showToast = () => {};
   w.eval(read('src/js/report.js'));

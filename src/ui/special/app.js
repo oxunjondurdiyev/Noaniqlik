@@ -137,6 +137,9 @@ function bind() {
   root.addEventListener('change', onInput);
   root.addEventListener('click', onClick);
   document.addEventListener('langchange', render);
+  // P05a: "asoslangan holda qabul qilish"
+  if (window.UCFindings) window.UCFindings.register('special', () => { const r = last[state.mode]; return r && !r.error ? window.Results.findingsOf(r) : []; });
+  document.addEventListener('findingschange', e => { if (e.detail && e.detail.scope === 'special') render(); });
 }
 
 window.UCSpecial = Object.freeze({

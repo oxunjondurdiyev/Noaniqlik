@@ -287,6 +287,9 @@ function bind() {
     if (last && !last.result.error) last.plots = plotsHTML(last.result, ctx());
     render();
   });
+  // P05a: "asoslangan holda qabul qilish"
+  if (window.UCFindings) window.UCFindings.register('regression', () => (last && last.result && !last.result.error ? window.Results.findingsOf(last.result) : []));
+  document.addEventListener('findingschange', e => { if (e.detail && e.detail.scope === 'regression') renderResult(); });
 }
 
 window.UCRegression = Object.freeze({
