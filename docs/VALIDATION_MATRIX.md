@@ -308,6 +308,6 @@ Manba — JCGM 102:2011 (repoda). Sahifa raqamlari — PDF bo'yicha, test misoll
 | m = 1: 2.6.0 bilan bit darajasida bir xil | `evaluate`, `monteCarlo` | barcha mavjud misollar; nazorat skripti (176 / 188 MC natijasi aynan; 12 tasi — juftlangan kuzatuvlar, CHANGELOG) | ✅ |
 | `uc-calc/1` vektor natija: eksport → import → qayta hisob | `src/io/calc-json.js` | `tests/ui/multivariate.test.js` | ✅ |
 | Hisobot: chiqishlar jadvali, korrelyatsiya matritsasi, qamrov sohasi, ellips SVG; uch til | `src/report/sections.js::multivariateSection`, `ellipse.js` | `tests/ui/multivariate.test.js` | ✅ (jsdom; real brauzerda qo'lda ko'rilmagan) |
-| Linter MV1 | `linter/rules/mv01-output-correlation.js` | `multivariate.test.js`, `linter.test.js` | ✅ (chegara — egasi tasdig'ini kutadi) |
+| Linter MV1 | `linter/rules/mv01-output-correlation.js` | `multivariate.test.js`, `linter.test.js` | ✅ (chegara — egasi tasdiqladi, 2026-11-18) |
 | Shablon `outputs`, MV-01 | sxema, interpreter | `tests/templates/workflow.test.js` | ✅ |
 | Oshkormas model (§6.3; §6.3.2, §9.5), eng kichik soha (§7.7.4) | — | — | ❌ qilinmagan (R-24) |

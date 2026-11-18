@@ -35,7 +35,7 @@
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
 | R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; qoldiq — Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06, P07 → P13 |
-| R-24 | Ko'p o'zgaruvchili modellar (P07): qilinmagan qismlar (oshkormas model, eng kichik qamrov sohasi, `atan2`) va egasi tasdig'ini kutayotgan loyiha qarorlari | O | P07 → egasi qarori |
+| R-24 | Ko'p o'zgaruvchili modellar (P07): qilinmagan qismlar (oshkormas model, eng kichik qamrov sohasi, `atan2`); MCM ning muhitlararo takrorlanuvchanligi — egasi qarori (a), P13 da; MV1 va r formati tasdiqlandi (2026-11-18) | O | P07 → P13 |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
@@ -290,7 +290,16 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 
 **P07 da topilgan, P06 ga ham tegishli (P13 ga):** Monte-Karlo natijasi **JS dvigateli versiyalari orasida bit darajasida bir xil emas**. O'lchov (2026-11-18): Node 22 va Chromium 157 da `Math.sin`, `cos`, `log`, `exp`, `atan`, `tan` ayrim argumentlarda oxirgi ikkilik xonada farq qiladi (`sqrt` va arifmetika — bir xil). Oqibat: R(0, 1) ketma-ketligi bir xil (faqat arifmetika), lekin Gauss kirishli (Box–Muller: ln, sin, cos) yoki trigonometrik modelli MCM natijalari ≈ 10⁻¹⁶ nisbiy (kvantillarda ≈ 10⁻¹²) farq qiladi — `jcgm101-9-2-2-mcm`, `jcgm102-9-2-2-mcm`, `jcgm102-9-4-mcm` da kuzatildi; `excel-gas-p2` (t va to'g'ri burchakli kirishlar) — aynan bir xil. Metrologik ahamiyati yo'q (yaxlitlangan natija o'zgarmaydi), lekin "bit darajasida takrorlanadi" da'vosi faqat **bir xil dvigatel versiyasi** ichida to'g'ri; `uc-calc/1` da MCM natijasini boshqa brauzerda qayta hisoblash "aynan bir xil emas" deb ko'rsatishi mumkin. **Variantlar (egasi qarori, P13):** (a) hozirgidek qoldirish, da'voni "bir xil muhitda" deb aniqlashtirish, qayta hisobda MCM uchun nisbiy tolerans (masalan 10⁻⁹); (b) ln / sin / cos ni dvigatelda o'z kodi bilan (faqat arifmetika, to'g'ri yaxlitlangan emas, lekin deterministik) — MCM raqamlari yana o'zgaradi, ENGINE major / minor. Vektor MCM modulli worker'da `script-src 'self'` ostida ishlashi Chromium 157 da tekshirildi (M = 2·10⁵, m = 3: ≈ 0,5 s, konsolda xato yo'q).
 
-**Egasi tasdig'ini kutayotgan loyiha qarorlari:**
+**Egasi qarorlari (2026-11-18, PR #20 dan keyin):**
+
+- **MV1 chegarasi** |r| > 0,5 → info — **tasdiqlandi** (quyidagi 1-band).
+- **r ni ko'rsatish** — 3 o'nlik xona, |r| > 0,99 da "1 − |r|" (JCGM 102 Table 11) — **tasdiqlandi** (2-band).
+- **Takrorlanuvchanlik — (a), P13 da bajariladi:** da'vo "bir xil dvigatel versiyasi va JS muhitida bit darajasida; boshqa muhitda yaxlitlangan natija va hisobot xeshi bir xil" deb aniqlashtiriladi; `uc-calc/1` qayta hisobida MCM uchun kichik nisbiy tolerans qo'yiladi. O'z ln / sin / cos kodi (b) — qo'shilmaydi. P13 gacha kod o'zgarmaydi: boshqa muhitda MCM qayta hisobi "aynan bir xil emas" deb chiqishi mumkin (ma'lum cheklov).
+- **Q-3 (10-test toleransi)** — 2,9·10⁻⁴ / 2,3·10⁻⁴ qoladi (formula bo'yicha aniq qiymat; "≈ 3,2·10⁻⁴" — yaxlitlangan taxmin edi).
+
+3–6-bandlar bo'yicha alohida javob berilmagan — ochiq.
+
+**Loyiha qarorlari (1–2 tasdiqlangan; 3–6 — egasi tasdig'ini kutadi):**
 
 1. **MV1 chegarasi** |r| > 0,5 → info (`docs/LINTER_RULES.md` §4 #24). JCGM 102 da son yo'q.
 2. **Korrelyatsiya koeffitsiyentini ko'rsatish:** 3 o'nlik xona; |r| > 0,99 da qo'shimcha "1 − |r|" (JCGM 102 Table 11 dagi kabi). ILAC P14 r uchun qoida bermaydi.

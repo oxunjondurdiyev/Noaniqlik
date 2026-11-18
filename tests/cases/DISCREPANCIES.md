@@ -107,6 +107,7 @@ Eng qisqa interval (ma'lumot uchun): M = 2·10⁷ da [−0,011 21; 0,046 70]; M 
 
 ## Egasining javoblari (P06, 2026-11-18)
 
+- **Q-3 → (b); toleranslar tasdiqlandi (2026-11-18, PR #20 dan keyin):** 2,9·10⁻⁴ / 2,3·10⁻⁴ qoladi ("≈ 3,2·10⁻⁴" — yaxlitlangan taxmin edi).
 - **Q-3 → (b).** Dvigatelda n_dig = 2; 10-test toleransi = δ + 2·s_ref (s_ref — D-04 dagi mustaqil 8 takror). Qo'llanma qiymati o'zgartirilmaydi. 10-test todo dan chiqarildi. **Bajarildi.**
 - **Q-5 →** ν ≤ 2 bo'lgan istalgan t-kirishda (JCGM 101 §6.4.9: ν > 2 bo'lmasa dispersiya cheksiz) `criteria: 'interval'` avtomatik; hisobotda "u(y) aniqlanmagan (ν ≤ 2), faqat qamrov intervali" (uch tilda). **Bajarildi** (`criteria: 'auto'` — standart; natijada `u: null`, `uDefined: false`).
 - **Q-6 →** hozirgidek: normal bo'lmagan korrelyatsiyada MCM natijasi berilmaydi; topilmada sabab va "LPU natijasi amal qiladi". Ko'p o'lchovli t — P07 ga. **Bajarildi** (matnlar). **P07 da yopildi (2.7.0):** juftlangan A tur kuzatuvlari ko'p o'lchovli t dan tanlanadi; zichlik etaloni va JCGM 100 H.2 da MCM yana natija beradi. Eslatma: egasi "JCGM 102:2011 §6.5" deb ko'rsatgan; PDF da ko'p o'lchovli t-taqsimot — **§5.3.2** (11-bet), §6.5 — "Coverage region for the output quantity". Kod va hujjatlarda §5.3.2 yozildi.

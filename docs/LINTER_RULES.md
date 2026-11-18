@@ -142,7 +142,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 21 | M2 (P06) — **egasi tasdiqladi (2026-11-18)** | normal bo'lmagan korrelyatsiyada MCM natijasi **berilmaydi** (error), topilmada "LPU natijasi amal qiladi"; Gauss yaqinlashuvi — faqat sozlama bilan, warning; ko'p o'lchovli t — P07 | JCGM 101 §6.4.8.4 Note: boshqa birgalikdagi taqsimot uchun tanlash usuli "would need to be provided" |
 | 22 | M3 — **egasi qarori (2026-11-18)** | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; GUM tekshiruvida MCM toleransi **δ/5** (§8.2), oddiy MCM da δ; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
 | 23 | M4 — **egasi qarori (2026-11-18)** | `mc_variance_undefined` chegarasi ν ≤ 2; warning; bunday kirishda mezon avtomatik faqat interval uchlari, u(y) berilmaydi. `mc_not_converged` — adaptiv M chegarasi **yoki** qat'iy M da tekshiruv toleransiga erishilmagani | §7.6 Note 2: "fewer than three degrees of freedom" |
-| 24 | MV1 (P07) — **egasi tasdig'ini kutadi** | \|r\| > **0,5** → info (`outputs_correlated`); singular chegarasi λ_min / λ_max < 10⁻⁹ → info (`outputs_singular`) | JCGM 102 da son yo'q; 0,5 — X4 dagi chegara bilan bir xil olindi |
+| 24 | MV1 (P07) — **egasi tasdiqladi (2026-11-18)** | \|r\| > **0,5** → info (`outputs_correlated`); singular chegarasi λ_min / λ_max < 10⁻⁹ → info (`outputs_singular`) | JCGM 102 da son yo'q; 0,5 — X4 dagi chegara bilan bir xil olindi |
 
 ## 5. Tekshiruv
 
