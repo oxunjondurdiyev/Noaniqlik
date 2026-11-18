@@ -110,6 +110,14 @@ async function useTemplate(key, variant) {
     window.switchTab('regression');
     return;
   }
+  if (Interp.isSpecial(tpl)) {
+    // P10: maxsus rejim shabloni — "Maxsus rejimlar" yorlig'iga yuklanadi (src/ui/special/app.js)
+    if (!window.UCSpecial || !window.UCSpecial.loadTemplate(tpl)) return;
+    window.App.showScreen('app');
+    window.App.renderSidebar();
+    window.switchTab('special');
+    return;
+  }
   if (Interp.isTopDown(tpl)) {
     // P09: TOP_DOWN shabloni — "Top-down" yorlig'idagi ustaga yuklanadi (src/ui/topdown/app.js)
     if (!window.UCTopDown || !window.UCTopDown.loadTemplate(tpl)) return;

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "SP-02",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "general",
+  "evaluationMode": "QUALITATIVE",
+  "title": {
+    "uz": "Sifatli (binar) test: sezgirlik va spetsifiklik (2×2 jadval)",
+    "ru": "Качественный (бинарный) тест: чувствительность и специфичность (таблица 2×2)",
+    "en": "Qualitative (binary) test: sensitivity and specificity (2×2 table)"
+  },
+  "description": {
+    "uz": "Ma'lum musbat va manfiy holatlar bo'yicha test natijalaridan SS, SP, noto'g'ri musbat va manfiy ulushlar, 95 % ishonch intervallari va ehtimollik nisbati.",
+    "ru": "По результатам теста на заведомо положительных и отрицательных случаях: SS, SP, доли ложных результатов, 95 % доверительные интервалы и отношение правдоподобия.",
+    "en": "From test results on known positive and negative cases: SS, SP, false response rates, 95 % confidence intervals and the likelihood ratio."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P10 shabloni (DRAFT). Usul: EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 (Eq. 6, 8–11), Example 7.6 (p. 36). Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P10 (DRAFT). Метод: EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 (ф-лы 6, 8–11), пример 7.6 (с. 36). Все числовые поля пусты — лаборатория вводит собственные данные.",
+    "en": "P10 template (DRAFT). Method: EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 (Eq. 6, 8–11), Example 7.6 (p. 36). All numeric fields are empty — the laboratory enters its own data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#11-maxsus-rejimlar-p10",
+  "measurand": {
+    "symbol": "SS",
+    "name": {
+      "uz": "Sezgirlik va spetsifiklik",
+      "ru": "Чувствительность и специфичность",
+      "en": "Sensitivity and specificity"
+    },
+    "unit": "%"
+  },
+  "model": {
+    "formula": "SS = tp / (tp + fn)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob «Maxsus rejimlar» oynasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в окне «Специальные режимы».",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Special modes window."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "tp",
+      "name": {
+        "uz": "To'g'ri musbat natijalar soni",
+        "ru": "Число истинно положительных результатов",
+        "en": "Number of true positive results"
+      },
+      "unit": "1",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "special": {
+    "hint": {
+      "uz": "Holatlarning haqiqiy holati (musbat / manfiy) mustaqil tayanch usul bilan aniqlangan bo'lishi kerak. Kam uchraydigan noto'g'ri natijalarni ishonchli baholash uchun ko'p holat kerak (AQA §4.4, Table 4).",
+      "ru": "Истинный статус случаев (положительный / отрицательный) должен быть установлен независимым опорным методом. Для надёжной оценки редких ложных результатов нужно много случаев (AQA §4.4, табл. 4).",
+      "en": "The true status of the cases (positive / negative) must be established by an independent reference method. Many cases are needed to estimate rare false responses reliably (AQA §4.4, Table 4)."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab+owner",
+      "text": {
+        "uz": "⚠ Ishonch intervali: AQA:2021 Wilson intervalini qo'llaydi; loyiha talabnomasida Clopper–Pearson ko'rsatilgan. Dastur ikkalasini beradi — hisobotda qaysi biri ishlatilishini laboratoriya (yoki egasi) belgilaydi.",
+        "ru": "⚠ Доверительный интервал: AQA:2021 применяет интервал Уилсона; в задании проекта указан Клоппер–Пирсон. Программа выдаёт оба — какой использовать в протоколе, определяет лаборатория (или владелец).",
+        "en": "⚠ Confidence interval: AQA:2021 uses the Wilson interval; the project brief names Clopper–Pearson. The program gives both — the laboratory (or the owner) decides which one is reported."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}

@@ -90,6 +90,7 @@ export function checkTemplate(tpl, schema) {
   }
   if (isRegression(tpl)) return checkRegressionTemplate(tpl, errors, warnings);
   if (isTopDown(tpl)) return checkTopDownTemplate(tpl, errors, warnings);
+  if (isSpecial(tpl)) return checkSpecialTemplate(tpl, errors, warnings);
   const inputs = tpl.inputs || [];
   const consts = tpl.constants || [];
   const symbols = [...inputs.map(i => i.symbol), ...consts.map(c => c.symbol)];
@@ -348,6 +349,53 @@ export function buildTopDownState(tpl, opts = {}) {
   return { state, meta };
 }
 
+/* ─── Maxsus rejimlar (P10) ─────────────────────────────── */
+
+export const SPECIAL_MODES = { SAMPLING: 'sampling', QUALITATIVE: 'qualitative', MICROBIOLOGY: 'micro', MEDICAL: 'medical' };
+export const isSpecial = tpl => !!tpl && Object.prototype.hasOwnProperty.call(SPECIAL_MODES, tpl.evaluationMode);
+
+function checkSpecialTemplate(tpl, errors, warnings) {
+  const sp = tpl.special;
+  if (!sp) { errors.push('special: section required for evaluationMode ' + tpl.evaluationMode); return { valid: false, errors, warnings }; }
+  if ((tpl.typeBSources || []).length) errors.push('special: typeBSources are not used in this evaluation mode');
+  if (tpl.variants && tpl.variants.length) errors.push('special: variants are not supported in this evaluation mode');
+  if (tpl.evaluationMode !== 'SAMPLING' && (sp.method !== undefined || sp.logTransform !== undefined)) errors.push('special: method / logTransform apply to SAMPLING only');
+  if (tpl.evaluationMode === 'MEDICAL' && isBlank(tpl.measurand && tpl.measurand.unit)) errors.push('special: MEDICAL requires measurand.unit');
+  // BETA rejimlar manba misoli bilan tasdiqlanmagan — APPROVED holatiga o'tkazib bo'lmaydi
+  if (['MICROBIOLOGY', 'MEDICAL'].includes(tpl.evaluationMode)) {
+    if (tpl.status === 'APPROVED') errors.push(`special: ${tpl.evaluationMode} is BETA (unverified) — the template cannot be APPROVED`);
+    else warnings.push(`special: ${tpl.evaluationMode} is BETA (unverified: the standard is not in docs/references/)`);
+  }
+  checkTexts(tpl, errors);
+  return { valid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * Maxsus rejim shabloni → "Maxsus rejimlar" oynasining boshlang'ich holati (src/ui/special/build.js::defaults bilan birlashtiriladi).
+ * Raqam o'ylab topilmaydi: barcha sonli maydonlar bo'sh.
+ */
+export function buildSpecialState(tpl, opts = {}) {
+  if (!isSpecial(tpl) || !tpl.special) return { error: 'not_special_template' };
+  const sp = tpl.special, lang = opts.lang || 'en', mode = SPECIAL_MODES[tpl.evaluationMode];
+  const unit = (tpl.measurand && tpl.measurand.unit) || '';
+  const state = { mode,
+    ...(mode === 'sampling' ? { saUnit: unit, saMethod: sp.method || 'classical', saLog: sp.logTransform === true } : {}),
+    ...(mode === 'micro' && unit ? { miUnit: unit } : {}),
+    ...(mode === 'medical' ? { meUnit: unit } : {}) };
+  const meta = {
+    id: tpl.id, version: tpl.version, status: tpl.status, title: clone(tpl.title),
+    mode: tpl.evaluationMode, demo: false, variant: '',
+    standards: clone(tpl.standards || []), labCount: tpl.labCount ?? null,
+    openQuestions: (tpl.openQuestions || []).length,
+    measurand: { symbol: tpl.measurand.symbol, unit },
+    ...(opts.ui ? {
+      measurandName: tr(tpl.measurand.name, lang), hint: tr(sp.hint, lang), sourceNote: tr(tpl.sourceNote, lang),
+      openQuestionList: (tpl.openQuestions || []).map(q => ({ id: q.id, text: tr(q.text, lang), owner: q.owner, blocking: !!q.blocking })),
+    } : {}),
+  };
+  return { state, meta };
+}
+
 /* ─── Shablon → hisob holati ───────────────────────────── */
 
 /** P04b: split = 'unknown' bo'lsa nuqtaga xos qator ishlatilmaydi (umumiy qatorda sertifikatning to'liq U si) */
@@ -384,6 +432,7 @@ function uiEntry(s, lang) {
 export function buildState(tpl, data = {}, opts = {}) {
   if (isRegression(tpl)) return { error: 'regression_template' }; // P08: buildRegressionSpec ishlatiladi
   if (isTopDown(tpl)) return { error: 'topdown_template' }; // P09: buildTopDownState → usta (src/ui/topdown/)
+  if (isSpecial(tpl)) return { error: 'special_template' }; // P10: buildSpecialState → "Maxsus rejimlar" oynasi (src/ui/special/)
   const lang = opts.lang || 'en';
   const variant = resolveVariant(tpl, data.variant);
   if (!variant) return { error: 'bad_variant', detail: data.variant };

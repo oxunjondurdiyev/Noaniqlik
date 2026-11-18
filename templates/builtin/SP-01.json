@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "uc-template/1",
+  "id": "SP-01",
+  "version": "0.1.0",
+  "status": "DRAFT",
+  "domain": "TESTING",
+  "section": "general",
+  "evaluationMode": "SAMPLING",
+  "title": {
+    "uz": "Namuna olish noaniqligi: dublikat usuli (ichma-ich ANOVA)",
+    "ru": "Неопределённость отбора проб: метод дубликатов (иерархический ANOVA)",
+    "en": "Sampling uncertainty: duplicate method (nested ANOVA)"
+  },
+  "description": {
+    "uz": "Kamida 8 ta ob'ektdan 2 tadan namuna, har biri 2 marta tahlil qilinadi; s_samp, s_anal, s_meas va U′ hisoblanadi.",
+    "ru": "Не менее чем от 8 объектов по 2 пробы, каждая анализируется дважды; рассчитываются s_samp, s_anal, s_meas и U′.",
+    "en": "Two samples from at least 8 targets, each analysed twice; s_samp, s_anal, s_meas and U′ are computed."
+  },
+  "standards": [],
+  "labCount": null,
+  "sourceNote": {
+    "uz": "P10 shabloni (DRAFT). Usul: EURACHEM/CITAC UfS:2019 §9.4–9.5, Example A1 (pp. 39–43). Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P10 (DRAFT). Метод: EURACHEM/CITAC UfS:2019 §9.4–9.5, пример A1 (с. 39–43). Все числовые поля пусты — лаборатория вводит собственные данные.",
+    "en": "P10 template (DRAFT). Method: EURACHEM/CITAC UfS:2019 §9.4–9.5, Example A1 (pp. 39–43). All numeric fields are empty — the laboratory enters its own data."
+  },
+  "ref": "docs/TEMPLATE_GUIDE.md#11-maxsus-rejimlar-p10",
+  "measurand": {
+    "symbol": "c",
+    "name": {
+      "uz": "Ob'ektdagi konsentratsiya",
+      "ru": "Концентрация в объекте",
+      "en": "Concentration in the target"
+    },
+    "unit": "mg/kg"
+  },
+  "model": {
+    "formula": "s_meas = sqrt(s_samp^2 + s_anal^2)",
+    "note": {
+      "uz": "Tavsifiy formula (tahlil qilinmaydi): hisob «Maxsus rejimlar» oynasida bajariladi.",
+      "ru": "Описательная формула (не разбирается): расчёт выполняется в окне «Специальные режимы».",
+      "en": "Descriptive formula (not parsed): the calculation is done in the Special modes window."
+    }
+  },
+  "inputs": [
+    {
+      "symbol": "c",
+      "name": {
+        "uz": "O'lchangan konsentratsiya",
+        "ru": "Измеренная концентрация",
+        "en": "Measured concentration"
+      },
+      "unit": "mg/kg",
+      "kind": "observation"
+    }
+  ],
+  "typeBSources": [],
+  "special": {
+    "method": "classical",
+    "logTransform": false,
+    "hint": {
+      "uz": "Dublikat namunalar protokolni qayta talqin qilib (boshqa boshlang'ich nuqta va yo'nalish bilan) olinadi. Chetga chiqqan qiymatlar 10 % dan kam va anomaliya deb hisoblansa — robust ANOVA ni tanlang.",
+      "ru": "Дубликатные пробы отбирают, заново интерпретируя протокол (другая начальная точка и направление). Если выбросов менее 10 % и они считаются аномалиями — выберите робастный ANOVA.",
+      "en": "Duplicate samples are taken by re-interpreting the protocol (a different starting point and orientation). If outliers are below 10 % and regarded as anomalies, choose robust ANOVA."
+    }
+  },
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Metodika standarti (shifr, band, nashr) ko'rsatilmagan — laboratoriya o'z akkreditatsiya sohasidagi hujjatni kiritadi.",
+        "ru": "⚠ Стандарт на методику (шифр, пункт, редакция) не указан — лаборатория вносит документ из своей области аккредитации.",
+        "en": "⚠ The method standard (code, clause, edition) is not specified — the laboratory enters the document from its scope of accreditation."
+      }
+    },
+    {
+      "id": "Q2",
+      "owner": "lab",
+      "text": {
+        "uz": "⚠ Baho faqat tasodifiy komponentni qamraydi. Namuna olish bias'i (protokollararo yoki namuna oluvchilararo sinov) va tahlil bias'i alohida baholanadi (UfS §9.4.1).",
+        "ru": "⚠ Оценка охватывает только случайную составляющую. Смещение отбора (межпротокольное или межоператорское испытание) и смещение анализа оцениваются отдельно (UfS §9.4.1).",
+        "en": "⚠ The estimate covers the random component only. Sampling bias (inter-protocol or inter-sampler trials) and analytical bias are evaluated separately (UfS §9.4.1)."
+      }
+    }
+  ],
+  "reporting": {
+    "reportType": "test_report"
+  }
+}
