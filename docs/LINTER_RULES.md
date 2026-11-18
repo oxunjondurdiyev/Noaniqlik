@@ -5,7 +5,7 @@
 > Rejimlar: `GUM`, `REGRESSION`, `TOP_DOWN`, `SAMPLING`, `QUALITATIVE`, `MICRO`, `MEDICAL`.
 > Matnlar (nima topildi / nima uchun / qanday tuzatish) — `src/js/i18n-linter.js`, uch tilda: `w_<kod>`, `why_<kod>`, `fix_<kod>`.
 
-**Manba belgisi.** `ref` da hujjat nomi va bandi yoziladi. `docs/references/` da **yo'q** hujjatga havola `(unverified)` bilan belgilanadi (ILAC P14, ILAC G8, JCGM 106, GUM-6, COOMET R/GM/32, ISO/IEC 17025, ISO 5725-2). Hech bir manbasi repoda bo'lmagan qoida/kod — `unverified: true` (jadvalda ❔).
+**Manba belgisi.** `ref` da hujjat nomi va bandi yoziladi. `docs/references/` da **yo'q** hujjatga havola `(unverified)` bilan belgilanadi (GUM-6, COOMET R/GM/32, ISO/IEC 17025, ISO 5725-2). ILAC P14:09/2020, ILAC G8:09/2019 va JCGM 106:2012 repoda bor — ularga havolalar P05b da PDF bilan solishtirilgan. Hech bir manbasi repoda bo'lmagan qoida/kod — `unverified: true` (jadvalda ❔).
 
 **Gemini hisoboti** (`docs/audit/gemini-audit-2026-11.md` §9) faqat g'oyalar manbai bo'ldi; har bir qoida quyidagi manba bandlari bilan mustaqil tekshirildi (matn `docs/references/` dagi PDF lardan).
 
@@ -25,7 +25,7 @@
 
 | Qoida | Kod | Daraja | Rejim | Ref | Nima tekshiriladi | Tuzatish |
 |---|---|---|---|---|---|---|
-| **X1** | `x1_mpe_in_budget` | error | GUM | JCGM 100:2008 3.4.5, F.2.4.2; ILAC P14:09/2020 §5.4 (unverified); COOMET R/GM/32:2017 §8.3.1 (unverified) | Kalibrlanayotgan asbobning ruxsat etilgan xatosi (MPE) byudjetda: (a) B tur manbaning yarim kengligi muvofiqlik uchun kiritilgan MPE bilan bir xil (son yoki ifoda); (b) kalibrlash konteksti (model turi "xato" yoki MPE kiritilgan) va manba nomi "MPE / ruxsat etilgan xato / допускаемая погрешность / permissible" ga o'xshaydi. Etalon / kalibrator nomli manba — istisno (F.2.4.2: o'lchash vositasining MPE si qonuniy manba) | Manbani byudjetdan chiqarish; MPE — faqat muvofiqlik maydonida |
+| **X1** | `x1_mpe_in_budget` | error | GUM | JCGM 100:2008 3.4.5, F.2.4.2; ILAC P14:09/2020 §5.4; JCGM 106:2012 §7.6.5; COOMET R/GM/32:2017 §8.3.1 (unverified) | Kalibrlanayotgan asbobning ruxsat etilgan xatosi (MPE) byudjetda: (a) B tur manbaning yarim kengligi muvofiqlik uchun kiritilgan MPE bilan bir xil (son yoki ifoda); (b) kalibrlash konteksti (model turi "xato" yoki MPE kiritilgan) va manba nomi "MPE / ruxsat etilgan xato / допускаемая погрешность / permissible" ga o'xshaydi. Etalon / kalibrator nomli manba — istisno (F.2.4.2: o'lchash vositasining MPE si qonuniy manba) | Manbani byudjetdan chiqarish; MPE — faqat muvofiqlik maydonida |
 | **X2** | `x2_certificate_divisor` | warning | GUM | JCGM 100:2008 4.3.3, 4.3.4; EA-4/02 M:2022 §3.3.2 (a) | Sertifikat manbasi (nom yoki `kind: 'certificate'`) normal taqsimotda k = 1 yoki k ≈ √3 bilan | Sertifikatdagi U va k ni kiritish |
 | | `x2_certificate_rect` | info | GUM | JCGM 100:2008 4.3.3, 4.3.7 | Sertifikat manbasi to'g'ri burchakli taqsimotda (√3) | U (k) berilgan bo'lsa — normal + k |
 | **X3** | `x3_hysteresis_double` | warning | GUM | JCGM 100:2008 4.3.10, F.2.2.2 | Histerezis ikki marta: (i) ↑/↓ o'qishlar bor, A tur barcha o'qishlardan, histerezis qo'lda ham qo'shilgan; (ii) ↑/↓ rejimi (avtomatik h/2) + qo'lda histerezis | Qo'lda manbani olib tashlash yoki ↑/↓ rejimi |
@@ -40,10 +40,10 @@
 | **X7** | `x7_k2_low_dof` | warning | GUM | EA-4/02 M:2022 §5.1, §5.3, §5.5, Appendix E; JCGM 100:2008 G.6.6 | k = 2 qat'iy, ν_eff < 30 | k = t(ν_eff) yoki ko'proq kuzatuv / s_p |
 | | `x7_k2_few_observations` | warning | GUM | shu | k = 2 qat'iy, A tur ulushi > 30 % va n < 10 | shu |
 | **X8** | `zero_u` | **error** | GUM, TOP_DOWN, SAMPLING, MICRO, MEDICAL | JCGM 100:2008 3.3.1, F.2.2.1 | U = 0 yoki u_c = 0 | B tur manbalarni kiritish |
-| | `below_cmc` ❔ | **error** | GUM | ILAC P14:09/2020 §5.3 (unverified); EA-4/02 M:2022 Appendix A | U < CMC (dastur U ni avtomatik almashtirmaydi) | Byudjetni tekshirish; asoslab qabul qilish |
+| | `below_cmc` | **error** | GUM | ILAC P14:09/2020 §5.5; EA-4/02 M:2022 Appendix A | U < CMC (dastur U ni avtomatik almashtirmaydi) | Byudjetni tekshirish; asoslab qabul qilish |
 | | `zero_s` | info | GUM | JCGM 100:2008 F.2.2.1 | s = 0, rezolyutsiya manbasi bor | — (s_p tavsiya) |
 | | `x8_zero_s_no_resolution` | warning | GUM | JCGM 100:2008 F.2.2.1 | s = 0, shu kirish uchun rezolyutsiya manbasi yo'q | Rezolyutsiya manbasini qo'shish |
-| **X9** | `x9_too_many_digits` | warning | barcha (hisobot qatlami) | JCGM 100:2008 7.2.6; ILAC P14:09/2020 §5 (unverified) | Chop etiladigan U ikki qiymatli raqamdan ko'p | Yaxlitlash |
+| **X9** | `x9_too_many_digits` | warning | barcha (hisobot qatlami) | JCGM 100:2008 7.2.6; ILAC P14:09/2020 §5.3 | Chop etiladigan U ikki qiymatli raqamdan ko'p | Yaxlitlash |
 | | `x9_decimals_mismatch` | warning | barcha | shu | y va U o'nlik xonalari mos emas | y ni U ning oxirgi xonasigacha |
 | **X10** | `x10_no_drift` | info | GUM | EA-4/02 M:2022 Appendix C (C3), S2.4, S3.4, S4.4 | Etalon manbasi bor, drift / uzoq muddatli barqarorlik manbasi yo'q | Driftni qo'shish yoki sertifikat U siga kirganini tekshirish |
 | **X11** | `x11_double_counting` | warning | TOP_DOWN | Nordtest TR 537 ed. 4 §3.2 (p. 10); QUAM:2012 §7.6.2 d), §7.7.1 | Asos (R_w / s_R / bias) qamragan omil qo'shimcha hissa sifatida yana qo'shilgan. **Hissa hisobda qoladi** (egasi qarori, R-20) | Qatorni olib tashlash yoki asoslab qabul qilish |
@@ -63,8 +63,13 @@ X9 hisobot qatlami satrlarini tekshiradi: `lintReported({ y, U })`. Hisobot har 
 | | `n_small` | info | GUM | shu | 3 ≤ n < 5 (P00 kodi) | shu |
 | **A3** | `invalid_nu` | **error** | GUM | JCGM 100:2008 G.3.3, G.4.1, G.4.2 | ν ≤ 0 yoki son emas (B tur ν, s_p ning ν_p) — dvigatel uni jimgina ∞ deb oladi | Musbat ν yoki bo'sh (∞) |
 | **A4** ❔ | `grubbs_outlier` | info | GUM | ISO 5725-2 §7.3.4 (unverified) | Grubbs mezoni (ikki tomonlama, α = 0,05). Qiymat **chiqarilmaydi** | Sababini aniqlash |
-| **M1** ❔ | `model_kind_unknown` | warning | GUM | ISO/IEC 17025:2017 §7.8.6 (unverified); JCGM 106:2012 §7 (unverified) | MPE kiritilgan, model turi ko'rsatilmagan — muvofiqlik bayonoti berilmaydi (RISKS R-07) | Model turini tanlash |
+| **M1** | `model_kind_unknown` | warning | GUM | JCGM 106:2012 §7.6.5, §3.3.5, §7.1.1; ILAC G8:09/2019 §1.11, §1.16 | MPE kiritilgan, model turi ko'rsatilmagan — muvofiqlik bayonoti berilmaydi (RISKS R-07) | Model turini tanlash |
 | | `model_value_no_nominal` | warning | GUM | shu | Model turi "qiymat", nominal yo'q | Nominalni kiritish |
+| **D1** (P05b) | `decision_rule_missing` | warning | GUM | ILAC G8:09/2019 §2.3, §2.6 (ISO/IEC 17025:2017 §7.1.3, §7.8.6.1); JCGM 106:2012 §8 | MPE yoki tolerantlik chegarasi kiritilgan, qaror qoidasi tanlanmagan — muvofiqlik bayonoti berilmaydi | Qaror qoidasini tanlash (oddiy qabul yoki himoya zonasi w = r·U) |
+| | `decision_no_agreement` | info | GUM | ILAC G8:09/2019 §2.3, §4.2.3 | Qaror qoidasi tanlangan, mijoz bilan kelishuv raqami yo'q | Kelishuv / shartnoma raqamini kiritish |
+| | `decision_invalid` | **error** | GUM | JCGM 106:2012 §8.3.2.2 | Chegaralar noto'g'ri (yuqori ≤ quyi), r son emas yoki himoya zonasi qabul oralig'ini yo'q qiladi (2w > T) | Chegara / r ni tuzatish |
+| | `decision_low_tur` | info | GUM | JCGM 106:2012 §7.6.4, §7.6.5, §8.2.2; ILAC G8:09/2019 §1.13, §5.3 | TUR = T / (2U) < 1 — o'lchash tolerantlikni ajrata olmaydi | Noaniqlikni kamaytirish yoki qoidani qayta ko'rish |
+| | `decision_normal_assumed` | info | GUM | JCGM 106:2012 §7.2.3, §7.2.4 | p_c normal taqsimot farazida hisoblangan, lekin ν_eff < 30 | Ehtiyotkorlik bilan talqin qilish |
 
 ### 2.3. Modul ogohlantirishlari topilma sifatida (kodlar o'zgarmagan)
 
@@ -99,7 +104,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 6 | A4 | Grubbs, ikki tomonlama, **α = 0,05**, n ≥ 3; faqat info | ISO 5725-2 repoda yo'q (bir tomonlama 5 % / 1 % bo'lishi mumkin) |
 | 7 | X5 | normal taqsimotda k < **1** yoki k > **4** | son yo'q |
 | 8 | X5 | δ kuzatuvlarning o'nlik xonalaridan olinadi; mos kelish 1 % ichida | — (evristika) |
-| 9 | X8 | `below_cmc` — **error** (warning emas) | ILAC P14 repoda yo'q |
+| 9 | X8 | `below_cmc` — **error** (warning emas) | ILAC P14:09/2020 §5.5: sertifikatdagi U CMC dan kichik bo'lmasligi kerak — daraja ko'rsatilmagan |
 | 10 | X8 | s = 0 + rezolyutsiya manbasi yo'q → warning; bor → info | F.2.2.1 — daraja ko'rsatilmagan |
 | 11 | A3, W1 | `invalid_nu` va `c_nan` — **error** | — |
 | 12 | X1 | (b) holatda manba **nomi** bo'yicha aniqlash (uz/ru/en kalit so'zlar); etalon nomli manba istisno | — (evristika) |
@@ -107,6 +112,10 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 14 | Qabul | izoh ≥ 10 belgi; qabul topilma qiymatiga bog'langan; rol sifatida faqat `admin` / `employee` / `superadmin` / `guest` | — |
 | 15 | Suv belgisi | faqat qabul qilinmagan `error` da; warning — belgisiz | — |
 | 16 | R-07 | model turi ko'rsatilmagan hisobda muvofiqlik bayonoti **va** keltirilgan xato γ berilmaydi | — |
+| 17 | D1 (P05b) | qaror qoidasi tanlanmagan bo'lsa bayonot **berilmaydi** (dastur standart qoidani o'zi tanlamaydi); `decision_rule_missing` — warning | ISO/IEC 17025 §7.1.3 (ILAC G8 §2.3): qoida mijoz bilan kelishiladi |
+| 18 | D1 | TUR = T / (2U) (simmetrik ±MPE da MPE / U); `decision_low_tur` chegarasi **TUR < 1**, faqat info | JCGM 106 §7.6.2 (C_m), ILAC G8 §1.13 (TUR = TL/U); chegara soni manbada yo'q |
+| 19 | D1 | p_c har doim normal taqsimot bilan; ν_eff < **30** da info (t-taqsimotga o'tilmaydi) | JCGM 106 §7.2.3–7.2.4: normal — odatiy faraz |
+| 20 | D1 | nobinar bayonot: qabul oralig'ida — `pass`; tolerantlik ichida, lekin himoya zonasida — `conditional_pass`; tolerantlikdan tashqarida, chegaradan w gacha — `conditional_fail`; undan nari — `fail` | ILAC G8 §4.2.3 |
 
 ## 5. Tekshiruv
 

@@ -458,3 +458,36 @@ LINTER_RULES, FINDING_CODES, LINTER_MODES, LINTER_THRESHOLDS, SEVERITIES
 **Hisobot qatlami** (`src/report/findings.js`, sof): `findingsBlockHTML(findings, {t, esc, acceptances, print, canAccept, scope})`, `findingsStatus`, `watermarkHTML`, `criticalMarkHTML`, `reportMarks(result, {t, mc})` (ν qoidasi, MC seed va M, BETA / unverified, dvigatel versiyasi), `modelKindText`.
 
 Testlar: `tests/engine/linter.test.js`, `tests/engine/linter-fixtures.test.js`, `tests/storage/acceptance.test.js`, `tests/ui/findings.test.js`.
+
+## 11. Qaror qoidasi, hisob hujjati va hisobot shakllari (P05b)
+
+### 11.1. `result.decision` — verified (JCGM 106:2012 §7–8; ILAC G8:09/2019)
+
+Kirish (`settings`): `decisionRule` (`'simple'` | `'guard_band'` | bo'sh), `guardR` (w = r·U), `decisionStatement` (`'binary'` | `'non_binary'`), `tolLower` / `tolUpper` (bir yoki ikki tomonlama chegara; berilmasa — ±MPE model turiga ko'ra), `agreement` (mijoz bilan kelishuv raqami).
+
+```js
+/** result.decision:
+ *   null                         — chegara ham, MPE ham yo'q
+ *   { pending: 'rule'|'limit'|'model_kind'|'nominal', lower, upper }   — bayonot berilmaydi
+ *   { error }                    — decision_bad_limits, decision_guard_exceeds, …
+ *   { type, lower, upper, tolerance, rule, r, w, statement, acceptLower, acceptUpper,
+ *     value, u, U, tur, cm, pc, pNonConf, verdict, accepted, specificRisk, riskKind,
+ *     maxFalseAccept, assumption: 'normal', agreement, pending: null }
+ */
+```
+
+`decide(o)`, `conformanceProbability(y, u, lower, upper)`, `decisionInput(settings, ctx)`, `DECISION_RULES`, `DECISION_STATEMENTS`, `GUARD_PRESETS` — `src/engine/decision.js`. Hukm U (hisobotdagi k bilan) bo'yicha; `multiPointCoverage` yagona k bilan qayta hisoblaydi. `conf` (P05a) — moslik uchun qoladi; hisobot faqat `decision` dan hukm chiqaradi.
+
+### 11.2. Hisob hujjati `uc-calc/1` (`src/io/calc-json.js`)
+
+`buildCalcDoc({id, createdAt, input, result, template, points, acceptances, ui})` → `{format, app, engineVersion, id, createdAt, template, input, result, findings, acceptances, points, hash}`; `hash` — hujjatning (xesh maydonisiz) RFC 8785 kanonik JSON'i SHA-256 (`src/storage/canonical.js::canonicalizeJcs`, `jcsHash`; ±∞ → `{"$num":"Infinity"}`). `parseCalcDoc(text)` — hajm chegarasi, format, taqiqlangan kalitlar (`__proto__` …), xesh tekshiruvi; `reproduce(parsed, evaluate, engineVersion)` — qayta hisob va bit darajasida solishtirish.
+
+### 11.3. Jadval importi / eksporti (`src/io/`)
+
+`import.js` (`LIMITS`, `precheck`, `zipInfo`, `xlsxSheet`, `csvTable`, `openTableFile`), `csv.js` (`parseCsv`, `toCsv`, `neutralize`), `table-text.js` (`parseGrid`, `matchColumns`, `planTablePaste`), `export-table.js` (`buildExportModel`, `flattenModel`), `xlsx-write.js`, `calc-state.js`. Vendor kutubxonalar faqat `vendor.js` (`loadXlsx`, `loadQr`) orqali, dinamik `import()` bilan.
+
+### 11.4. Hisobot shakllari (`src/report/`)
+
+`createSections({t, esc, acceptances, canAccept, lab})` — bo'limlar (GUM, regressiya, top-down, maxsus); `summaryRows(points, uniformK)`; `buildReport({form, mode, lang, t, esc, result, points, requisites, footer, …})` — `REPORT_FORMS = ['calibration_certificate', 'test_report', 'budget', 'conformity']`; `missingRequisites(form, req)`; `normativeRefs(lang, {form, mode, decision, monteCarlo})`; `footerModel`, `footerHTML`, `qrSvg`, `qrPayload(id, hash)`. Hammasi sof (DOM siz); DOM ulanishi — `src/js/report.js`, sozlamalar — `src/ui/report/app.js` (`window.UCReport`).
+
+Testlar: `tests/engine/decision.test.js`, `tests/io/*.test.js`, `tests/report/forms.test.js`, `tests/ui/io.test.js`, `tests/security/vendor.test.js`.

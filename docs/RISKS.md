@@ -22,7 +22,7 @@
 | R-04 | Yaxlitlash dvigatel ichida; manfiy sonlarda assimetriya; ROUNDUP 3 raqam ko'rsatadi | Y | P03/P05 |
 | R-05 | Chop etilgan hisobotda ogohlantirishlar (U=0, U<CMC) yo'q | K | P05a (yopildi) |
 | R-06 | Monte-Karlo: xorshift32, qat'iy seed, adaptiv M yo'q, korrelyatsiya yo'q | Y | P06 |
-| R-07 | Muvofiqlik `|y|` ni xato deb faraz qiladi | Y | P05a (yopildi; qaror qoidasi — P05b) |
+| R-07 | Muvofiqlik `|y|` ni xato deb faraz qiladi | Y | P05a, P05b (yopildi) |
 | R-08 | Manfiy dispersiya jimgina 0 ga kesiladi | O | P03 |
 | R-09 | `localStorage` versiyasiz, migratsiyasiz; saqlangan natijalar dvigatel versiyasiz | Y | P04 |
 | R-10 | B tur u_B UI'da dvigateldan mustaqil qayta hisoblanadi | O | P03 |
@@ -34,6 +34,16 @@
 | R-16 | MC asosiy oqimda — M=10⁶ da UI qotadi | P | P06 |
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
+| R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
+
+### P05b natijasi (2026-11-18, branch `feat/p05b-reports-io`, ENGINE_VERSION 2.5.0)
+
+| ID | Holat | Nima qilindi | Qoldiq xavf |
+|---|---|---|---|
+| R-07 | **yopildi (qaror qoidasi)** | `result.decision` (JCGM 106:2012 §7–8, ILAC G8:09/2019 — PDF bilan tekshirilgan misollar): oddiy qabul, himoya zonasi w = r·U, TUR, p_c, bir / ikki tomonlama chegaralar, binar / nobinar bayonot. Qoida yoki chegara yo'q — bayonot yo'q (D1) | R-22 |
+| R-04 | o'zgarmadi | Eksportda sonlar yaxlitlanmaydi; "hisobotdagi ko'rinish" alohida matn katagi (`roundResult`) | — |
+| R-14 | kengaydi | Ikki yangi vendor kutubxona (SheetJS CE 0.20.3, qrcode-generator 2.0.4) — `vendor/` da, SHA-256 testi bilan; CSP o'zgarmagan | Yangilash qo'lda: yangi versiyada xesh va README yangilanadi; SheetJS CVE lari kuzatiladi |
+| R-17 | qisman | ILAC P14, ILAC G8, JCGM 106 havolalari PDF bilan solishtirildi (`below_cmc` → §5.5, verified) | ISO/IEC 17025:2017 repoda yo'q (pullik) |
 
 ### P05a natijasi (2026-11-18, branch `feat/p05a-linter`, ENGINE_VERSION 2.4.0)
 
@@ -199,6 +209,18 @@
 - **Manba nuanslari:** AQA Table E3.1 metadon PP = 0,988 (formula bo'yicha 0,98854 → 0,989; D-15); AQA Table E6.2 SP quyi chegarasi 91,6 % (formula bo'yicha 91,55 %; D-17).
 - **Brauzerda qo'lda tekshirilmagan.** "Maxsus rejimlar" oynasi jsdom'da boshidan oxirigacha sinalgan (`tests/ui/special.test.js`), lekin ko'rinishni (CSS, tor ekran, chop etish) egasi ko'rib chiqishi kerak.
 - Holat `localStorage` (`uc_special_v1`) da — audit izisiz; IndexedDB ga ko'chirish — P05. Shaxsiy ma'lumot yozilmaydi.
+
+### R-22. Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar (O) — P05b
+- **GOST 34100.3-2017 ekvivalentligi tasdiqlanmadi.** `docs/references/` dagi hech bir hujjat "ГОСТ 34100.3-2017 = ISO/IEC Guide 98-3:2008" ni tasdiqlamaydi, shuning uchun rus tilidagi hisobotda ham faqat JCGM 100:2008 havolasi chiqadi (talabnoma: "ishonching komil bo'lmasa — faqat JCGM havolasi"). Tasdiqlangan yagona ekvivalent: JCGM 106:2012 = ISO/IEC Guide 98-4:2012 (ILAC G8:09/2019 §9 [2]). **Egasi qarori kerak:** GOST matnining titul varag'i / MGS ma'lumoti berilsa — `src/report/normative.js::EQUIVALENTS` ga qo'shiladi.
+- **Rekvizitlar ro'yxati — unverified.** ISO/IEC 17025:2017 pullik, repoda yo'q; §7.8.2.1 / §7.8.3.1 / §7.8.4.1 bo'yicha majburiy maydonlar ro'yxati (`src/report/requisites.js::REQUIRED`) umumiy bilim asosida tuzilgan va hisobotda "(unverified)" bilan ko'rsatiladi. Ogohlantirish chiqadi, lekin chop etishni bloklamaydi. **Egasi** ro'yxatni standart matni bilan solishtirishi kerak.
+- **Build identifikatori = dvigatel xeshi** (`tests/security/engine.sha256.json`, birinchi 12 belgi). Commit SHA uchun CI / build qadami **qo'shilmadi** (egasi ko'rsatmasi). Variantlar: (a) hozirgidek; (b) GitHub Actions deploy'da `build.json` yozish (Pages manbasi "Actions" ga o'tadi); (c) pre-commit hook. Xesh `src/engine/` va `src/report/` ni qamraydi — UI o'zgarishi build identifikatorini o'zgartirmaydi.
+- **Hisob xeshi nimani qamraydi:** `uc-calc/1` hujjati (kirishlar, natija, topilmalar, qabullar, shablon, ENGINE_VERSION, hisob ID, sana). Laboratoriya rekvizitlari va shaxsiy maydonlar xeshga **kirmaydi** (ular eksport qilinmaydi) — demak xesh hisobni tasdiqlaydi, hujjat sarlavhasini emas. QR — `uc-calc:<id>;sha256:<xesh>`; tekshirish sahifasi yo'q (P11).
+- **Shaxsiy rekvizitlar** (buyurtmachi, tasdiqlovchi, obyekt identifikatori) faqat `sessionStorage` da — yorliq yopilsa yo'qoladi; laboratoriya nomi, manzili, akkreditatsiya raqami va logotip — `localStorage` da. Firebase'ga hech narsa yozilmaydi. Qulaylik uchun shaxsiy maydonlarni ham `localStorage` da saqlash — egasi qarori.
+- **Qaror qoidasi — loyiha qarorlari** (`docs/LINTER_RULES.md` §4, 17–20-bandlar): standart qoida oldindan tanlanmaydi (laboratoriya sozlamasidan ham olinmaydi — har bir hisobda tanlanadi); TUR = T / (2U); p_c har doim normal taqsimot bilan (ν_eff < 30 da faqat eslatma); umumiy (global) xavf — JCGM 106 §9 — **hisoblanmaydi** (jarayonning aprior taqsimoti kerak), faqat shu o'lchov uchun (specific) xavf.
+- **Etalon nuqtalarda yangi ogohlantirish.** MPE berilgan 8 ta etalon nuqtada `decision_rule_missing` (warning) chiqadi — etalon Excel'da qaror qoidasi yo'q, misollarga qo'shilmadi. Avvalgi "MUVOFIQ" hukmi (|E| + U ≤ MPE) endi faqat r = 1 himoya zonasi tanlanganda chiqadi.
+- **Shablon `decisionRule` maydoni** (P04 sxemasi) dvigatel sozlamasiga avtomatik o'tkazilmaydi — laboratoriya natijalar sahifasida tanlaydi.
+- **Import:** SheetJS CE 0.20.3 dagi kelajakdagi zaifliklar — vendor yangilanishi qo'lda; himoya qatlamlari (hajm / ZIP katalogi / varaq / qator chegaralari, formula va HTML o'qilmaydi) `tests/io/import.test.js` da. `.xls` (eski ikkilik format) va `.ods` qabul qilinmaydi.
+- **Qilinmagan:** DCC (Digital Calibration Certificate) XML; PDF/A; elektron imzo; `/verify` sahifasi; regressiya / top-down / maxsus rejimlar uchun `.xlsx` da laboratoriya Excel'iga o'xshash tuzilma (umumiy "Natija" varag'i); hisob holatini IndexedDB audit zanjiriga yozish (import voqeasi qayd etilmaydi).
 
 ### R-10. Hisoblash mantig'ining takrorlanishi (O)
 - `typeB.js:73-81, 204-221` u_B ni mustaqil hisoblaydi; `typeB.js:241` korrelyatsiyani `typeA` (usulsiz) bilan ko'rsatadi, `evaluate` esa `typeAx` bilan. Ekrandagi va hisobotdagi qiymatlar farq qilishi mumkin. Batafsil: ARCHITECTURE.md §4.
