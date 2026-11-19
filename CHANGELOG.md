@@ -6,7 +6,7 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 
 ## [2.10.0] — P12: malaka sinovlari (PT) va usul validatsiyasi (2026-11-19)
 
-**ENGINE_VERSION: 2.9.0 → 2.10.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 91 ta misolning to'liq natijasi (`evaluate()`, `monteCarlo()`, `evaluateBias()`) 2.9.0 (`d970ca7` dan keyingi holat, `14e1d18`) bilan **bit darajasida bir xil** (`engineVersion` dan tashqari; nazorat skripti — natija JSON ining SHA-256 xeshi). 9 ta etalon Excel nuqtasi va 10-test o'zgarmadi. `src/engine/sampling/` (P10) umumiy ANOVA yordamchisiga o'tkazildi — UfS:2019 natijalari bit darajasida bir xil.
+**ENGINE_VERSION: 2.9.0 → 2.10.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 91 ta misolning to'liq natijasi (`evaluate()`, `monteCarlo()`, `evaluateBias()`) 2.9.0 (`d970ca7` dan keyingi holat, `14e1d18`) bilan **bit darajasida bir xil** (`engineVersion` dan tashqari; nazorat skripti — natija JSON ining SHA-256 xeshi; egasi qarorlari kiritilgandan keyin ham qayta tekshirildi). 9 ta etalon Excel nuqtasi va 10-test o'zgarmadi. `src/engine/sampling/` (P10) umumiy ANOVA yordamchisiga o'tkazildi — UfS:2019 natijalari bit darajasida bir xil.
 
 ### Qo'shilganlar
 
@@ -26,9 +26,13 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - §1.3.5.3 t-test: T = −12,62059, s_p = 6,34260, ν = 326, t = 1,9673 / 1,6495. §1.3.5.9 F-test: F = 1,123037, 0,7756 / 1,2894.
 - Unverified (todo): Cochran kritik qiymati (Monte-Karlo bilan mustaqil — o'tadi), LOD/LOQ (Eurachem FfP 2014 — egasi qo'shadi).
 
-### Egasi qarorini kutadi (R-26)
+### Egasi qarorlari (2026-11-19, R-26) — shu versiyada
 
-PT chegaralari va chegaradagi qiymat (+ 10⁻¹² tolerans), s_b² < 0 → 0, Grubbs sozlamalari, Cochran ko'rsatilishi, k_Q = 10 va kalibrlash LOD, L3 linter qoidasi (yoqilmagan, `LINTER_RULES.md` §4 #30), qoralamadagi ν(s_I).
+- PT chegaralari va 10⁻¹² tolerans tasdiqlandi; **hisobotda ball 2 o'nlik xonada**, baho yaxlitlanmagan qiymatdan, qoida va tolerans hisobot izohida.
+- s_b² < 0 → 0 + info; Grubbs (α = 0,05, bitta chetga chiquvchi) — tasdiqlandi.
+- Cochran va LOD/LOQ — **"(unverified)" belgisi test sarlavhasida**, bosma hisobotda ham; k_Q = 10.
+- **Linter L3** (`pt_last_unsatisfactory`, info; GUM va TOP_DOWN): hisob PT seriyasiga bog'langan (`settings.ptLink` — seriya nusxasi, `ptLinkOf`) va oxirgi raund qoniqarsiz. Bog'lanmagan hisoblarda topilma yo'q — 9 ta etalon nuqta topilmalari o'zgarmagan.
+- **ν(s_I) — Welch–Satterthwaite** (JCGM 100:2008 G.4.1; loyiha qarori): `oneWayAnova().nu.sI`; NIST §7.4.3 misolida 3,903; s_b² < 0 → N − k. Qoralamada `validationBasis.precision.nuSI` → top-down ustasining ν maydoni (`statedNu`); top-down `stated` komponentida ixtiyoriy `nu` (berilmasa natija o'zgarmagan).
 
 ## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-19)
 

@@ -370,6 +370,8 @@ Manbalar: NIST/SEMATECH e-Handbook ko'chirmasi `docs/references/nist-ehandbook-p
 | Bir omilli ANOVA: SS 27,897 / 17,452 / 45,349; MS 13,949 / 1,454; F = 9,59; F₀,₀₅;₂,₁₂ = 3,89; p = 0,00325 (NIST §7.4.3.3–7.4.3.4) | `oneWayAnova` | `validation.test.js` | ✅ verified |
 | Tasodifiy effektlar s_r, s_b, s_I; manfiy komponent → 0 (NIST §2.4.4.2: −0,00028072 → 0) | `oneWayAnova`, `varianceComponent`, `nonNegative` | `validation.test.js` | ✅ verified (s_b = 0 + info — loyiha qarori R-26 #2) |
 | Pooled s₁ = 0,07871 (ν = 60), s₂ = 0,02742 (ν = 10) (NIST §2.4.4.1–2.4.4.2) | `pooledSd` | `validation.test.js` | ✅ verified |
+| ν(s_I) — Welch–Satterthwaite (JCGM 100 G.4.1; loyiha qarori R-26 #7): NIST §7.4.3 misolida ν = 3,903; s_b² < 0 → N − k | `oneWayAnova` (`nu.sI`) | `validation.test.js`, `tests/templates/validation-draft.test.js` | ✅ formula (nazorat qiymati ≈ 3,90 — egasi bergan) |
+| Linter L3: oxirgi PT raundi qoniqarsiz → info (GUM, TOP_DOWN); ijobiy va salbiy holatlar | `l03-pt-last-round.js`, `ptLinkOf` | `tests/engine/linter-l3.test.js`, `tests/ui/quality.test.js` | ✅ (daraja — egasi qarori R-26 #6) |
 | Teng bo'lmagan guruhlarda n₀ | `oneWayAnova` | `validation.test.js` | ❔ unverified (formula manbasi repoda yo'q) |
 | t-test (teng dispersiya): T = −12,62059; s_p = 6,34260; ν = 326; t = 1,9673 / 1,6495 (NIST §1.3.5.3) | `twoSampleT` | `validation.test.js` | ✅ verified (yig'ma kirish yaxlitlanishi toleransda) |
 | Welch t-test — ν formulasi (NIST §1.3.5.3) | `twoSampleT` | `validation.test.js` | ✅ formula (sonli misol manbada yo'q) |
@@ -379,7 +381,7 @@ Manbalar: NIST/SEMATECH e-Handbook ko'chirmasi `docs/references/nist-ehandbook-p
 | Chiziqlilik — P08 regressiyasi chaqiriladi | `evaluateRegression` | `validation.test.js` | ✅ (P08) |
 | LOD = 3·s′₀, LOQ = k_Q·s′₀; kalibrlash 3,3 / 10 | `lodFromBlank`, `lodFromCalibration` | `validation.test.js` (manba misoli — `todo`) | ❔ unverified (Eurachem FfP 2014 / ICH Q2) |
 | PT ballari z, z′, ζ, E_n; null + sabab; xatolar (σ_pt ≤ 0, U ≤ 0, birlik) | `ptScores`, `evaluatePT` | `tests/engine/pt.test.js` | ✅ mustaqil qo'lda hisob; formula — ❔ ISO 13528 unverified |
-| PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli | `PT_LIMITS`, `verdictOf` | `pt.test.js` | ❔ loyiha standarti (R-26 #1) |
+| PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli; 10⁻¹² tolerans; hisobotda ball 2 xona, baho yaxlitlanmagan qiymatdan | `PT_LIMITS`, `verdictOf`, `scoreText` | `pt.test.js`, `tests/ui/quality.test.js` | ✅ egasi tasdiqladi (R-26 #1); manba bilan ❔ (ISO 13528) |
 | u(x_pt) > 0,3·σ_pt → info, avtomatik almashtirish yo'q | `evaluatePT` | `pt.test.js` | ❔ ISO 13528 unverified |
 | PT tarixi → top-down u(bias) (Nordtest TR 537 §6.2) — mavjud dvigatel | `ptToTopDownBias`, `evaluateBias` | `pt.test.js`, `tests/ui/quality.test.js` | ✅ (P09 da verified) |
 | Top-down qoralama: DRAFT, RFC 8785 xesh, sana; builtin da raqam yo'q | `topDownDraft`, `checkTemplate` | `tests/templates/validation-draft.test.js`, `tests/ui/quality.test.js` | ✅ |

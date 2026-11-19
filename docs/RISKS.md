@@ -37,7 +37,7 @@
 | R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; qoldiq — Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06, P07 → P13 |
 | R-24 | Ko'p o'zgaruvchili modellar: P07b da oshkormas model (U_y — Annex B), `atan2`, eng kichik soha (m = 2), shablonda `outputs` / `implicit`, ko'p chiqish + ko'p nuqta bajarildi; egasi qarorlari (2026-11-19) kiritildi; qoldiq — oshkormas model uchun MCM (keyingi bosqich) va UI shakli, m > 2 da eng kichik soha, nuqtalararo soha; sonli tafsilotlar tasdiq kutadi | O | P07, P07b → egasi qarori |
 | R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); NIST e-Handbook §6.3.2 va Westgard 1981 manbalari 2.8.1 da solishtirildi (`docs/references/nist-ehandbook-6.3.2/`, `westgard-1981-NOTES.md`) — **yopildi**; ochiq — faqat ISO/IEC 17025 §6.4–6.5, §7.7.1 (pullik) | O | P11 (ochiq: ISO/IEC 17025 — pullik) |
-| R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; PT chegaralari, s_b² < 0, Grubbs, Cochran, LOD/LOQ, L3, s_I ning ν — **egasi qarorini kutadi**; ISO 13528 / 5725-2 pullik, Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi | O | P12 → egasi qarori |
+| R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; **egasi qarorlari kiritildi (2026-11-19)** — PT chegaralari + 10⁻¹² tolerans, s_b² < 0 → 0, Grubbs, Cochran / LOD (unverified belgisi bilan), L3 (info, yoqildi), ν(s_I) Welch–Satterthwaite; ochiq — faqat manbalar (ISO 13528 / 5725-2 pullik; Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi) | O | P12 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
@@ -336,24 +336,24 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 5. **Chiqishga xos sozlamalar** (MPE, qaror qoidasi) faqat `outputs[j].settings` orqali; umumiy `settings` dagi MPE vektor hisobda e'tiborga olinmaydi.
 6. **Ko'p o'lchovli t `nonNormalCorrelation: 'gaussian'` sozlamasidan ustun** (2.7.0 da MCM natijasi o'zgargan holat — CHANGELOG).
 
-### R-26. PT va usul validatsiyasi: loyiha standartlari va tekshirilmagan qism (O) — P12 (2026-11-19, ENGINE 2.10.0)
+### R-26. PT va usul validatsiyasi: egasi qarorlari va tekshirilmagan qism (O) — P12 (2026-11-19, ENGINE 2.10.0)
 
-Bajarilgan: `src/engine/pt/` (z, z′, ζ, E_n, PT tarixi → top-down), `src/engine/validation/` (Grubbs, Cochran, bir omilli ANOVA, t / F testlari, recovery → P09, chiziqlilik → P08, LOD/LOQ, top-down qoralama), saqlash (IndexedDB v2), UI, hisobot. **Verified:** NIST/SEMATECH e-Handbook §1.3.5.17.1, §7.4.3, §2.4.4.1–2.4.4.2, §1.3.5.3, §1.3.5.9 (D-22 — manbada G kesilgan).
+Bajarilgan: `src/engine/pt/` (z, z′, ζ, E_n, PT tarixi → top-down), `src/engine/validation/` (Grubbs, Cochran, bir omilli ANOVA, t / F testlari, recovery → P09, chiziqlilik → P08, LOD/LOQ, top-down qoralama), saqlash (IndexedDB v2), UI, hisobot, linter L3. **Verified:** NIST/SEMATECH e-Handbook §1.3.5.17.1, §7.4.3, §2.4.4.1–2.4.4.2, §1.3.5.3, §1.3.5.9 (D-22 — manbada G kesilgan).
 
-**Egasidan so'raladigan qarorlar (standart sifatida qo'llangan — tasdiqlanmaguncha "loyiha standarti" deb hisobotda yoziladi):**
+**Egasi qarorlari (2026-11-19) — kiritildi:**
 
-| # | Qaror | Qo'llangan standart | Variantlar |
-|---|---|---|---|
-| 1 | PT baholash chegaralari va chegaradagi qiymat | \|z\|, \|z′\|, \|ζ\| ≤ 2 qoniqarli; 2 < \|·\| < 3 shubhali; ≥ 3 qoniqarsiz; \|E_n\| ≤ 1 qoniqarli; **chegaradagi qiymat qoniqarli**; ikkilik yaxlitlash xatosi uchun 10⁻¹² nisbiy tolerans ((10,4 − 10)/0,2 = 2,0000000000000018 → qoniqarli) | (a) tasdiqlash; (b) Eurachem PT Guide qo'shilgach u bilan solishtirib qayta ko'rish; (c) PT provayderi mezonini seriya sozlamasi qilish |
-| 2 | ANOVA da s_b² < 0 | s_b = 0 + info `anova_negative_component` (NIST §2.4.4.2 shunday talqin qiladi) | (a) tasdiqlash; (b) warning darajasi |
-| 3 | Grubbs | α = 0,05 standart (0,01 — sozlama); faqat bitta chetga chiquvchi; avtomatik chiqarish yo'q; takror — foydalanuvchi harakati, `grubbs_multiple` info | (a) tasdiqlash; (b) generalized ESD testini qo'shish (NIST §1.3.5.17.3 — repoga qo'shish kerak) |
-| 4 | Cochran (unverified) | **ko'rsatiladi**, natijada har doim `cochran_unverified` + hisobotda belgi; kritik qiymat Monte-Karlo bilan mustaqil tekshirilgan (todo-test) | (a) shunday qoldirish; (b) ISO 5725-2 jadvali kelguncha yashirish |
-| 5 | LOD/LOQ | k_Q = 10 standart (sozlanadi); kalibrlash usuli (3,3 / 10) **ko'rsatiladi**, unverified belgi bilan | (a) tasdiqlash; (b) kalibrlash usulini manbagacha yashirish; (c) k_Q standarti boshqa (5, 6) |
-| 6 | L3 linter qoidasi (oxirgi PT raundi qoniqarsiz → info) | **yoqilmagan** — `docs/LINTER_RULES.md` §4 #30 variantlari | (a) kerak emas; (b) info, faqat shablon / usul bog'langan bo'lsa; (c) warning |
-| 7 | Qoralamada s_I ning erkinlik darajasi | n bo'sh — foydalanuvchi kiritadi (manbada ν(s_I) yo'q) | (a) shunday; (b) ν = N − k (s_r ning ν si — konservativ emas bo'lishi mumkin); (c) Satterthwaite (manba kerak) |
-| 8 | PT trend qoidalari | qo'shilmagan (manba yo'q) — faqat grafik | Eurachem PT Guide / ISO 13528 kelgach |
+| # | Qaror | Amalga oshirilishi |
+|---|---|---|
+| 1 | PT chegaralari va 10⁻¹² tolerans **tasdiqlandi**: \|z\|, \|z′\|, \|ζ\| ≤ 2 qoniqarli; 2 < \|·\| < 3 shubhali; ≥ 3 qoniqarsiz; \|E_n\| ≤ 1 qoniqarli; chegaradagi qiymat qoniqarli | `PT_LIMITS`, `PT_BOUNDARY_TOL` = 10⁻¹². **Hisobotda ball 2 o'nlik xonagacha** (`scoreText`, round half away from zero), **baho — yaxlitlanmagan qiymatdan** (dvigatel); qoida va tolerans hisobot izohida (`pt_score_rule`) |
+| 2 | ANOVA s_b² < 0 → 0 + info — **tasdiqlandi** | `anova_negative_component` |
+| 3 | Grubbs (α = 0,05; bitta chetga chiquvchi; avtomatik chiqarish yo'q) — **tasdiqlandi** | o'zgarishsiz |
+| 4 | Cochran **"(unverified)" belgisi bilan ko'rsatiladi**, belgi bosma hisobotda ham | test sarlavhasida `(unverified)` + izoh qatori (ekran va bosma), `cochran_unverified` topilmasi |
+| 5 | LOD/LOQ: k_Q = 10; kalibrlash usuli "(unverified)" belgisi bilan — **tasdiqlandi** | shu belgi blank va kalibrlash usullarida |
+| 6 | **L3 — info darajasida yoqildi** (oxirgi PT raundi qoniqarsiz) | `src/engine/linter/rules/l03-pt-last-round.js`, kod `pt_last_unsatisfactory`; hisob seriyaga aniq bog'langanda (`settings.ptLink` — seriya nusxasi: "Joriy hisobga bog'lash" yoki "→ Top-down"); `docs/LINTER_RULES.md` §4 #30; ijobiy va salbiy testlar (`tests/engine/linter-l3.test.js`) |
+| 7 | **ν(s_I) — Welch–Satterthwaite** (JCGM 100:2008 G.4.1; "loyiha qarori" belgisi bilan): s_I² = MS_b/n₀ + (1 − 1/n₀)·MS_w; ν = s_I⁴ / [(MS_b/n₀)²/(k − 1) + ((1 − 1/n₀)·MS_w)²/(N − k)]; s_b² < 0 → s_I = s_r, ν = N − k | `oneWayAnova` → `nu.sI`, `nuSIRule`; NIST §7.4.3 misolida **ν = 3,903** (test, ≈ 3,90); qoralamada `validationBasis.precision.nuSI` → ustaning ν maydoni (`statedNu`, dvigatelda `stated.nu` — ixtiyoriy, berilmasa avvalgidek n − 1), foydalanuvchi o'zgartira oladi; hisobotda "loyiha qarori" deb yoziladi |
+| 8 | PT trend qoidalari | qo'shilmagan (manba yo'q) — faqat grafik |
 
-**Tekshirilmagan:** ISO 13528:2022 (ball formulalari, u(x_pt) > 0,3·σ_pt), ISO/IEC 17043:2023, ISO 5725-2:2019 (Cochran, Grubbs jadvallari), Eurachem PT Guide 2021, Eurachem Fitness for Purpose 2014 (LOD/LOQ), ICH Q2 (kalibrlash LOD), teng bo'lmagan guruhlarda n₀. **Qilinmagan:** real brauzerda qo'lda ko'rish (faqat jsdom), raundlarni jadvalda joyida tahrirlash (o'chirib qayta qo'shiladi), trend qoidalari, generalized ESD.
+**Tekshirilmagan:** ISO 13528:2022 (ball formulalari, u(x_pt) > 0,3·σ_pt), ISO/IEC 17043:2023, ISO 5725-2:2019 (Cochran, Grubbs jadvallari), Eurachem PT Guide 2021, Eurachem Fitness for Purpose 2014 (LOD/LOQ), ICH Q2 (kalibrlash LOD), teng bo'lmagan guruhlarda n₀. **Qilinmagan:** real brauzerda qo'lda ko'rish (faqat jsdom), raundlarni jadvalda joyida tahrirlash (o'chirib qayta qo'shiladi), trend qoidalari, generalized ESD; L3 uchun seriya ↔ shablon avtomatik bog'lash (bog'lash — foydalanuvchi harakati).
 
 ### R-25. Laboratoriya reestri: tekshirilmagan qism va ochiq qarorlar (O) — P11 (2026-11-18, ENGINE 2.8.0)
 
