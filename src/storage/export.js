@@ -13,7 +13,9 @@ import { STORES, keyOf } from './adapter.js';
 import { verifyChain } from './audit.js';
 
 export const EXPORT_FORMAT = 'uc-export/1';
-const ORDER = ['calculations', 'templates', 'settings', 'registries', 'meta', 'audit'];
+const ORDER = ['calculations', 'templates', 'settings', 'registries', 'pt', 'validation', 'meta', 'audit'];
+/** P12 omborlari — bo'sh bo'lsa eksportga kirmaydi: P12 gacha bo'lgan bazaning eksporti bayt darajasida o'zgarmaydi. */
+const OPTIONAL = new Set(['pt', 'validation']);
 
 const keyStr = (store, r) => canonicalize(keyOf(store, r));
 
@@ -22,6 +24,7 @@ export async function exportAll(store) {
   const stores = {};
   for (const name of ORDER) {
     const list = await store.rawList(name);
+    if (OPTIONAL.has(name) && !list.length) continue;
     stores[name] = name === 'audit'
       ? [...list].sort((a, b) => a.seq - b.seq)
       : [...list].sort((a, b) => (keyStr(name, a) < keyStr(name, b) ? -1 : keyStr(name, a) > keyStr(name, b) ? 1 : 0));
@@ -39,7 +42,7 @@ export async function inspectExport(text) {
   if ((await sha256Hex(canonicalize(doc.stores))) !== doc.integrity) return { ok: false, reason: 'integrity' };
   const chain = await verifyChain(doc.stores.audit || []);
   if (!chain.ok) return { ok: false, reason: 'audit_chain', chain };
-  const counts = Object.fromEntries(ORDER.map(k => [k, (doc.stores[k] || []).length]));
+  const counts = Object.fromEntries(ORDER.filter(k => !OPTIONAL.has(k) || doc.stores[k]).map(k => [k, (doc.stores[k] || []).length]));
   return { ok: true, doc, counts };
 }
 

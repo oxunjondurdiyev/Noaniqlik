@@ -9,7 +9,8 @@ import { StorageAdapter, STORES, keyOf } from './adapter.js';
 import { makeEntry, verifyChain } from './audit.js';
 
 export const DB_NAME = 'uncertaintycalc';
-export const DB_VERSION = 1;
+/** 2 — P12: `pt` va `validation` omborlari qo'shildi (onupgradeneeded faqat YO'Q omborlarni yaratadi — mavjud ma'lumot o'zgarmaydi). */
+export const DB_VERSION = 2;
 
 const req = r => new Promise((resolve, reject) => { r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
 const done = tx => new Promise((resolve, reject) => {
