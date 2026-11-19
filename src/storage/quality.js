@@ -38,7 +38,8 @@ export function newQualityId(kind, now, rnd) {
 
 const str = v => (v === undefined || v === null ? '' : String(v).slice(0, 500));
 const val = v => (v === undefined || v === null || v === '' ? '' : (typeof v === 'number' ? v : String(v).slice(0, 64)));
-const ROUND_FIELDS = ['id', 'date', 'scheme', 'x', 'xpt', 'sigmaPt', 'ux', 'uxpt', 'Ux', 'Uxpt', 'primary', 'note'];
+// Raund maydonlari (obyekt kalitlari — foydalanuvchi matni emas)
+const ROUND_FIELDS = Object.keys({ id: 0, date: 0, scheme: 0, x: 0, xpt: 0, sigmaPt: 0, ux: 0, uxpt: 0, Ux: 0, Uxpt: 0, primary: 0, note: 0 });
 
 /** PT seriyasi: { id, kind:'pt', name, quantity, method, matrix, unit, provider (TASHKILOT), rounds[] } — boshqa maydon tashlanadi. */
 export function cleanPtSeries(s) {
