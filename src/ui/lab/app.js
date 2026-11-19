@@ -76,12 +76,18 @@ function analysisModel() {
   };
 }
 
+/** Laboratoriya sozlamasi: Westgard 1₂s darvozasi (standart — yoqilgan, Westgard 1981 1-rasm). */
+function qcGate() {
+  const lab = window.UCTemplates && window.UCTemplates.labSettings ? window.UCTemplates.labSettings() : null;
+  return !(lab && lab.westgardGate === false);
+}
+
 function qcModel() {
   const c = qcDraft;
   return {
     charts, selected: qcSel, chart: c, readOnly: readOnly('standard'), history: qcHistory, entry: qcEntry,
     target: { mean: c && c.target ? c.target.mean : (c && c.targetMean) || '', s: c && c.target ? c.target.s : (c && c.targetS) || '' },
-    analysis: c ? analyseQc(c) : null,
+    analysis: c ? analyseQc(c, { gate: qcGate() }) : null,
   };
 }
 
@@ -263,13 +269,13 @@ async function addQcPoint() {
   if (qcDraft.type === 'imr' && values.length !== 1) { toast(t('lb_qc_values_hint_imr'), 'error'); return; }
   qcDraft.points.push({ date: qcEntry.date || today(), run: qcEntry.run || '', values });
   if (await saveChart('qc_value')) {
-    const a = analyseQc(qcDraft);
+    const a = analyseQc(qcDraft, { gate: qcGate() });
     if (a && !a.error && a.westgard.flagged[a.series.length - 1]) toast(`${t('lb_qc_violations')}: ${a.westgard.flagged[a.series.length - 1].map(r => t('lb_rule_' + r)).join(', ')}`, 'error', 8000);
   }
 }
 /** s_Rw ni top-down ustasiga uzatish: nazorat qatori (control_series) — dvigatel s (n − 1) va ν = n − 1 ni o'zi hisoblaydi. */
 function toTopDown() {
-  const a = qcDraft && analyseQc(qcDraft);
+  const a = qcDraft && analyseQc(qcDraft, { gate: qcGate() });
   if (!a || a.error || !window.UCTopDown) { toast(t('lb_err_qc_need_data'), 'error'); return; }
   const cur = window.UCTopDown.getState();
   window.UCTopDown.setState({ ...cur, step: 2, basis: 'within', rwSources: ['control_series'], qcValues: a.sRw.values.join('\n'), scale: 'absolute', unit: qcDraft.unit || cur.unit || '' });

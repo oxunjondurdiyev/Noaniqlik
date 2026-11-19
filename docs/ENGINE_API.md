@@ -681,7 +681,8 @@ Hisobda: `settings.cmcRows` (massiv — X ga mos qator avtomatik) yoki `settings
 - `xbarRChart(subgroups)` → X̿ ± A₂·R̄; R: D₃R̄ … D₄R̄; `sigmaWithin = R̄/d₂`. Kichik guruh hajmi 2…10, hammasi bir xil.
 - `targetLimits({ mean, s })`, `zScores(values, m, s)`, `SHEWHART_CONSTANTS[n] = { d2, d3, A2, D3, D4 }`.
 - `sRwFromChart(points)` → `{ sRw, mean, n, nu: n − 1, values }` — top-down `control_series` ga uzatiladi.
-- `westgard(z, { rules?, runs? })` → `{ violations: [{ rule, indices }], flagged, inControl }`; alohida: `rule13s`, `rule22s`, `ruleR4s(z, runs?)`, `rule41s`, `rule10x`. Natija o'chirilmaydi — faqat belgilanadi. R₄s seriya belgisisiz (`runs` yo'q) ketma-ket juftlikka qo'llansa — `violations[].approximation: true` (loyiha yaqinlashuvi).
+- `westgard(z, { rules?, runs?, gate? })` → `{ violations: [{ rule, indices }], flagged, inControl, gate, suppressed }`; alohida: `rule13s`, `rule22s`, `ruleR4s(z, runs?)`, `rule41s`, `rule10x`. Natija o'chirilmaydi — faqat belgilanadi. R₄s seriya belgisisiz (`runs` yo'q) ketma-ket juftlikka qo'llansa — `violations[].approximation: true` (loyiha yaqinlashuvi). **`gate`** (standart `true`, Westgard 1981 1-rasm): oyna tugaydigan seriyada |z| > 2 kuzatuv bo'lmasa — rad etish olinmaydi, `suppressed: [{ rule, indices }]` ga yoziladi; seriya — `runs` belgisi, yo'q bo'lsa har bir nuqta. Laboratoriya sozlamasi `westgardGate` (2.8.1).
+- `westgardMulti([{ z, runs }, …], { rules?, gate? })` → `{ violations: [{ rule, indices: [{ material, index }] }], flagged: { 'm:i': [...] }, inControl, gate, suppressed, runs, generalized? }` | `{ error: 'qc_multi_runs_required' | 'qc_need_data' }` (2.8.1; Westgard 1981 494, 496-betlar).
 
 ### 14.5. Kalibrlash intervali
 

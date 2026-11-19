@@ -131,6 +131,15 @@ test('ko\'rinish uch tilda: etalonlar ro\'yxati (muddati o\'tgan / yaqin, akkred
     assert.equal(q4.querySelector('[data-lb-approx]').textContent, `(${ctx.t('lb_rule_approx')})`);
     const runs = { ...r4, points: r4.points.map(p => ({ ...p, run: 'a' })) };
     assert.equal(frag(V.qcHTML({ charts: [runs], selected: 'qc:1', chart: runs, readOnly: false, history: [], entry: {}, target: { mean: 100, s: 2 }, analysis: M.analyseQc(runs) }, ctx)).querySelectorAll('[data-lb-approx]').length, 0);
+    // W-4: 1₂s darvozasi — ±2s ga yetmagan 4₁s ko'rsatiladi, lekin rad etmaydi; darvoza o'chirilsa — belgi bilan rad etadi
+    const q41 = { ...chart, points: [100, 103, 103, 103, 103].map(v => ({ date: '2026-11-18', run: '', values: [v] })) };
+    const gOn = frag(V.qcHTML({ charts: [q41], selected: 'qc:1', chart: q41, readOnly: false, history: [], entry: {}, target: { mean: 100, s: 2 }, analysis: M.analyseQc(q41) }, ctx));
+    assert.equal(gOn.querySelector('[data-lb-westgard]').dataset.lbWestgard, 'in');
+    assert.ok(gOn.querySelector('[data-lb-suppressed]'));
+    assert.equal(gOn.querySelector('[data-lb-gate]'), null);
+    const gOff = frag(V.qcHTML({ charts: [q41], selected: 'qc:1', chart: q41, readOnly: false, history: [], entry: {}, target: { mean: 100, s: 2 }, analysis: M.analyseQc(q41, { gate: false }) }, ctx));
+    assert.equal(gOff.querySelector('[data-lb-westgard]').dataset.lbWestgard, 'out');
+    assert.equal(gOff.querySelector('[data-lb-gate]').textContent, ctx.t('lb_qc_gate_off'));
   }
   assert.equal(seen.size, 3);
   assert.deepEqual([...missing], []);
