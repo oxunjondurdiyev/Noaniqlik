@@ -98,7 +98,7 @@ Versiya quyidagilarning **hammasi** bajarilganda qabul qilinadi:
 7. **Regressiya nazorati:** `scripts/cases-snapshot.js` bilan oldingi versiyaga nisbatan bit darajasidagi solishtiruv; har bir farq `CHANGELOG.md` da izohlangan ([CHANGE_CONTROL.md](CHANGE_CONTROL.md) §3).
 8. **Brauzerlararo mezon (egasi qarori B, 2026-11-19, R-24)** — `tests/crossbrowser/` (Playwright: Chromium, Firefox, WebKit; `npm run test:browsers`):
    - R(0, 1) ketma-ketligi bit darajasida bir xil;
-   - turli JS dvigatellarida xom qiymatlarning nisbiy farqi ≤ 1·10⁻¹⁴; o'lchangan qiymat validatsiya hisobotida yoziladi;
+   - turli JS dvigatellarida xom qiymatlarning nisbiy farqi ≤ 1·10⁻¹⁴; o'lchangan qiymat validatsiya hisobotida yoziladi. Shartlanganligi yomon hosila kattaliklar (deyarli singular matritsaning eng kichik xos qiymati, nolga yaqin korrelyatsiya, sonli hosila tekshiruvi) uchun bu chegara bajarilmaydi (o'lchangan maks. 3,4·10⁻¹¹): ular aniq istisnolar ro'yxatida — `tests/crossbrowser/exceptions.json` (har bir band sababi bilan, yuqori chegara 10⁻⁹); ro'yxat **egasi tasdig'ini kutadi** (`docs/RISKS.md` R-27 (1));
    - hisobot qatlamida yaxlitlangan y, U, k va interval uchlari **aynan** bir xil.
    Dvigatelning o'z `log` / `sin` / `cos` nusxasi (fdlibm) qilinmaydi. Linux dagi WebKit — Safari emas: Safari (macOS / iOS) PQ da qo'lda tekshiriladi.
 

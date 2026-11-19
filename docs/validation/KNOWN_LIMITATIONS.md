@@ -180,6 +180,7 @@
 | KL-151 | Dvigatelning o'z `log` / `sin` / `cos` (fdlibm) nusxasi qilinmaydi; xom qiymatlarda nisbiy farq ≤ 1·10⁻¹⁴ qabul qilinadi | qilinmagan (egasi qarori B) | [VALIDATION_PLAN.md](VALIDATION_PLAN.md) §4 | — |
 | KL-152 | Linux dagi WebKit (Playwright) — Safari emas; Safari (macOS / iOS) avtomatik tekshirilmaydi | ko'rilmagan | [VALIDATION_PLAN.md](VALIDATION_PLAN.md) §4 | laboratoriya PQ da qo'lda tekshiradi |
 | KL-153 | Brauzerlar: ES modullar (2018+); eski brauzerga faqat oddiy ogohlantirish | qoldiq xavf (egasi qarori) | `CLAUDE.md` | eski brauzerda faqat ogohlantirish chiqadi |
+| KL-154 | Brauzerlararo 1·10⁻¹⁴ chegarasi shartlanganligi yomon hosila kattaliklarda bajarilmaydi (Node 22 ↔ Chromium 157: 14 qiymat, maks. 3,4·10⁻¹¹; yaxlitlangan natija bir xil) — istisnolar ro'yxati `tests/crossbrowser/exceptions.json` | tasdiq kutadi | `docs/RISKS.md` R-24, R-27 (1) | Hisobotdagi yaxlitlangan natijaga ta'sir qilmaydi; JSON eksportdagi yaxlitlanmagan ayrim yordamchi qiymatlar brauzerga qarab 10⁻¹¹ darajasida farq qilishi mumkin |
 
 ## 13. Deploy
 
