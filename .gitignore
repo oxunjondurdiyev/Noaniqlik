@@ -15,3 +15,8 @@ auth-import*.json
 migration-out/
 
 .DS_Store
+
+# P13: yig'ilgan sayt va validatsiya hisoboti (CI / lokal build mahsuloti)
+_site/
+_validation/
+crossbrowser-results.json

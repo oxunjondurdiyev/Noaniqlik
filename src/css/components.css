@@ -982,3 +982,15 @@ tr.row-bad td { background: color-mix(in srgb, var(--danger) 10%, transparent); 
 }
 .build-banner-text { max-width: 900px; }
 @media print { .build-banner { display: none; } }
+
+/* P13: "Validatsiya" sahifasi (validation.html) */
+.val-topbar-actions { display: flex; align-items: center; gap: .75rem; }
+.val-page { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
+.val-page h1 { font-size: 24px; margin-bottom: 6px; }
+.val-page h2 { font-size: 16px; margin: 0 0 12px; }
+.val-card { margin-top: 18px; padding: 18px 20px; }
+.val-facts { display: grid; grid-template-columns: minmax(180px, 1fr) 2fr; gap: 6px 16px; margin: 0; font-size: 13px; }
+.val-facts dt { color: var(--text-muted, #6b7899); }
+.val-facts dd { margin: 0; overflow-wrap: anywhere; }
+.val-list { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.7; }
+@media (max-width: 640px) { .val-facts { grid-template-columns: 1fr; } }
