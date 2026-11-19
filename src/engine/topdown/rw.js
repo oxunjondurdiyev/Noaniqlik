@@ -85,7 +85,11 @@ function component(c, i, ctx) {
   const s = stated(c, c.s, ctx, `${where}.s`);
   if (!(s >= 0)) fail('topdown_bad_data', `${where}.s`);
   const n = has(c.n) ? num(c.n, `${where}.n`) : null;
-  return { ...base, u: s, n, nu: n ? n - 1 : Infinity, ref: 'Nordtest TR 537 ed. 4 §5 (p. 15)' };
+  // P12: erkinlik darajasi to'g'ridan-to'g'ri berilishi mumkin (validatsiyadan s_I — Welch–Satterthwaite, R-26 #7);
+  // berilmasa — avvalgidek ν = n − 1 (n yo'q — ∞). Ref: JCGM 100:2008 G.4.1
+  let nu = n ? n - 1 : Infinity;
+  if (has(c.nu)) { nu = num(c.nu, `${where}.nu`); if (!(nu > 0)) fail('topdown_bad_data', `${where}.nu`); }
+  return { ...base, u: s, n, nu, ref: 'Nordtest TR 537 ed. 4 §5 (p. 15)' };
 }
 
 /**

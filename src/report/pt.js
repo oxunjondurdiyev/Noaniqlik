@@ -5,11 +5,12 @@
    Matnlar env.t (src/js/i18n-pt.js), qiymatlar env.esc orqali. Natija yaxlitlanmaydi — faqat ko'rsatish (6 qiymatli raqam,
    ball — 3 qiymatli raqam; ISO 13528 — unverified).
 ═══════════════════════════════════════════════════════════════ */
-import { ptChartSVG, ptChartFamilies } from './pt-chart.js';
+import { ptChartSVG, ptChartFamilies, scoreText } from './pt-chart.js';
 
 const num = (v, sig) => (typeof v === 'number' && Number.isFinite(v) ? String(Number(v.toPrecision(sig || 6))) : '—');
 const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (o[k] === undefined ? m : o[k]));
 const SCORE_KEYS = ['z', 'zPrime', 'zeta', 'En'];
+export { scoreText };
 
 /**
  * @param {{t:Function, esc:Function}} env
@@ -28,7 +29,7 @@ export function ptSectionHTML(env, r, opt = {}) {
     const u = x.unit ? ' ' + x.unit : '';
     const scores = SCORE_KEYS.map(k => {
       const v = x.scores[k];
-      const cell = v === null ? `<span class="text-muted" title="${esc(t('pt_reason_' + x.reasons[k]))}">—</span>` : esc(num(v, 3));
+      const cell = v === null ? `<span class="text-muted" title="${esc(t('pt_reason_' + x.reasons[k]))}">—</span>` : esc(scoreText(v));
       return `<td class="num"${k === x.primary ? ' data-pt-primary="1"' : ''}>${k === x.primary ? `<strong>${cell}</strong>` : cell}</td>`;
     }).join('');
     return `<tr data-pt-round="${esc(x.id)}" data-pt-verdict="${esc(x.verdict)}">
@@ -53,6 +54,7 @@ export function ptSectionHTML(env, r, opt = {}) {
     ${table}
     <p class="report-line" data-pt-counts="1">${esc(counts)}</p>
     <p class="report-line" data-pt-limits="1"><strong>${esc(t('pt_limits_title'))}:</strong> ${esc(limits)} — ${esc(t('pt_limits_source'))} <em>(${esc(r.limitsRef)})</em></p>
+    <p class="report-line" data-pt-score-rule="1">${esc(fill(t('pt_score_rule'), { tol: '10⁻¹²' }))}</p>
     ${r.mixedUnits ? `<p class="report-line" data-pt-mixed="1">⚠ ${esc(t('pt_mixed_units'))}</p>` : ''}
     ${charts ? `${head('pt_chart_title')}<div class="pt-charts">${charts}</div><p class="report-line text-xs">${esc(t('pt_chart_note'))}</p>` : ''}
   </div>`;

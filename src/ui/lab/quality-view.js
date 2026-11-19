@@ -63,8 +63,10 @@ export function ptHTML(m, ctx) {
     ${m.result ? `<div data-pt-result="1">${ptSectionHTML(ctx, m.result)}${findings(ctx, m.result, 'pt')}
       <div class="rg-actions">
         <button type="button" class="btn btn-outline btn-sm" data-pt-act="to-topdown"${dis(m.result.error)}>${ctx.esc(t('pt_to_topdown'))}</button>
+        <button type="button" class="btn btn-outline btn-sm" data-pt-act="link-calc"${dis(m.result.error)}>${ctx.esc(t('pt_link_calc'))}</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-pt-act="unlink-calc">${ctx.esc(t('pt_unlink_calc'))}</button>
         <button type="button" class="btn btn-outline btn-sm" data-pt-act="print"${dis(m.result.error)}>${ctx.esc(t('rg_print'))}</button>
-      </div><p class="text-xs text-muted">${ctx.esc(t('pt_to_topdown_hint'))}</p></div>` : ''}
+      </div><p class="text-xs text-muted">${ctx.esc(t('pt_to_topdown_hint'))}</p><p class="text-xs text-muted">${ctx.esc(t('pt_link_hint'))}</p></div>` : ''}
     ${historyHTML(m.history, ctx)}
   </div>`;
 }

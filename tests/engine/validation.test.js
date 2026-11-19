@@ -243,3 +243,28 @@ test('uc-validation/1: bitta test xatosi qolganlarini to\'xtatmaydi; noma\'lum t
   assert.equal(E.evaluate({ format: 'uc-validation/1', tests: [] }).error, 'validation_bad_spec');
   assert.equal(v.engineVersion, E.ENGINE_VERSION);
 });
+
+/* ── ν(s_I) — Welch–Satterthwaite (JCGM 100:2008 G.4.1; egasi qarori 2026-11-19, R-26 #7 — loyiha qarori) ── */
+test('ν(s_I): NIST 7.4.3 misolida ν ≈ 3,90 (Welch–Satterthwaite); s_b² < 0 da s_I = s_r, ν = N − k', () => {
+  const r = E.oneWayAnova(RESISTORS);
+  const a = r.ms.between / 5, b = (1 - 1 / 5) * r.ms.within;
+  near(r.sI ** 2, a + b, 1e-12, 's_I² = MS_b/n₀ + (1 − 1/n₀)·MS_w');
+  near(r.nu.sI, (a + b) ** 2 / (a * a / 2 + b * b / 12), 1e-12, 'ν formula');
+  near(r.nu.sI, 3.90, 5e-3, 'ν(s_I) ≈ 3,90 (egasi bergan nazorat qiymati)');
+  assert.equal(r.nuSIRule, 'welch_satterthwaite');
+  const neg = E.oneWayAnova([[1, 2, 3], [1.1, 2.1, 3.1], [1, 2, 3.2]]);
+  assert.ok(neg.sb2 < 0);
+  assert.equal(neg.sI, neg.sr);
+  assert.equal(neg.nu.sI, neg.df.within);
+  assert.equal(neg.nuSIRule, 'negative_component');
+});
+
+test('top-down stated: ν berilsa — o\'sha ν (n o\'rniga); berilmasa — avvalgidek n − 1; ν ≤ 0 — xato', () => {
+  const base = { format: 'uc-topdown/1', approach: 'NORDTEST', scale: { relative: true }, relativeUnit: '%', rw: { components: [{ type: 'stated', id: 's', s: 2, n: 10, relative: true }] } };
+  const old = E.evaluate(base);
+  assert.equal(old.rw.components[0].nu, 9);
+  const withNu = E.evaluate({ ...base, rw: { components: [{ type: 'stated', id: 's', s: 2, n: 10, nu: 3.9029, relative: true }] } });
+  assert.equal(withNu.rw.components[0].nu, 3.9029);
+  assert.equal(withNu.uc, old.uc);
+  assert.equal(E.evaluate({ ...base, rw: { components: [{ type: 'stated', id: 's', s: 2, nu: 0, relative: true }] } }).error, 'topdown_bad_data');
+});

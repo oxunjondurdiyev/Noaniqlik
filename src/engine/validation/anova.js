@@ -10,6 +10,9 @@
         component … is zero" → s_b = 0 va topilma `anova_negative_component`.
    Teng bo'lmagan guruhlar: n₀ = (N − Σn_i²/N)/(k − 1) — manba repoda yo'q (Searle, Casella & McCulloch 1992;
    ISO 5725-3) → (unverified), topilma `anova_unbalanced_n0`. Teng guruhlarda n₀ = n (NIST §2.4.4.2 bilan aynan).
+   s_I ning erkinlik darajasi — Welch–Satterthwaite (JCGM 100:2008 G.4.1, Eq. (G.2b)); LOYIHA QARORI (egasi, 2026-11-19, R-26 #7):
+     s_I² = MS_b/n₀ + (1 − 1/n₀)·MS_w;  ν(s_I) = s_I⁴ / [ (MS_b/n₀)²/(k − 1) + ((1 − 1/n₀)·MS_w)²/(N − k) ]
+     s_b² < 0 bo'lsa: s_I = s_r, ν(s_I) = N − k.  NIST §7.4.3 misolida ν(s_I) = 3,90.
 ═══════════════════════════════════════════════════════════════ */
 import { sampleOf, alphaOf, has, fail } from './util.js';
 import { fUpperTail, fCritical } from '../stats/fdist.js';
@@ -49,13 +52,20 @@ export function oneWayAnova(groups, opts = {}) {
   const n0 = balanced ? sizes[0] : (N - sizes.reduce((a, n) => a + n * n, 0) / N) / (k - 1);
   const sb2 = varianceComponent(msB, msW, n0);
   const sbClamped = nonNegative(sb2);
+  // Ref: JCGM 100:2008 G.4.1 Eq. (G.2b) — Welch–Satterthwaite; loyiha qarori R-26 #7 (egasi, 2026-11-19)
+  let nuSI = dfW, nuSIRule = 'negative_component';
+  if (!(sb2 < 0)) {
+    const a = msB / n0, b = (1 - 1 / n0) * msW;
+    const den = (a * a) / dfB + (b * b) / dfW;
+    if (den > 0) { nuSI = (a + b) ** 2 / den; nuSIRule = 'welch_satterthwaite'; }
+  }
   return {
     k, N, sizes, means: g.map(x => x.mean), grandMean,
     ss: { between: ssB, within: ssW, total: ssB + ssW }, df: { between: dfB, within: dfW, total: N - 1 }, ms: { between: msB, within: msW },
     F, p, critical, alpha, significant: F > critical,
     balanced, n0, n0Unverified: !balanced,
     sr: Math.sqrt(msW), sb2, sb: Math.sqrt(sbClamped), sI: Math.sqrt(msW + sbClamped), negative: sb2 < 0,
-    nu: { sr: dfW, between: dfB },
+    nu: { sr: dfW, between: dfB, sI: nuSI }, nuSIRule, nuSIProjectDecision: true,
     ref: ANOVA_REF,
   };
 }

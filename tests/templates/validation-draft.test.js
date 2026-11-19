@@ -26,6 +26,10 @@ test('qoralama: DRAFT, sxemaga mos, checkTemplate o\'tadi; raqamlar validationBa
   const st = T.buildTopDownState(template, { lang: 'uz' }).state;
   assert.equal(st.statedS, String(res.tests[0].sI));
   assert.equal(st.statedN, '');
+  // ν(s_I) — Welch–Satterthwaite (R-26 #7): ustada to'ldirilgan, foydalanuvchi o'zgartira oladi
+  assert.equal(template.validationBasis.precision.nuSI, res.tests[0].nu.sI);
+  assert.equal(st.statedNu, String(res.tests[0].nu.sI));
+  assert.ok(Math.abs(res.tests[0].nu.sI - 3.90) < 5e-3);
   assert.equal(st.quamN, '6');
   // builtin sifatida — taqiqlangan
   assert.ok(T.checkTemplate(template, schema, { builtin: true }).errors.some(e => /builtin/.test(e)));

@@ -5,7 +5,7 @@
    CSP: inline skript yo'q — hodisalar app.js dagi delegatsiya orqali (data-pt-* / data-vl-*); innerHTML — faqat escHtml bilan.
 ═══════════════════════════════════════════════════════════════ */
 import * as Store from '../../storage/index.js';
-import { ptToTopDownBias, topDownDraft } from '../../engine/index.js';
+import { ptToTopDownBias, topDownDraft, ptLinkOf } from '../../engine/index.js';
 import { openTableFile, LIMITS } from '../../io/import.js';
 import { loadXlsx } from '../../io/vendor.js';
 import { toCsv, csvDialect } from '../../io/csv.js';
@@ -98,9 +98,24 @@ export function createQuality(d) {
     if (b.missingUref.length) { toast(fill(t('pt_topdown_missing'), { ids: b.missingUref.join(', ') }), 'error', 8000); return; }
     if (!ptDraft.unit) { toast(t('pt_topdown_need_unit'), 'error', 6000); return; }
     const cur = window.UCTopDown.getState();
-    window.UCTopDown.setState({ ...cur, step: 2, basis: 'within', bias: 'pt', ptRows: ptRowsText(b.bias), scale: 'absolute', unit: ptDraft.unit });
+    window.UCTopDown.setState({ ...cur, step: 2, basis: 'within', bias: 'pt', ptRows: ptRowsText(b.bias), scale: 'absolute', unit: ptDraft.unit, ptLink: ptLinkOf(ptDraft, r) });
     if (window.switchTab) window.switchTab('topdown');
     toast(fill(t('pt_topdown_sent'), { n: b.rounds }), b.rounds < 6 ? 'info' : 'success', 7000);
+  }
+
+  /** Joriy GUM hisobini PT seriyasiga bog'lash (linter L3): seriya NUSXASI settings.ptLink ga yoziladi; hisob natijasi o'zgarmaydi. */
+  function linkCalc(unlink) {
+    const st = window.appState;
+    if (!st) return;
+    const settings = { ...(st.get('settings') || {}) };
+    if (unlink) delete settings.ptLink;
+    else {
+      const link = ptLinkOf(ptDraft, analysePT(ptDraft));
+      if (!link) { toast(t('pt_no_rounds'), 'error'); return; }
+      settings.ptLink = link;
+    }
+    st.set({ settings, combined: null });
+    toast(t(unlink ? 'pt_link_removed' : 'pt_link_done'), 'success', 6000);
   }
 
   /* ─── Validatsiya ─── */
@@ -209,6 +224,8 @@ export function createQuality(d) {
     else if (pa === 'export-csv') await exportPt('csv');
     else if (pa === 'export-json') await exportPt('json');
     else if (pa === 'to-topdown') ptToTopDown();
+    else if (pa === 'link-calc') linkCalc(false);
+    else if (pa === 'unlink-calc') linkCalc(true);
     else if (pa === 'print') { const r = analysePT(ptDraft); if (window.Results && window.Results.printPT) window.Results.printPT(r, { title: ptDraft.name }); }
     else if (va === 'new') { const rec = await save('validation', { id: Store.newQualityId('validation'), name: t('vl_new_name'), tests: [] }, 'validation_create'); if (rec) { await reload(); await openVl(rec.id); } }
     else if (va === 'save') { if (await saveVl()) toast(t('lb_saved'), 'success'); }

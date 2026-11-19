@@ -4,7 +4,7 @@
    docs/templates/APPROVAL_CHECKLIST.md bo'yicha (shablon muharriri). Raqamlar shablonning `validationBasis` bo'limida
    (u builtin shablonda TAQIQLANGAN — src/templates/interpreter.js::checkTemplate). Manba ma'lumotlar xeshi (RFC 8785 JCS,
    SHA-256) — chaqiruvchi hisoblaydi (src/storage/canonical.js::jcsHash; dvigatel sof — kripto yo'q) va `sourceHash` bilan beradi.
-   s_Rw (yoki s_I) → usta: rwSources ['stated'] (s, n); siljish — recovery (QUAM) yoki bias bloki foydalanuvchi tanlovi.
+   s_Rw (yoki s_I) → usta: rwSources ['stated'] (s va ν(s_I) — Welch–Satterthwaite, R-26 #7; foydalanuvchi o'zgartira oladi); siljish — recovery (QUAM) yoki bias bloki foydalanuvchi tanlovi.
 ═══════════════════════════════════════════════════════════════ */
 
 const ID_RX = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
@@ -34,7 +34,7 @@ export function topDownDraft(result, o = {}) {
   const title = o.title || text(`Top-down qoralama — ${result.method || o.id}`, `Черновик top-down — ${result.method || o.id}`, `Top-down draft — ${result.method || o.id}`);
   const basis = {
     source: 'validation', sourceHash: o.sourceHash, date: o.date,
-    precision: { test: prec.id, sI: prec.sI, sr: prec.sr, sb: prec.sb, nuSr: prec.nu.sr, k: prec.k, N: prec.N, negativeComponent: !!prec.negative },
+    precision: { test: prec.id, sI: prec.sI, sr: prec.sr, sb: prec.sb, nuSr: prec.nu.sr, nuSI: prec.nu.sI, nuSIRule: prec.nuSIRule, k: prec.k, N: prec.N, negativeComponent: !!prec.negative },
     ...(rec ? { recovery: { test: rec.id, Rm: rec.Rm, s: rec.s, n: rec.n, uRm: rec.uRm, significant: !!rec.significant, relativeUnit: rec.relativeUnit } } : {}),
   };
   const template = {

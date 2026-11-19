@@ -399,10 +399,13 @@ export function buildTopDownState(tpl, opts = {}) {
     additional: (td.additional || []).map(a => ({ name: tr(a.name, lang), category: a.category, u: '' })),
   };
   // P12: validatsiyadan tuzilgan qoralama — s_I (bir omilli ANOVA) → 'stated' manba; tiklanish (QUAM) → R_m, s, n.
-  // n (ν = n − 1) bo'sh qoladi: s_I ning erkinlik darajasi manbada berilmagan — foydalanuvchi kiritadi (R-26 #7).
+  // ν(s_I) — Welch–Satterthwaite (egasi qarori 2026-11-19, R-26 #7) statedNu ga qo'yiladi; foydalanuvchi o'zgartira oladi; n bo'sh.
   const vb = tpl.validationBasis;
   if (vb && td.basis === 'within') {
-    if ((td.rwSources || []).includes('stated') && vb.precision) { state.statedS = String(vb.precision.sI); state.statedN = ''; }
+    if ((td.rwSources || []).includes('stated') && vb.precision) {
+      state.statedS = String(vb.precision.sI); state.statedN = '';
+      state.statedNu = vb.precision.nuSI === undefined ? '' : String(vb.precision.nuSI);
+    }
     if (td.biasSource === 'recovery_quam' && vb.recovery) Object.assign(state, { quamMean: String(vb.recovery.Rm), quamS: String(vb.recovery.s), quamN: String(vb.recovery.n) });
   }
   const meta = {

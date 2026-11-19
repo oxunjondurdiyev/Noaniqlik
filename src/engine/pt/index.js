@@ -157,6 +157,27 @@ export function evaluatePT(spec) {
   }
 }
 
+/** Oxirgi raund: sanasi eng kech (ISO sana); sanasiz yoki teng sanada — ro'yxatdagi oxirgisi. */
+export function lastRound(result) {
+  const rs = (result && result.rounds) || [];
+  let best = null, bi = -1;
+  rs.forEach((r, i) => { if (!best || !r.date || !best.date || r.date >= best.date) { best = r; bi = i; } });
+  return bi < 0 ? null : rs[bi];
+}
+
+/**
+ * Hisobga yoziladigan PT seriyasi NUSXASI (linter L3 uchun; reestr nusxasi kabi — seriya o'zgarsa eski hisob o'zgarmaydi).
+ * @param {{id, version, name, quantity, method}} series
+ * @param {object} result  evaluatePT() natijasi
+ */
+export function ptLinkOf(series, result) {
+  const s = series || {};
+  const last = lastRound(result);
+  if (!last) return null;
+  return { seriesId: String(s.id || ''), version: s.version || 0, name: String(s.name || ''), quantity: String(s.quantity || ''), method: String(s.method || ''),
+    lastRound: { id: last.id, date: last.date || '', primary: last.primary, score: last.score, verdict: last.verdict } };
+}
+
 /**
  * PT tarixi → top-down siljish bloki (P09: bias.type 'pt', Nordtest TR 537 §6.2). Formula QAYTA yozilmaydi —
  * faqat kirish tuziladi; hisob — src/engine/topdown/bias.js. Har bir raunddan: assigned = x_pt, result = x,
