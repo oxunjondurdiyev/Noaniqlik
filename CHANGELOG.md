@@ -102,7 +102,7 @@ PT chegaralari va chegaradagi qiymat (+ 10⁻¹² tolerans), s_b² < 0 → 0, Gr
 - **Verified:** ILAC P14:09/2020 §4.1–4.3, §5.5 (CMC; sahifa havolali testlar), ILAC P10:07/2020 §2 (kuzatuvchanlik yo'llari).
 - **Unverified:** ISO/IEC 17025:2017 §6.4, §6.5, §7.7.1 (repoda yo'q); Westgard qoidalari (nashr repoda yo'q — ta'rif bo'yicha jadvalli testlar); Shewhart konstantalari — **NIST e-Handbook sahifasi sessiyada ochilmadi**, shuning uchun qiymatlar ta'rifdan mustaqil sonli integrallash bilan tekshirildi (±0,001); NIST misoli — `todo`. ILAC G24 / OIML D 10:2022 repoda bor, lekin u aniq formula bermaydi — interval hisobi loyiha qarori.
 
-: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
+## [2.7.0] — P07: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
 
 **ENGINE_VERSION: 2.6.0 → 2.7.0** (minor). **Bitta chiqishli hisoblar o'zgarmadi:** barcha mavjud test misollarining `evaluate()` natijasi 2.6.0 bilan **bit darajasida bir xil** (`engineVersion` dan tashqari); 9 ta etalon Excel nuqtasi, 10-test va JCGM 100 / 101 misollari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi. `monteCarlo()` ning 188 ta nazorat natijasidan 176 tasi bit darajasida bir xil; qolgan 12 tasi — quyida.
 

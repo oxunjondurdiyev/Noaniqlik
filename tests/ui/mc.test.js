@@ -2,7 +2,7 @@
    RISKS R-16: hisob UI ni qotirmasligi kerak — worker'da; worker bo'lmasa asosiy oqimda kichik bo'laklar bilan.
    Node testlarida haqiqiy worker yo'q: (1) worker moduli to'g'ridan-to'g'ri chaqiriladi (handleRun);
    (2) bajaruvchi soxta Worker bilan (xabar protokoli) va Worker'siz (bo'laklab) tekshiriladi.
-   Haqiqiy brauzerdagi tekshiruv (Chromium, M = 10⁶) — docs/VALIDATION_MATRIX.md §12. */
+   Haqiqiy brauzerdagi tekshiruv (Chromium, M = 10⁶) — docs/validation/RTM.md (MCM); P13 dan — tests/crossbrowser/ (Playwright). */
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');

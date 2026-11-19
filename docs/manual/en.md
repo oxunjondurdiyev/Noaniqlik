@@ -482,7 +482,7 @@ After that the calculation can be opened with **Open in the editor**. This check
 
 The "Validation" page of the site (`validation.html`) shows the current engine version, the build identifier and a link to the validation report. The page shows: the current version (engine version, build, build time, engine hash, your browser), the documents (validation report, validation plan, requirements and traceability matrix, change control, known limitations, questions and answers for the assessor, PQ and URS templates, this manual), the known limitations (summary) and the version history. The documents and the version history are visible only on the site built by GitHub Actions; a copy running without the build step says so on the page.
 
-The program's own verification consists of examples from normative documents (each expected value with its source clause), 9 reference points from laboratory Excel files, and a hash of the engine files. The coverage table is in the [validation matrix](../VALIDATION_MATRIX.md).
+The program's own verification consists of examples from normative documents (each expected value with its source clause), 9 reference points from laboratory Excel files, and a hash of the engine files. The coverage table is in the [validation matrix](../validation/RTM.md).
 
 ### 12.2. New version banner
 

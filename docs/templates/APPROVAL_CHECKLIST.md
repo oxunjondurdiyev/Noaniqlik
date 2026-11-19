@@ -25,7 +25,7 @@
 
 - [ ] Excel fayl `tests/fixtures/` ga qo'yildi (yoki qo'lda hisob PDF/rasm sifatida — shaxsiy ma'lumotlarsiz).
 - [ ] `tests/cases/<soha>/<id>.json` yaratildi: `status: "verified"`, `source.file`, `source.inputRefs` va har bir `expected.*.ref` — **katak havolasi** (`Varaq!C12`).
-- [ ] `npm test` yashil; `docs/VALIDATION_MATRIX.md` dagi shablon qatori `pending` → `verified`, test nomi bilan.
+- [ ] `npm test` yashil; `docs/validation/rtm.map.json` dagi shablon talabi (REQ-TPW-NN; so'ng `node scripts/rtm.js --write`) `pending` → `verified`, test nomi bilan.
 
 ## 4. Imzolar
 

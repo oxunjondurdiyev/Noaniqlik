@@ -482,7 +482,7 @@ Keyin hisobni **Muharrirda ochish** mumkin. Bu tekshiruv laboratoriyaning o'z va
 
 Saytdagi "Validatsiya" sahifasi (`validation.html`) joriy dvigatel versiyasini, build identifikatorini va validatsiya hisobotiga havolani ko'rsatadi. Sahifada: joriy versiya (dvigatel versiyasi, build, yig'ilgan vaqt, dvigatel xeshi, sizning brauzeringiz), hujjatlar (validatsiya hisoboti, validatsiya rejasi, talablar va izlanuvchanlik matritsasi, o'zgarishlarni boshqarish, ma'lum cheklovlar, ekspert uchun savol-javoblar, PQ va URS shablonlari, shu qo'llanma), ma'lum cheklovlar (qisqacha) va versiyalar tarixi. Hujjatlar va versiyalar tarixi faqat GitHub Actions orqali yig'ilgan saytda ko'rinadi; build qadamisiz nusxada sahifa buni eslatadi.
 
-Dasturning o'z tekshiruvi quyidagilardan iborat: me'yoriy hujjatlardagi misollar (har bir kutilgan qiymat manba bandi bilan), laboratoriya Excel fayllaridan olingan 9 ta etalon nuqta va dvigatel fayllarining xeshi. Qamrov jadvali — [validatsiya matritsasi](../VALIDATION_MATRIX.md) da.
+Dasturning o'z tekshiruvi quyidagilardan iborat: me'yoriy hujjatlardagi misollar (har bir kutilgan qiymat manba bandi bilan), laboratoriya Excel fayllaridan olingan 9 ta etalon nuqta va dvigatel fayllarining xeshi. Qamrov jadvali — [validatsiya matritsasi](../validation/RTM.md) da.
 
 ### 12.2. Yangi versiya banneri
 
