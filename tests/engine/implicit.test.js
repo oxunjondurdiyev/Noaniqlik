@@ -165,3 +165,95 @@ test('LU yechuvchi: A·X = B; singular matritsa — null', () => {
   assert.equal(E.luSolve([[1, 2], [2, 4]], [[1], [2]]), null);
   assert.equal(E.luSolve([[0]], [[1]]), null);
 });
+
+/* ─── Egasi qarorlari (2026-11-19): Annex B, qoldiq tekshiruvi, cond(C_y) ─────────────────────── */
+
+test('Annex B (B.1 a–j, p. 61) va LU yo\'li ((10) + (9)) §9.5.2 va §9.5.3 da bir xil U_y beradi; standart yo\'l — Annex B', () => {
+  for (const c of [single, several]) {
+    const a = E.evaluate(c.modelSpec);
+    const s = clone(c.modelSpec); s.state.implicit.covarianceMethod = 'lu';
+    const b = E.evaluate(s);
+    assert.deepEqual([a.implicit.covarianceMethod, b.implicit.covarianceMethod, b.implicit.covarianceForced], ['annex-b', 'lu', true], c.id);
+    const A = a.implicit.Uy, B = b.implicit.Uy, m = A.length;
+    for (let i = 0; i < m; i++) for (let j = 0; j < m; j++) near(A[i][j], B[i][j], 1e-12 * Math.sqrt(A[i][i] * A[j][j]), `${c.id} U_y[${i}][${j}]`);
+    // Annex B natijasi aniq simmetrik (U_y = RᵀR) va bir o'lchovli byudjet yig'indisi bilan mos
+    for (let i = 0; i < m; i++) for (let j = 0; j < i; j++) assert.equal(A[i][j], A[j][i]);
+    const ucs = a.mode ? a.outputs.map(o => o.uc) : [a.uc];
+    ucs.forEach((u, j) => rel(Math.sqrt(A[j][j]), u, 1e-12, `${c.id} u(y${j + 1})`));
+    // sezgirlik koeffitsiyentlari ikkala yo'lda aynan bir xil (C_y·C = C_x sistemasidan) — byudjet o'zgarmaydi
+    assert.deepEqual(a.implicit.sensitivity, b.implicit.sensitivity);
+    if (a.mode) { assert.deepEqual(a.covariance, A); assert.notDeepEqual(b.covariance, undefined); }
+  }
+  // Annex B topilma bermaydi (salbiy holat); majburiy LU — info topilmasi
+  assert.ok(!E.evaluate(several.modelSpec).findings.some(f => f.code === 'implicit_lu_fallback'));
+});
+
+test('annexB(): C_y U_y C_yᵀ = C_x U_x C_xᵀ ni qanoatlantiradi; to\'g\'ridan-to\'g\'ri C U_x Cᵀ bilan mos; qatorlar tanlovi (pivot) bilan', () => {
+  const Cy = [[0, 2, 1], [1, 1, 0], [4, -1, 3]];                                // birinchi bosh element 0 — tanlov kerak
+  const Cx = [[1, 0, 2, -1], [0, 3, 1, 0], [2, 1, 0, 5]];
+  const L = [[0.3, 0, 0, 0], [0.1, 0.2, 0, 0], [-0.05, 0.02, 0.4, 0], [0, 0.1, -0.1, 0.25]];
+  const Ux = E.matMul(L, E.transpose(L));
+  const ab = E.annexB(Cy, Cx, Ux);
+  const lhs = E.matMul(E.matMul(Cy, ab.Uy), E.transpose(Cy)), rhs = E.matMul(E.matMul(Cx, Ux), E.transpose(Cx));
+  lhs.forEach((row, i) => row.forEach((v, j) => near(v, rhs[i][j], 1e-12, `Eq.(8) [${i}][${j}]`)));
+  const C = E.luSolve(Cy, Cx), direct = E.sandwich(C, Ux);
+  ab.Uy.forEach((row, i) => row.forEach((v, j) => near(v, direct[i][j], 1e-13, `U_y [${i}][${j}]`)));
+  ab.C.forEach((row, i) => row.forEach((v, j) => near(v, C[i][j], 1e-13, `C [${i}][${j}]`)));
+  // U_x singular → Cholesky yo'q; C_y singular → U_y aniqlanmagan
+  assert.deepEqual(E.annexB(Cy, Cx, [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]), { error: 'cholesky' });
+  assert.deepEqual(E.annexB([[1, 2, 0], [2, 4, 0], [0, 0, 1]], Cx, Ux), { error: 'singular' });
+});
+
+test('luFactor: P·A = L·W;  qrHouseholder: A = Q·R, Q ortogonal, R yuqori uchburchak (kvadrat bo\'lmagan matritsa ham);  norm1', () => {
+  const A = [[0, 2, 1], [1, 1, 0], [4, -1, 3]];
+  const { L, W, perm } = E.luFactor(A);
+  const LW = E.matMul(L, W);
+  perm.forEach((src, i) => A[src].forEach((v, j) => near(LW[i][j], v, 1e-14)));
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { if (j > i) assert.equal(L[i][j], 0); if (j < i) assert.equal(W[i][j], 0); }
+  assert.equal(E.luFactor([[1, 2], [2, 4]], 1e-13), null);
+  for (const M of [[[1, 2, 3, 4], [0, -1, 2, 5]], [[1, 2], [3, 4], [5, 6], [7, 9]], [[2, -1], [1, 3]]]) {
+    const { Q, R } = E.qrHouseholder(M);
+    const QR = E.matMul(Q, R), QtQ = E.matMul(E.transpose(Q), Q);
+    M.forEach((row, i) => row.forEach((v, j) => near(QR[i][j], v, 1e-13)));
+    QtQ.forEach((row, i) => row.forEach((v, j) => near(v, i === j ? 1 : 0, 1e-13)));
+    R.forEach((row, i) => row.forEach((v, j) => { if (j < i) assert.equal(v, 0); }));
+  }
+  assert.equal(E.norm1([[1, -2], [3, 4]]), 6);
+});
+
+test('qoldiq tekshiruvi: yechimda |h(y, x)| masshtabga nisbatan katta → implicit_no_convergence (detail: residual); oddiy holatda nisbiy qoldiq natijada', () => {
+  const base = { params: ['a', 'b'], measurements: { a: [1], b: [2] }, typeB: [tb('a', 0.1), tb('b', 0.1)], settings: { paired: false } };
+  const ok = E.evaluate({ ...base, implicit: { unknowns: [{ name: 'y', start: 1 }], equations: ['y^2 = a*b'] } });
+  assert.equal(ok.error, undefined);
+  assert.ok(ok.implicit.residualRel <= 1e-14 && ok.implicit.residualTol === E.IMPLICIT_DEFAULTS.residualTol && E.IMPLICIT_DEFAULTS.residualTol === 1e-8);
+  // erishib bo'lmaydigan chegara (10⁻³⁰) — yaqinlashgan qadamga qaramay natija berilmaydi
+  const bad = E.evaluate({ ...base, measurements: { a: [1], b: [3] }, implicit: { unknowns: [{ name: 'y', start: 1 }], equations: ['y^2 = a*b'], residualTol: 1e-30 } });
+  assert.deepEqual([bad.error, bad.detail], ['implicit_no_convergence', 'residual']);
+  // §9.5 misollari standart chegaradan ancha past
+  for (const c of [single, several]) assert.ok(E.evaluate(c.modelSpec).implicit.residualRel < 1e-14, c.id);
+});
+
+test('cond₁(C_y) natijada: C_y = [[1, 2], [3, 4]] → ‖C_y‖₁·‖C_y⁻¹‖₁ = 6 · 3,5 = 21; U_y qo\'lda hisob bilan', () => {
+  const r = E.evaluate({ params: ['a', 'b'], measurements: { a: [1], b: [2] }, typeB: [tb('a', 0.1), tb('b', 0.1)], settings: { paired: false },
+    implicit: { unknowns: [{ name: 'y1', start: 0 }, { name: 'y2', start: 0 }], equations: ['y1 + 2*y2 - a', '3*y1 + 4*y2 - b'] } });
+  rel(r.implicit.cond, 21, 1e-13);
+  // y1 = −2a + b, y2 = 1,5a − 0,5b; u(a) = u(b) = 0,1 → u²(y1) = 0,05; u²(y2) = 0,025; u(y1, y2) = −0,035
+  near(r.covariance[0][0], 0.05, 1e-15); near(r.covariance[1][1], 0.025, 1e-15); near(r.covariance[0][1], -0.035, 1e-15);
+  near(r.y[0], 0, 1e-15); near(r.y[1], 0.5, 1e-15);
+  rel(E.evaluate(single.modelSpec).implicit.cond, 1, 1e-15);                      // skalyar C_y
+});
+
+test('MV2: U_x singular (u(b) = 0) → LU yo\'li + info implicit_lu_fallback (ijobiy); U_x musbat aniqlangan → topilma yo\'q (salbiy)', () => {
+  const base = { params: ['a', 'b'], measurements: { a: [1], b: [2] }, settings: { paired: false }, implicit: { unknowns: [{ name: 'y', start: 1 }], equations: ['y^2 = a*b'] } };
+  const lu = E.evaluate({ ...base, typeB: [tb('a', 0.1)] });
+  assert.equal(lu.error, undefined);
+  assert.equal(lu.implicit.covarianceMethod, 'lu');
+  const f = lu.findings.find(x => x.code === 'implicit_lu_fallback');
+  assert.deepEqual([f.rule, f.severity, f.ref], ['MV2', 'info', 'JCGM 102:2011 §6.3.1.5, Annex B']);
+  rel(lu.uc, Math.SQRT2 / 2 * 0.1, 1e-12);                                        // natija to'g'ri: u(y) = y/2 · u(a)/a
+  const ab = E.evaluate({ ...base, typeB: [tb('a', 0.1), tb('b', 0.1)] });
+  assert.equal(ab.implicit.covarianceMethod, 'annex-b');
+  assert.ok(!ab.findings.some(x => x.code === 'implicit_lu_fallback'));
+  // oshkor model — qoida ishlamaydi
+  assert.ok(!E.evaluate({ params: ['a'], measurements: { a: [1] }, typeB: [tb('a', 0.1)], model: { formula: 'y = 2*a', unit: '' } }).findings.some(x => x.rule === 'MV2'));
+});

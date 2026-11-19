@@ -61,8 +61,22 @@ export function createSections(environment) {
     return `<span class="badge ${cls}">${txt}</span>`;
   }
 
+  /* P07b: oshkor bo'lmagan model (JCGM 102:2011 §6.3) — Nyuton yechimi, qoldiq, cond₁(C_y) va U_y qaysi yo'l bilan
+     hisoblangani (Annex B yoki LU). Egasi qarori 2026-11-19: shart soni hisobotda ko'rsatiladi. */
+  function implicitLine(r) {
+    const im = r && r.implicit;
+    if (!im) return '';
+    const num = v => (isFinite(v) ? Calc.fmtSci(v, 3) : '∞');
+    const start = (im.unknowns || []).map((n, j) => `${escHtml(n)}⁽⁰⁾ = ${escHtml(String(im.start[j]))}`).join(', ');
+    return `<span data-implicit-info="${escHtml(im.covarianceMethod || '')}">${i18n.t('imp_newton')} (JCGM 102:2011 §6.3.1.2): ${i18n.t('imp_start')} ${start}; ` +
+      `${i18n.t('imp_iterations')} — ${Number(im.iterations) || 0}; ${i18n.t('imp_residual')} ${num(im.residualRel)}. ` +
+      `<span data-implicit-cond="1">${i18n.t('imp_cond')} = ${num(im.cond)}</span>. ` +
+      `${i18n.t('imp_cov')}: ${i18n.t(im.covarianceMethod === 'lu' ? 'imp_cov_lu' : 'imp_cov_annexb')}.</span>`;
+  }
+
   function notesHtml(r) {
-    return (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('');
+    return (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('')
+      + (r.implicit ? `<div class="text-xs text-muted">ⓘ ${implicitLine(r)}</div>` : '');
   }
 
   /* ─── P05a: linter topilmalari ("Tekshiruv natijalari") ──────────────
@@ -483,6 +497,7 @@ export function createSections(environment) {
       <div class="print-section">${i18n.t('model_title')}</div>
       <p style="font-size:10pt;margin:.4em 0 .6em"><strong>${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</strong></p>
       ${p9(`<span data-model-kind-info="${confKind(r)}">${modelKindLine(r)}</span>`)}
+      ${r.implicit ? p9(escHtml(i18n.t('n_implicit_model'))) + p9(implicitLine(r)) : ''}
 
       <div class="print-section">${i18n.t('data_title')}</div>
       ${dataTable(snap)}
@@ -984,7 +999,8 @@ export function createSections(environment) {
     const mc = opt.mc && opt.mc.multivariate ? opt.mc : null;
     return `<div data-mv-section="1">
       ${title('mv_title')}
-      ${wrap(`${i18n.t('mv_method')}: U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2);  m = ${r.m},  N = ${r.N}`)}
+      ${r.implicit ? wrap(`${escHtml(i18n.t('imp_method'))};  m = ${r.m},  N = ${r.N}`) + wrap(implicitLine(r))
+        : wrap(`${i18n.t('mv_method')}: U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2);  m = ${r.m},  N = ${r.N}`)}
       ${findingsHtml(r, { scope: 'gum', print: !!opt.print, acceptances: opt.acceptances, showEmpty: true })}
       ${mvOutputsTable(r, cls)}
       ${title('mv_corr_title')}
@@ -1004,6 +1020,6 @@ export function createSections(environment) {
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

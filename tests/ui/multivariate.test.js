@@ -197,5 +197,20 @@ test('P07b: oshkor bo\'lmagan model natijasi hisobotda — tenglama matni, izoh 
     const d = frag(w, S.multivariateSection(many, {}));
     assert.equal(d.querySelectorAll('[data-mv-outputs] tbody tr').length, 10);
     for (const e of E.IMPLICIT_ERRORS) assert.ok(w.i18n.t('err_' + e) !== 'err_' + e, `${lang}.err_${e}`);
+    // Egasi qarori (2026-11-19): cond(C_y) va U_y qaysi yo'l bilan hisoblangani — ekranda, bosmada va vektor bo'limda
+    const print = frag(w, S.pointDetail(one, load('jcgm102/jcgm102-9-5-2-single').state, '', undefined, undefined, {}));
+    for (const el of [frag(w, S.notesHtml(one)), print, d]) {
+      const info = el.querySelector('[data-implicit-info="annex-b"]');
+      assert.ok(info, lang);
+      assert.match(info.querySelector('[data-implicit-cond]').textContent, /cond₁\(C_y\) = 1[.,]0/);
+      assert.ok(info.textContent.includes(w.i18n.t('imp_cov_annexb')) && info.textContent.includes(w.i18n.t('imp_newton')), lang);
+    }
+    assert.ok(d.textContent.includes(w.i18n.t('imp_method')) && !d.textContent.includes('U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2)'), lang);
+    // LU yo'li (U_x singular) — hisobotda aynan shunday yoziladi va topilma chiqadi
+    const lu = E.evaluate({ params: ['a', 'b'], measurements: { a: [1], b: [2] }, settings: { paired: false },
+      typeB: [{ name: 'u(a)', param: 'a', halfWidth: 0.1, distribution: 'normal', k: 1 }], implicit: { unknowns: [{ name: 'y', start: 1 }], equations: ['y^2 = a*b'] } });
+    const dl = frag(w, S.notesHtml(lu));
+    assert.ok(dl.querySelector('[data-implicit-info="lu"]').textContent.includes(w.i18n.t('imp_cov_lu')), lang);
+    for (const k of ['w_', 'why_', 'fix_']) assert.ok(w.i18n.t(k + 'implicit_lu_fallback') !== k + 'implicit_lu_fallback', lang + k);
   }
 });

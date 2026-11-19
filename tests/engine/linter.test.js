@@ -41,7 +41,7 @@ test('har bir qoida — alohida modul: { id, severity, ref, modes, codes, check 
   assert.equal(files.length, E.LINTER_RULES.length);
   const ids = E.LINTER_RULES.map(r => r.id);
   assert.equal(new Set(ids).size, ids.length);
-  for (const id of ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'A1', 'A2', 'A3', 'A4', 'M1', 'M2', 'M3', 'M4', 'MV1']) assert.ok(ids.includes(id), id);
+  for (const id of ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'A1', 'A2', 'A3', 'A4', 'M1', 'M2', 'M3', 'M4', 'MV1', 'MV2']) assert.ok(ids.includes(id), id);
   for (const r of E.LINTER_RULES) {
     assert.ok(E.SEVERITIES.includes(r.severity), r.id);
     assert.equal(typeof r.ref, 'string');

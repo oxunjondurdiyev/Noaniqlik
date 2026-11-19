@@ -11,21 +11,31 @@
      1. y — h(y, x) = 0 ning yechimi, Nyuton usuli bilan (§6.3.1.2, Eq. (7) va Note): y⁽ᵏ⁺¹⁾ = y⁽ᵏ⁾ − C_y⁻¹·h(y⁽ᵏ⁾, x),
         boshlang'ich yaqinlashuv y⁽⁰⁾ = start (foydalanuvchi beradi — dastur o'ylab topmaydi).
      2. C_y (m × m: ∂h_ℓ/∂Y_j) va C_x (m × N: ∂h_ℓ/∂X_i) — simvolik hosilalar, x va y da (§6.3.1.3).
-     3. C_y U_y C_yᵀ = C_x U_x C_xᵀ (Eq. (8)); rasman U_y = C U_x Cᵀ, C = C_y⁻¹ C_x (Eq. (9), (10)).
-        C_y singular bo'lsa U_y aniqlanmagan (§6.3.1.3 Note 1) — xato `implicit_singular`.
-   Amalga oshirish: C teskari matritsasiz, C_y·C = C_x sistemasini qisman tanlovli LU bilan yechib topiladi; so'ng
-   har bir chiqish uchun LOKAL CHIZIQLI ekvivalent model Y_j = y_j + Σ_i c_ji·(X_i − x_i), c_ji = −C_ji, tuziladi va
-   mavjud (o'zgarmagan) oshkor yo'l bilan baholanadi (evaluate.js / lpu.js): byudjet, ν_eff, k, U, U_y = C U_x Cᵀ,
-   qamrov sohasi aynan oshkor modeldagidek. Bu 1-tartibli tarqalish qonunining o'zi (§6.3.1.3 Note 2: oshkormas
-   funksiya teoremasi) — natija (8) ning yechimi bilan bir xil.
+     3. Yechimdan keyin qoldiq tekshiriladi: |h_ℓ(y, x)| ≤ residualTol·(Σ_j |∂h_ℓ/∂Y_j|·s_j + Σ_i |∂h_ℓ/∂X_i|·|x_i|);
+        bajarilmasa — `implicit_no_convergence` (egasi qarori 2026-11-19, 1-band).
+     4. C_y U_y C_yᵀ = C_x U_x C_xᵀ (Eq. (8)) — U_y ANNEX B (B.1 a–j) protsedurasi bilan (annexB()): §6.3.1.5 bo'yicha
+        (10) + (9) yo'li "not recommended" (sonli jihatdan kamroq barqaror). C_y singular bo'lsa U_y aniqlanmagan
+        (§6.3.1.3 Note 1) — xato `implicit_singular`. U_x ning Cholesky ko'paytuvchisi mavjud bo'lmasa (U_x singular:
+        masalan u(x_i) = 0 yoki |r| = 1) — B.1 a) bajarilmaydi: C_y·C = C_x ni LU bilan yechish + U_y = C U_x Cᵀ
+        (Eq. (9), (10)) yo'li qo'llanadi va info topilmasi `implicit_lu_fallback` chiqadi (egasi qarori, 3-band).
+   Amalga oshirish: sezgirlik koeffitsiyentlari c_ji = −C_ji (C_y·C = C_x sistemasidan, qisman tanlovli LU — tuzilmaviy
+   nollar aynan saqlanadi) bo'yicha har bir chiqish uchun LOKAL CHIZIQLI ekvivalent model Y_j = y_j + Σ_i c_ji·(X_i − x_i) tuziladi va mavjud
+   (o'zgarmagan) oshkor yo'l bilan baholanadi (evaluate.js / lpu.js): byudjet, ν_eff, k, U aynan oshkor modeldagidek
+   (§6.3.1.3 Note 2: oshkormas funksiya teoremasi). Ko'p chiqishda `covariance`, `correlation`, `coverageRegion`
+   Annex B dagi U_y dan olinadi; bitta chiqishda u_c — byudjet yig'indisi (JCGM 100 §5), Annex B qiymati
+   `implicit.Uy` da (ikkalasi yaxlitlash xatosi aniqligida teng — test bilan tekshiriladi).
+   cond₁(C_y) = ‖C_y‖₁·‖C_y⁻¹‖₁ natijada (`implicit.cond`) va hisobotda ko'rsatiladi (egasi qarori, 2-band).
    Cheklovlar: 2-tartibli hadlar diagnostikasi va o'lchamlik tahlili bajarilmaydi; Monte-Karlo (har bir sinovda
    Nyuton yechimi) qo'llab-quvvatlanmaydi — `implicit_mc_unsupported`.
 
-   LOYIHA QARORLARI (egasi tasdig'ini kutadi — PR "Egasidan qaror kerak"): Nyuton yaqinlashish mezoni va iteratsiya
-   chegarasi (IMPLICIT_DEFAULTS), singularlik chegarasi (SINGULAR_PIVOT), Annex B protsedurasi o'rniga LU + C U_x Cᵀ.
+   EGASI QARORLARI (2026-11-19): Nyuton mezoni (IMPLICIT_DEFAULTS) va singularlik chegarasi (SINGULAR_PIVOT) —
+   tasdiqlandi; y⁽⁰⁾ majburiy (shablon standart qiymat bera oladi). LOYIHA QARORI (tasdiq kutadi): qoldiq chegarasi
+   residualTol = 10⁻⁸ va uning masshtabi; shart soni sifatida 1-norma.
 ═══════════════════════════════════════════════════════════════ */
 import { parse, compileAst, derivative, splitFormula } from '../parser.js';
 import { evaluateMultivariate, OUTPUT_SETTINGS } from './lpu.js';
+import { choleskyLower, luFactor, qrHouseholder, matMul, transpose, zeros, norm1, correlationMatrix } from './linalg.js';
+import { gaussianRegion } from './region.js';
 
 /** Nyuton sozlamalari. To'xtash (har bir j uchun bir vaqtda):
  *   'step'       — qadam |Δy_j| ≤ tol·s_j, s_j = max(|y_j|, |y_j⁽⁰⁾|);
@@ -33,7 +43,7 @@ import { evaluateMultivariate, OUTPUT_SETTINGS } from './lpu.js';
  *                  kichraymadi va barcha |Δy_j| ≤ stagnationTol·s_j. (Yechim nolga yaqin bo'lib, h da ayirishdagi
  *                  yo'qotish bo'lsa, nisbiy 10⁻¹² ga erishib bo'lmaydi — masalan §9.5.3 dagi θ₁ = 0,01 °C.)
  * Aks holda maxIter dan keyin — `implicit_no_convergence`. Erishilgan oxirgi qadam natijada (`implicit.lastStep`). */
-export const IMPLICIT_DEFAULTS = Object.freeze({ tol: 1e-12, maxIter: 50, stagnationTol: 1e-8 });
+export const IMPLICIT_DEFAULTS = Object.freeze({ tol: 1e-12, maxIter: 50, stagnationTol: 1e-8, residualTol: 1e-8 });
 /** LU da bosh element shu nisbatdan (matritsaning eng katta elementiga) kichik bo'lsa — singular deb hisoblanadi. */
 export const SINGULAR_PIVOT = 1e-13;
 export const IMPLICIT_ERRORS = Object.freeze(['implicit_bad_spec', 'implicit_bad_equation', 'implicit_bad_start', 'implicit_name_clash',
@@ -73,6 +83,58 @@ export function luSolve(A, B) {
     }
   }
   return X;
+}
+
+/**
+ * U_y ni JCGM 102:2011 Annex B, B.1 a) – j) protsedurasi bilan hisoblash (C_y U_y C_yᵀ = C_x U_x C_xᵀ ning yechimi).
+ * Ref: JCGM 102:2011 Annex B (61-bet), §6.3.1.5 (18-bet). Qadamlar manbadagi harflar bilan belgilangan.
+ * LU da qatorlarni tanlash (P·C_y = L·W_y) — sonli barqarorlik uchun; L_y = Pᵀ·L (qatorlari o'rin almashgan quyi uchburchak).
+ * @param {number[][]} Cy  m × m
+ * @param {number[][]} Cx  m × N
+ * @param {number[][]} Ux  N × N
+ * @returns {{Uy:number[][], C:number[][], CyInvT:number[][]}|{error:'cholesky'|'singular'}}
+ *          C = C_y⁻¹·C_x (m × N; = Kᵀ), CyInvT = C_y⁻ᵀ (M₂)
+ */
+export function annexB(Cy, Cx, Ux) {
+  const m = Cy.length, N = Ux.length;
+  // a) R_x: R_xᵀ R_x = U_x (yuqori uchburchak Cholesky ko'paytuvchisi)
+  const Lx = choleskyLower(Ux);
+  if (!Lx) return { error: 'cholesky' };
+  const Rx = transpose(Lx);
+  // b) C_x = Q_x W_x
+  const { Q: Qx, R: Wx } = qrHouseholder(Cx);
+  // c) C_y = L_y W_y
+  const lu = luFactor(Cy, SINGULAR_PIVOT);
+  if (!lu) return { error: 'singular' };
+  const { L, W: Wy, perm } = lu;
+  // d) W_yᵀ M₁ = I — W_yᵀ quyi uchburchak: to'g'ri o'rniga qo'yish
+  const M1 = zeros(m, m);
+  for (let col = 0; col < m; col++) {
+    for (let i = 0; i < m; i++) {
+      let s = i === col ? 1 : 0;
+      for (let k = 0; k < i; k++) s -= Wy[k][i] * M1[k][col];
+      M1[i][col] = s / Wy[i][i];
+    }
+  }
+  // e) L_yᵀ M₂ = M₁;  L_yᵀ = Lᵀ·P  →  Lᵀ·Z = M₁ (teskari o'rniga qo'yish), M₂ = Pᵀ·Z
+  const M2 = zeros(m, m);
+  for (let col = 0; col < m; col++) {
+    const z = new Array(m).fill(0);
+    for (let i = m - 1; i >= 0; i--) {
+      let s = M1[i][col];
+      for (let k = i + 1; k < m; k++) s -= L[k][i] * z[k];
+      z[i] = s;                                            // L ning diagonali 1
+    }
+    for (let i = 0; i < m; i++) M2[perm[i]][col] = z[i];
+  }
+  // f) M₃ = Q_xᵀ M₂;  g) K = W_xᵀ M₃ (N × m);  h) M = R_x K
+  const M3 = matMul(transpose(Qx), M2);
+  const K = matMul(transpose(Wx), M3);
+  const M = matMul(Rx, K);
+  // i) M ni ortogonal uchburchaklashtirish → R;  j) U_y = Rᵀ R
+  const R = qrHouseholder(M).R.slice(0, Math.min(N, m));
+  const Uy = matMul(transpose(R), R);
+  return { Uy, C: transpose(K), CyInvT: M2 };
 }
 
 /** Tenglama matni → AST (h = 0). "chap = o'ng" → chap − o'ng. */
@@ -181,9 +243,42 @@ export function evaluateImplicit(state, evalSingle) {
   const Cy = sys.dY.map(row => row.map(f => f(at)));
   const Cx = dX.map(row => row.map(f => f(at)));
   if (![...Cy, ...Cx].every(row => row.every(isFinite))) return { error: 'implicit_bad_equation', detail: 'derivative' };
-  // Ref: JCGM 102:2011 Eq. (10) — C = C_y⁻¹ C_x; C_y·C = C_x sistemasi sifatida yechiladi. Singular C_y — §6.3.1.3 Note 1
+  // Qoldiq tekshiruvi (egasi qarori 2026-11-19): |h_ℓ| ≤ residualTol·(Σ_j |∂h_ℓ/∂Y_j|·s_j + Σ_i |∂h_ℓ/∂X_i|·|x_i|) —
+  // masshtab h_ℓ ning 1-tartibli "kattaligi" (LOYIHA QARORI). Bajarilmasa yechim topilmagan deb hisoblanadi.
+  const residualTol = Number(imp.residualTol) > 0 ? Number(imp.residualTol) : IMPLICIT_DEFAULTS.residualTol;
+  const hAt = sys.h.map(f => f(at));
+  let residualRel = 0;
+  for (let l = 0; l < m; l++) {
+    let scale = 0;
+    for (let j = 0; j < m; j++) scale += Math.abs(Cy[l][j]) * Math.max(Math.abs(sol.y[j]), Math.abs(start[j]));
+    for (let i = 0; i < N; i++) scale += Math.abs(Cx[l][i]) * Math.abs(env[params[i]]);
+    const a = Math.abs(hAt[l]);
+    residualRel = Math.max(residualRel, a === 0 ? 0 : (scale > 0 ? a / scale : Infinity));
+  }
+  if (!(residualRel <= residualTol)) return { error: 'implicit_no_convergence', detail: 'residual' };
+
+  // U_x — bir o'lchamli yo'ldagi kirish baholaridan (JCGM 100:2008 §5.2.2), lpu.js dagidek
+  const Ux = zeros(N, N);
+  base.inputs.forEach((inp, i) => { Ux[i][i] = inp.u * inp.u; });
+  for (const p of base.pairs || []) {
+    const i = params.indexOf(p.a), k = params.indexOf(p.b);
+    if (i >= 0 && k >= 0) { Ux[i][k] = p.cov; Ux[k][i] = p.cov; }
+  }
+  // Ref: JCGM 102:2011 Annex B, §6.3.1.5 — U_y Annex B bo'yicha. U_x ning Cholesky ko'paytuvchisi yo'q bo'lsa — LU yo'li:
+  // C_y·C = C_x (Eq. (10)), U_y = C U_x Cᵀ (Eq. (9)) + info topilmasi (egasi qarori). Singular C_y — §6.3.1.3 Note 1
+  const forced = imp.covarianceMethod === 'lu';             // faqat solishtirish testi / diagnostika uchun
+  const ab = forced ? { error: 'cholesky' } : annexB(Cy, Cx, Ux);
+  if (ab.error === 'singular') return { error: 'implicit_singular', detail: names.join(', ') };
+  // Sezgirlik koeffitsiyentlari (byudjet qatorlari uchun) — har doim C_y·C = C_x sistemasidan (qisman tanlovli LU):
+  // tuzilmaviy nollar aynan nol bo'lib qoladi. Annex B dagi K = Cᵀ ortogonal almashtirishlardan o'tgani uchun
+  // chiqishga ta'sir qilmaydigan kirishlarda ≈ 10⁻¹⁶·‖C‖ darajasidagi shovqin beradi (U_y uchun ahamiyatsiz, lekin
+  // byudjetda ortiqcha qator paydo bo'lardi). U_y esa Annex B dan.
   const Csol = luSolve(Cy, Cx);
   if (!Csol) return { error: 'implicit_singular', detail: names.join(', ') };
+  // cond₁(C_y) = ‖C_y‖₁·‖C_y⁻¹‖₁ (egasi qarori: hisobotda ko'rsatiladi)
+  const eye = zeros(m, m); for (let j = 0; j < m; j++) eye[j][j] = 1;
+  const CyInv = ab.error ? luSolve(Cy, eye) : transpose(ab.CyInvT);
+  const cond = CyInv ? norm1(Cy) * norm1(CyInv) : Infinity;
   // dY = −C_y⁻¹ C_x dX (oshkormas funksiya teoremasi, §6.3.1.3 Note 2): sezgirlik koeffitsiyentlari c_ji = −C_ji
   const c = Csol.map(row => row.map(v => (v === 0 ? 0 : -v)));
 
@@ -191,9 +286,11 @@ export function evaluateImplicit(state, evalSingle) {
   const formulas = c.map((row, j) => `${names[j]} = ${lit(sol.y[j])}${row.map((v, i) => (v === 0 ? '' : ` + ${lit(v)}*(${params[i]} - ${lit(env[params[i]])})`)).join('')}`);
   const info = {
     equations: imp.equations.map(t => String(t).trim()), unknowns: names, start, y: sol.y.slice(),
-    iterations: sol.iterations, residual: sol.residual, criterion: sol.criterion, lastStep: sol.lastStep,
+    iterations: sol.iterations, residual: sol.residual, residualRel, residualTol, criterion: sol.criterion, lastStep: sol.lastStep,
     tol: Number(imp.tol) > 0 ? Number(imp.tol) : IMPLICIT_DEFAULTS.tol, maxIter: Number(imp.maxIter) > 0 ? Math.floor(Number(imp.maxIter)) : IMPLICIT_DEFAULTS.maxIter,
-    Cy, Cx, sensitivity: c,
+    Cy, Cx, sensitivity: c, cond,
+    covarianceMethod: ab.error ? 'lu' : 'annex-b', ...(forced ? { covarianceForced: true } : {}),
+    ...(ab.error ? {} : { Uy: ab.Uy }),
   };
   const eqText = j => `${info.equations[j]}${info.equations[j].includes('=') ? '' : ' = 0'}`;
   const patch = (r, j) => {
@@ -211,6 +308,7 @@ export function evaluateImplicit(state, evalSingle) {
     const r = evalSingle({ ...clean, model: { formula: formulas[0], unit: u.unit || '' }, settings: { ...(state.settings || {}), ...(u.settings || {}) } });
     if (r.error) return r;
     patch(r, 0);
+    if (!info.Uy) info.Uy = [[r.uc * r.uc]];
     r.implicit = info;
     return r;
   }
@@ -220,6 +318,13 @@ export function evaluateImplicit(state, evalSingle) {
   mv.results.forEach((r, j) => patch(r, j));
   mv.outputs.forEach((o, j) => { o.formula = eqText(j); o.unit = unknowns[j].unit || ''; });
   mv.notes = [{ code: 'implicit_model' }];
+  if (info.Uy) {
+    // Annex B dagi U_y — vektor natijaning kovariatsiya matritsasi; korrelyatsiya va qamrov sohasi (§6.5) shundan
+    mv.covariance = info.Uy.map(row => row.slice());
+    mv.correlation = correlationMatrix(mv.covariance);
+    mv.coverageRegion = gaussianRegion(mv.y, mv.covariance, mv.P);
+    mv.outputs.forEach((o, j) => { o.varianceFromUy = mv.covariance[j][j]; });
+  } else info.Uy = mv.covariance.map(row => row.slice());
   mv.implicit = info;
   return mv;
 }
