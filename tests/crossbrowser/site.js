@@ -39,6 +39,18 @@ async function checkBrowser(name, playwright, server, site) {
       });
       page.on('pageerror', e => errors.push(String(e && e.message || e)));
       await page.goto(`${server.url}/${file}`, { waitUntil: 'load' });
+      if (file === 'admin.html') {
+        // admin.html kirmagan foydalanuvchini index.html ga yo'naltiradi (istalgan paytda) — bu yerda faqat yuklangan
+        // fayllarning versiyalangani va sahifa xatosi yo'qligi tekshiriladi (UCBuild / banner — index va validation da)
+        await page.waitForTimeout(1500);
+        const unv = local.filter(u => /\.(js|css)(\?|$)/.test(u) && !u.includes(`v=${SHA}`));
+        if (unv.length) problems.push(`${file}: versiyasiz so'rovlar: ${unv.slice(0, 5).join(', ')}`);
+        if (!local.some(u => u.startsWith('/src/ui/admin-page.js?'))) problems.push(`${file}: sahifa skripti yuklanmadi`);
+        if (errors.length) problems.push(`${file}: sahifa xatosi: ${errors.slice(0, 3).join(' | ')}`);
+        row.pages.push({ file, requests: local.length });
+        await page.close();
+        continue;
+      }
       await page.waitForFunction(() => !!window.UCBuild, null, { timeout: 30000 });
       const info = await page.evaluate(() => window.UCBuild.info());
       const unversioned = local.filter(u => /\.(js|css)(\?|$)/.test(u) && !u.includes(`v=${SHA}`));
