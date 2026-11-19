@@ -24,6 +24,8 @@ import { evaluateMicro, MICRO_FORMAT } from './micro/index.js';
 import { evaluateMedical, MEDICAL_FORMAT } from './medical/index.js';
 import { evaluateMultivariate, isMultiOutput, MULTIVARIATE_MODE } from './multivariate/lpu.js';
 import { evaluateImplicit, isImplicit } from './multivariate/implicit.js';
+import { evaluatePT, PT_FORMAT } from './pt/index.js';
+import { evaluateValidation, VALIDATION_FORMAT } from './validation/index.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -49,6 +51,9 @@ export function prepareModel(state) {
  * @returns {object} result (docs/ENGINE_API.md) yoki { error: code, detail }
  */
 export function evaluate(spec) {
+  // P12: PT va usul validatsiyasi — o'z topilmalari bilan (GUM linteri qo'llanmaydi); qolgan yo'llar o'zgarmagan
+  if (spec && spec.format === PT_FORMAT) return evaluatePT(spec);
+  if (spec && spec.format === VALIDATION_FORMAT) return evaluateValidation(spec);
   const result = evaluateCore(spec);
   // P05a: metrologik linter — hisobni o'zgartirmaydi, faqat result.findings ni to'ldiradi (docs/LINTER_RULES.md).
   // result.warnings — eski maydon, bir versiya davomida moslik uchun qoladi (deprecated, 2.4.0).

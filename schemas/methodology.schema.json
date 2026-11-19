@@ -107,6 +107,7 @@
     "settings": { "$ref": "#/definitions/settings" },
     "regression": { "$ref": "#/definitions/regression" },
     "topDown": { "$ref": "#/definitions/topDown" },
+    "validationBasis": { "$ref": "#/definitions/validationBasis" },
     "special": { "$ref": "#/definitions/special" },
     "decisionRule": { "$ref": "#/definitions/decisionRule" },
     "reporting": {
@@ -140,6 +141,29 @@
         "uz": { "type": "string", "minLength": 1 },
         "ru": { "type": "string", "minLength": 1 },
         "en": { "type": "string", "minLength": 1 }
+      }
+    },
+    "validationBasis": {
+      "description": "P12: validatsiya natijasidan tuzilgan TOP_DOWN qoralamasining raqamli asosi (faqat foydalanuvchi shablonida; builtin shablonda taqiqlangan — checkTemplate). sourceHash — manba ma'lumotlarning RFC 8785 SHA-256 xeshi.",
+      "type": "object", "required": ["source", "sourceHash", "date", "precision"], "additionalProperties": false,
+      "properties": {
+        "source": { "const": "validation" },
+        "sourceHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "precision": {
+          "type": "object", "required": ["test", "sI", "sr", "sb", "nuSr"], "additionalProperties": false,
+          "properties": {
+            "test": { "type": "string" }, "sI": { "type": "number", "minimum": 0 }, "sr": { "type": "number", "minimum": 0 }, "sb": { "type": "number", "minimum": 0 },
+            "nuSr": { "type": "number", "minimum": 1 }, "k": { "type": "integer", "minimum": 2 }, "N": { "type": "integer", "minimum": 2 }, "negativeComponent": { "type": "boolean" }
+          }
+        },
+        "recovery": {
+          "type": "object", "required": ["test", "Rm", "s", "n", "uRm"], "additionalProperties": false,
+          "properties": {
+            "test": { "type": "string" }, "Rm": { "type": "number" }, "s": { "type": "number", "minimum": 0 }, "n": { "type": "integer", "minimum": 2 },
+            "uRm": { "type": "number", "minimum": 0 }, "significant": { "type": "boolean" }, "relativeUnit": { "enum": ["%", "1"] }
+          }
+        }
       }
     },
     "symbol": { "type": "string", "pattern": "^[^\\s+\\-*/^()=,.0-9√][^\\s+\\-*/^()=,√]*$", "maxLength": 32 },

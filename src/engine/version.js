@@ -26,5 +26,8 @@
    2.9.0 — P07b (JCGM 102:2011: oshkor bo'lmagan model h(Y, X) = 0 — §6.3; atan2 — §9.3; eng kichik qamrov sohasi — §7.7.4,
            ikki chiqish. YANGI IMKONIYAT: mavjud bitta va ko'p chiqishli natijalar 2.8.0 bilan bit darajasida bir xil;
            ikki chiqishli MCM natijasiga yangi maydon coverageRegion.smallest qo'shiladi.
-           Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)). */
-export const ENGINE_VERSION = '2.9.0';
+           Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)).
+   2.10.0 — P12 (pt/ — z, z′, ζ, E_n, PT tarixi → top-down bias; validation/ — Grubbs, Cochran (unverified), bir omilli ANOVA,
+           t / F testlari, LOD/LOQ (unverified), top-down shablon qoralamasi; stats/ — F-taqsimot, ANOVA yordamchilari.
+           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi). */
+export const ENGINE_VERSION = '2.10.0';
