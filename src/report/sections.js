@@ -990,6 +990,32 @@ export function createSections(environment) {
    * Vektor natija bo'limi (ekran va bosma).
    * @param {{print?:boolean, mc?:object, acceptances?:object}} o
    */
+  /* P07b: ko'p chiqish + ko'p nuqta — umumiy jadval (har bir nuqta × har bir chiqish). Egasi qarori 2026-11-19: yagona k
+     yo'q; U_j — chiqishning o'z k_j si bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p, JCGM 102 §6.5). */
+  function vectorSummaryTable(rows, cls) {
+    return `<table class="${cls || 'data-table'}" data-vector-summary="1"><thead><tr>
+        <th>${i18n.t('pt_col')}</th><th>${i18n.t('pt_output_col')}</th><th class="cell-num">y</th><th class="cell-num">U</th><th class="cell-num">k</th><th class="cell-num">ν_eff</th><th class="cell-num">${i18n.t('pt_kp_col')}</th>
+      </tr></thead><tbody>${rows.map(x => x.outputs.map((o, j) => `<tr data-vector-point="${escHtml(x.id || '')}">
+        ${j === 0 ? `<td rowspan="${x.outputs.length}"><strong>${escHtml(x.label || '')}</strong></td>` : ''}
+        <td class="mono">${escHtml(o.symbol)}${o.unit ? ', ' + escHtml(o.unit) : ''}</td>
+        <td class="cell-num num mono">${o.rr.yround.toFixed(o.rr.digits)}</td>
+        <td class="cell-num num mono">${o.rr.Uround.toFixed(o.rr.digits)}</td>
+        <td class="cell-num num mono">${o.k.toFixed(2)}</td>
+        <td class="cell-num num mono">${nuText(o.nuEff)}</td>
+        ${j === 0 ? `<td rowspan="${x.outputs.length}" class="cell-num num mono" data-vector-kp="1">${x.kp === null || !isFinite(x.kp) ? '—' : x.kp.toFixed(2)}</td>` : ''}
+      </tr>`).join('')).join('')}</tbody></table>`;
+  }
+  /** Bosma hisobot tanasi: umumiy jadval + izoh, so'ng har bir nuqtaning to'liq vektor bo'limi. */
+  function vectorPointsSection(rows, o) {
+    const opt = o || {};
+    if (!rows || !rows.length) return '';
+    const note = `<p class="${opt.print ? 'report-line' : 'text-xs text-muted'}" data-vector-note="1">${escHtml(i18n.t('pt_vector_note'))}</p>`;
+    return `${opt.print ? `<div class="print-section">${i18n.t('pt_summary')}</div>` : ''}
+      <div data-report-summary="vector">${vectorSummaryTable(rows, opt.print ? 'print-table' : 'data-table')}</div>${note}
+      ${opt.print ? rows.map(x => `<div class="print-page-break"></div><div data-report-point="${escHtml(x.label || '')}">
+        <div class="print-point-title">${escHtml(x.label || '')}</div>${multivariateSection(x.r, { print: true, acceptances: (x.point && x.point.acceptances) || {} })}</div>`).join('') : ''}`;
+  }
+
   function multivariateSection(r, o) {
     const opt = o || {};
     if (!r) return '';
@@ -1020,6 +1046,6 @@ export function createSections(environment) {
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

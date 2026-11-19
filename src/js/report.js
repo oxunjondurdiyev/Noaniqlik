@@ -189,6 +189,31 @@ const Results = (() => {
       </div>`;
   }
 
+  /* P07b: ko'p chiqish + ko'p nuqta. Egasi qarori (2026-11-19): yagona k yo'q (belgilash katagi ko'rsatilmaydi); har bir
+     chiqishning U si o'z k si bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p); har bir nuqta alohida. */
+  function vectorPoints() { return (appState.get('points') || []).filter(p => Calc.isVectorResult(p.result)); }
+  function renderVectorPoints() {
+    const st = appState.get();
+    const cur = (st.points || []).find(p => p.id === st.currentPoint);
+    const rows = Calc.vectorSummaryRows(st.points || []);
+    return `
+      <div class="model-card points-card" data-vector-points="1">
+        <div class="model-card-title">${i18n.t('pt_title')}
+          <span class="text-muted text-xs">${cur ? i18n.t('pt_editing') + ': ' + escHtml(cur.label) : i18n.t('pt_new_hint')}</span>
+        </div>
+        <div class="points-actions">
+          <input type="text" id="pt-label" value="${escHtml(cur ? cur.label : '')}" placeholder="${escHtml(i18n.t('pt_label_ph'))}" autocomplete="off" />
+          <button class="btn btn-primary btn-sm" id="btn-pt-save" ${currentMulti() ? '' : 'disabled'}>${i18n.t(cur ? 'pt_update' : 'pt_save')}</button>
+          <button class="btn btn-outline btn-sm" id="btn-pt-new">${i18n.t('pt_new')}</button>
+        </div>
+        ${rows.length ? `
+        <div class="table-scroll" style="padding:0;margin-top:.7rem">${sec().vectorSummaryTable(rows, 'data-table math-head')}</div>
+        <div class="points-actions" style="margin-top:.5rem">${rows.map(x => `<span style="white-space:nowrap">
+          <button class="btn btn-ghost btn-sm" data-pt-load="${escHtml(x.id)}">${i18n.t('pt_open')}: ${escHtml(x.label)}</button><button class="btn btn-ghost btn-sm" data-pt-del="${escHtml(x.id)}" title="${escHtml(i18n.t('pt_delete'))}">✕</button></span>`).join('')}</div>
+        <p class="text-xs text-muted" data-vector-note="1">${escHtml(i18n.t('pt_vector_note'))}</p>` : ''}
+      </div>`;
+  }
+
   function bindPoints(el) {
     const btnSave = el.querySelector('#btn-pt-save');
     if (btnSave) btnSave.addEventListener('click', () => {
@@ -215,10 +240,12 @@ const Results = (() => {
         <div class="page-header-row">
           <button class="btn btn-outline btn-sm" id="btn-print-mv">${i18n.t('btn_report')}</button>
         </div>
+        ${renderVectorPoints()}
         ${sec().multivariateSection(mv, { mc: lastMC && !lastMC.error ? lastMC : null })}
         ${renderMC(mv)}`;
       const pb = el.querySelector('#btn-print-mv');
       if (pb) pb.addEventListener('click', () => { printReport(); });
+      bindPoints(el);
       bindMC(el);
       return;
     }
@@ -226,7 +253,9 @@ const Results = (() => {
     const pts = appState.get('points') || [];
 
     if (!r) {
-      el.innerHTML = (pts.length ? renderPoints() : '') + `
+      const vector = vectorPoints().length > 0;            // P07b: vektor nuqtalar saqlangan — yangi nuqta kiritilmoqda
+      el.innerHTML = (vector ? `<div class="page-header-row"><button class="btn btn-outline btn-sm" id="btn-print-mv">${i18n.t('btn_report')}</button></div>` + renderVectorPoints()
+        : (pts.length ? renderPoints() : '')) + `
         <div class="empty-state">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
@@ -466,6 +495,8 @@ const Results = (() => {
   function printReport() {
     const state = appState.get();
     const mv    = currentMulti();
+    const vpts  = vectorPoints();
+    if (vpts.length && (mv || !current())) return printVectorPoints(state, vpts);
     if (mv) {
       const mc = lastMC && !lastMC.error ? lastMC : null;
       return printMode(mv, { input: Points.snapshot(state), meta: state.template || null }, { scope: 'gum', emptyKey: 'results_empty', mode: () => 'MULTIVARIATE',
@@ -505,6 +536,28 @@ const Results = (() => {
     });
   }
   const fctx = () => ({ t: k => i18n.t(k), esc: escHtml });
+
+  /** P07b: ko'p chiqish + ko'p nuqta — umumiy jadval, so'ng har bir nuqtaning vektor bo'limi (yagona k qo'llanmaydi). */
+  function printVectorPoints(state, vpts) {
+    const statuses = vpts.map(p => statusOf(p.result, { spec: p.snapshot, acceptances: p.acceptances || {} }));
+    if (blocked(statuses)) return Promise.resolve(false);
+    const ro = reportOptions();
+    const rows = Calc.vectorSummaryRows(vpts);
+    const tm = state.template || null;
+    const main = rows[rows.length - 1];
+    const notice = tm && window.UCTemplates ? window.UCTemplates.reportNoticeHTML(tm, main.r) : '';
+    const form = ro.form === 'calibration_certificate' ? 'test_report' : ro.form;
+    const build = footer => Calc.buildReport({
+      form, lang: i18n.lang, env: fctx(), sections: sec(), requisites: ro.requisites, mode: 'MULTIVARIATE',
+      bodyHTML: sec().vectorPointsSection(rows, { print: true }), marksHTML: officialMarksHtml(statuses), noticeHTML: notice, footer,
+    });
+    return show(build, 'gum', () => {
+      const meta = Calc.metaFor(main.r, main.point.meta);
+      return { id: meta.id, createdAt: meta.createdAt, input: main.point.snapshot, result: main.r, template: tm,
+               points: rows.map(x => ({ id: x.id, label: x.label, input: x.point.snapshot, result: x.r, acceptances: x.point.acceptances || {} })),
+               acceptances: state.acceptances || {} };
+    });
+  }
 
   /** Boshqa rejimlar (regressiya, top-down, maxsus): tayyor bo'lim + umumiy shakl (sarlavha, rekvizitlar, pastki qism) */
   function printMode(r, o, cfg) {
