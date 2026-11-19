@@ -358,3 +358,32 @@ Manbalar: ILAC P14:09/2020 va ILAC P10:07/2020 (repoda — sahifa raqamlari hujj
 | Hisobot: reestr manbasi, CMC tekshiruvi (asoslangan qaror bilan), drift asosi — uch tilda | `src/report/lab.js` | `tests/ui/lab.test.js` | ✅ (jsdom) |
 | UI: uch yorliq, reestrdan tanlash, QC SVG, rol, escape, CSP | `src/ui/lab/` | `tests/ui/lab.test.js` (15 test) | ✅ jsdom + Chromium da mehmon yo'li bilan qo'lda (2026-11-18): konsolda xato yo'q |
 | Mavjud natijalar o'zgarmagan | `evaluate` | 83 misol 2.7.0 bilan bit darajasida bir xil (nazorat skripti); 9 Excel nuqtasi | ✅ |
+
+## 15. P12: malaka sinovlari va usul validatsiyasi (`src/engine/pt/`, `src/engine/validation/`, `src/engine/stats/`)
+
+Manbalar: NIST/SEMATECH e-Handbook ko'chirmasi `docs/references/nist-ehandbook-p12/` (verified). ISO 13528:2022, ISO/IEC 17043:2023, ISO 5725-2:2019, Eurachem PT Guide 2021, Eurachem Fitness for Purpose 2014 — repoda **yo'q** (ikkalasini egasi qo'shadi).
+
+| Talab | Funksiya | Test | Holat |
+|---|---|---|---|
+| Grubbs: G = 2,4687; G_krit = 2,032 (α = 0,05, yuqori bir tomonlama); maksimum chetga chiquvchi (NIST §1.3.5.17.1, eda35h1.htm) | `grubbsTest`, `grubbsCriticalValue` | `tests/engine/validation.test.js` | ✅ verified (D-22: manba G ni kesgan — 2,468765) |
+| Grubbs: nuqta o'chirilmaydi; chiqarish izoh ≥ 10 belgi bilan, audit; takror — foydalanuvchi harakati | `evaluateValidation` (`excluded`), `excludeValue` | `validation.test.js`, `tests/storage/quality.test.js`, `tests/ui/quality.test.js` | ✅ |
+| Bir omilli ANOVA: SS 27,897 / 17,452 / 45,349; MS 13,949 / 1,454; F = 9,59; F₀,₀₅;₂,₁₂ = 3,89; p = 0,00325 (NIST §7.4.3.3–7.4.3.4) | `oneWayAnova` | `validation.test.js` | ✅ verified |
+| Tasodifiy effektlar s_r, s_b, s_I; manfiy komponent → 0 (NIST §2.4.4.2: −0,00028072 → 0) | `oneWayAnova`, `varianceComponent`, `nonNegative` | `validation.test.js` | ✅ verified (s_b = 0 + info — loyiha qarori R-26 #2) |
+| Pooled s₁ = 0,07871 (ν = 60), s₂ = 0,02742 (ν = 10) (NIST §2.4.4.1–2.4.4.2) | `pooledSd` | `validation.test.js` | ✅ verified |
+| Teng bo'lmagan guruhlarda n₀ | `oneWayAnova` | `validation.test.js` | ❔ unverified (formula manbasi repoda yo'q) |
+| t-test (teng dispersiya): T = −12,62059; s_p = 6,34260; ν = 326; t = 1,9673 / 1,6495 (NIST §1.3.5.3) | `twoSampleT` | `validation.test.js` | ✅ verified (yig'ma kirish yaxlitlanishi toleransda) |
+| Welch t-test — ν formulasi (NIST §1.3.5.3) | `twoSampleT` | `validation.test.js` | ✅ formula (sonli misol manbada yo'q) |
+| F-test: F = 1,123037; kritik 0,7756 / 1,2894 (NIST §1.3.5.9) | `fTest`, `fCritical` | `validation.test.js` | ✅ verified |
+| Cochran C va kritik qiymat | `cochranTest`, `cochranCritical` | `validation.test.js` (Monte-Karlo: P(C > C_krit) ≈ 0,05 — `todo`) | ❔ unverified (ISO 5725-2) |
+| Recovery t-testi — P09 funksiyasi chaqiriladi | `evaluateRecovery` | `validation.test.js` (P09 natijasi bilan aynan) | ✅ (QUAM A4 — P09 da verified) |
+| Chiziqlilik — P08 regressiyasi chaqiriladi | `evaluateRegression` | `validation.test.js` | ✅ (P08) |
+| LOD = 3·s′₀, LOQ = k_Q·s′₀; kalibrlash 3,3 / 10 | `lodFromBlank`, `lodFromCalibration` | `validation.test.js` (manba misoli — `todo`) | ❔ unverified (Eurachem FfP 2014 / ICH Q2) |
+| PT ballari z, z′, ζ, E_n; null + sabab; xatolar (σ_pt ≤ 0, U ≤ 0, birlik) | `ptScores`, `evaluatePT` | `tests/engine/pt.test.js` | ✅ mustaqil qo'lda hisob; formula — ❔ ISO 13528 unverified |
+| PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli | `PT_LIMITS`, `verdictOf` | `pt.test.js` | ❔ loyiha standarti (R-26 #1) |
+| u(x_pt) > 0,3·σ_pt → info, avtomatik almashtirish yo'q | `evaluatePT` | `pt.test.js` | ❔ ISO 13528 unverified |
+| PT tarixi → top-down u(bias) (Nordtest TR 537 §6.2) — mavjud dvigatel | `ptToTopDownBias`, `evaluateBias` | `pt.test.js`, `tests/ui/quality.test.js` | ✅ (P09 da verified) |
+| Top-down qoralama: DRAFT, RFC 8785 xesh, sana; builtin da raqam yo'q | `topDownDraft`, `checkTemplate` | `tests/templates/validation-draft.test.js`, `tests/ui/quality.test.js` | ✅ |
+| Saqlash: `pt`, `validation` omborlari, audit, rol, IndexedDB 1 → 2 (eski ma'lumot saqlanadi) | `src/storage/quality.js` | `tests/storage/quality.test.js` | ✅ |
+| Import `.csv` / `.xlsx` (LIMITS, formula bajarilmaydi), CSV / JSON eksport | `src/io/quality.js` | `tests/io/quality.test.js` | ✅ |
+| UI va hisobot uch tilda; SVG skriptsiz; escape; CSP o'zgarmagan | `src/ui/lab/quality*.js`, `src/report/pt.js`, `validation.js` | `tests/ui/quality.test.js`, `tests/i18n.test.js`, `tests/security/*` | ✅ jsdom; real brauzerda ko'rilmagan |
+| Mavjud natijalar o'zgarmagan | `evaluate` | 91 misol 2.9.0 bilan bit darajasida bir xil (nazorat skripti); 9 Excel nuqtasi, 10-test | ✅ |

@@ -314,3 +314,13 @@ Shablon muharririda (GUM rejimi) "Qo'shimcha chiqish kattaliklari" jadvali bor: 
 - `model.formula` bo'sh bo'ladi; `variants` va `outputs` bilan birga ishlatilmaydi. Har bir kirish va har bir noma'lum kamida bitta tenglamada qatnashishi shart (`checkTemplate`).
 - `implicit` — qulflanadigan bo'lim (APPROVED shablonda o'zgartirish faqat yangi versiya orqali). Muharrirda alohida shakl yo'q — JSON maydoni orqali kiritiladi.
 - U_y — JCGM 102 Annex B bo'yicha; hisobotda Nyuton iteratsiyalari, nisbiy qoldiq va cond₁(C_y) ko'rsatiladi. Monte-Karlo qo'llab-quvvatlanmaydi.
+
+## 13. Validatsiyadan top-down qoralama (P12)
+
+"Laboratoriya → Validatsiya" bo'limida bir omilli ANOVA (va ixtiyoriy tiklanish) testi bo'lsa, laboratoriya administratori **TOP_DOWN shablon qoralamasini** yarata oladi (`topDownDraft`, `src/engine/validation/draft.js`):
+
+- Shablon — foydalanuvchining shaxsiy shabloni (`templates` ombori, audit bilan), **builtin emas**; status har doim `DRAFT`.
+- `topDown.rwSources: ['stated']` — s_I usta maydoniga (s) qo'yiladi; n (ν = n − 1) bo'sh qoladi — foydalanuvchi kiritadi (s_I ning erkinlik darajasi manbada berilmagan; R-26 #7). Tiklanish tanlansa — `biasSource: 'recovery_quam'`, R_m / s / n ustaga qo'yiladi.
+- Raqamli asos — `validationBasis` bo'limida: `{ source: 'validation', sourceHash, date, precision: { test, sI, sr, sb, nuSr, k, N, negativeComponent }, recovery? }`. `sourceHash` — validatsiya to'plamining RFC 8785 (JCS) SHA-256 xeshi; `sourceNote` da ham yoziladi.
+- `validationBasis` **builtin shablonda taqiqlangan** (`checkTemplate(tpl, schema, { builtin: true })` xato beradi; `tests/templates/validation-draft.test.js` barcha builtin shablonlarni tekshiradi) — builtin shablonlarga raqam qo'shilmaydi (avvalgi qoida).
+- APPROVED holatiga faqat [APPROVAL_CHECKLIST](templates/APPROVAL_CHECKLIST.md) bo'yicha: s_I nazorat namunasining butun tahlil jarayonini qamrashi, qamralmagan omillar (`topDown.additional`), metodika standarti — qoralamadagi `openQuestions` Q1, Q2.

@@ -197,6 +197,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P12 — PT va usul validatsiyasi
 
+> **Holat: bajarildi (2026-11-19, `feat/p12-pt-validation`, ENGINE_VERSION 2.10.0).** `src/engine/pt/` (`uc-pt/1`), `src/engine/validation/` (`uc-validation/1`), `src/engine/stats/`, `src/storage/quality.js` (IndexedDB v2), `src/io/quality.js`, `src/ui/lab/quality*.js`, `src/report/pt.js`, `validation.js`. Verified: NIST e-Handbook §1.3.5.17.1, §7.4.3, §2.4.4, §1.3.5.3, §1.3.5.9 (D-22). Unverified: ISO 13528, ISO 5725-2 (Cochran), Eurachem PT Guide, Eurachem FfP (LOD/LOQ). Ochiq qarorlar — `docs/RISKS.md` R-26, `docs/LINTER_RULES.md` §4 #30. Mavjud natijalar 2.9.0 bilan bit darajasida bir xil.
+
 - **Fayllar:** `src/engine/pt/` (E_n, z, z′, ζ; chegaralar), `src/engine/validation/` (Grubbs, Cochran, bir omilli ANOVA, recovery t-testi, chiziqlilik → P08, LOD/LOQ, top-down shablon qoralamasi).
 - **Nima buzilishi mumkin:** yangi modul. ISO 13528, ISO 5725-2 pullik — 8-javob.
 - **Qanday tekshiriladi:** qo'lda hisoblangan yoki manba misollari; P09 bilan bog'liqlik.
