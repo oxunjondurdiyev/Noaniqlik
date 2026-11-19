@@ -19,8 +19,12 @@ export const BACKUP_KEY = 'uc_state_v2_backup';
 export const MIGRATION_KEY = 'migration:uc_state_v2';
 export const LEGACY_CALC_ID = 'legacy-uc_state_v2';
 
-/** calc-state/v2 holat sxemasi: 2 — settings.modelKind majburiy (P05a). */
-export const CALC_STATE_SCHEMA = 2;
+/** calc-state/v2 holat sxemasi: 2 — settings.modelKind majburiy (P05a);
+    3 — B tur manbasi reestrga bog'lanishi mumkin (typeB[].registry, typeB[].drift; settings.cmcRow, cmcX, measurementDate) — P11.
+    3 ga o'tishda ESKI HISOBLARGA HECH NARSA QO'SHILMAYDI: qo'lda kiritilgan B tur manbalari o'zgarishsiz qoladi
+    (reestrga bog'lanmagan — `registry` maydoni yo'q). */
+export const CALC_STATE_SCHEMA = 3;
+export const SCHEMA_KEY = 'schema';
 
 /**
  * Eski saqlangan hisob holatini joriy sxemaga keltirish (sof funksiya, kirishni o'zgartirmaydi).
@@ -73,4 +77,29 @@ export async function migrateLegacy(ls, store, opts = {}) {
   await store.save('meta', { key: MIGRATION_KEY, at, hash, calcId: LEGACY_CALC_ID, backupKey: BACKUP_KEY, valid: !!valid },
     { action: 'migrate', actor: opts.actor || 'system', reason: 'migration mark', at });
   return { status: valid ? 'migrated' : 'invalid', id: LEGACY_CALC_ID, hash };
+}
+
+/**
+ * Saqlangan hisoblarni joriy sxemaga o'tkazish (P11: 2 → 3). Idempotent.
+ * Har bir `calc-state/v2` yozuvi upgradeCalcState() dan o'tadi (model turi — P05a) va `schema` raqami yangilanadi;
+ * typeB (qo'lda kiritilgan manbalar), o'lchashlar va boshqa kiritilgan qiymatlar O'ZGARMAYDI. 'raw' yozuvlar tegilmaydi.
+ * Har bir o'zgartirilgan yozuv audit zanjiriga 'migrate' amali bilan tushadi (oldingi qiymat `before` da).
+ * @returns {Promise<{status:'migrated'|'already', from:number|null, to:number, changed:number}>}
+ */
+export async function migrateSchema(store, opts = {}) {
+  const mark = await store.get('meta', SCHEMA_KEY);
+  const from = mark && Number.isInteger(mark.calcState) ? mark.calcState : null;
+  if (from !== null && from >= CALC_STATE_SCHEMA) return { status: 'already', from, to: CALC_STATE_SCHEMA, changed: 0 };
+  const at = opts.at || new Date().toISOString();
+  let changed = 0;
+  for (const rec of await store.list('calculations')) {
+    if (!rec || rec.format !== 'calc-state/v2' || !rec.state || rec.schema >= CALC_STATE_SCHEMA) continue;
+    const up = upgradeCalcState(rec.state);
+    await store.save('calculations', { ...rec, state: up.state, schema: CALC_STATE_SCHEMA },
+      { action: 'migrate', actor: opts.actor || 'system', reason: `calc-state schema ${rec.schema || 1} → ${CALC_STATE_SCHEMA} (P11)`, at });
+    changed++;
+  }
+  await store.save('meta', { key: SCHEMA_KEY, calcState: CALC_STATE_SCHEMA, registry: 1, at },
+    { action: 'migrate', actor: opts.actor || 'system', reason: 'schema_mark', at });
+  return { status: 'migrated', from, to: CALC_STATE_SCHEMA, changed };
 }

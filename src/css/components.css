@@ -125,6 +125,7 @@
 
 input[type="text"],
 input[type="number"],
+input[type="date"],
 select,
 textarea {
   background: var(--bg-input);
@@ -141,6 +142,7 @@ textarea {
 
 input[type="text"]:focus,
 input[type="number"]:focus,
+input[type="date"]:focus,
 select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-light);
@@ -943,4 +945,30 @@ details.rg-card > summary { cursor: pointer; }
 @media print {
   .region-plot { color: #000; break-inside: avoid; }
   .region-plot .region-ellipse, .region-plot .region-rect { stroke: #000; }
+}
+
+/* ── P11: Laboratoriya (etalonlar reestri, CMC, QC kartalari) ── */
+.lb-cal { border: 1px solid var(--border); border-radius: var(--radius); padding: .6rem .8rem; margin: .7rem 0; }
+.lb-cal legend { font-size: .86rem; font-weight: 600; padding: 0 .4rem; }
+.lb-history { margin-top: .8rem; font-size: .86rem; }
+.lb-history summary { cursor: pointer; color: var(--text-muted); }
+.lb-cmc-table input, .lb-cmc-table select { width: 100%; min-width: 5.5rem; }
+.lb-cmc-param { display: flex; gap: .3rem; }
+tr.row-selected td { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+tr.row-bad td { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+.qc-chart { width: 100%; max-width: 760px; height: auto; display: block; margin: .6rem 0; color: var(--text); }
+.qc-chart .qc-bg { fill: none; stroke: var(--border); }
+.qc-chart .qc-cl { stroke: var(--accent); stroke-width: 1.2; }
+.qc-chart .qc-l2 { stroke: var(--warning); stroke-width: 1; stroke-dasharray: 5 4; }
+.qc-chart .qc-l3 { stroke: var(--danger); stroke-width: 1.2; }
+.qc-chart .qc-path { fill: none; stroke: currentColor; stroke-width: 1.2; }
+.qc-chart .qc-dot { fill: currentColor; }
+.qc-chart .qc-flag circle { fill: none; stroke: var(--danger); stroke-width: 2; }
+.qc-chart .qc-flag path { stroke: var(--danger); stroke-width: 2; }
+.qc-chart .qc-tick { font-size: 10px; fill: var(--text-muted); }
+.lab-report { margin-top: .8rem; }
+.lab-report .report-line { font-size: .86rem; margin: .25em 0; }
+@media print {
+  .lab-report table { font-size: 8pt; }
+  .lab-report .report-line { font-size: 9pt; }
 }

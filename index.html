@@ -668,6 +668,7 @@
         <button class="tab-btn" data-tab="regression" data-i18n="tab_regression">Regression</button>
         <button class="tab-btn" data-tab="topdown" data-i18n="tab_topdown">Top-down</button>
         <button class="tab-btn" data-tab="special" data-i18n="tab_special">Special</button>
+        <button class="tab-btn" data-tab="lab" data-i18n="tab_lab">Laboratory</button>
       </div>
 
       <!-- TAB: DATA ENTRY -->
@@ -710,6 +711,8 @@
             <h2 class="panel-title" data-i18n="typeb_title">Type B Uncertainty</h2>
             <p class="panel-sub text-muted" data-i18n="typeb_sub">Add uncertainty components from certificates, specifications, or experience</p>
           </div>
+          <!-- P11: B tur manbasini etalonlar reestridan tanlash (src/ui/lab/app.js) -->
+          <button type="button" class="btn btn-sm btn-outline" id="btn-typeb-registry" data-i18n="lb_pick_btn">Select from registry</button>
           <button class="btn btn-sm btn-outline" id="btn-add-typeb">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span data-i18n="btn_add_component">Add Component</span>
@@ -788,6 +791,11 @@
           <button type="button" class="btn btn-sm btn-outline" data-io-act="export" data-io-scope="special" data-io-format="csv" data-i18n="io_export_csv">Export CSV</button>
           <button type="button" class="btn btn-sm btn-ghost" data-io-act="import-calc" data-i18n="io_import_json">Open calculation file</button>
         </div>
+      </div>
+
+      <!-- TAB: LABORATORY (P11) — etalonlar reestri, CMC jadvali, QC kartalari; mazmunni src/ui/lab/app.js chizadi -->
+      <div class="tab-panel" id="tab-lab">
+        <div id="lab-root"></div>
       </div>
 
     </main>
@@ -905,6 +913,7 @@
 <script src="src/js/i18n-io.js"></script>
 <script src="src/js/i18n-report.js"></script>
 <script src="src/js/i18n-admin.js"></script>
+<script src="src/js/i18n-lab.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
 <script src="src/js/table.js"></script>
@@ -918,6 +927,7 @@
 <script type="module" src="src/ui/regression/app.js"></script>
 <script type="module" src="src/ui/topdown/app.js"></script>
 <script type="module" src="src/ui/special/app.js"></script>
+<script type="module" src="src/ui/lab/app.js"></script>
 <script type="module" src="src/ui/io/app.js"></script>
 <script type="module" src="src/ui/mc/app.js"></script>
 <script src="src/ui/index-auth.js"></script>

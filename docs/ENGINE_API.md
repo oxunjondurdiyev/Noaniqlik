@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.7.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.8.0
 
-> Holat: P07, 2026-11-18 (2.7.0: vektor chiqish, JCGM 102:2011 — [§13](#13-kop-ozgaruvchili-modellar-p07); 2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P11, 2026-11-18 (2.8.0: laboratoriya jarayonlari — [§14](#14-laboratoriya-jarayonlari-p11); 2.7.0: vektor chiqish, JCGM 102:2011 — [§13](#13-kop-ozgaruvchili-modellar-p07); 2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -644,3 +644,49 @@ Manba: JCGM 102:2011 (`docs/references/`). Modullar: `src/engine/multivariate/` 
 ### 13.4. Qilinmagan (RISKS R-24)
 
 Oshkormas model h(Y, X) = 0 (§6.3); eng kichik qamrov sohasi (§7.7.4); parserda `atan2` yo'q.
+
+## 14. Laboratoriya jarayonlari (P11)
+
+Modullar: `src/engine/lab/` — `registry.js`, `drift.js`, `cmc.js`, `qc.js`, `westgard.js`, `interval.js`, `dates.js` (hammasi `src/engine/index.js` dan eksport qilinadi). Sof: DOM, brauzer xotirasi va **soat o'qilmaydi** — "bugungi sana" har doim tashqaridan beriladi. Saqlash — `src/storage/registry.js`; import / eksport — `src/io/registry.js`.
+
+### 14.1. Etalonlar reestri (`uc-registry/1`, `kind: 'standard'`)
+
+```js
+{ id, format: 'uc-registry/1', kind: 'standard', version, name, type, serial, unit, range: { min, max }, limit?,
+  calibrations: [{ certificate, calibrator /* tashkilot */, accreditation, route, traceability, date, validUntil,
+                   points: [{ x, correction, U, k, nu }] }] }
+```
+
+- `route` — `TRACEABILITY_ROUTES`: `nmi_cipm`, `accredited`, `nmi_other`, `lab_other`, `crm` (ILAC P10:07/2020 §2, 1) – 3b); 4) – 6)).
+- `cleanStandard(s)` — noma'lum maydonlarni tashlaydi (shaxsiy ma'lumot tasodifan yozilmaydi). `currentCalibration(std)` — eng so'nggi sanali.
+- `pointAt(calibration, x)` → `{ x, correction, U, k, nu, interpolated, between? }`: nuqtada — aynan; oraliqda — tuzatma chiziqli, **U — ikki qo'shni nuqtadan standart noaniqligi kattasi** (loyiha qarori); tashqarida — `registry_out_of_range` (ekstrapolyatsiya yo'q). Interpolyatsiyaning o'z noaniqligi hisoblanmaydi — alohida manba sifatida taklif qilinadi, qiymatini foydalanuvchi kiritadi.
+- `sourceFromStandard(std, { x, param })` → `{ component, snapshot }`: `component` — `typeB[]` elementi (normal, yarim kenglik = U, bo'luvchi = k; k yo'q bo'lsa `kRequired`, 2 deb faraz qilinmaydi) + `registry: snapshot`. **Dvigatel faqat shu nusxadan o'qiydi** — reestr keyin o'zgarsa ham eski hisob o'zgarmaydi. `limit` (MPE / tolerans) hech qachon manba bo'lmaydi.
+- `validityStatus(validUntil, asOf, warnDays = 30)` → `{ status: 'valid' | 'expiring' | 'expired' | 'unknown', daysLeft }`; `hasTraceabilityEvidence(snapshot)`.
+
+Hisobda: `typeB[i].registry` (nusxa) va `settings.measurementDate` ('YYYY-MM-DD' — etalon shu sanaga nisbatan tekshiriladi). Natijada `budget[i].registry`, `result.measurementDate`.
+
+### 14.2. Drift
+
+`correctionHistory(std, x)` → `[{ date, day, correction, certificate, U, k }]`; `driftProposal(history, { method: 'last_two' | 'trend', distribution: 'rect' | 'triang' | 'ushape' | 'normal', k, asOf })` → `{ proposal: { halfWidth, distribution, divisorLabel, u, deltaC, basis } }` yoki `{ error: 'drift_need_two' }`. Standart: a = |ΔC| (oxirgi ikki kalibrlash), to'g'ri burchakli, u = a/√3. `trend`: a = |b|·Δt (OLS og'maligi × oxirgi kalibrlashdan `asOf` gacha). `driftComponent(proposal, ctx)` — foydalanuvchi **tasdiqlagandan keyin** `typeB[]` elementi (`drift: basis`); natijada `budget[i].drift`.
+
+### 14.3. CMC jadvali
+
+Qator: `{ id, quantity, min, max, unit, type, value | a, b | cmcMin, cmcMax, method, note }`; `type`: `abs` (CMC = value), `rel` (value % · |X|), `linear` (a + b·|X|), `range` (min da cmcMin … max da cmcMax, chiziqli). `cmcAt(row, x)` → `{ cmc, inRange, x }` (chegaralar kiradi; tashqarida `cmc: null`); `findCmc(rows, x, { quantity, method })`; `cmcCheck(row, x, U)`; `cmcCheckRows(rows, x, U)`.
+
+Hisobda: `settings.cmcRows` (massiv — X ga mos qator avtomatik) yoki `settings.cmcRow`, `settings.cmcX` (son yoki ifoda). Natija: `result.cmcCheck = { rowId, tableVersion, quantity, method, type, min, max, unit, x, cmc, inRange, below, pending? }`, `result.cmc` = CMC(X) (jadval qo'lda kiritilgan `settings.cmc` dan ustun). Diapazondan tashqarida — CMC bilan solishtirilmaydi (`cmc: null`) va L2 `outside_scope`. Xatolar: `bad_cmc_x`, `cmc_bad_row`.
+
+### 14.4. QC kartalari va Westgard
+
+- `individualsChart(values)` → `{ type: 'imr', x: { center, sigma, ucl, lcl, uwl, lwl }, r: { center, ucl, lcl }, mr, out }` (σ̂ = MR̄/d₂(2)).
+- `xbarRChart(subgroups)` → X̿ ± A₂·R̄; R: D₃R̄ … D₄R̄; `sigmaWithin = R̄/d₂`. Kichik guruh hajmi 2…10, hammasi bir xil.
+- `targetLimits({ mean, s })`, `zScores(values, m, s)`, `SHEWHART_CONSTANTS[n] = { d2, d3, A2, D3, D4 }`.
+- `sRwFromChart(points)` → `{ sRw, mean, n, nu: n − 1, values }` — top-down `control_series` ga uzatiladi.
+- `westgard(z, { rules?, runs? })` → `{ violations: [{ rule, indices }], flagged, inControl }`; alohida: `rule13s`, `rule22s`, `ruleR4s(z, runs?)`, `rule41s`, `rule10x`. Natija o'chirilmaydi — faqat belgilanadi. R₄s seriya belgisisiz (`runs` yo'q) ketma-ket juftlikka qo'llansa — `violations[].approximation: true` (loyiha yaqinlashuvi).
+
+### 14.5. Kalibrlash intervali
+
+`intervalRecommendation(history, { limit, includeU = true })` → `{ recommendation: true, status: 'ok' | 'exceeded' | 'never', days, date, slopePerYear, margin }` yoki `{ error: 'interval_need_three' | 'interval_bad_limit' }`. Faqat tavsiya — amal qilish muddatini o'zgartirmaydi.
+
+### 14.6. Saqlash va rol (`src/storage/registry.js`)
+
+`saveRegistry(store, rec, { role, reason })` (versiya + 1, audit; yozuvga `savedBy` — rol; `guest` bo'lsa nusxada `enteredBy: 'guest'` → info `registry_unauthenticated` / `cmc_unauthenticated`), `removeRegistry`, `listRegistry(store, kind)`, `registryHistory(store, id)`, `canEditRegistry(kind, role)`: etalon va CMC — xodim (`employee`) tahrirlay olmaydi; QC kartasi — hamma. `migrateSchema(store)` — saqlangan hisoblar sxemasi → `CALC_STATE_SCHEMA` = 3.

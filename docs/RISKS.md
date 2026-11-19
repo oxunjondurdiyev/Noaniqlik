@@ -36,6 +36,7 @@
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
 | R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; qoldiq — Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06, P07 → P13 |
 | R-24 | Ko'p o'zgaruvchili modellar (P07): qilinmagan qismlar (oshkormas model, eng kichik qamrov sohasi, `atan2`) va egasi tasdig'ini kutayotgan loyiha qarorlari | O | P07 → egasi qarori |
+| R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); ochiq — tekshirilmagan manbalar (ISO/IEC 17025 §6.4–6.5, §7.7.1; NIST e-Handbook; Westgard — egasi PDF qo'shadi) | O | P11 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
@@ -298,6 +299,34 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 4. **Singular chegarasi** λ_min / λ_max < 10⁻⁹.
 5. **Chiqishga xos sozlamalar** (MPE, qaror qoidasi) faqat `outputs[j].settings` orqali; umumiy `settings` dagi MPE vektor hisobda e'tiborga olinmaydi.
 6. **Ko'p o'lchovli t `nonNormalCorrelation: 'gaussian'` sozlamasidan ustun** (2.7.0 da MCM natijasi o'zgargan holat — CHANGELOG).
+
+### R-25. Laboratoriya reestri: tekshirilmagan qism va ochiq qarorlar (O) — P11 (2026-11-18, ENGINE 2.8.0)
+
+Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, Westgard qoidalari, kalibrlash intervali tavsiyasi, linter L1 / L2, hisobot bo'limlari, import / eksport, sxema migratsiyasi 2 → 3. Verified: ILAC P14:09/2020 §4.1–4.3, §5.5; ILAC P10:07/2020 §2.
+
+**Tekshirilmagan (manba repoda yo'q yoki sessiyada ochilmadi):**
+
+| # | Nima | Holat |
+|---|---|---|
+| 1 | ISO/IEC 17025:2017 §6.4, §6.5, §7.7.1 | pullik, repoda yo'q — faqat izohlarda "(unverified)"; linter `ref` da ko'rsatilmaydi |
+| 2 | Shewhart konstantalari (NIST e-Handbook §6.3.2.1) | **sayt P11 sessiyasida tarmoq siyosati sababli ochilmadi.** Qiymatlar ta'rifdan (ko'lam momentlari) mustaqil sonli integrallash bilan ±0,001 ichida tekshirilgan. NIST misoli (§6.3.2.2) testi — `todo`. Egasi sahifani PDF sifatida `docs/references/` ga qo'shgach — "verified" ga o'tkaziladi (tarmoq ruxsati berilmaydi — egasi qarori 2026-11-18) |
+| 3 | Westgard qoidalari | nashr (Clin. Chem. 27 (1981) 493) repoda yo'q; qoidalar umumiy ma'lum ta'rif bo'yicha, jadvalli testlar bilan |
+| 4 | Kalibrlash intervali | ILAC G24 / OIML D 10:2022 repoda bor, lekin §6.3 aniq formula bermaydi — hisob loyihaniki |
+
+**Loyiha qarorlari — egasi tasdiqladi (2026-11-18):** 1–6 o'zgarishsiz; 7 — R₄s ni seriya belgisisiz ketma-ket juftlikka qo'llash "loyiha yaqinlashuvi" deb belgilanadi (natijada `approximation: true`, topilmada va `docs/LINTER_RULES.md` §4 da); 9 (rol) — o'zgartirish bilan: mehmon lokal rejimda tahrirlay oladi, audit izida rol `guest`, yozuvda `savedBy: 'guest'`, shunday yozuvdan foydalangan hisobotda info topilma "reestr yozuvi autentifikatsiyasiz kiritilgan" (`registry_unauthenticated`, `cmc_unauthenticated`; uch tilda). **Manbalar:** NIST e-Handbook §6.3.2.1, §6.3.2.2 va Westgard sahifasini egasi PDF sifatida `docs/references/` ga qo'shadi (tarmoq ruxsati berilmaydi); qo'shilguncha shu havolalar "(unverified)".
+
+1. **Etalon muddati o'lchash sanasiga nisbatan tekshiriladi** (`settings.measurementDate`), bugungi sanaga emas: etalon ishlatilgan kuni amalda bo'lishi kerak; eski hisobni keyin ochganda topilma o'zgarmaydi. Muddatning oxirgi kuni — amalda. Sana ko'rsatilmasa — warning (tekshirilmadi). "Reestrdan tanlash" sanani bugungi kun bilan to'ldiradi (o'zgartirish mumkin).
+2. **Linter darajalari** (`docs/LINTER_RULES.md` §4 #25–#28): muddati o'tgan → error; ≤ 30 kun → info; akkreditatsiya belgisi yo'q → warning (CIPM MRA NMI yo'li belgisiz ham dalil); sohadan tashqari → warning.
+3. **Interpolyatsiya:** tuzatma — chiziqli; **U — ikki qo'shni nuqtadan standart noaniqligi kattasi** (k va ν o'sha nuqtaniki); ekstrapolyatsiya yo'q. Muqobil: U ni ham chiziqli interpolyatsiya qilish.
+4. **Drift standarti:** a = |ΔC| (oxirgi ikki kalibrlash), to'g'ri burchakli, √3. `trend` usulida a = |og'malik| × (oxirgi kalibrlashdan o'lchash sanasigacha).
+5. **Kalibrlash intervali:** chegara sharti |C(t)| + U_oxirgi = L (standart, konservativ) yoki |C(t)| = L; chiziqli OLS; kamida 3 ta kalibrlash.
+6. **CMC:** diapazon chegaralari kiradi; tutashgan ikki diapazon nuqtasida CMC si kattasi olinadi; jadval qatori qo'lda kiritilgan CMC dan ustun; sohadan tashqarida CMC bilan solishtirilmaydi (below_cmc chiqmaydi, faqat outside_scope); nisbiy CMC foizda.
+7. **Westgard:** qat'iy tengsizlik (aynan 2s / 3s — buzilish emas); R₄s — seriya belgisi hamma nuqtada bo'lsa seriya ichida, aks holda ketma-ket juftlikda; 10ₓ da aynan o'rtachadagi nuqta ketma-ketlikni uzadi; belgilangan (target) o'rtacha va s bo'lsa chegaralar undan, aks holda kartaning o'z ma'lumotidan; X̄–R da target s — bitta kuzatuvniki (o'rtacha uchun s/√n).
+8. **s_Rw kartadan** — barcha natijalarning oddiy tajriba standart og'ishi (n − 1), MR̄/d₂ emas; top-down ga `control_series` sifatida uzatiladi (ν = n − 1).
+9. **Rol:** etalonlar va CMC — xodim (`employee`) tahrirlay olmaydi; QC kartasiga xodim natija qo'shadi (kartani o'chirish tugmasi xodim uchun o'chirilgan; saqlash qatlami QC yozuvlarini rol bo'yicha cheklamaydi); tizimga kirmagan foydalanuvchi (`guest`, sinov / yakka lokal rejim) tahrirlay oladi. Lokal rejimda bu himoya ogohlantirish darajasida (P15 da server).
+10. **Reestr bog'lanishi uziladi**, agar foydalanuvchi reestrdan tortilgan U, k, ν yoki taqsimotni qo'lda o'zgartirsa (manba "qo'lda kiritilgan" bo'lib qoladi, xabar chiqadi).
+
+**Qilinmagan:** CMC ning matritsa va grafik ko'rinishlari (ILAC P14 §4.2 d, e); interpolyatsiya uchun P08 regressiyasi (faqat chiziqli); reestrni `.xlsx` ga eksport (CSV va JSON bor); import oynasida ustunlarni qo'lda moslash (faqat sarlavha bo'yicha); CMC jadvalini `.xlsx` dan import (faqat `uc-registry/1` JSON orqali); bir nechta nazorat darajasi bitta kartada; vektor (ko'p chiqishli) hisobda CMC jadvali chiqishga xos emas; bosma hisobot real brauzerda qo'lda ko'rilmagan (ekran — Chromium da ko'rildi).
 
 ### R-10. Hisoblash mantig'ining takrorlanishi (O)
 - `typeB.js:73-81, 204-221` u_B ni mustaqil hisoblaydi; `typeB.js:241` korrelyatsiyani `typeA` (usulsiz) bilan ko'rsatadi, `evaluate` esa `typeAx` bilan. Ekrandagi va hisobotdagi qiymatlar farq qilishi mumkin. Batafsil: ARCHITECTURE.md §4.

@@ -187,6 +187,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P11 — Etalonlar reestri, drift, CMC jadvali, QC kartalari, kalibrlash intervali
 
+> **Holat: bajarildi (2026-11-18, `feat/p11-lab-registry`, ENGINE_VERSION 2.8.0).** `src/engine/lab/` (reestr, drift, CMC, QC, Westgard, interval), linter L1 / L2, `src/storage/registry.js` (audit, rol, sxema 2 → 3), `src/io/registry.js` (`uc-registry/1`, jadval importi), `src/ui/lab/` ("Laboratoriya" yorlig'i, "Reestrdan tanlash"), `src/report/lab.js`. Mavjud natijalar 2.7.0 bilan bit darajasida bir xil. Verified: ILAC P14, ILAC P10. Unverified: ISO/IEC 17025, NIST e-Handbook (sayt ochilmadi — mustaqil hisob), Westgard. Ochiq qarorlar — `docs/RISKS.md` R-25, `docs/LINTER_RULES.md` §4 #25–#28.
+
 - **Fayllar:** reestr (kartochka, sertifikat nuqtalari, B tur manbasini reestrdan tortish, muddati o'tgan etalon → linter `error`), drift (u = |ΔC|/√3 sozlanadigan), CMC jadvali (diapazon/formula; U < CMC → sozlamaga ko'ra bloklash yoki ogohlantirish, avtomatik almashtirish yo'q), Shewhart X/R, Westgard qoidalari, s_Rw → P09, kalibrlash intervali (ILAC G24, faqat tavsiya). Hammasi `src/storage/` orqali lokal; Firebase'ga yozilmaydi; kalibrlanayotgan asbob MPE si manba sifatida taklif qilinmaydi.
 - **Nima buzilishi mumkin:** saqlash hajmi; mavjud hisoblarga ta'sir yo'q.
 - **Qanday tekshiriladi:** jadvalli testlar (Westgard, CMC chegarasi, drift), migratsiya testi. ILAC P10, G24, ISO 7870-2 manbalari kerak.

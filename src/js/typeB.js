@@ -171,6 +171,8 @@ const TypeB = (() => {
         </button>
       </div>
       ${comp.share === 'point' && window.UCTemplates && window.UCTemplates.pointRowIgnored(comp, state) ? `<div class="typeb-hint text-xs" style="color:var(--warning)">${escHtml(i18n.t('tpl_point_ignored'))}</div>` : ''}
+      ${comp.registry ? `<div class="typeb-hint text-xs text-muted" data-registry-link="${escHtml(comp.registry.id)}">${escHtml(i18n.t('lb_link').replace('{cert}', comp.registry.certificate || '—').replace('{date}', comp.registry.date || '—').replace('{valid}', comp.registry.validUntil || '—').replace('{v}', comp.registry.version))}${comp.registry.correction === null || comp.registry.correction === undefined ? '' : ' · ' + escHtml(i18n.t('lb_pick_correction').replace('{c}', comp.registry.correction))}</div>` : ''}
+      ${comp.drift ? `<div class="typeb-hint text-xs text-muted" data-drift-link="1">${escHtml(i18n.t('lb_drift_link').replace('{dc}', comp.drift.deltaC).replace('{div}', comp.drift.divisorLabel || '√3'))}</div>` : ''}
       ${comp.hint || comp.note ? `<div class="typeb-hint text-xs text-muted">${comp.optional ? '⚠ ' + escHtml(i18n.t('tpl_optional')) + '. ' : ''}${escHtml(comp.hint || '')}${comp.note ? ' — ' + escHtml(comp.note) : ''}</div>` : ''}
       <div class="typeb-card-body">
         <div class="form-group">
@@ -358,6 +360,23 @@ const TypeB = (() => {
             <input type="text" inputmode="decimal" data-set="cmc" value="${escHtml(String(settings.cmc ?? ''))}" placeholder="—" autocomplete="off" />
           </div>
         </div>
+        <div class="settings-grid" data-lab-settings="1">
+          <div class="form-group">
+            <label title="${escHtml(i18n.t('lb_set_date_hint'))}">${i18n.t('lb_set_date')} ⓘ</label>
+            <input type="date" data-set="measurementDate" value="${escHtml(String(settings.measurementDate ?? ''))}" />
+          </div>
+          <div class="form-group">
+            <label title="${escHtml(i18n.t('lb_set_cmc_hint'))}">${i18n.t('lb_set_cmc')} ⓘ</label>
+            <select data-lb-cmc-pick="1">
+              <option value="">${escHtml(i18n.t('lb_set_cmc_none'))}</option>
+              ${[...new Set([...(window.UCLab ? window.UCLab.cmcQuantities() : []), ...(settings.cmcKey ? [settings.cmcKey] : [])])].map(q => `<option value="${escHtml(q)}" ${settings.cmcKey === q && settings.cmcRows ? 'selected' : ''}>${escHtml(q)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group" ${settings.cmcRows ? '' : 'hidden'}>
+            <label title="${escHtml(i18n.t('lb_set_cmc_x_hint'))}">${i18n.t('lb_set_cmc_x')} ⓘ</label>
+            <input type="text" data-set="cmcX" class="mono" value="${escHtml(String(settings.cmcX ?? ''))}" placeholder="${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off" />
+          </div>
+        </div>
         <div class="settings-grid" data-decision-settings="1">
           <div class="form-group">
             <label>${i18n.t('set_decision_rule')}</label>
@@ -440,7 +459,15 @@ const TypeB = (() => {
       val = isFinite(n) && n >= 0 ? n : '';
     }
 
-    appState.updateTypeBComponent(id, { [field]: val });
+    // P11: reestrdan tortilgan qiymat (U, k, ν, taqsimot) qo'lda o'zgartirilsa — manba endi sertifikat nusxasiga mos emas:
+    // reestr bog'lanishi uziladi (manba qo'lda kiritilgan bo'lib qoladi) va foydalanuvchiga xabar beriladi.
+    const upd = { [field]: val };
+    if (comp.registry && ['halfWidth', 'k', 'nu', 'distribution'].includes(field) && String(comp[field] ?? '') !== String(val)) {
+      upd.registry = undefined;
+      if (window.showToast) window.showToast(i18n.t('lb_link_broken'), 'info', 6000);
+    }
+    if (comp.drift && ['halfWidth', 'k', 'distribution'].includes(field) && String(comp[field] ?? '') !== String(val)) upd.drift = undefined;
+    appState.updateTypeBComponent(id, upd);
   }
 
   function calcCombined() {
@@ -468,6 +495,8 @@ const TypeB = (() => {
         bad_halfwidth: i18n.t('err_bad_halfwidth') + ': «' + (result.detail || '') + '»',
         bad_dist_param: i18n.t('err_bad_dist_param') + ': «' + (result.detail || '') + '»',
         bad_mpe:      i18n.t('err_bad_mpe'),
+        bad_cmc_x:    i18n.t('err_bad_cmc_x'),
+        cmc_bad_row:  i18n.t('err_cmc_bad_row'),
         negative_variance: i18n.t('err_negative_variance'),
         bad_correlation: i18n.t('err_bad_correlation') + (result.detail ? ': ' + result.detail.replace('|', ' ↔ ') : ''),
         unit_mismatch: i18n.t('err_unit_mismatch') + (result.detail ? ': ' + result.detail : ''),
@@ -478,7 +507,7 @@ const TypeB = (() => {
         bad_spec:     i18n.t('err_bad_spec'),
       }[result.error] || i18n.t('toast_need_data');
       showToast(msg, 'error', 4500);
-      if (!['formula_eval', 'bad_halfwidth', 'bad_dist_param', 'bad_mpe', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab('data');
+      if (!['formula_eval', 'bad_halfwidth', 'bad_dist_param', 'bad_mpe', 'bad_cmc_x', 'cmc_bad_row', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab('data');
       return;
     }
 

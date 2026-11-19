@@ -58,3 +58,5 @@ export {
   withAcceptances, reportStatus, validateAcceptance, MIN_ACCEPT_COMMENT,
   grubbsCritical, grubbsStatistic, significantDigits, decimalPlaces,
 } from './linter/index.js';
+// P11: laboratoriya jarayonlari — etalonlar reestri, drift, CMC jadvali, QC kartalari, Westgard, kalibrlash intervali
+export * from './lab/index.js';

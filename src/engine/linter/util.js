@@ -29,6 +29,7 @@ export const THRESHOLDS = Object.freeze({
   unusualKMin: 1,              // X5: normal taqsimot bo'luvchisi k < 1
   unusualKMax: 4,              // X5: … yoki k > 4
   outputCorrelationAbs: 0.5,   // MV1: chiqishlar orasidagi |r| chegarasi (P07; manbada son yo'q — egasi tasdig'ini kutadi)
+  expiryWarnDays: 30,          // L1: etalon muddati tugashiga qolgan kunlar → info (P11; loyiha qarori — egasi tasdiqladi 2026-11-18)
   maxReportedDigits: 2,        // X9: U ning qiymatli raqamlari (JCGM 100:2008 7.2.6; egasi qarori)
 });
 

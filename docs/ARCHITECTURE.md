@@ -4,6 +4,25 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P11 (2026-11-18, `feat/p11-lab-registry`).** Laboratoriya jarayonlari (bog'liqlik: `ui/lab → storage, engine/lab, io`; `engine/lab` sof, DOM va soatsiz; `storage` dvigatelga bog'liq emas):
+>
+> | Fayl | Vazifasi (P11) |
+> |---|---|
+> | `src/engine/lab/registry.js` | etalon kartochkasi, nuqtalar, interpolyatsiya, `sourceFromStandard` (B tur manbasi + nusxa), muddat, kuzatuvchanlik dalili |
+> | `src/engine/lab/drift.js`, `interval.js` | drift taklifi (|ΔC| / trend), kalibrlash intervali tavsiyasi |
+> | `src/engine/lab/cmc.js` | CMC jadvali: CMC(X), qatorni topish, hisobdagi tekshiruv |
+> | `src/engine/lab/qc.js`, `westgard.js` | Shewhart kartalari, konstantalar, s_Rw; Westgard qoidalari |
+> | `src/engine/linter/rules/l01-standard-validity.js`, `l02-cmc-scope.js` | L1, L2 |
+> | `src/engine/evaluate.js` | `settings.cmcRows` / `cmcRow` + `cmcX` → `result.cmcCheck`; `budget[].registry`, `budget[].drift` (faqat shu maydonlar bo'lsa) |
+> | `src/storage/registry.js`, `migrate.js::migrateSchema` | reestr yozuvlari (`registries` ombori, audit, rol, versiya); hisoblar sxemasi 2 → 3 |
+> | `src/io/registry.js` | `uc-registry/1` hujjati, jadvaldan (`.xlsx` / `.csv`) etalonlar, CSV qatorlari |
+> | `src/report/lab.js` | hisobot: reestr manbalari, CMC tekshiruvi, drift asosi (`sections.js::labSection`) |
+> | `src/ui/lab/app.js`, `view.js`, `model.js`, `chart.js` | "Laboratoriya" yorlig'i (Etalonlar / CMC / QC), "Reestrdan tanlash" oynasi, QC SVG grafigi; `window.UCLab` |
+> | `src/js/typeB.js` | reestr / drift belgisi manba kartasida; sozlamalarda o'lchash sanasi, CMC kattaligi, X |
+> | `src/js/i18n-lab.js` | P11 matnlari (uz / ru / en) |
+>
+> Ma'lumot oqimi: reestr (IndexedDB) → "Reestrdan tanlash" → `typeB[].registry` (nusxa) hisob holatida → `evaluate()` → `budget[].registry` → hisobot. Dvigatel reestrga murojaat qilmaydi.
+
 > **Yangilanish — P07 (2026-11-18, `feat/p07-multivariate`).** Ko'p o'zgaruvchili modellar (bog'liqlik: `engine/multivariate → engine/mc, engine/linter`; sof, DOM siz):
 >
 > | Fayl | Vazifasi (P07) |

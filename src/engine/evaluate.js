@@ -15,6 +15,7 @@ import { lint } from './linter/index.js';
 import { decide, decisionInput } from './decision.js';
 import { parseUnit, analyzeDimensions, dimEqual, dimText } from './units.js';
 import { normalize } from './spec.js';
+import { cmcCheck as cmcTableCheck, cmcCheckRows } from './lab/cmc.js';
 import { evaluateRegression, REGRESSION_FORMAT } from './regression/index.js';
 import { evaluateTopDown, TOPDOWN_FORMAT } from './topdown/index.js';
 import { evaluateSampling, SAMPLING_FORMAT } from './sampling/index.js';
@@ -226,7 +227,10 @@ function evaluateCore(spec) {
     }
     comps.filter(cm => cm.param === inp.name).forEach(cm => {
       budget.push({ kind: 'B', name: cm.name, auto: !!cm.auto, param: inp.name, dist: cm.distribution, unit: cm.unit,
-                    nu: cm.nu, u: cm.u, c: inp.c, contrib: (inp.c * cm.u) ** 2 });
+                    nu: cm.nu, u: cm.u, c: inp.c, contrib: (inp.c * cm.u) ** 2,
+                    // P11: reestrdan tanlangan manba (sertifikat nusxasi) va drift manbasi asosi — faqat hisobot uchun
+                    ...(cm.registry && typeof cm.registry === 'object' ? { registry: { ...cm.registry } } : {}),
+                    ...(cm.drift && typeof cm.drift === 'object' ? { drift: { ...cm.drift } } : {}) });
     });
   });
   pairs.forEach(p => {
@@ -335,7 +339,32 @@ function evaluateCore(spec) {
 
   // Ogohlantirishlar (CLAUDE.md: U = 0 va U < CMC ogohlantirishsiz chiqmaydi)
   inputs.forEach(inp => inp.warnings.forEach(w => warnings.push({ code: w, param: inp.name })));
-  const cmc = toNum(settings.cmc);
+  let cmc = toNum(settings.cmc);
+  // P11: CMC jadvali qatori (hisobda saqlangan nusxa) — CMC(X) avtomatik topiladi; qo'lda kiritilgan settings.cmc dan ustun.
+  // X diapazondan tashqarida bo'lsa CMC bilan solishtirilmaydi (linter L2: outside_scope). U avtomatik almashtirilmaydi.
+  // Ref: ILAC P14:09/2020 §4.2 (CMC ni ifodalash usullari), §5.5 (U ≥ CMC)
+  let cmcInfo = null;
+  // settings.cmcRows (massiv) — bir kattalikning barcha diapazon qatorlari: X ga mos qator avtomatik topiladi;
+  // settings.cmcRow — bitta qator.
+  const cmcRows = Array.isArray(settings.cmcRows) && settings.cmcRows.length ? settings.cmcRows : null;
+  const checkCmc = (xv) => (cmcRows ? cmcCheckRows(cmcRows, xv, U) : cmcTableCheck(settings.cmcRow, xv, U));
+  if (cmcRows || (settings.cmcRow && typeof settings.cmcRow === 'object')) {
+    let cx = NaN;
+    if (!isBlank(settings.cmcX)) {
+      try { cx = valueOrExpr(settings.cmcX, params, means); }
+      catch (_) { return { error: 'bad_cmc_x' }; }
+    }
+    if (!isFinite(cx)) {
+      const first = cmcRows ? cmcRows[0] : settings.cmcRow;
+      cmcInfo = { ...cmcTableCheck(first, 0, U), ...(cmcRows ? { rowId: '', type: '' } : {}), x: null, cmc: null, inRange: null, below: null, pending: 'x' };
+      delete cmcInfo.error;
+      cmc = NaN;
+    } else {
+      cmcInfo = checkCmc(cx);
+      if (cmcInfo.error) return { error: cmcInfo.error };
+      cmc = cmcInfo.inRange ? cmcInfo.cmc : NaN;
+    }
+  }
   if (isFinite(cmc) && cmc > 0 && U < cmc) warnings.push({ code: 'below_cmc', value: cmc });
   if (U === 0) warnings.push({ code: 'zero_u' });
 
@@ -353,6 +382,8 @@ function evaluateCore(spec) {
     pairs, budget, verify, conf, gamma, warnings, notes, units, secondOrder, cmc: isFinite(cmc) ? cmc : null,
     modelKind, nominal: modelKind === 'value' && isFinite(nominal) ? nominal : null, deviation,
     decision,
+    ...(cmcInfo ? { cmcCheck: cmcInfo } : {}),
+    ...(isBlank(settings.measurementDate) ? {} : { measurementDate: String(settings.measurementDate) }),
     y, mean: y, uc2, uc, ucNoCorr, uc2FirstOrder: Math.max(0, uc2First),
     corrEffectPct: ucNoCorr > 0 ? (uc - ucNoCorr) / ucNoCorr * 100 : 0,
     nuEff, k, U, coverage: coverageInfo,
