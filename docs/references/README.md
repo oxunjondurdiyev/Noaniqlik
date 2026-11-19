@@ -18,6 +18,7 @@ Test misollarining kutilgan qiymatlari faqat shu papkadagi asl manbalardan olina
 | `ILAC_P10_07_2020.pdf` | ILAC-P10 — ILAC Policy on Metrological Traceability of Measurement Results | 07/2020 (© ILAC; same terms) |
 | `ILAC_G24_OIML_D10_2022.pdf` | ILAC-G24 / OIML D 10 — Guidelines for the determination of recalibration intervals of measuring equipment | Edition 2022 (© ILAC / OIML) |
 | `nist-ehandbook-6.3.2/` | NIST/SEMATECH e-Handbook of Statistical Methods — §6.3.2, 6.3.2.1, 6.3.2.2 (Shewhart va individual kartalar) | onlayn nashr, fayllar 2024-04-16 (AQSh davlat ishi) |
+| `nist-ehandbook-p12/` | NIST/SEMATECH e-Handbook — Grubbs (1.3.5.17.1), t-test (1.3.5.3), F-test (1.3.5.9), bir omilli ANOVA (7.4.3.1–7.4.3.4), takrorlanuvchanlik / qayta tiklanuvchanlik (2.4.4) — P12 | onlayn nashr, fayllar 2024-04-16 (AQSh davlat ishi) |
 
 Kerak bo'ladigan qo'shimcha manbalar (hali yo'q):
 - NIST/SEMATECH e-Handbook of Statistical Methods, §6.3.2.1 (Shewhart X̄–R, konstantalar jadvali) va §6.3.2.2 (individuals — misol): sahifalarni PDF yoki matn sifatida saqlang (`NIST_eHandbook_6-3-2.pdf`) — P11 da sayt ochilmadi, konstantalar ta'rifdan mustaqil hisoblab tekshirilgan, NIST misoli testi `todo`. Egasi PDF sifatida qo'shadi (tarmoq ruxsati berilmaydi — egasi qarori 2026-11-18); qo'shilguncha "(unverified)";

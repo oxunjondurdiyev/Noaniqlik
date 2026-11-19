@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>2.4.4.1. Analysis of repeatability</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="mpc442.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="mpc44.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area sharea shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">2.</FONT>
+<FONT COLOR="#00105A"><A HREF="../mpc.htm">Measurement Process Characterization</a></FONT>
+<BR>
+<FONT COLOR="#D60021">2.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="mpc4.htm">Gauge R & R studies</a></FONT>
+<BR>
+<FONT COLOR="#D60021">2.4.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="mpc44.htm">Analysis of variability</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">2.4.4.1.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Analysis of repeatability</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top><!-- begin paragraph -->
+<I>Case study: <A HREF="../section6/mpc61.htm">Resistivity probes</I></A>
+</TD>
+<TD VALIGN=TOP WIDTH=85%><!-- Add main text below -->
+The repeatability quantifies the basic precision for the gauge.  A
+level-1 <A HREF="mpc44.htm">repeatability standard deviation</A> is
+computed for each group of <I>J</I> repetitions, and a graphical
+analysis is recommended for deciding if repeatability is dependent on
+the check standard, the operator, or the gauge.  Two graphs are
+recommended.  These should show:
+<UL>
+   <LI><A HREF="../section6/mpc612.htm">Plot of repeatability standard
+       deviations versus check standard with day coded</A>
+   <LI><A HREF="../section6/mpc613.htm">Plot of repeatability standard
+       deviations versus check standard with gauge coded</A>
+</UL>
+Typically, we expect the standard deviation to be gauge dependent -- in
+which case there should be a separate standard deviation for each gauge.
+If the gauges are all at the same level of precision, the values can be
+combined over all gauges.
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top><!-- begin paragraph -->
+<I>Repeatability standard deviations can be pooled over operators, runs,
+and check standards</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%> <!-- Add main text below -->
+A repeatability standard deviation from <I>J</I> repetitions is not a
+reliable estimate of the precision of the gauge.  Fortunately, these
+standard deviations can be pooled over days; runs; and check standards,
+if appropriate, to produce a more reliable precision measure. The
+table below shows a mechanism for pooling.  The pooled repeatability
+standard deviation, \( {\large s}_1 \), 
+<!-- <B><IMG ALIGN = absmiddle SRC="mpc441a.gif" ALT="s1"></B>, -->
+has <I>LK</I>(<I>J</I> - 1) degrees of freedom for measurements taken over:
+<UL>
+   <LI><I>J</I> repetitions
+   <LI><I>K</I> days
+   <LI><I>L</I> runs
+</UL>
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<I>Basic pooling rules</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The table below gives the mechanism for pooling repeatability standard
+deviations over days and runs.  The pooled value is an average of
+weighted variances and is shown as the last entry in the right-hand
+column of the table.  The pooling can also cover check standards,
+if appropriate.
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<I><A HREF="../section6/mpc6111.htm">View of entire dataset from the
+nested design</A></I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+To illustrate the calculations, a
+<a href="../../datasets/MPC441.DAT">subset of data</a> collected in a
+nested design for one check standard (#140) and one probe (#2362) are
+shown below.  The measurements are resistivity (ohm.cm) readings with six
+repetitions per day.  The individual level-1 standard deviations from
+the six repetitions and degrees of freedom are recorded in the last
+two columns of the database.
+<FONT SIZE=3>
+<PRE>
+<B>
+Run  Wafer  Probe  Month  Day  Op  Temp    Average  Stddev  df
+</B>
+ 1    140    2362    3    15   1   23.08   96.0771  0.1024  5
+ 1    140    2362    3    17   1   23.00   95.9976  0.0943  5
+ 1    140    2362    3    18   1   23.01   96.0148  0.0622  5
+ 1    140    2362    3    22   1   23.27   96.0397  0.0702  5
+ 1    140    2362    3    23   2   23.24   96.0407  0.0627  5
+ 1    140    2362    3    24   2   23.13   96.0445  0.0622  5
+ 
+ 2    140    2362    4    12   1   22.88   96.0793  0.0996  5
+ 2    140    2362    4    18   2   22.76   96.1115  0.0533  5
+ 2    140    2362    4    19   2   22.79   96.0803  0.0364  5
+ 2    140    2362    4    19   1   22.71   96.0411  0.0768  5
+ 2    140    2362    4    20   2   22.84   96.0988  0.1042  5
+ 2    140    2362    4    21   1   22.94   96.0482  0.0868  5
+</PRE>
+</FONT>
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<CENTER>
+<B><FONT SIZE=3>
+Pooled repeatability standard deviations over days, runs
+</FONT></B>
+<P>
+<TABLE BORDER=1>
+<TR>
+<TH WIDTH=25%>Source of Variability</TH>
+<TH WIDTH=25%>Degrees of Freedom</TH>
+<TH WIDTH=25%>Standard Deviations</TH>
+<TH WIDTH=25%>Sum of Squares (SS)</TH>
+</TR>
+
+<TR>
+<TH WIDTH=25%>Probe 2362</B></TD>
+<TH WIDTH=25%> \( \nu_i\) <!-- <IMG SRC="mpc441c.gif" alt=nu(i)"> --></TH>
+<TH WIDTH=25%> \( {\large s}_{1i} \) <!-- <IMG SRC="mpc441e.gif" alt="s(1i)"> --></TH>
+<TH WIDTH=25%> \( SS_i= \nu_i {\large s}_{1i}^2 \)  
+<!-- <IMG SRC="mpc441b.gif" alt="SS(i)=nu(i)*s(1i)**2"> --></TH>
+</TR>
+
+<TR><TD WIDTH=25%>
+<PRE>
+
+run 1 - day 1
+
+run 1 - day 2
+
+run 1 - day 3
+
+run 1 - day 4
+
+run 1 - day 5
+
+run 1 - day 6
+
+run 2 - day 1
+
+run 2 - day 2
+
+run 2 - day 3
+
+run 2 - day 4
+
+run 2 - day 5
+
+run 2 - day 6
+</PRE>
+</TD>
+<TD WIDTH=25%>
+<PRE>
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+
+      5
+</PRE>
+</TD>
+<TD WIDTH=25%>
+<PRE>
+
+     0.1024
+
+     0.0943
+
+     0.0622
+
+     0.0702
+
+     0.0627
+
+     0.0622
+
+     0.0996
+ 
+     0.0533
+
+     0.0364
+
+     0.0768
+
+     0.1042
+
+     0.0868
+</PRE>
+</TD>
+<TD WIDTH=25%>
+<PRE>
+
+   0.05243
+
+   0.04446
+
+   0.01934
+
+   0.02464
+
+   0.01966
+
+   0.01934
+
+   0.04960
+
+   0.01420
+
+   0.00662
+
+   0.02949
+
+   0.05429
+
+   0.03767
+</PRE>
+</TD>
+</TR>
+
+<TR>
+<TD>
+\( \nu = \sum \nu_i \longrightarrow \)
+<!-- <IMG SRC = "mpc441f.gif" ALT="nu = SUM{nu(i)}"> -->
+<BR>
+gives the total degrees of freedom 
+for \( {\large s}_1 \) <!-- <I>s<sub>1</sub></I> -->
+</TD>
+<TD>
+<PRE>     <B>60</B></PRE>
+</TD>
+<TD>
+\( SS = \sum SS_i \longrightarrow \)
+<!-- <IMG SRC = "mpc441g.gif" ALT="SS = SUM{SS(i)}"> -->
+<BR>
+gives the total sum of squares
+for \( {\large s}_1 \) <!-- <I>s<sub>1</sub></I> -->
+</TD>
+<TD>
+<PRE>   <B>0.37176</B></PRE>
+</TD>
+</TR>
+
+<TR>
+<TD COLSPAN=3>
+The pooled value of \( {\large s}_1 \)
+<!-- <I>s<sub>1</sub></I> --> is given by
+\( {\large s}_1 = \sqrt{SS/\nu} \longrightarrow \)
+<!-- <IMG ALIGN=absmiddle SRC = "mpc441d.gif" ALT="s1 = SQRT(SS/nu)"> -->
+</TD>
+<TD>
+<PRE>   <B>0.07871</B><PRE>
+</TD>
+</TR>
+
+</TABLE>
+</CENTER>
+
+
+The calculations displayed in the table above can be 
+generated using both <A HREF="mpc441.dp">Dataplot code</A> 
+and <A HREF="mpc441.r">R code</A>.
+The  reader can download the
+<a href="../../datasets/MPC441.DAT">data as a text file</a>.
+</TD>
+</TR>
+
+
+
+
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="mpc44.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="mpc442.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

@@ -1,0 +1,533 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>7.4.3.3. The ANOVA table and tests of hypotheses about means</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="prc434.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="prc432.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">7.</FONT>
+<FONT COLOR="#00105A"><A HREF="../prc.htm">Product and Process Comparisons</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc4.htm">Comparisons based on data from more than two processes</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc43.htm">Are the means equal?</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">7.4.3.3.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>The ANOVA table and tests of hypotheses about means</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Sums of Squares help us compute the variance estimates displayed
+in ANOVA Tables</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<a href="prc431.htm#SST and SSE">
+The sums of squares <b>SST</b> and <b>SSE</b></a>
+previously computed for the one-way ANOVA are used to form two
+mean squares, one for <i>treatments</i> and the second for
+<i>error</i>.  These mean squares are denoted by \(MST\) and \(MSE\),
+<!-- <i>MST</i> and <i>MSE</i>, -->
+respectively.  These are typically displayed in a
+tabular form, known as an <i>ANOVA Table</i>. The ANOVA table also
+shows the statistics used to test hypotheses about the population
+means.
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Ratio of \(MST\) and \(MSE\)
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+When the null hypothesis of equal means is true, the two mean
+squares estimate the same quantity (error variance), and should be
+of approximately equal magnitude.  In other words, their ratio
+should be close to 1.  If the null hypothesis is false, \(MST\) should
+be larger than \(MSE\).
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Divide sum of squares by degrees of freedom to obtain mean squares
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The mean squares are formed by dividing the sum of squares by the
+associated degrees of freedom.
+<p>
+Let \(N = \sum n_i\).
+<!-- <i>N</i> = <img align=absmiddle src="eqns/ucsigma.gif" alt="SUM"> n<sub>i</sub></i>. -->
+Then, the degrees of freedom for treatment are 
+
+$$ DFT = k - 1 \, , $$
+<!-- DFT = <i>k </i>- 1, -->
+
+and the degrees of freedom for error are
+
+$$ DFE = N - k \, . $$
+<!-- DFE = <i>N</i><sub> </sub>-<i> k</i>. -->
+<p>
+The corresponding <i>mean squares</i> are:
+<p>
+<center>
+\(MST = SST / DFT \)
+<p>
+\(MSE = SSE / DFE \).
+</center>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>The F-test</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The test statistic, used in testing the equality
+of treatment means is: \(F = MST / MSE\).
+<p>
+The critical value is the tabular value of the \(F\) distribution, based
+on the chosen \(\alpha\)
+<!-- <img align=absmiddle src="eqns/alpha.gif" alt="alpha"> -->
+level and the degrees of freedom \(DFT\) and \(DFE\).
+<p>
+The calculations are displayed in an ANOVA table, as follows:
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<I>
+ANOVA table
+</I>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+<table>
+<tr>
+<td COLSPAN="6">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td WIDTH="75">Source</td>
+
+<td WIDTH="50">SS</td>
+
+<td WIDTH="50">DF</td>
+
+<td WIDTH="100">MS</td>
+
+<td WIDTH="75">F</td>
+</tr>
+
+<tr>
+<td COLSPAN="6">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Treatments</td>
+
+<td>\(SST\)</td>
+
+<td>\(k-1\)</td>
+
+<td>\(SST / (k-1)\)</td>
+
+<td>\(MST/MSE\)</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Error</td>
+
+<td>\(SSE\)</td>
+
+<td>\(N-k\)</td>
+
+<td>\(\,\,\, SSE / (N-k) \,\,\, \)</td>
+</tr>
+
+<tr>
+<td COLSPAN="6">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Total (corrected)</td>
+
+<td>\(SS\)</td>
+
+<td>\(N-1\)</td>
+</tr>
+</table>
+<p>
+The word "source" stands for source of variation.  Some authors
+prefer to use "between" and "within" instead of "treatments" and
+"error", respectively.
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<a NAME="Example"></a>
+<b>ANOVA Table Example</b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>A numerical example</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+The data below resulted from measuring the difference in resistance
+resulting from subjecting identical resistors to three different
+temperatures for a period of 24 hours.  The sample size of each
+group was 5.  In the language of design of experiments, we have an
+experiment in which each of three treatments was replicated 5 times.
+<p>
+<table>
+<tr>
+<td></td>
+
+<td COLSPAN="3">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td WIDTH="75">Level 1</td>
+
+<td WIDTH="75">Level 2</td>
+
+<td WIDTH="75">Level 3</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td COLSPAN="3">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td>6.9</td>
+
+<td>8.3</td>
+
+<td>8.0</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td>5.4</td>
+
+<td>6.8</td>
+
+<td>10.5</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td>5.8</td>
+
+<td>7.8</td>
+
+<td>8.1</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td>4.6</td>
+
+<td>9.2</td>
+
+<td>6.9</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td></td>
+
+<td>4.0</td>
+
+<td>6.5</td>
+
+<td>9.3</td>
+</tr>
+
+<tr>
+<td></td>
+
+<td COLSPAN="3">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>means</td>
+
+<td>5.34</td>
+
+<td>7.72</td>
+
+<td>8.56</td>
+</tr>
+
+<tr>
+<td></td>
+
+<td COLSPAN="3">
+<hr></td>
+</tr>
+</table>
+<p>
+The resulting ANOVA table is
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<a NAME="ANOVA table">
+<i>Example ANOVA table</i>
+</a>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+<table>
+<tr>
+<td COLSPAN="5">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td WIDTH="120">Source</td>
+
+<td WIDTH="50">SS</td>
+
+<td WIDTH="50">DF</td>
+
+<td WIDTH="100">MS</td>
+
+<td WIDTH="65">F</td>
+</tr>
+
+<tr>
+<td COLSPAN="5">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Treatments</td>
+
+<td>27.897</td>
+
+<td>2</td>
+
+<td>13.949</td>
+
+<td>9.59</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Error</td>
+
+<td>17.452</td>
+
+<td>12</td>
+
+<td>1.454</td>
+</tr>
+
+<tr>
+<td COLSPAN="5">
+<hr></td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Total (corrected)</td>
+
+<td>45.349</td>
+
+<td>14</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>Correction Factor</td>
+
+<td>779.041</td>
+
+<td>1</td>
+</tr>
+</table>
+
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Interpretation of the ANOVA table
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The test statistic is the \(F\) value of 9.59.  Using an \(\alpha\)
+<!-- <img align=absmiddle src="eqns/alpha.gif" alt="alpha"> -->
+of 0.05, we have \(F_{0.05; \, 2, \, 12}\)
+<!-- F<sub>.05; 2, 12</sub> -->
+= 3.89 (see the
+<a href="../../eda/section3/eda3673.htm">F distribution table</a>
+in Chapter 1).  Since the test statistic is much larger than the
+critical value, we reject the null hypothesis of equal population
+means and conclude that there is a (statistically) significant
+difference among the population means.  The \(p\)-value
+<!--<i>p</i>-value -->
+for 9.59 is 0.00325, so the test statistic is significant at that level.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Techniques for further analysis
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The populations here are resistor readings while operating under the
+three different temperatures.  What we do <b>not</b> know at this
+point is whether the three means are all different or which of the
+three means is different from the other two, and by how much.
+<p>
+There are several techniques we might use to further analyze the
+differences.  These are:
+<ul>
+   <li><a href="prc435.htm">constructing confidence intervals
+       around the difference of two means,</a></li>
+   <li><a href="prc436.htm">estimating combinations of factor levels
+       with confidence bounds</a></li>
+   <li><a href="prc47.htm">multiple comparisons of combinations of
+       factor levels tested simultaneously.</a></li>
+</ul>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+
+
+
+
+
+
+   
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="prc432.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="prc434.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

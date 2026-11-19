@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>2.4.4.2. Analysis of reproducibility</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="mpc443.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="mpc441.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area sharea shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">2.</FONT>
+<FONT COLOR="#00105A"><A HREF="../mpc.htm">Measurement Process Characterization</a></FONT>
+<BR>
+<FONT COLOR="#D60021">2.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="mpc4.htm">Gauge R & R studies</a></FONT>
+<BR>
+<FONT COLOR="#D60021">2.4.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="mpc44.htm">Analysis of variability</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">2.4.4.2.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Analysis of reproducibility</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+<TR>
+<TD WIDTH=15% VALIGN=top><!-- begin paragraph -->
+<I>Case study: <A HREF="../section6/mpc61.htm">Resistivity gauges</I></A>
+</TD>
+<TD VALIGN=TOP WIDTH=85%><!-- Add main text below -->
+Day-to-day variability can be assessed by a
+<A HREF="../section6/mpc614.htm">graph of check standard values</A>
+(averaged over <I>J</I> repetitions) versus day with a separate graph
+for each check standard.  Graphs for all check standards should be
+plotted on the same page to obtain an overall view of the measurement
+situation. 
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top><!-- begin paragraph -->
+<I>Pooling results in more reliable estimates</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%><!-- Add main text below -->
+The <A HREF="mpc44.htm" >level-2 standard deviations</A> with
+(<I>K</I> - 1) degrees of freedom are computed from the check
+standard values for days and pooled over runs  as shown in the
+table below.  The pooled level-2 standard deviation has degrees of
+freedom <br/>
+<I>L</I>(<I>K</I> - 1) for measurements made over:
+<UL>
+   <LI><I>K</I> days
+   <LI><I>L</I> runs
+</UL>
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<I>Mechanism for pooling</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The table below gives the mechanism for pooling level-2 standard
+deviations over runs.  The pooled value is an average of weighted
+variances and is the last entry in the right-hand column of the table.
+The pooling can be extended in the same manner to cover check standards,
+if appropriate.
+<P>
+The table was generated using a <A HREF="mpc441.htm">subset of data</A> 
+(shown on previous page) collected in a nested design on one check 
+standard (#140) with probe (#2362) over six days.  The data are analyzed 
+for between-day effects.  The level-2 standard deviations and pooled 
+level-2 standard deviations over runs 1 and 2 are:
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<B><FONT SIZE=4>Level-2 standard deviations for a single gauge pooled
+over runs</FONT></B>
+<P>
+
+<TABLE BORDER=1>
+<TR>
+<TD WIDTH=88><B>Source of variability</B></TD>
+<TD WIDTH=88><B><CENTER>Standard deviations</B></CENTER></TD>
+<TD WIDTH=88><B><CENTER>Degrees of freedom</CENTER></B></TD>
+<TD WIDTH=88><B><CENTER>Sum of squares</CENTER></B></TD>
+</TR>
+
+<TR>
+<TD WIDTH=88><B>Days</B></TD>
+<TD WIDTH=88><CENTER> \( {\large s}_{2i} \) <!-- <IMG SRC="mpc442c_new.gif" ALT="s2"> --> </CENTER></TD>
+<TD WIDTH=88><CENTER> \( \nu_i \) <!-- <IMG SRC="mpc443e_new.gif" ALT="nu(i)"> --> </CENTER></TD>
+<TD WIDTH=88><CENTER> \(  SS_i = \nu_i \cdot {\large s}_{2i}^2\)  
+                      <!-- <IMG SRC="mpc442b_new.gif" ALT="SS = nu*s2**2"> --> </CENTER></TD>
+</TR>
+
+<TR><TD WIDTH=88>
+<PRE>
+
+Run 1
+ 
+Run 2
+
+
+
+<B>Sum
+
+
+Pooled value</B></pre>
+\( {\large s}_2 = \sqrt{\sum SS_i / \sum \nu_i} \)
+<!-- <IMG SRC = "mpc442d_new.gif" ALT="s2 = SQRT{SS/SUM[nu(i)}"> -->
+</TD><TD WIDTH=88>
+<PRE>
+<CENTER>
+  0.027280  
+
+  0.027560  
+
+
+
+
+
+
+
+             
+</CENTER>
+</PRE></TD><TD WIDTH=50>
+<PRE><CENTER>
+ 5
+ 
+ 5
+
+ ------- 
+ 
+<B>10</B>
+
+
+
+
+</CENTER>
+</PRE></TD><TD WIDTH=88>
+<PRE><CENTER>
+0.003721
+
+0.003798
+
+-----------
+
+<B>0.007519</B>
+
+
+
+<B>0.02742</B>
+</CENTER>
+</PRE></TABLE>
+</CENTER>
+</TD>
+</TR>
+
+
+<TR>
+<TD WIDTH=15% VALIGN=top><!-- begin paragraph -->
+<I>Relationship to day effect</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%><!-- Add main text below -->
+The level-2 standard deviation is related to the standard deviation
+for between-day precision and gauge precision by 
+$$ {\large s}_{days} = \sqrt{{\large s}_2^2 - \frac{1}{J} {\large s}_1^2} $$
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc442a.gif"
+     ALT="s(days) = SQRT(s2**2 - (1/J)*s1**2)">
+</CENTER>
+<P>
+-->
+The size of the day effect can be calculated by subtraction using the
+formula above once the other two standard deviations have been
+estimated reliably.
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<I>Computation of variance component for days</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+For our example, the variance component for between days is -0.00028072.  
+The negative number for the variance is interpreted as meaning that the
+variance component for days is zero.  However, with only 10 degrees
+of freedom for the level-2 standard deviation, this estimate is not
+necessarily reliable.  The <A HREF="../section6/mpc63.htm#day">standard
+deviation for days</A> over the entire database shows a significant
+component for days. 
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<I>Sample code</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The calculations included in this section can be 
+implemented using both <A HREF="mpc442.dp">Dataplot code</A> 
+and <A HREF="mpc442.r">R code</A>.  The  reader can download the
+<a href="../../datasets/MPC441.DAT">data as a text file</a>.
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="mpc441.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="mpc443.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+</HTML>

@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>1.3.5.17.1. Grubbs' Test for Outliers</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="eda35h2.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="eda35h.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">1.</FONT>
+<FONT COLOR="#00105A"><A HREF="../eda.htm">Exploratory Data Analysis</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda3.htm">EDA Techniques</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.5.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda35.htm">Quantitative Techniques</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.5.17.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda35h.htm">Detection of Outliers</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">1.3.5.17.1.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Grubbs' Test for Outliers</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+
+
+<!-----begin section: purpose -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Purpose:<br>
+         Detection of Outliers
+      </I>
+   </td>
+   <td width=85% valign=top>
+      Grubbs' test
+      (<a href="../section4/eda43.htm#Grubbs">Grubbs 1969</a> and
+      <a href="../section4/eda43.htm#Stefansky">Stefansky 1972</a>)
+      is used to detect a single <a href="eda35h.htm">outlier</a> in a
+      univariate data set that follows an
+      <a href="eda35h.htm#Normality">approximately normal</a>
+      distribution.
+      <p>
+      If you suspect more than one outlier may be present, it is
+      recommended that you use either the 
+      <a href="eda35h2.htm">Tietjen-Moore test</a> or the
+      <a href="eda35h3.htm">generalized extreme studentized deviate
+      test</a> instead of the Grubbs' test.
+      <p>
+      Grubbs' test is also known as the maximum normed residual
+      test.
+   </td>
+</tr>
+
+<!-----begin section: definition -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Definition
+      </I>
+   </td>
+   <td width=85% valign=top>
+      Grubbs' test is defined for the hypothesis:
+      <table>
+
+      <tr>
+         <td>
+            H<sub>0</sub>:
+         </td>
+         <td>
+            There are no outliers in the data set
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            H<sub>a</sub>:
+         </td>
+         <td>
+            There is exactly one outlier in the data set
+         </td>
+      </tr>
+      <p>
+      <tr>
+         <td valign=top>
+            Test Statistic:
+         </td>
+         <td>
+            The Grubbs' test statistic is defined as:
+            <ul>
+               <!--
+               <img src="eqns/grubb.gif" alt="G = MAX|Y(i) - YBAR|/s">
+               -->
+               \( G = \frac{\max{|Y_{i} - \bar{Y}|}} {s} \)
+            </ul>
+            with <!-- <img src="eqns/ybar.gif" alt="YBAR"> -->
+            \(\bar{Y}\) and <b><i>s</i></b> denoting the sample mean
+             and standard deviation, respectively.  The Grubbs'
+            test statistic is the largest absolute deviation from the
+            sample mean in units of the sample standard deviation.
+            <p>
+            This is the two-sided version of the test.  The Grubbs'
+            test can also be defined as one of the following
+            one-sided tests:
+            <ol>
+               <li>test whether the minimum value is an outlier
+                   <p>
+                   <ul>
+                      <!--
+                      <img src="eqns/grubbmin.gif" alt=
+                           "G = (YBAR - Ymin)/s">
+                      -->
+                      \( G = \frac{\bar{Y} - Y_{min}} {s} \)
+                   </ul>
+                   <p>
+                   with <i>Y<sub>min</sub></i> denoting the minimum
+                   value.
+                   <p>
+               <li>test whether the maximum value is an outlier
+                   <p>
+                   <ul>
+                      <!--
+                      <img src="eqns/grubbmax.gif" alt=
+                           "G = (Ymax - YBAR)/s">
+                      -->
+                      \( G = \frac{Y_{max} - \bar{Y}} {s} \)
+                   </ul>
+                   <p>
+                   with <i>Y<sub>max</sub></i> denoting the maximum
+                   value.
+            </ol>
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            Significance Level:
+         </td>
+         <td valign=top>
+            <!-- <img src="eqns/alpha.gif" alt="alpha">. -->
+            <big><i>&alpha;</i></big>
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            Critical Region:
+         </td>
+         <td>
+            For the two-sided test, the hypothesis of no outliers is
+            rejected if
+            <ul>
+               <!--
+               <img src="eda35h1_e1.gif" alt=
+"G > [(N-1)/SQRT(N)]*SQRT(t(alpha/(2N),N-2)**2/(N - 2 + 
+t(alpha/(2N),N-2)**2)">
+                -->
+                \(  G > \frac{(N-1)} {\sqrt{N}}
+                \sqrt{\frac{(t_{\alpha/(2N),N-2})^2}
+                {N-2+(t_{\alpha/(2N),N-2})^2}} \)
+            </ul>
+            with \(t_{\alpha/(2N),N-2}\) denoting the
+            <a href="eda3672.htm">critical value</a> of the
+            <a href="eda3664.htm"><i>t</i> distribution</a> with
+            (<i>N</i>-2) degrees of freedom and a significance
+            level of <i>&alpha;</i>/(2<i>N</i>).
+            <p>
+            For one-sided tests, we use a significance level of
+            level of <i>&alpha;</i>/<i>N</i>.
+         </td>
+       </tr>
+
+     </table>
+    
+    
+   </td>
+</tr>
+
+<!-----begin section: sample output -->
+
+<br>
+<tr>
+   <td width=15% valign=top>
+      <I>Grubbs' Test Example<br>
+      </I>
+   </td>
+   <td width=85% valign=top>
+   The <a href="../section4/eda43.htm#Tietjen">Tietjen and Moore</a>
+   paper gives the following set of 8 mass spectrometer measurements
+   on a uranium isotope:
+   <ul>
+      199.31 199.53 200.19 200.82 201.92 201.95 202.18 245.57
+   </ul>
+   As a first step, a normal probability plot was generated
+   <p>
+   <ul>
+      <img src="gif/grubb.gif" alt="Normal Probability Plot of Data">
+   </ul>
+   <p>
+   This plot indicates that the normality assumption is reasonable
+   with the exception of the maximum value.  We therefore compute
+   Grubbs' test for the case that the maximum value, 245.57,
+   is an outlier.
+<PRE>
+      H<sub>0</sub>:  there are no outliers in the data
+      H<sub>a</sub>:  the maximum value is an outlier
+
+      Test statistic:  <I>G</I> = 2.4687 
+      Significance level:  <i>&alpha;</i> = 0.05
+      Critical value for an upper one-tailed test:  2.032          
+      Critical region:  Reject H<sub>0</sub> if <I>G</I> > 2.032      
+</PRE>
+For this data set, we reject the null hypothesis and conclude 
+that the maximum value is in fact an outlier at the 0.05 significance level.
+</td>
+</tr>
+
+<!-----begin section: questions -->
+<tr>
+   <td width=15% valign=top>
+      <I>Questions
+      </I>
+   </td>
+   <td width=85% valign=top>
+      Grubbs' test can be used to answer the following questions:
+      <OL>
+         <LI>Is the maximum value an outlier?</LI>
+         <LI>Is the minimum value an outlier?</LI>
+      </OL>
+   </td>
+</tr>
+
+<!-----begin section: importance -->
+
+<br>
+<tr>
+   <td width=15% valign=top>
+      <I>Importance
+      </I>
+   </td>
+   <td width=85% valign=top>
+      Many statistical techniques are sensitive to the presence
+      of outliers.  For example, simple calculations of the mean
+      and standard deviation may be distorted by a single grossly
+      inaccurate data point.
+      <p>
+      Checking for outliers should be a routine part of any data
+      analysis.  Potential outliers should be examined to see if
+      they are possibly erroneous.  If the data point is in error,
+      it should be corrected if possible and deleted if it is not
+      possible.  If there is no reason to believe that the outlying
+      point is in error, it should not be deleted without careful
+      consideration.  However, the use of more robust techniques
+      may be warranted.  Robust techniques will often downweight
+      the effect of outlying points without deleting them.
+   </td>
+</tr>
+
+<!-----begin section: related techniques -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Related Techniques</I>
+   </td>
+   <td width=85% valign=top>
+      Several graphical techniques can, and should, be used to help
+      detect outliers.  A simple normal probability plot, run sequence
+      plot, a box plot, or a histogram should show any obviously outlying
+      points.  In addition to showing potential outliers, several of these
+      graphics also help assess whether the data follow an approximately
+      normal distribution.
+      <UL>
+         <a href="normprpl.htm">Normal Probability Plot</a><br>
+         <a href="runseqpl.htm">Run Sequence Plot</a><br>
+         <a href="histogra.htm">Histogram</a><br>
+         <a href="boxplot.htm">Box Plot</a><br>
+         <a href="lagplot.htm">Lag Plot</a><br>
+      </UL>
+
+   </td>
+</tr>
+
+<!-----begin section: case study -->
+<tr>
+   <td width=15% valign=top>
+      <I>Case Study</I>
+   </td>
+   <td width=85% valign=top>
+      <a href="../section4/eda428.htm">Heat flow meter</a> data.
+   </td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Software
+</I>
+</TD>
+<TD WIDTH=85%>
+<!-- Add main text below -->
+Some general purpose statistical software programs support the Grubbs' test.
+Both <a href="eda35h1.dp">Dataplot code</a> and 
+<a href="eda35h1.r">R code</a> can be used to generate the
+analyses in this section.
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-----end jjf----->
+
+
+
+
+
+
+
+
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="eda35h.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="eda35h2.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

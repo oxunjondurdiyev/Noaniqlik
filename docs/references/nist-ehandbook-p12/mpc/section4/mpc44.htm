@@ -1,0 +1,319 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>2.4.4. Analysis of variability</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="mpc441.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="mpc433.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area sharea shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">2.</FONT>
+<FONT COLOR="#00105A"><A HREF="../mpc.htm">Measurement Process Characterization</a></FONT>
+<BR>
+<FONT COLOR="#D60021">2.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="mpc4.htm">Gauge R & R studies</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">2.4.4.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Analysis of variability</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+<TR>
+<TD WIDTH = 15% VALIGN=top>
+<I>Analysis of variability from a nested design</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The purpose of this section is to show the effect of various levels of
+time-dependent effects on the variability of the measurement process
+with  standard deviations for each level of a 3-level nested design. 
+<UL>
+   <LI><A HREF="mpc441.htm">Level 1 - repeatability/short-term
+       precision</A>
+   <LI><A HREF="mpc442.htm">Level 2 - reproducibility/day-to-day</A>
+   <LI><A HREF="mpc443.htm">Level 3 - stability/run-to-run</A>
+</UL>
+The graph below depicts possible scenarios for a 2-level design
+(short-term repetitions and days) to illustrate the concepts.
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<I>Depiction of 2 measurement processes with the same short-term
+variability over 6 days where process 1 has large between-day
+variability and process 2 has negligible between-day variability</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<PRE><B>            Process 1                Process 2
+ Large between-day variability   Small between-day variability</PRE>
+<IMG SRC="mpc44j.gif"
+     alt="process 1:large between-day variability">
+<IMG SRC="mpc44k.gif"
+     alt="process 2:small between-day variability">
+
+<FONT FACE="Times"><FONT SIZE=4><CENTER>Distributions of short-term measurements over 6 days
+where distances from centerlines illustrate between-day variability</CENTER>
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH = 15% VALIGN=top>
+<I>Hint on using tabular method of analysis</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+An easy way to begin is with a <A HREF="../section6/mpc632.htm">2-level
+table </A>with <I>J</I> columns and <I>K</I> rows for the
+repeatability/reproducibility measurements and proceed as follows: 
+<OL>
+   <LI>Compute an average for each row and put it in the <I>J</i> + 1
+       column.
+   <LI>Compute the level-1 (repeatability) standard deviation for each
+       row and put it in the <I>J</I> + 2 column. 
+   <LI>Compute the grand average and the level-2 standard deviation
+       from data in the <I>J</I> + 1 column. 
+   <LI>Repeat the table for each of the <I>L</I> runs. 
+   <LI>Compute the level-3 standard deviation from the <I>L</I> grand
+       averages.
+</OL>
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH = 15% VALIGN=top>
+<I>Level-1: <I>LK</I> repeatability standard deviations can be
+computed from the data</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The measurements from the nested design are denoted by
+$$Y_{lkj}(l = 1, \, \ldots, \, L, \,\, k=1, \,\ldots, \, K, \,\, j=1, \,\ldots, \, J) \,\, .$$
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc44a.gif"
+     ALT="Y(ljk)(l=1, ..., L; k=1, ..., K; j=1, ..., J)">
+</CENTER>
+<P>
+-->
+Equations corresponding to the tabular analysis are shown below.
+Level-1 <A HREF="mpc441.htm">repeatability standard deviations</a>,
+\( {\large s}_{1lk} \) , <!-- <i>s<sub>1lk</sub></i>, --> 
+are pooled over the <I>K</I> days and
+<I>L</I> runs.  Individual standard deviations with (<I>J</I> - 1)
+degrees of freedom each are computed from <I>J</I> repetitions as
+$$ s_{1lk} = \sqrt{\frac{1}{J-1} \sum_{j=1}^{J}{(Y_{lkj} - \overline{Y}_{lk{\small \, \bullet}})^2}} $$
+<!--
+<P>
+<CENTER>
+-->
+<!-- <IMG SRC="mpc44b.gif" -->
+<!--
+<IMG SRC="slk.gif" ALT=
+     "s(1lk) = SQRT{(1/(J-1))*SUM[j=1 to J](Y(lkj) - Ybar(lk..))**2}">
+</CENTER>
+<P>
+-->
+where
+$$ \overline{Y}_{lk{\small \, \bullet}} = \frac{1}{J}\sum_{j=1}^{J}{\overline{Y}_{lkj}} \,\, . $$
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc44c.gif"
+     ALT="Ybar(lk.) = (1/J)*SUM[j=1 to J]Y(ljk)">
+</CENTER>
+-->
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH = 15% VALIGN=top>
+<I>Level-2: L reproducibility standard deviations can be computed from
+the data</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The <A HREF="mpc442.htm">level-2 standard deviation, \( {\large s}_{2l} \),
+<!-- <i>s</i><sub>2<i>l</i></sub>, --> is pooled</A> 
+over the <I>L</I> runs.
+Individual standard deviations with (<I>K</I> - 1) degrees of freedom
+each are computed from <I>K</I> daily averages as
+$$ {\large s}_{2l} = \sqrt{\frac{1}{K-1} \sum_{k=1}^{K}{\left( Y_{lk{\small \, \bullet}} - \overline{Y}_{l{\small \, \bullet \bullet}} \right)^2}} $$
+<!--
+<P>
+<CENTER>
+-->
+<!-- <IMG SRC="mpc44d.gif" -->
+
+<!--<IMG SRC="s2l.gif" ALT=
+     "s2l = SQRT{(1/(K-1))*SUM[k=1 to K](Ybar(lk.) - Ybar(l..))**2}">
+</CENTER>
+<P>
+-->
+where
+$$ \overline{Y}_{l{\small \, \bullet \bullet}} = \frac{1}{K}\sum_{k=1}^{K}{\overline{Y}_{lk {\small \, \bullet}}} \,\,\, .$$
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc44e.gif"
+     ALT="Ybar(l..) = (1/K)*SUM[k=1 to K]Ybar(lk.)">
+</CENTER>
+-->
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH = 15% VALIGN=top>
+<I>Level-3: A single global standard deviation can be computed from
+the L-run averages</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+A level-3 standard deviation with (<I>L</I> - 1) degrees of freedom
+is computed from the <I>L</I>-run averages as 
+$$ {\large s}_{3} = \sqrt{\frac{1}{L-1} \sum_{l=1}^{L}{\left( Y_{l{\small \, \bullet \bullet}} - \overline{Y}_{{\small \bullet \bullet \bullet}} \right)^2}} $$
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc44f.gif"
+     ALT="s3 = SQRT{(1/(L-1))*SUM[l=1 to L](Ybar(l..) - Ybar(...))**2}">
+</CENTER>
+<P>
+-->
+where
+$$ \overline{Y}_{{\small \bullet \bullet \bullet}} = \frac{1}{L}\sum_{l=1}^{L}{\overline{Y}_{l {\small \, \bullet \bullet}}} \,\,\, . $$
+<!--
+<P>
+<CENTER>
+-->
+<!-- <IMG SRC="mpc44g.gif" -->
+<!--
+<IMG SRC="ybardd2.gif"
+     ALT="Ybar(...) = (1/L)*SUM[l=1 to L]Ybar(l..)">
+</CENTER>
+-->
+</TD>
+</TR>
+
+<TR>
+<TD WIDTH = 15% VALIGN=top>
+<I>Relationship to<A HREF="../section5/mpc56.htm"> uncertainty 
+for a test item</A></I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+The standard deviation that defines the uncertainty for a single
+measurement on a test item is given by
+
+$$ {\large s}_R = \sqrt{{\large s}_{runs}^2 + {\large s}_{days}^2 + {\large s}_1^2}
+   = \sqrt{{\large s}_3^2 + \frac{K-1}{K} {\large s}_2^2 + \frac{J-1}{J} {\large s}_1^2} \,\, , $$
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc44h.gif"
+     ALT="s(R) = SQRT(s(runs)**2 + s(days)**2 + s1**2) =
+ SQRT{s3**2 + ((K-1)K)*s2**2 + ((J-1)/J)*s1**2">
+</CENTER>
+<P>
+-->
+where the pooled values, \( {\large s}_1 \) <!-- <i>s</i><sub>1</sub> --> and
+\( {\large s}_2 \), <!-- <i>s</i><sub>2</sub>, --> are the usual
+$$ {\large s}_1 = \sqrt{\frac{\sum_{l=1}^{L}{\sum_{k=1}^{K}{{\large s}_{1lk}^{2}}}}{LK}} $$
+<!--
+<P>
+<CENTER>
+<IMG SRC="s1b.gif"
+     ALT="s(1) = SQRT{SUM{l=1 to L}{SUM{k=1 to K}{s(1lk)^2}}/(L*K)}">
+</CENTER>
+<P>
+-->
+and
+$$ {\large s}_2 = \sqrt{\frac{1}{L} \sum_{l=1}^{L}{{\large s}_{2l}^{2}}} \,\,\, . $$
+<!--
+<P>
+<CENTER>
+<IMG SRC="s2b.gif"
+     ALT="s(2) = SQRT{(1/L)*SUM{l=1 to L}{s(2l)^2}}
+</CENTER>
+<P>
+-->
+The time-dependent components can be computed individually as:
+
+$$ {\large s}_{runs} = \sqrt{{\large s}_3^2 - \frac{1}{K} {\large s_2^2}} $$
+
+$$ {\large s}_{days} = \sqrt{{\large s}_2^2 - \frac{1}{J} {\large s_1^2}} \,\,\, .$$
+
+<!--
+<P>
+<CENTER>
+<IMG SRC="mpc44i.gif"
+     ALT="s(runs) = SQRT{s3**2 - (1/K)*s2**2};
+         s(days) = SQRT{s2**2 - (1/J)*s1**2}">
+</CENTER>
+<P>
+-->
+There may be other sources of uncertainty in the measurement process
+that must be accounted for in a formal
+<A HREF="../section5/mpc5.htm">analysis of uncertainty.</A>
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="mpc433.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="mpc441.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>
