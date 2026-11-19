@@ -23,6 +23,7 @@ import { evaluateQualitative, QUALITATIVE_FORMAT } from './qualitative/index.js'
 import { evaluateMicro, MICRO_FORMAT } from './micro/index.js';
 import { evaluateMedical, MEDICAL_FORMAT } from './medical/index.js';
 import { evaluateMultivariate, isMultiOutput, MULTIVARIATE_MODE } from './multivariate/lpu.js';
+import { evaluateImplicit, isImplicit } from './multivariate/implicit.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -76,6 +77,8 @@ function evaluateCore(spec) {
   if (norm.error) return { error: norm.error, detail: norm.detail };
   const state = norm.state;
   // P07: vektor chiqish (JCGM 102:2011 §6.2). Bitta chiqishda — quyidagi (o'zgarmagan) yo'l.
+  // P07b: oshkor bo'lmagan model h(Y, X) = 0 (JCGM 102:2011 §6.3) — faqat state.implicit berilganda
+  if (isImplicit(state)) return evaluateImplicit(state, st => evaluate(st));
   if (isMultiOutput(state)) return evaluateMultivariate(state, st => evaluate(st));
 
   const params   = state.params || [];

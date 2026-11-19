@@ -163,3 +163,111 @@ test('model kartasi (src/js/table.js): qo\'shimcha chiqish formulalari — qo\'s
     for (const lang of ['uz', 'ru', 'en']) { w.i18n.lang = lang; assert.notEqual(w.i18n.t(k), k, `${lang}.${k}`); }
   }
 });
+
+/* ── P07b ── */
+test('P07b: eng kichik qamrov sohasi (JCGM 102 §7.7.4) hisobotda — yuz, to\'r, nuqtalar ulushi, grafikdagi bo\'yalgan soha; uch tilda; skriptsiz', () => {
+  const r = E.evaluate(ADD), mc = E.monteCarlo(ADD, { mode: 'fixed', M: 50000, validation: false, smallestMesh: 20 });
+  const seen = new Set();
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, {});
+    const html = sections(w).multivariateSection(r, { mc });
+    const d = frag(w, html);
+    const line = d.querySelector('[data-mv-smallest]').textContent;
+    assert.match(line, /JCGM 102 §7\.7\.4/); assert.match(line, /20 × 20/);
+    assert.ok(line.includes(w.i18n.t('mv_smallest')) && line.includes(w.i18n.t('mv_smallest_note')), lang);
+    assert.equal(d.querySelector('[data-region-smallest]').getAttribute('data-region-smallest'), '20');
+    assert.ok(d.querySelector('.region-plot-box').textContent.includes(w.i18n.t('mv_plot_caption_smallest')));
+    assert.ok(!/<script|\son\w+=|javascript:/i.test(html));
+    seen.add(line);
+  }
+  assert.equal(seen.size, 3);
+  // MCM natijasisiz (faqat LPU) — bo'yalgan soha va satr yo'q
+  const w = page('uz', {});
+  const d0 = frag(w, sections(w).multivariateSection(r, {}));
+  assert.equal(d0.querySelectorAll('[data-mv-smallest], [data-region-smallest]').length, 0);
+});
+
+test('P07b: oshkor bo\'lmagan model natijasi hisobotda — tenglama matni, izoh (uch tilda), vektor bo\'lim', () => {
+  const one = E.evaluate(load('jcgm102/jcgm102-9-5-2-single')), many = E.evaluate(load('jcgm102/jcgm102-9-5-3-several'));
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, {});
+    const S = sections(w);
+    assert.ok(S.notesHtml(one).includes(escHtml(w.i18n.t('n_implicit_model'))), lang);
+    assert.match(frag(w, S.pointDetail(one, load('jcgm102/jcgm102-9-5-2-single').state, '', undefined, undefined, {})).textContent, /θ = \(1 \+ A\*θ \+ B\*θ\^2\)\*R0 - r\*RS = 0/);
+    const d = frag(w, S.multivariateSection(many, {}));
+    assert.equal(d.querySelectorAll('[data-mv-outputs] tbody tr').length, 10);
+    for (const e of E.IMPLICIT_ERRORS) assert.ok(w.i18n.t('err_' + e) !== 'err_' + e, `${lang}.err_${e}`);
+    // Egasi qarori (2026-11-19): cond(C_y) va U_y qaysi yo'l bilan hisoblangani — ekranda, bosmada va vektor bo'limda
+    const print = frag(w, S.pointDetail(one, load('jcgm102/jcgm102-9-5-2-single').state, '', undefined, undefined, {}));
+    for (const el of [frag(w, S.notesHtml(one)), print, d]) {
+      const info = el.querySelector('[data-implicit-info="annex-b"]');
+      assert.ok(info, lang);
+      assert.match(info.querySelector('[data-implicit-cond]').textContent, /cond₁\(C_y\) = 1[.,]0/);
+      assert.ok(info.textContent.includes(w.i18n.t('imp_cov_annexb')) && info.textContent.includes(w.i18n.t('imp_newton')), lang);
+    }
+    assert.ok(d.textContent.includes(w.i18n.t('imp_method')) && !d.textContent.includes('U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2)'), lang);
+    // LU yo'li (U_x singular) — hisobotda aynan shunday yoziladi va topilma chiqadi
+    const lu = E.evaluate({ params: ['a', 'b'], measurements: { a: [1], b: [2] }, settings: { paired: false },
+      typeB: [{ name: 'u(a)', param: 'a', halfWidth: 0.1, distribution: 'normal', k: 1 }], implicit: { unknowns: [{ name: 'y', start: 1 }], equations: ['y^2 = a*b'] } });
+    const dl = frag(w, S.notesHtml(lu));
+    assert.ok(dl.querySelector('[data-implicit-info="lu"]').textContent.includes(w.i18n.t('imp_cov_lu')), lang);
+    for (const k of ['w_', 'why_', 'fix_']) assert.ok(w.i18n.t(k + 'implicit_lu_fallback') !== k + 'implicit_lu_fallback', lang + k);
+  }
+});
+
+/* ─── Ko'p chiqish + ko'p nuqta (egasi qarori 2026-11-19, 8-band) ─────────────────────────────── */
+test('ko\'p chiqish + ko\'p nuqta: yagona k yo\'q — har bir chiqish o\'z k si bilan; birgalikdagi qamrov faqat nuqtaning sohasi (k_p); nuqtalar alohida', async () => {
+  const { summaryRows, vectorSummaryRows, isVectorResult } = require('../../src/report/summary.js');
+  // ikki nuqta: ikkinchisida kuzatuvlar kam (ν_eff kichik → k katta) — yagona k bo'lganda birinchi nuqtaga ham ta'sir qilardi
+  const tbs = [{ name: 'u(a)', param: 'a', halfWidth: 0.001, distribution: 'normal', k: 1 }, { name: 'u(b)', param: 'b', halfWidth: 0.001, distribution: 'normal', k: 1 }];
+  const mk = (a, b) => ({ params: ['a', 'b'], measurements: { a, b }, typeB: tbs, model: { formula: 'S = a + b', unit: 'V' },
+    outputs: [{ formula: 'S = a + b', unit: 'V' }, { formula: 'D = a - b', unit: 'V' }], settings: { paired: false, kMethod: 't', P: 0.95 } });
+  const s1 = mk([1.0, 1.1, 0.9, 1.05, 0.95, 1.0, 1.02, 0.98, 1.01, 0.99], [2.0, 2.1, 1.9, 2.05, 1.95, 2.0, 2.02, 1.98, 2.01, 1.99]);
+  const s2 = mk([5.0, 5.3, 4.8], [7.0, 7.2, 6.7]);
+  const r1 = E.evaluate(s1), r2 = E.evaluate(s2);
+  assert.ok(isVectorResult(r1) && isVectorResult(r2));
+  const pts = [{ id: 'p1', label: 'Nuqta 1', result: r1, snapshot: s1, acceptances: {} }, { id: 'p2', label: 'Nuqta 2', result: r2, snapshot: s2, acceptances: {} }];
+  const rows = vectorSummaryRows(pts);
+  assert.equal(rows.length, 2);
+  rows.forEach((x, i) => {
+    const r = [r1, r2][i];
+    x.outputs.forEach((o, j) => {
+      // U_j va k_j — aynan chiqishning o'z bir o'lchovli natijasidan (yagona k qo'llanmagan)
+      assert.deepEqual([o.symbol, o.k, o.U, o.nuEff], [r.symbols[j], r.results[j].k, r.results[j].U, r.results[j].nuEff]);
+      assert.equal(o.U, o.k * o.uc);
+    });
+    assert.equal(x.kp, r.coverageRegion.ellipsoid.kp);                           // JCGM 102:2011 §6.5 — nuqtaning o'z sohasi
+  });
+  assert.ok(rows[1].outputs[0].k > rows[0].outputs[0].k, 'nuqtalarning k si har xil — eng kattasi boshqasiga ko\'chirilmagan');
+  // skalyar jadval vektor nuqtalarni olmaydi (yagona k qoidasi ularga qo'llanmaydi), xato bermaydi
+  assert.deepEqual(summaryRows(pts, true), []);
+
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, { ...s2, combined: r2, points: pts, currentPoint: 'p2', summary: { uniformK: true } });
+    const doc = w.document;
+    const panel = doc.querySelector('[data-vector-points]');
+    assert.ok(panel, lang);
+    assert.equal(panel.querySelector('#pt-uniform-k'), null, 'yagona k katagi ko\'rsatilmaydi');
+    const trs = [...panel.querySelectorAll('[data-vector-summary] tbody tr')];
+    assert.equal(trs.length, 4);                                                 // 2 nuqta × 2 chiqish
+    assert.equal(panel.querySelectorAll('[data-vector-kp]').length, 2);
+    assert.ok(panel.querySelector('[data-vector-note]').textContent.includes(w.i18n.t('pt_vector_note')));
+    assert.ok(w.i18n.t('pt_vector_note') !== 'pt_vector_note' && w.i18n.t('pt_output_col') !== 'pt_output_col');
+    assert.equal(panel.querySelectorAll('[data-pt-load]').length, 2);
+    // bosma hisobot: umumiy jadval + har bir nuqtaning vektor bo'limi (korrelyatsiya, qamrov sohasi)
+    await w.Results.printReport();
+    assert.equal(w.printed, 1);
+    const p = doc.querySelector('#print-report');
+    assert.equal(p.querySelector('[data-report-body]').dataset.reportBody, 'MULTIVARIATE');
+    assert.equal(p.querySelectorAll('[data-report-summary="vector"] tbody tr').length, 4);
+    assert.equal(p.querySelectorAll('[data-report-point]').length, 2);
+    assert.equal(p.querySelectorAll('[data-mv-region="ellipsoid"]').length, 2);
+    assert.equal(p.querySelectorAll('[data-mv-correlation]').length, 2);
+    assert.ok(p.querySelector('[data-vector-note]'));
+    assert.ok(!/<script|\son\w+=|javascript:/i.test(p.innerHTML));
+  }
+  // yangi nuqta kiritilayotganda (natija hali yo'q) saqlangan vektor nuqtalar ko'rinib turadi
+  const w0 = page('uz', { ...s2, combined: null, points: pts, currentPoint: null });
+  assert.equal(w0.document.querySelectorAll('[data-vector-points] [data-vector-summary] tbody tr').length, 4);
+  assert.ok(w0.document.querySelector('#btn-pt-save').disabled);
+});

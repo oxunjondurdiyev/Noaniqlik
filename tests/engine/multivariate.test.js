@@ -247,6 +247,8 @@ test('m = 1 moslik: barcha mavjud bitta chiqishli misollarda natija tuzilmasi o\
       if (!e.name.endsWith('.json')) continue;
       const c = JSON.parse(fs.readFileSync(p, 'utf8'));
       if (!c.modelSpec || !c.modelSpec.state || c.modelSpec.state.outputs) continue;
+      // P07b: bir nechta noma'lumli oshkormas model (state.implicit) — vektor natija; bitta noma'lumlisi shu yerda tekshiriladi
+      if (c.modelSpec.state.implicit && c.modelSpec.state.implicit.unknowns.length > 1) continue;
       const r = E.evaluate(c.modelSpec);
       assert.equal(r.mode, undefined, c.id);
       assert.equal(r.outputs.length, 1, c.id);
@@ -256,4 +258,52 @@ test('m = 1 moslik: barcha mavjud bitta chiqishli misollarda natija tuzilmasi o\
     }
   })(dir);
   assert.ok(n >= 40, String(n));
+});
+
+/* ── P07b: eng kichik qamrov sohasi (JCGM 102:2011 §7.7.4) ── */
+test('§7.7.4 EXAMPLE (31-bet): model (22), 100 × 100 to\'r, M = 10⁶ — eng kichik 95 % soha yuzi 9,4 birlik², ≈ 950 074 nuqta; ellipsdan (10,1 … 11,8) kichik', () => {
+  // §7.7.2 EXAMPLE (29-bet): X1, X2 ~ N(0; 0,1), X3 ~ R(−√(3·1,9), √(3·1,9)); Y1 = X1 + X3, Y2 = X2 + X3
+  const st = { params: ['X1', 'X2', 'X3'], measurements: { X1: [0], X2: [0], X3: [0] }, model: { formula: 'Y1 = X1 + X3' },
+    outputs: [{ formula: 'Y1 = X1 + X3' }, { formula: 'Y2 = X2 + X3' }], settings: { paired: false, P: 0.95 },
+    typeB: [{ name: 'X1', param: 'X1', halfWidth: 'sqrt(0.1)', distribution: 'normal', k: 1 }, { name: 'X2', param: 'X2', halfWidth: 'sqrt(0.1)', distribution: 'normal', k: 1 },
+      { name: 'X3', param: 'X3', halfWidth: 'sqrt(3 * 1.9)', distribution: 'rect' }] };
+  const r = E.monteCarlo(st, { mode: 'fixed', M: 1e6, validation: false });
+  const g = r.coverageRegion.smallest;
+  assert.deepEqual([g.mesh, g.M, g.rows.length], [100, 1000000, 100]);
+  // Manba: 9,4 (ikki qiymatli raqam). Tolerans: ½ oxirgi xona (0,05) + 2·√2·s, s = 0,0035 — 8 ta urug' bo'yicha o'lchangan
+  // (9,348 … 9,358); "o'tkazish uchun" kengaytirilmagan. Bizda 9,35.
+  assert.ok(Math.abs(g.area - 9.4) <= 0.05 + 2 * Math.SQRT2 * 0.0035, String(g.area));
+  // Manba: 950 074 nuqta (tasodifiy — to'xtash qoidasi f) bo'yicha p·M dan kichik emas va bitta katakdan ortiq oshmaydi)
+  assert.ok(g.count >= 950000 && g.count < 950000 + 400, String(g.count));
+  assert.ok(Math.abs(g.fraction - 0.95) < 0.0005);
+  assert.equal(g.cells, g.rows.reduce((s, runs) => s + runs.reduce((a, [i0, i1]) => a + i1 - i0 + 1, 0), 0));
+  assert.ok(Math.abs(g.area - g.cells * g.cellArea) < 1e-12);
+  // §7.7.2 misoli: MCM ellipsi yuzi (bu yerda M = 10⁶ da π·k_p²·√det U_y ≈ 10,1; manbada 1000 nuqtada 10,6) — eng kichik soha undan kichik
+  const U = r.covariance, ell = Math.PI * r.coverageRegion.ellipsoid.kp ** 2 * Math.sqrt(U[0][0] * U[1][1] - U[0][1] ** 2);
+  assert.ok(g.area < ell && ell < 11.8);
+});
+
+test('§7.7.4: to\'r o\'lchami sozlanadi (10 × 10 da yuz kattaroq — Figure 7 chap: 11,3); o\'chirish; noto\'g\'ri qiymat; m ≠ 2 da hisoblanmaydi; LPU natijasida yo\'q', () => {
+  const tbn = p => ({ name: p, param: p, halfWidth: 1, distribution: 'normal', k: 1 });
+  const st2 = { params: ['X1', 'X2', 'X3'], measurements: { X1: [0], X2: [0], X3: [0] }, model: { formula: 'Y1 = X1 + X3' },
+    outputs: [{ formula: 'Y1 = X1 + X3' }, { formula: 'Y2 = X2 + X3' }], settings: { paired: false, P: 0.95 }, typeB: ['X1', 'X2', 'X3'].map(tbn) };
+  const a = E.monteCarlo(st2, { mode: 'fixed', M: 20000, validation: false, smallestMesh: 10 }).coverageRegion.smallest;
+  const b = E.monteCarlo(st2, { mode: 'fixed', M: 20000, validation: false, smallestMesh: 40 }).coverageRegion.smallest;
+  assert.deepEqual([a.mesh, b.mesh], [10, 40]);
+  assert.ok(a.area > b.area);                                                     // Note 3: to'r maydaligi natijaga ta'sir qiladi
+  assert.ok(a.count >= 19000 && b.count >= 19000);
+  assert.equal('smallest' in E.monteCarlo(st2, { mode: 'fixed', M: 20000, validation: false, smallestMesh: 0 }).coverageRegion, false);
+  assert.equal(E.monteCarlo({ ...st2, settings: { ...st2.settings, mc: { smallestMesh: 20 } } }, { mode: 'fixed', M: 20000, validation: false }).coverageRegion.smallest.mesh, 20);
+  for (const bad of [5, 1000, 12.5, 'abc']) assert.deepEqual([E.monteCarlo(st2, { mode: 'fixed', M: 20000, smallestMesh: bad }).error, E.monteCarlo(st2, { mode: 'fixed', M: 20000, smallestMesh: bad }).detail], ['mc_bad_option', 'smallestMesh'], String(bad));
+  const st3 = { ...st2, outputs: [...st2.outputs, { formula: 'Y3 = X1 - X2' }] };
+  assert.equal('smallest' in E.monteCarlo(st3, { mode: 'fixed', M: 20000, validation: false }).coverageRegion, false);   // m = 3 — qilinmagan (R-24)
+  assert.equal('smallest' in E.evaluate(st2).coverageRegion, false);
+  // Gauss holati: eng kichik soha — ellipsning o'zi (yuzi π·k_p²·√det U_y = π·5,99·√3 ≈ 32,6); yaqinlashuv shu atrofida
+  const g = E.monteCarlo(st2, { mode: 'fixed', M: 1e6, validation: false }).coverageRegion.smallest;
+  assert.ok(Math.abs(g.area - Math.PI * 5.9915 * Math.sqrt(3)) / 32.6 < 0.05, String(g.area));
+  // sof funksiya: nuqtalar bir chiziqda yoki bo'sh — null
+  assert.equal(E.smallestRegion([1, 1, 1], [1, 2, 3], 3, 0.95, 10), null);
+  assert.equal(E.smallestRegion([], [], 0, 0.95, 10), null);
+  const tiny = E.smallestRegion([0, 0, 0, 1], [0, 0, 0, 1], 4, 0.75, 10);
+  assert.deepEqual([tiny.cells, tiny.count, tiny.rows[0]], [1, 3, [[0, 0]]]);
 });

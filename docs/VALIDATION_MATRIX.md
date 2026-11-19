@@ -310,7 +310,23 @@ Manba — JCGM 102:2011 (repoda). Sahifa raqamlari — PDF bo'yicha, test misoll
 | Hisobot: chiqishlar jadvali, korrelyatsiya matritsasi, qamrov sohasi, ellips SVG; uch til | `src/report/sections.js::multivariateSection`, `ellipse.js` | `tests/ui/multivariate.test.js` | ✅ (jsdom; real brauzerda qo'lda ko'rilmagan) |
 | Linter MV1 | `linter/rules/mv01-output-correlation.js` | `multivariate.test.js`, `linter.test.js` | ✅ (chegara — egasi tasdig'ini kutadi) |
 | Shablon `outputs`, MV-01 | sxema, interpreter | `tests/templates/workflow.test.js` | ✅ |
-| Oshkormas model (§6.3; §6.3.2, §9.5), eng kichik soha (§7.7.4) | — | — | ❌ qilinmagan (R-24) |
+| **P07b:** oshkor bo'lmagan model — Nyuton (§6.3.1.2), C_y / C_x, U_y (Eq. (8)); §9.5.2 (p. 56): θ̂ = 20,0232; u = 0,0045; c_y = 0,389; C_x | `evaluateImplicit`, `newtonSolve`, `luSolve` | `tests/cases/jcgm102/jcgm102-9-5-2-single`, `tests/engine/implicit.test.js` | ✅ verified (C_x[3] — D-21: manbada bosma xato) |
+| §9.5.3 (Table 15, 16 — p. 57): 10 baho, 10 noaniqlik, 45 korrelyatsiya | `evaluateImplicit` (m = 10, N = 14) | `jcgm102-9-5-3-several` (65 qiymat) | ✅ verified (oxirgi xonaning yarmi) |
+| §6.3.2 Example 1 (bosim tarozisi), Example 2 (reflektometr) | — | `implicit.test.js` | ✅ oshkor (§6.2) va oshkormas natija tengligi (manbada raqam yo'q) |
+| C_y singular → `implicit_singular` (§6.3.1.3 Note 1); yaqinlashmasa → `implicit_no_convergence` | `newtonSolve` | `implicit.test.js` | ✅ (mezon — loyiha qarori, tasdiq kutadi) |
+| `atan2` (§9.3.1.1): qiymat, simvolik hosila, o'lchamlik | `parser.js`, `units.js` | `tests/engine/atan2.test.js` | ✅ |
+| §9.3 MCM qatorlari (Table 6, 7 — p. 44–45), 6 holat × 5 qiymat | `monteCarlo` | `jcgm102-9-3-*-mcm` | ✅ verified (30 / 30; tolerans ½ xona + 2√2·s, M = 3·10⁶, manbada 10⁷) |
+| Eng kichik qamrov sohasi (§7.7.4 a–g), m = 2; misol (p. 31): yuz 9,4; 950 074 nuqta | `smallestRegion` | `tests/engine/multivariate.test.js` | ✅ verified (9,35; 950 0xx). m > 2 — ❌ qilinmagan |
+| Shablon muharririda `outputs`: qo'shish / tahrirlash / o'chirish / tekshiruv / qulf | `src/ui/tpl/outputs.js`, `checkTemplate` | `tests/templates/outputs-editor.test.js` | ✅ (jsdom + Chromium da qo'lda) |
+| `uc-calc/1` da `implicit`: eksport → import → qayta hisob | `src/io/calc-state.js` | `tests/io/calc-json.test.js` | ✅ |
+| U_y — Annex B (B.1 a–j, p. 61); §6.3.1.5 (p. 18): (10) + (9) "not recommended" | `annexB`, `luFactor`, `qrHouseholder` | `tests/engine/implicit.test.js` | ✅ §9.5.2 va §9.5.3 da LU yo'li bilan ≤ 10⁻¹² nisbiy; Eq. (8) to'g'ridan-to'g'ri tekshirilgan; Table 15–16 dagi 65 qiymat o'zgarmagan |
+| U_x singular → LU yo'li + info `implicit_lu_fallback` (MV2) | linter MV2 | `implicit.test.js` (ijobiy / salbiy), `tests/ui/multivariate.test.js` | ✅ (egasi qarori 2026-11-19) |
+| Nyutondan keyin qoldiq tekshiruvi → `implicit_no_convergence` (`residual`) | `evaluateImplicit` | `implicit.test.js` | ✅ (chegara 10⁻⁸ va masshtab — loyiha qarori, tasdiq kutadi) |
+| cond₁(C_y) natijada va hisobotda | `evaluateImplicit`, `sections.implicitLine` | `implicit.test.js` (qo'lda hisob: 21), `tests/ui/multivariate.test.js` | ✅ |
+| Shablonda `implicit`; standart y⁽⁰⁾, foydalanuvchi qiymati ustun, yo'q bo'lsa xato | sxema, `checkTemplate`, `buildState` | `tests/templates/implicit.test.js` | ✅ (natija dvigatelning to'g'ridan-to'g'ri chaqiruvi bilan aynan bir xil) |
+| Ko'p chiqish + ko'p nuqta: yagona k yo'q; U_j — o'z k_j bilan; birgalikda — faqat k_p (§6.5) | `vectorSummaryRows`, `vectorPointsSection` | `tests/ui/multivariate.test.js` | ✅ (egasi qarori 2026-11-19); real brauzerda ko'rilmagan |
+| Mavjud natijalar o'zgarmagan (P07b) | `evaluate`, `monteCarlo` | 83 + 26 natija asosiy branch (`97e7586`, 2.8.0) bilan bit darajasida bir xil (nazorat skripti) | ✅ |
+| Oshkormas model uchun MCM; eng kichik soha m > 2; nuqtalar orasidagi birgalikdagi soha | — | — | ❌ qilinmagan (R-24) |
 
 
 ## 14. P11: laboratoriya jarayonlari (`src/engine/lab/`, `src/storage/registry.js`, `src/io/registry.js`)

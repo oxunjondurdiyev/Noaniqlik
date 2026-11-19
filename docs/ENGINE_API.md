@@ -1,6 +1,6 @@
-# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.8.0
+# Hisoblash dvigateli API (`src/engine/`) — ENGINE_VERSION 2.9.0
 
-> Holat: P11, 2026-11-18 (2.8.0: laboratoriya jarayonlari — [§14](#14-laboratoriya-jarayonlari-p11); 2.7.0: vektor chiqish, JCGM 102:2011 — [§13](#13-kop-ozgaruvchili-modellar-p07); 2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
+> Holat: P07b, 2026-11-19 (2.9.0: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi — §13.4–13.5; 2.8.0: laboratoriya jarayonlari — [§14](#14-laboratoriya-jarayonlari-p11); 2.7.0: vektor chiqish, JCGM 102:2011 — [§13](#13-kop-ozgaruvchili-modellar-p07); 2.6.0: Monte-Karlo 2.0 — [§12](#12-monte-karlo-20-p06); 2.5.0: qaror qoidasi, hisob hujjati — [§11](#11-qaror-qoidasi-hisob-hujjati-va-hisobot-shakllari-p05b); 2.4.0: linter — `result.findings`, model turi — [§10](#10-linter-resultfindings-va-model-turi-p05a); 2.3.0: maxsus rejimlar — [§9](#9-maxsus-rejimlar-p10); 2.2.0: TOP_DOWN rejimi — [§8](#8-top_down-rejimi-uc-topdown1-p09); 2.1.0: REGRESSION rejimi — [§7](#7-regression-rejimi-uc-regression1-p08); §1–§6 dagi bir o'lchamli GUM yo'li 2.0.0 dan beri o'zgarmagan, natijalar bit darajasida bir xil). Dvigatel — sof ES modullar. Ular DOM'ga, global brauzer obyektiga va brauzer xotirasiga bog'liq emas (`grep -r "document\|window\|localStorage" src/engine` — bo'sh). Bir xil kod brauzerda, Node'da va (P15) serverda ishlaydi.
 > Yaxlitlash dvigatelda **yo'q**: u hisobot qatlamida bajariladi (`src/report/rounding.js`, CLAUDE.md).
 
 ```js
@@ -641,9 +641,34 @@ Manba: JCGM 102:2011 (`docs/references/`). Modullar: `src/engine/multivariate/` 
 - ν ≤ 2 bo'lgan t-kirishda: adaptiv yo'q, `u`, `covariance`, ellipsoid, to'g'ri burchakli soha — `null`; faqat `marginal.intervals`.
 - Eski generator (`xorshift32-legacy`) — `mc_bad_option`.
 
-### 13.4. Qilinmagan (RISKS R-24)
+### 13.4. Oshkor bo'lmagan model h(Y, X) = 0 (P07b, 2.9.0)
 
-Oshkormas model h(Y, X) = 0 (§6.3); eng kichik qamrov sohasi (§7.7.4); parserda `atan2` yo'q.
+```js
+state.implicit = { unknowns: [{ name: 'θ', start: 20, unit: '°C', settings? }], equations: ['(1 + A*θ + B*θ^2)*R0 - r*RS'], tol?, maxIter?, residualTol? }
+```
+
+- Tenglama — kirishlar (`state.params`) va noma'lumlar nomidan ifoda, `= 0` ma'nosida; `"chap = o'ng"` ham qabul qilinadi. Tenglamalar soni = noma'lumlar soni. `uc-model/1` da ham `implicit` (bu holda `outputs` bo'sh bo'lishi mumkin).
+- **Nyuton** (§6.3.1.2): y⁽ᵏ⁺¹⁾ = y⁽ᵏ⁾ − C_y⁻¹·h; `start` majburiy (o'ylab topilmaydi). To'xtash: `'step'` — |Δy_j| ≤ `tol`·max(|y_j|, |start_j|) (standart 10⁻¹²) yoki `'stagnation'` — qadam yaxlitlash darajasida to'xtab qolgan (≤ 10⁻⁸ nisbiy va kichraymayapti); aks holda `maxIter` (50) dan keyin `implicit_no_convergence`. **Mezon — loyiha qarori, egasi tasdig'ini kutadi.**
+- **U_y** (§6.3.1.3, Eq. (8)–(10)): C_y·C = C_x LU (qisman tanlov) bilan; sezgirlik c = −C; so'ng Y_j = y_j + Σ c_ji·(X_i − x_i) chiziqli ekvivalenti mavjud yo'ldan (`evaluate` / `evaluateMultivariate`) o'tadi. C_y singular (bosh element < 10⁻¹³·max|C_y|) → `implicit_singular`.
+- Natija: m = 1 — bir o'lchovli natija (`symbol`, `formulaText` = tenglama); m > 1 — `mode: 'MULTIVARIATE'`. Ikkalasida `implicit: { equations, unknowns, start, y, iterations, residual, criterion, lastStep, tol, maxIter, Cy, Cx, sensitivity }`, `notes: [{ code: 'implicit_model' }]`, `secondOrder: null` (2-tartibli diagnostika yo'q), o'lchamlik tekshirilmaydi.
+- `monteCarlo()` → `{ error: 'implicit_mc_unsupported' }`.
+- **Qoldiq tekshiruvi** (egasi qarori 2026-11-19): yechimda |h_ℓ(y, x)| ≤ `residualTol`·(Σ_j |∂h_ℓ/∂Y_j|·s_j + Σ_i |∂h_ℓ/∂X_i|·|x_i|), standart 10⁻⁸; bajarilmasa `{ error: 'implicit_no_convergence', detail: 'residual' }`. Natijada `implicit.residualRel`, `implicit.residualTol`.
+- **U_y — Annex B (B.1 a–j)** (`annexB(Cy, Cx, Ux)` → `{ Uy, C, CyInvT }` yoki `{ error: 'cholesky' | 'singular' }`): R_xᵀR_x = U_x; C_x = Q_x·W_x; P·C_y = L·W_y; W_yᵀM₁ = I; L_yᵀM₂ = M₁; M₃ = Q_xᵀM₂; K = W_xᵀM₃; M = R_x·K; M → R; U_y = RᵀR. Ko'p chiqishda `covariance`, `correlation`, `coverageRegion` shu U_y dan. U_x singular (Cholesky yo'q) → LU yo'li (C = C_y⁻¹C_x, U_y = C·U_x·Cᵀ) va info topilmasi `implicit_lu_fallback` (linter MV2). `implicit.covarianceMethod`: `'annex-b'` | `'lu'`; `implicit.Uy` — matritsa. Sezgirlik koeffitsiyentlari (byudjet) har doim C_y·C = C_x sistemasidan (tuzilmaviy nollar saqlanadi). `implicit.covarianceMethod: 'lu'` kirishda — faqat solishtirish uchun (natijada `covarianceForced`).
+- **cond₁(C_y)** = ‖C_y‖₁·‖C_y⁻¹‖₁ — `implicit.cond`; hisobotda ko'rsatiladi (`sections.implicitLine`).
+- API: `evaluateImplicit`, `isImplicit`, `newtonSolve`, `luSolve`, `annexB`, `IMPLICIT_DEFAULTS` (`tol`, `maxIter`, `stagnationTol`, `residualTol`), `IMPLICIT_ERRORS`; `linalg.js`: `luFactor`, `qrHouseholder`, `norm1`.
+
+### 13.5. `atan2` va eng kichik qamrov sohasi (P07b)
+
+- `atan2(y; x)` yoki `atan2(y, x)` — to'rt kvadrantli arktangens (§9.3.1.1); ikki raqam orasidagi vergul — o'nlik belgi, shuning uchun sonli argumentlarda `;`. AST: `{ k: 'fn2', f: 'atan2', a, b }`.
+- Ikki chiqishli MCM: `coverageRegion.smallest = { mesh, bounds: [[min1, max1], [min2, max2]], cellArea, cells, area, count, fraction, M, rows }` (§7.7.4; `rows[iy]` — tanlangan kataklar oraliqlari). Sozlama `smallestMesh` (`opts` yoki `settings.mc`): 10…500, standart 100, 0 — hisoblanmaydi. `smallestRegion(a, b, n, P, mesh)` — sof funksiya.
+
+### 13.6. Qilinmagan (RISKS R-24)
+
+Oshkormas model uchun Monte-Karlo (keyingi bosqich) va UI kiritish shakli; eng kichik qamrov sohasi m > 2 uchun; nuqtalar orasidagi birgalikdagi soha.
+
+### 13.7. Ko'p chiqish + ko'p nuqta (P07b; `src/report/summary.js`)
+
+Egasi qarori (2026-11-19): **yagona k yo'q**. `vectorSummaryRows(points)` → `[{ id, label, r, point, P, kp, kq, singular, outputs: [{ symbol, unit, y, U, k, uc, nuEff, rr }] }]` — U_j va k_j har bir chiqishning o'z bir o'lchovli natijasidan; birgalikdagi qamrov — faqat nuqtaning `coverageRegion` (k_p, JCGM 102:2011 §6.5); har bir nuqta alohida. `summaryRows` (skalyar, `multiPointCoverage`) vektor nuqtalarni olmaydi. `isVectorResult(r)`. Hisobot: `sections.vectorSummaryTable`, `vectorPointsSection`.
 
 ## 14. Laboratoriya jarayonlari (P11)
 

@@ -98,3 +98,83 @@ export function correlationMatrix(U) {
   }
   return R;
 }
+
+/**
+ * Qisman tanlovli LU: P·A = L·W (L — birlik diagonalli quyi uchburchak, W — yuqori uchburchak), ya'ni A = Pᵀ·L·W.
+ * perm[i] — P·A ning i-qatori A ning qaysi qatori ekani. Ref: JCGM 102:2011 Annex B, B.1 c) (C_y = L_y W_y; L_y = Pᵀ·L).
+ * @param {number[][]} A  n × n
+ * @param {number} [pivotRatio]  bosh element shu nisbatdan (max |a_ij| ga) kichik bo'lsa — singular (null)
+ * @returns {{L:number[][], W:number[][], perm:number[]}|null}
+ */
+export function luFactor(A, pivotRatio = 0) {
+  const n = A.length;
+  const a = A.map(r => r.slice());
+  const perm = a.map((_, i) => i);
+  let scale = 0;
+  for (const r of a) for (const v of r) scale = Math.max(scale, Math.abs(v));
+  if (!(scale > 0) || !isFinite(scale)) return null;
+  const L = zeros(n, n);
+  for (let c = 0; c < n; c++) {
+    let p = c;
+    for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[p][c])) p = r;
+    if (!(Math.abs(a[p][c]) > pivotRatio * scale)) return null;
+    if (p !== c) { [a[p], a[c]] = [a[c], a[p]]; [L[p], L[c]] = [L[c], L[p]]; [perm[p], perm[c]] = [perm[c], perm[p]]; }
+    L[c][c] = 1;
+    for (let r = c + 1; r < n; r++) {
+      const f = a[r][c] / a[c][c];
+      L[r][c] = f;
+      if (f === 0) continue;
+      for (let k = c; k < n; k++) a[r][k] -= f * a[c][k];
+      a[r][c] = 0;
+    }
+  }
+  return { L, W: a, perm };
+}
+
+/**
+ * Householder QR: A = Q·R, A — r × c; Q — r × r ortogonal, R — r × c yuqori uchburchak (trapetsiya).
+ * Ref: JCGM 102:2011 Annex B, B.1 b) (C_x = Q_x W_x), i) ("orthogonally triangularize M").
+ * @returns {{Q:number[][], R:number[][]}}
+ */
+export function qrHouseholder(A) {
+  const r = A.length, c = r ? A[0].length : 0;
+  const R = A.map(row => row.slice());
+  const Q = zeros(r, r);
+  for (let i = 0; i < r; i++) Q[i][i] = 1;
+  const steps = Math.min(r - 1, c);
+  for (let k = 0; k < steps; k++) {
+    let norm = 0;
+    for (let i = k; i < r; i++) norm = Math.hypot(norm, R[i][k]);
+    if (norm === 0) continue;
+    const alpha = R[k][k] > 0 ? -norm : norm;
+    const v = new Array(r).fill(0);
+    v[k] = R[k][k] - alpha;
+    for (let i = k + 1; i < r; i++) v[i] = R[i][k];
+    let vv = 0;
+    for (let i = k; i < r; i++) vv += v[i] * v[i];
+    if (vv === 0) continue;
+    for (let j = k; j < c; j++) {            // R ← H·R,  H = I − 2·v·vᵀ / (vᵀv)
+      let s = 0;
+      for (let i = k; i < r; i++) s += v[i] * R[i][j];
+      const f = 2 * s / vv;
+      for (let i = k; i < r; i++) R[i][j] -= f * v[i];
+    }
+    for (let i = 0; i < r; i++) {            // Q ← Q·H
+      let s = 0;
+      for (let j = k; j < r; j++) s += Q[i][j] * v[j];
+      const f = 2 * s / vv;
+      for (let j = k; j < r; j++) Q[i][j] -= f * v[j];
+    }
+    R[k][k] = alpha;
+    for (let i = k + 1; i < r; i++) R[i][k] = 0;
+  }
+  return { Q, R };
+}
+
+/** Matritsaning 1-normasi (ustunlar bo'yicha modullar yig'indisining eng kattasi). */
+export function norm1(A) {
+  let best = 0;
+  const c = A.length ? A[0].length : 0;
+  for (let j = 0; j < c; j++) { let s = 0; for (let i = 0; i < A.length; i++) s += Math.abs(A[i][j]); best = Math.max(best, s); }
+  return best;
+}

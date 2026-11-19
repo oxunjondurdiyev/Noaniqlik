@@ -8,7 +8,7 @@
 ═══════════════════════════════════════════════════════════════ */
 
 /** Muharrir holatining dvigatel o'qiydigan maydonlari (src/js/points.js::KEYS bilan bir xil) */
-export const GUM_KEYS = Object.freeze(['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'settings', 'covB', 'units', 'template']);   // 'outputs' — P07 (bir nechta chiqish)
+export const GUM_KEYS = Object.freeze(['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'implicit', 'settings', 'covB', 'units', 'template']);   // 'outputs' — P07 (bir nechta chiqish); 'implicit' — P07b (h(Y, X) = 0)
 const FORBIDDEN = ['__proto__', 'constructor', 'prototype'];
 const clone = v => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
 const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -82,6 +82,14 @@ export function gumStateFromInput(input) {
   if (['formula', 'unit'].some(k => model[k] !== undefined && typeof model[k] !== 'string')) return { ok: false, reason: 'bad_state' };
   // P07: bir nechta chiqish — [{ formula, unit }]
   if (st.outputs !== undefined && st.outputs !== null && !(Array.isArray(st.outputs) && st.outputs.length <= 50 && st.outputs.every(o => isObj(o) && typeof o.formula === 'string' && (o.unit === undefined || typeof o.unit === 'string')))) return { ok: false, reason: 'bad_state' };
+  // P07b: oshkor bo'lmagan model — { unknowns: [{name, start, unit?}], equations: [string], tol?, maxIter? }
+  if (st.implicit !== undefined && st.implicit !== null) {
+    const im = st.implicit;
+    const okU = u => isObj(u) && typeof u.name === 'string' && u.name.length <= 100 && okKey(u.name) && (u.unit === undefined || typeof u.unit === 'string')
+      && (u.start === undefined || typeof u.start === 'number' || typeof u.start === 'string') && (u.settings === undefined || isObj(u.settings));
+    if (!isObj(im) || !Array.isArray(im.unknowns) || !Array.isArray(im.equations) || im.unknowns.length > 50 || im.equations.length > 50
+      || !im.unknowns.every(okU) || !im.equations.every(e => typeof e === 'string' && e.length <= 2000)) return { ok: false, reason: 'bad_state' };
+  }
   return {
     ok: true,
     state: {
@@ -93,6 +101,7 @@ export function gumStateFromInput(input) {
       typeB: clone(st.typeB || []).map((c, i) => (typeof c.id === 'string' && c.id ? c : { ...c, id: 'tb_imp_' + i })),
       model: st.model ? clone(st.model) : { formula: '', unit: '' },
       outputs: Array.isArray(st.outputs) && st.outputs.length > 1 ? clone(st.outputs) : undefined,
+      implicit: st.implicit ? clone(st.implicit) : undefined,
       settings: clone(st.settings || {}),
       covB: st.covB ? clone(st.covB) : undefined,
       units: st.units ? clone(st.units) : undefined,

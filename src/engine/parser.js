@@ -11,6 +11,12 @@ export const FUNCS = {
   sin: Math.sin, cos: Math.cos, tan: Math.tan,
   asin: Math.asin, acos: Math.acos, atan: Math.atan,
 };
+// Ikki argumentli funksiyalar: f(a; b) yoki f(a, b). P07b: atan2(y, x) — to'rt kvadrantli arktangens, natija (−π, π].
+// Ref: JCGM 102:2011 §9.3.1.1 (Eq. 25 va izoh: "a four-quadrant inverse tangent function … often named 'atan2'") — qutb
+// koordinatalaridagi faza Y2 = atan2(X2, X1).
+// Argument ajratuvchisi: ';' yoki ','. DIQQAT: ikki raqam orasidagi vergul — o'nlik belgi ("1,5" = 1.5), shuning uchun
+// sonli argumentlar orasida ';' yoki bo'sh joyli ", " ishlatiladi.
+export const FUNCS2 = { atan2: Math.atan2 };
 // Ichki funksiya (faqat hosilada paydo bo'ladi, foydalanuvchi yoza olmaydi): |x| ning hosilasi
 const INTERNAL_FUNCS = { sign: Math.sign };
 const CONSTS = { pi: Math.PI, 'π': Math.PI };
@@ -36,15 +42,17 @@ export function tokenize(src, params) {
     const ch = s[i];
     if (/\s/.test(ch)) { i++; continue; }
     if ('+-*/^()'.includes(ch)) { tokens.push({ t: 'op', v: ch }); i++; continue; }
+    if (ch === ';' || ch === ',') { tokens.push({ t: 'sep' }); i++; continue; }
     if (ch === '√') { tokens.push({ t: 'func', v: 'sqrt' }); i++; continue; }
     const rest = s.slice(i);
     const num = rest.match(/^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i);
     if (num) { tokens.push({ t: 'num', v: parseFloat(num[0]) }); i += num[0].length; continue; }
-    const run = rest.match(/^[^\s+\-*\/^()=.,√0-9][^\s+\-*\/^()=,√]*/);
+    const run = rest.match(/^[^\s+\-*\/^()=.,;√0-9][^\s+\-*\/^()=,;√]*/);
     const word = run ? run[0] : '';
     if (word && params.includes(word)) { tokens.push({ t: 'var', v: word }); i += word.length; continue; }
     const lw = word.toLowerCase();
     if (word && FUNCS[lw]) { tokens.push({ t: 'func', v: lw }); i += word.length; continue; }
+    if (word && FUNCS2[lw]) { tokens.push({ t: 'func2', v: lw }); i += word.length; continue; }
     if (word && CONSTS[lw] !== undefined) { tokens.push({ t: 'num', v: CONSTS[lw] }); i += word.length; continue; }
     const pref = byLen.find(p => rest.startsWith(p));
     if (pref) { tokens.push({ t: 'var', v: pref }); i += pref.length; continue; }
@@ -56,7 +64,7 @@ export function tokenize(src, params) {
 
 /* ─── AST tugunlari ─────────────────────────────────
    {k:'num', v} {k:'var', n} {k:'neg', a}
-   {k:'add'|'sub'|'mul'|'div'|'pow', a, b}  {k:'fn', f, a}           */
+   {k:'add'|'sub'|'mul'|'div'|'pow', a, b}  {k:'fn', f, a}  {k:'fn2', f, a, b} (P07b: atan2)  */
 
 /** Tokenlar → AST (rekursiv tushish; `^` o'ngdan assotsiativ, funksiya argumenti — birlamchi ifoda). */
 export function parse(expr, params) {
@@ -98,6 +106,17 @@ export function parse(expr, params) {
     if (tk.t === 'num') return { k: 'num', v: tk.v };
     if (tk.t === 'var') return { k: 'var', n: tk.v };
     if (tk.t === 'func') return { k: 'fn', f: tk.v, a: parsePrimary() };
+    if (tk.t === 'func2') {            // f(a; b) — qavs va ikki argument majburiy
+      if (!isOp('(')) throw new Error('syntax');
+      pos++;
+      const a = parseExpr();
+      if (!peek() || peek().t !== 'sep') throw new Error('syntax');
+      pos++;
+      const b = parseExpr();
+      if (!isOp(')')) throw new Error('syntax');
+      pos++;
+      return { k: 'fn2', f: tk.v, a, b };
+    }
     if (tk.t === 'op' && tk.v === '(') {
       const inner = parseExpr();
       if (!isOp(')')) throw new Error('syntax');
@@ -126,6 +145,10 @@ export function compileAst(node) {
     case 'fn': {
       const fn = FUNCS[node.f] || INTERNAL_FUNCS[node.f], arg = compileAst(node.a);
       return e => fn(arg(e));
+    }
+    case 'fn2': {
+      const fn = FUNCS2[node.f], l = compileAst(node.a), r = compileAst(node.b);
+      return e => fn(l(e), r(e));
     }
     default: throw new Error('ast:' + node.k);
   }
@@ -232,6 +255,11 @@ export function derivative(node, x) {
         default: throw new Error('deriv:' + node.f);
       }
     }
+    case 'fn2': {
+      // atan2(u, v): ∂/∂x = (v·u' − u·v') / (u² + v²)   [arctan(u/v) hosilasi bilan bir xil, v = 0 da ham aniqlangan]
+      const u = node.a, v = node.b;
+      return mk.div(mk.sub(mk.mul(v, d(u)), mk.mul(u, d(v))), mk.add(mk.pow(u, NUM(2)), mk.pow(v, NUM(2))));
+    }
     default: return NUM(0);
   }
 }
@@ -250,6 +278,7 @@ export function toText(node) {
     case 'var': return node.n;
     case 'neg': return '−' + wrap(node.a, 3);
     case 'fn': return node.f + '(' + toText(node.a) + ')';
+    case 'fn2': return node.f + '(' + toText(node.a) + '; ' + toText(node.b) + ')';
     default: return wrap(node.a, P[node.k] + (node.k === 'pow' ? 1 : 0)) + OPS[node.k] + wrap(node.b, P[node.k], true);
   }
 }

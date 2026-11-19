@@ -23,7 +23,7 @@ export function normalize(spec) {
 function fromModel(m) {
   const outputs = m.outputs || [];
   // P07: bir nechta chiqish (vektor model, JCGM 102:2011 §6.2) — state.outputs; bitta chiqishda yo'l o'zgarmagan
-  if (outputs.length < 1) return { error: 'multi_output', detail: '0' };
+  if (outputs.length < 1 && !(m.implicit && Array.isArray(m.implicit.equations) && m.implicit.equations.length)) return { error: 'multi_output', detail: '0' };
   const inputs = m.inputs || [];
   const measurements = {}, units = {}, typeA = {};
   for (const inp of inputs) {
@@ -37,12 +37,13 @@ function fromModel(m) {
       params: inputs.map(i => i.name),
       measurements,
       directions: m.directions || [],
-      model: { formula: outputs[0].formula, unit: outputs[0].unit || '' },
+      model: { formula: outputs[0] ? outputs[0].formula : '', unit: (outputs[0] && outputs[0].unit) || '' },
       typeB: (m.typeB || []).map(c => ({ ...c, param: c.input !== undefined ? c.input : c.param })),
       covB: m.covB || {},
       units,
       settings: { ...st, typeA: { ...(st.typeA || {}), ...typeA } },
       ...(outputs.length > 1 ? { outputs: outputs.map(o => ({ ...o })) } : {}),
+      ...(m.implicit && typeof m.implicit === 'object' ? { implicit: JSON.parse(JSON.stringify(m.implicit)) } : {}),   // P07b: h(Y, X) = 0
     },
   };
 }
@@ -69,5 +70,6 @@ export function toModel(state) {
     typeB: (s.typeB || []).map(({ param, ...c }) => ({ ...c, input: param })),
     covB: s.covB || {},
     settings,
+    ...(s.implicit && typeof s.implicit === 'object' ? { implicit: JSON.parse(JSON.stringify(s.implicit)) } : {}),
   };
 }

@@ -34,7 +34,7 @@ export const STATUSES = ['DRAFT', 'REVIEWED', 'APPROVED', 'RETIRED'];
 /** UI dagi P03 standart sozlamalari (app.js loadPreset bilan bir xil) */
 export const APP_DEFAULTS = Object.freeze({ paired: true, P: 0.9545 });
 /** APPROVED holatda standart bo'yicha qulflanadigan bo'limlar */
-export const DEFAULT_LOCKED = ['model', 'variants', 'constants', 'inputs', 'typeBSources', 'correlations', 'measurand'];
+export const DEFAULT_LOCKED = ['model', 'outputs', 'implicit', 'variants', 'constants', 'inputs', 'typeBSources', 'correlations', 'measurand'];   // 'outputs' — P07b (vektor model formulalari)
 
 const LANGS = ['uz', 'ru', 'en'];
 const clone = o => (o === undefined ? undefined : JSON.parse(JSON.stringify(o)));
@@ -74,6 +74,24 @@ function formulaSymbols(formula, symbols) {
   const { expr } = splitFormula(formula);
   if (!expr) return new Set();
   return variables(parse(expr, symbols));
+}
+
+/** P07b: oshkor bo'lmagan model tenglamasidagi belgilar ("chap = o'ng" ham qabul qilinadi — dvigatel bilan bir xil). */
+function equationSymbols(text, symbols) {
+  const src = String(text === null || text === undefined ? '' : text).trim();
+  const i = src.indexOf('=');
+  if (i === -1) return variables(parse(src, symbols));
+  const lhs = src.slice(0, i).trim(), rhs = src.slice(i + 1).trim();
+  if (!lhs || !rhs || rhs.includes('=')) throw new Error('syntax');
+  return new Set([...variables(parse(lhs, symbols)), ...(rhs === '0' ? [] : variables(parse(rhs, symbols)))]);
+}
+const hasImplicit = tpl => !!tpl && !!tpl.implicit && typeof tpl.implicit === 'object';
+/** Shablondagi oshkor bo'lmagan model tenglamalarida qatnashgan belgilar (xato bo'lsa — istisno). */
+function implicitUsed(tpl, symbols) {
+  const names = (tpl.implicit.unknowns || []).map(u => u.symbol);
+  const used = new Set();
+  for (const eq of tpl.implicit.equations || []) for (const s of equationSymbols(eq, [...symbols, ...names])) used.add(s);
+  return used;
 }
 
 /* ─── Tekshiruv: sxema + semantika ─────────────────────── */
@@ -125,6 +143,48 @@ export function checkTemplate(tpl, schema) {
       errors.push(`correlation ${c.id}: no source with instrument "${c.sharedInstrument}"`);
     }
   }
+  // P07b: qo'shimcha chiqishlar (vektor model, JCGM 102:2011 §6.2) — belgi takrorlanmasligi, formula tahlil qilinishi,
+  // formuladagi belgilar ma'lum bo'lishi, chap tomondagi belgi `symbol` bilan mos kelishi
+  if (Array.isArray(tpl.outputs)) {
+    const mainSymbols = [tpl.measurand && tpl.measurand.symbol, ...((tpl.variants || []).map(v => v.measurand && v.measurand.symbol))].filter(Boolean);
+    const seen = new Set();
+    tpl.outputs.forEach((o, n) => {
+      const tag = `output ${n + 1} (${o.symbol})`;
+      if (seen.has(o.symbol) || mainSymbols.includes(o.symbol)) errors.push(`${tag}: duplicate output symbol`);
+      if (symbols.includes(o.symbol)) errors.push(`${tag}: symbol is already an input or constant`);
+      seen.add(o.symbol);
+      const sp = splitFormula(o.formula);
+      if (!sp.expr) { errors.push(`${tag}: formula required`); return; }
+      if (sp.symbol && sp.symbol !== o.symbol) errors.push(`${tag}: formula left-hand side "${sp.symbol}" differs from the symbol`);
+      try { formulaSymbols(o.formula, symbols); }
+      catch (e) { errors.push(`${tag}: formula does not parse (${e.message})`); }
+    });
+  }
+  // P07b: oshkor bo'lmagan model h(Y, X) = 0 (JCGM 102:2011 §6.3). y⁽⁰⁾ (start) — ixtiyoriy standart qiymat (egasi qarori 2026-11-19)
+  if (hasImplicit(tpl)) {
+    const im = tpl.implicit, un = Array.isArray(im.unknowns) ? im.unknowns : [], eqs = Array.isArray(im.equations) ? im.equations : [];
+    const names = un.map(u => u.symbol);
+    if (tpl.variants && tpl.variants.length) errors.push('implicit: variants are not supported with an implicit model');
+    if (Array.isArray(tpl.outputs) && tpl.outputs.length) errors.push('implicit: outputs are given by implicit.unknowns, not by outputs');
+    if (splitFormula(tpl.model && tpl.model.formula).expr) errors.push('implicit: model.formula must be empty (the equations are in implicit.equations)');
+    if (eqs.length !== un.length) errors.push(`implicit: ${eqs.length} equations for ${un.length} unknowns`);
+    if (un.length && tpl.measurand && un[0].symbol !== tpl.measurand.symbol) errors.push(`implicit: first unknown "${un[0].symbol}" differs from the measurand symbol`);
+    names.forEach((s, n) => {
+      if (names.indexOf(s) !== n) errors.push(`implicit: duplicate unknown ${s}`);
+      if (symbols.includes(s)) errors.push(`implicit: unknown ${s} is already an input or constant`);
+    });
+    un.forEach(u => { if (u.start !== undefined && u.start !== null && !Number.isFinite(u.start)) errors.push(`implicit: start of ${u.symbol} is not a number`); });
+    const usedAll = new Set();
+    let parsed = true;
+    eqs.forEach((eq, n) => {
+      try { for (const s of equationSymbols(eq, [...symbols, ...names])) usedAll.add(s); }
+      catch (e) { parsed = false; errors.push(`implicit: equation ${n + 1} does not parse (${e.message})`); }
+    });
+    if (parsed) {
+      for (const s of names) if (!usedAll.has(s)) errors.push(`implicit: unknown ${s} is not used in the equations`);
+      for (const i of inputs) if (!usedAll.has(i.symbol)) errors.push(`implicit: input ${i.symbol} is not used in the equations`);
+    }
+  }
   const variants = tpl.variants && tpl.variants.length ? tpl.variants.map(v => v.id) : [''];
   if (tpl.variants && tpl.variants.length) {
     if (tpl.defaultVariant && !variants.includes(tpl.defaultVariant)) errors.push(`defaultVariant ${tpl.defaultVariant} not found`);
@@ -136,6 +196,7 @@ export function checkTemplate(tpl, schema) {
     for (const s of v.inputs) if (!symbols.includes(s)) errors.push(`variant ${vid || '-'}: unknown symbol ${s}`);
     for (const s of Object.keys(v.constants)) if (!consts.some(c => c.symbol === s)) errors.push(`variant ${vid || '-'}: unknown constant ${s}`);
     for (const s of v.excludeSources) if (!srcIds.includes(s)) errors.push(`variant ${vid || '-'}: unknown source ${s}`);
+    if (hasImplicit(tpl)) continue;                        // P07b: formula o'rniga implicit.equations (yuqorida tekshirilgan)
     let used;
     try { used = formulaSymbols(v.formula, v.inputs); }
     catch (e) { errors.push(`variant ${vid || '-'}: formula does not parse (${e.message})`); continue; }
@@ -445,7 +506,7 @@ export function buildState(tpl, data = {}, opts = {}) {
   const inputsDef = tpl.inputs || [];
   const constDef = tpl.constants || [];
   let used;
-  try { used = formulaSymbols(variant.formula, variant.inputs); }
+  try { used = hasImplicit(tpl) ? implicitUsed(tpl, variant.inputs) : formulaSymbols(variant.formula, variant.inputs); }
   catch (e) { return { error: 'bad_formula', detail: e.message }; }
 
   // Kirishlar tartibi: shablondagi inputs, keyin formulada qatnashgan o'zgarmaslar
@@ -587,6 +648,16 @@ export function buildState(tpl, data = {}, opts = {}) {
     model: { formula: variant.formula, unit: variant.measurand.unit || '' },
     // P07: qo'shimcha chiqishlar (shablonda `outputs`) → vektor model: state.outputs = [asosiy, …qo'shimchalar]
     ...(Array.isArray(tpl.outputs) && tpl.outputs.length ? { outputs: [{ formula: variant.formula, unit: variant.measurand.unit || '' }].concat(tpl.outputs.map(o => ({ formula: o.formula, unit: o.unit || '' }))) } : {}),
+    // P07b: oshkor bo'lmagan model — y⁽⁰⁾: foydalanuvchi qiymati (data.implicitStart) → shablondagi standart → yo'q
+    // (yo'q bo'lsa dvigatel `implicit_bad_start` qaytaradi: y⁽⁰⁾ o'ylab topilmaydi)
+    ...(hasImplicit(tpl) ? { implicit: {
+      unknowns: tpl.implicit.unknowns.map(u => {
+        const own = data.implicitStart && data.implicitStart[u.symbol];
+        const start = !isBlank(own) ? toNum(own) : (u.start === null || u.start === undefined ? undefined : u.start);
+        return { name: u.symbol, ...(start === undefined ? {} : { start }), unit: u.unit || '' };
+      }),
+      equations: [...tpl.implicit.equations],
+    } } : {}),
     settings,
     covB: {},
     typeB,

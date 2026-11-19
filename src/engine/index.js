@@ -13,9 +13,10 @@ export {
 export { monteCarloLegacy } from './mc/legacy.js';
 // P07: vektor chiqish (JCGM 102:2011) — LPU, qamrov sohasi, ko'p o'lchovli Monte-Karlo
 export { evaluateMultivariate, isMultiOutput, singleState, MULTIVARIATE_MODE, OUTPUT_SETTINGS } from './multivariate/lpu.js';
-export { gaussianRegion, ellipsoidFactor, rectangleFactor, ellipseOf, SINGULAR_RATIO } from './multivariate/region.js';
+export { evaluateImplicit, isImplicit, newtonSolve, luSolve, annexB, IMPLICIT_DEFAULTS, IMPLICIT_ERRORS, SINGULAR_PIVOT } from './multivariate/implicit.js';
+export { gaussianRegion, ellipsoidFactor, rectangleFactor, ellipseOf, smallestRegion, SINGULAR_RATIO, SMALLEST_MESH } from './multivariate/region.js';
 export { createMultivariateMonteCarlo, MIN_BLOCKS as MC_MIN_BLOCKS, maxTrialsFor } from './multivariate/montecarlo.js';
-export { matMul, transpose, sandwich, choleskyLower, solveLower, symEigen, correlationMatrix } from './multivariate/linalg.js';
+export { matMul, transpose, sandwich, choleskyLower, solveLower, symEigen, correlationMatrix, luFactor, qrHouseholder, norm1 } from './multivariate/linalg.js';
 export { wichmannHill, xorshift32, createRng, whState } from './mc/rng.js';
 export { MC_DISTRIBUTIONS, cholesky } from './mc/distributions.js';
 export { normalize, toModel, FORMATS } from './spec.js';

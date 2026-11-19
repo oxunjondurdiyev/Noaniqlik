@@ -114,3 +114,26 @@ test('import: o\'zgartirilgan fayl (xesh mos emas), noto\'g\'ri format, juda kat
   assert.equal(parsed.ok, true);
   assert.equal(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION).identical, false);
 });
+
+/* ── P07b ── */
+test('P07b: oshkor bo\'lmagan model (state.implicit) — uc-calc/1 eksport → import → qayta hisob bit darajasida bir xil; muharrir holati implicit ni saqlaydi; noto\'g\'ri tuzilma rad etiladi', async () => {
+  const { gumStateFromInput, gumInput } = require('../../src/io/calc-state.js');
+  for (const id of ['jcgm102-9-5-2-single', 'jcgm102-9-5-3-several']) {
+    const spec = require(`../cases/jcgm102/${id}.json`).modelSpec;
+    const r = E.evaluate(spec);
+    const doc = await J.buildCalcDoc({ id: 'calc-' + id, createdAt: '2026-11-18T00:00:00.000Z', input: spec, result: r });
+    const parsed = await J.parseCalcDoc(J.serializeCalcDoc(doc));
+    assert.equal(parsed.ok, true, id);
+    assert.equal(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION).identical, true, id);
+    const st = gumStateFromInput(parsed.doc.input);
+    assert.equal(st.ok, true);
+    assert.deepEqual(st.state.implicit, spec.state.implicit);
+    assert.deepEqual(gumInput(st.state).implicit, spec.state.implicit);
+    assert.equal(JSON.stringify(E.evaluate(st.state).y), JSON.stringify(r.y));
+  }
+  const base = require('../cases/jcgm102/jcgm102-9-5-2-single.json').modelSpec.state;
+  for (const bad of [{ unknowns: 'x', equations: [] }, { unknowns: [{ name: 5 }], equations: ['a'] }, { unknowns: [{ name: '__proto__', start: 1 }], equations: ['a'] }, { unknowns: [{ name: 'y', start: 1 }], equations: [5] }]) {
+    assert.equal(gumStateFromInput({ ...base, implicit: bad }).ok, false, JSON.stringify(bad));
+  }
+  assert.equal(gumStateFromInput({ ...base, implicit: undefined }).state.implicit, undefined);
+});

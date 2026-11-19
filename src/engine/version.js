@@ -20,5 +20,11 @@
            (2.6.0 da mc_nonnormal_correlation). Bitta chiqishli LPU va qolgan MCM natijalari bit darajasida o'zgarmagan).
    2.8.0 — P11 (lab/ — etalonlar reestri, drift, CMC jadvali, QC kartalari, Westgard, kalibrlash intervali; linter L1, L2;
            settings.cmcRow / cmcRows + cmcX → CMC(X) avtomatik; typeB[].registry, typeB[].drift — byudjet qatorida nusxa.
-           YANGI IMKONIYAT: yangi maydonlar ishlatilmagan hisoblarning natijasi 2.7.0 bilan bit darajasida bir xil). */
-export const ENGINE_VERSION = '2.8.1';
+           YANGI IMKONIYAT: yangi maydonlar ishlatilmagan hisoblarning natijasi 2.7.0 bilan bit darajasida bir xil).
+   2.8.1 — Westgard 1981 va NIST e-Handbook manbalari: 1₂s darvozasi, westgardMulti, D₄ (n = 3, 5) NIST jadvaliga moslandi
+           (faqat QC kartalari va Westgard topilmalari; GUM / MCM natijalari o'zgarmagan).
+   2.9.0 — P07b (JCGM 102:2011: oshkor bo'lmagan model h(Y, X) = 0 — §6.3; atan2 — §9.3; eng kichik qamrov sohasi — §7.7.4,
+           ikki chiqish. YANGI IMKONIYAT: mavjud bitta va ko'p chiqishli natijalar 2.8.0 bilan bit darajasida bir xil;
+           ikki chiqishli MCM natijasiga yangi maydon coverageRegion.smallest qo'shiladi.
+           Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)). */
+export const ENGINE_VERSION = '2.9.0';

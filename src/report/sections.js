@@ -61,8 +61,22 @@ export function createSections(environment) {
     return `<span class="badge ${cls}">${txt}</span>`;
   }
 
+  /* P07b: oshkor bo'lmagan model (JCGM 102:2011 §6.3) — Nyuton yechimi, qoldiq, cond₁(C_y) va U_y qaysi yo'l bilan
+     hisoblangani (Annex B yoki LU). Egasi qarori 2026-11-19: shart soni hisobotda ko'rsatiladi. */
+  function implicitLine(r) {
+    const im = r && r.implicit;
+    if (!im) return '';
+    const num = v => (isFinite(v) ? Calc.fmtSci(v, 3) : '∞');
+    const start = (im.unknowns || []).map((n, j) => `${escHtml(n)}⁽⁰⁾ = ${escHtml(String(im.start[j]))}`).join(', ');
+    return `<span data-implicit-info="${escHtml(im.covarianceMethod || '')}">${i18n.t('imp_newton')} (JCGM 102:2011 §6.3.1.2): ${i18n.t('imp_start')} ${start}; ` +
+      `${i18n.t('imp_iterations')} — ${Number(im.iterations) || 0}; ${i18n.t('imp_residual')} ${num(im.residualRel)}. ` +
+      `<span data-implicit-cond="1">${i18n.t('imp_cond')} = ${num(im.cond)}</span>. ` +
+      `${i18n.t('imp_cov')}: ${i18n.t(im.covarianceMethod === 'lu' ? 'imp_cov_lu' : 'imp_cov_annexb')}.</span>`;
+  }
+
   function notesHtml(r) {
-    return (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('');
+    return (r.notes || []).map(n => `<div class="text-xs text-muted">ⓘ ${escHtml(i18n.t('n_' + n.code))}</div>`).join('')
+      + (r.implicit ? `<div class="text-xs text-muted">ⓘ ${implicitLine(r)}</div>` : '');
   }
 
   /* ─── P05a: linter topilmalari ("Tekshiruv natijalari") ──────────────
@@ -483,6 +497,7 @@ export function createSections(environment) {
       <div class="print-section">${i18n.t('model_title')}</div>
       <p style="font-size:10pt;margin:.4em 0 .6em"><strong>${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</strong></p>
       ${p9(`<span data-model-kind-info="${confKind(r)}">${modelKindLine(r)}</span>`)}
+      ${r.implicit ? p9(escHtml(i18n.t('n_implicit_model'))) + p9(implicitLine(r)) : ''}
 
       <div class="print-section">${i18n.t('data_title')}</div>
       ${dataTable(snap)}
@@ -929,8 +944,9 @@ export function createSections(environment) {
     const g = r.coverageRegion;
     if (r.m !== 2 || !g.ellipse || g.singular) return '';
     const lab = j => r.symbols[j] + (r.results[j].unit ? ', ' + r.results[j].unit : '');
-    return `<div class="region-plot-box">${ellipseSvg({ y: r.y, ellipse: g.ellipse, rectangle: g.rectangle.intervals, labels: [lab(0), lab(1)], esc: escHtml })}
-      <div class="text-xs text-muted">${i18n.t('mv_plot_caption')}</div></div>`;
+    const sm = mc && mc.coverageRegion ? mc.coverageRegion.smallest : null;
+    return `<div class="region-plot-box">${ellipseSvg({ y: r.y, ellipse: g.ellipse, rectangle: g.rectangle.intervals, labels: [lab(0), lab(1)], esc: escHtml, ...(sm ? { smallest: sm } : {}) })}
+      <div class="text-xs text-muted">${i18n.t('mv_plot_caption')}${sm ? ' ' + i18n.t('mv_plot_caption_smallest') : ''}</div></div>`;
   }
   /** Vektor MCM natijasi satrlari (§7.6–7.8, §8) */
   function mvMcLines(r, mc) {
@@ -946,6 +962,13 @@ export function createSections(environment) {
       lines.push(`<span data-mv-mc-region="1">${i18n.t('mv_region_title')} (${i18n.t('mv_region_mcm')}, P = ${pct(mc.P)} %): ` +
         (g.ellipsoid ? `k_p = ${g.ellipsoid.kp.toFixed(2)} (GUM: ${mc.gum.kp.toFixed(2)})` : i18n.t('mv_region_singular')) +
         (g.rectangle ? `;  k_q = ${g.rectangle.kq.toFixed(2)} (GUM: ${mc.gum.kq.toFixed(2)})` : '') + '</span>');
+      // P07b: eng kichik qamrov sohasi (JCGM 102:2011 §7.7.4) — faqat ikki chiqish; to'r, M, yuz va qamragan nuqtalar ulushi yoziladi
+      const sm = g.smallest;
+      if (sm) {
+        const un = [mc.units && mc.units[0], mc.units && mc.units[1]].filter(Boolean).map(escHtml).join('·');
+        lines.push(`<span data-mv-smallest="1">${i18n.t('mv_smallest')} (JCGM 102 §7.7.4, P = ${pct(mc.P)} %): ${i18n.t('mv_smallest_area')} = ${Calc.fmtSci(sm.area, 3)}${un ? ' ' + un : ''};  ` +
+          `${i18n.t('mv_smallest_mesh')} ${sm.mesh} × ${sm.mesh}, ${sm.cells} ${i18n.t('mv_smallest_cells')};  ${sm.count.toLocaleString()} / ${sm.M.toLocaleString()} (${(sm.fraction * 100).toFixed(2)} %) — ${i18n.t('mv_smallest_note')}</span>`);
+      }
       if (mc.validated !== null && mc.validated !== undefined) {
         const bad = (mc.comparison || []).filter(c => !c.ok).map(c => (c.q === 'lambdaMax' ? 'λ_max' : c.q === 'kp' ? 'k_p' : c.q === 'kq' ? 'k_q' : `${c.q}(${escHtml(c.output)})`));
         lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>`
@@ -967,6 +990,32 @@ export function createSections(environment) {
    * Vektor natija bo'limi (ekran va bosma).
    * @param {{print?:boolean, mc?:object, acceptances?:object}} o
    */
+  /* P07b: ko'p chiqish + ko'p nuqta — umumiy jadval (har bir nuqta × har bir chiqish). Egasi qarori 2026-11-19: yagona k
+     yo'q; U_j — chiqishning o'z k_j si bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p, JCGM 102 §6.5). */
+  function vectorSummaryTable(rows, cls) {
+    return `<table class="${cls || 'data-table'}" data-vector-summary="1"><thead><tr>
+        <th>${i18n.t('pt_col')}</th><th>${i18n.t('pt_output_col')}</th><th class="cell-num">y</th><th class="cell-num">U</th><th class="cell-num">k</th><th class="cell-num">ν_eff</th><th class="cell-num">${i18n.t('pt_kp_col')}</th>
+      </tr></thead><tbody>${rows.map(x => x.outputs.map((o, j) => `<tr data-vector-point="${escHtml(x.id || '')}">
+        ${j === 0 ? `<td rowspan="${x.outputs.length}"><strong>${escHtml(x.label || '')}</strong></td>` : ''}
+        <td class="mono">${escHtml(o.symbol)}${o.unit ? ', ' + escHtml(o.unit) : ''}</td>
+        <td class="cell-num num mono">${o.rr.yround.toFixed(o.rr.digits)}</td>
+        <td class="cell-num num mono">${o.rr.Uround.toFixed(o.rr.digits)}</td>
+        <td class="cell-num num mono">${o.k.toFixed(2)}</td>
+        <td class="cell-num num mono">${nuText(o.nuEff)}</td>
+        ${j === 0 ? `<td rowspan="${x.outputs.length}" class="cell-num num mono" data-vector-kp="1">${x.kp === null || !isFinite(x.kp) ? '—' : x.kp.toFixed(2)}</td>` : ''}
+      </tr>`).join('')).join('')}</tbody></table>`;
+  }
+  /** Bosma hisobot tanasi: umumiy jadval + izoh, so'ng har bir nuqtaning to'liq vektor bo'limi. */
+  function vectorPointsSection(rows, o) {
+    const opt = o || {};
+    if (!rows || !rows.length) return '';
+    const note = `<p class="${opt.print ? 'report-line' : 'text-xs text-muted'}" data-vector-note="1">${escHtml(i18n.t('pt_vector_note'))}</p>`;
+    return `${opt.print ? `<div class="print-section">${i18n.t('pt_summary')}</div>` : ''}
+      <div data-report-summary="vector">${vectorSummaryTable(rows, opt.print ? 'print-table' : 'data-table')}</div>${note}
+      ${opt.print ? rows.map(x => `<div class="print-page-break"></div><div data-report-point="${escHtml(x.label || '')}">
+        <div class="print-point-title">${escHtml(x.label || '')}</div>${multivariateSection(x.r, { print: true, acceptances: (x.point && x.point.acceptances) || {} })}</div>`).join('') : ''}`;
+  }
+
   function multivariateSection(r, o) {
     const opt = o || {};
     if (!r) return '';
@@ -976,7 +1025,8 @@ export function createSections(environment) {
     const mc = opt.mc && opt.mc.multivariate ? opt.mc : null;
     return `<div data-mv-section="1">
       ${title('mv_title')}
-      ${wrap(`${i18n.t('mv_method')}: U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2);  m = ${r.m},  N = ${r.N}`)}
+      ${r.implicit ? wrap(`${escHtml(i18n.t('imp_method'))};  m = ${r.m},  N = ${r.N}`) + wrap(implicitLine(r))
+        : wrap(`${i18n.t('mv_method')}: U_y = C_x U_x C_xᵀ (JCGM 102:2011 §6.2);  m = ${r.m},  N = ${r.N}`)}
       ${findingsHtml(r, { scope: 'gum', print: !!opt.print, acceptances: opt.acceptances, showEmpty: true })}
       ${mvOutputsTable(r, cls)}
       ${title('mv_corr_title')}
@@ -996,6 +1046,6 @@ export function createSections(environment) {
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

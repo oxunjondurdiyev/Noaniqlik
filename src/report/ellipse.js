@@ -12,6 +12,7 @@ const num = v => (Math.round(v * 100) / 100).toFixed(2);
  * @param {{semiAxes:number[], angle:number}} [o.ellipse]   GUM ellipsi (gaussianRegion().ellipse)
  * @param {number[][]} [o.rectangle]      [[lo1, hi1], [lo2, hi2]]
  * @param {{semiAxes:number[], angle:number}} [o.ellipseMc] MCM ellipsi (ixtiyoriy, uzuq chiziq)
+ * @param {{mesh:number, bounds:number[][], rows:number[][][]}} [o.smallest]  eng kichik qamrov sohasi kataklari (§7.7.4, MCM) — to'ldirilgan
  * @param {string[]} o.labels             o'q yozuvlari (belgi va birlik) — escape qilinadi
  * @param {(s:string)=>string} o.esc
  * @param {(v:number)=>string} [o.fmt]    o'q qiymatlari formati
@@ -51,11 +52,28 @@ export function ellipseSvg(o) {
   const tick = (v, axis) => (axis === 'x'
     ? `<line x1="${num(X(v))}" y1="${H - B}" x2="${num(X(v))}" y2="${H - B + 4}" stroke="currentColor" /><text x="${num(X(v))}" y="${H - B + 16}" font-size="10" text-anchor="middle" fill="currentColor">${esc(fmt(v))}</text>`
     : `<line x1="${L - 4}" y1="${num(Y(v))}" x2="${L}" y2="${num(Y(v))}" stroke="currentColor" /><text x="${L - 6}" y="${num(Y(v) + 3)}" font-size="10" text-anchor="end" fill="currentColor">${esc(fmt(v))}</text>`);
+  // P07b: eng kichik qamrov sohasi (JCGM 102:2011 §7.7.4, Figure 7 ko'rinishida) — tanlangan kataklar qatorma-qator to'ldiriladi;
+  // grafik chegarasidan chiqqan qism kesiladi
+  let cells = '';
+  if (o.smallest && o.smallest.rows) {
+    const s = o.smallest, [[a0, a1], [b0, b1]] = s.bounds, dx = (a1 - a0) / s.mesh, dy = (b1 - b0) / s.mesh;
+    const xl = cx - hx, xr = cx + hx, yb = cy - hy, yt = cy + hy;
+    const parts = [];
+    s.rows.forEach((runs, iy) => {
+      const lo = Math.max(b0 + iy * dy, yb), hi = Math.min(b0 + (iy + 1) * dy, yt);
+      if (!(hi > lo)) return;
+      for (const [i0, i1] of runs) {
+        const l = Math.max(a0 + i0 * dx, xl), r = Math.min(a0 + (i1 + 1) * dx, xr);
+        if (r > l) parts.push(`M${num(X(l))} ${num(Y(hi))}H${num(X(r))}V${num(Y(lo))}H${num(X(l))}Z`);
+      }
+    });
+    if (parts.length) cells = `<path class="region-smallest" data-region-smallest="${s.mesh}" d="${parts.join('')}" fill="currentColor" fill-opacity="0.18" stroke="none" />`;
+  }
   const hx0 = hx / 1.12, hy0 = hy / 1.12;
   return `<svg class="region-plot" data-region-plot="1" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" xmlns="http://www.w3.org/2000/svg">` +
     `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="currentColor" stroke-opacity="0.35" />` +
     [cx - hx0, cx, cx + hx0].map(v => tick(v, 'x')).join('') + [cy - hy0, cy, cy + hy0].map(v => tick(v, 'y')).join('') +
-    rect + (o.ellipse ? ell(o.ellipse, 'region-ellipse', false) : '') + (o.ellipseMc ? ell(o.ellipseMc, 'region-ellipse-mc', true) : '') +
+    cells + rect + (o.ellipse ? ell(o.ellipse, 'region-ellipse', false) : '') + (o.ellipseMc ? ell(o.ellipseMc, 'region-ellipse-mc', true) : '') +
     `<circle cx="${num(X(cx))}" cy="${num(Y(cy))}" r="2.5" fill="currentColor" />` +
     `<text x="${num((L + W - R) / 2)}" y="${H - 6}" font-size="11" text-anchor="middle" fill="currentColor">${esc(o.labels[0])}</text>` +
     `<text x="12" y="${num((T + H - B) / 2)}" font-size="11" text-anchor="middle" fill="currentColor" transform="rotate(-90 12 ${num((T + H - B) / 2)})">${esc(o.labels[1])}</text>` +

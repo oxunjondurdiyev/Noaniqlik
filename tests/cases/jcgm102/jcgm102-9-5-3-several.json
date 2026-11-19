@@ -1,0 +1,704 @@
+{
+  "id": "jcgm102-9-5-3-several",
+  "title": "JCGM 102 9.5.3: qarshilik termometri bilan o'nta Selsiy haroratini o'lchash — oshkor bo'lmagan ko'p o'zgaruvchili model (N = 14, m = 10)",
+  "status": "verified",
+  "domain": "harorat",
+  "source": {
+    "doc": "JCGM 102:2011 (GUM-S2)",
+    "section": "9.5.3, Table 12–16, Eq. (32)",
+    "page": "56–57"
+  },
+  "notes": "h_j = (1 + Aθ_j + Bθ_j²)R0 − r_j·RS, j = 1…10. Boshlang'ich yaqinlashuv — chiziqli (B = 0) baho, 1 °C gacha yaxlitlangan. Table 15 sarlavhasida 7-ustun \"θ6\" deb bosilgan (θ7 bo'lishi kerak — tartib bo'yicha).",
+  "modelSpec": {
+    "format": "calc-state/v2",
+    "state": {
+      "settings": {
+        "paired": false,
+        "P": 0.95
+      },
+      "directions": [],
+      "covB": {
+        "R0|A": -2.0925e-10,
+        "R0|B": 5.060000000000001e-12,
+        "A|B": -2.84823e-13
+      },
+      "params": [
+        "R0",
+        "A",
+        "B",
+        "RS",
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r8",
+        "r9",
+        "r10"
+      ],
+      "measurements": {
+        "R0": [
+          99.9961
+        ],
+        "A": [
+          0.0039096
+        ],
+        "B": [
+          -6e-7
+        ],
+        "RS": [
+          99.99947
+        ],
+        "r1": [
+          1.0000053
+        ],
+        "r2": [
+          1.0150054
+        ],
+        "r3": [
+          1.0300055
+        ],
+        "r4": [
+          1.0450056
+        ],
+        "r5": [
+          1.0600056
+        ],
+        "r6": [
+          1.0780057
+        ],
+        "r7": [
+          1.0900058
+        ],
+        "r8": [
+          1.1050059
+        ],
+        "r9": [
+          1.120006
+        ],
+        "r10": [
+          1.0780057
+        ]
+      },
+      "typeB": [
+        {
+          "name": "u(R0)",
+          "param": "R0",
+          "halfWidth": 0.0005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(A)",
+          "param": "A",
+          "halfWidth": 0.0000027,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(B)",
+          "param": "B",
+          "halfWidth": 1.1e-7,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(RS)",
+          "param": "RS",
+          "halfWidth": 0.0001,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r1)",
+          "param": "r1",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r2)",
+          "param": "r2",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r3)",
+          "param": "r3",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r4)",
+          "param": "r4",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r5)",
+          "param": "r5",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r6)",
+          "param": "r6",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r7)",
+          "param": "r7",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r8)",
+          "param": "r8",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r9)",
+          "param": "r9",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        },
+        {
+          "name": "u(r10)",
+          "param": "r10",
+          "halfWidth": 0.000005,
+          "distribution": "normal",
+          "k": 1
+        }
+      ],
+      "implicit": {
+        "unknowns": [
+          {
+            "name": "θ1",
+            "start": 0,
+            "unit": "°C"
+          },
+          {
+            "name": "θ2",
+            "start": 4,
+            "unit": "°C"
+          },
+          {
+            "name": "θ3",
+            "start": 8,
+            "unit": "°C"
+          },
+          {
+            "name": "θ4",
+            "start": 12,
+            "unit": "°C"
+          },
+          {
+            "name": "θ5",
+            "start": 15,
+            "unit": "°C"
+          },
+          {
+            "name": "θ6",
+            "start": 20,
+            "unit": "°C"
+          },
+          {
+            "name": "θ7",
+            "start": 23,
+            "unit": "°C"
+          },
+          {
+            "name": "θ8",
+            "start": 27,
+            "unit": "°C"
+          },
+          {
+            "name": "θ9",
+            "start": 31,
+            "unit": "°C"
+          },
+          {
+            "name": "θ10",
+            "start": 20,
+            "unit": "°C"
+          }
+        ],
+        "equations": [
+          "(1 + A*θ1 + B*θ1^2)*R0 - r1*RS",
+          "(1 + A*θ2 + B*θ2^2)*R0 - r2*RS",
+          "(1 + A*θ3 + B*θ3^2)*R0 - r3*RS",
+          "(1 + A*θ4 + B*θ4^2)*R0 - r4*RS",
+          "(1 + A*θ5 + B*θ5^2)*R0 - r5*RS",
+          "(1 + A*θ6 + B*θ6^2)*R0 - r6*RS",
+          "(1 + A*θ7 + B*θ7^2)*R0 - r7*RS",
+          "(1 + A*θ8 + B*θ8^2)*R0 - r8*RS",
+          "(1 + A*θ9 + B*θ9^2)*R0 - r9*RS",
+          "(1 + A*θ10 + B*θ10^2)*R0 - r10*RS"
+        ]
+      }
+    }
+  },
+  "run": {
+    "method": "evaluate"
+  },
+  "expected": {
+    "y.θ1": {
+      "value": 0.01,
+      "ref": "Table 15 (p. 57): θ1 = 0.0100 °C"
+    },
+    "u.θ1": {
+      "value": 0.0018,
+      "ref": "Table 15 (p. 57): u(θ1) = 0.0018 °C"
+    },
+    "y.θ2": {
+      "value": 3.8491,
+      "ref": "Table 15 (p. 57): θ2 = 3.8491 °C"
+    },
+    "u.θ2": {
+      "value": 0.0027,
+      "ref": "Table 15 (p. 57): u(θ2) = 0.0027 °C"
+    },
+    "y.θ3": {
+      "value": 7.6928,
+      "ref": "Table 15 (p. 57): θ3 = 7.6928 °C"
+    },
+    "u.θ3": {
+      "value": 0.004,
+      "ref": "Table 15 (p. 57): u(θ3) = 0.0040 °C"
+    },
+    "y.θ4": {
+      "value": 11.541,
+      "ref": "Table 15 (p. 57): θ4 = 11.5410 °C"
+    },
+    "u.θ4": {
+      "value": 0.0046,
+      "ref": "Table 15 (p. 57): u(θ4) = 0.0046 °C"
+    },
+    "y.θ5": {
+      "value": 15.3938,
+      "ref": "Table 15 (p. 57): θ5 = 15.3938 °C"
+    },
+    "u.θ5": {
+      "value": 0.0047,
+      "ref": "Table 15 (p. 57): u(θ5) = 0.0047 °C"
+    },
+    "y.θ6": {
+      "value": 20.0232,
+      "ref": "Table 15 (p. 57): θ6 = 20.0232 °C"
+    },
+    "u.θ6": {
+      "value": 0.0045,
+      "ref": "Table 15 (p. 57): u(θ6) = 0.0045 °C"
+    },
+    "y.θ7": {
+      "value": 23.1131,
+      "ref": "Table 15 (p. 57): θ7 = 23.1131 °C"
+    },
+    "u.θ7": {
+      "value": 0.0046,
+      "ref": "Table 15 (p. 57): u(θ7) = 0.0046 °C"
+    },
+    "y.θ8": {
+      "value": 26.9797,
+      "ref": "Table 15 (p. 57): θ8 = 26.9797 °C"
+    },
+    "u.θ8": {
+      "value": 0.006,
+      "ref": "Table 15 (p. 57): u(θ8) = 0.0060 °C"
+    },
+    "y.θ9": {
+      "value": 30.8509,
+      "ref": "Table 15 (p. 57): θ9 = 30.8509 °C"
+    },
+    "u.θ9": {
+      "value": 0.0089,
+      "ref": "Table 15 (p. 57): u(θ9) = 0.0089 °C"
+    },
+    "y.θ10": {
+      "value": 20.0232,
+      "ref": "Table 15 (p. 57): θ10 = 20.0232 °C"
+    },
+    "u.θ10": {
+      "value": 0.0045,
+      "ref": "Table 15 (p. 57): u(θ10) = 0.0045 °C"
+    },
+    "r.θ1.θ2": {
+      "value": 0.252,
+      "ref": "Table 16 (p. 57): r(θ1, θ2) = 0.252"
+    },
+    "r.θ1.θ3": {
+      "value": 0.127,
+      "ref": "Table 16 (p. 57): r(θ1, θ3) = 0.127"
+    },
+    "r.θ1.θ4": {
+      "value": 0.079,
+      "ref": "Table 16 (p. 57): r(θ1, θ4) = 0.079"
+    },
+    "r.θ1.θ5": {
+      "value": 0.059,
+      "ref": "Table 16 (p. 57): r(θ1, θ5) = 0.059"
+    },
+    "r.θ1.θ6": {
+      "value": 0.054,
+      "ref": "Table 16 (p. 57): r(θ1, θ6) = 0.054"
+    },
+    "r.θ1.θ7": {
+      "value": 0.056,
+      "ref": "Table 16 (p. 57): r(θ1, θ7) = 0.056"
+    },
+    "r.θ1.θ8": {
+      "value": 0.054,
+      "ref": "Table 16 (p. 57): r(θ1, θ8) = 0.054"
+    },
+    "r.θ1.θ9": {
+      "value": 0.05,
+      "ref": "Table 16 (p. 57): r(θ1, θ9) = 0.050"
+    },
+    "r.θ1.θ10": {
+      "value": 0.054,
+      "ref": "Table 16 (p. 57): r(θ1, θ10) = 0.054"
+    },
+    "r.θ2.θ3": {
+      "value": 0.815,
+      "ref": "Table 16 (p. 57): r(θ2, θ3) = 0.815"
+    },
+    "r.θ2.θ4": {
+      "value": 0.8,
+      "ref": "Table 16 (p. 57): r(θ2, θ4) = 0.800"
+    },
+    "r.θ2.θ5": {
+      "value": 0.755,
+      "ref": "Table 16 (p. 57): r(θ2, θ5) = 0.755"
+    },
+    "r.θ2.θ6": {
+      "value": 0.58,
+      "ref": "Table 16 (p. 57): r(θ2, θ6) = 0.580"
+    },
+    "r.θ2.θ7": {
+      "value": 0.312,
+      "ref": "Table 16 (p. 57): r(θ2, θ7) = 0.312"
+    },
+    "r.θ2.θ8": {
+      "value": -0.092,
+      "ref": "Table 16 (p. 57): r(θ2, θ8) = -0.092"
+    },
+    "r.θ2.θ9": {
+      "value": -0.358,
+      "ref": "Table 16 (p. 57): r(θ2, θ9) = -0.358"
+    },
+    "r.θ2.θ10": {
+      "value": 0.58,
+      "ref": "Table 16 (p. 57): r(θ2, θ10) = 0.580"
+    },
+    "r.θ3.θ4": {
+      "value": 0.902,
+      "ref": "Table 16 (p. 57): r(θ3, θ4) = 0.902"
+    },
+    "r.θ3.θ5": {
+      "value": 0.868,
+      "ref": "Table 16 (p. 57): r(θ3, θ5) = 0.868"
+    },
+    "r.θ3.θ6": {
+      "value": 0.691,
+      "ref": "Table 16 (p. 57): r(θ3, θ6) = 0.691"
+    },
+    "r.θ3.θ7": {
+      "value": 0.4,
+      "ref": "Table 16 (p. 57): r(θ3, θ7) = 0.400"
+    },
+    "r.θ3.θ8": {
+      "value": -0.057,
+      "ref": "Table 16 (p. 57): r(θ3, θ8) = -0.057"
+    },
+    "r.θ3.θ9": {
+      "value": -0.365,
+      "ref": "Table 16 (p. 57): r(θ3, θ9) = -0.365"
+    },
+    "r.θ3.θ10": {
+      "value": 0.691,
+      "ref": "Table 16 (p. 57): r(θ3, θ10) = 0.691"
+    },
+    "r.θ4.θ5": {
+      "value": 0.909,
+      "ref": "Table 16 (p. 57): r(θ4, θ5) = 0.909"
+    },
+    "r.θ4.θ6": {
+      "value": 0.766,
+      "ref": "Table 16 (p. 57): r(θ4, θ6) = 0.766"
+    },
+    "r.θ4.θ7": {
+      "value": 0.495,
+      "ref": "Table 16 (p. 57): r(θ4, θ7) = 0.495"
+    },
+    "r.θ4.θ8": {
+      "value": 0.04,
+      "ref": "Table 16 (p. 57): r(θ4, θ8) = 0.040"
+    },
+    "r.θ4.θ9": {
+      "value": -0.281,
+      "ref": "Table 16 (p. 57): r(θ4, θ9) = -0.281"
+    },
+    "r.θ4.θ10": {
+      "value": 0.766,
+      "ref": "Table 16 (p. 57): r(θ4, θ10) = 0.766"
+    },
+    "r.θ5.θ6": {
+      "value": 0.847,
+      "ref": "Table 16 (p. 57): r(θ5, θ6) = 0.847"
+    },
+    "r.θ5.θ7": {
+      "value": 0.629,
+      "ref": "Table 16 (p. 57): r(θ5, θ7) = 0.629"
+    },
+    "r.θ5.θ8": {
+      "value": 0.208,
+      "ref": "Table 16 (p. 57): r(θ5, θ8) = 0.208"
+    },
+    "r.θ5.θ9": {
+      "value": -0.115,
+      "ref": "Table 16 (p. 57): r(θ5, θ9) = -0.115"
+    },
+    "r.θ5.θ10": {
+      "value": 0.847,
+      "ref": "Table 16 (p. 57): r(θ5, θ10) = 0.847"
+    },
+    "r.θ6.θ7": {
+      "value": 0.841,
+      "ref": "Table 16 (p. 57): r(θ6, θ7) = 0.841"
+    },
+    "r.θ6.θ8": {
+      "value": 0.549,
+      "ref": "Table 16 (p. 57): r(θ6, θ8) = 0.549"
+    },
+    "r.θ6.θ9": {
+      "value": 0.264,
+      "ref": "Table 16 (p. 57): r(θ6, θ9) = 0.264"
+    },
+    "r.θ6.θ10": {
+      "value": 0.918,
+      "ref": "Table 16 (p. 57): r(θ6, θ10) = 0.918"
+    },
+    "r.θ7.θ8": {
+      "value": 0.812,
+      "ref": "Table 16 (p. 57): r(θ7, θ8) = 0.812"
+    },
+    "r.θ7.θ9": {
+      "value": 0.613,
+      "ref": "Table 16 (p. 57): r(θ7, θ9) = 0.613"
+    },
+    "r.θ7.θ10": {
+      "value": 0.841,
+      "ref": "Table 16 (p. 57): r(θ7, θ10) = 0.841"
+    },
+    "r.θ8.θ9": {
+      "value": 0.909,
+      "ref": "Table 16 (p. 57): r(θ8, θ9) = 0.909"
+    },
+    "r.θ8.θ10": {
+      "value": 0.549,
+      "ref": "Table 16 (p. 57): r(θ8, θ10) = 0.549"
+    },
+    "r.θ9.θ10": {
+      "value": 0.264,
+      "ref": "Table 16 (p. 57): r(θ9, θ10) = 0.264"
+    }
+  },
+  "tolerance": {
+    "default": {
+      "abs": 0.00005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 15 — 4 kasr xona)"
+    },
+    "r.θ1.θ2": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ3": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ4": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ5": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ6": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ7": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ1.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ3": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ4": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ5": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ6": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ7": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ2.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ4": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ5": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ6": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ7": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ3.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ4.θ5": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ4.θ6": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ4.θ7": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ4.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ4.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ4.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ5.θ6": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ5.θ7": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ5.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ5.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ5.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ6.θ7": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ6.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ6.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ6.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ7.θ8": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ7.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ7.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ8.θ9": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ8.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    },
+    "r.θ9.θ10": {
+      "abs": 0.0005,
+      "reason": "manbadagi oxirgi xonaning yarmi (Table 16 — 3 kasr xona)"
+    }
+  }
+}

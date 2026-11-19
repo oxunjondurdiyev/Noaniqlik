@@ -4,6 +4,36 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-19)
+
+**ENGINE_VERSION: 2.8.1 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi asosiy branch (2.8.0, `97e7586`; 2.8.1 merge qilingandan keyin ham testlar o'tadi) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.
+
+### Qo'shilganlar
+
+- **Oshkor bo'lmagan model h(Y, X) = 0** (`src/engine/multivariate/implicit.js`; JCGM 102:2011 §6.3): `state.implicit = { unknowns: [{ name, start, unit }], equations: [...] }`. y — Nyuton usuli bilan (Eq. (7)); C_y, C_x — simvolik hosilalar; U_y — Eq. (8) (C_y·C = C_x sistemasi LU bilan yechiladi, so'ng lokal chiziqli ekvivalent model mavjud oshkor yo'ldan o'tadi — byudjet, ν_eff, k, U, qamrov sohasi aynan oshkor modeldagidek). Bitta noma'lum — bir o'lchovli natija, bir nechta — `mode: 'MULTIVARIATE'`; ikkalasida `implicit: { iterations, residual, criterion, lastStep, Cy, Cx, sensitivity }`. Xatolar: `implicit_no_convergence`, `implicit_singular` (C_y singular — §6.3.1.3 Note 1), `implicit_bad_spec`, `implicit_bad_equation`, `implicit_bad_start` (boshlang'ich yaqinlashuv majburiy), `implicit_name_clash`. Monte-Karlo — `implicit_mc_unsupported` (jimgina chiziqlashtirilmaydi).
+- **`atan2(y; x)`** formula tahlilchisida (ajratuvchi `;` yoki `,`), simvolik hosila (v·u′ − u·v′)/(u² + v²), o'lchamlik tekshiruvi. Shablon formulalarida ham ishlaydi.
+- **Eng kichik qamrov sohasi** (§7.7.4, a–g) — ikki chiqishli MCM natijasida `coverageRegion.smallest = { mesh, bounds, cells, area, count, fraction, rows }`; to'r standart 100 × 100 (`smallestMesh`: 10…500, 0 — o'chirish). Hisobotda yuz, to'r, qamragan nuqtalar ulushi va grafikda bo'yalgan soha.
+- **Shablon muharriri:** qo'shimcha chiqishlar (`outputs`) jadvali — qo'shish, tahrirlash, o'chirish; tekshiruv (belgi takrori, kirish belgisi bilan to'qnashuv, formula tahlili, chap tomon ↔ belgi); `outputs` APPROVED shablonda qulflanadi (`DEFAULT_LOCKED`). Uch tilda.
+- **Hisob fayli:** `uc-calc/1` va `uc-model/1` da `implicit` maydoni (eksport → import → qayta hisob bit darajasida bir xil).
+
+### Test misollari (verified, sahifa / jadval havolasi bilan)
+
+- §9.3 MCM qatorlari (Table 6, 7 — 44–45-betlar): 6 ta misol × 5 qiymat = 30 qiymatning hammasi tolerans ichida (½ oxirgi xona + 2·√2·s, s — o'lchangan; M = 3·10⁶, manbada 10⁷).
+- §9.5.2 (56-bet): θ̂ = 20,0232 °C, u = 0,0045 °C, c_y = 0,389; §9.5.3 (Table 15, 16 — 57-bet): 10 baho + 10 noaniqlik + 45 korrelyatsiya koeffitsiyenti — hammasi oxirgi xonaning yarmi ichida.
+- §7.7.4 misoli (31-bet): 100 × 100 to'r, M = 10⁶ — yuz 9,35 (manba 9,4), 950 0xx nuqta (manba 950 074).
+- §6.3.2 Example 1, 2: manbada raqam yo'q — oshkor va oshkormas yondashuv natijalari tengligi bilan tekshirilgan.
+- Farq: **D-21** — §9.5.2.6 da C_x ning uchinchi elementi "4.01 Ω°C²" deb bosilgan (4,01·10⁴ bo'lishi kerak; yakuniy natija mos).
+- Jami: 90 verified, 2 unverified.
+
+### Egasi qarorlari (2026-11-19) — shu versiyada
+
+- **U_y — JCGM 102:2011 Annex B (B.1 a–j)** (`annexB`; §6.3.1.5: (10) + (9) yo'li "not recommended"). U_x ning Cholesky ko'paytuvchisi yo'q bo'lsa — LU yo'li + info topilmasi `implicit_lu_fallback` (linter **MV2**). Ikki yo'l §9.5.2 va §9.5.3 da ≤ 10⁻¹² nisbiy aniqlikda bir xil (test). Ko'p chiqishli oshkormas natijada `covariance` / `correlation` / `coverageRegion` endi Annex B dan (avvalgi commit'dagi LU qiymatidan ≈ 10⁻¹⁵ nisbiy farq; Table 15–16 dagi 65 qiymat o'zgarmadi). Sezgirlik koeffitsiyentlari (byudjet) — C_y·C = C_x sistemasidan.
+- **Nyutondan keyin qoldiq tekshiruvi:** |h(y, x)| masshtabga nisbatan 10⁻⁸ dan katta → `implicit_no_convergence` (`detail: 'residual'`); `implicit.residualRel`.
+- **cond₁(C_y)** — `implicit.cond`, hisobotda (ekran, bosma, vektor bo'lim) ko'rsatiladi.
+- **Shablonda `implicit`** (sxema, `checkTemplate`, `buildState`): standart y⁽⁰⁾ (`start`), foydalanuvchi qiymati ustun; hech biri bo'lmasa — `implicit_bad_start`.
+- **Ko'p chiqish + ko'p nuqta:** yagona k yo'q; U_j — har bir chiqishning o'z bir o'lchovli qoidasi bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p, §6.5); har bir nuqta alohida (`vectorSummaryRows`, nuqtalar paneli, bosma hisobot). Nuqtalar orasidagi soha hisoblanmaydi.
+- Tasdiqlandi, o'zgarishsiz: Nyuton mezoni, singularlik chegarasi 10⁻¹³·max|C_y|, y⁽⁰⁾ majburiy, to'r 100 × 100 (sozlanadi, hisobotda), §9.3 testlari M = 3·10⁶. Oshkormas model MCM — keyingi bosqich.
+
 ## [2.8.1] — Westgard va NIST manbalari bilan tekshiruv: 1₂s darvozasi, ko'p materialli Westgard, D₄ jadvali (2026-11-19)
 
 **ENGINE_VERSION: 2.8.0 → 2.8.1.** GUM / MCM / regressiya / top-down / maxsus rejimlar natijalari o'zgarmadi; 9 ta etalon nuqta va 10-test o'zgarmadi. O'zgarish faqat QC kartalari va Westgard topilmalarida.
