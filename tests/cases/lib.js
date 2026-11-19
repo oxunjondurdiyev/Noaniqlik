@@ -92,43 +92,9 @@ function pickMultivariate(q) {
   };
 }
 
-function run(c) {
-  const runSpec = c.run || { method: 'evaluate' };
-  if (runSpec.method === 'regression') {
-    let spec = c.modelSpec;
-    if (runSpec.inverseAtX) {
-      // Manba y₀ ni bermagan, faqat x̂₀ ni bergan (QUAM A5: c₀ = 0,26 mg/L): y₀ moslangan chiziqdan tiklanadi
-      const f = engine.evaluate(spec);
-      if (f.error) return { r: f, runSpec };
-      spec = { ...spec, inverse: runSpec.inverseAtX.map(q => ({ ...q, x: undefined, y0: f.params.reduce((s, p, j) => s + p.value * (q.x - f.xRef) ** j, 0) })) };
-    }
-    const r = engine.evaluate(spec);
-    if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
-    return { r, runSpec };
-  }
-  if (runSpec.method === 'path') {
-    // P10: maxsus rejimlar (uc-sampling/1, uc-qualitative/1, uc-micro/1, uc-medical/1) — kattalik nomi natijadagi yo'l
-    const r = engine.evaluate(c.modelSpec);
-    if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
-    return { r, runSpec };
-  }
-  if (runSpec.method === 'topdown') {
-    let r;
-    if (runSpec.part === 'bias') {
-      // Manba faqat u(bias) ni bergan bo'lim (masalan TR 537 §6.3): bias qismi alohida hisoblanadi
-      try { r = { bias: engine.evaluateBias(c.modelSpec.bias, engine.makeContext(c.modelSpec.scale, c.modelSpec.relativeUnit)), warnings: [] }; }
-      catch (e) { throw new Error(`${c.id}: ${e.code || e.message} ${e.detail || ''}`); }
-    } else r = engine.evaluate(c.modelSpec);
-    if (r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
-    return { r, runSpec };
-  }
-  // P06: run.mc — monteCarlo() sozlamalari (adaptiv / qat'iy, interval turi, n_dig, δ/5 …); bo'lmasa qat'iy M (eski misollar)
-  const r = runSpec.method === 'monteCarlo'
-    ? engine.monteCarlo(c.modelSpec, runSpec.mc ? { interval: runSpec.interval, ...runSpec.mc } : { mode: 'fixed', M: runSpec.M, interval: runSpec.interval })
-    : engine.evaluate(c.modelSpec);
-  if (runSpec.method === 'monteCarlo' && r.error) throw new Error(`${c.id}: ${r.error} ${r.detail || ''}`);
-  return { r, runSpec };
-}
+// Ishga tushirish qoidalari — tests/crossbrowser/core.js::runCase (P13: brauzerda ham aynan shu kod ishlaydi, R-24)
+const { runCase } = require('../crossbrowser/core.js');
+const run = c => runCase(engine, c);
 
 function tolFor(c, q) {
   const t = c.tolerance || {};
@@ -175,4 +141,4 @@ function checks(c) {
   return { list, result: r, warnings: (r.warnings || []).map(w => w.code) };
 }
 
-module.exports = { loadCases, checks, compare, engine, Calc: engine };
+module.exports = { loadCases, checks, compare, run, engine, Calc: engine };
