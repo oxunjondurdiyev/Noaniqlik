@@ -4,6 +4,23 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P13 (2026-11-19, `feat/p13-validation-package`).** Validatsiya paketi, versiyalangan deploy, brauzerlararo tekshiruv (hisoblash dvigateli o'zgarmagan):
+>
+> | Fayl | Vazifasi (P13) |
+> |---|---|
+> | `scripts/build-site.js`, `scripts/lib/markdown.js` | saytni yig'ish: oq ro'yxat → `_site/`, `?v=<sha12>` (acorn / jsdom), `build.json`, markdown → skriptsiz HTML, yakuniy tekshiruv |
+> | `scripts/validation-report.js`, `scripts/lib/test-reporter.js` | validatsiya hisoboti (HTML + JSON) — testlar, misollar, RTM, brauzerlar, NUM |
+> | `scripts/rtm.js` | `REQUIREMENTS.md` + `rtm.map.json` → tekshiruv va `RTM.md` |
+> | `scripts/cases-snapshot.js` | barcha misollar natijasining nusxasi; ikki holatni bit darajasida solishtirish |
+> | `src/io/env.js`, `src/io/build.js` | sof: brauzer qisqa tavsifi; build.json sxemasi, `?v=` versiyasi, build belgisi |
+> | `src/ui/build/watcher.js`, `app.js` | `window.UCBuild`: build.json (`no-store`), "yangi versiya" banneri, hisobot / hujjat uchun build va muhit |
+> | `validation.html`, `src/ui/validation-page.js`, `src/js/i18n-build.js` | "Validatsiya" sahifasi; matnlar (uz / ru / en) |
+> | `tests/crossbrowser/` | `core.js` (misolni ishga tushirish va solishtirish — Node va brauzer uchun bitta modul), `server.js`, `page.*`, `run.js` (Playwright), `site.js` (yig'ilgan sayt tutun-testi), `exceptions.json` |
+> | `tests/crosscheck/num/`, `tests/tools/gen-num-inputs.js` | NIST Uncertainty Machine uchun kirishlar va solishtiruv |
+> | `.github/workflows/deploy.yml`, `test.yml` (`validation` job) | test → build → Pages; brauzerlar va hisobot artifact'i |
+>
+> Ma'lumot oqimi: `git push` → test.yml (unit, rules, validation → artifact `validation-report`) → build-site (`_site/`) → Pages. Brauzerda: modul URL idagi `?v=` ↔ `build.json.shortSha` (farq → banner). Skript tartibi: … `i18n-pt → i18n-build → state → calc → … → app → build/app` (modul) `→ findings/app → …`.
+
 > **Yangilanish — P11 (2026-11-18, `feat/p11-lab-registry`).** Laboratoriya jarayonlari (bog'liqlik: `ui/lab → storage, engine/lab, io`; `engine/lab` sof, DOM va soatsiz; `storage` dvigatelga bog'liq emas):
 >
 > | Fayl | Vazifasi (P11) |

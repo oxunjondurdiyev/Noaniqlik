@@ -207,6 +207,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 > **P05 dan ko'chirilgan (egasi qarori, 2026-11-18):** build identifikatori — deploy'da `build.json` (commit SHA) va **versiyalangan modul URL'lari** (kesh: deploydan keyin ~10 daqiqa eski va yangi ES modullar aralashib, konsolda `export` xatosi chiqdi). CI / build qadami qo'shishdan oldin variantlar egasiga yoziladi (`docs/RISKS.md` R-22).
 
+> **Holat: bajarildi (2026-11-19, `feat/p13-validation-package`; ENGINE_VERSION o'zgarmagan — 2.10.0, hisob natijalari P12 bilan bit darajasida bir xil).** Egasi qarorlari (2026-11-19): A — R-22 (b) versiyalangan deploy; B — R-24 brauzerlararo farq ≤ 1·10⁻¹⁴ qabul qilinadi, yaxlitlangan natija aynan bir xil. Qilindi: `docs/validation/` (8 hujjat + `rtm.map.json`; `VALIDATION_MATRIX.md` ko'chirildi), `scripts/validation-report.js`, `scripts/rtm.js`, `scripts/build-site.js`, `scripts/cases-snapshot.js`, `.github/workflows/deploy.yml`, `tests/crossbrowser/` (Playwright), `tests/crosscheck/num/`, `validation.html`, `docs/manual/{uz,ru,en}.md`, `docs/DEPLOY.md`. **Egasi qarorini / amalini kutadi:** `docs/RISKS.md` R-27 (istisnolar ro'yxati, oq ro'yxat, NUM natijalari, Pages manbasi …). **Qilinmagan:** PTB TraCIM (rejalashtirilgan), Safari (qo'lda, PQ), mustaqil tashqi ko'rib chiqish.
+
 - **Fayllar:** `docs/validation/`, `validation-report.js` (test natijalaridan avtomatik), `ASSESSOR_FAQ.md`, izlanuvchanlik matritsasi (P01 dagi `VALIDATION_MATRIX.md` asosida), foydalanuvchi qo'llanmasi (3 tilda), README yangilash; NIST UM va (imkon bo'lsa) PTB TraCIM bilan o'zaro tekshiruv.
 - **Qanday tekshiriladi:** har bir talab kamida bitta yashil testga bog'langan; mustaqil ko'rib chiqish.
 
