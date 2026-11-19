@@ -1,0 +1,238 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>7.4.3.4. 1-Way ANOVA calculations</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="prc435.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="prc433.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">7.</FONT>
+<FONT COLOR="#00105A"><A HREF="../prc.htm">Product and Process Comparisons</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc4.htm">Comparisons based on data from more than two processes</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc43.htm">Are the means equal?</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">7.4.3.4.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>One-way ANOVA calculations</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below --><i>Formulas
+for one-way ANOVA hand calculations</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+Although computer
+programs that do ANOVA calculations now are common, for reference purposes
+this page describes how to calculate the various entries in an ANOVA table.
+Remember, the goal is to produce two variances (of treatments and error)
+and their ratio. The various computational formulas will be shown and applied
+to the data from the previous <a href="prc433.htm#Example">example.</a>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Step 1:  compute \(CM\)</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<b>STEP 1</b> Compute \(CM\), the correction for the mean.
+
+$$ CM = \frac{ \left( \sum_{i=1}^3 \sum_{j=1}^5 y_{ij} \right)^2}{N_{total}} = 
+\frac{(\mbox{Total of all observations})^2}{N_{total}} = \frac{(108.1)^2}{15} = 779.041 $$
+
+<!--
+<center>
+<p>
+<img SRC="eqns/anova10.gif" ALT="CM = {SUM[i=1 to 3][j=1 to 5]y(ij)}**2/N(total) = 
+(Total of all observations squared)**2/N(total) = (108.1)**2/15 = 779.041" height=170 width=318>
+</center>
+-->
+
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Step 2:  compute \(SS(Total)\)</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<b>STEP 2</b> Compute the total \(SS\).
+<p>
+The total \(SS\) = \(SS(Total)\) = sum of squares of all observations \(- CM\).
+
+$$ \begin{eqnarray}
+SS(Total) & = & \sum_{i=1}^3 \sum_{j=1}^5 y_{ij}^2 - CM \\
+          &   & \\
+          & = & (6.9)^2 + (5.4)^2 + \ldots + (6.9)^2 + (9.3)^2 - CM \\
+          &   & \\
+          & = & 829.390 - 779.041 = 45.439
+\end{eqnarray} $$
+
+<!--
+<center><img SRC="eqns/anova11.gif" ALT="SS(total) = SUM[i=1 to 3][j=1 to 5][y(ij)**2] - CM 
+        = 6.9**2 + 5.4**2 + ... + 6.9**2 - CM = 829.390 - 779.041 = 45.349" height=145 width=309>
+</center>
+<p>
+-->
+The value of 829.390 is called the "raw" or "uncorrected " sum of squares.
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Step 3:  compute \(SST\)</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<b>STEP 3</b> Compute \(SST\), the treatment sum of squares.
+<p>First we compute the total (sum) for each treatment.
+
+$$ \begin{eqnarray}
+T_1 & = & 6.9 + 5.4 + \ldots + 4.0 = 26.7 \\
+    &   & \\
+T_2 & = & 8.3 + 6.8 + \ldots + 6.5 = 38.6 \\
+    &   & \\
+T_3 & = & 8.0 + 10.5 + \ldots + 9.3 = 42.8
+\end{eqnarray} $$
+
+<!--
+<ul><i>T</i><sub>1</sub> = (6.9) + (5.4) + ... + (4.0) = 26.7&nbsp;
+<br><i>T</i><sub>2</sub> = (8.3) + (6.8) + ... + (6.5) = 38.6&nbsp;
+<br><i>T</i><sub>1</sub> = (8.0) + (10.5) + ... + (9.3) = 42.8</ul>
+-->
+<!-- <img SRC="eqns/anova12.gif" height=122 width=205> -->
+Then,
+
+$$ SST = \sum_{i=1}^3 \frac{T_i^2}{n_i} - CM = \frac{(26.7)^2}{5} + 
+         \frac{(38.6)^2}{5} + \frac{(42.8)^2}{5} - 779.041 = 27.897 \, . $$
+
+<!--
+<center>
+<img SRC="eqns/anova13.gif" ALT="SST = SUM[i=1 to 3][T(i)**2/n(i)] - CM
+ = 26.7**2/5 + 38.6**2/5 + 42.8**2/5 - 770.041 = 27.897" height=141 width=336>
+</center>
+-->
+
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Step 4:  compute \(SSE\)</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<b>STEP 4</b> Compute \(SSE\), the error sum of squares.
+<p>Here we utilize the property that the treatment sum of squares plus
+the error sum of squares equals the total sum of squares.
+Hence, 
+
+$$ SSE = SS(Total) - SST = 45.349 - 27.897 = 17.45 \, . $$
+
+<!-- SSE = SS Total - SST = 45.349 - 27.897 = 17.45.&nbsp;</td> -->
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Step 5:  Compute \(MST\), \(MSE\), and \(F\)</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<b>STEP 5</b> Compute \(MST\), \(MSE\), and their ratio, \(F\).
+<!-- <i>F</i>. -->
+<p>
+\(MST\) is the mean square of treatments, \(MSE\) is the mean square of error
+(\(MSE\) is also frequently denoted by \(\hat{\sigma}_e^2\)).
+<!-- <img SRC="eqns/errorvar.gif" ALT="sigmahat(e)**2" height=25 width=21 align=ABSCENTER>). -->
+
+$$ MST = \frac{SST}{k-1} = \frac{27.897}{2} = 13.949 $$
+
+$$ MSE = \frac{SSE}{N-k} = \frac{17.452}{12} = 1.454 $$
+
+<!--
+<ul><i>MST = SST / (k-1</i>) = 27.897 / 2 = 13.949&nbsp;
+<br><i>MSE = SSE / (N-k</i>) = 17.452/ 12 = 1.454</ul>
+-->
+
+where \(N\)
+<!-- <i>N</i> -->
+is the total number of observations and \(k\)
+<!-- <i>k</i> -->
+is the number of treatments. Finally, compute \(F\)
+<!-- <i>F</i>  -->
+as
+
+$$ F = \frac{MST}{MSE} = 9.59 \, . $$
+
+<!-- <ul><i>F = MST / MSE </i>= 9.59</ul> -->
+
+That is it. These numbers are the quantities that are assembled in the
+<a href="prc433.htm#ANOVA table">ANOVA table</a> that was shown previously.&nbsp;</td>
+</tr>
+
+   
+
+   
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="prc433.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="prc435.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

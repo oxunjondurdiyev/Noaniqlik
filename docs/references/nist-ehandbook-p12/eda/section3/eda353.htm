@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>1.3.5.3. Two-Sample <i>t</i>-Test for Equal Means</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="eda3531.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="eda352.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">1.</FONT>
+<FONT COLOR="#00105A"><A HREF="../eda.htm">Exploratory Data Analysis</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda3.htm">EDA Techniques</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.5.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda35.htm">Quantitative Techniques</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">1.3.5.3.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Two-Sample <i>t</i>-Test for Equal Means</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-----begin section: purpose -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Purpose:<br>
+         Test if two population means are equal
+      </I>
+   </td>
+   <td width=85% valign=top>
+      The two-sample <i>t</i>-test 
+      (<a href="../section4/eda43.htm#Snedecor">Snedecor and
+      Cochran, 1989</a>) is used to determine if two population means
+      are equal.  A common application is to test if a
+      new process or treatment is superior to a current process
+      or treatment.
+      <p>
+      There are several variations on this test.
+      <OL>
+         <LI>The data may either be paired or not paired.  By
+             paired, we mean that there is a one-to-one
+             correspondence between the values in the two samples.
+             That is, if <i>X</i><sub>1</sub>, <i>X</i><sub>2</sub>,
+             ..., <i>X<sub>n</sub></i> and <i>Y</i><sub>1</sub>,
+             <i>Y</i><sub>2</sub>, ... , <i>Y<sub>n</sub></i> are
+             the two samples, then <i>X<sub>i</sub></i> corresponds to
+             <i>Y<sub>i</sub></i>.  For paired samples, the difference
+             <i>X<sub>i</sub></i> - <i>Y<sub>i</sub></i> is usually
+             calculated.  For unpaired samples, the sample sizes for
+             the two samples may or may not be equal.  The formulas
+             for paired data are somewhat simpler than the formulas
+             for unpaired data.
+          </LI>
+          <p>
+          <LI>The variances of the two samples may be assumed
+              to be equal or unequal.  Equal variances yields
+              somewhat simpler formulas, although with computers
+              this is no longer a significant issue.
+          </LI>
+          <p>
+          <LI>In some applications, you may want to adopt a new
+              process or treatment only if it exceeds the current
+              treatment by some threshold.  In this case, we can
+              state the null hypothesis in the form that the
+              difference between the two populations means is
+              equal to some constant
+              <!--
+              (<img align=absmiddle src="eqns/mu1mmu2.gif"
+              alt="u1 - u2 = d0">)
+              -->
+              \(\mu_{1} - \mu_{2} = d_{0}\)
+              where the constant is the desired threshold.
+          </LI>
+       </OL>
+
+   </td>
+</tr>
+
+<!-----begin section: definition -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Definition
+      </I>
+   </td>
+   <td width=85% valign=top>
+    
+     The two-sample <I>t</I>-test for unpaired data is defined as:
+      <table>
+
+      <tr>
+         <td>
+            H<sub>0</sub>:
+         </td>
+         <td>
+            <!-- <img src="eqns/mu1eqmu2.gif" alt="u1 = u2"> -->
+            \( \mu_{1} = \mu_{2} \)
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            H<sub>a</sub>:
+         </td>
+         <td>
+            <!-- <img src="eqns/mu1nemu2.gif" alt="u1 <> u2"> -->
+            \( \mu_{1} \neq \mu_{2} \)
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            Test Statistic:
+         </td>
+         <td>
+            <!--
+            <img src="eqns/t2stat.gif"
+              alt="T = (YBAR1 - YBAR2)/[(1/sp)*SQRT((1/N1) + (1/N2))]">
+            -->
+            \( T = \frac{\bar{Y_{1}} - \bar{Y_{2}}}
+            {\sqrt{{s^{2}_{1}}/N_{1} + {s^{2}_{2}}/N_{2}}} \)
+            <p>
+            where <i>N</i><sub>1</sub> and <i>N</i><sub>2</sub> are the
+            sample sizes,
+            <!--
+            <img align=top src="eqns/y1bar.gif" alt="YBAR1"> and
+            <img align=top src="eqns/y2bar.gif" alt="YBAR2"> are
+            -->
+            \( \bar{Y_{1}} \) and \( \bar{Y_{2}} \) are
+            the sample means, and
+            <!--
+            <img align=top src="eqns/s1sq.gif" alt="s1**2"> and
+            <img align=top src="eqns/s2sq.gif" alt="s2**2"> are the
+            -->
+            \( {s^{2}_{1}} \) and \( {s^{2}_{2}} \) are the
+            sample variances.
+            <p>
+            If equal variances are assumed, then the formula reduces
+            to:
+            <ul>
+            <!--
+            <img src="eqns/t3stat.gif"
+                 alt="T = (YBAR1 - YBAR2)/[sp*SQRT((1/N1) + (1/N2))]">
+            -->
+\( T = \frac{\bar{Y_{1}} - \bar{Y_{2}}} {s_{p}\sqrt{1/N_{1} + 1/N_{2}}} \)
+            </ul>
+            where
+            <ul>
+            <!--
+            <img src="eqns/spool.gif"
+               alt="sp**2 = [(N1-1)*s1**2 + (N2-1)*s2**2]/(N1 +N2 -2)">
+            -->
+\( s_{p}^{2} = \frac{(N_{1}-1){s^{2}_{1}} + (N_{2}-1){s^{2}_{2}}} {N_{1} + N_{2} - 2} \)
+            </ul>
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            Significance Level:
+            <br>
+         </td>
+         <td valign=top>
+            <!-- <img src="eqns/alpha.gif" alt="alpha">. -->
+            <i>&alpha;</i>.
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            Critical Region:
+         </td>
+         <td>
+            Reject the null hypothesis that the two means are equal if
+            <ul>
+                <big>|<i>T</i>| > <I>t</I><SUB>1-<i>&alpha;</i>/2,<i>&nu;</i></SUB></big>
+            </ul>
+
+            where <big><I>t</I></big><SUB>1-<i>&alpha;</i>/2,<i>&nu;</i></SUB>
+            is the
+            <a href="eda3672.htm">critical value</a> of the
+            <a href="eda3664.htm"><i>t</i> distribution</a> with <i>&nu;</i>
+            degrees of freedom where
+            <ul>
+                <!--
+                <img src="eqns/v.gif"
+                alt="(s1**2/N1 + s2**2/N2)**2/[(s1**2/N1)**2/(N1-1) + (s2**2/N2)**2/(N2-1)]">
+                -->
+\( \upsilon = \frac{(s^{2}_{1}/N_{1} + s^{2}_{2}/N_{2})^{2}} {(s^{2}_{1}/N_{1})^{2}/(N_{1}-1) + (s^{2}_{2}/N_{2})^{2}/(N_{2}-1) } \)
+            </ul>
+            If equal variances are assumed, then
+            &nu; = <i>N</i><sub>1</sub> + <i>N</i><sub>2</sub> - 2
+            <!--
+            <ul>
+                <img src="eqns/v2.gif" alt="nu = N1 + N2 - 2">
+            </ul>
+            -->
+         </td>
+      </tr>
+
+     </table>
+
+   </td>
+</tr>
+
+
+<!-----begin section: sample output -->
+
+<tr>
+<td width=15% valign=top>
+<I>Two-Sample <I>t</I>-Test Example</I>
+</td>
+<td width=85% valign=top>
+The following two-sample <I>t</I>-test was generated for the 
+<a href="eda3531.htm">AUTO83B.DAT</a> data set.  The data set 
+contains miles per gallon for U.S. cars (sample 1) and for 
+Japanese cars (sample 2); the summary statistics for each 
+sample are shown below.  
+
+<PRE>
+SAMPLE 1:
+    NUMBER OF OBSERVATIONS      = 249
+    MEAN                        =  20.14458
+    STANDARD DEVIATION          =   6.41470
+    STANDARD ERROR OF THE MEAN  =   0.40652
+  
+SAMPLE 2:
+    NUMBER OF OBSERVATIONS      = 79
+    MEAN                        = 30.48101
+    STANDARD DEVIATION          =  6.10771
+    STANDARD ERROR OF THE MEAN  =  0.68717
+</PRE>
+<P>
+We are testing the hypothesis that the population means are equal
+for the two samples.  We assume that the variances for the two 
+samples are equal. 
+<P>
+<PRE>
+H<SUB>0</SUB>:  &mu;<SUB>1</SUB> = &mu;<SUB>2</SUB>
+H<SUB>a</SUB>:  &mu;<SUB>1</SUB> &ne; &mu;<SUB>2</SUB>
+<P>
+Test statistic:  <I>T</I> = -12.62059
+Pooled standard deviation:  <I>s<SUB>p</SUB></I> = 6.34260
+Degrees of freedom:  <i>&nu;</i> = 326
+Significance level:  <i>&alpha;</i> = 0.05
+Critical value (upper tail):  <big><I>t</I></big><sub>1-<i>&alpha;</i>/2,<i>&nu;</i></sub> = 1.9673
+Critical region: Reject H<SUB>0</SUB> if |<I>T</I>| > 1.9673
+</PRE>
+The absolute value of the test statistic for our example, 12.62059, 
+is greater than the critical value of 1.9673, so we reject 
+the null hypothesis and conclude that the two population means
+are different at the 0.05 significance level.
+<P>
+In general, there are three possible alternative hypotheses and 
+rejection regions for the one-sample <I>t</I>-test:
+<P>
+<table border="2" cellspacing="0" cellpadding="7">
+<tr>
+<th>Alternative Hypothesis</th>
+<th>Rejection Region</th>
+</tr>
+<tr>
+<td>H<SUB>a</SUB>:  &mu;<SUB>1</SUB> &ne; &mu;<SUB>2</SUB></td>
+<td>|<I>T</I>| > <big><I>t</I></big><SUB>1-&alpha;/2,&nu;</SUB></td>
+</tr>
+<tr>
+<td>H<SUB>a</SUB>:  &mu;<SUB>1</SUB> > &mu;<SUB>2</SUB></td>
+<td><I>T</I> > <big><I>t</I></big><SUB>1-&alpha;,&nu;</SUB></td>
+</tr>
+<tr>
+<td>H<SUB>a</SUB>:  &mu;<SUB>1</SUB> < &mu;<SUB>2</SUB></td>
+<td><I>T</I> < <big><I>t</I></big><SUB>&alpha;,&nu;</SUB></td>
+</tr>
+</table>
+<P>
+For our two-tailed <I>t</I>-test, the critical value is 
+<big><I>t</I></big><SUB>1-<i>&alpha;</i>/2,<i>&nu;</i></SUB> = 1.9673, where <i>&alpha;</i> = 0.05 
+and <i>&nu;</i> = 326.  If we were to perform an upper, one-tailed test, 
+the critical value would be <big><I>t</I></big><SUB>1-<i>&alpha;</i>,<i>&nu;</i></SUB> = 1.6495.
+The rejection regions for three posssible alternative hypotheses using
+our example data are shown below.
+<CENTER>
+<img src="eda353_r.gif">
+</CENTER>
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-----begin section: questions -->
+<tr>
+   <td width=15% valign=top>
+      <I>Questions
+      </I>
+   </td>
+   <td width=85% valign=top>
+     Two-sample <i>t</i>-tests can be used to answer the following
+     questions:
+     <OL>
+        <LI>Is process 1 equivalent to process 2?</LI>
+        <LI>Is the new process better than the current process?</LI>
+        <LI>Is the new process better than the current process by
+            at least some pre-determined threshold amount?</LI>
+     </OL> 
+   </td>
+</tr>
+
+<!-----begin section: related techniques -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Related Techniques</I>
+   </td>
+   <td width=85% valign=top>
+      <a href="eda352.htm">Confidence Limits for the Mean</a><br>
+      <a href="eda354.htm">Analysis of Variance</a>
+   </td>
+</tr>
+
+<!-----begin section: case study -->
+<tr>
+   <td width=15% valign=top>
+      <I>Case Study</I>
+   </td>
+   <td width=85% valign=top>
+      <a href="../section4/eda42a.htm">Ceramic strength</a> data.
+   </td>
+</tr>
+
+<!-----begin section: Software -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Software</I>
+   </td>
+   <td width=85% valign=top>
+      Two-sample <i>t</i>-tests are available in just about all
+      general purpose statistical software programs.  Both 
+      <a href="eda353.dp">Dataplot code</a> and 
+      <a href="eda353.r">R code</a> can be used to generate the
+      analyses in this section.  These scripts use the
+      <a href="../../datasets/AUTO83B.DAT">AUTO83B.DAT</a> data file.
+
+   </td>
+</tr>
+
+<!-----end jjf----->
+
+
+
+
+
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="eda352.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="eda3531.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+</HTML>

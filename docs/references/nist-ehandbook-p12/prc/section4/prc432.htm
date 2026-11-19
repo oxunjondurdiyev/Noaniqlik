@@ -1,0 +1,237 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>7.4.3.2. The one-way ANOVA model and assumptions</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="prc433.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="prc431.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">7.</FONT>
+<FONT COLOR="#00105A"><A HREF="../prc.htm">Product and Process Comparisons</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc4.htm">Comparisons based on data from more than two processes</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc43.htm">Are the means equal?</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">7.4.3.2.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>The one-way ANOVA model and assumptions</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>A model that describes the relationship between the response
+and the treatment (between the dependent and independent variables)</i>
+</TD>
+
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The mathematical model that describes the relationship between
+the response and treatment for the one-way ANOVA is given by
+<a NAME="1-way model"></a>
+
+$$ Y_{ij} = \mu + \tau_i + \epsilon_{ij} \, , $$
+
+<!--
+<p>
+<center>
+<img SRC="eqns/anova14.gif" height=25 width=108
+     ALT="Y(ij) = mu + tau + e(ij)">
+</center>
+<p>
+-->
+
+where \(Y_{ij}\)
+<!-- <i>Y<sub>ij</sub></i> -->
+represents the \(j\)-th
+<!-- <i>j</i>-th  -->
+observation (\(j = 1, \, 2, \, \ldots, \, n_i\))
+<!-- (<i>j</i> = 1, 2, ...<i>n<sub>i</sub></i>)  -->
+on the \(i\)-th 
+<!-- <i>i</i>th -->
+treatment (\(i = 1, \, 2, \, \ldots, \, k\)
+<!-- (<i>i </i>= 1, 2, ..., <i>k</i>  -->
+levels).  So, \(Y_{23}\)
+<!-- <i>Y</i><sub>23</sub>  -->
+represents the third observation using level 2
+of the factor.  \(\mu\)
+<!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"> -->
+is the common effect for the whole experiment, \(\tau_i\)
+<!-- <img align=absmiddle src="eqns/tau.gif" alt="tau"><i><sub>i</sub></i> -->
+represents the \(i\)-th
+<!-- <i>i</i>-th -->
+treatment effect, and \(\epsilon_{ij}\)
+<!-- <img align=absmiddle src="eqns/epsilon.gif" alt="e"><sub>ij</sub></i> -->
+represents the random error present in the \(j\)-th
+<!-- <i>j</i>-th  -->
+observation on the \(i\)-th
+<!-- <i>i</i>-th  -->
+treatment.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Fixed effects model
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The errors \(\epsilon_{ij}\)
+<!-- <img align=absmiddle src="eqns/epsilon.gif" alt="e"><sub>ij</sub></i> -->
+are assumed to be normally and independently (NID) distributed, with
+mean zero and variance \(\sigma_\epsilon^2\).
+<!-- <img align=absmiddle src="eqns/sigmae.gif" alt="sigma(e)**2">. -->
+\(\mu\)
+<!-- <img align=absmiddle src="eqns/mu.gif" alt="mu">  -->
+is always a fixed parameter, and \(\tau_1, \, \tau_2, \, \ldots, \, \tau_k\)
+<!-- <img align=absmiddle src="eqns/tau1k.gif" alt="tau(1), tau(2), ..., tau(k)"> -->
+are considered to be fixed parameters <i>if the levels of the
+treatment are fixed</i> and not a random sample from a population
+of possible levels.  It is also assumed that \(\mu\)
+<!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"> -->
+is chosen so that
+
+$$ \sum \tau_i = 0 \, , \,\,\,\,\, i = 1, \, \ldots, \, k $$
+
+<!-- 
+<center>
+<p>
+<img src="eqns/tausum.gif" alt="SUM[tau9i)] = 0   i = 1, ..., k">
+</center>
+<p>
+-->
+
+holds.  This is the <i>fixed effects model</i>.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Random effects model</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<a NAME="random effects"></a>
+If the \(k\)
+<!-- <i> k</i>  -->
+levels of treatment are chosen at random, the model
+equation remains the same.  However, now the \(\tau_i\) values
+<!-- <img align=absmiddle src="eqns/tau.gif" alt="tau"><sub>i</sub></i>'s -->
+are random variables assumed to be NID(0, \(\sigma_\tau\))
+<!-- <img align=absmiddle src="eqns/sigmatau.gif" alt="sigma(tau)**2">). -->
+This is the <i>random effects model</i>.
+
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+Whether the levels are fixed or random depends on how these levels
+are chosen in a given experiment.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+
+
+
+
+
+
+
+
+   
+
+   
+
+   
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="prc431.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="prc433.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

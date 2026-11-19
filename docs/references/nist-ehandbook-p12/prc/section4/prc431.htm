@@ -1,0 +1,243 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>7.4.3.1. One-way ANOVA overview</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="prc432.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="prc43.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">7.</FONT>
+<FONT COLOR="#00105A"><A HREF="../prc.htm">Product and Process Comparisons</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc4.htm">Comparisons based on data from more than two processes</a></FONT>
+<BR>
+<FONT COLOR="#D60021">7.4.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="prc43.htm">Are the means equal?</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">7.4.3.1.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>One-way ANOVA overview</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below --><i>Overview
+and principles</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+This section gives an overview of the one-way ANOVA. First we explain 
+the principles involved in the one-way ANOVA.
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Partition response into components</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<b>In an analysis of variance the variation in the response measurements 
+is partitoned into components that correspond to different sources of variation.</b>
+<p>
+The goal in this procedure is to split the total variation in the data
+into a portion due to random error and portions due to changes in the values
+of the independent variable(s).
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Variance of \(n\) measurements</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+The variance of \(n\)
+<!-- <i>n</i>  -->
+measurements is given by
+
+$$ s^2 = \frac{\sum_{i=1}^n (y_i - \bar{y})^2}{n-1} \, , $$
+
+<!--
+<center>
+<p>
+<img SRC="eqns/variance.gif" ALT="s**2 = SUM[i=1 to n][(Y(i) - Ybar)**2/(n-1)" >
+</center>
+<p>
+-->
+
+where \(\bar{y}\)
+<!-- <img SRC="eqns/ybar.gif" ALT="Ybar"  align=ABSCENTER> -->
+is the mean of the \(n\)
+<!-- <i>n</i>  -->
+measurements.
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>Sums of squares and degrees of freedom</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+The numerator part is called the <i>sum of squares</i> of deviations 
+from the mean, and the denominator is called the <i>degrees of freedom</i>.
+<p>
+The variance, after some algebra, can be rewritten as:
+
+$$ s^2 = \frac{\sum_{i=1}^n y_i^2 - \frac{1}{n} \, \left( \sum_{i=1}^n y_i \right)^2}{n-1} \, . $$
+
+<!--
+<center>
+<img SRC="eqns/anova3.gif" ALT="s**2 = {SUM[i=1 to n][y(i)**2] - 
+        (SUM[i=1 to n][y(i)])**2/n}/(n-1" height=113 width=158>
+</center>
+-->
+
+The first term in the numerator is called the "<i>raw sum of squares</i>"
+and the second term is called the "<i>correction term for the mean</i>".
+Another name for the numerator is the "<i>corrected sum of squares</i>",
+and this is usually abbreviated by 
+<i>Total \(SS\) or \(SS(Total)\)</i>.
+<p>
+The \(SS\) in a one-way ANOVA can be split into two components, called the
+<i>"sum of squares of treatments</i>" and <i>"sum of squares of error</i>",
+abbreviated as \(SST\) and \(SSE\), respectively.
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+<i>The guiding principle behind ANOVA is the decomposition of the sums of squares, 
+or \(SS(Total)\)</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+<a NAME="SST and SSE"></a>Algebraically, this is expressed by
+
+$$ \begin{array}{ccccc}
+SS(Total) & = & SST & + & SSE \\
+          &   &     &   &     \\
+\sum_{i=1}^k \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{\huge{\cdot \cdot}})^2 & = &
+\sum_{i=1}^k n_i (\bar{y}_{i \huge{\cdot}} - \bar{y}_{\huge{\cdot \cdot}})^2 & + &
+\sum_{i=1}^k \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{i \huge{\cdot}})^2 \, , 
+\end{array}$$
+
+<!--
+<center>
+<img SRC="eqns/anova4.gif" ALT="Total SS   = SST   +   SSE; 
+SUM[i=1 to k]SUM[j=1 to n(i)][(Y(ij) - ybar(..))**2 = 
+SUM[i=1 to k][n(i)*(ybar(i.) - ybar(..))**2 + SUM[i=1 to k][j=1 to n(i)][(y(ij) - ybar(i.)**2]" 
+height=117 width=341>
+</center>
+-->
+
+<p>
+where \(k\)
+<!-- <i>k</i> -->
+is the number of <i>treatments</i> and the bar over the \(y_{\huge{\cdot \cdot}}\)
+<!-- <i>y</i>..  -->
+denotes the "grand" or "overall" mean. Each \(n_i\)
+<!-- <i>n<sub>i</sub></i> -->
+is the number of observations for treatment \(i\).
+<!-- <i>i</i>.  -->
+The total number of observations is \(N\)
+<!-- <i>N</i>  -->
+(the sum of the \(n_i\)).
+<!-- <i>n<sub>i</sub></i>). -->
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>Note on subscripting</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+Don't be alarmed by the double subscripting.
+The \(SS(Total)\) can be written single or double subscripted. The double subscript
+stems from the way the data are arranged in the data table. The table is
+usually a rectangular array with \(k\)
+<!-- <i>k</i> -->
+columns and each column consists of \(n_i\)
+<!-- <i>n<sub>i </sub></i> -->
+rows (however, the lengths of the rows, or the \(n_i\),
+<!-- <i>n<sub>i</sub></i>, -->
+may be unequal).
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below --><i>Definition
+of "Treatment"</i></td>
+
+<td VALIGN=TOP WIDTH="85%"><!-- Add main text below -->
+We introduced the concept of treatment. The definition is: 
+<b><i>A treatment is a specific combination of factor levels whose 
+effect is to be compared with other treatments.</i></b>
+</td>
+</tr>
+
+   
+
+   
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="prc43.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="prc432.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

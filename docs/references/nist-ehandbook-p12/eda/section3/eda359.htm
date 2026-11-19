@@ -1,0 +1,387 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>1.3.5.9. F-Test for Equality of Two Variances</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="eda35a.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="eda3581.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">1.</FONT>
+<FONT COLOR="#00105A"><A HREF="../eda.htm">Exploratory Data Analysis</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda3.htm">EDA Techniques</a></FONT>
+<BR>
+<FONT COLOR="#D60021">1.3.5.</FONT>
+<FONT COLOR="#00105A"><A HREF="eda35.htm">Quantitative Techniques</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">1.3.5.9.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2><i>F</i>-Test for Equality of Two Variances</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+
+
+
+
+
+
+<!-----begin section: purpose -->
+
+<br>
+<tr>
+   <td width=15% valign=top>
+      <I>Purpose:<br>
+         Test if variances from two populations are equal
+      </I>
+   </td>
+   <td width=85% valign=top>
+      An <i>F</i>-test
+      (<a href="../section4/eda43.htm#Snedecor">Snedecor and Cochran,
+      1983</a>) is used to test if the variances of two
+      populations are equal.  This test can be a two-tailed test or a
+      one-tailed test.  The two-tailed version tests against the
+      alternative that the variances are not equal.
+      The one-tailed version only tests in one direction, that is
+      the variance from the first population is either
+      greater than or less than (but not both) the second population
+      variance.  The choice is determined by the problem.
+      For example, if we are testing a new process, we may only
+      be interested in knowing if the new process is less variable
+      than the old process.
+
+   </td>
+</tr>
+
+<!-----begin section: definition -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Definition
+      </I>
+   </td>
+   <td width=85% valign=top>
+      The <i>F</i> hypothesis test is defined as:
+      <table>
+
+      <tr>
+         <td>
+            H<sub>0</sub>: 
+         </td>
+         <td>
+            \( \sigma_{1}^{2} \) = \( \sigma_{2}^{2} \)
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            H<sub>a</sub>:
+         </td>
+         <td valign=top>
+            <table>
+              <tr>
+                 <td valign=top align=left>
+                    \( \sigma_{1}^{2} < \sigma_{2}^{2} \)
+                 </td>
+                 <td valign=top>
+                    &nbsp;&nbsp;&nbsp;
+                 </td>
+                 <td valign=top align=left>
+                    for a lower one-tailed test
+                 </td>
+              </tr>
+              <tr>
+                 <td valign=top align=left>
+                    \( \sigma_{1}^{2} > \sigma_{2}^{2} \)
+                 </td>
+                 <td valign=top>
+                    &nbsp;&nbsp;&nbsp;
+                 </td>
+                 <td valign=top align=left>
+                    for an upper one-tailed test
+                 </td>
+              </tr>
+              <tr>
+                 <td valign=top align=left>
+                    \( \sigma_{1}^{2} \ne \sigma_{2}^{2} \)
+                 </td>
+                 <td valign=top>
+                    &nbsp;&nbsp;&nbsp;
+                 </td>
+                 <td valign=top align=left>
+                    for a two-tailed test
+                 </td>
+              </tr>
+            </table>
+         </td>
+      </tr>
+      <tr>
+         <td valign=top>
+            Test<br>
+            Statistic:
+         </td>
+         <td>
+            <b><i>F =</i></b>
+            <!-- <img align=top src="eqns/ftest.gif" alt="s1**2/s2**2"> -->
+            \( s^{2}_{1}/s^{2}_{2} \)
+            <p>
+            where
+            <!-- <img align=top src="eqns/s1sq.gif" alt="s1**2"> -->
+            \({s^{2}_{1}}\) and
+            <!-- <img align=top src="eqns/s2sq.gif" alt="s2**2"> -->
+            \({s^{2}_{2}}\) and are the sample variances.  The more this
+            ratio deviates from 1, the stronger the evidence for unequal
+            population variances.
+         </td>
+      </tr>
+      <tr>
+         <td valign=top>
+            Significance<br>
+            Level:
+         </td>
+         <td valign=top>
+            <!-- <img src="eqns/alpha.gif" alt="alpha"> -->
+            <i>&alpha;</i>
+         </td>
+       </tr>
+      <tr>
+         <td valign=top>
+            Critical<br>
+            Region:
+         </td>
+         <td>
+            The hypothesis that the two variances are equal
+            is rejected if
+            <p>
+            <table>
+              <tr>
+                 <td valign=top align=left>
+                    \( F > F_{\alpha,N_1 - 1,N_2 - 1} \)
+                 </td>
+                 <td valign=top>
+                    &nbsp;&nbsp;
+                 </td>
+                 <td valign=top align=left>
+                    for an upper one-tailed test
+                 </td>
+              </tr>
+              <tr>
+                 <td valign=top align=left>
+                    \( F < F_{1 - \alpha,N_1 - 1,N_2 - 1} \)
+                 </td>
+                 <td valign=top>
+                    &nbsp;&nbsp;
+                 </td>
+                 <td valign=top align=left>
+                    for a lower one-tailed test
+                 </td>
+              </tr>
+              <tr>
+                 <td valign=top align=left>
+                    \( F < F_{1 - \alpha/2,N_1 - 1,N_2 - 1} \)
+                    <P>
+                    or
+                    <P>
+                    \( F > F_{\alpha/2,N_1 - 1,N_2 - 1} \)
+                 </td>
+                 <td valign=top>
+                    &nbsp;&nbsp;
+                 </td>
+                 <td valign=top align=left>
+                    for a two-tailed test
+                 </td>
+              </tr>
+            </table>
+            where 
+            <big><i>F</i></big><sub><i>&alpha;</i>, <i>N</i><sub>1</sub>-1,
+            <i>N</i><sub>2</sub>-1</sub> is the
+            <a href="eda3673.htm">critical value</a> of the
+            <a href="eda3665.htm"><i>F</i> distribution</a> with
+            <i>N</i><sub>1</sub>-1 and <i>N</i><sub>2</sub>-1
+            degrees of freedom and a significance level of <i>&alpha;</i>.
+            <p>
+            In the above formulas for the critical
+            regions, the Handbook follows the convention that
+            <big><i>F</i></big><sub><i>&alpha;</i></sub>
+            is the upper critical value from the <i>F</i> distribution
+            and <big><i>F</i></big><sub>1-<i>&alpha;</i></sub>
+            is the lower critical value from the
+            <i>F</i> distribution.  Note that this is the opposite of the
+            designation used by some texts and software programs.  
+         </td>
+      </tr>
+
+     </table>
+   </td>
+</tr>
+
+<!-----begin section: sample output -->
+
+<br>
+<tr>
+   <td width=15% valign=top>
+      <I>F Test Example</I>
+   </td>
+   <td width=85% valign=top>
+The following <I>F</I>-test was generated for the 
+<!-- <a href="eda3531.htm">AUTO83B.DAT</a> -->
+<a href="../../datasets/JAHANMI2.DAT">JAHANMI2.DAT</a>
+data set.  The data set contains 480 ceramic strength measurements
+for two batches of material.  The summary statistics for each batch
+are shown below.
+<PRE>
+BATCH 1:
+   NUMBER OF OBSERVATIONS      =      240
+   MEAN                        =    688.9987
+   STANDARD DEVIATION          =    65.54909
+  
+BATCH 2:
+   NUMBER OF OBSERVATIONS      =      240
+   MEAN                        =    611.1559
+   STANDARD DEVIATION          =    61.85425
+</PRE>
+We are testing the null hypothesis that the variances for
+the two batches are equal. 
+<PRE>
+H<SUB>0</SUB>:  &sigma;<SUB>1</SUB><sup>2</sup> = &sigma;<SUB>2</SUB><sup>2</sup> 
+H<SUB>a</SUB>:  &sigma;<SUB>1</SUB><sup>2</sup> &ne; &sigma;<SUB>2</SUB><sup>2</sup> 
+<P>
+Test statistic:  <I>F</I> = 1.123037
+Numerator degrees of freedom:  <I>N</I><SUB>1</SUB> - 1 = 239
+Denominator degrees of freedom:  <I>N</I><SUB>2</SUB> - 1 = 239
+Significance level:  <i>&alpha;</i> = 0.05
+Critical values:  <I>F</I>(1-<i>&alpha;</i>/2,<I>N</I><SUB>1</SUB>-1,<I>N</I><SUB>2</SUB>-1) = 0.7756
+                  <I>F</I>(<i>&alpha;</i>/2,<I>N</I><SUB>1</SUB>-1,<I>N</I><SUB>2</SUB>-1) = 1.2894
+Rejection region:  Reject H<SUB>0</SUB> if <I>F</I> < 0.7756 or <I>F</I> > 1.2894
+</PRE>
+The <I>F</I> test indicates that there is not enough evidence to 
+reject the null hypothesis that the two batch variancess are equal at 
+the 0.05 significance level. 
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-----begin section: questions -->
+<tr>
+   <td width=15% valign=top>
+      <I>Questions
+      </I>
+   </td>
+   <td width=85% valign=top>
+      The <i>F</i>-test can be used to answer the following
+      questions:
+      <OL>
+         <LI>Do two samples come from populations with equal
+             variancess?
+         <LI>Does a new process, treatment, or test
+             reduce the variability of the current process?
+      </OL>
+
+   </td>
+</tr>
+
+<!-----begin section: related techniques -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Related Techniques</I>
+   </td>
+   <td width=85% valign=top>
+      <a href="qqplot.htm">Quantile-Quantile Plot</a><br>
+      <a href="bihistog.htm">Bihistogram</a><br>
+      <a href="eda358.htm">Chi-Square Test</a><br>
+      <a href="eda357.htm">Bartlett's Test</a><br>
+      <a href="eda35a.htm">Levene Test</a> 
+
+   </td>
+</tr>
+
+<!-----begin section: case study -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Case Study</I>
+   </td>
+   <td width=85% valign=top>
+      <a href="../section4/eda42a.htm">Ceramic strength</a> data.
+   </td>
+</tr>
+
+<!-----begin section: Software -->
+
+<tr>
+   <td width=15% valign=top>
+      <I>Software</I>
+   </td>
+   <td width=85% valign=top>
+      The <i>F</i>-test for equality of two variances is
+      available in many general purpose statistical
+      software programs.  Both 
+      <a href="eda359.dp">Dataplot code</a> and 
+      <a href="eda359.r">R code</a> can be used to generate 
+      the analyses in this section.  These scripts use the
+      <a href="../../datasets/AUTO83B.DAT">AUTO83B.DAT</a> data file.
+
+   </td>
+</tr>
+
+<!-----end jjf----->
+
+
+
+
+
+
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="eda3581.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="eda35a.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+</HTML>
