@@ -18,5 +18,5 @@ export {
   SHEWHART_CONSTANTS, QC_MIN_SUBGROUP, QC_MAX_SUBGROUP, QC_ERRORS, QC_TYPES,
   sampleSd, individualsChart, xbarRChart, targetLimits, zScores, sRwFromChart,
 } from './qc.js';
-export { WESTGARD_RULES, WESTGARD_KIND, WESTGARD_FUNCTIONS, rule13s, rule22s, ruleR4s, rule41s, rule10x, westgard } from './westgard.js';
+export { WESTGARD_RULES, WESTGARD_KIND, WESTGARD_FUNCTIONS, rule13s, rule22s, ruleR4s, rule41s, rule10x, westgard, westgardMulti } from './westgard.js';
 export { INTERVAL_MIN_CALIBRATIONS, INTERVAL_ERRORS, intervalRecommendation } from './interval.js';

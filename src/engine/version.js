@@ -21,4 +21,4 @@
    2.8.0 — P11 (lab/ — etalonlar reestri, drift, CMC jadvali, QC kartalari, Westgard, kalibrlash intervali; linter L1, L2;
            settings.cmcRow / cmcRows + cmcX → CMC(X) avtomatik; typeB[].registry, typeB[].drift — byudjet qatorida nusxa.
            YANGI IMKONIYAT: yangi maydonlar ishlatilmagan hisoblarning natijasi 2.7.0 bilan bit darajasida bir xil). */
-export const ENGINE_VERSION = '2.8.0';
+export const ENGINE_VERSION = '2.8.1';

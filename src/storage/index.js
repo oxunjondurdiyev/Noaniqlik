@@ -28,6 +28,7 @@ export {
  *   ciMethod     — sifatli testlar ishonch intervali: 'wilson' (standart, AQA:2021) | 'clopper_pearson' (P10, R-21)
  *   criticalMode — U = 0, u_c = 0 yoki U < CMC bo'lgan natija: 'mark' (standart — hisobot aniq belgi bilan chiqadi) |
  *                  'block' (hisobot chop etilmaydi) (P05a, RISKS R-05). cmcMode: 'block' avvalgidek ishlaydi.
+ *   westgardGate — Westgard 1₂s darvozasi (Westgard 1981, 1-rasm): true (standart) | false — qoidalar mustaqil (P11, W-4)
  *   expiryWarnDays — etalon amal qilish muddati tugashiga necha kun qolganda ogohlantirish (linter L1, info; P11) — standart 30
  */
 export const LAB_DEFAULTS = Object.freeze({
@@ -36,6 +37,7 @@ export const LAB_DEFAULTS = Object.freeze({
   // 'delta5' (JCGM 101 §8.2, standart) yoki 'delta' (tushirilgan — hisobotda belgi bilan)
   mcMode: 'adaptive', mcNDig: 2, mcTolerance: 'delta5',
   expiryWarnDays: 30,
+  westgardGate: true,
 });
 export const LAB_SETTINGS_KEY = 'lab';
 

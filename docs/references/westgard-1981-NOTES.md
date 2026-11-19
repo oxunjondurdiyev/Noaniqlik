@@ -73,6 +73,6 @@ faqat grafikda, raqam yo'q — sonli test sifatida ishlatilmaydi, lekin ssenariy
 | W-1 | Chegara | "exceeds" | qat'iy `>` | mos |
 | W-2 | 1₃s, 2₂s (bir material ichida), 4₁s, 10ₓ ta'rifi | yuqorida | mos | mos |
 | W-3 | R₄s | seriya ichida, ikki material | `runs` bilan — mos; `runs` siz ketma-ket juftlik — loyiha yaqinlashuvi (R-25) | mos / belgilangan |
-| W-4 | **1₂s darvozasi** | seriyada ±2s dan oshish bo'lmasa — qabul, boshqa qoida tekshirilmaydi | barcha qoidalar mustaqil tekshiriladi → 4₁s yoki 10ₓ ±2s dan oshishsiz seriyani rad qiladi | **farq — egasi qarori kerak** |
-| W-5 | Materiallar bo'ylab ("across") qoidalar | 2₂s, 4₁s, 10ₓ ikki materialda | faqat bitta z-qator | **qamrab olinmagan** |
+| W-4 | **1₂s darvozasi** | seriyada ±2s dan oshish bo'lmasa — qabul, boshqa qoida tekshirilmaydi | 2.8.1: standart `gate: true` (maqoladagidek); laboratoriya sozlamasi `westgardGate: false` — mustaqil rejim, belgi bilan | **yopildi** (egasi qarori 2026-11-19) |
+| W-5 | Materiallar bo'ylab ("across") qoidalar | 2₂s, 4₁s, 10ₓ ikki materialda | 2.8.1: `westgardMulti` (dvigatel, testlar bilan); 3+ material — `generalized`; UI da kartalarni guruhlash — keyingi bosqich | **dvigatelda yopildi** |
 | W-6 | 10ₓ da aynan x̄ dagi nuqta | aytilmagan | ketma-ketlikni uzadi (R-25) | loyiha qarori |
