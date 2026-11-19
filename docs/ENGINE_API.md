@@ -644,7 +644,7 @@ Manba: JCGM 102:2011 (`docs/references/`). Modullar: `src/engine/multivariate/` 
 ### 13.4. Oshkor bo'lmagan model h(Y, X) = 0 (P07b, 2.9.0)
 
 ```js
-state.implicit = { unknowns: [{ name: 'θ', start: 20, unit: '°C', settings? }], equations: ['(1 + A*θ + B*θ^2)*R0 - r*RS'], tol?, maxIter? }
+state.implicit = { unknowns: [{ name: 'θ', start: 20, unit: '°C', settings? }], equations: ['(1 + A*θ + B*θ^2)*R0 - r*RS'], tol?, maxIter?, residualTol? }
 ```
 
 - Tenglama — kirishlar (`state.params`) va noma'lumlar nomidan ifoda, `= 0` ma'nosida; `"chap = o'ng"` ham qabul qilinadi. Tenglamalar soni = noma'lumlar soni. `uc-model/1` da ham `implicit` (bu holda `outputs` bo'sh bo'lishi mumkin).
@@ -652,7 +652,10 @@ state.implicit = { unknowns: [{ name: 'θ', start: 20, unit: '°C', settings? }]
 - **U_y** (§6.3.1.3, Eq. (8)–(10)): C_y·C = C_x LU (qisman tanlov) bilan; sezgirlik c = −C; so'ng Y_j = y_j + Σ c_ji·(X_i − x_i) chiziqli ekvivalenti mavjud yo'ldan (`evaluate` / `evaluateMultivariate`) o'tadi. C_y singular (bosh element < 10⁻¹³·max|C_y|) → `implicit_singular`.
 - Natija: m = 1 — bir o'lchovli natija (`symbol`, `formulaText` = tenglama); m > 1 — `mode: 'MULTIVARIATE'`. Ikkalasida `implicit: { equations, unknowns, start, y, iterations, residual, criterion, lastStep, tol, maxIter, Cy, Cx, sensitivity }`, `notes: [{ code: 'implicit_model' }]`, `secondOrder: null` (2-tartibli diagnostika yo'q), o'lchamlik tekshirilmaydi.
 - `monteCarlo()` → `{ error: 'implicit_mc_unsupported' }`.
-- API: `evaluateImplicit`, `isImplicit`, `newtonSolve`, `luSolve`, `IMPLICIT_DEFAULTS`, `IMPLICIT_ERRORS`.
+- **Qoldiq tekshiruvi** (egasi qarori 2026-11-19): yechimda |h_ℓ(y, x)| ≤ `residualTol`·(Σ_j |∂h_ℓ/∂Y_j|·s_j + Σ_i |∂h_ℓ/∂X_i|·|x_i|), standart 10⁻⁸; bajarilmasa `{ error: 'implicit_no_convergence', detail: 'residual' }`. Natijada `implicit.residualRel`, `implicit.residualTol`.
+- **U_y — Annex B (B.1 a–j)** (`annexB(Cy, Cx, Ux)` → `{ Uy, C, CyInvT }` yoki `{ error: 'cholesky' | 'singular' }`): R_xᵀR_x = U_x; C_x = Q_x·W_x; P·C_y = L·W_y; W_yᵀM₁ = I; L_yᵀM₂ = M₁; M₃ = Q_xᵀM₂; K = W_xᵀM₃; M = R_x·K; M → R; U_y = RᵀR. Ko'p chiqishda `covariance`, `correlation`, `coverageRegion` shu U_y dan. U_x singular (Cholesky yo'q) → LU yo'li (C = C_y⁻¹C_x, U_y = C·U_x·Cᵀ) va info topilmasi `implicit_lu_fallback` (linter MV2). `implicit.covarianceMethod`: `'annex-b'` | `'lu'`; `implicit.Uy` — matritsa. Sezgirlik koeffitsiyentlari (byudjet) har doim C_y·C = C_x sistemasidan (tuzilmaviy nollar saqlanadi). `implicit.covarianceMethod: 'lu'` kirishda — faqat solishtirish uchun (natijada `covarianceForced`).
+- **cond₁(C_y)** = ‖C_y‖₁·‖C_y⁻¹‖₁ — `implicit.cond`; hisobotda ko'rsatiladi (`sections.implicitLine`).
+- API: `evaluateImplicit`, `isImplicit`, `newtonSolve`, `luSolve`, `annexB`, `IMPLICIT_DEFAULTS` (`tol`, `maxIter`, `stagnationTol`, `residualTol`), `IMPLICIT_ERRORS`; `linalg.js`: `luFactor`, `qrHouseholder`, `norm1`.
 
 ### 13.5. `atan2` va eng kichik qamrov sohasi (P07b)
 
@@ -661,7 +664,11 @@ state.implicit = { unknowns: [{ name: 'θ', start: 20, unit: '°C', settings? }]
 
 ### 13.6. Qilinmagan (RISKS R-24)
 
-Oshkormas model uchun Monte-Karlo va UI kiritish shakli; eng kichik qamrov sohasi m > 2 uchun; ko'p chiqish + ko'p nuqta.
+Oshkormas model uchun Monte-Karlo (keyingi bosqich) va UI kiritish shakli; eng kichik qamrov sohasi m > 2 uchun; nuqtalar orasidagi birgalikdagi soha.
+
+### 13.7. Ko'p chiqish + ko'p nuqta (P07b; `src/report/summary.js`)
+
+Egasi qarori (2026-11-19): **yagona k yo'q**. `vectorSummaryRows(points)` → `[{ id, label, r, point, P, kp, kq, singular, outputs: [{ symbol, unit, y, U, k, uc, nuEff, rr }] }]` — U_j va k_j har bir chiqishning o'z bir o'lchovli natijasidan; birgalikdagi qamrov — faqat nuqtaning `coverageRegion` (k_p, JCGM 102:2011 §6.5); har bir nuqta alohida. `summaryRows` (skalyar, `multiPointCoverage`) vektor nuqtalarni olmaydi. `isVectorResult(r)`. Hisobot: `sections.vectorSummaryTable`, `vectorPointsSection`.
 
 ## 14. Laboratoriya jarayonlari (P11)
 

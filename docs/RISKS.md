@@ -35,7 +35,7 @@
 | R-17 | Me'yoriy hujjatlarning yarmi `docs/references/` da yo'q | Y | P01 |
 | R-18 | Bitta asbob korrelyatsiyasi: butun sertifikat U si r = 1 bilan — ayirma modellarida U kam baholanadi | Y | P04b (yopildi) |
 | R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; qoldiq — Firefox / Safari da bit darajasidagi takrorlanuvchanlik (P13), log-normal unverified | O | P06, P07 → P13 |
-| R-24 | Ko'p o'zgaruvchili modellar: P07b da oshkormas model, `atan2`, eng kichik soha (m = 2), shablon muharririda `outputs` bajarildi; qoldiq — oshkormas model uchun MCM va UI, m > 2 da eng kichik soha, ko'p chiqish + ko'p nuqta; loyiha qarorlari egasi tasdig'ini kutadi | O | P07, P07b → egasi qarori |
+| R-24 | Ko'p o'zgaruvchili modellar: P07b da oshkormas model (U_y — Annex B), `atan2`, eng kichik soha (m = 2), shablonda `outputs` / `implicit`, ko'p chiqish + ko'p nuqta bajarildi; egasi qarorlari (2026-11-19) kiritildi; qoldiq — oshkormas model uchun MCM (keyingi bosqich) va UI shakli, m > 2 da eng kichik soha, nuqtalararo soha; sonli tafsilotlar tasdiq kutadi | O | P07, P07b → egasi qarori |
 | R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); ochiq — tekshirilmagan manbalar (ISO/IEC 17025 §6.4–6.5, §7.7.1; NIST e-Handbook; Westgard — egasi PDF qo'shadi) | O | P11 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
 
@@ -291,28 +291,40 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 
 **P07 da topilgan, P06 ga ham tegishli (P13 ga):** Monte-Karlo natijasi **JS dvigateli versiyalari orasida bit darajasida bir xil emas**. O'lchov (2026-11-18): Node 22 va Chromium 157 da `Math.sin`, `cos`, `log`, `exp`, `atan`, `tan` ayrim argumentlarda oxirgi ikkilik xonada farq qiladi (`sqrt` va arifmetika — bir xil). Oqibat: R(0, 1) ketma-ketligi bir xil (faqat arifmetika), lekin Gauss kirishli (Box–Muller: ln, sin, cos) yoki trigonometrik modelli MCM natijalari ≈ 10⁻¹⁶ nisbiy (kvantillarda ≈ 10⁻¹²) farq qiladi — `jcgm101-9-2-2-mcm`, `jcgm102-9-2-2-mcm`, `jcgm102-9-4-mcm` da kuzatildi; `excel-gas-p2` (t va to'g'ri burchakli kirishlar) — aynan bir xil. Metrologik ahamiyati yo'q (yaxlitlangan natija o'zgarmaydi), lekin "bit darajasida takrorlanadi" da'vosi faqat **bir xil dvigatel versiyasi** ichida to'g'ri; `uc-calc/1` da MCM natijasini boshqa brauzerda qayta hisoblash "aynan bir xil emas" deb ko'rsatishi mumkin. **Variantlar (egasi qarori, P13):** (a) hozirgidek qoldirish, da'voni "bir xil muhitda" deb aniqlashtirish, qayta hisobda MCM uchun nisbiy tolerans (masalan 10⁻⁹); (b) ln / sin / cos ni dvigatelda o'z kodi bilan (faqat arifmetika, to'g'ri yaxlitlangan emas, lekin deterministik) — MCM raqamlari yana o'zgaradi, ENGINE major / minor. Vektor MCM modulli worker'da `script-src 'self'` ostida ishlashi Chromium 157 da tekshirildi (M = 2·10⁵, m = 3: ≈ 0,5 s, konsolda xato yo'q).
 
-**P07b natijasi (2026-11-18, `feat/p07b-multivariate-rest`, ENGINE 2.9.0).** Yuqoridagi jadvaldan **yopildi:** #1 oshkormas model (§6.3; §9.5 — Table 12–16 verified; §6.3.2 — oshkor yechim bilan tenglik), #2 eng kichik qamrov sohasi — **faqat m = 2** (§7.7.4 misoli verified), #3 `atan2` (§9.3 MCM, Table 6–7 verified); #5 ning yarmi — shablon muharririda `outputs`. Chromium da (mehmon yo'li) shablon muharriri sinab ko'rildi.
+**P07b natijasi (2026-11-19, `feat/p07b-multivariate-rest`, ENGINE 2.9.0).** Yuqoridagi jadvaldan **yopildi:** #1 oshkormas model (§6.3; §9.5 — Table 12–16 verified; §6.3.2 — oshkor yechim bilan tenglik), #2 eng kichik qamrov sohasi — **faqat m = 2** (§7.7.4 misoli verified), #3 `atan2` (§9.3 MCM, Table 6–7 verified); #5 ning yarmi — shablon muharririda `outputs`. Chromium da (mehmon yo'li) shablon muharriri sinab ko'rildi.
 
 **P07b dan keyin qolgan (qilinmagan):**
 
 | # | Nima | Sabab / oqibat |
 |---|---|---|
-| a | Oshkormas model uchun Monte-Karlo | har bir sinovda Nyuton yechimi kerak; `monteCarlo()` aniq xato qaytaradi (`implicit_mc_unsupported`) — GUM natijasi amal qiladi, §8 tekshiruvi yo'q |
-| b | Oshkormas modelni UI da kiritish shakli | `state.implicit` faqat hisob fayli (`uc-calc/1`), `uc-model/1` yoki API orqali; natija sahifasi va hisobot ishlaydi. Kirishlar ro'yxati yoki oshkor formula o'zgarsa `implicit` bekor bo'ladi (jimgina eski tenglama ishlatilmasin) |
+| a | Oshkormas model uchun Monte-Karlo — **keyingi bosqich** (egasi qarori 2026-11-19, 7-band) | har bir sinovda Nyuton yechimi kerak; `monteCarlo()` aniq xato qaytaradi (`implicit_mc_unsupported`) — GUM natijasi amal qiladi, §8 tekshiruvi yo'q |
+| b | Oshkormas modelni UI da kiritish shakli | `state.implicit` hisob fayli (`uc-calc/1`), `uc-model/1`, API yoki **shablon** (`implicit` bo'limi — JSON; muharrirda alohida shakl yo'q) orqali; natija sahifasi va hisobot ishlaydi. Kirishlar ro'yxati yoki oshkor formula o'zgarsa `implicit` bekor bo'ladi |
 | c | Oshkormas modelda 2-tartibli hadlar va o'lchamlik tahlili | chiziqli ekvivalent orqali hisoblanadi — diagnostika yo'q (`notes: implicit_model`) |
 | d | Eng kichik qamrov sohasi m > 2 | §7.7.4 Note 4: juda katta M talab qiladi; faqat ellipsoid va to'g'ri burchakli soha |
-| e | Ko'p chiqish + ko'p nuqta | vektor natijada "nuqtalar" paneli yo'q; yagona k qoidasi (COOMET) vektor natijaga qanday qo'llanishi — metrologik qaror kerak |
-| f | Bosma hisobot brauzerda qo'lda ko'rilmagan | jsdom testlari bor |
+| e | Ko'p chiqish + ko'p nuqta: **nuqtalar orasidagi birgalikdagi soha** | egasi qarori (8-band): "faqat so'ralganda" — hozircha hisoblanmaydi (nuqtalararo kovariatsiya modeli yo'q: umumiy etalon hissasini nuqtalar orasida ajratish kerak bo'ladi); hisobotda shunday yoziladi. Vektor nuqtalarda muvofiqlik ustuni umumiy jadvalda yo'q (har bir nuqtaning bo'limida) |
+| f | Ko'p chiqish + ko'p nuqta paneli va bosma hisobot **real brauzerda ko'rilmagan** | jsdom testlari bor (`tests/ui/multivariate.test.js`); sessiyada brauzer tekshiruvi ruxsat etilmadi |
+| g | Annex B dagi K = Cᵀ byudjet uchun ishlatilmaydi | ortogonal almashtirishlar tuzilmaviy nollarni ≈ 10⁻¹⁶·‖C‖ shovqinga aylantiradi (chiqishga ta'sir qilmaydigan kirish byudjetda paydo bo'lardi) — sezgirlik koeffitsiyentlari C_y·C = C_x sistemasidan (LU), U_y — Annex B dan |
 
-**P07b: egasi tasdig'ini kutayotgan loyiha qarorlari (PR "Egasidan qaror kerak"):**
+**P07b: egasi qarorlari (2026-11-19) — bajarildi:**
 
-1. **Nyuton yaqinlashish mezoni:** hozir — nisbiy qadam ≤ 10⁻¹² (s_j = max(|y_j|, |start_j|)) **yoki** turg'unlik (qadam yaxlitlash darajasida, ≤ 10⁻⁸ nisbiy, kichraymayapti); iteratsiya chegarasi 50. Muqobillar: qadam ≤ κ·u(y_j) (masalan κ = 10⁻⁶ — noaniqlikka nisbatan); qoldiq |h| bo'yicha.
-2. **Singularlik chegarasi:** LU bosh elementi < 10⁻¹³·max|C_y|.
-3. **U_y ni hisoblash yo'li:** LU bilan C = C_y⁻¹C_x, so'ng C·U_x·Cᵀ. Manba (§6.3.1.5) sonli barqarorlik uchun Annex B (ortogonal faktorizatsiya) ni tavsiya qiladi — kichik, yaxshi shartlangan masalalarda farq yo'q (§9.5.3 da 65 qiymat mos).
-4. **Boshlang'ich yaqinlashuv majburiy** (standart qiymat yo'q).
-5. **Eng kichik soha:** standart to'r 100 × 100 (M dan qat'i nazar); teng kataklar tartibi — indeks bo'yicha; chegaralovchi to'rtburchak — nuqtalarning min … max; har bir ikki chiqishli MCM da hisoblanadi.
-6. **§9.3 MCM testlari M = 3·10⁶ da** (manba 10⁷) — test vaqti uchun; tolerans shu M dagi o'lchangan tarqoqlikdan.
-7. **`outputs` qulflanadigan bo'limlar ro'yxatiga qo'shildi** (APPROVED shablonda o'zgartirish — faqat yangi versiya orqali).
+1. **Nyuton:** mezon o'zgarmadi (nisbiy qadam ≤ 10⁻¹² yoki turg'unlik ≤ 10⁻⁸; 50 iteratsiya) **+ yakunda qoldiq tekshiruvi**; yaqinlashmasa yoki qoldiq katta — `implicit_no_convergence` (`detail: 'residual'`).
+2. **Singularlik** 10⁻¹³·max|C_y| — qoldi; **cond₁(C_y)** natijada (`implicit.cond`) va hisobotda.
+3. **U_y — JCGM 102 Annex B (B.1 a–j)**; U_x ning Cholesky ko'paytuvchisi yo'q bo'lsa — LU yo'li ((10) + (9)) + info `implicit_lu_fallback` (MV2). Ikki yo'l §9.5.2 va §9.5.3 da 10⁻¹² nisbiy aniqlikda bir xil (test).
+4. **y⁽⁰⁾ majburiy**; shablon `implicit.unknowns[].start` bilan standart qiymat beradi, foydalanuvchi qiymati ustun.
+5. **To'r 100 × 100** standart, `smallestMesh` (10…500) bilan sozlanadi, hisobotda yoziladi.
+6. **§9.3 testlari M = 3·10⁶** da qoladi.
+7. Oshkormas model MCM — keyingi bosqich (yuqorida a).
+8. **Ko'p chiqish + ko'p nuqta:** yagona k yo'q; U_j — chiqishning o'z bir o'lchovli qoidasi bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p, §6.5); har bir nuqta alohida.
+
+**P07b: shu qarorlarni bajarishda tanlangan sonli tafsilotlar — egasi tasdig'ini kutadi:**
+
+1. **Qoldiq chegarasi va masshtabi:** |h_ℓ| ≤ 10⁻⁸·(Σ_j |∂h_ℓ/∂Y_j|·max(|y_j|, |y_j⁽⁰⁾|) + Σ_i |∂h_ℓ/∂X_i|·|x_i|) (`IMPLICIT_DEFAULTS.residualTol`, `implicit.residualTol` bilan sozlanadi). Egasi "qoldiq katta" uchun son bermagan. Muqobillar: mutlaq chegara; qoldiqqa mos qadam ≤ κ·u(y_j).
+2. **Shart soni — 1-norma** (cond₁ = ‖C_y‖₁·‖C_y⁻¹‖₁; aniq hisoblanadi). Muqobil: 2-norma (singulyar qiymatlar nisbati).
+3. **Sezgirlik koeffitsiyentlari LU dan, U_y Annex B dan** (yuqorida g). Bitta chiqishda u_c — byudjet yig'indisi (JCGM 100 §5); Annex B qiymati `implicit.Uy` da — farq yaxlitlash darajasida (≤ 10⁻¹² nisbiy, test).
+4. **Annex B c) da qatorlarni tanlash** (P·C_y = L·W_y) — manbada aytilmagan, sonli barqarorlik uchun.
+5. **Vektor nuqtalarda "yagona k" katagi ko'rsatilmaydi**; skalyar va vektor nuqtalar aralash saqlansa — har biri o'z jadvalida.
+6. **Shablonda `implicit`:** `model.formula` bo'sh bo'lishi shart, `variants` va `outputs` bilan birga ishlatilmaydi, birinchi noma'lum = `measurand.symbol`; `implicit` APPROVED da qulflangan.
+7. **`outputs` qulflanadigan bo'limlar ro'yxatida** (avvalgi 7-band — javobsiz qolgan).
 
 **Egasi tasdig'ini kutayotgan loyiha qarorlari (P07):**
 

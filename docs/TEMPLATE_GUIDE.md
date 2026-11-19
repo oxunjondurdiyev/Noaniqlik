@@ -297,3 +297,20 @@ Bir o'lchashdan bir nechta kattalik olinsa (masalan R, X, Z — JCGM 100 H.2), s
 ### 12.1. Muharrirda qo'shimcha chiqishlar (P07b)
 
 Shablon muharririda (GUM rejimi) "Qo'shimcha chiqish kattaliklari" jadvali bor: har bir qator — belgi, birlik, formula va nom. "Chiqish qo'shish" band bo'lmagan belgi bilan (`y2`, `y3` …) bo'sh qator ochadi; belgi o'zgarsa formulaning chap tomoni ham yangilanadi; oxirgi qator o'chirilsa `outputs` maydoni olib tashlanadi. Tekshiruv (`checkTemplate`): belgi takrorlanmasligi va kirish / konstanta belgisi bilan to'qnashmasligi, formula tahlil qilinishi va faqat ma'lum belgilardan iborat bo'lishi, formulaning chap tomoni belgiga mos kelishi. APPROVED shablonda `outputs` qulflangan — o'zgartirish faqat yangi versiya orqali. Formulalarda `atan2(y; x)` ishlatish mumkin (masalan, faza). Raqamlar (kuzatuv, yarim kenglik) avvalgidek qo'shilmaydi.
+
+### 12.2. Oshkor bo'lmagan model h(Y, X) = 0 (P07b; JCGM 102:2011 §6.3)
+
+```json
+"measurand": { "symbol": "θ", "name": { … }, "unit": "°C" },
+"model": { "formula": "" },
+"implicit": {
+  "unknowns": [{ "symbol": "θ", "unit": "°C", "start": 20 }],
+  "equations": ["(1 + A*θ + B*θ^2)*R0 - r*RS"]
+}
+```
+
+- `equations` — tenglamalar (`= 0` ma'nosida yoki "chap = o'ng"); soni `unknowns` soniga teng. Birinchi noma'lum — `measurand.symbol`. Bir nechta noma'lum → vektor natija.
+- `start` — boshlang'ich yaqinlashuv y⁽⁰⁾ ning **standart** qiymati (egasi qarori 2026-11-19): y⁽⁰⁾ majburiy, shablon standart qiymat bera oladi; foydalanuvchi qiymati (`data.implicitStart = { θ: 25 }`) ustun. Shablonda ham, foydalanuvchida ham bo'lmasa — hisob `implicit_bad_start` xatosi bilan to'xtaydi (dastur o'ylab topmaydi).
+- `model.formula` bo'sh bo'ladi; `variants` va `outputs` bilan birga ishlatilmaydi. Har bir kirish va har bir noma'lum kamida bitta tenglamada qatnashishi shart (`checkTemplate`).
+- `implicit` — qulflanadigan bo'lim (APPROVED shablonda o'zgartirish faqat yangi versiya orqali). Muharrirda alohida shakl yo'q — JSON maydoni orqali kiritiladi.
+- U_y — JCGM 102 Annex B bo'yicha; hisobotda Nyuton iteratsiyalari, nisbiy qoldiq va cond₁(C_y) ko'rsatiladi. Monte-Karlo qo'llab-quvvatlanmaydi.

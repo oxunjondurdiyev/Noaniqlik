@@ -91,6 +91,7 @@ Bu qoidalar `evaluate()` natijasida chiqmaydi (9 ta etalon nuqtaning GUM topilma
 |---|---|---|---|---|
 | MV1 | `outputs_correlated` | info | chiqishlar juftida \|r(y_i, y_j)\| > 0,5 — natijalar birgalikda ishlatilsa kovariatsiya hisobga olinishi kerak | JCGM 102:2011 §6.5.2.3 a), EXAMPLE 2; §7.8.2.4 (chegara — loyiha qarori, §4 #24) |
 | MV1 | `outputs_singular` | info | U_y singular (λ_min / λ_max < 10⁻⁹) — chiqishlar chiziqli bog'liq; ellipsoid past o'lchamli | JCGM 102:2011 §9.4.2.3 Note 2, §7.8.1.2 Note 6 (chegara — loyiha qarori) |
+| MV2 | `implicit_lu_fallback` | info | oshkor bo'lmagan model: U_x ning Cholesky ko'paytuvchisi yo'q (U_x singular) — U_y Annex B o'rniga C = C_y⁻¹C_x, U_y = C·U_x·Cᵀ bilan hisoblangan; topilmada cond₁(C_y). Rejimlar: `GUM`, `MULTIVARIATE` | JCGM 102:2011 §6.3.1.5, Annex B (egasi qarori 2026-11-19) |
 
 ### 2.2c. Laboratoriya reestri qoidalari (P11; rejim `GUM`)
 
@@ -160,6 +161,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 22 | M3 — **egasi qarori (2026-11-18)** | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; GUM tekshiruvida MCM toleransi **δ/5** (§8.2), oddiy MCM da δ; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
 | 23 | M4 — **egasi qarori (2026-11-18)** | `mc_variance_undefined` chegarasi ν ≤ 2; warning; bunday kirishda mezon avtomatik faqat interval uchlari, u(y) berilmaydi. `mc_not_converged` — adaptiv M chegarasi **yoki** qat'iy M da tekshiruv toleransiga erishilmagani | §7.6 Note 2: "fewer than three degrees of freedom" |
 | 24 | MV1 (P07) — **egasi tasdig'ini kutadi** | \|r\| > **0,5** → info (`outputs_correlated`); singular chegarasi λ_min / λ_max < 10⁻⁹ → info (`outputs_singular`) | JCGM 102 da son yo'q; 0,5 — X4 dagi chegara bilan bir xil olindi |
+| 24a | MV2 (P07b) — **egasi qarori (2026-11-19)** | U_x singular → LU yo'li + **info** `implicit_lu_fallback` | JCGM 102 §6.3.1.5: (10) + (9) yo'li "not recommended"; daraja haqida manbada hech narsa yo'q |
 
 **P11 — egasi tasdiqladi (2026-11-18):**
 

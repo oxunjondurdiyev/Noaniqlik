@@ -23,5 +23,6 @@
            YANGI IMKONIYAT: yangi maydonlar ishlatilmagan hisoblarning natijasi 2.7.0 bilan bit darajasida bir xil).
    2.9.0 — P07b (JCGM 102:2011: oshkor bo'lmagan model h(Y, X) = 0 — §6.3; atan2 — §9.3; eng kichik qamrov sohasi — §7.7.4,
            ikki chiqish. YANGI IMKONIYAT: mavjud bitta va ko'p chiqishli natijalar 2.8.0 bilan bit darajasida bir xil;
-           ikki chiqishli MCM natijasiga yangi maydon coverageRegion.smallest qo'shiladi). */
+           ikki chiqishli MCM natijasiga yangi maydon coverageRegion.smallest qo'shiladi.
+           Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)). */
 export const ENGINE_VERSION = '2.9.0';

@@ -319,8 +319,14 @@ Manba — JCGM 102:2011 (repoda). Sahifa raqamlari — PDF bo'yicha, test misoll
 | Eng kichik qamrov sohasi (§7.7.4 a–g), m = 2; misol (p. 31): yuz 9,4; 950 074 nuqta | `smallestRegion` | `tests/engine/multivariate.test.js` | ✅ verified (9,35; 950 0xx). m > 2 — ❌ qilinmagan |
 | Shablon muharririda `outputs`: qo'shish / tahrirlash / o'chirish / tekshiruv / qulf | `src/ui/tpl/outputs.js`, `checkTemplate` | `tests/templates/outputs-editor.test.js` | ✅ (jsdom + Chromium da qo'lda) |
 | `uc-calc/1` da `implicit`: eksport → import → qayta hisob | `src/io/calc-state.js` | `tests/io/calc-json.test.js` | ✅ |
-| Mavjud natijalar o'zgarmagan (P07b) | `evaluate`, `monteCarlo` | 83 + 26 natija `ada88d9` bilan bit darajasida bir xil (nazorat skripti) | ✅ |
-| Oshkormas model uchun MCM; eng kichik soha m > 2; ko'p chiqish + ko'p nuqta | — | — | ❌ qilinmagan (R-24) |
+| U_y — Annex B (B.1 a–j, p. 61); §6.3.1.5 (p. 18): (10) + (9) "not recommended" | `annexB`, `luFactor`, `qrHouseholder` | `tests/engine/implicit.test.js` | ✅ §9.5.2 va §9.5.3 da LU yo'li bilan ≤ 10⁻¹² nisbiy; Eq. (8) to'g'ridan-to'g'ri tekshirilgan; Table 15–16 dagi 65 qiymat o'zgarmagan |
+| U_x singular → LU yo'li + info `implicit_lu_fallback` (MV2) | linter MV2 | `implicit.test.js` (ijobiy / salbiy), `tests/ui/multivariate.test.js` | ✅ (egasi qarori 2026-11-19) |
+| Nyutondan keyin qoldiq tekshiruvi → `implicit_no_convergence` (`residual`) | `evaluateImplicit` | `implicit.test.js` | ✅ (chegara 10⁻⁸ va masshtab — loyiha qarori, tasdiq kutadi) |
+| cond₁(C_y) natijada va hisobotda | `evaluateImplicit`, `sections.implicitLine` | `implicit.test.js` (qo'lda hisob: 21), `tests/ui/multivariate.test.js` | ✅ |
+| Shablonda `implicit`; standart y⁽⁰⁾, foydalanuvchi qiymati ustun, yo'q bo'lsa xato | sxema, `checkTemplate`, `buildState` | `tests/templates/implicit.test.js` | ✅ (natija dvigatelning to'g'ridan-to'g'ri chaqiruvi bilan aynan bir xil) |
+| Ko'p chiqish + ko'p nuqta: yagona k yo'q; U_j — o'z k_j bilan; birgalikda — faqat k_p (§6.5) | `vectorSummaryRows`, `vectorPointsSection` | `tests/ui/multivariate.test.js` | ✅ (egasi qarori 2026-11-19); real brauzerda ko'rilmagan |
+| Mavjud natijalar o'zgarmagan (P07b) | `evaluate`, `monteCarlo` | 83 + 26 natija asosiy branch (`97e7586`, 2.8.0) bilan bit darajasida bir xil (nazorat skripti) | ✅ |
+| Oshkormas model uchun MCM; eng kichik soha m > 2; nuqtalar orasidagi birgalikdagi soha | — | — | ❌ qilinmagan (R-24) |
 
 
 ## 14. P11: laboratoriya jarayonlari (`src/engine/lab/`, `src/storage/registry.js`, `src/io/registry.js`)

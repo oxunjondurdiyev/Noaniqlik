@@ -4,9 +4,9 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
-## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-18)
+## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-19)
 
-**ENGINE_VERSION: 2.8.0 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi 2.7.0 (`ada88d9`) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.
+**ENGINE_VERSION: 2.8.0 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi 2.8.0 (`97e7586`) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.
 
 ### Qo'shilganlar
 
@@ -24,6 +24,15 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - §6.3.2 Example 1, 2: manbada raqam yo'q — oshkor va oshkormas yondashuv natijalari tengligi bilan tekshirilgan.
 - Farq: **D-21** — §9.5.2.6 da C_x ning uchinchi elementi "4.01 Ω°C²" deb bosilgan (4,01·10⁴ bo'lishi kerak; yakuniy natija mos).
 - Jami: 90 verified, 2 unverified.
+
+### Egasi qarorlari (2026-11-19) — shu versiyada
+
+- **U_y — JCGM 102:2011 Annex B (B.1 a–j)** (`annexB`; §6.3.1.5: (10) + (9) yo'li "not recommended"). U_x ning Cholesky ko'paytuvchisi yo'q bo'lsa — LU yo'li + info topilmasi `implicit_lu_fallback` (linter **MV2**). Ikki yo'l §9.5.2 va §9.5.3 da ≤ 10⁻¹² nisbiy aniqlikda bir xil (test). Ko'p chiqishli oshkormas natijada `covariance` / `correlation` / `coverageRegion` endi Annex B dan (avvalgi commit'dagi LU qiymatidan ≈ 10⁻¹⁵ nisbiy farq; Table 15–16 dagi 65 qiymat o'zgarmadi). Sezgirlik koeffitsiyentlari (byudjet) — C_y·C = C_x sistemasidan.
+- **Nyutondan keyin qoldiq tekshiruvi:** |h(y, x)| masshtabga nisbatan 10⁻⁸ dan katta → `implicit_no_convergence` (`detail: 'residual'`); `implicit.residualRel`.
+- **cond₁(C_y)** — `implicit.cond`, hisobotda (ekran, bosma, vektor bo'lim) ko'rsatiladi.
+- **Shablonda `implicit`** (sxema, `checkTemplate`, `buildState`): standart y⁽⁰⁾ (`start`), foydalanuvchi qiymati ustun; hech biri bo'lmasa — `implicit_bad_start`.
+- **Ko'p chiqish + ko'p nuqta:** yagona k yo'q; U_j — har bir chiqishning o'z bir o'lchovli qoidasi bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p, §6.5); har bir nuqta alohida (`vectorSummaryRows`, nuqtalar paneli, bosma hisobot). Nuqtalar orasidagi soha hisoblanmaydi.
+- Tasdiqlandi, o'zgarishsiz: Nyuton mezoni, singularlik chegarasi 10⁻¹³·max|C_y|, y⁽⁰⁾ majburiy, to'r 100 × 100 (sozlanadi, hisobotda), §9.3 testlari M = 3·10⁶. Oshkormas model MCM — keyingi bosqich.
 
 ## [2.8.0] — P11: etalonlar reestri, drift, CMC jadvali, QC kartalari, kalibrlash intervali (2026-11-18)
 

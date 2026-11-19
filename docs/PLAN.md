@@ -155,7 +155,7 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P07 — Ko'p o'zgaruvchili modellar (JCGM 102:2011)
 
-> **P07b (2026-11-18, `feat/p07b-multivariate-rest`, ENGINE_VERSION 2.9.0):** R-24 qoldiqlari — oshkor bo'lmagan model h(Y, X) = 0 (§6.3; §9.5 verified), `atan2` (§9.3 MCM verified), eng kichik qamrov sohasi (m = 2, §7.7.4 verified), shablon muharririda `outputs`. Qolgan: oshkormas model uchun MCM va UI, m > 2, ko'p chiqish + ko'p nuqta (R-24).
+> **P07b (2026-11-18, `feat/p07b-multivariate-rest`, ENGINE_VERSION 2.9.0):** R-24 qoldiqlari — oshkor bo'lmagan model h(Y, X) = 0 (§6.3; §9.5 verified), `atan2` (§9.3 MCM verified), eng kichik qamrov sohasi (m = 2, §7.7.4 verified), shablon muharririda `outputs`. **Egasi qarorlari (2026-11-19) kiritildi:** U_y — Annex B (U_x singular → LU + info MV2), Nyutondan keyin qoldiq tekshiruvi, cond₁(C_y) hisobotda, shablonda `implicit` (standart y⁽⁰⁾), ko'p chiqish + ko'p nuqta (yagona k yo'q; birgalikda — faqat k_p). Qolgan: oshkormas model uchun MCM (keyingi bosqich) va UI shakli, m > 2, nuqtalararo soha (R-24).
 >
 > **Holat: bajarildi (2026-11-18, `feat/p07-multivariate`, ENGINE_VERSION 2.7.0).** Vektor LPU (`src/engine/multivariate/`), qamrov sohasi (ellipsoid, to'g'ri burchakli), ko'p o'lchovli MCM (adaptiv §7.8, tekshiruv §8), ko'p o'lchovli t (§5.3.2 — Q-6 yopildi), `outputs[]`, hisobot / UI, MV-01, linter MV1. Verified: JCGM 102 Table 1–7 (GUF), 11; JCGM 100 H.2. **Qilinmagan (R-24):** oshkormas modellar (§6.3, §9.5), eng kichik qamrov sohasi (§7.7.4), `atan2` (§9.3 MCM). **Egasi qarori kerak:** MV1 chegarasi 0,5; r ni ko'rsatish formati.
 
