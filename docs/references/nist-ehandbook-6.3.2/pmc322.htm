@@ -1,0 +1,424 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>6.3.2.2. Individuals Control Charts</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="pmc323.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="pmc321.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">6.</FONT>
+<FONT COLOR="#00105A"><A HREF="../pmc.htm">Process or Product Monitoring and Control</a></FONT>
+<BR>
+<FONT COLOR="#D60021">6.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="pmc3.htm">Univariate and Multivariate Control Charts</a></FONT>
+<BR>
+<FONT COLOR="#D60021">6.3.2.</FONT>
+<FONT COLOR="#00105A"><A HREF="pmc32.htm">What are Variables Control Charts?</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">6.3.2.2.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Individuals Control Charts</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b><font size=+1>Samples are Individual Measurements</font></b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>Moving range used to derive upper and lower limits</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+Control charts for individual measurements, e.g., the sample
+size = 1, use the <i>moving range</i> of two successive observations
+to measure the process variability.
+<p>
+The moving range is defined as
+
+$$ MR_i = |x_i - x_{i-1}| \, , $$
+
+<!--
+<p>
+<img SRC="eqns/movrange.gif" height=22 width=214
+     ALT="MR(i) = |x(i) - x(i-1)|">
+<p>
+-->
+which is the absolute value of the first difference (e.g., the
+difference between two consecutive data points) of the data.
+Analogous to the Shewhart control chart, one can plot both the data
+(which are the individuals) and the moving range.
+
+</TD>
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Individuals control limits for an observation
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+For the control chart for individual measurements, the lines plotted
+are:
+
+$$ \begin{eqnarray}
+UCL & = & \bar{x} + 3\frac{\overline{MR}}{1.128} \\
+\mbox{Center Line} & = & \bar{x} \\
+LCL & = & \bar{x} - 3\frac{\overline{MR}}{1.128} \, ,
+\end{eqnarray} $$
+
+<!--
+<ul>
+<img SRC="eqns/mrucl.gif" 
+     ALT="UCL = Xbar + 3*(MRbar/1.128">
+<p>
+<img SRC="eqns/xbarcl2.gif" ALT="Center Line = Xbar">
+<p>
+<img SRC="eqns/mrlcl.gif" 
+     ALT="LCL = Xbar - 3*(MRbar/1.128">
+</ul>
+<p>
+-->
+where \(\bar{x}\)
+<!-- <img align=absmiddle src="eqns/xbar.gif" alt="xbar"> -->
+is the average of all the individuals and \(\overline{MR}\)
+<!-- <img align=absmiddle src="eqns/mrbar.gif" alt="MRbar"> -->
+is the average of all the moving ranges of two observations.  Keep in
+mind that either or both averages may be replaced by a standard or
+target, if available.  (Note that 1.128 is the value of \(d_2\) for \(n = 2\).
+<!-- <i>d</i><sub>2</sub> for <i>n</i> = 2). -->
+<!-- <img SRC="eqns/mrctl.gif" height=217 width=381> -->
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Example of moving range
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The following example illustrates the control chart for individual
+observations.  A new process was studied in order to monitor flow
+rate.  The first 10 batches resulted in
+<p>
+<center>
+<table noborder width=300>
+<tr>
+   <td colspan=3>
+      <hr noshade>
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      Batch<br>
+      Number
+   </td>
+   <td valign=top align=center width=50>
+      Flowrate<br>
+      x
+   </td>
+   <td valign=top align=center width=50>
+      Moving Range<br>
+      MR
+   </td>
+</tr>
+<tr>
+   <td colspan=3>
+      <hr noshade>
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      1
+   </td>
+   <td valign=top align=center width=50>
+      49.6
+   </td>
+   <td valign=top align=center width=50>
+      &nbsp
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      2
+   </td>
+   <td valign=top align=center width=50>
+      47.6
+   </td>
+   <td valign=top align=center width=50>
+      2.0
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      3
+   </td>
+   <td valign=top align=center width=50>
+      49.9
+   </td>
+   <td valign=top align=center width=50>
+      2.3
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      4
+   </td>
+   <td valign=top align=center width=50>
+      51.3
+   </td>
+   <td valign=top align=center width=50>
+      1.4
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      5
+   </td>
+   <td valign=top align=center width=50>
+      47.8
+   </td>
+   <td valign=top align=center width=50>
+      3.5
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      6
+   </td>
+   <td valign=top align=center width=50>
+      51.2
+   </td>
+   <td valign=top align=center width=50>
+      3.4
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      7
+   </td>
+   <td valign=top align=center width=50>
+      52.6
+   </td>
+   <td valign=top align=center width=50>
+      1.4
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      8
+   </td>
+   <td valign=top align=center width=50>
+      52.4
+   </td>
+   <td valign=top align=center width=50>
+      0.2
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      9
+   </td>
+   <td valign=top align=center width=50>
+      53.6
+   </td>
+   <td valign=top align=center width=50>
+      1.2
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      10
+   </td>
+   <td valign=top align=center width=50>
+      52.1
+   </td>
+   <td valign=top align=center width=50>
+      1.5
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      &nbsp;
+   </td>
+   <td valign=bottom align=center width=50>
+      \(\bar{x} = 50.81\)
+      <!-- <img align=bottom src="eqns/xbar.gif" alt="Xbar"> = 50.81 -->
+   </td>
+   <td valign=center align=center width=50>
+      \(\overline{MR} = 1.8778\)
+      <!-- <img align=bottom src="eqns/mrbar.gif" alt="MRbar"> = 1.8778 -->
+   </td>
+</tr>
+</table>
+</center>
+<!-- <img SRC="eqns/mrctl3.gif" height=312 width=362> -->
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>Limits for the moving range chart</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+This yields the parameters below.
+
+$$ \begin{eqnarray}
+UCL & = & \bar{x} + 3\frac{\overline{MR}}{1.128} = 50.81 + 3\frac{1.8778}{1.128} = 55.8041 \\
+ & & \\
+ & & \\
+\mbox{Center Line} & = & \bar{x} = 50.81 \\
+ & & \\
+LCL & = & \bar{x} - 3\frac{\overline{MR}}{1.128} = 50.81 - 3\frac{1.8778}{1.128} = 45.8159 \, .
+\end{eqnarray} $$
+
+<!--
+<p>
+<ul>
+<img SRC="eqns/mrucl2.gif" ALT=
+"UCL = Xbar + 3*(MRbar/1.128 = 50.81 + 3*(1/8778/1.128) = 55.8041">
+<p>
+<img SRC="eqns/xbarcl3.gif" ALT="Center Line = Xbar = 50.81">
+<p>
+<img SRC="eqns/mrlcl2.gif" ALT=
+"LCL = Xbar - 3*(MRbar/1.128 = 50.81 - 3*(1/8778/1.128) = 45.8159">
+</ul>
+-->
+<!-- <img SRC="eqns/mrctl4.gif" height=124 width=445> -->
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>Example of individuals chart</i>
+</td>
+
+<td WIDTH="85%"><!-- Add main text below -->
+The control chart is given below
+<p>
+<img SRC="gifs/plot1.gif" height=300 width=438
+     ALT="Control chart for individuals from above table">
+<p>
+The process is in control, since none of the plotted points fall
+outside either the \(UCL\) or \(LCL\).
+<!-- <i>UCL</i> or <i>LCL</i>. -->
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Alternative for constructing individuals control chart
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>Note:</b> Another way to construct the individuals chart is by
+using the standard deviation.  Then we can obtain the chart from
+
+$$ \bar{x} \pm 3s/c_4 \, .$$
+
+<ul>
+<!-- <img SRC="eqns/mrctl5.gif" height=66 width=40 -->
+<!--
+<img SRC="eqns/mrctl5new.gif" ALT="Xbar +/- 3*s/c4">
+</ul>
+-->
+It is preferable to have the limits computed this way for the
+start of Phase 2.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="pmc321.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="pmc323.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

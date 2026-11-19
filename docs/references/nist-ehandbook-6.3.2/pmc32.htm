@@ -1,0 +1,580 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>6.3.2. What are Variables Control Charts?</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="pmc321.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="pmc31.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">6.</FONT>
+<FONT COLOR="#00105A"><A HREF="../pmc.htm">Process or Product Monitoring and Control</a></FONT>
+<BR>
+<FONT COLOR="#D60021">6.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="pmc3.htm">Univariate and Multivariate Control Charts</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">6.3.2.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>What are Variables Control Charts?</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+</td>
+
+<td WIDTH="85%"><!-- Add main text below -->
+During the 1920's, Dr. Walter A. <a NAME="Shewhart"></a>Shewhart
+proposed a general model for control charts as follows:
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>Shewhart Control Charts for variables</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+Let \(w\)
+<!-- <i>w</i> -->
+be a sample statistic that measures some continuously
+varying quality characteristic of interest (e.g., thickness), and
+suppose that the mean of \(w\)
+<!-- <i>w</i> -->
+is \(\mu_w\),
+<!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"><sub>w</sub>, -->
+with a standard deviation of \(\sigma_w\).
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"><sub>w</sub>. -->
+Then the center line, the \(UCL\), and the \(LCL\) are
+<ul>
+    \(UCL = \mu_w + k \sigma_w\)
+    <!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"><sub>w</sub>
+    &nbsp; + <i>k</i><img align=absmiddle src="eqns/sigma.gif"
+    alt="sigma"><sub>w</sub> -->
+    <br>
+    Center Line = \(\mu_w\)
+    <!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"><sub>w</sub> -->
+    <br>
+    \(LCL = \mu_w - k \sigma_w\)
+    <!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"><sub>w</sub>
+    &nbsp; - <i>k</i><img align=absmiddle src="eqns/sigma.gif"
+    alt="sigma"><sub>w</sub> -->
+</ul>
+where \(k\)
+<!-- <i>k </i> -->
+is the distance of the control limits from the center
+line, expressed in terms of standard deviation units.  When \(k\)
+<!-- <i>k</i> -->
+is set to 3, we speak of 3-sigma control charts.
+<p>
+<i>Historically, \(k = 3\) has become an accepted standard in
+industry</i>.
+<p>
+The centerline is the process mean, which in general is unknown. We
+replace it with a <i>target</i> or the average of all the data.
+The quantity that we plot is the sample average, \(\overline{X}\).
+<!-- <img SRC="eqns/xbar.gif" height=17 width=14 alt="Xbar">. -->
+The chart is called the \(\overline{X}\) 
+<!-- <img SRC="eqns/xbar.gif" height=17 width=14 alt="Xbar"> -->
+chart.
+<p>
+We also have to deal with the fact that \(\sigma\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+is, in general, unknown. Here we replace \(\sigma_w\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"><sub>w</sub> -->
+with a given standard value, or we estimate it by a function of
+the <i>average</i> <i>standard deviation</i>.  This is obtained by
+averaging the individual standard deviations that we calculated
+from each of \(m\)
+<!-- <i>m</i> -->
+preliminary (or present) samples, each of size \(n\).
+<!-- <i>n.</i> -->
+This function will be discussed shortly.
+<p>
+It is equally important to examine the standard deviations in
+ascertaining whether the process is in control.  There is,
+unfortunately, a slight problem involved when we work with the
+usual estimator of \(\sigma\).
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma">. -->
+The following discussion will illustrate this.
+
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>Sample Variance</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+If \(\sigma^2\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"><sup>2</sup> -->
+is the unknown variance of a probability distribution, then an
+unbiased estimator of \(\sigma^2\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"><sup>2</sup> -->
+is the <u>sample</u> variance,
+
+$$ s^2 = \frac{\sum_{i=1}^n \left( x_i - \overline{x} \right)^2}{n-1} \, . $$
+
+<!-- 
+<center>
+<img SRC="eqns/sampvar.gif" height=110 width=108
+     ALT="s**2 = SUM[i=1 to n][(x(i) - xbar)**2/(n-1)]">
+</center>
+-->
+However, \(s\),
+<!-- <i>s</i>, -->
+the sample standard deviation, is <i>not</i> an unbiased estimator of \(\sigma\).
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma">.  -->
+If the underlying distribution is normal, then \(s\)
+<!-- <i>s</i> -->
+actually estimates \(c_4 \cdot \sigma\),
+<!-- <i>c<sub>4</sub></i> <img align=absmiddle src="eqns/sigma.gif" alt="sigma">, -->
+where \(c_4\)
+<!-- <i>c<sub>4</sub></i><sub></sub> -->
+is a constant that depends on the sample size \(n\).
+<!-- <i>n</i>. -->
+This constant is tabulated in most text books
+on statistical quality control and may be calculated using
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<a NAME="C4">\(c_4\) <!-- </a><i>C<sub>4</sub> --> factor</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+$$ c_4 = \sqrt{\frac{2}{n-1}} \frac{ \left( \frac{n}{2}-1 \right)!} {\left( \frac{n-1}{2}-1 \right)!} \, . $$
+<!--
+<center>
+<img SRC="eqns/c4.gif" height=85 width=154
+     ALT="c4 = SQRT(2/(n-1))*((n/2)-1)!/((n-1)/2 - 1)!">
+</center>
+-->
+<p>
+Note that in some sources the formula is given in terms of \(\sigma = c_4 \cdot s\),
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> =
+<i>c<sub>4</sub></i>*<i>s</i>, -->
+in which case \(c_4\)
+<!-- <i>c<sub>4</sub></i> -->
+will be the reciprocal of the formula given above.
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>Fractional Factorials</i>
+</TD>
+<TD WIDTH=85%>
+<!-- Add main text below -->
+To compute this we need a <i>non-integer factorial,</i> which
+is defined for \(n/2\)
+<!-- <i>n</i>/2 --> 
+as follows:
+<!--
+<center>
+<img SRC="eqns/fractfac.gif" height=165 width=336 ALT=
+"(n/2)! = (n/2)*(n/2 -1)*(n/2 - 2)....(1/2)*SQRT(PI);
+   for example, let n = 3.5 = 7/2.  Then;
+   (7/2)! = (3.5)! = (3.5)*(2.5)*(1.5)*(0.5)*1.77246) = 11.632">
+</center>
+-->
+
+$$ \left( \frac{n}{2} \right) ! = 
+\left( \frac{n}{2} \right) 
+\left( \frac{n}{2} - 1 \right) 
+\left( \frac{n}{2} - 2 \right) 
+ \cdots
+\left( \frac{1}{2} \right) \sqrt{\pi} \, . $$
+
+<!-- 
+<center>
+<img SRC="eqns/fract1.gif" ALT=
+         "(n/2)! = (n/2)*(n/2 -1)*(n/2 - 2)....(1/2)*SQRT(PI)">
+</center>
+-->
+<p>
+For example, let \(n=7\).
+<!-- <i>n</i> = 7. -->
+Then \(n/2 = 7/2 = 3.5\)
+<!-- <i>n</i>/2 = 7/2 = 3.5 -->
+and
+
+$$ \left( \frac{7}{2} \right) ! = (3.5)! =
+(3.5)(2.5)(1.5)(0.5)(1.77246) = 11.632 \, . $$
+
+<!--
+<p>
+<center>
+<img SRC="eqns/fract2.gif" ALT=
+     "(7/2)! = (3.5)! = (3.5)*(2.5)*(1.5)*(0.5)*1.77246) = 11.632">
+</center>
+-->
+<p>
+With this definition the reader should have no problem verifying
+that the \(c_4\)
+<!-- <i>c<sub>4</sub></i> -->
+factor for \(n=10\)
+<!-- <i>n </i>= 10 -->
+is 0.9727.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<a NAME="Mean and"></a>
+<i>Mean and standard deviation of the estimators</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+So the <u>mean</u> or expected value of the sample standard deviation
+is \(c_4 \cdot \sigma\).
+<!-- <i>c<sub>4</sub></i> <img align=absmiddle src="eqns/sigma.gif" alt="sigma">. -->
+<p>
+The <u>standard deviation</u> of the sample standard deviation is
+
+$$ \sigma_s = \sigma \sqrt{1 - c_4^2} \, . $$
+<!--
+<center>
+<img SRC="eqns/sofsd.gif" height=74 width=93
+     ALT="sigma(s) = sigma*SQRT*(1 - c**4)">
+</center>
+-->
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>What are the differences between control limits and
+specification limits </b>?
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>Control limits vs. specifications</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+Control Limits are used to determine if the process is in a state of
+statistical control (i.e., is producing consistent output).
+<p>
+Specification Limits are used to determine if the product will
+function in the intended fashion.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>How many data points are needed to set up a control chart?</b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>How many samples are needed?</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+Shewhart gave the following rule of thumb:
+<blockquote>
+<i>
+"It has also been observed that a person would seldom
+if ever be justified in concluding that a state of
+statistical control of a given repetitive operation
+or production process has been reached until he had
+obtained, under presumably the same essential
+conditions, a sequence of not less than twenty five
+samples of size four that are in control."
+</i>
+</blockquote>
+It is important to note that control chart properties, such as false
+alarm probabilities, are generally given under the assumption that
+the parameters, such as \(\mu\)
+<!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"> -->
+and \(\sigma\),
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma">, -->
+are known.  When the control limits are not computed from a large
+amount of data, the actual properties might be quite different from
+what is assumed (see, e.g.,
+<a href="../section7/pmc7.htm#Quesenberry">Quesenberry, 1993</a>).
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>When do we recalculate control limits?</b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<i>When do we recalculate control limits?</i>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+Since a control chart "compares" the current performance of the
+process characteristic to the past performance of this
+characteristic, changing the control limits frequently would negate
+any usefulness.
+<p>
+So, only change your control limits if you have a valid, compelling
+reason for doing so.  Some examples of reasons:
+<ul>
+   <li>When you have at least 30 more data points to add to the
+       chart and there have been no known changes to the process
+       <p>
+       <ul>
+          - you get a better estimate of the variability
+       </ul>
+       <p>
+   <li>If a major process change occurs and affects the way your
+       process runs.
+       <p>
+   <li>If a known, preventable act changes the way the tool or
+       process would behave (power goes out, consumable is
+       corrupted or bad quality, etc.)
+</ul>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>What are the <a NAME="WECO rules"></a>WECO rules for signaling
+"Out of Control"?</b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>General rules for detecting out of control or non-random
+situaltions</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+WECO stands for Western Electric Company Rules
+<br>&nbsp;
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Any Point Above +3 Sigma&nbsp;
+<br>&nbsp;---------------------------------------------&nbsp;&nbsp;&nbsp;
++3 \(\sigma\) <!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> --> LIMIT
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2 Out of the Last 3 Points Above
++2 Sigma&nbsp;
+<br>&nbsp;---------------------------------------------&nbsp;&nbsp;&nbsp;
++2 \(\sigma\) <!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> --> LIMIT
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4 Out of the Last 5 Points Above
++1 Sigma&nbsp;
+<br>&nbsp;---------------------------------------------&nbsp;&nbsp;&nbsp;
++1 \(\sigma\) <!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> --> LIMIT
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8 Consecutive Points on This Side
+of Control Line&nbsp;
+<br>==============================&nbsp;&nbsp; CENTER LINE&nbsp;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8 Consecutive Points on This Side
+of Control Line&nbsp;
+<br>&nbsp;---------------------------------------------&nbsp;&nbsp;&nbsp;
+-1 \(\sigma\) <!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> --> LIMIT
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4 Out of the Last 5 Points Below
+- 1 Sigma&nbsp;
+<br>----------------------------------------------&nbsp;&nbsp;
+-2 \(\sigma\) <!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> --> LIMIT
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2 Out of the Last 3 Points Below
+-2 Sigma&nbsp;
+<br>&nbsp;---------------------------------------------&nbsp;&nbsp;&nbsp;
+-3 \(\sigma\) <!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> --> LIMIT
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Any Point Below -3 Sigma&nbsp;
+<p>
+<a NAME="Trend"></a>
+<table noborder>
+   <tr>
+     <td valign=top align=left>
+        <b>Trend Rules:</b>
+     </td>
+     <td valign=top align=left>
+        6 in a row trending up or down.  14 in a row alternating
+        up and down
+     </td>
+   </tr>
+</table
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+WECO rules based on probabilities
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+The WECO rules are based on probability.  We know that, for a normal
+distribution, the probability of encountering a point outside
+\(\pm 3 \sigma\)
+<!-- &plusmn; 3<img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+is 0.3%.  This is a rare event.  Therefore, if we observe a point
+outside the control limits, we conclude the process has shifted and
+is unstable.  Similarly, we can identify other events that are
+equally rare and use them as flags for instability.  The
+probability of observing two points out of three in a row between
+\(2 \sigma\)
+<!-- 2<img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+and \(3 \sigma\)
+<!-- 3<img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+and the probability of observing four points out of five in a row
+between \(1 \sigma\)
+<!-- 1<img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+and \(2 \sigma\)
+<!-- 2<img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+are also about 0.3 %.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+WECO rules increase false alarms
+ </I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>Note:</b> While the WECO rules increase a Shewhart chart's
+sensitivity to trends or drifts in the mean, there is a severe
+downside to adding the WECO rules to an ordinary Shewhart control
+chart that the user should understand.  When following the standard
+Shewhart "out of control" rule (i.e., signal if and only if you
+see a point beyond the plus or minus 3 sigma control limits) you
+will have "false alarms" every 371 points on the average (see
+the description of <a href="pmc321.htm#Time To Detection or Average
+Run Length">Average Run Length or ARL</a> on the next page).
+Adding the WECO rules increases the frequency of false alarms to
+about once in every 91.75 points, on the average (see
+<a href="../section7/pmc7.htm#Champ,">Champ and Woodall, 1987</a>).
+The user has to decide whether this price is worth paying (some
+users add the WECO rules, but take them "less seriously" in terms
+of the effort put into troubleshooting activities when out of
+control signals occur).
+<p>
+With this background, the next page will describe how to construct
+Shewhart variables control charts.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="pmc31.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="pmc321.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>

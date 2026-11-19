@@ -1,0 +1,784 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+<TITLE>6.3.2.1. Shewhart X-bar and R and S Control Charts</TITLE>
+
+
+
+</HEAD>
+
+<BODY BGCOLOR="FFFFCC">
+
+<IMG SRC="../../gifs/nvgtbr.gif" BORDER=0 VALIGN="TOP" ISMAP USEMAP="#MenuBar">
+<map name="MenuBar">
+<area shape="rect" alt="Next Page" href="pmc322.htm" coords="463,27,504,45">
+<area shape="rect" alt="Previous Page" href="pmc32.htm" coords="417,28,459,45">
+<area shape="rect" alt="Home" href="../../index.htm" coords="52,0,100,43">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="165,27,264,46">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="307,28,366,44">
+<area shape="default" nohref>
+</map>
+<BR>
+
+<TABLE CELLSPACING=20 CELLPADDING=0 WIDTH=540>
+
+<TR>
+<TD VALIGN=TOP COLSPAN=2>
+<FONT SIZE=-1>
+<FONT COLOR="#D60021">6.</FONT>
+<FONT COLOR="#00105A"><A HREF="../pmc.htm">Process or Product Monitoring and Control</a></FONT>
+<BR>
+<FONT COLOR="#D60021">6.3.</FONT>
+<FONT COLOR="#00105A"><A HREF="pmc3.htm">Univariate and Multivariate Control Charts</a></FONT>
+<BR>
+<FONT COLOR="#D60021">6.3.2.</FONT>
+<FONT COLOR="#00105A"><A HREF="pmc32.htm">What are Variables Control Charts?</a></FONT>
+<BR>
+</FONT>
+<BR>
+<TABLE>
+<TR>
+<TD VALIGN=top>
+<H2><FONT COLOR="#D60021">6.3.2.1.</FONT></H2>
+</TD>
+<TD VALIGN=top>
+<H2>Shewhart X-bar and R and S Control Charts</H2>
+</TD>
+</TR >
+</TABLE>
+</TD>
+</TR>
+
+
+
+
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>\(\bar{X}\)
+<!-- <font size=+1><img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+and \(s\) Charts</font></b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%"><!-- Add marginal notes below -->
+\(\bar{X}\)
+<!-- <i><img align=bottom src="eqns/xbar.gif" alt="X-Bar"> -->
+and \(s\) Shewhart Control Charts</i>
+</td>
+
+<td WIDTH="85%"><!-- Add main text below -->
+We begin with \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+and \(s\)
+<!-- <i>s</i> -->
+charts. 
+We should use the \(s\)
+<!-- <i>s</i> -->
+chart first to determine if the distribution
+for the process characteristic is stable.
+<p>
+Let us consider the case where we have to estimate \(\sigma\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+by analyzing past data.  Suppose we have \(m\)
+<!-- <i>m</i> -->
+preliminary samples at our disposition, each of size \(n\),
+<!-- <i>n</i>, -->
+and let \(s_i\)
+<!-- <i>s<sub>i</sub></i> -->
+be the standard deviation of the <i>i</i>th
+sample.  Then the average of the \(m\)
+<!-- <i>m</i> -->
+standard deviations is
+
+$$ \bar{s} = \frac{1}{m} \sum_{i=1}^m s_i \, . $$
+<!--
+<p>
+<center>
+<img SRC="eqns/sbar.gif" height=42 width=72
+     ALT="sbar = (1/m)*SUM[i=1 to m][s(i)]">
+</center>
+-->
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>Control Limits for \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-Bar"> -->
+and \(s\) Control Charts</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+We make use of the factor \(c_4\)
+<!-- <i>c</i><sub>4 </sub> -->
+described on the <a href="pmc32.htm#C4">previous page</a>.
+<p>
+The statistic \(\bar{s}/c_4\)
+<!-- <img align=absmiddle src="eqns/sbarc4.gif" alt="sbar/c4"> -->
+is an unbiased estimator of \(\sigma\).
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma/c4">. -->
+Therefore, the parameters of the \(s\)
+<!-- <i>S</i> -->
+chart would be
+$$
+\begin{eqnarray}
+UCL & = & \bar{s} + 3\frac{\bar{s}} {c_4} \sqrt{1 - c_4^2} \\
+\mbox{Center Line} & = & \bar{s} \\
+LCL & = & \bar{s} - 3\frac{\bar{s}} {c_4} \sqrt{1 - c_4^2} \, .
+\end{eqnarray}
+$$
+<!--
+<p>
+<center>
+   <img src="eqns/sbarucl.gif"
+        alt="UCL = sbar + 3*(sbar/c4)*SQRT(1 - c4**2)">
+   <p>
+   <img src="eqns/sbarcl.gif"
+        alt="Center Line = sbar">
+   <p>
+   <img src="eqns/sbarlcl.gif"
+        alt="LCL = sbar - 3*(sbar/c4)*SQRT(1 - c4**2)">
+</center>
+<p>
+-->
+Similarly, the parameters of the \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="Xbar"> -->
+chart would be
+$$
+\begin{eqnarray}
+UCL & = & \bar{\bar{x}} + 3\frac{\bar{s}}{c_4\sqrt{n}} \\
+\mbox{Center Line} & = & \bar{\bar{x}} \\
+LCL & = & \bar{\bar{x}} - 3\frac{\bar{s}}{c_4\sqrt{n}} \, .
+\end{eqnarray}
+$$
+<!--
+<p>
+<center>
+   <img src="eqns/xbarucl.gif"
+        alt="UCL = Xdoublebar + 3*sbar/(c4*SQRT(n)">
+   <p>
+   <img src="eqns/xbarcl.gif"
+        alt="Center Line = Xdoublebar">
+   <p>
+   <img src="eqns/xbarlcl.gif"
+        alt="LCL = Xdoublebar - 3*sbar/(c4*SQRT(n)">
+</center>
+<p> 
+-->
+\(\bar{\bar{x}}\),
+<!-- <img src="eqns/xbarbar.gif" alt="Xdoublebar">, -->
+the "grand" mean, is the average of all the observations.
+<!-- <img SRC="eqns/shewhart.gif" height=298 width=372> -->
+<p>
+It is often convenient to plot the \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+and \(s\)
+<!-- <i>s</i> -->
+charts on one page.
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>\(\bar{X}\)
+<!-- <font size=+1><img align=bottom src="eqns/xbar.gif" alt="X-Bar"> -->
+and \(R\) Control Charts</font></b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>\(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-Bar"> -->
+and \(R\) control charts</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+If the sample size is relatively small (say equal to or less than
+10), we can use the range instead of the standard deviation of a
+sample to construct control charts on \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+and <i>the range</i>, \(R\).  The range of a sample is simply the difference
+between the largest and smallest observation.
+<p>
+There is a statistical relationship (Patnaik, 1946)
+between the mean range for data from a normal distribution and \(\sigma\),
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma">, -->
+the standard deviation of that distribution.  This relationship
+depends only on the sample size, \(n\).
+<!-- <i>n</i>. -->
+The mean of \(R\)
+<!-- <i>R</i> -->
+is \(d_2 \sigma\),
+<!-- <i>d</i><sub>2</sub><img align=absmiddle src="eqns/sigma.gif" alt="sigma">, -->
+where the value of \(d_2\)
+<!-- <i>d</i><sub>2</sub> -->
+is also a function of \(n\).
+<!-- <i>n</i>. --> 
+<i>An estimator of</i> \(\sigma\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+is therefore \(R / d_2\).
+<!-- <i>R</i> /d<sub>2</sub>. -->
+<p>
+Armed with this background we can now develop the \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+and \(R\)
+<!-- <i>R</i> -->
+control chart.
+<p>
+Let \(R_1, \, R_2, \, \ldots, R_k\),
+<!-- <i>R</i><sub>1</sub>, <i>R</i><sub>2</sub>, ..., <i>R</i><sub>k</sub>, -->
+be the ranges of \(k\)
+<!-- <i>k</i> -->
+samples.  The average range is
+
+$$ \bar{R} = \frac{R_1 + R_2 + ... + R_k} {k} \, . $$
+<!--
+<p>
+<center>
+   <img src="eqns/rbar.gif"
+        alt="Rbar = (R1 + R2 + ... + Rk)/k">
+</center>
+<p>
+-->
+Then an estimate of \(\sigma\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+can be computed as
+
+$$ \hat{\sigma} = \frac{\bar{R}} {d_2} \, .$$
+<!--
+<p>
+<center>
+   <img src="eqns/sigmabyr.gif" alt="sigmahat = Rbar/d2">
+</center>
+-->
+<!-- <center><img SRC="eqns/sigmahat.gif" height=186 width=292
+      align=CENTER></center> -->
+
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>\(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-Bar"> -->
+control charts</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+So, if we use \(\bar{\bar{x}}\)
+<!-- <img align=absmiddle src="eqns/xbarbar.gif" alt="Xdoublebar"> -->
+(or a given target) as an estimator of \(\mu\)
+<!-- <img align=absmiddle src="eqns/mu.gif" alt="mu"> -->
+and \(\bar{R} / d_2\)
+<!-- <img align=absmiddle src="eqns/rbar2.gif" alt="Rbar">/<i>d</i><sub>2</sub> -->
+as an estimator of \(\sigma\),
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma">, -->
+then the parameters of the \(\bar{X}\)
+<!--<img align=absmiddle src="eqns/xbar.gif" alt="Xbar"> -->
+chart are
+
+$$
+\begin{eqnarray}
+UCL & = & \bar{\bar{x}} + \frac{3}{d_2\sqrt{n}} \bar{R} \\
+\mbox{Center Line} & = & \bar{\bar{x}} \\
+LCL & = & \bar{\bar{x}} - \frac{3}{d_2\sqrt{n}} \bar{R} \, .
+\end{eqnarray}
+$$
+<!--
+<p>
+<center>
+   <img src="eqns/xranucl.gif"
+        alt="UCL = Xdoublebar + 3*Rbar/(d2*SQRT(N))">
+   <p>
+   <img src="eqns/xbarcl.gif"
+        alt="Center Line = Xdoublebar">
+   <p>
+   <img src="eqns/xranlcl.gif"
+        alt="LCL = Xranblebar - 3*Rbar/(d2*SQRT(N))">
+</center>
+<p>
+-->
+The simplest way to describe the limits is to define the factor
+\(A_2 = 3 / (d_2 \sqrt{n})\)
+<!-- <img align=absmiddle src="eqns/a2fact.gif" alt="A2 = 3/(d2*SQRT(n))"> -->
+and the construction of the \(\bar{X}\)
+<!-- <img align=absmiddle src="eqns/xbar.gif" alt="Xbar"> -->
+becomes
+
+$$
+\begin{eqnarray}
+UCL & = & \bar{\bar{x}} + A_2 \bar{R} \\
+\mbox{Center Line} & = & \bar{\bar{x}} \\
+LCL & = & \bar{\bar{x}} - A_2 \bar{R} \, . \\
+\end{eqnarray}
+$$
+<!--
+<p>
+<center>
+   <img src="eqns/xranucl2.gif"
+        alt="UCL = Xdoublebar + A2*Rbar">
+   <p>
+   <img src="eqns/xbarcl.gif"
+        alt="Center Line = Xdoublebar">
+   <p>
+   <img src="eqns/xranlcl2.gif"
+        alt="LCL = Xdoublebar - A2*Rbar">
+</center>
+<p>
+-->
+<!-- <img SRC="eqns/xbar-r1.gif" height=312 width=357> -->
+<p>
+The factor \(A_2\)
+<!-- <i>A</i><sub>2</sub> -->
+depends only on \(n\),
+<!--<i>n</i>, -->
+and is <a href="#Factors for Calculating Limits">tabled below</a>.
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<b>The \(R\) chart</b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>\(R\) control charts</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+This chart controls the process variability since the sample range is
+related to the process standard deviation.  <i>The center line of
+the \(R\) chart is the average range.</i>
+<p>
+To compute the control limits we need an estimate of the true, but
+unknown standard deviation \(W = R/\sigma\).
+<!-- <i>W </i>=<i> R/</i><img align=absmiddle src="eqns/sigma.gif" alt="sigma">. -->
+This can be found from the distribution of \(W = R/\sigma\)
+<!-- <i>W</i> = <i>R/</i><img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+(assuming that the items that we measure follow a normal
+distribution).  The standard deviation of \(W\)
+<!-- <i>W</i> -->
+is \(d_3\),
+<!-- <i>d</i><sub>3</sub>, -->
+and is a known function of the sample size, \(n\).
+<!-- <i>n</i>. -->
+It is tabulated in many textbooks on statistical quality control.
+<p>
+Therefore since \(R = W \sigma\),
+<!-- <i>R</i> = <i>W</i><img align=absmiddle src="eqns/sigma.gif" alt="sigma">, -->
+the standard deviation of \(R\)
+<!-- <i>R</i> --> 
+is \(\sigma_R = d_3 \sigma\).
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma">
+<i><sub>R</sub></i> = <i>d</i><sub>3</sub><img align=absmiddle src="eqns/sigma.gif" alt="sigma">. -->
+But since the true \(\sigma\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"> -->
+is unknown, we may estimate \(\sigma_R\)
+<!-- <img align=absmiddle src="eqns/sigma.gif" alt="sigma"><i><sub>R</sub></i> -->
+by
+
+$$ \hat{\sigma}_{R} = d_3\frac{\bar{R}} {d_2} \, . $$
+<!--
+<p>
+<center>
+<img SRC="eqns/sigmar.gif" ALT="sigmahat(R) = d3*(Rbar/d2)">
+</center>
+<p>
+-->
+As a result, the parameters of the \(R\)
+<!-- <i>R</i> -->
+chart with the customary 3-sigma control limits are
+
+$$
+\begin{eqnarray}
+UCL & = & \bar{R} + 3\hat{\sigma_R} = \bar{R} + 3d_3\frac{\bar{R}}{d_2} \\
+\mbox{Center Line} & = & \bar{R} \\
+LCL & = & \bar{R} - 3\hat{\sigma_R} = \bar{R} - 3d_3\frac{\bar{R}}{d_2} \, .
+\end{eqnarray}
+$$
+<!--
+<p>
+<center>
+   <img src="eqns/rranucl.gif"
+        alt="UCL = Rbar + 3*sigmahat(R) =
+ Rhat + 3*d3*Rbar/d2">
+   <p>
+   <img src="eqns/rbar3.gif" alt="Center Line = Rbar">
+   <p>
+   <img src="eqns/rranlcl.gif"
+        alt="LCL = Rbar - 3*sigmahat(R) =
+ Rhat - 3*d3*Rbar/d2">
+</center>
+<p>
+-->
+<!-- <img SRC="eqns/xbar-r2.gif" height=280 width=392
+     ALT="sigmahat(R) = d3*(Rbar/d2)"> -->
+As was the case with the control chart parameters for the subgroup
+averages, defining another set of factors will ease the
+computations, namely:
+
+$$ D_3 = 1 - 3 d_3/d_2 \,\, \mbox{ and } \,\, D_4 = 1 + 3 d_3/d_2 \, . $$
+<!--
+<p>
+<i>D</i><sub>3</sub> = 1 - 3 <i>d</i><sub>3</sub> /
+<i>d</i><sub>2</sub>
+and <i>D</i><sub>4</sub> = 1 + 3 <i>d</i><sub>3</sub> /
+<i>d</i><sub>2</sub>.
+-->
+These yield
+
+$$
+\begin{eqnarray}
+UCL & = & \bar{R} D_4 \\
+\mbox{Center Line} & = & \bar{R} \\
+LCL & = & \bar{R} D_3 \, .
+\end{eqnarray}
+$$
+<!--
+<p>
+<center>
+   <img src="eqns/rranucl2.gif"
+        alt="UCL = Rbar*D4">
+   <p>
+   <img src="eqns/rbar3.gif" alt="Center Line = Rbar">
+   <p>
+   <img src="eqns/rranlcl2.gif"
+        alt="LCL = Rbar*D3">
+</center>
+-->
+<!-- <img SRC="eqns/xbar-r3.gif" height=73 width=202> -->
+<p>
+The factors \(D_3\)
+<!-- <i>D</i><sub>3</sub> -->
+and \(D_4\)
+<!-- <i>D</i><sub>4</sub> -->
+depend only on \(n\),
+<!-- <i> n</i>, -->
+and are tabled below.
+<center>
+<a NAME="Factors for Calculating Limits"></a>
+<br>
+<b>Factors for Calculating Limits for \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-Bar"> --> and \(R\) Charts</b>
+</center>
+
+<center><table BORDER COLS=4 WIDTH="100%" >
+<tr>
+<td ALIGN=CENTER>\(n\)<!-- <b>n</b> --> </td> 
+
+<td ALIGN=CENTER>\(A_2\)<!-- <b>A<sub>2</sub></b> --> </td>
+
+<td ALIGN=CENTER>\(D_3\)<!-- <b>D<sub>3</sub></b> --> </td>
+
+<td ALIGN=CENTER>\(D_4\)<!-- <b>D<sub>4</sub></b> --> </td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td ALIGN=CENTER>2</td>
+
+<td>1.880</td>
+
+<td>0</td>
+
+<td>3.267</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>3</td>
+
+<td>1.023</td>
+
+<td>0</td>
+
+<td>2.575</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>4</td>
+
+<td>0.729</td>
+
+<td>0</td>
+
+<td>2.282</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>5</td>
+
+<td>0.577</td>
+
+<td>0</td>
+
+<td>2.115</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>6</td>
+
+<td>0.483</td>
+
+<td>0</td>
+
+<td>2.004</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>7</td>
+
+<td>0.419</td>
+
+<td>0.076</td>
+
+<td>1.924</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>8</td>
+
+<td>0.373</td>
+
+<td>0.136</td>
+
+<td>1.864</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>9</td>
+
+<td>0.337</td>
+
+<td>0.184</td>
+
+<td>1.816</td>
+</tr>
+
+<tr ALIGN=CENTER>
+<td>10</td>
+
+<td>0.308</td>
+
+<td>0.223</td>
+
+<td>1.777</td>
+</tr>
+</table></center>
+
+<p>
+In general, the range approach is quite satisfactory for sample sizes
+up to around 10.  For larger sample sizes, using subgroup standard
+deviations is preferable. For small sample sizes, the relative
+efficiency of using the range approach as opposed to using standard
+deviations is shown in the following table.
+</td>
+</tr>
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+Efficiency of \(R\) versus \(s/c_4\) 
+<!-- S/c<sub>4</sub> -->
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<center>
+<table noborder>
+<tr>
+   <td valign=top align=center width=50>
+      \(n\)<!-- <i>n</i> -->
+   </td>
+   <td valign=top align=center width=50>
+      Relative Efficiency
+   </td>
+</tr>
+<tr>
+   <td colspan=2>
+      <hr noshade>
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      2
+   </td>
+   <td valign=top align=center width=50>
+      1.000
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      3
+   </td>
+   <td valign=top align=center width=50>
+      0.992
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      4
+   </td>
+   <td valign=top align=center width=50>
+      0.975
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      5
+   </td>
+   <td valign=top align=center width=50>
+      0.955
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      6
+   </td>
+   <td valign=top align=center width=50>
+      0.930
+   </td>
+</tr>
+<tr>
+   <td valign=top align=center width=50>
+      10
+   </td>
+   <td valign=top align=center width=50>
+      0.850
+   </td>
+</tr>
+</table>
+<!-- <img SRC="eqns/xbar-r5.gif" height=164 width=156> -->
+</center>
+
+<p>
+A typical sample size is 4 or 5, so not much is lost by using the
+range for such sample sizes.
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<!-- begin paragraph -->
+<TR>
+<TD WIDTH=15% VALIGN=top>
+<!-- Add marginal notes below -->
+<I>
+</I>
+</TD>
+<TD VALIGN=TOP WIDTH=85%>
+<!-- Add main text below -->
+<a NAME="Time To Detection or Average Run Length"></a>
+<b><font size=+1>Time To Detection or Average Run Length (ARL)
+</font></b>
+
+</TD>
+</TR>
+<!-- end paragraph -->
+
+<tr>
+<td VALIGN=TOP WIDTH="15%">
+<i>Waiting time to signal "out of control"</i>
+</td>
+
+<td VALIGN=TOP WIDTH="85%">
+Two important questions when dealing with control charts are:
+<ol>
+   <li>How often will there be false alarms where we look for an
+       assignable cause but nothing has changed?</li>
+   <li>How quickly will we detect certain kinds of systematic
+       changes, such as mean shifts?</li>
+</ol>
+The ARL tells us, for a given situation, how long on the average we
+will plot successive control charts points before we detect a point
+beyond the control limits.
+<p>
+For an \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+chart, with
+no change in the process, we wait on the average \(1/p\)
+<!-- 1/<i>p</i> --> 
+points before a false alarm takes place, with \(p\)
+<!-- <i>p</i> -->
+denoting the probability of an
+observation plotting outside the control limits.  For a normal
+distribution, \(p = 0.0027\)
+<!-- <i>p</i> = .0027 -->
+and the ARL is approximately 371.
+<p>
+A <a href="pmc3231.htm">table</a> comparing Shewhart \(\bar{X}\)
+<!-- <img align=bottom src="eqns/xbar.gif" alt="X-bar"> -->
+chart ARLs
+<!-- <i>ARL</i>'s -->
+to Cumulative Sum (CUSUM) ARLs
+<!-- <i>ARL</i>'s -->
+for various mean shifts is given later in this section.
+<p>
+There is also (currently) a <a href=
+"http://www.sqconline.com/">web
+site</a> developed by Galit Shmueli that will do ARL calculations
+interactively with the user, for Shewhart charts with or without
+additional (<a href="pmc32.htm#WECO rules">Western Electric</a>)
+rules added.
+</td>
+</tr>
+
+
+
+   
+</TABLE>
+
+<IMG SRC="../../gifs/nvgbrbtm.gif" BORDER=0 USEMAP="#nvbar.nvbar">
+<map name="nvbar.nvbar">
+<area shape="rect" href="http://www.nist.gov" coords="22,6,67,20">
+<area shape="rect" href="https://www.itl.nist.gov/div898/handbook" coords="3,23,92,40">
+<area shape="rect" alt="Home" href="../../index.htm" coords="114,12,165,31">
+<area shape="rect" alt="Tools & Aids" href="../../toolaids.htm" coords="190,12,290,31">
+<area shape="rect" alt="Search Handbook" href="../../search.htm" coords="318,14,376,30">
+<area shape="rect" alt="Previous Page" href="pmc32.htm" coords="428,15,471,29">
+<area shape="rect" alt="Next Page" href="pmc322.htm" coords="476,15,517,30">
+<area shape="default" nohref>
+</map>
+   
+</BODY>
+
+</HTML>
