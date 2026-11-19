@@ -49,8 +49,9 @@ test('worker fayli: `type: module`, dvigatelning o\'sha modulini import qiladi; 
   assert.match(src, /import \{ createMonteCarlo \} from '\.\.\/\.\.\/engine\/index\.js';/);
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
   assert.ok(!/\b(window|localStorage|fetch|XMLHttpRequest|importScripts|eval|Function\()/.test(code), 'taqiqlangan API');
-  assert.equal(WORKER_URL, 'src/ui/mc/worker.js');
-  assert.ok(fs.existsSync(path.join(ROOT, WORKER_URL)));
+  // P13: worker manzili modulga nisbatan (new URL('./worker.js', import.meta.url)) — deploy'da `?v=<sha>` qo'shiladi
+  assert.equal(WORKER_URL, require('node:url').pathToFileURL(path.join(ROOT, 'src/ui/mc/worker.js')).href);
+  assert.match(read('src/ui/mc/runner.js'), /export const WORKER_URL = new URL\('\.\/worker\.js', import\.meta\.url\)\.href;/);
   assert.match(read('src/ui/mc/runner.js'), /new env\.Worker\(env\.workerUrl \|\| WORKER_URL, \{ type: 'module' \}\)/);
   assert.match(read('index.html'), /<script type="module" src="src\/ui\/mc\/app\.js"><\/script>/);
 });
@@ -86,7 +87,7 @@ test('bajaruvchi: Web Worker yo\'li — progress, natija, yakunda terminate; nat
   const job = r.run(SPEC, { ...OPTS, onProgress() {}, shouldCancel() {} }, i => seen.push(i));
   const res = await job.promise;
   assert.equal(job.via(), 'worker');
-  assert.deepEqual(log[0], ['new', 'src/ui/mc/worker.js', { type: 'module' }]);
+  assert.deepEqual(log[0], ['new', WORKER_URL, { type: 'module' }]);
   assert.deepEqual(log[1], ['post', 'run']);
   assert.deepEqual(log[log.length - 1], ['terminate']);
   assert.deepEqual(res, E.monteCarlo(SPEC, OPTS));

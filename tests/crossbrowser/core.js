@@ -115,9 +115,9 @@ export function snapshotCase(engine, roundResult, c) {
 
 /** R(0, 1) ketma-ketligi (kengaytirilgan Wichmann–Hill, JCGM 101:2008 C.3.3) — bit darajasida solishtirish uchun. */
 export function rngSequence(engine, seed, n = RNG_SAMPLE) {
-  const next = engine.wichmannHill(seed);
+  const g = engine.wichmannHill(seed);
   const out = new Array(n);
-  for (let i = 0; i < n; i++) out[i] = next();
+  for (let i = 0; i < n; i++) out[i] = g.next();
   return out;
 }
 

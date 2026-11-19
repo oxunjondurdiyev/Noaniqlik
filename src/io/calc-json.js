@@ -9,13 +9,22 @@
        points: [{ id, label, input, result, acceptances }],   // ko'p nuqtali kalibrlash (bo'lmasa [])
        acceptances,      // asoslangan holda qabul qilingan topilmalar
        ui,               // ixtiyoriy: UI holati (qayta ochish uchun; xeshga KIRADI)
+       env,              // ixtiyoriy (P13): hisoblagan muhit { name, version, engine } — src/io/env.js (to'liq userAgent emas)
+       build,            // ixtiyoriy (P13): { id, source: 'commit' | 'engine-hash' } — src/io/build.js::buildMark
        hash }            // SHA-256( RFC 8785 kanonik JSON(hujjat, `hash` maydonisiz) )
    Chekli bo'lmagan sonlar (ν_eff = ∞) — {"$num":"Infinity"} (src/storage/canonical.js::portable).
    Kafolat (test: tests/io/calc-json.test.js): eksport → import → evaluate(input) natijasi saqlangan natija bilan
    BIT DARAJASIDA bir xil (kanonik JSON satrlari teng); kalitlar tartibi o'zgarsa xesh o'zgarmaydi.
+   P13 (R-24, egasi qarori B): boshqa JS dvigatelida qayta hisob oxirgi xonada farq qilishi mumkin — reproduce() `maxRel`
+   (eng katta nisbiy farq) va `close` (tuzilma bir xil, maxRel ≤ REPRODUCE_REL_LIMIT) ni ham qaytaradi. `env` / `build` siz
+   eski hujjatlar avvalgidek o'qiladi.
    Import faqat ma'lumot: hech narsa bajarilmaydi (JSON.parse), __proto__ / constructor kalitlari rad etiladi.
 ═══════════════════════════════════════════════════════════════ */
 import { canonicalizeJcs, jcsHash, portable, fromPortable } from '../storage/canonical.js';
+import { cleanEnvironment } from './env.js';
+import { cleanBuildMark } from './build.js';
+
+export const REPRODUCE_REL_LIMIT = 1e-14;        // egasi qarori B (2026-11-19, docs/RISKS.md R-24)
 
 export const CALC_FORMAT = 'uc-calc/1';
 export const APP_NAME = 'UncertaintyCalc';
@@ -53,12 +62,15 @@ function body(o) {
     points: (o.points || []).map(p => ({ id: p.id, label: p.label || '', input: p.input, result: p.result, acceptances: p.acceptances || {} })),
     acceptances: o.acceptances || {},
     ...(o.ui !== undefined ? { ui: o.ui } : {}),
+    ...(cleanEnvironment(o.env) ? { env: cleanEnvironment(o.env) } : {}),
+    ...(cleanBuildMark(o.build) ? { build: cleanBuildMark(o.build) } : {}),
   });
 }
 
 /**
  * Eksport hujjati.
- * @param {{id?, createdAt?, input:object, result:object, template?:object, points?:object[], acceptances?:object, ui?:object}} o
+ * @param {{id?, createdAt?, input:object, result:object, template?:object, points?:object[], acceptances?:object, ui?:object,
+ *          env?:{name,version,engine}, build?:{id,source}}} o
  * @returns {Promise<object>} hash bilan
  */
 export async function buildCalcDoc(o) {
@@ -110,22 +122,51 @@ export async function parseCalcDoc(text) {
     input: fromPortable(doc.input), result: fromPortable(doc.result),
     points: (doc.points || []).map(p => ({ ...p, input: fromPortable(p.input), result: fromPortable(p.result) })),
     acceptances: doc.acceptances || {}, ui: doc.ui === undefined ? null : fromPortable(doc.ui),
+    env: cleanEnvironment(doc.env), build: cleanBuildMark(doc.build),
   };
+}
+
+/** Ikki natija daraxtining eng katta nisbiy farqi (sonlar bo'yicha); tuzilma yoki sonli bo'lmagan qiymat farq qilsa — Infinity. */
+export function maxRelDiff(a, b) {
+  if (typeof a === 'number' && typeof b === 'number') {
+    if (Object.is(a, b) || a === b) return 0;
+    const scale = Math.max(Math.abs(a), Math.abs(b));
+    return Number.isFinite(a) && Number.isFinite(b) && scale > 0 ? Math.abs(a - b) / scale : Infinity;
+  }
+  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return a === b ? 0 : Infinity;
+  if (Array.isArray(a) !== Array.isArray(b)) return Infinity;
+  const ka = Object.keys(a).filter(k => a[k] !== undefined), kb = Object.keys(b).filter(k => b[k] !== undefined);
+  if (ka.length !== kb.length) return Infinity;
+  let max = 0;
+  for (const k of ka) {
+    if (!Object.prototype.hasOwnProperty.call(b, k)) return Infinity;
+    const d = maxRelDiff(a[k], b[k]);
+    if (d > max) max = d;
+    if (max === Infinity) return max;
+  }
+  return max;
 }
 
 /**
  * Qayta hisob: evaluate(input) natijasi saqlangan natija bilan bit darajasida bir xilmi?
  * Dvigatel versiyasi boshqa bo'lsa natija farq qilishi mumkin — `sameEngine` alohida qaytariladi.
+ * Boshqa JS dvigatelida (brauzerda) oxirgi xonadagi farq — `maxRel`, `close` (egasi qarori B, R-24).
  * @param {object} parsed    parseCalcDoc() natijasi
  * @param {(spec:object)=>object} evaluate  dvigatel funksiyasi
  * @param {string} engineVersion           joriy ENGINE_VERSION
  */
 export function reproduce(parsed, evaluate, engineVersion) {
+  let maxRel = 0;
   const same = (input, stored) => {
     const again = evaluate(input);
-    return !again.error && canonicalizeJcs(portable(again)) === canonicalizeJcs(portable(stored));
+    if (again.error) { maxRel = Infinity; return false; }
+    const x = portable(again), y = portable(stored);
+    const identical = canonicalizeJcs(x) === canonicalizeJcs(y);
+    if (!identical) maxRel = Math.max(maxRel, maxRelDiff(x, y));
+    return identical;
   };
   const main = same(parsed.input, parsed.result);
   const points = parsed.points.map(p => same(p.input, p.result));
-  return { identical: main && points.every(Boolean), main, points, sameEngine: parsed.doc.engineVersion === engineVersion };
+  const identical = main && points.every(Boolean);
+  return { identical, main, points, sameEngine: parsed.doc.engineVersion === engineVersion, maxRel, close: !identical && maxRel <= REPRODUCE_REL_LIMIT };
 }

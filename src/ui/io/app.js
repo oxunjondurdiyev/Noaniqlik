@@ -444,8 +444,13 @@ function calcParts(scope) {
   return { input, result, points: [], template: tplMeta(state.template), ui: { tab: scope, state }, acceptances: accOf(scope), meta: Calc.metaFor(result), stale: false };
 }
 
+/* P13 (R-24, R-22): hujjatga hisoblagan muhit (brauzer qisqa nomi va versiyasi) va build belgisi yoziladi — window.UCBuild */
 async function docFromParts(p) {
-  return buildCalcDoc({ id: p.meta.id, createdAt: p.meta.createdAt, input: p.input, result: p.result, template: p.template, points: p.points, acceptances: p.acceptances, ui: p.ui });
+  const B = window.UCBuild;
+  let build = null;
+  try { build = B ? await B.mark() : null; } catch (_) { build = null; }
+  return buildCalcDoc({ id: p.meta.id, createdAt: p.meta.createdAt, input: p.input, result: p.result, template: p.template, points: p.points, acceptances: p.acceptances, ui: p.ui,
+    env: B ? B.environment() : null, build });
 }
 
 /** Joriy hisobning 'uc-calc/1' hujjati — JSON eksport aynan shuni yozadi. Yon ta'sirsiz; muammo bo'lsa null. */
@@ -569,11 +574,17 @@ function showCalcDialog(parsed, rep) {
   fact(t('io_json_mode'), doc.mode);
   if (doc.template && doc.template.id) fact(t('io_json_template'), `${doc.template.id} v${doc.template.version || ''} (${doc.template.status || ''})`);
   if (parsed.points.length) fact(t('io_json_points'), parsed.points.length);
+  const B = window.UCBuild;
+  if (parsed.env || B) fact(t('io_json_env'), `${(B && parsed.env ? B.environmentText(parsed.env) : '') || '—'} / ${B ? B.environmentText(B.environment()) || '—' : '—'}`);
+  if (parsed.build) fact(t('io_json_build'), parsed.build.id + (parsed.build.source === 'engine-hash' ? ' (dev)' : ''));
   fact(t('io_x_hash'), doc.hash);
   body.appendChild(list);
   body.appendChild(el('p', 'io-ok', '✓ ' + t('io_json_hash_ok')));
-  const repLine = el('p', rep.identical ? 'io-ok' : 'io-error', (rep.identical ? '✓ ' : '✗ ') + t(rep.identical ? 'io_json_identical' : 'io_json_differs'));
-  repLine.dataset.ioReproduced = rep.identical ? 'identical' : 'differs';
+  // P13 (R-24, egasi qarori B): boshqa JS dvigatelida oxirgi xonadagi farq (≤ 1·10⁻¹⁴) — xato emas, alohida ko'rsatiladi
+  const repLine = rep.close
+    ? el('p', 'io-status io-warn', '≈ ' + tf('io_json_close', { d: rep.maxRel.toExponential(1) }))
+    : el('p', rep.identical ? 'io-ok' : 'io-error', (rep.identical ? '✓ ' : '✗ ') + t(rep.identical ? 'io_json_identical' : 'io_json_differs'));
+  repLine.dataset.ioReproduced = rep.identical ? 'identical' : rep.close ? 'close' : 'differs';
   body.appendChild(repLine);
   if (!rep.sameEngine) { const w = el('p', 'io-status io-warn', '⚠ ' + t('io_json_engine_differs')); w.dataset.ioEngineDiffers = '1'; body.appendChild(w); }
 
@@ -620,7 +631,7 @@ async function importCalcText(text) {
   if (!parsed.ok) { toast(t('io_json_err_' + parsed.reason), 'error', 6000); return { ok: false, reason: parsed.reason }; }
   let rep;
   try { rep = reproduce(parsed, window.Calc.evaluate, window.Calc.ENGINE_VERSION); } catch (_) {
-    rep = { identical: false, main: false, points: [], sameEngine: parsed.doc.engineVersion === window.Calc.ENGINE_VERSION };
+    rep = { identical: false, main: false, points: [], sameEngine: parsed.doc.engineVersion === window.Calc.ENGINE_VERSION, maxRel: Infinity, close: false };
   }
   showCalcDialog(parsed, rep);
   return { ok: true, identical: rep.identical, sameEngine: rep.sameEngine };

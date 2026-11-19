@@ -87,7 +87,7 @@ test('eksport tarkibi: shablon ID/versiya, kirishlar, natija, findings, ENGINE_V
   assert.deepEqual(doc.points[0].result.nuEff, { $num: 'Infinity' });
   const parsed = await J.parseCalcDoc(J.serializeCalcDoc(doc));
   assert.equal(parsed.points[0].result.nuEff, Infinity);
-  assert.deepEqual(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION), { identical: true, main: true, points: [true, true], sameEngine: true });
+  assert.deepEqual(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION), { identical: true, main: true, points: [true, true], sameEngine: true, maxRel: 0, close: false });
   // boshqa rejim
   const td = E.evaluate(require('../cases/nordtest/nordtest-tr537-nh4n.json').modelSpec);
   assert.equal((await J.buildCalcDoc({ input: require('../cases/nordtest/nordtest-tr537-nh4n.json').modelSpec, result: td })).mode, 'TOP_DOWN');

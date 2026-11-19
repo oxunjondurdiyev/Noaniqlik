@@ -2,9 +2,10 @@
    FOOTER.JS — hisobotning pastki qismi (P05b). Sof modul.
    Tarkibi: dastur nomi va ENGINE_VERSION; build identifikatori; shablon ID va versiyasi; hisob sanasi va ID si;
    kanonik JSON'dan SHA-256 (RFC 8785 JCS — src/storage/canonical.js, hujjat 'uc-calc/1'); QR (xesh va hisob ID si).
-   Build identifikatori: sayt statik (build bosqichi yo'q), commit SHA mavjud emas — standart sifatida
-   tests/security/engine.sha256.json dagi DVIGATEL XESHI (src/engine + src/report fayllari) ishlatiladi (egasi qarori,
-   P05b topshirig'i). /verify sahifasi — P11 dan keyin; hozircha QR da havola yo'q.
+   Build identifikatori (P13, egasi qarori A — R-22 (b)): deploy'da build.json dagi commit SHA ning boshi (12 belgi);
+   build.json bo'lmasa (lokal ishlash, build qadamisiz) — avvalgidek DVIGATEL XESHI (src/engine + src/report fayllari,
+   tests/security/engine.sha256.json), "dev" belgisi bilan. Hisoblagan muhit (P13, R-24): brauzerning qisqa nomi va
+   versiyasi (src/io/env.js; to'liq userAgent emas). /verify sahifasi yo'q; QR da havola yo'q.
 ═══════════════════════════════════════════════════════════════ */
 
 export const APP_NAME = 'UncertaintyCalc';
@@ -16,17 +17,20 @@ export function qrPayload(id, hash) {
 
 /**
  * Pastki qism modeli.
- * @param {{engineVersion:string, build?:{sha256?:string, engineVersion?:string}|null, template?:object|null,
- *          meta:{id:string, createdAt:string}, hash:string}} o
+ * @param {{engineVersion:string, build?:{sha256?:string, engineVersion?:string, shortSha?:string}|null, template?:object|null,
+ *          meta:{id:string, createdAt:string}, hash:string, env?:string}} o   env — environmentText() natijasi (satr)
  */
 export function footerModel(o) {
   const tm = o.template || null;
   const b = o.build && typeof o.build.sha256 === 'string' && /^[0-9a-f]{64}$/.test(o.build.sha256) ? o.build : null;
+  const sha = o.build && typeof o.build.shortSha === 'string' && /^[0-9a-f]{12}$/.test(o.build.shortSha) ? o.build.shortSha : '';
   return {
     app: APP_NAME,
     engineVersion: o.engineVersion || '',
-    build: b ? b.sha256.slice(0, 12) : '',                 // dvigatel xeshining boshi
-    buildMatches: b ? b.engineVersion === o.engineVersion : null,
+    build: sha || (b ? b.sha256.slice(0, 12) : ''),        // commit SHA ning boshi; bo'lmasa — dvigatel xeshining boshi
+    buildDev: !sha && !!b,                                 // build.json yo'q: lokal / build qadamisiz ishlash
+    buildMatches: o.build && typeof o.build.engineVersion === 'string' && (sha || b) ? o.build.engineVersion === o.engineVersion : null,
+    env: typeof o.env === 'string' ? o.env.slice(0, 120) : '',
     template: tm && tm.id ? { id: String(tm.id), version: String(tm.version || ''), status: String(tm.status || '') } : null,
     calcId: o.meta.id,
     calcDate: o.meta.createdAt,
@@ -60,7 +64,8 @@ export function footerHTML(m, env, qr) {
   return `<div class="report-foot" data-report-footer="1">
     <div class="report-foot-text">
       ${row('app', t('rf_app'), `${m.app}; ${t('rg_engine')} ${m.engineVersion}`)}
-      ${row('build', t('rf_build'), m.build ? `${m.build}${m.buildMatches === false ? ' (' + t('rf_build_mismatch') + ')' : ''}` : t('rf_build_unknown'))}
+      ${row('build', t('rf_build'), m.build ? `${m.build}${m.buildDev ? ' (' + t('rf_build_dev') + ')' : ''}${m.buildMatches === false ? ' (' + t('rf_build_mismatch') + ')' : ''}` : t('rf_build_unknown'))}
+      ${m.env ? row('env', t('rf_env'), m.env) : ''}
       ${row('template', t('rf_template'), m.template ? `${m.template.id} v${m.template.version}${m.template.status ? ' (' + m.template.status + ')' : ''}` : t('rf_template_none'))}
       ${row('calc', t('rf_calc'), `${m.calcId}; ${date}`)}
       ${row('hash', t('rf_hash'), m.hash)}
