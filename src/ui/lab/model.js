@@ -66,12 +66,12 @@ export function standardStatus(std, today, warnDays) {
 }
 
 /**
- * QC kartasi tahlili.
+ * QC kartasi tahlili. `opts.gate` — Westgard 1₂s darvozasi (laboratoriya sozlamasi `westgardGate`, standart true).
  * Chegaralar: `target` (belgilangan o'rtacha va s) bo'lsa — undan; aks holda kartaning o'z ma'lumotidan
  * (I–MR: MR̄/d₂; X̄–R: R̄ va A₂). Westgard qoidalari shu markaziy chiziq va σ ga nisbatan z-ballar bilan.
  * @returns {{type, series:number[], limits:object, range:object|null, z:number[], westgard:object, sRw:object, labels:string[]}|{error:string}}
  */
-export function analyseQc(chart) {
+export function analyseQc(chart, opts = {}) {
   const c = chart || {};
   const pts = (c.points || []).filter(p => p && Array.isArray(p.values) && p.values.length);
   const type = c.type === 'xbar' ? 'xbar' : 'imr';
@@ -85,7 +85,7 @@ export function analyseQc(chart) {
   }
   const z = series.map(v => (v - limits.center) / limits.sigma);
   const runs = pts.map(p => p.run || '');
-  const wg = westgard(z, runs.some(Boolean) && runs.every(Boolean) ? { runs } : {});
+  const wg = westgard(z, { ...(runs.some(Boolean) && runs.every(Boolean) ? { runs } : {}), gate: opts.gate !== false });
   return {
     type, series, limits, fromTarget, range: { values: type === 'xbar' ? base.ranges : base.mr, ...base.r }, outRange: base.out.r, z, westgard: wg,
     sRw: sRwFromChart(pts), labels: pts.map(p => p.date || ''), n: series.length, subgroup: type === 'xbar' ? base.n : 1,

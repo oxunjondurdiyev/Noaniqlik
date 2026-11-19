@@ -189,6 +189,8 @@ export function qcHTML(m, ctx) {
       <p class="text-sm">${ctx.esc(fill(t(an.type === 'xbar' ? 'lb_qc_r_limits' : 'lb_qc_mr_limits'), { cl: num(an.range.center), lcl: num(an.range.lcl), ucl: num(an.range.ucl) }))}${an.outRange.length ? ' — ' + ctx.esc(fill(t('lb_qc_r_out'), { i: an.outRange.map(i => i + 1).join(', ') })) : ''}</p>
       ${flags ? `<div class="warn-box" data-lb-westgard="out"><strong>${ctx.esc(t('lb_qc_violations'))}</strong><ul>${flags}</ul><small>${ctx.esc(t('lb_qc_westgard_note'))}</small></div>`
     : `<p class="text-sm" data-lb-westgard="in">${ctx.esc(t('lb_qc_in_control'))}</p>`}
+      ${an.westgard.gate === false ? `<p class="text-xs" data-lb-gate="off"><em>${ctx.esc(t('lb_qc_gate_off'))}</em></p>` : ''}
+      ${(an.westgard.suppressed || []).length ? `<p class="text-xs text-muted" data-lb-suppressed="1">${ctx.esc(fill(t('lb_qc_suppressed'), { rules: an.westgard.suppressed.map(v => t('lb_rule_' + v.rule) + ' (' + v.indices.map(i => i + 1).join(', ') + ')').join('; ') }))}</p>` : ''}
       <div class="rg-actions" data-lb-srw="1">
         <span>${ctx.esc(fill(t('lb_qc_srw'), { s: num(an.sRw.sRw), n: an.sRw.n, nu: an.sRw.nu }))}</span>
         <button type="button" class="btn btn-outline btn-sm" data-lb-act="to-topdown">${ctx.esc(t('lb_qc_to_topdown'))}</button>

@@ -5,11 +5,11 @@
         NIST/SEMATECH e-Handbook of Statistical Methods, §6.3.2.1 "Shewhart X-bar and R and S Control Charts"
         (https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc321.htm) va §6.3.2.2 "Individuals Control Charts"
         (https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc322.htm).
-   MANBA HOLATI: P11 sessiyasida NIST sayti ochilmadi (tarmoq siyosati), sahifa matni repoda yo'q — shuning uchun
-   jadval qiymatlari "(unverified)" va ular MUSTAQIL HISOB bilan tekshirilgan: d₂ = E[R], d₃ = SD[R] — n ta standart
-   normal kuzatuv ko'lamining (range) momentlari sonli integrallash bilan (tests/engine/lab-qc.test.js); undan
-   A₂ = 3/(d₂√n), D₃ = max(0, 1 − 3d₃/d₂), D₄ = 1 + 3d₃/d₂. Jadval — 3 o'nlik xonagacha yaxlitlangan an'anaviy
-   qiymatlar; test ±0,001 ichida mosligini tekshiradi. Egasi NIST sahifasi bilan solishtirgach "verified" bo'ladi.
+   MANBA (2026-11-19): NIST/SEMATECH e-Handbook §6.3.2.1 — A₂, D₃, D₄ jadvali (n = 2…10), §6.3.2.2 — d₂(2) = 1,128;
+   ko'chirma: docs/references/nist-ehandbook-6.3.2/. A₂, D₃, D₄ — NIST jadvalidan aynan (2.8.1 da D₄(3) 2,574 → 2,575,
+   D₄(5) 2,114 → 2,115 — avval yaxlitlangan d₂, d₃ dan hisoblangan edi). d₂ (n ≥ 3) va d₃ — NIST jadvalida yo'q:
+   ta'rifdan mustaqil hisob (d₂ = E[R], d₃ = SD[R], sonli integrallash — tests/engine/lab-qc.test.js, ±0,001).
+   Ref: NIST/SEMATECH e-Handbook §6.3.2.1, §6.3.2.2.
 
    Formulalar (kichik guruh hajmi n, k ta kichik guruh):
      X̄ karta:  CL = X̿;  UCL/LCL = X̿ ± A₂·R̄      (σ̂ = R̄/d₂;  3σ̂/√n = A₂·R̄)
@@ -22,9 +22,9 @@
 /** n → { d2, d3, A2, D3, D4 } (n = 2…10). Manba va tekshiruv — fayl boshidagi izohda. */
 export const SHEWHART_CONSTANTS = Object.freeze({
   2: Object.freeze({ d2: 1.128, d3: 0.853, A2: 1.880, D3: 0, D4: 3.267 }),
-  3: Object.freeze({ d2: 1.693, d3: 0.888, A2: 1.023, D3: 0, D4: 2.574 }),
+  3: Object.freeze({ d2: 1.693, d3: 0.888, A2: 1.023, D3: 0, D4: 2.575 }),
   4: Object.freeze({ d2: 2.059, d3: 0.880, A2: 0.729, D3: 0, D4: 2.282 }),
-  5: Object.freeze({ d2: 2.326, d3: 0.864, A2: 0.577, D3: 0, D4: 2.114 }),
+  5: Object.freeze({ d2: 2.326, d3: 0.864, A2: 0.577, D3: 0, D4: 2.115 }),
   6: Object.freeze({ d2: 2.534, d3: 0.848, A2: 0.483, D3: 0, D4: 2.004 }),
   7: Object.freeze({ d2: 2.704, d3: 0.833, A2: 0.419, D3: 0.076, D4: 1.924 }),
   8: Object.freeze({ d2: 2.847, d3: 0.820, A2: 0.373, D3: 0.136, D4: 1.864 }),

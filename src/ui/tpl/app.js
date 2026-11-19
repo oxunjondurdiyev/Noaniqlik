@@ -438,6 +438,8 @@ function labHTML(l) {
       <label>${esc(t('lb_set_expiry_days'))}<input type="number" id="lab-expiryWarnDays" min="0" max="3650" step="1" value="${esc(l.expiryWarnDays)}" /></label>
     </div>
     <label class="model-check"><input type="checkbox" id="lab-secondOrder" ${l.secondOrder ? 'checked' : ''} /> <span>${esc(t('set_second_order'))}</span></label>
+    <label class="model-check"><input type="checkbox" id="lab-westgardGate" ${l.westgardGate !== false ? 'checked' : ''} /> <span>${esc(t('lab_westgard_gate'))}</span></label>
+    <p class="text-xs text-muted">${esc(t('lab_westgard_gate_hint'))}</p>
     <p class="text-xs text-muted">${esc(t('set_second_order_hint'))}</p>
     <div class="tpl-ed-actions">
       <button type="button" class="btn btn-primary btn-sm" data-lab="save">${esc(t('ed_save'))}</button>
@@ -457,6 +459,7 @@ async function onLabAction(e) {
     decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, criticalMode: $('lab-criticalMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
     mcMode: $('lab-mcMode').value, mcNDig: Number($('lab-mcNDig').value), mcTolerance: $('lab-mcTolerance').value,
     expiryWarnDays: Math.max(0, Math.round(Number($('lab-expiryWarnDays').value)) || 0),   // P11: etalon muddati ogohlantirishi (linter L1)
+    westgardGate: $('lab-westgardGate').checked,   // W-4: Westgard 1₂s darvozasi (Westgard 1981, 1-rasm)
   };
   if (!db) { toast(t('st_no_idb'), 'error'); return; }
   await Store.saveLabSettings(db, v, { reason: 'lab settings' });

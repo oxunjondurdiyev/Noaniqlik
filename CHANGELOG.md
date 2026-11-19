@@ -6,7 +6,7 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 
 ## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-19)
 
-**ENGINE_VERSION: 2.8.0 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi 2.8.0 (`97e7586`) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.
+**ENGINE_VERSION: 2.8.1 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi asosiy branch (2.8.0, `97e7586`; 2.8.1 merge qilingandan keyin ham testlar o'tadi) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.
 
 ### Qo'shilganlar
 
@@ -33,6 +33,16 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Shablonda `implicit`** (sxema, `checkTemplate`, `buildState`): standart y⁽⁰⁾ (`start`), foydalanuvchi qiymati ustun; hech biri bo'lmasa — `implicit_bad_start`.
 - **Ko'p chiqish + ko'p nuqta:** yagona k yo'q; U_j — har bir chiqishning o'z bir o'lchovli qoidasi bilan; birgalikdagi qamrov — faqat nuqtaning qamrov sohasi (k_p, §6.5); har bir nuqta alohida (`vectorSummaryRows`, nuqtalar paneli, bosma hisobot). Nuqtalar orasidagi soha hisoblanmaydi.
 - Tasdiqlandi, o'zgarishsiz: Nyuton mezoni, singularlik chegarasi 10⁻¹³·max|C_y|, y⁽⁰⁾ majburiy, to'r 100 × 100 (sozlanadi, hisobotda), §9.3 testlari M = 3·10⁶. Oshkormas model MCM — keyingi bosqich.
+
+## [2.8.1] — Westgard va NIST manbalari bilan tekshiruv: 1₂s darvozasi, ko'p materialli Westgard, D₄ jadvali (2026-11-19)
+
+**ENGINE_VERSION: 2.8.0 → 2.8.1.** GUM / MCM / regressiya / top-down / maxsus rejimlar natijalari o'zgarmadi; 9 ta etalon nuqta va 10-test o'zgarmadi. O'zgarish faqat QC kartalari va Westgard topilmalarida.
+
+- **Manbalar:** NIST/SEMATECH e-Handbook §6.3.2, 6.3.2.1, 6.3.2.2 (`docs/references/nist-ehandbook-6.3.2/`) va Westgard va b., Clin. Chem. 27 (1981) 493–501 (egasi nusxasi; PDF © AACC — repoda faqat qaydnoma `docs/references/westgard-1981-NOTES.md`). P11 dagi "(unverified)" belgisi QC kartalari va Westgard qoidalaridan olib tashlandi.
+- **D₄ (NIST jadvaliga moslandi):** n = 3: 2,574 → **2,575**; n = 5: 2,114 → **2,115** (avval yaxlitlangan d₂, d₃ dan hisoblangan). Natijaga ta'siri: n = 3 va n = 5 kichik guruhli R kartasining UCL i ~0,04 % ga oshadi. A₂, D₃ va boshqa D₄ — NIST bilan aynan mos edi.
+- **1₂s darvozasi (W-4; Westgard 1981, 495–496-betlar, 1-rasm; egasi qarori 2026-11-19):** standart bo'yicha seriyada ±2s dan oshgan kuzatuv bo'lmasa, seriya qabul qilinadi — 4₁s va 10ₓ shunday seriyada tugaydigan oyna bilan endi rad etmaydi (natijada `suppressed` — kartada ko'rsatiladi). 1₃s, 2₂s, R₄s ga ta'sir yo'q. Laboratoriya sozlamasi `westgardGate: false` — avvalgi (mustaqil) rejim; natijada `gate: false`, kartada belgi bilan.
+- **Bir nechta nazorat materiali (W-5):** `westgardMulti(materials, opts)` — seriya belgisi majburiy (`qc_multi_runs_required`); 2₂s materiallar bo'ylab (bir seriya) va bir material ichida; R₄s bir seriya ichida materiallar bo'ylab; 4₁s, 10ₓ yig'ma ketma-ketlikda va har bir materialda; 3+ materialda `generalized: true` (loyiha umumlashmasi). **UI da hali yo'q** — kartalarni guruhlash keyingi bosqichda.
+- **Testlar:** NIST A₂ / D₃ / D₄ jadvali (aynan), §6.3.2.2 individuals misoli (UCL 55,8041, LCL 45,8159 — avvalgi `todo` endi majburiy), Westgard 1981 2–3-jadval (oylik x̄ / s, 1-, 3-, 5-oy yig'malari, chegaralar), darvoza va ko'p material testlari.
 
 ## [2.8.0] — P11: etalonlar reestri, drift, CMC jadvali, QC kartalari, kalibrlash intervali (2026-11-18)
 
