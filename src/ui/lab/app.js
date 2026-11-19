@@ -13,6 +13,7 @@ import { loadXlsx } from '../../io/vendor.js';
 import { toCsv, csvDialect } from '../../io/csv.js';
 import { buildRegistryDoc, serializeRegistryDoc, parseRegistryDoc, standardsFromGrid, standardsToRows, cleanQcChart, MAX_REGISTRY_BYTES } from '../../io/registry.js';
 import { draftOf, standardOf, emptyCalibration, standardStatus, analyseQc, cmcQuantities, parseValues } from './model.js';
+import { createQuality } from './quality.js';
 import { TABS, tabsHTML, roleNoticeHTML, standardsListHTML, standardFormHTML, analysisHTML, cmcHTML, qcHTML, pickerHTML } from './view.js';
 
 const $ = id => document.getElementById(id);
@@ -44,6 +45,9 @@ function warnDays() {
   return Number.isFinite(d) && d >= 0 ? d : Lab.EXPIRY_WARN_DAYS;
 }
 
+// P12: malaka sinovlari va validatsiya (src/ui/lab/quality.js) — saqlash va hodisalar shu modulda
+const quality = createQuality({ getDb: () => db, role: () => role(), t: k => t(k), esc: v => esc(v), toast: (...a) => toast(...a), today: () => today(), download: (...a) => download(...a), pickFile: a => pickFile(a), render: () => render() });
+
 const ready = (async () => {
   try { db = await new Store.LocalAdapter().open(); await reload(); } catch (e) { db = null; }
 })();
@@ -55,6 +59,7 @@ async function reload() {
   const c = await Store.getRegistry(db, Store.CMC_TABLE_ID);
   cmc = c ? { id: c.id, kind: 'cmc', version: c.version || 0, savedBy: c.savedBy, rows: (c.rows || []).map(Lab.cleanCmcRow) } : { id: Store.CMC_TABLE_ID, kind: 'cmc', version: 0, rows: [] };
   cmcRows = cmc.rows.map(r => ({ ...r }));
+  await quality.reload();
 }
 
 async function save(rec, reason) {
@@ -100,6 +105,7 @@ function body() {
   if (!db) return `<div class="warn-box">${esc(t('st_no_idb'))}</div>`;
   if (tab === 'cmc') return roleNoticeHTML({ readOnly: readOnly('cmc') }, ctx()) + cmcHTML(cmcModel(), ctx());
   if (tab === 'qc') return roleNoticeHTML({ readOnly: false }, ctx()) + qcHTML(qcModel(), ctx());
+  if (tab === 'pt' || tab === 'validation') return roleNoticeHTML({ readOnly: false }, ctx()) + quality.body(tab);
   const ro = readOnly('standard');
   const list = standards.map(s => ({ ...s, status: standardStatus(s, today(), warnDays()) }));
   return roleNoticeHTML({ readOnly: ro }, ctx()) + standardsListHTML({ standards: list, readOnly: ro, selected: draft && draft.id }, ctx())
@@ -285,6 +291,7 @@ function toTopDown() {
 
 /* ─── Hodisalar: Laboratoriya oynasi ─── */
 function onInput(e) {
+  if (quality.onInput(e)) return;
   const el = e.target, d = el.dataset || {};
   if (d.lbField && draft) { draft[d.lbField] = el.value; return; }
   if (d.lbCal !== undefined && draft) { draft.calibrations[+d.lbCal][d.lbCalField] = el.value; return; }
@@ -313,6 +320,8 @@ function onInput(e) {
 async function onClick(e) {
   const tb = e.target.closest('[data-lb-tab]');
   if (tb && TABS.includes(tb.dataset.lbTab)) { tab = tb.dataset.lbTab; render(); return; }
+  const q = quality.onClick(e);
+  if (q) { await q; return; }
   const b = e.target.closest('[data-lb-act]');
   if (!b || b.disabled) return;
   const act = b.dataset.lbAct, i = +b.dataset.lbIndex;
@@ -440,6 +449,7 @@ window.UCLab = Object.freeze({
   standards: () => standards.map(s => ({ ...s })),
   setTab: x => { if (TABS.includes(x)) { tab = x; render(); } },
   openChart, toTopDown,
+  openPt: id => quality.openPt(id), openValidation: id => quality.openVl(id),
 });
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();

@@ -28,6 +28,7 @@ const DOCS = {
   quam: 'EURACHEM/CITAC QUAM:2012',
   ufs: 'EURACHEM/CITAC UfS:2019',
   aqa: 'EURACHEM/CITAC AQA:2021',
+  nist: 'NIST/SEMATECH e-Handbook of Statistical Methods',
 };
 
 /**
@@ -48,6 +49,8 @@ export function normativeRefs(lang, o) {
   if (mode === 'TOP_DOWN') keys.push('nordtest', 'quam');
   if (mode === 'SAMPLING') keys.push('ufs');
   if (mode === 'QUALITATIVE') keys.push('aqa');
+  // P12: usul validatsiyasi statistikasi — NIST e-Handbook (verified); PT — faqat ISO/IEC 17025 (ISO 13528 — unverified, ro'yxatga kirmaydi)
+  if (mode === 'VALIDATION') keys.push('nist', 'quam');
   if (opt.monteCarlo) keys.push('jcgm101');
   if (opt.decision || opt.form === 'conformity') keys.push('jcgm106', 'ilacG8');
   const eq = EQUIVALENTS[lang] || EQUIVALENTS.en;

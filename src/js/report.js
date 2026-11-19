@@ -585,13 +585,20 @@ const Results = (() => {
   function printTopdown(r, o) {
     return printMode(r, o, { scope: 'topdown', emptyKey: 'td_empty', mode: () => 'TOP_DOWN', body: res => topdownSection(res, { print: true }) });
   }
+  /** P12: malaka sinovlari va usul validatsiyasi hisoboti (Laboratoriya yorlig'i) */
+  function printPT(r, o) {
+    return printMode(r, o, { scope: 'pt', emptyKey: 'pt_empty', mode: () => 'PT', body: res => sec().ptSection(res, { print: true }) });
+  }
+  function printValidation(r, o) {
+    return printMode(r, o, { scope: 'validation', emptyKey: 'vl_empty', mode: () => 'VALIDATION', body: res => sec().validationSection(res, { print: true }) });
+  }
   function printSpecial(r, o) {
     return printMode(r, o, { scope: 'special', emptyKey: 'sp_empty', mode: linterMode, body: res => specialSection(res, { print: true }) });
   }
 
   const escHtml = window.escHtml;
 
-  return { init, render, printReport, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, findingsOf, findingsHtml, statusOf };
+  return { init, render, printReport, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, printPT, printValidation, findingsOf, findingsHtml, statusOf };
 
 
 })();

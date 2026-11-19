@@ -6,7 +6,7 @@
 import { TRACEABILITY_ROUTES, DRIFT_METHODS, DRIFT_DISTRIBUTIONS, CMC_TYPES, WESTGARD_RULES } from '../../engine/lab/index.js';
 import { qcChartSVG } from './chart.js';
 
-export const TABS = ['standards', 'cmc', 'qc'];
+export const TABS = ['standards', 'cmc', 'qc', 'pt', 'validation'];   // P12: malaka sinovlari, validatsiya
 const num = (v, sig) => (typeof v === 'number' && Number.isFinite(v) ? String(Number(v.toPrecision(sig || 6))) : '—');
 const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (o[k] === undefined ? m : o[k]));
 const opt = (ctx, value, label, cur) => `<option value="${ctx.esc(value)}"${String(cur ?? '') === String(value) ? ' selected' : ''}>${ctx.esc(label)}</option>`;
