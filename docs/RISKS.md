@@ -339,6 +339,16 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 5. **Chiqishga xos sozlamalar** (MPE, qaror qoidasi) faqat `outputs[j].settings` orqali; umumiy `settings` dagi MPE vektor hisobda e'tiborga olinmaydi.
 6. **Ko'p o'lchovli t `nonNormalCorrelation: 'gaussian'` sozlamasidan ustun** (2.7.0 da MCM natijasi o'zgargan holat — CHANGELOG).
 
+### R-28. AI yordamchi (P14): xavflar va egasi qarorini kutadigan bandlar (O) — 2026-11-19
+
+**Holat: loyiha hujjati tasdiq kutadi** — [AI_DESIGN.md](AI_DESIGN.md). Tasdiqgacha repoda faqat hujjat va sof `src/ai/payload.js` (+ `tests/ai/payload.test.js`); UI, prompt shablonlari, javob validatori, API chaqiruvi va CSP o'zgarishi yozilmagan. `src/engine/` va `src/report/` o'zgarmagan (dvigatel xeshi va `ENGINE_VERSION` 2.10.0 — o'sha).
+
+Xavflar va nazorat (to'liq jadval — `AI_DESIGN.md` §6): gallyutsinatsiya (raqam faqat manba parchasi bilan, parcha kirish matnida tekshiriladi, alohida tasdiq); noto'g'ri birlik (shablon validatori, o'lchamlik, linter); yashirin tuzatma (AI ga natija yuborilmaydi, hisob faqat dvigatelda); to'qilgan havola; prompt injection (javob — faqat ma'lumot, qat'iy sxema); kalit sizishi (faqat `sessionStorage`); model versiyasi o'zgarishi (auditda model va prompt versiyasi); ma'lumot chiqib ketishi (ruxsat ro'yxati + qo'riqchi — `tests/ai/payload.test.js`: barcha GUM misollari va "kanareyka" qiymatlar).
+
+**Qoldiq xavf:** foydalanuvchi o'zi yuklagan metodika / sertifikat matnida shaxs ismi bo'lishi mumkin — dastur faqat ogohlantiradi (email, telefon, STIR ko'rinishidagi parchalar soni), ismlarni ishonchli topa olmaydi. "O'z kaliti" rejimida ma'lumot chet el xizmatiga ketadi — yuridik baho egasida (`docs/DATA_RESIDENCY.md`). Brauzerdagi kalit XSS da o'g'irlanishi mumkin — to'liq yechim server orqali chaqiruv (P15 dan keyin).
+
+**Egasi qarorini kutadi** (variantlar — `AI_DESIGN.md` §13): S-1 manba nomini yuborish (hozir — yo'q, faqat `B1`, `B2` …); S-2 standart model; S-3 ogohlantirish matni; S-4 reestr yozuvidagi `source: 'ai'` belgisi (dvigatelga tegmasdan — saqlash qatlamida); S-5 "hammasini tasdiqlash"; S-6 `guest` rejimida yoqish; S-7 CSP (umumiy sahifa yoki alohida `ai.html`); S-8 `AI_DRAFT → DRAFT` izohi; S-9 asos branch (P13 hali birlashtirilmagan).
+
 ### R-27. Validatsiya paketi (P13): egasi qarorini kutadigan bandlar (O) — 2026-11-19
 
 Bajarilgan: `docs/validation/` (reja, talablar, RTM, o'zgarishlarni boshqarish, cheklovlar, PQ / URS shablonlari, FAQ), `scripts/validation-report.js`, `scripts/rtm.js`, `scripts/build-site.js`, `scripts/cases-snapshot.js`, `.github/workflows/deploy.yml`, `tests/crossbrowser/`, `tests/crosscheck/num/`, `validation.html`, `docs/manual/`. Hisob natijalari o'zgarmagan (91 misol P12 bilan bit darajasida bir xil).
