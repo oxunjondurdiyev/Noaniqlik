@@ -716,3 +716,61 @@ Hisobda: `settings.cmcRows` (massiv — X ga mos qator avtomatik) yoki `settings
 ### 14.6. Saqlash va rol (`src/storage/registry.js`)
 
 `saveRegistry(store, rec, { role, reason })` (versiya + 1, audit; yozuvga `savedBy` — rol; `guest` bo'lsa nusxada `enteredBy: 'guest'` → info `registry_unauthenticated` / `cmc_unauthenticated`), `removeRegistry`, `listRegistry(store, kind)`, `registryHistory(store, id)`, `canEditRegistry(kind, role)`: etalon va CMC — xodim (`employee`) tahrirlay olmaydi; QC kartasi — hamma. `migrateSchema(store)` — saqlangan hisoblar sxemasi → `CALC_STATE_SCHEMA` = 3.
+
+## 15. Malaka sinovlari va usul validatsiyasi (P12, ENGINE 2.10.0)
+
+Ikkala format `evaluate()` orqali (GUM linteri qo'llanmaydi — modullar o'z topilmalarini `findings` da beradi; tuzilma linter topilmasi bilan bir xil). Natija yaxlitlanmaydi.
+
+### 15.1. `uc-pt/1` — PT ballari (`src/engine/pt/index.js`)
+
+```js
+evaluate({ format: 'uc-pt/1', quantity, method, matrix, savedBy,
+  rounds: [{ id, date, scheme, x, xpt, sigmaPt, ux, uxpt, Ux, Uxpt, unit, primary }] })
+// qiymat — son yoki { value, unit } (raund birligiga o'tkaziladi; σ va u — farq birligi, offsetsiz)
+→ { mode: 'PT', format, rounds: [{ id, x, xpt, d, unit, sigmaPt, ux, uxpt, Ux, Uxpt,
+      scores: { z, zPrime, zeta, En },          // mavjud bo'lmagani — null
+      reasons: { z: 'pt_need_sigma', … },       // null sababi: pt_need_sigma | pt_need_ux | pt_need_uxpt | pt_need_U | pt_need_Uxpt
+      verdicts: { … }, primary, score, verdict, uxptRatio }],
+    n, counts: { satisfactory, questionable, unsatisfactory }, limits, limitsRef, mixedUnits, findings }
+```
+
+- z = d/σ_pt; z′ = d/√(σ_pt² + u²(x_pt)); ζ = d/√(u²(x) + u²(x_pt)); E_n = d/√(U²(x) + U²(x_pt)), d = x − x_pt (ISO 13528:2022 — **unverified**).
+- `PT_LIMITS = { warn: 2, action: 3, en: 1 }` — yagona joy; chegaradagi qiymat qoniqarli; solishtirish `PT_BOUNDARY_TOL` = 10⁻¹² nisbiy tolerans bilan (egasi tasdiqladi, R-26 #1). Hisobotda ball 2 o'nlik xonada (`src/report/pt.js::scoreText`), baho yaxlitlanmagan qiymatdan.
+- `primary` — `'z' | 'zPrime' | 'zeta' | 'En'`; bo'sh bo'lsa mavjudlaridan birinchisi (E_n, z, z′, ζ). Ball **avtomatik almashtirilmaydi**.
+- Xatolar: `pt_bad_spec`, `pt_bad_data`, `pt_sigma_nonpositive` (σ_pt ≤ 0), `pt_u_nonpositive` (u(x), U ≤ 0; u(x_pt) < 0), `pt_unit_mismatch`, `pt_unit_unknown`, `pt_no_score`.
+- Topilmalar: `pt_uxpt_large` (info; u(x_pt) > 0,3·σ_pt va asosiy ball z), `pt_questionable` (info), `pt_unsatisfactory` (warning), `pt_limits_unverified` (info, har doim), `pt_unauthenticated` (info, `savedBy: 'guest'`).
+- `lastRound(result)` (indeksda `ptLastRound`), `ptLinkOf(series, result)` → `{ seriesId, version, name, quantity, method, lastRound: { id, date, primary, score, verdict } }` — hisobga yoziladigan seriya nusxasi (`settings.ptLink`; GUM va `uc-topdown/1` `settings`): linter **L3** `pt_last_unsatisfactory` (info) oxirgi raund qoniqarsiz bo'lsa.
+- `ptToTopDownBias(result)` → `{ bias: { type: 'pt', unit, rounds: [{ id, assigned, result, uRef | U, k }] }, rounds, missingUref }` — P09 `evaluateBias` ga (Nordtest TR 537 §6.2); formula qayta yozilmagan. UI uni top-down ustasining `ptRows` matniga ("x − x_pt; u(x_pt)") aylantiradi.
+
+### 15.2. `uc-validation/1` — usul validatsiyasi (`src/engine/validation/`)
+
+```js
+evaluate({ format: 'uc-validation/1', method, quantity, matrix, unit, savedBy, tests: [ … ] })
+→ { mode: 'VALIDATION', format, tests: [{ id, type, … } | { id, type, error, detail }], errors, findings }
+```
+
+Bitta test xatosi qolganlarini to'xtatmaydi. Test turlari (`VALIDATION_TESTS`):
+
+| `type` | Kirish | Natija | Manba |
+|---|---|---|---|
+| `grubbs` | `values`, `side`: `two` \| `max` \| `min`, `alpha` (0,05), `excluded` | `G`, `critical`, `outlier`, `index`, `flaggedIndex`, `value`, `excluded` | NIST §1.3.5.17.1 (verified) |
+| `cochran` | `groups` (teng hajm; qatorlar yoki `{sd, n}`), `alpha`, `excluded` | `C`, `critical`, `flaggedIndex`, `unverified: true` | ISO 5725-2 (unverified) |
+| `anova` | `groups` (qatorlar yoki `{mean, sd, n}`) | `ss`, `df`, `ms`, `F`, `p`, `critical`, `sr`, `sb2`, `sb`, `sI`, `n0`, `negative`, `nu.sr`, `nu.sI` (Welch–Satterthwaite, loyiha qarori R-26 #7; s_b² < 0 → N − k), `nuSIRule` | NIST §7.4.3, §2.4.4 (verified); n₀ (teng emas) — unverified |
+| `ttest` | `a`, `b` (qatorlar yoki `{mean, sd, n}`), `equalVariance` (true), `tail`, `alpha` | `T`, `df`, `sp`, `critical`, `p`, `reject` | NIST §1.3.5.3 (verified) |
+| `ftest` | `a`, `b`, `tail`, `alpha` | `F`, `df1`, `df2`, `lower`, `upper`, `p`, `reject` | NIST §1.3.5.9 (verified) |
+| `recovery` | `values` (%) yoki `mean, s, n`; `correction` | P09 `evaluateRecovery` natijasi | QUAM:2012 A4 (verified, P09) |
+| `linearity` | `points: [{x, y}]`, `method`, `degree` | P08 regressiyasi: `params`, `s`, `residuals`, `chi2` | GUM H.3, QUAM E.4 (P08) |
+| `lod` | `method: 'blank'` (`values`, `replicates`, `blankCorrection`, `blankReplicates`, `kQ` = 10) yoki `'calibration'` (`points`) | `lod`, `loq`, `s0Prime` / `syx`, `slope` | Eurachem FfP 2014; ICH Q2 (unverified) |
+
+- **Chiqarish:** `excluded: [{ index, comment (≥ 10 belgi), role, at }]` — foydalanuvchi qarori (saqlash — `excludeValue`, faqat admin); dvigatel qiymatni o'chirmaydi (`values` to'liq qoladi), testni qolgan qiymatlarda bajaradi va `value_excluded` / `grubbs_multiple` topilmalarini beradi. Takroriy Grubbs avtomatik emas.
+- Xatolar: `validation_bad_spec`, `validation_bad_test`, `validation_bad_data`, `validation_too_few`, `validation_zero_sd`, `validation_unbalanced`, `validation_bad_alpha`, `validation_bad_exclusion`.
+- Topilmalar: `grubbs_flagged` (warning), `grubbs_multiple`, `cochran_unverified`, `cochran_flagged` (warning), `anova_negative_component`, `anova_unbalanced_n0`, `lod_unverified`, `lod_calibration_unverified`, `value_excluded`, `validation_unauthenticated` (info).
+- Alohida funksiyalar: `grubbsTest`, `grubbsCriticalValue`, `cochranTest`, `cochranCritical`, `oneWayAnova`, `twoSampleT`, `fTest`, `lodFromBlank`, `lodFromCalibration`; statistik yordamchilar `fCdf`, `fUpperTail`, `fCritical`, `tCriticalUpper`, `tUpperTail` (`src/engine/stats/fdist.js`), `varianceComponent`, `nonNegative`, `pooledSd` (`src/engine/stats/anova.js` — P10 ichma-ich ANOVA ham shulardan foydalanadi).
+
+### 15.3. Top-down shablon qoralamasi
+
+`topDownDraft(result, { id, date, sourceHash, precisionTest, recoveryTest?, scale?, measurand? })` → `{ template }` | `{ error }` — `uc-template/1`, `status: 'DRAFT'`, `evaluationMode: 'TOP_DOWN'`, `topDown.rwSources: ['stated']`, tiklanish bo'lsa `biasSource: 'recovery_quam'`; raqamlar `validationBasis` da (sxemada; builtin shablonda taqiqlangan — `checkTemplate(tpl, schema, { builtin: true })`). `sourceHash` — chaqiruvchi hisoblaydi (`jcsHash(validationSpec)`, RFC 8785 SHA-256; dvigatelda kripto yo'q). Xatolar: `draft_bad_result`, `draft_bad_id`, `draft_bad_date`, `draft_bad_hash`, `draft_need_precision`, `draft_need_recovery`, `draft_recovery_relative`, `draft_need_unit`. `buildTopDownState` s_I ni `statedS` ga, ν(s_I) ni `statedNu` ga (foydalanuvchi o'zgartira oladi), tiklanish R_m / s / n ni `quam*` ga qo'yadi; `statedN` bo'sh. Top-down `stated` komponentida ixtiyoriy `nu` (berilsa n − 1 o'rniga; ≤ 0 — `topdown_bad_data`; berilmasa natija o'zgarmagan).
+
+### 15.4. Saqlash (`src/storage/quality.js`, IndexedDB v2)
+
+Omborlar `pt`, `validation` (`DB_VERSION` 1 → 2; faqat yo'q omborlar yaratiladi). `saveQuality(store, 'pt' | 'validation', rec, { role })` (versiya + 1, `savedBy`, audit), `removeQuality` (xodim — yo'q), `excludeValue(store, setId, testId, index, comment, { role, include })` (faqat admin / guest; audit amali `outlier_exclude` / `outlier_include`, sabab — izoh), `qualityHistory`, `canQuality(action, role)`. `cleanPtSeries` / `cleanValidationSet` noma'lum maydonlarni tashlaydi (ijrochi ismi va h.k. saqlanmaydi). Eksport (`uc-export/1`) P12 omborlari bo'sh bo'lsa ularni yozmaydi. Import / eksport: `src/io/quality.js` — `ptRoundsFromGrid` (.xlsx / .csv, LIMITS), `ptSeriesToRows` (CSV), `uc-quality/1` JSON (RFC 8785 xesh).

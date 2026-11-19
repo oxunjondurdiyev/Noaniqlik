@@ -26,6 +26,7 @@ const I18N_FILES = [
   'src/js/i18n-report.js',
   'src/js/i18n-admin.js',
   'src/js/i18n-lab.js',
+  'src/js/i18n-pt.js',
 ];
 
 // Berilgan fayllar bitta skript sifatida yuklanadi (top-level const TRANSLATIONS umumiy bo'lishi uchun)
@@ -408,6 +409,7 @@ const ALLOW_PHRASES = [
   'PP', 'PN', 'LR', 'TP', 'FP', 'FN', 'TN', 'tp', 'fp', 'fn', 'tn', // 2×2 jadval belgilari (AQA:2021): posterior, likelihood ratio, true/false pos./neg.
   'BETA', 'unverified',         // tekshiruv holati belgilari (CLAUDE.md, docs/VALIDATION_MATRIX.md) — qat'iy atama; yonidagi izoh tarjima qilingan
   'mg/L', 'mL', 'cm',           // o'lchov birliklari (placeholder namunalari)
+  'Uxpt',                       // P12: PT maydon identifikatori U(x_pt) (forma kaliti, ekranda — lug'atdan)
   '% об.',                      // hajmiy ulush birligi — manba hujjatdagi (C75.QM, KEDR-07) yozuvda; nuqta belgisi "10 % об."
 ];
 
@@ -417,6 +419,7 @@ const ALLOW_LITERALS = new Set([
   'Enter', 'Tab',               // KeyboardEvent.key qiymatlari
   'opacity .3s, transform .3s', // CSS transition qiymati (toast.js)
   'Unknown batch op:',          // DB.batch() ga noto'g'ri op berilganda ishlab chiquvchi uchun xato (dasturlash xatosi, UI'ga chiqmaydi)
+  'NIST/SEMATECH e-Handbook of Statistical Methods', // P12: normativ manba nomi (tarjima qilinmaydi — JCGM / ISO nomlari kabi)
   'new version', 'lab settings', 'migration mark', // audit jurnaliga yoziladigan sabab kodlari (xesh zanjirida saqlanadigan ma'lumot; tilga bog'liq bo'lmasligi kerak)
 ]);
 

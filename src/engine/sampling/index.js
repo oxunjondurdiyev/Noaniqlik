@@ -13,6 +13,7 @@
 import { ENGINE_VERSION } from '../version.js';
 import { isBlank, toNum } from '../util.js';
 import { normalCdf } from '../special.js';
+import { varianceComponent, nonNegative } from '../stats/anova.js';
 
 export const SAMPLING_FORMAT = 'uc-sampling/1';
 export const SAMPLING_METHODS = ['classical', 'robust'];
@@ -54,7 +55,8 @@ export function classicalAnova(d) {
   });
   const msA = ssA / (2 * n), msS = ssS / n, msT = ssT / (n - 1);
   // E[MS_anal] = σ_a²; E[MS_samp] = σ_a² + 2σ_s²; E[MS_target] = σ_a² + 2σ_s² + 4σ_t²
-  const vA = msA, vS = (msS - msA) / 2, vT = (msT - msS) / 4;
+  // P12: umumiy yordamchi (src/engine/stats/anova.js) — amallar tartibi avvalgidek, natija bit darajasida bir xil
+  const vA = msA, vS = varianceComponent(msS, msA, 2), vT = varianceComponent(msT, msS, 4);
   return { n, mean, ss: { between: ssT, sampling: ssS, analysis: ssA }, ms: { between: msT, sampling: msS, analysis: msA }, variance: { between: vT, sampling: vS, analysis: vA } };
 }
 
@@ -93,7 +95,7 @@ export function robustAnova(d, start) {
 
 function summarise(a, k) {
   const neg = Object.entries(a.variance).filter(([, v]) => v < 0).map(([key]) => key);
-  const v = { between: Math.max(a.variance.between, 0), sampling: Math.max(a.variance.sampling, 0), analysis: Math.max(a.variance.analysis, 0) };
+  const v = { between: nonNegative(a.variance.between), sampling: nonNegative(a.variance.sampling), analysis: nonNegative(a.variance.analysis) };
   const vMeas = v.sampling + v.analysis, vTot = v.between + vMeas;
   const s = { between: Math.sqrt(v.between), sampling: Math.sqrt(v.sampling), analysis: Math.sqrt(v.analysis), measurement: Math.sqrt(vMeas), total: Math.sqrt(vTot) };
   const pct = x => (vTot > 0 ? 100 * x / vTot : 0);

@@ -21,7 +21,7 @@ const { escHtml } = require('../../src/ui/escape.js');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js', 'src/js/i18n-lab.js'];
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js', 'src/js/i18n-lab.js', 'src/js/i18n-pt.js'];
 const DICT = (() => {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   return dom.window.eval(I18N_FILES.map(read).join('\n;\n') + '\n;TRANSLATIONS');
@@ -105,7 +105,7 @@ test('ko\'rinish uch tilda: etalonlar ro\'yxati (muddati o\'tgan / yaqin, akkred
     const f = frag(V.tabsHTML('standards', ctx) + V.roleNoticeHTML({ readOnly: false }, ctx) + V.standardsListHTML({ standards: list, readOnly: false, selected: 'std:b' }, ctx)
       + V.standardFormHTML({ draft: M.draftOf(STD()), readOnly: false, isNew: false, history: [{ at: '2026-11-18T10:00:00.000Z', actor: 'admin', action: 'create', after: { version: 1 }, reason: 'standard_create' }],
         analysis: { x: 100, method: 'last_two', distribution: 'rect', limit: 0.15, includeU: true, drift: E.driftProposal(E.correctionHistory(STD(), 100)), interval: E.intervalRecommendation(E.correctionHistory(STD(), 100), { limit: 0.15 }) } }, ctx));
-    assert.equal(f.querySelectorAll('[data-lb-tab]').length, 3);
+    assert.equal(f.querySelectorAll('[data-lb-tab]').length, 5);   // P12: + malaka sinovlari, validatsiya
     assert.deepEqual([...f.querySelectorAll('[data-lb-status]')].map(e => e.dataset.lbStatus), ['expired', 'expiring']);
     assert.equal(f.querySelectorAll('[data-lb-noaccr]').length, 1);
     assert.equal(f.querySelectorAll('[data-lb-cal-box]').length, 3);
@@ -281,9 +281,9 @@ before(async () => {
   await tick();
 });
 
-test('kontroller: oyna chiziladi (3 yorliq), hodisalar addEventListener orqali', () => {
+test('kontroller: oyna chiziladi (5 yorliq — P12), hodisalar addEventListener orqali', () => {
   assert.ok(w.UCLab);
-  assert.equal(doc.querySelectorAll('[data-lb-tab]').length, 3);
+  assert.equal(doc.querySelectorAll('[data-lb-tab]').length, 5);
   assert.ok($('[data-lb-list="standards"]'));
   assert.equal(doc.querySelectorAll('#lab-root [onclick], #lab-root [oninput], #lab-root [onchange]').length, 0);
 });

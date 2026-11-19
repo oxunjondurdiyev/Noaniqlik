@@ -72,3 +72,8 @@ export function latestVersions(records) {
   }
   return [...by.values()];
 }
+// P12: malaka sinovlari va usul validatsiyasi (IndexedDB v2 — `pt`, `validation` omborlari)
+export {
+  PT_STORE, VALIDATION_STORE, QUALITY_SCHEMA, QUALITY_RECORD_FORMAT, EXCLUDE_ACTION, INCLUDE_ACTION, MIN_EXCLUDE_COMMENT as MIN_EXCLUDE_COMMENT_STORE,
+  canQuality, newQualityId, cleanPtSeries, cleanValidationSet, listQuality, getQuality, saveQuality, removeQuality, excludeValue, qualityHistory,
+} from './quality.js';

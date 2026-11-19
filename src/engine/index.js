@@ -61,3 +61,15 @@ export {
 } from './linter/index.js';
 // P11: laboratoriya jarayonlari — etalonlar reestri, drift, CMC jadvali, QC kartalari, Westgard, kalibrlash intervali
 export * from './lab/index.js';
+// P12: malaka sinovlari (format 'uc-pt/1') va usul validatsiyasi statistikasi (format 'uc-validation/1')
+export {
+  evaluatePT, ptScores, verdictOf, primaryScore, ptToTopDownBias, lastRound as ptLastRound, ptLinkOf,
+  PT_FORMAT, PT_SCORES, PT_LIMITS, PT_LIMITS_REF, PT_BOUNDARY_TOL, PT_UXPT_RATIO, PT_VERDICTS, PT_ERRORS, PT_NULL_REASONS, PT_FINDINGS,
+} from './pt/index.js';
+export {
+  evaluateValidation, applyExclusions, VALIDATION_FORMAT, VALIDATION_TESTS, VALIDATION_ERRORS, VALIDATION_FINDINGS, MIN_EXCLUDE_COMMENT,
+  grubbsTest, grubbsCriticalValue, GRUBBS_SIDES, GRUBBS_MIN_N, cochranTest, cochranCritical, oneWayAnova, twoSampleT, fTest, TAILS,
+  lodFromBlank, lodFromCalibration, LOD_METHODS, LOD_FACTOR, LOQ_FACTOR_DEFAULT, LOD_CAL_FACTOR, LOQ_CAL_FACTOR, DEFAULT_ALPHA, topDownDraft,
+} from './validation/index.js';
+export { fCdf, fUpperTail, fCritical, tCriticalUpper, tUpperTail } from './stats/fdist.js';
+export { varianceComponent, nonNegative, pooledSd } from './stats/anova.js';

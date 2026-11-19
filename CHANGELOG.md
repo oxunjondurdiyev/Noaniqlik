@@ -4,6 +4,36 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.10.0] — P12: malaka sinovlari (PT) va usul validatsiyasi (2026-11-19)
+
+**ENGINE_VERSION: 2.9.0 → 2.10.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 91 ta misolning to'liq natijasi (`evaluate()`, `monteCarlo()`, `evaluateBias()`) 2.9.0 (`d970ca7` dan keyingi holat, `14e1d18`) bilan **bit darajasida bir xil** (`engineVersion` dan tashqari; nazorat skripti — natija JSON ining SHA-256 xeshi; egasi qarorlari kiritilgandan keyin ham qayta tekshirildi). 9 ta etalon Excel nuqtasi va 10-test o'zgarmadi. `src/engine/sampling/` (P10) umumiy ANOVA yordamchisiga o'tkazildi — UfS:2019 natijalari bit darajasida bir xil.
+
+### Qo'shilganlar
+
+- **`uc-pt/1`** (`src/engine/pt/`): z, z′, ζ, E_n; mavjud bo'lmagan ball — `null` + sabab kodi; birliklar P04 moduli orqali; σ_pt ≤ 0, U ≤ 0, birliklar mos emas — aniq xato. Baholash chegaralari `PT_LIMITS` (yagona joy; **loyiha standarti, R-26**). `pt_uxpt_large` (u(x_pt) > 0,3·σ_pt — z′ tavsiyasi, avtomatik almashtirish yo'q). PT tarixi → top-down u(bias) (`ptToTopDownBias` → P09 `bias.type: 'pt'`, Nordtest TR 537 §6.2; formula qayta yozilmagan).
+- **`uc-validation/1`** (`src/engine/validation/`): Grubbs (ikki / bir tomonlama), Cochran C (unverified), bir omilli ANOVA (teng / teng bo'lmagan guruhlar, s_r, s_b, s_I), ikki tanlanma t-testi (teng dispersiya / Welch), F-testi, recovery (P09 QUAM funksiyasi), chiziqlilik (P08 regressiyasi), LOD/LOQ (blank va kalibrlash — unverified). Dastur qiymatni **o'chirmaydi**: chiqarish — foydalanuvchi qarori, izoh ≥ 10 belgi, audit (`outlier_exclude`).
+- **Top-down shablon qoralamasi** (`topDownDraft`): DRAFT, foydalanuvchi shabloni, manba ma'lumotlar xeshi (RFC 8785) va sana; sxemada ixtiyoriy `validationBasis` (builtin shablonda taqiqlangan).
+- **`src/engine/stats/`**: F-taqsimot (CDF, dum, kritik qiymat), bir tomonlama t; dispersiya komponenti, pooled s.
+- **Saqlash:** IndexedDB v2 — `pt`, `validation` omborlari (eski omborlar va ma'lumot o'zgarmaydi), audit, versiya, rol (`employee` kiritadi; chiqarish, o'chirish, qoralama — `admin`; `guest` — lokal, info topilma). Eksport (`uc-export/1`) P12 omborlari bo'sh bo'lsa o'zgarmaydi.
+- **Import / eksport:** PT raundlari `.xlsx` / `.csv` dan (LIMITS, formulalar bajarilmaydi), CSV, `uc-quality/1` JSON.
+- **UI:** "Laboratoriya" yorlig'ida "Malaka sinovlari" va "Validatsiya" bo'limlari (`src/ui/lab/quality*.js`, matnlar `src/js/i18n-pt.js` — uch tilda). **Hisobot:** `src/report/pt.js` (raund jadvali, chegaralar manbasi, SVG tarix grafigi — skriptsiz), `src/report/validation.js` (statistika, kritik qiymat, α, xulosa, Ref, unverified belgisi, chiqarilgan qiymatlar va izohlari); normativ havola — NIST/SEMATECH e-Handbook.
+
+### Test misollari (verified, NIST/SEMATECH e-Handbook — `docs/references/nist-ehandbook-p12/`)
+
+- §1.3.5.17.1 Grubbs: G = 2,4687, G_krit = 2,032 — **D-22**: manba G ni kesgan (aniq 2,468765).
+- §7.4.3 bir omilli ANOVA: SS, DF, MS, F = 9,59, F₀,₀₅;₂,₁₂ = 3,89, p = 0,00325.
+- §2.4.4.1–2.4.4.2: pooled s₁ = 0,07871, s₂ = 0,02742, s_days² = −0,00028072 → 0.
+- §1.3.5.3 t-test: T = −12,62059, s_p = 6,34260, ν = 326, t = 1,9673 / 1,6495. §1.3.5.9 F-test: F = 1,123037, 0,7756 / 1,2894.
+- Unverified (todo): Cochran kritik qiymati (Monte-Karlo bilan mustaqil — o'tadi), LOD/LOQ (Eurachem FfP 2014 — egasi qo'shadi).
+
+### Egasi qarorlari (2026-11-19, R-26) — shu versiyada
+
+- PT chegaralari va 10⁻¹² tolerans tasdiqlandi; **hisobotda ball 2 o'nlik xonada**, baho yaxlitlanmagan qiymatdan, qoida va tolerans hisobot izohida.
+- s_b² < 0 → 0 + info; Grubbs (α = 0,05, bitta chetga chiquvchi) — tasdiqlandi.
+- Cochran va LOD/LOQ — **"(unverified)" belgisi test sarlavhasida**, bosma hisobotda ham; k_Q = 10.
+- **Linter L3** (`pt_last_unsatisfactory`, info; GUM va TOP_DOWN): hisob PT seriyasiga bog'langan (`settings.ptLink` — seriya nusxasi, `ptLinkOf`) va oxirgi raund qoniqarsiz. Bog'lanmagan hisoblarda topilma yo'q — 9 ta etalon nuqta topilmalari o'zgarmagan.
+- **ν(s_I) — Welch–Satterthwaite** (JCGM 100:2008 G.4.1; loyiha qarori): `oneWayAnova().nu.sI`; NIST §7.4.3 misolida 3,903; s_b² < 0 → N − k. Qoralamada `validationBasis.precision.nuSI` → top-down ustasining ν maydoni (`statedNu`); top-down `stated` komponentida ixtiyoriy `nu` (berilmasa natija o'zgarmagan).
+
 ## [2.9.0] — P07b: oshkor bo'lmagan model, atan2, eng kichik qamrov sohasi (JCGM 102:2011) (2026-11-19)
 
 **ENGINE_VERSION: 2.8.1 → 2.9.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 83 ta misolning `evaluate()` va 26 ta misolning `monteCarlo()` natijasi asosiy branch (2.8.0, `97e7586`; 2.8.1 merge qilingandan keyin ham testlar o'tadi) bilan **bit darajasida bir xil** (`engineVersion` va yangi `coverageRegion.smallest` maydonidan tashqari; nazorat skripti). 9 ta etalon Excel nuqtasi, 10-test, JCGM 100 / 101 / 102 misollari o'zgarmadi.

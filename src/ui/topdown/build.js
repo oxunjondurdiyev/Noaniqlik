@@ -22,7 +22,7 @@ export function defaults() {
     basis: 'within', rwSources: ['control_series'], bias: 'none',
     scale: 'relative', unit: '', empirical: false, refMethod: '',   // refMethod: '' (javob yo'q) | 'same' | 'other'
     y: '', k: '',
-    qcValues: '', dupPairs: '', dupMethod: 'per_pair', limit: '', sigmas: '2', statedS: '', statedN: '',
+    qcValues: '', dupPairs: '', dupMethod: 'per_pair', limit: '', sigmas: '2', statedS: '', statedN: '', statedNu: '',
     covers: [],
     crmRows: '', ptRows: '', ptRobust: false, recValues: '', recURef: '',
     quamValues: '', quamMean: '', quamS: '', quamN: '', quamCorrection: 'not_applied',
@@ -30,6 +30,7 @@ export function defaults() {
     s0: '', s1: '',
     additional: [],     // [{name, category, u}]
     template: null,
+    ptLink: null,       // P12: PT seriyasi nusxasi (linter L3)
   };
 }
 
@@ -70,6 +71,8 @@ export function buildSpec(st) {
   if (y !== undefined) spec.measurement = { value: y, unit: dataUnit };
   const k = one(st.k, 'k');
   if (k !== undefined) spec.settings = { k };
+  // P12: PT seriyasi nusxasi (Laboratoriya → "→ Top-down") — linter L3 uchun; hisobga ta'sir qilmaydi
+  if (st.ptLink && typeof st.ptLink === 'object') spec.settings = { ...(spec.settings || {}), ptLink: st.ptLink };
 
   if (st.basis === 'sR') {
     spec.approach = 'REPRODUCIBILITY';
@@ -91,7 +94,7 @@ export function buildSpec(st) {
       comps.push({ type: 'duplicates', id: 'duplicates', pairs: g.rows.map(r => [r[0], r[1]]), unit: dataUnit, relativeMethod: st.dupMethod || 'per_pair' });
     }
     if (src.includes('control_limits')) comps.push(q(st, { limit: one(st.limit, 'limit'), sigmas: one(st.sigmas, 'sigmas') }, { type: 'control_limits', id: 'control_limits' }));
-    if (src.includes('stated')) comps.push(q(st, { s: one(st.statedS, 'statedS'), n: one(st.statedN, 'statedN') }, { type: 'stated', id: 'stated' }));
+    if (src.includes('stated')) comps.push(q(st, { s: one(st.statedS, 'statedS'), n: one(st.statedN, 'statedN'), nu: one(st.statedNu, 'statedNu') }, { type: 'stated', id: 'stated' }));
     spec.rw = { components: comps, covers: [...(st.covers || [])] };
 
     if (st.bias === 'crm') {

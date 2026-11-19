@@ -14,10 +14,12 @@ export const STORES = Object.freeze({
   templates: ['id', 'version'],  // uc-template/1 (har bir versiya alohida yozuv)
   settings: 'key',               // { key: 'lab', value: {P, kMethod, nuRule, rounding, decisionRule, secondOrder, cmcMode, ciMethod} }
   registries: 'id',              // etalonlar reestri va h.k. (P11)
+  pt: 'id',                      // malaka sinovlari seriyalari (P12; IndexedDB v2)
+  validation: 'id',              // usul validatsiyasi to'plamlari (P12; IndexedDB v2)
   audit: 'seq',                  // append-only (./audit.js)
   meta: 'key',                   // migratsiyalar holati va h.k.
 });
-export const DATA_STORES = ['calculations', 'templates', 'settings', 'registries', 'meta'];
+export const DATA_STORES = ['calculations', 'templates', 'settings', 'registries', 'pt', 'validation', 'meta'];
 
 /** Yozuv kaliti (compound kalit — massiv) */
 export function keyOf(store, obj) {

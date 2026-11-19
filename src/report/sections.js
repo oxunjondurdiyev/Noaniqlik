@@ -17,6 +17,8 @@ import { fmtSci } from './format.js';
 import { ellipseSvg } from './ellipse.js';
 import { findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText } from './findings.js';
 import { labSectionHTML } from './lab.js';
+import { ptSectionHTML } from './pt.js';
+import { validationSectionHTML } from './validation.js';
 
 /**
  * Bo'lim quruvchilari to'plami.
@@ -383,6 +385,9 @@ export function createSections(environment) {
 
   /** P11: reestrdan tanlangan manbalar, CMC tekshiruvi, drift asosi (./lab.js). Ishlatilmagan bo'lsa — bo'sh satr. */
   function labSection(r, opt) { return labSectionHTML(env, r, opt); }
+  /** P12: malaka sinovlari va usul validatsiyasi bo'limlari (./pt.js, ./validation.js) + barcha topilmalar */
+  function ptSection(r, opt) { const o = opt || {}; return ptSectionHTML(env, r, o) + findingsHtml(r, { scope: 'pt', print: !!o.print, showEmpty: false }); }
+  function validationSection(r, opt) { const o = opt || {}; return validationSectionHTML(env, r, o) + findingsHtml(r, { scope: 'validation', print: !!o.print, showEmpty: false }); }
 
   function corrTable(r, cls) {
     return `
@@ -1046,6 +1051,6 @@ export function createSections(environment) {
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, ptSection, validationSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

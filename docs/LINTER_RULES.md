@@ -108,6 +108,8 @@ L1 faqat reestrdan tanlangan manbalar uchun ishlaydi (`typeB[].registry` nusxasi
 | | `cmc_x_missing` | warning | shu | CMC kattaligi tanlangan, X ko'rsatilmagan | "X (CMC uchun)" ni to'ldirish |
 | | `cmc_unauthenticated` | info | loyiha qoidasi (§4 #29) | CMC jadvali tizimga kirmasdan (rol `guest`) kiritilgan | Admin tizimga kirib, jadvalni qayta saqlaydi |
 
+| **L3** (P12) | `pt_last_unsatisfactory` | info | ISO 13528:2022 §9 (unverified); §4 #30 (loyiha qoidasi) | Hisob bog'langan PT seriyasining oxirgi raundi qoniqarsiz (baho nusxadan, qayta hisoblanmaydi) | Sabab va tuzatuvchi harakatni tekshirish, kerak bo'lsa hisobot izohida yozish |
+
 U < CMC(X) — mavjud **X8 `below_cmc`** (error): CMC endi jadvaldan avtomatik topilishi mumkin (`settings.cmcRows` + `cmcX`), xatti-harakat o'zgarmagan.
 
 ### 2.3. Modul ogohlantirishlari topilma sifatida (kodlar o'zgarmagan)
@@ -172,6 +174,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 27 | L1 | akkreditatsiya belgisi yo'q → **warning**; `route: 'nmi_cipm'` belgisiz ham dalil hisoblanadi (ILAC P10 §2 Note 1: CIPM MRA logotipi majburiy emas, KCDB — asos) | ILAC P10 §2: 3a / 3b yo'llari faqat 1) va 2) imkonsiz bo'lganda — daraja ko'rsatilmagan |
 | 28 | L2 | sohadan tashqari → **warning** (error emas), CMC bilan solishtirilmaydi; X yo'q → warning | ILAC P14 §4.1 — daraja ko'rsatilmagan |
 | 29 | L1, L2 | reestr yozuvi yoki CMC jadvali **autentifikatsiyasiz** (rol `guest`) kiritilgan → **info** (`registry_unauthenticated`, `cmc_unauthenticated`); mehmon lokal rejimda tahrirlay oladi, audit izida rol `guest` (egasi qarori, 2026-11-18) | me'yoriy band emas — loyiha qoidasi |
+| 30 | L3 (P12) — **egasi qarori (2026-11-19, R-26 #6): info, yoqildi** | hisob PT seriyasiga aniq bog'langan (`settings.ptLink` — seriya nusxasi: "Joriy hisobga bog'lash" yoki PT → Top-down) va oxirgi raund (sanasi eng kech; sanasiz — ro'yxatdagi oxirgisi) bahosi **qoniqarsiz** → **info** `pt_last_unsatisfactory`; shubhali raund — topilma yo'q; rejimlar GUM, TOP_DOWN | ISO/IEC 17025 §7.7.2 (repoda yo'q) da daraja yo'q; baho chegaralari — R-26 #1 |
 
 **Westgard qoidalari (QC kartalari — linter qoidasi emas, `src/engine/lab/westgard.js`; egasi tasdiqladi 2026-11-18; manba bilan solishtirildi 2026-11-19 — `docs/references/westgard-1981-NOTES.md`).** **1₂s darvozasi** — standart yoqilgan (Westgard 1981 1-rasm), sozlama `westgardGate` (egasi qarori 2026-11-19, W-4); **bir nechta material** — `westgardMulti` (W-5). Qat'iy tengsizlik; 10ₓ da o'rtachadagi nuqta ketma-ketlikni uzadi. **R₄s:** seriya belgisi barcha nuqtalarda berilgan bo'lsa — bir seriya ichida; **seriya belgisisiz ketma-ket ikki natijaga qo'llash — loyiha yaqinlashuvi** (asl qoida bir seriya ichidagi natijalar uchun): natijada `approximation: true`, kartadagi topilmada "loyiha yaqinlashuvi" deb yoziladi (uch tilda). Manba (Westgard nashri) repoga qo'shilguncha barcha Westgard qoidalari "(unverified)".
 

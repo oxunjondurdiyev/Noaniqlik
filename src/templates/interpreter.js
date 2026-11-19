@@ -102,13 +102,16 @@ function implicitUsed(tpl, symbols) {
  * @param {object} [schema]  schemas/methodology.schema.json (berilmasa — faqat semantik tekshiruv)
  * @returns {{valid:boolean, errors:string[], warnings:string[]}}
  */
-export function checkTemplate(tpl, schema) {
+export function checkTemplate(tpl, schema, opts) {
   const errors = [], warnings = [];
   if (schema) {
     const r = validate(schema, tpl);
     r.errors.forEach(e => errors.push(`schema ${e.path}: ${e.message}`));
     if (!r.valid) return { valid: false, errors, warnings };
   }
+  // P12: validationBasis (validatsiyadan raqamli asos) — faqat TOP_DOWN foydalanuvchi shablonida; builtin shablon raqamsiz qoladi
+  if (tpl.validationBasis && !isTopDown(tpl)) errors.push('validationBasis: only for evaluationMode TOP_DOWN');
+  if (tpl.validationBasis && opts && opts.builtin) errors.push('validationBasis: not allowed in builtin templates (numbers are never added to builtin templates)');
   if (isRegression(tpl)) return checkRegressionTemplate(tpl, errors, warnings);
   if (isTopDown(tpl)) return checkTopDownTemplate(tpl, errors, warnings);
   if (isSpecial(tpl)) return checkSpecialTemplate(tpl, errors, warnings);
@@ -395,6 +398,16 @@ export function buildTopDownState(tpl, opts = {}) {
     covers: [...(td.covers || [])],
     additional: (td.additional || []).map(a => ({ name: tr(a.name, lang), category: a.category, u: '' })),
   };
+  // P12: validatsiyadan tuzilgan qoralama — s_I (bir omilli ANOVA) → 'stated' manba; tiklanish (QUAM) → R_m, s, n.
+  // ν(s_I) — Welch–Satterthwaite (egasi qarori 2026-11-19, R-26 #7) statedNu ga qo'yiladi; foydalanuvchi o'zgartira oladi; n bo'sh.
+  const vb = tpl.validationBasis;
+  if (vb && td.basis === 'within') {
+    if ((td.rwSources || []).includes('stated') && vb.precision) {
+      state.statedS = String(vb.precision.sI); state.statedN = '';
+      state.statedNu = vb.precision.nuSI === undefined ? '' : String(vb.precision.nuSI);
+    }
+    if (td.biasSource === 'recovery_quam' && vb.recovery) Object.assign(state, { quamMean: String(vb.recovery.Rm), quamS: String(vb.recovery.s), quamN: String(vb.recovery.n) });
+  }
   const meta = {
     id: tpl.id, version: tpl.version, status: tpl.status, title: clone(tpl.title),
     mode: 'TOP_DOWN', demo: false, variant: '',
