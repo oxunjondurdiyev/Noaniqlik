@@ -1,0 +1,63 @@
+name: deploy
+
+# P13 (egasi qarori A, 2026-11-19 — docs/RISKS.md R-22 (b)): versiyalangan deploy.
+# Asosiy branch'ga push → testlar (test.yml) → sayt yig'iladi (scripts/build-site.js: ?v=<sha>, build.json, validatsiya hisoboti)
+# → GitHub Pages. Egasi bajaradigan amallar va birinchi deploy'dan keyingi tekshiruv — docs/DEPLOY.md.
+on:
+  push:
+    branches:
+      - main
+      - 'claude/create-uncertainty-platform-y5EVM'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  build:
+    name: Saytni yig'ish (_site)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Validatsiya hisobotini olish (test.yml → validation job)
+        uses: actions/download-artifact@v4
+        with:
+          name: validation-report
+          path: .
+      - name: Yig'ish (oq ro'yxat, ?v=<commit>, build.json, tekshiruv)
+        run: node scripts/build-site.js --out=_site --validation=_validation
+      - name: build.json
+        run: cat _site/build.json
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: GitHub Pages
+    # Pages manbasi "GitHub Actions" ga o'tkazilgach, egasi repozitoriy o'zgaruvchisini qo'yadi: PAGES_DEPLOY = actions (docs/DEPLOY.md).
+    # Ungacha bu job o'tkazib yuboriladi va sayt avvalgidek branch'dan (build qadamisiz) chiqadi.
+    if: vars.PAGES_DEPLOY == 'actions'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

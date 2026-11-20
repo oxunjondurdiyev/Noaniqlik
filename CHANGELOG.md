@@ -4,6 +4,36 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## P13 — validatsiya paketi, versiyalangan deploy, brauzerlararo tekshiruv (2026-11-19)
+
+**ENGINE_VERSION o'zgarmadi (2.10.0): hisob natijalari o'zgarmagan.** `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi (yaxlitlanmagan qiymatlar + hisobot qatlamidagi ko'rinish) P12 holati (`e58913b`) bilan **bit darajasida bir xil** — `node scripts/cases-snapshot.js --compare`: "misollar: 91; bit darajasida bir xil: 91; farq qiladi: 0". 9 ta etalon Excel nuqtasi va 10-test o'zgarmadi. `src/report/` o'zgardi (hisobot pasti; `rounding.js` da faqat izoh) → dvigatel xeshi yangilandi (`tests/security/engine.sha256.json`).
+
+### Qo'shilganlar
+
+- **Validatsiya hujjatlari** — `docs/validation/`: `VALIDATION_PLAN.md`, `REQUIREMENTS.md` (312 talab, barqaror ID), `rtm.map.json`, `RTM.md` (avtomatik — `scripts/rtm.js`), `CHANGE_CONTROL.md`, `KNOWN_LIMITATIONS.md`, `PQ_PROTOCOL_TEMPLATE.md`, `USER_REQUIREMENTS_TEMPLATE.md`, `ASSESSOR_FAQ.md`. `docs/VALIDATION_MATRIX.md` (289 qator) shu tizimga ko'chirildi — ikkita qo'lda yuritiladigan nusxa qolmadi. Bog'lanmagan talab — `npm test` xatosi.
+- **Validatsiya hisoboti** — `scripts/validation-report.js`: testlar (mashinada o'qiladigan reporter), har bir misol (manba, kutilgan / olingan qiymat, tolerans va sababi, D-ID), RTM qamrovi, brauzerlararo bo'lim, NUM holati → `validation-report.html` (skriptsiz, o'z CSP si bilan) va `.json`. CI da artifact (90 kun), deploy'da saytda.
+- **Versiyalangan deploy** (egasi qarori A, R-22 (b)) — `scripts/build-site.js` + `.github/workflows/deploy.yml`: oq ro'yxat bo'yicha `_site/`, har bir mahalliy modul / skript / uslub havolasiga `?v=<commit SHA, 12 belgi>` (JS — acorn parser, HTML — jsdom; izoh va satrlar tegilmaydi; ishonchsiz holatda build to'xtaydi), `build.json`, vendor fayllari bayt darajasida o'zgarmaydi, yakuniy tekshiruv. Manba kodi build qadamisiz ishlashda davom etadi. Egasi amallari — `docs/DEPLOY.md`.
+- **Brauzerda:** `build.json` `no-store` bilan o'qiladi; sahifadagi modul versiyasi farq qilsa — "Yangi versiya chiqdi — sahifani yangilang" banneri (uz / ru / en; avtomatik qayta yuklash yo'q); build.json bo'lmasa — jim (`src/ui/build/`, `src/io/build.js`).
+- **Hisob hujjati `uc-calc/1`:** ixtiyoriy `env` (hisoblagan brauzerning qisqa nomi, versiyasi, JS dvigateli — `src/io/env.js`; to'liq userAgent saqlanmaydi; Firebase'ga yozilmaydi) va `build` (`{ id, source }`). Ular xeshga kiradi; **eski hujjatlar (env / build siz) avvalgidek o'qiladi**. `reproduce()` qo'shimcha `maxRel` va `close` qaytaradi: boshqa JS dvigatelidagi oxirgi xona farqi (≤ 1·10⁻¹⁴) import oynasida xato emas, alohida ko'rsatiladi.
+- **Hisobot pasti:** build = commit SHA ning boshi (deploy) yoki dvigatel xeshi + "dev" (lokal); yangi qator — "Hisoblangan muhit (brauzer)".
+- **Brauzerlararo takrorlanuvchanlik** (egasi qarori B, R-24) — `tests/crossbrowser/` (Playwright 1.63.0 — Chromium, Firefox, WebKit; lokal `node:http` server; tashqi so'rovlar bekor qilinadi): har brauzerda saytdagi aynan o'sha dvigatel barcha misollarni hisoblaydi → Node natijasi bilan: xom qiymatlar ≤ 1·10⁻¹⁴, yaxlitlangan y / U / k / interval uchlari aynan, R(0, 1) bit darajasida. O'lchov (Node 22.23 ↔ Chromium 157): 28 807 sondan 242 tasi farq qiladi, yaxlitlangan farq 0, istisnolarsiz maks. 9,8·10⁻¹⁵; 14 ta shartlanganligi yomon qiymat (maks. 3,4·10⁻¹¹) — istisnolar ro'yxatida (`exceptions.json`, **tasdiq kutadi — R-27 (1)**). **CI o'lchovi (2026-11-19, Playwright 1.63.0, Node 22 tayanch; 91 misol, 28 807 son):** Chromium 153 — 242 son farq qiladi, istisnolarsiz maks. 9,8·10⁻¹⁵, istisno 14 ta (maks. 3,4·10⁻¹¹); Firefox 155 — 431, maks. 5,7·10⁻¹⁵, istisno 7 ta (maks. 1,9·10⁻¹¹); WebKit 26.6 (Linux) — 539, maks. 9,8·10⁻¹⁵, istisno 14 ta (maks. 3,4·10⁻¹¹). Uchala brauzerda yaxlitlangan farq — 0, R(0, 1) — bir xil; istisnolar ro'yxatidan tashqari chegaradan oshgan qiymat yo'q. `tests/crossbrowser/site.js` — yig'ilgan saytning brauzerdagi tutun-testi.
+- **NIST Uncertainty Machine bilan o'zaro tekshiruv** — `tests/crosscheck/num/`: 5 ta vakil misol uchun kirish ma'lumotlari (verified misollardan avtomatik) va qo'llanma; natijalar — egasidan (`pending`, testlar `todo`).
+- **Sayt:** `validation.html` ("Validatsiya" sahifasi: versiya, build, dvigatel xeshi, hujjatlar, cheklovlar, versiyalar tarixi), foydalanuvchi qo'llanmasi `docs/manual/{uz,ru,en}.md` (saytda — skriptsiz HTML).
+- **Regressiya nazorati** — `scripts/cases-snapshot.js` (ikki holatni bit darajasida solishtirish).
+- Yangi devDependency lar (saytga yuklanmaydi — build oq ro'yxati tekshiradi): `playwright` 1.63.0, `acorn` 8.19.0.
+
+### O'zgarganlar
+
+- `src/ui/mc/runner.js`: worker manzili modulga nisbatan (`new URL('./worker.js', import.meta.url)`) — deploy'da versiyalanadi.
+- `tests/cases/lib.js`: misolni ishga tushirish `tests/crossbrowser/core.js::runCase` ga ko'chirildi (Node va brauzerda bitta kod; natijalar o'zgarmagan).
+- `.github/workflows/test.yml`: `validation` job; asosiy branch'da testlar `deploy.yml` ichidan yuradi.
+- `src/report/rounding.js` (faqat izoh): ILAC P14:09/2020 yaxlitlash bandi — **§5.3** (PDF bilan solishtirildi; avval "§5.4, tekshirilmagan" deb yozilgan edi).
+- Bu fayl: `## [2.7.0]` sarlavhasi tiklandi (avvalgi merge'da buzilgan; matn o'zgarmagan).
+
+### Egasidan kutiladi
+
+`docs/RISKS.md` R-27: istisnolar ro'yxati (1), saytga chiqadigan fayllar va hisobotning ommaviyligi (2), NUM toleranslari (3), deploy boshqaruvi (4), semver qoidasi (5), "Kim" maydoni (6), `manual` holati (7), talablar / FAQ / cheklovlarni ko'rib chiqish (8); Pages manbasini o'tkazish; NUM natijalari va qo'llanmasi; Safari da qo'lda tekshiruv.
+
 ## [2.10.0] — P12: malaka sinovlari (PT) va usul validatsiyasi (2026-11-19)
 
 **ENGINE_VERSION: 2.9.0 → 2.10.0** (minor, yangi imkoniyat). **Mavjud natijalar o'zgarmadi:** `tests/cases/` dagi 91 ta misolning to'liq natijasi (`evaluate()`, `monteCarlo()`, `evaluateBias()`) 2.9.0 (`d970ca7` dan keyingi holat, `14e1d18`) bilan **bit darajasida bir xil** (`engineVersion` dan tashqari; nazorat skripti — natija JSON ining SHA-256 xeshi; egasi qarorlari kiritilgandan keyin ham qayta tekshirildi). 9 ta etalon Excel nuqtasi va 10-test o'zgarmadi. `src/engine/sampling/` (P10) umumiy ANOVA yordamchisiga o'tkazildi — UfS:2019 natijalari bit darajasida bir xil.
@@ -106,7 +136,7 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Verified:** ILAC P14:09/2020 §4.1–4.3, §5.5 (CMC; sahifa havolali testlar), ILAC P10:07/2020 §2 (kuzatuvchanlik yo'llari).
 - **Unverified:** ISO/IEC 17025:2017 §6.4, §6.5, §7.7.1 (repoda yo'q); Westgard qoidalari (nashr repoda yo'q — ta'rif bo'yicha jadvalli testlar); Shewhart konstantalari — **NIST e-Handbook sahifasi sessiyada ochilmadi**, shuning uchun qiymatlar ta'rifdan mustaqil sonli integrallash bilan tekshirildi (±0,001); NIST misoli — `todo`. ILAC G24 / OIML D 10:2022 repoda bor, lekin u aniq formula bermaydi — interval hisobi loyiha qarori.
 
-: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
+## [2.7.0] — P07: ko'p o'zgaruvchili modellar (JCGM 102:2011) (2026-11-18)
 
 **ENGINE_VERSION: 2.6.0 → 2.7.0** (minor). **Bitta chiqishli hisoblar o'zgarmadi:** barcha mavjud test misollarining `evaluate()` natijasi 2.6.0 bilan **bit darajasida bir xil** (`engineVersion` dan tashqari); 9 ta etalon Excel nuqtasi, 10-test va JCGM 100 / 101 misollari o'zgarmadi; etalon nuqtalar ko'rinishi o'zgarmadi. `monteCarlo()` ning 188 ta nazorat natijasidan 176 tasi bit darajasida bir xil; qolgan 12 tasi — quyida.
 

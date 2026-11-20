@@ -138,7 +138,7 @@ test('uc-calc/1: vektor natija eksport → import → qayta hisob — bit daraja
     assert.equal(doc.mode, 'MULTIVARIATE');
     const parsed = await J.parseCalcDoc(J.serializeCalcDoc(doc));
     assert.equal(parsed.ok, true, id);
-    assert.deepEqual(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION), { identical: true, main: true, points: [], sameEngine: true });
+    assert.deepEqual(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION), { identical: true, main: true, points: [], sameEngine: true, maxRel: 0, close: false });
     assert.deepEqual(parsed.result.covariance, r.covariance);
     assert.ok(parsed.result.coverageRegion.ellipsoid.kp > 0);
   }

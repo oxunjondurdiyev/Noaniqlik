@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title data-i18n="val_page_title">Validatsiya — UncertaintyCalc</title>
+  <link rel="stylesheet" href="src/css/theme.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="stylesheet" href="src/css/auth.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="admin-page">
+  <header class="admin-topbar">
+    <a class="admin-brand" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="val_brand">UncertaintyCalc · Validatsiya</span>
+    </a>
+    <div class="val-topbar-actions">
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="uz">UZ</button>
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="btn btn-sm btn-ghost" data-i18n="c_to_calc">← Kalkulyator</a>
+    </div>
+  </header>
+
+  <main class="val-page">
+    <h1 data-i18n="val_title">Dastur validatsiyasi</h1>
+    <p class="text-muted" data-i18n="val_intro">Bu sahifada joriy versiya, build identifikatori va validatsiya hujjatlariga havolalar keltirilgan.</p>
+
+    <section class="card val-card">
+      <h2 data-i18n="val_current">Joriy versiya</h2>
+      <dl class="val-facts">
+        <dt data-i18n="val_engine_version">Dvigatel versiyasi (ENGINE_VERSION)</dt><dd class="mono" id="val-engine-version">—</dd>
+        <dt data-i18n="val_build">Build (commit)</dt><dd class="mono" id="val-build">—</dd>
+        <dt data-i18n="val_built_at">Yig'ilgan vaqt (UTC)</dt><dd class="mono" id="val-built-at">—</dd>
+        <dt data-i18n="val_engine_hash">Dvigatel xeshi (SHA-256)</dt><dd class="mono val-hash" id="val-engine-hash">—</dd>
+        <dt data-i18n="val_environment">Sizning brauzeringiz</dt><dd class="mono" id="val-environment">—</dd>
+      </dl>
+      <p class="text-xs text-muted" id="val-dev-note" data-i18n="val_dev_note" hidden>Bu nusxa build qadamisiz ishlayapti (lokal yoki branch'dan deploy): build.json yo'q, validatsiya hisoboti va qo'llanma sahifalari faqat GitHub Actions orqali yig'ilgan saytda bo'ladi.</p>
+      <p class="text-xs" id="val-mismatch" data-i18n="val_mismatch" hidden>Diqqat: sahifadagi dvigatel versiyasi build.json dagidan farq qiladi — sahifani yangilang.</p>
+    </section>
+
+    <section class="card val-card" id="val-links" hidden>
+      <h2 data-i18n="val_documents">Hujjatlar</h2>
+      <ul class="val-list">
+        <li><a href="validation/validation-report.html" data-i18n="val_link_report">Validatsiya hisoboti (test natijalari, manbalar, toleranslar)</a> · <a href="validation/validation-report.json" data-i18n="val_json">JSON</a></li>
+        <li><a href="validation/docs/VALIDATION_PLAN.html" data-i18n="val_link_plan">Validatsiya rejasi</a></li>
+        <li><a href="validation/docs/REQUIREMENTS.html" data-i18n="val_link_requirements">Talablar</a> · <a href="validation/docs/RTM.html" data-i18n="val_link_rtm">Izlanuvchanlik matritsasi (RTM)</a></li>
+        <li><a href="validation/docs/CHANGE_CONTROL.html" data-i18n="val_link_change">O'zgarishlarni boshqarish</a></li>
+        <li><a href="validation/docs/KNOWN_LIMITATIONS.html" data-i18n="val_link_limits">Ma'lum cheklovlar (to'liq ro'yxat)</a></li>
+        <li><a href="validation/docs/ASSESSOR_FAQ.html" data-i18n="val_link_faq">Akkreditatsiya eksperti uchun savol-javoblar</a></li>
+        <li><a href="validation/docs/PQ_PROTOCOL_TEMPLATE.html" data-i18n="val_link_pq">Laboratoriya tekshiruvi (PQ) bayonnomasi shabloni</a> · <a href="validation/docs/USER_REQUIREMENTS_TEMPLATE.html" data-i18n="val_link_urs">Foydalanuvchi talablari (URS) shabloni</a></li>
+        <li><span data-i18n="val_link_manual">Foydalanuvchi qo'llanmasi</span>: <a href="manual/uz.html" data-i18n="val_lang_uz">O'zbekcha</a> · <a href="manual/ru.html" data-i18n="val_lang_ru">Русский</a> · <a href="manual/en.html" data-i18n="val_lang_en">English</a></li>
+      </ul>
+      <p class="text-xs text-muted" data-i18n="val_docs_lang">Validatsiya hujjatlari o'zbek tilida.</p>
+    </section>
+
+    <section class="card val-card">
+      <h2 data-i18n="val_limits_title">Ma'lum cheklovlar (qisqacha)</h2>
+      <ul class="val-list">
+        <li data-i18n="val_lim_1">ISO/IEC 17025:2017 matni loyihada yo'q (pullik): unga havolalar tekshirilmagan.</li>
+        <li data-i18n="val_lim_2">Mikrobiologiya va tibbiy laboratoriya rejimlari — BETA: manba standartlar loyihada yo'q.</li>
+        <li data-i18n="val_lim_3">Regressiyada faqat oddiy eng kichik kvadratlar (OLS) manba misollari bilan tekshirilgan; WTLS, GLS va polinom — tekshirilmagan.</li>
+        <li data-i18n="val_lim_4">Oshkor bo'lmagan model uchun Monte-Karlo yo'q.</li>
+        <li data-i18n="val_lim_5">Turli brauzerlarda yaxlitlanmagan qiymatlar oxirgi xonada farq qilishi mumkin; yaxlitlangan natija bir xil bo'lishi avtomatik tekshiriladi (Chromium, Firefox, WebKit). Safari qo'lda tekshiriladi.</li>
+        <li data-i18n="val_lim_6">NIST Uncertainty Machine bilan mustaqil o'zaro tekshiruv natijalari hali kiritilmagan.</li>
+        <li data-i18n="val_lim_7">Laboratoriya o'z metodikasini mustaqil hisob bilan parallel tekshirishi kerak (PQ).</li>
+      </ul>
+    </section>
+
+    <section class="card val-card">
+      <h2 data-i18n="val_history">Versiyalar tarixi</h2>
+      <p class="text-xs text-muted" id="val-history-empty" data-i18n="val_history_dev">Versiyalar tarixi yig'ilgan saytda ko'rsatiladi (manba: CHANGELOG.md).</p>
+      <div class="table-scroll"><table class="data-table" id="val-history" hidden>
+        <thead><tr><th data-i18n="val_col_version">Versiya</th><th data-i18n="val_col_date">Sana</th><th data-i18n="val_col_change">O'zgarish</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p class="text-xs text-muted" data-i18n="val_history_lang">O'zgarishlar tavsifi o'zbek tilida (CHANGELOG.md).</p>
+    </section>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-admin.js"></script>
+<script src="src/js/i18n-build.js"></script>
+<script src="src/ui/lang-switch.js"></script>
+<script src="src/ui/escape.js"></script>
+<script type="module" src="src/ui/build/app.js"></script>
+<script type="module" src="src/ui/validation-page.js"></script>
+</body>
+</html>

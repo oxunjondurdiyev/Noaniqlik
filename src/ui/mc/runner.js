@@ -7,7 +7,8 @@
    Sof modul (DOM yo'q): muhit `env` orqali beriladi — testlarda soxta Worker / taymer.
 ═══════════════════════════════════════════════════════════════ */
 
-export const WORKER_URL = 'src/ui/mc/worker.js';
+// Modulga nisbatan URL: deploy'da scripts/build-site.js shu havolaga ham `?v=<sha>` qo'shadi (P13) — worker va sahifa bitta build dan
+export const WORKER_URL = new URL('./worker.js', import.meta.url).href;
 /** Asosiy oqimda bitta bo'lak uchun vaqt (ms): bundan keyin boshqaruv brauzerga qaytariladi. */
 export const SLICE_MS = 25;
 

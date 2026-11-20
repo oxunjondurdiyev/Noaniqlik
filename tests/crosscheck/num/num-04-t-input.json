@@ -1,0 +1,48 @@
+{
+  "id": "num-04-t-input",
+  "case": "excel-gas-p2-mc",
+  "caseFile": "tests/cases/excel/excel-gas-p2-mc.json",
+  "kind": "t-taqsimotli kirish (A tur, n = 3 → ν = 2)",
+  "tool": "NIST Uncertainty Machine",
+  "source": "Qollanma_noaniqlik_gazoanalizator_C75QM.docx, 9-bo'lim, 9.1-jadval, 'Monte-Karlo (10⁶)' ustuni",
+  "status": "pending",
+  "num": {
+    "output": "E",
+    "expression": "((I + I_b1 + I_b2) - 4) * 1.25 - Ce",
+    "inputs": [
+      {
+        "name": "I",
+        "distribution": "student-t",
+        "center": 12.014333333333333,
+        "scale": 0.0048419463487776645,
+        "df": 2,
+        "source": "A tur: 3 ta kuzatuv (o'rtacha, s/√n, ν = n − 1)"
+      },
+      {
+        "name": "I_b1",
+        "distribution": "rectangular",
+        "lower": -0.004402866666666666,
+        "upper": 0.004402866666666666,
+        "source": "Kalibrator xatosi (Fluke 725Ex)"
+      },
+      {
+        "name": "I_b2",
+        "distribution": "rectangular",
+        "lower": -0.0005,
+        "upper": 0.0005,
+        "source": "Kalibrator ajratish qobiliyati"
+      },
+      {
+        "name": "Ce",
+        "distribution": "rectangular",
+        "lower": 9.992,
+        "upper": 10.008,
+        "source": "PGS (etalon) qiymati"
+      }
+    ],
+    "correlations": [],
+    "coverage": 0.9545,
+    "nrep": 1000000
+  },
+  "results": null
+}

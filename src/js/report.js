@@ -469,7 +469,8 @@ const Results = (() => {
       let doc = window.UCIO && window.UCIO.calcDoc ? await window.UCIO.calcDoc(scope) : null;
       if (!doc) doc = await Calc.buildCalcDoc(fallback());
       const build = window.UCReport && window.UCReport.buildInfo ? await window.UCReport.buildInfo() : null;
-      const model = Calc.footerModel({ engineVersion: doc.engineVersion, build, template: doc.template, meta: { id: doc.id, createdAt: doc.createdAt }, hash: doc.hash });
+      const env = window.UCBuild && doc.env ? window.UCBuild.environmentText(doc.env) : '';
+      const model = Calc.footerModel({ engineVersion: doc.engineVersion, build, template: doc.template, meta: { id: doc.id, createdAt: doc.createdAt }, hash: doc.hash, env });
       let qr = '';
       try { qr = Calc.qrSvg(await Calc.loadQr(), model.qr); } catch (_) { qr = ''; }
       return { model, qr };

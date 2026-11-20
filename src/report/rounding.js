@@ -4,7 +4,8 @@
      • U — ko'pi bilan 2 qiymatli raqam; yuqoriga yaxlitlashdan keyin ham 2 ta qoladi:
        0,0999 → 0,10 (0,100 emas);
      • y — round half away from zero (Excel ROUND bilan mos): −0,125 → −0,13; y U ning oxirgi xonasigacha.
-   Ref: ILAC P14:09/2020 §5.4 (docs/references da hali yo'q — tekshirilmagan); JCGM 100:2008 §7.2.6.
+   Ref: ILAC P14:09/2020 §5.3 ("at most, two significant digits" — docs/references dagi PDF bilan solishtirildi, P13);
+        JCGM 100:2008 §7.2.6.
 ═══════════════════════════════════════════════════════════════ */
 
 /* Ikkilik ko'rinish xatosini (1.005·100 = 100.49999…) Excel kabi 15 qiymatli raqamgacha tuzatish */

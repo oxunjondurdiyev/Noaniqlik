@@ -1,15 +1,20 @@
 name: test
 
+# Asosiy branch'ga push qilinganda testlar deploy.yml ichidan (workflow_call) yuradi — ikki marta ishga tushmasin.
 on:
   push:
+    branches-ignore:
+      - main
+      - 'claude/create-uncertainty-platform-y5EVM'
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
   unit:
-    name: npm test (Excel etalonlari, manba misollari, xavfsizlik)
+    name: npm test (Excel etalonlari, manba misollari, xavfsizlik, RTM, build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,3 +40,44 @@ jobs:
           java-version: 21
       - run: npm ci
       - run: npm run test:rules
+
+  # P13: brauzerlararo takrorlanuvchanlik (docs/RISKS.md R-24) + validatsiya hisoboti (artifact) + yig'ilgan sayt tutun-testi
+  validation:
+    name: Validatsiya hisoboti, brauzerlar (Chromium, Firefox, WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Brauzerlarni o'rnatish (Playwright — versiya package.json da)
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Brauzerlararo takrorlanuvchanlik (Node natijasi bilan solishtirish)
+        id: browsers
+        continue-on-error: true
+        run: node tests/crossbrowser/run.js --out=crossbrowser-results.json
+      - name: Validatsiya hisoboti (testlar + misollar + RTM + brauzerlar)
+        run: node scripts/validation-report.js --out=_validation --crossbrowser=crossbrowser-results.json
+      - name: Yig'ilgan sayt tutun-testi (versiyalangan havolalar, banner, worker)
+        id: site
+        continue-on-error: true
+        run: node tests/crossbrowser/site.js --validation=_validation --out=site-smoke.json
+      - name: Hisobotni artifact sifatida saqlash
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: |
+            _validation/
+            crossbrowser-results.json
+            site-smoke.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Natija (brauzer farqi, yiqilgan test yoki RTM xatosi bo'lsa — xato)
+        run: |
+          node -e "const r=require('./_validation/validation-report.json'); if(!r.ok){console.error('validatsiya hisoboti: XATO — _validation/validation-report.html ni ko\'ring'); process.exit(1)}"
+          test "${{ steps.browsers.outcome }}" = "success"
+          test "${{ steps.site.outcome }}" = "success"

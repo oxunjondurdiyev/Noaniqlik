@@ -285,7 +285,8 @@ test('pastki qism: dastur va ENGINE_VERSION, build (dvigatel xeshi), shablon ID 
     const foot = d.querySelector('[data-report-footer]');
     const val = k => foot.querySelector(`[data-report-foot="${k}"] .report-foot-value`).textContent;
     assert.equal(val('app'), `UncertaintyCalc; ${DICT[lang].rg_engine} ${E.ENGINE_VERSION}`);
-    assert.equal(val('build'), build.sha256.slice(0, 12));
+    // P13: build.json yo'q (lokal ishlash) — dvigatel xeshi "dev" belgisi bilan
+    assert.equal(val('build'), `${build.sha256.slice(0, 12)} (${DICT[lang].rf_build_dev})`);
     assert.equal(val('template'), 'legacy-gas_analyzer v1.0.0 (DRAFT)');
     assert.equal(val('calc'), 'calc-abc123-000001; 2026-11-18');
     assert.equal(val('hash'), doc.hash);
@@ -344,9 +345,14 @@ test('rekvizitlar faqat brauzerda: laboratoriya — localStorage, hujjat va shax
   assert.match(ui, /write\(window\.localStorage, LAB_KEY, \{ \.\.\.lab, form \}\)/);
   assert.match(ui, /write\(window\.sessionStorage, DOC_KEY, doc\)/);
   assert.ok(!/firebase|firestore|DB\.|AuthManager|XMLHttpRequest|sendBeacon|WebSocket/i.test(ui.replace(/\/\*[\s\S]*?\*\//g, '')));
-  // yagona fetch — build identifikatori (shu saytdagi statik fayl), ma'lumot yuborilmaydi
-  const fetches = ui.match(/fetch\([^)]*\)/g) || [];
-  assert.deepEqual(fetches, ["fetch('tests/security/engine.sha256.json', { cache: 'no-cache' })"]);
+  // P13: bu modulda fetch yo'q — build identifikatori window.UCBuild dan (src/ui/build/watcher.js: faqat shu saytdagi
+  // ikki statik fayl — build.json va dvigatel xeshi; ma'lumot yuborilmaydi)
+  assert.deepEqual(ui.match(/fetch\([^)]*\)/g) || [], []);
+  const watcher = read('src/ui/build/watcher.js');
+  assert.match(watcher, /export const BUILD_URL = 'build\.json';/);
+  assert.match(watcher, /export const ENGINE_HASH_URL = 'tests\/security\/engine\.sha256\.json';/);
+  assert.deepEqual(watcher.match(/env\.fetch\([^)]*\)/g), ['env.fetch(url, { cache })']);
+  assert.ok(!/method:|body:|POST|sendBeacon|XMLHttpRequest|WebSocket/.test(watcher));
   assert.ok(!/onclick=|javascript:/.test(ui));
   // hisob JSON eksporti va xeshiga rekvizitlar kirmaydi
   assert.ok(!/requisites|labName|customer/.test(read('src/io/calc-json.js')));

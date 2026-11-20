@@ -205,7 +205,7 @@ test('gumDocParts → hujjat → parse → reproduce: 9 ta etalon nuqtada bit da
     const doc = await J.buildCalcDoc({ id: 'calc-t', createdAt: '2026-11-18T00:00:00.000Z', input: parts.input, result: parts.result, points: parts.points });
     const parsed = await J.parseCalcDoc(J.serializeCalcDoc(doc));
     assert.equal(parsed.ok, true, c.id);
-    assert.deepEqual(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION), { identical: true, main: true, points: [], sameEngine: true });
+    assert.deepEqual(J.reproduce(parsed, E.evaluate, E.ENGINE_VERSION), { identical: true, main: true, points: [], sameEngine: true, maxRel: 0, close: false });
     const g = S.gumStateFromInput(parsed.input);
     assert.equal(g.ok, true, c.id);
     assert.equal(canon(E.evaluate(S.gumInput(g.state))), canon(parts.result), c.id + ': muharrirga yuklangan holat');
