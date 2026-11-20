@@ -1,0 +1,54 @@
+{
+  "id": "num-02-nonlinear",
+  "case": "jcgm101-9-3-mcm",
+  "caseFile": "tests/cases/jcgm101/jcgm101-9-3-mcm.json",
+  "kind": "nochiziqli model, Gauss va to'g'ri burchakli kirishlar",
+  "tool": "NIST Uncertainty Machine",
+  "source": "JCGM 101:2008 (GUM-S1), 9.3, Table 5 (kirish), Table 6 (natija)",
+  "status": "pending",
+  "num": {
+    "output": "dm",
+    "expression": "(mR + dmR) * (1 + (rhoa - 1.2) * (1 / rhoW - 1 / rhoR)) - 100000",
+    "inputs": [
+      {
+        "name": "mR",
+        "distribution": "gaussian",
+        "mean": 100000,
+        "sd": 0.05,
+        "source": "m_R,c ~ N(100 000.000 mg, 0.050 mg)"
+      },
+      {
+        "name": "dmR",
+        "distribution": "gaussian",
+        "mean": 1.234,
+        "sd": 0.02,
+        "source": "δm_R,c ~ N(1.234 mg, 0.020 mg)"
+      },
+      {
+        "name": "rhoa",
+        "distribution": "rectangular",
+        "lower": 1.0999999999999999,
+        "upper": 1.3,
+        "source": "ρa ~ R(1.20 ± 0.10) kg/m³"
+      },
+      {
+        "name": "rhoW",
+        "distribution": "rectangular",
+        "lower": 7000,
+        "upper": 9000,
+        "source": "ρW ~ R(8000 ± 1000) kg/m³"
+      },
+      {
+        "name": "rhoR",
+        "distribution": "rectangular",
+        "lower": 7950,
+        "upper": 8050,
+        "source": "ρR ~ R(8000 ± 50) kg/m³"
+      }
+    ],
+    "correlations": [],
+    "coverage": 0.95,
+    "nrep": 1000000
+  },
+  "results": null
+}

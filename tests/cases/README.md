@@ -63,7 +63,7 @@ Har bir misol — bitta JSON fayl. Ishga tushirish: `npm test` (`tests/run-cases
 
 ## Misollar ro'yxati
 
-Holat va manbalar bo'yicha to'liq jadval: [docs/VALIDATION_MATRIX.md](../../docs/VALIDATION_MATRIX.md).
+Talab → kod → test → holat: [docs/validation/RTM.md](../../docs/validation/RTM.md) (avtomatik; manba — `REQUIREMENTS.md` + `rtm.map.json`). Har bir misolning kutilgan / olingan qiymatlari — validatsiya hisobotida (`node scripts/validation-report.js`).
 
 `tests/cases/excel/*.json` (9 ta Excel nuqtasi) `node tests/tools/build-excel-cases.js` bilan Excel'dan yaratilgan. Qo'lda o'zgartirmang: kerak bo'lsa skriptni o'zgartirib, qayta yarating va diff'ni ko'rib chiqing.
 

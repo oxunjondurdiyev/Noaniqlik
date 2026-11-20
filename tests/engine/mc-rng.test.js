@@ -6,7 +6,7 @@
      (3) statistik testlar (χ² bir xillik, Kolmogorov–Smirnov, ketma-ket korrelyatsiya, juftliklar χ²) —
          "MUSTAQIL TEKSHIRUV" (manba qiymati emas; C.3.2 dagi TestU01 BigCrush o'rnini bosmaydi);
      (4) muzlatilgan birinchi qiymatlar — Node va brauzerda bit darajasida bir xillik uchun tayanch
-         (brauzerda tekshirilgan: docs/VALIDATION_MATRIX.md §12). */
+         (brauzerda tekshiriladi: tests/crossbrowser/run.js — R(0, 1) bit darajasida; docs/validation/RTM.md). */
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');

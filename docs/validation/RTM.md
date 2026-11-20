@@ -1,0 +1,418 @@
+# Izlanuvchanlik matritsasi (RTM): talab → kod → test → holat
+
+> **AVTOMATIK YARATILGAN — qo'lda tahrirlamang.** Manba: [`REQUIREMENTS.md`](REQUIREMENTS.md) + [`rtm.map.json`](rtm.map.json); yaratish: `node scripts/rtm.js --write`.
+> Test natijalari (o'tdi / o'tmadi, kutilgan va olingan qiymatlar, toleranslar) — validatsiya hisobotida (`scripts/validation-report.js`).
+> Holat belgilari: ✅ verified — bog'langan testlar manba misoli yoki tekshiruvi; ⚠️ — o'tadi, ma'lum farq bor ([DISCREPANCIES](../../tests/cases/DISCREPANCIES.md)); ❔ unverified — manba repoda yo'q; ⏳ pending — bajarilmagan / kutilmoqda; ✋ manual — bir martalik qo'lda tekshiruv, avtomatik test yo'q.
+
+## Xulosa
+
+| Ko'rsatkich | Soni |
+|---|---|
+| Talablar | 314 |
+| Kamida bitta testga bog'langan | 302 |
+| ✅ verified | 251 |
+| ⚠️ verified (farq bilan) | 5 |
+| ❔ unverified | 26 |
+| ⏳ pending | 29 |
+| ✋ manual | 3 |
+| Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 12 |
+
+## GOV — Loyihaning majburiy qoidalari (CLAUDE.md, egasi qarorlari)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-GOV-001 | Hisoblash yadrosi (`src/engine/`) DOM, `window` va `localStorage` ga bog'liq bo'lmagan sof ES modullardan iborat; brauzerda ham, Node'da ham ishlaydi | `src/engine/index.js` | `tests/engine/api.test.js`; `tests/security/static.test.js` | ✅ verified | Brauzerda ishlashi — REQ-VAL-007 (Playwright) |
+| REQ-GOV-002 | Oraliq hisoblar yaxlitlanmaydi; yaxlitlash faqat hisobot qatlamida: U ko'pi bilan 2 qiymatli raqam (0,0999 → 0,10), y — round half away from zero, U ning oxirgi xonasigacha | `src/report/rounding.js::roundResult`; `src/report/rounding.js::roundHalfAway` | `tests/engine/rounding.test.js`; `tests/excel.test.js` | ✅ verified | — |
+| REQ-GOV-003 | Kalibrlanayotgan asbobning MPE si hech qachon avtomatik noaniqlik manbai bo'lmaydi | `src/engine/linter/rules/x01-mpe-in-budget.js`; `src/engine/lab/registry.js::sourceFromStandard` | `tests/engine/linter.test.js`; `tests/engine/lab.test.js` | ✅ verified | — |
+| REQ-GOV-004 | U = 0 yoki U < CMC bo'lgan natija ogohlantirishsiz hisobotga chiqmaydi | `src/engine/linter/rules/x08-zero-uncertainty.js`; `src/engine/lab/cmc.js` | `tests/engine/linter.test.js`; `tests/engine/lab.test.js`; `tests/ui/findings.test.js` | ✅ verified | — |
+| REQ-GOV-005 | ν_eff kasr bo'lsa standart qoida `floor`; `interpolate` — ixtiyoriy sozlama; qo'llanilgan qoida hisobotda yoziladi | `src/engine/coverage.js::coverage` | `tests/engine/quantiles.test.js`; misollar: `jcgm100-h1`, `excel-gas-p2` | ✅ verified | — |
+| REQ-GOV-006 | 9 ta etalon Excel nuqtasi (zichlik 1 + gazoanalizator 3 + termometr 5) va 10-test (gazoanalizator 2-nuqta MC intervali) o'zgarmaydi | `src/engine/evaluate.js::evaluate`; `src/engine/montecarlo.js::monteCarlo` | `tests/excel.test.js`; `tests/fixture-refs.test.js`; misollar: `excel-density`, `excel-gas-p1`, `excel-gas-p2`, `excel-gas-p3`, `excel-term-p1`, `excel-term-p2`, `excel-term-p3`, `excel-term-p4`, `excel-term-p5`, `excel-gas-p2-mc` | ⚠️ verified (farq bilan) | D-03, D-04 — D-03 (Excel ν_B = 10⁹), D-04 (10-test toleransi — egasi qarori) |
+| REQ-GOV-007 | Test misolining kutilgan qiymatlari faqat asl manbadan (hujjat bandi / sahifasi yoki Excel katagi havolasi bilan) | `tests/cases/lib.js` | `tests/run-cases.test.js`; `tests/fixture-refs.test.js` | ✅ verified | — |
+| REQ-GOV-008 | Barcha foydalanuvchi matnlari i18n orqali va uch tilda (uz / ru / en) | `src/js/i18n.js` | `tests/i18n.test.js` | ✅ verified | — |
+| REQ-GOV-009 | `innerHTML` ga foydalanuvchi ma'lumoti escape qilinmasdan qo'yilmaydi; inline skript va `onclick` yo'q (CSP `script-src 'self'`) | `src/ui/escape.js` | `tests/security/escape.test.js`; `tests/security/xss.test.js`; `tests/security/static.test.js` | ✅ verified | — |
+| REQ-GOV-010 | Tashqi kutubxonalar faqat `vendor/` da, aniq versiya, litsenziya va xesh bilan; devDependency lar saytga yuklanmaydi | `src/io/vendor.js`; `vendor/README.md` | `tests/security/vendor.test.js`; `tests/security/static.test.js`; `tests/build/build-site.test.js` | ✅ verified | — |
+| REQ-GOV-011 | `ENGINE_VERSION` (semver) hisob natijasiga ta'sir qiladigan har qanday o'zgarishda oshiriladi; dvigatel fayllari qayd etilgan xeshga mos | `src/engine/version.js`; `tests/tools/engine-hash.js` | `tests/security/static.test.js`; `tests/run-cases.test.js`; `tests/build/build-site.test.js` | ✅ verified | CHANGELOG yuritilishi — tartib (CHANGE_CONTROL.md), avtomatik tekshiruv: CHANGELOG ning birinchi yozuvi = ENGINE_VERSION |
+| REQ-GOV-012 | Eski `localStorage` / saqlangan ma'lumotlar migratsiya funksiyasi orqali yangi formatga o'tkaziladi va yo'qolmaydi | `src/storage/migrate.js` | `tests/storage/storage.test.js`; `tests/storage/registry.test.js` | ✅ verified | — |
+| REQ-GOV-013 | Shaxsiy ma'lumotlar (F.I.Sh., telefon, email, STIR) yangi joyga, jumladan Firebase'ga, qo'shimcha yozilmaydi | `src/storage/registry.js`; `src/report/requisites.js`; `src/io/env.js` | `tests/storage/registry.test.js`; `tests/report/forms.test.js`; `tests/io/env-build.test.js`; `tests/security/session.test.js` | ✅ verified | — |
+| REQ-GOV-014 | Firestore qoidalari: default deny, a'zolik, super-admin custom claim | `firestore.rules` | `tests/security/firestore-rules.test.js`; `tests/security/static.test.js` | ✅ verified | firestore-rules.test.js — `npm run test:rules` (Emulator; CI da alohida job). Konsol amallari egasi tomonidan bajariladi. |
+
+## GUM — GUM yondashuvi (JCGM 100:2008)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-GUM-001 | A tur: x̄, s(x̄) = s/√n, ν = n − 1 (§4.2.1–4.2.3) | `src/engine/typeA.js::typeA`; `src/engine/typeA.js::typeAx` | misollar: `excel-density`, `excel-gas-p2`, `excel-gas-p3`, `ea4-02-s3` | ✅ verified | — |
+| REQ-GUM-002 | A tur: oldindan aniqlangan s_p (§4.2.4) | `src/engine/typeA.js::typeAx` | misollar: `jcgm100-h1`, `ea4-02-s2` | ✅ verified | — |
+| REQ-GUM-003 | A tur: ↑/↓ o'qishlar, birlashtirilgan s, ν = n − 2, histerezis | `src/engine/typeA.js::typeAx` | misollar: `excel-term-p1`, `excel-term-p2`, `excel-term-p3`, `excel-term-p4`, `excel-term-p5` | ✅ verified | — |
+| REQ-GUM-004 | B tur: normal (U/k), to'g'ri burchakli, uchburchak, arksinus, rezolyutsiya d/(2√3) (§4.3.4–4.3.9, F.2.2.1) | `src/engine/typeB.js::getDivisor`; `src/engine/typeB.js::DIVISORS` | misollar: `excel-density`, `excel-gas-p1`, `excel-gas-p2`, `excel-gas-p2-mc`, `excel-gas-p2-mc-ndig1`, `excel-gas-p3`, `excel-term-p1`, `excel-term-p2`, `excel-term-p3`, `excel-term-p4`, `excel-term-p5`, `jcgm100-h1`, `ea4-02-s3`, `quam-a1` | ✅ verified | — |
+| REQ-GUM-005 | B tur: formula ko'rinishidagi yarim kenglik (`0.0002 * I + 0.002`) | `src/engine/typeB.js::valueOrExpr` | misollar: `excel-gas-p1`, `excel-gas-p2`, `excel-gas-p3`, `excel-density` | ✅ verified | — |
+| REQ-GUM-006 | B tur: ν_i (G.4.2, Eq. G.3) | `src/engine/evaluate.js::evaluate` | misollar: `jcgm100-h1` | ✅ verified | — |
+| REQ-GUM-007 | Formula parseri, o'zboshimcha model y = f(x) (§4.1) | `src/engine/parser.js::parse`; `src/engine/parser.js::compileAst` | misollar: `jcgm100-h2-R`, `jcgm100-h2-X`, `jcgm100-h2-Z`, `jcgm100-h2-vector`, `jcgm101-9-3-guf1`, `jcgm101-9-3-mcm`, `jcgm101-9-3-mcm-adaptive`, `jcgm101-9-4-mcm-x0-r0`, `jcgm101-9-4-mcm-x0-r09`, `jcgm101-9-4-mcm-x001-r0`, `jcgm101-9-4-mcm-x001-r09`, `jcgm101-9-4-mcm-x005-r0`, `jcgm101-9-4-mcm-x005-r09`, `jcgm101-9-4-x0-r0-guf1`, `jcgm101-9-4-x001-r0-guf1`, `jcgm101-9-4-x001-r09-guf1`, `jcgm101-9-4-x005-r0-guf1` | ✅ verified | — |
+| REQ-GUM-008 | Sezgirlik koeffitsientlari c_i = ∂f/∂x_i (§5.1.3) | `src/engine/parser.js::derivative`; `src/engine/sensitivity.js::sensitivities` | `tests/engine/sensitivity.test.js`; misollar: `jcgm100-h1`, `ea4-02-s3` | ✅ verified | D-07 — D-07 yopildi (P03) |
+| REQ-GUM-009 | u_c, mustaqil kirishlar (§5.1.2, Eq. 10) | `src/engine/evaluate.js::evaluate` | misollar: `jcgm100-h1`, `ea4-02-s2`, `ea4-02-s3`, `quam-a1`, `jcgm101-9-2-2-guf`, `jcgm101-9-2-3-guf`, `jcgm101-9-2-4-guf` | ✅ verified | — |
+| REQ-GUM-010 | Korrelyatsiya: juftlangan kuzatuvlardan r (§5.2.2–5.2.3, Eq. 14, 17) | `src/engine/typeA.js::correlation`; `src/engine/evaluate.js::evaluate` | misollar: `excel-density`, `jcgm100-h2-R`, `jcgm100-h2-Z`, `jcgm100-h2-X` | ⚠️ verified (farq bilan) | D-05 — · D-05 (manba nuansi) |
+| REQ-GUM-011 | Kovariatsiya B tur (`covB`, §5.2.2, F.1.2) | `src/engine/evaluate.js::evaluate` | misollar: `jcgm101-9-4-x001-r09-guf1` | ✅ verified | — |
+| REQ-GUM-012 | Welch–Satterthwaite ν_eff (G.4.1, Eq. G.2b) | `src/engine/evaluate.js::evaluate` | misollar: `jcgm100-h1`, `excel-density`, `excel-gas-p1`, `excel-gas-p2`, `excel-gas-p2-mc`, `excel-gas-p2-mc-ndig1`, `excel-gas-p3`, `excel-term-p2`, `excel-term-p3`, `excel-term-p5` | ⚠️ verified (farq bilan) | D-03 — · D-03 (Excel ν_B = 10⁹) |
+| REQ-GUM-013 | ν_eff kasr → `floor` (G.4.1 Note 1; egasi qarori); `interpolate`, `exact` — ixtiyoriy | `src/engine/coverage.js::coverage` | misollar: `jcgm100-h1`, `excel-gas-p2` | ✅ verified | — |
+| REQ-GUM-014 | k = t_P(ν_eff) (G.3, Table G.2), P = 0,95 / 0,9545 / 0,99 / 0,9973 | `src/engine/coverage.js::coverage`; `src/engine/special.js::tQuantile` | `tests/engine/quantiles.test.js`; misollar: `jcgm100-h1`, `excel-density`, `excel-gas-p2`, `excel-gas-p3` | ✅ verified | — |
+| REQ-GUM-015 | k: ν → ∞ (normal kvantil) | `src/engine/special.js::normalQuantile` | misollar: `excel-gas-p1`, `excel-term-p1`, `excel-term-p4` | ✅ verified | D-01 — D-01 yopildi (P03) |
+| REQ-GUM-016 | k: katta ν — har doim t(⌊ν⌋), chegara yo'q (Q-1(a)) | `src/engine/coverage.js`; `src/engine/special.js` | misollar: `excel-term-p2`, `excel-term-p3`, `excel-term-p5` | ✅ verified | D-02 — D-02 yopildi (P03) |
+| REQ-GUM-017 | k = 2 qat'iy (EA-4/02 §5) | `src/engine/evaluate.js::evaluate` | misollar: `ea4-02-s2`, `ea4-02-s3`, `quam-a1` | ✅ verified | — |
+| REQ-GUM-018 | U = k·u_c (§6.2.1) | `src/engine/evaluate.js::evaluate` | `tests/run-cases.test.js` | ✅ verified | D-01, D-02 — (D-01/D-02 dagi k orqali) |
+| REQ-GUM-019 | Ikkinchi tartibli hadlar (§5.1.2 Note) — diagnostika, standartda o'chiq | `src/engine/sensitivity.js::higherDerivatives`; `src/engine/sensitivity.js::secondOrderTerms` | `tests/engine/second-order.test.js`; misollar: `jcgm100-h1-2nd` | ✅ verified | — |
+| REQ-GUM-020 | Manfiy dispersiya,\|r\|> 1 → xato (C.3.6; PLAN P03 6-band) | `src/engine/evaluate.js` | `tests/engine/api.test.js` | ✅ verified | — |
+| REQ-GUM-021 | Birliklar va o'lchamlik tahlili (GUM-6 §11 — PDF yo'q) | `src/engine/units.js::parseUnit`; `src/engine/units.js::analyzeDimensions`; `src/engine/units.js::convert` | `tests/engine/units.test.js` | ❔ unverified | manba PDF kerak (unverified) |
+| REQ-GUM-022 | U = 0 → ogohlantirish (CLAUDE.md) | `src/engine/evaluate.js::evaluate` | misollar: `jcgm101-9-4-x0-r0-guf1` | ⏳ pending | (ogohlantirish); hisobotda bloklash ⏳ P05 |
+| REQ-GUM-023 | Regressiya / kalibrlash egri chizig'i (H.3) | `src/engine/regression/index.js::evaluateRegression` | misollar: `jcgm100-h3` | ✅ verified | (P08, §7) |
+
+## RND — Yaxlitlash va hisobot (ILAC P14, GUM §7.2)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-RND-001 | U — 2 qiymatli raqam, "yuqoriga" / "odatiy" rejim; y — U razryadigacha | `src/report/rounding.js::roundResult` | `tests/engine/rounding.test.js` | ✅ verified | (egasi qarorlari, P03) |
+
+## MCM — Monte-Karlo (JCGM 101:2008)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-MCM-001 | Taqsimotlarni tarqatish, M = 10⁶ (§7) | `src/engine/montecarlo.js::monteCarlo` | misollar: `jcgm101-9-2-2-mcm`, `jcgm101-9-2-3-mcm`, `jcgm101-9-2-4-mcm`, `jcgm101-9-3-mcm` | ✅ verified | (manba δ bilan) |
+| REQ-MCM-002 | Ehtimollik bo'yicha simmetrik interval (§7.7.2) | `src/engine/montecarlo.js::coverageIntervals`; `src/engine/montecarlo.js::symLow`; `src/engine/montecarlo.js::symHigh` | misollar: `jcgm101-9-2-2-mcm`, `jcgm101-9-2-3-mcm`, `jcgm101-9-2-4-mcm`, `excel-gas-p2-mc`, `excel-gas-p2-mc-ndig1` | ✅ verified | — |
+| REQ-MCM-003 | Eng qisqa interval (§7.7.2) | `src/engine/montecarlo.js::coverageIntervals`; `src/engine/montecarlo.js::low` | misollar: `jcgm101-9-3-mcm`, `jcgm101-9-4-mcm-x0-r0`, `jcgm101-9-4-mcm-x0-r09`, `jcgm101-9-4-mcm-x001-r0`, `jcgm101-9-4-mcm-x001-r09`, `jcgm101-9-4-mcm-x005-r0`, `jcgm101-9-4-mcm-x005-r09`, `jcgm101-9-5-mcm` | ✅ verified | D-18 — (D-18) |
+| REQ-MCM-004 | I uchun siljitilgan-masshtablangan t (§6.4.9) | `src/engine/mc/distributions.js::sampleT` | misollar: `excel-gas-p2-mc`, `excel-gas-p2-mc-ndig1` | ✅ verified | D-04 — (D-04 — egasi qarori Q-3 (b)) |
+| REQ-MCM-005 | Raqamli tolerans δ, GUF validatsiyasi (§7.9.2, §8) | `src/engine/montecarlo.js::numericalTolerance`; `src/engine/montecarlo.js::monteCarlo`; `src/engine/montecarlo.js::delta` | `tests/engine/montecarlo.test.js`; misollar: `jcgm101-9-2-2-mcm-adaptive`, `jcgm101-9-2-4-mcm-adaptive`, `jcgm101-9-3-mcm-adaptive` | ✅ verified | — |
+| REQ-MCM-006 | Ko'p o'lchamli normal, korrelyatsiya (§6.4.8) | `src/engine/mc/distributions.js::sampleMvn` | misollar: `jcgm101-9-4-mcm-x0-r09`, `jcgm101-9-4-mcm-x001-r09`, `jcgm101-9-4-mcm-x005-r09` | ✅ verified | — |
+| REQ-MCM-007 | t, arksinus, egri trapetsiya kirish taqsimotlari (Table 10) | `src/engine/mc/distributions.js` | misollar: `jcgm101-9-5-mcm` | ✅ verified | — |
+| REQ-MCM-008 | Kengaytirilgan Wichmann–Hill: a, b, c, d konstantalari (C.3.3.2, Table C.2 — p. 61) | `src/engine/mc/rng.js` | `tests/engine/mc-rng.test.js` | ✅ verified | — |
+| REQ-MCM-009 | 64 bitli shakl i_j = (a_j·i_j) mod d_j (C.3.3.3) = Table C.2 dagi 32 bitli shakl; ko'paytma < 2⁵³ | `src/engine/mc/rng.js::wichmannHill`; `src/engine/mc/rng.js::wichmannHillStep32` | `tests/engine/mc-rng.test.js` | ✅ verified | (manbaning ikki ta'rifi o'zaro) |
+| REQ-MCM-010 | Generator sifati (C.3.2.1 a) | `src/engine/mc/rng.js::wichmannHill` | `tests/engine/mc-rng.test.js` | ✅ verified | mustaqil tekshiruv (manbada sonli test qiymatlari yo'q; BigCrush — manbaning o'z bayoni, C.3.2.2) |
+| REQ-MCM-011 | Bir xil urug' → har qanday kompyuterda bir xil natija (C.3.2.1 c) | `src/engine/mc/rng.js::wichmannHill` | `tests/engine/mc-rng.test.js` | ✅ verified | (V8); boshqa JS dvigatellari — tekshirilmagan (R-23) |
+| REQ-MCM-012 | Box–Muller (C.4, Table C.3 — p. 62) | `src/engine/mc/distributions.js::makeGauss` | `tests/engine/mc-distributions.test.js` | ✅ verified | — |
+| REQ-MCM-013 | t-taqsimot (C.6, Table C.5 — p. 63) | `src/engine/mc/distributions.js::sampleT` | `tests/engine/mc-distributions.test.js` | ✅ verified | — |
+| REQ-MCM-014 | To'g'ri burchakli (§6.4.2), uchburchak (§6.4.5), arksinus (§6.4.6), eksponensial (§6.4.10) — E, V va tanlash formulasi | `src/engine/mc/distributions.js::sampleRect`; `src/engine/mc/distributions.js::sampleTriang`; `src/engine/mc/distributions.js::sampleArcsine`; `src/engine/mc/distributions.js::sampleExp` | `tests/engine/mc-distributions.test.js` | ✅ verified | — |
+| REQ-MCM-015 | Trapetsiya (§6.4.4: E, V, Eq. 7) | `src/engine/mc/distributions.js::sampleTrap`; `src/engine/mc/distributions.js::typeB` | `tests/engine/mc-distributions.test.js` | ✅ verified | — |
+| REQ-MCM-016 | Egri trapetsiya (§6.4.3, Eq. 3–4; misol 10,0 V ± 0,1 V, d = 0,05 → u = 0,060 V — p. 21) | `src/engine/mc/distributions.js::sampleCTrap`; `src/engine/mc/distributions.js::typeB` | `tests/engine/mc-distributions.test.js` | ✅ verified | — |
+| REQ-MCM-017 | Log-normal | `src/engine/mc/distributions.js::lognormalParams` | — | ❔ unverified | unverified (JCGM 101 da yo'q) — mustaqil tekshiruv |
+| REQ-MCM-018 | Ko'p o'lchovli Gauss, Cholesky (C.5, Table C.4; misol C.5.3 — p. 63) | `src/engine/mc/distributions.js::cholesky`; `src/engine/mc/distributions.js::sampleMvn` | `tests/engine/mc-distributions.test.js` | ✅ verified | — |
+| REQ-MCM-019 | δ = ½·10^l (§7.9.2, Examples 1–3 — p. 31) | `src/engine/montecarlo.js::numericalTolerance` | `tests/engine/montecarlo.test.js` | ✅ verified | — |
+| REQ-MCM-020 | Intervallar: q, r (§7.7.2 — p. 30) | `src/engine/montecarlo.js::coverageIntervals` | `tests/engine/montecarlo.test.js` | ✅ verified | — |
+| REQ-MCM-021 | Adaptiv protsedura (§7.9.4 — p. 32): M = max(J, 10⁴), 2s ≤ δ | `src/engine/montecarlo.js::createMonteCarlo` | `tests/engine/montecarlo.test.js` | ✅ verified | — |
+| REQ-MCM-022 | GUM tekshiruvi (§8.1.3): Table 2 — Yes; Table 4 — No (d = 2,8 / 2,9); Table 6 GUF1 — No (d_low 0,045 1, d_high 0,043 0) | `src/engine/montecarlo.js::monteCarlo`; `src/engine/montecarlo.js::dLow`; `src/engine/montecarlo.js::dHigh` | misollar: `jcgm101-9-2-2-mcm-adaptive`, `jcgm101-9-2-4-mcm-adaptive`, `jcgm101-9-3-mcm-adaptive` | ✅ verified | — |
+| REQ-MCM-023 | §9.4 solishtirish yo'qotishi: Table 8 (r = 0), Table 9 (r = 0,9) — 6 holat, M = 10⁶ | `src/engine/montecarlo.js::monteCarlo` | `tests/tools/mc-scatter.js`; misollar: `jcgm101-9-4-mcm-x0-r0`, `jcgm101-9-4-mcm-x005-r09` | ✅ verified | — |
+| REQ-MCM-024 | §9.5 KMD: Table 11 MCM — 838 nm, 36 nm, [745, 932] nm (99 %) | `src/engine/montecarlo.js::monteCarlo` | misollar: `jcgm101-9-5-mcm` | ✅ verified | D-18 — (D-18) |
+| REQ-MCM-025 | Nochiziqli model Y = X², x̄ = 0 — LPU rad etiladi | `src/engine/linter/rules/m03-mc-validation.js` | `tests/engine/montecarlo.test.js` | ✅ verified | mustaqil hisob |
+| REQ-MCM-026 | Normal bo'lmagan korrelyatsiya → natija yo'q + M2; `invalid_covariance` | `src/engine/montecarlo.js::createMonteCarlo` | `tests/engine/montecarlo.test.js` | ✅ verified | (loyiha qarori, R-23) |
+| REQ-MCM-027 | Eski generator bilan 2.5.0 natijasini takrorlash | `src/engine/mc/legacy.js` | `tests/engine/mc-legacy.test.js` | ✅ verified | (regressiya) |
+| REQ-MCM-028 | 10-test: gazoanalizator 2-nuqta (qo'llanma 9.1-jadval) | `src/engine/montecarlo.js::monteCarlo` | misollar: `excel-gas-p2-mc`, `excel-gas-p2-mc-ndig1` | ✅ verified | D-04 — (D-04 yopildi) |
+| REQ-MCM-029 | ν ≤ 2: u(y) aniqlanmagan, mezon faqat interval uchlari (§6.4.9.4, §7.6 Note 2; egasi qarori Q-5) | `src/engine/montecarlo.js::createMonteCarlo`; `src/engine/montecarlo.js::uDefined` | `tests/engine/montecarlo.test.js`; `tests/ui/mc.test.js` | ✅ verified | — |
+| REQ-MCM-030 | GUM tekshiruvida MCM toleransi δ/5 (§8.2; egasi qarori Q-8); erishilgan tolerans hisobotda; δ ga tushirish belgilanadi | `src/engine/montecarlo.js::mcOptions`; `src/engine/montecarlo.js::validation`; `src/engine/montecarlo.js::tolDivisor` | `tests/engine/montecarlo.test.js`; `tests/ui/mc.test.js` | ✅ verified | — |
+| REQ-MCM-031 | Shablon sxemasida yangi taqsimotlar (trap, ctrap, exp, lognorm) | `schemas/methodology.schema.json`; `src/templates/interpreter.js` | `tests/templates/workflow.test.js` | ✅ verified | — |
+| REQ-MCM-032 | Web Worker, progress, bekor qilish; worker'siz bo'laklab (R-16) | `src/ui/mc/` | `tests/ui/mc.test.js` | ✅ verified | — |
+| REQ-MCM-033 | LPU natijalari o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+
+## MVR — Ko'p o'zgaruvchili va oshkormas modellar (JCGM 102:2011; P07, P07b)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-MVR-001 | U_y = C_x·U_x·C_xᵀ (§6.2.1.3, Eq. (3)); §6.2.2 Example 1 | `src/engine/multivariate/lpu.js::evaluateMultivariate` | `tests/engine/multivariate.test.js` | ✅ verified | verified |
+| REQ-MVR-002 | Ellipsoid k_p (§6.5.3, Table 1 — 20 qiymat), to'g'ri burchakli k_q (§6.5.4, Table 2) | `src/engine/multivariate/region.js::ellipsoidFactor`; `src/engine/multivariate/region.js::rectangleFactor` | `tests/engine/multivariate.test.js` | ✅ verified | verified |
+| REQ-MVR-003 | Ikki o'lchovli soha, yuzlar (§6.5.2.3 Example 1–2, 21-bet) | `src/engine/multivariate/region.js::gaussianRegion`; `src/engine/multivariate/region.js::ellipseOf` | `tests/engine/multivariate.test.js` | ✅ verified | D-19 — verified (D-19) |
+| REQ-MVR-004 | MCM ellipsoidi (§7.7.2, Cholesky misoli), to'g'ri burchakli (§7.7.3) | `src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo` | `tests/engine/multivariate.test.js` | ✅ verified | verified |
+| REQ-MVR-005 | §9.2.2–9.2.4 (Table 3–5): GUF, MCM, adaptiv MCM (§7.8), §8 xulosasi | `src/engine/multivariate/lpu.js::evaluateMultivariate`; `src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo` | misollar: `jcgm102-9-2-2-guf`, `jcgm102-9-2-2-mcm-adaptive`, `jcgm102-9-2-2-mcm`, `jcgm102-9-2-2-validation`, `jcgm102-9-2-3-guf`, `jcgm102-9-2-3-mcm-adaptive`, `jcgm102-9-2-3-mcm`, `jcgm102-9-2-3-validation`, `jcgm102-9-2-4-guf`, `jcgm102-9-2-4-mcm-adaptive`, `jcgm102-9-2-4-mcm`, `jcgm102-9-2-4-validation` | ✅ verified | verified. k_p GUF 2,45; MCM 2,45 / 2,38 / 2,28; k_q 2,21 / 2,15 / 1,87. §8: 9.2.2 tasdiqlanadi, 9.2.3 va 9.2.4 — yo'q (manba bilan bir xil) |
+| REQ-MVR-006 | §9.3 (Table 6–7), GUF qatorlari, 6 holat | `src/engine/multivariate/lpu.js::evaluateMultivariate`; `src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo` | misollar: `jcgm102-9-3-x001-r0-guf`, `jcgm102-9-3-x001-r09-guf`, `jcgm102-9-3-x010-r0-guf`, `jcgm102-9-3-x010-r09-guf`, `jcgm102-9-3-x100-r0-guf`, `jcgm102-9-3-x100-r09-guf` | ✅ verified | verified; MCM qatorlari — **yo'q** (`atan2`, R-24) |
+| REQ-MVR-007 | §9.4 (Table 11): GUF va MCM (ko'p o'lchovli t, ν = 3) | `src/engine/multivariate/lpu.js::evaluateMultivariate`; `src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo` | misollar: `jcgm102-9-4-guf`, `jcgm102-9-4-mcm` | ✅ verified | D-20 — verified (D-20) |
+| REQ-MVR-008 | JCGM 100 H.2 vektor sifatida (r(R,X) = −0,588; r(R,Z) = −0,485; r(X,Z) = 0,993) | `src/engine/multivariate/lpu.js::evaluateMultivariate`; `src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo` | `tests/cases/jcgm100/jcgm100-h2-vector.json` | ✅ verified | D-05 — verified (`u.X` — D-05) |
+| REQ-MVR-009 | Ko'p o'lchovli t (§5.3.2): o'rtacha, kovariatsiya ν/(ν − 2)·S/n, marginal t-kvantil; n ≤ N → `mc_t_dof` | `src/engine/montecarlo.js::createSampler` | `tests/engine/montecarlo.test.js` | ✅ verified | mustaqil tekshiruv (taqsimot xossalari) + §9.4 |
+| REQ-MVR-010 | Adaptiv M: §9.2.3 — 0,27·10⁶ (manba 0,35–0,45·10⁶), §9.2.4 — 1,52·10⁶ (manba 1,49–1,85·10⁶) | `src/engine/multivariate/lpu.js::evaluateMultivariate`; `src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo` | misollar: `jcgm101-9-2-2-mcm-adaptive`, `jcgm101-9-2-4-mcm-adaptive`, `jcgm101-9-3-mcm-adaptive`, `jcgm102-9-2-2-mcm-adaptive`, `jcgm102-9-2-3-mcm-adaptive`, `jcgm102-9-2-4-mcm-adaptive` | ✅ verified | (M urug'ga bog'liq; test — faqat yaqinlashganlik va qiymatlar) |
+| REQ-MVR-011 | U_x musbat aniqlanmagan → `invalid_covariance` | `src/engine/multivariate/lpu.js::evaluateMultivariate` | `tests/engine/multivariate.test.js` | ✅ verified | — |
+| REQ-MVR-012 | m = 1: 2.6.0 bilan bit darajasida bir xil | `src/engine/evaluate.js::evaluate`; `src/engine/montecarlo.js::monteCarlo` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-MVR-013 | `uc-calc/1` vektor natija: eksport → import → qayta hisob | `src/io/calc-json.js` | `tests/ui/multivariate.test.js` | ✅ verified | — |
+| REQ-MVR-014 | Hisobot: chiqishlar jadvali, korrelyatsiya matritsasi, qamrov sohasi, ellips SVG; uch til | `src/report/sections.js::multivariateSection`; `src/report/ellipse.js` | `tests/ui/multivariate.test.js` | ✅ verified | (jsdom; real brauzerda qo'lda ko'rilmagan) |
+| REQ-MVR-015 | Linter MV1 | `src/engine/linter/rules/mv01-output-correlation.js` | `tests/engine/multivariate.test.js`; `tests/engine/linter.test.js` | ✅ verified | (chegara — egasi tasdig'ini kutadi) |
+| REQ-MVR-016 | Shablon `outputs`, MV-01 | `schemas/methodology.schema.json`; `src/templates/interpreter.js` | `tests/templates/workflow.test.js` | ✅ verified | — |
+| REQ-MVR-017 | **P07b:** oshkor bo'lmagan model — Nyuton (§6.3.1.2), C_y / C_x, U_y (Eq. (8)); §9.5.2 (p. 56): θ̂ = 20,0232; u = 0,0045; c_y = 0,389; C_x | `src/engine/multivariate/implicit.js::evaluateImplicit`; `src/engine/multivariate/implicit.js::newtonSolve`; `src/engine/multivariate/implicit.js::luSolve` | `tests/engine/implicit.test.js` | ✅ verified | D-21 — verified (C_x[3] — D-21: manbada bosma xato) |
+| REQ-MVR-018 | §9.5.3 (Table 15, 16 — p. 57): 10 baho, 10 noaniqlik, 45 korrelyatsiya | `src/engine/multivariate/implicit.js::evaluateImplicit` | misollar: `jcgm102-9-5-3-several` | ✅ verified | verified (oxirgi xonaning yarmi) |
+| REQ-MVR-019 | §6.3.2 Example 1 (bosim tarozisi), Example 2 (reflektometr) | `src/engine/multivariate/implicit.js::evaluateImplicit` | `tests/engine/implicit.test.js` | ✅ verified | oshkor (§6.2) va oshkormas natija tengligi (manbada raqam yo'q) |
+| REQ-MVR-020 | C_y singular → `implicit_singular` (§6.3.1.3 Note 1); yaqinlashmasa → `implicit_no_convergence` | `src/engine/multivariate/implicit.js::newtonSolve` | `tests/engine/implicit.test.js` | ✅ verified | (mezon — loyiha qarori, tasdiq kutadi) |
+| REQ-MVR-021 | `atan2` (§9.3.1.1): qiymat, simvolik hosila, o'lchamlik | `src/engine/parser.js`; `src/engine/units.js` | `tests/engine/atan2.test.js` | ✅ verified | — |
+| REQ-MVR-022 | §9.3 MCM qatorlari (Table 6, 7 — p. 44–45), 6 holat × 5 qiymat | `src/engine/montecarlo.js::monteCarlo` | misollar: `jcgm102-9-3-x001-r0-mcm`, `jcgm102-9-3-x001-r09-mcm`, `jcgm102-9-3-x010-r0-mcm`, `jcgm102-9-3-x010-r09-mcm`, `jcgm102-9-3-x100-r0-mcm`, `jcgm102-9-3-x100-r09-mcm` | ✅ verified | verified (30 / 30; tolerans ½ xona + 2√2·s, M = 3·10⁶, manbada 10⁷) |
+| REQ-MVR-023 | Eng kichik qamrov sohasi (§7.7.4 a–g), m = 2; misol (p. 31): yuz 9,4; 950 074 nuqta | `src/engine/multivariate/region.js::smallestRegion` | `tests/engine/multivariate.test.js` | ✅ verified | verified (9,35; 950 0xx). m > 2 — ❌ qilinmagan |
+| REQ-MVR-024 | Shablon muharririda `outputs`: qo'shish / tahrirlash / o'chirish / tekshiruv / qulf | `src/ui/tpl/outputs.js`; `src/ui/tpl/outputs.js::checkTemplate` | `tests/templates/outputs-editor.test.js` | ✅ verified | (jsdom + Chromium da qo'lda) |
+| REQ-MVR-025 | `uc-calc/1` da `implicit`: eksport → import → qayta hisob | `src/io/calc-state.js` | `tests/io/calc-json.test.js` | ✅ verified | — |
+| REQ-MVR-026 | U_y — Annex B (B.1 a–j, p. 61); §6.3.1.5 (p. 18): (10) + (9) "not recommended" | `src/engine/multivariate/implicit.js::annexB`; `src/engine/multivariate/implicit.js::luFactor`; `src/engine/multivariate/implicit.js::qrHouseholder` | `tests/engine/implicit.test.js` | ✅ verified | §9.5.2 va §9.5.3 da LU yo'li bilan ≤ 10⁻¹² nisbiy; Eq. (8) to'g'ridan-to'g'ri tekshirilgan; Table 15–16 dagi 65 qiymat o'zgarmagan |
+| REQ-MVR-027 | U_x singular → LU yo'li + info `implicit_lu_fallback` (MV2) | `src/engine/linter/rules/mv02-implicit-covariance.js` | `tests/engine/implicit.test.js`; `tests/ui/multivariate.test.js` | ✅ verified | (egasi qarori 2026-11-19) |
+| REQ-MVR-028 | Nyutondan keyin qoldiq tekshiruvi → `implicit_no_convergence` (`residual`) | `src/engine/multivariate/implicit.js::evaluateImplicit` | `tests/engine/implicit.test.js` | ✅ verified | (chegara 10⁻⁸ va masshtab — loyiha qarori, tasdiq kutadi) |
+| REQ-MVR-029 | cond₁(C_y) natijada va hisobotda | `src/engine/multivariate/implicit.js::evaluateImplicit` | `tests/engine/implicit.test.js`; `tests/ui/multivariate.test.js` | ✅ verified | — |
+| REQ-MVR-030 | Shablonda `implicit`; standart y⁽⁰⁾, foydalanuvchi qiymati ustun, yo'q bo'lsa xato | `src/templates/interpreter.js::checkTemplate`; `src/templates/interpreter.js::buildState` | `tests/templates/implicit.test.js` | ✅ verified | (natija dvigatelning to'g'ridan-to'g'ri chaqiruvi bilan aynan bir xil) |
+| REQ-MVR-031 | Ko'p chiqish + ko'p nuqta: yagona k yo'q; U_j — o'z k_j bilan; birgalikda — faqat k_p (§6.5) | `src/report/summary.js::vectorSummaryRows` | `tests/ui/multivariate.test.js` | ✅ verified | (egasi qarori 2026-11-19); real brauzerda ko'rilmagan |
+| REQ-MVR-032 | Mavjud natijalar o'zgarmagan (P07b) | `src/engine/evaluate.js::evaluate`; `src/engine/montecarlo.js::monteCarlo` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-MVR-033 | Oshkormas model uchun MCM; eng kichik soha m > 2; nuqtalar orasidagi birgalikdagi soha | — | — | ⏳ pending | ❌ qilinmagan (R-24) |
+
+## REG — Regressiya va kalibrlash egri chiziqlari (P08)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-REG-001 | To'g'ri chiziq, OLS: y1, y2, s(y1), s(y2), r(y1, y2), s (JCGM 100:2008 H.3.2 Eq. H.13a–g; H.3.3) | `src/engine/regression/fit.js::fitPolynomial` | misollar: `jcgm100-h3` | ✅ verified | — |
+| REQ-REG-002 | Bashorat qilingan tuzatmalar va qoldiqlar (Table H.6, 4- va 5-ustunlar, 22 qiymat) | `src/engine/regression/index.js::evaluateRegression` | misollar: `jcgm100-h3` | ✅ verified | — |
+| REQ-REG-003 | To'g'ri bashorat u_c[b(t)], ν = n − 2 (H.3.4 Eq. H.15): b(30 °C) = −0,1494, u_c = 0,0041 | `src/engine/regression/predict.js::predict` | misollar: `jcgm100-h3` | ✅ verified | — |
+| REQ-REG-004 | Korrelyatsiyani yo'qotish, t0 = t̄ (H.3.5 Eq. H.16–H.17): y1′ = −0,1625(11) | `src/engine/regression/index.js::evaluateRegression` | `tests/engine/regression.test.js` | ✅ verified | — |
+| REQ-REG-005 | Chiziqli kalibrlash B1, B0, S (QUAM:2012 A5, Table A5.2) | `src/engine/regression/fit.js::fitPolynomial` | misollar: `quam-a5-calibration` | ✅ verified | — |
+| REQ-REG-006 | Teskari bashorat u(c₀) (QUAM A5; E.4 Eq. E3.3, E3.5): u(c₀) = 0,018 mg/L | `src/engine/regression/predict.js::inversePredict` | `tests/engine/regression.test.js`; misollar: `quam-a5-calibration` | ✅ verified | (manbada A₀ yo'q — y₀ chiziqdan tiklanadi) |
+| REQ-REG-007 | WLS (QUAM Eq. E3.4) | `src/engine/regression/fit.js::fitPolynomial` | — | ❔ unverified | manba misoli yo'q; o'zaro tekshiruv ✅ |
+| REQ-REG-008 | Polinom 2-, 3-daraja (ISO/TS 28038 — pullik) | `src/engine/regression/fit.js::fitPolynomial` | — | ❔ unverified | unverified; o'zaro tekshiruv ✅ |
+| REQ-REG-009 | GLS, y_i kovariatsiyasi (ISO/TS 28037 §10 — pullik; Aitken 1935) | `src/engine/regression/fit.js::fitPolynomial`; `src/engine/regression/fit.js::covY` | — | ❔ unverified | unverified |
+| REQ-REG-010 | WTLS, u(x_i) va u(y_i) (ISO/TS 28037 §7 — pullik; York et al. 2004) | `src/engine/regression/wtls.js::fitWtls` | misollar: `york-pearson-wtls` | ❔ unverified | unverified (manba repoda yo'q) |
+| REQ-REG-011 | Model yaroqliligi: χ² testi, P = 0,95 | `src/engine/regression/chi2.js::chi2Quantile`; `src/engine/regression/index.js::evaluateRegression`; `src/engine/regression/index.js::chi2`; `src/engine/regression/index.js::regression_chi2_fail` | `tests/engine/regression.test.js`; `tests/ui/regression.test.js` | ❔ unverified | (kvantil); test qoidasi ❔ (ISO/TS 28037 pullik) |
+| REQ-REG-012 | Chekka holatlar: aniq xato kodi | `src/engine/regression/index.js::evaluateRegression`; `src/engine/regression/index.js::inversePredict` | `tests/engine/regression.test.js` | ✅ verified | — |
+| REQ-REG-013 | "U — diapazon" (ILAC P14:09/2020) | `src/engine/regression/urange.js::uRangeFunction` | — | ❔ unverified | unverified — PDF repoda bor, lekin funksiya manba bilan solishtirilmagan |
+| REQ-REG-014 | Bir o'lchamli GUM natijalari o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-REG-015 | REGRESSION shabloni | `src/templates/interpreter.js::buildRegressionSpec` | `tests/templates/regression.test.js` | ✅ verified | (R-01 — DRAFT) |
+
+## TDN — Top-down va empirik kattaliklar (P09)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-TDN-001 | u(R_w) nazorat kartasi chegaralaridan: chegara / 2 (Nordtest TR 537 ed. 4 §3.2, p. 10; §5.1, p. 15) | `src/engine/topdown/rw.js::evaluateRw` | misollar: `nordtest-tr537-nh4n` | ✅ verified | — |
+| REQ-TDN-002 | u(bias) = √(RMS_bias² + u(C_ref)²), PT: u(C_ref,i) = s_R,i/√n_Lab,i (§6.2, p. 21; Appendix 4, p. 40) | `src/engine/topdown/bias.js::evaluateBias`; `src/engine/topdown/bias.js::pt` | misollar: `nordtest-tr537-nh4n`, `nordtest-tr537-bod-pt` | ✅ verified | — |
+| REQ-TDN-003 | u_c = √(u(R_w)² + u(bias)²), U = 2·u_c (§3.2, 5–6-qadam, p. 10) | `src/engine/topdown/index.js::evaluateTopDown` | misollar: `nordtest-tr537-nh4n`, `nordtest-tr537-bod-crm`, `nordtest-tr537-bod-pt` | ✅ verified | — |
+| REQ-TDN-004 | Dublikatlar: s = √(Σd²/(2n)), mutlaq (Appendix 5 chap ustun, p. 41; Appendix 6, p. 42) | `src/engine/topdown/rw.js::duplicateSd` | misollar: `nordtest-tr537-nh4n-dup-low`, `nordtest-tr537-oxygen-dup` | ✅ verified | D-12 — (D-12: n = 46 / 47) |
+| REQ-TDN-005 | Dublikatlar, nisbiy: har bir juftlik o'z o'rtachasiga nisbatan (Appendix 5 o'ng ustun; Table 1, p. 13) | `src/engine/topdown/rw.js::duplicateSd` | `tests/engine/topdown.test.js`; misollar: `nordtest-tr537-nh4n-dup-high` | ✅ verified | — |
+| REQ-TDN-006 | Dublikatlar, nisbiy: pooled s / umumiy o'rtacha (§5.3, pp. 17–18) | `src/engine/topdown/rw.js` | misollar: `nordtest-tr537-oxygen-dup` | ✅ verified | — |
+| REQ-TDN-007 | u(R_w) = √(s_Rw² + s_r²) (§5, p. 15; §5.3, pp. 17–18) | `src/engine/topdown/rw.js::evaluateRw` | misollar: `nordtest-tr537-nh4n-dup-low`, `nordtest-tr537-nh4n-dup-high`, `nordtest-tr537-oxygen-dup` | ✅ verified | — |
+| REQ-TDN-008 | Nazorat namunasi qatori: s, CV (§5.2, p. 16) | `src/engine/topdown/rw.js` | `tests/engine/topdown.test.js` | ✅ verified | (formula; manbada xom qator yo'q) |
+| REQ-TDN-009 | Bitta CRM: √(bias² + (s_bias/√n)² + u(C_ref)²); bir nechta CRM: RMS (§6, p. 19; §6.1, p. 20) | `src/engine/topdown/bias.js`; `src/engine/topdown/bias.js::crm` | `tests/engine/topdown.test.js`; misollar: `nordtest-tr537-bod-crm` | ✅ verified | D-14 — (D-14: u(C_ref) 2,16 vs 2,17) |
+| REQ-TDN-010 | Recovery: RMS_bias, u(C_recovery) = √(u(conc)² + u(vol)²) (§6.3, p. 23) | `src/engine/topdown/bias.js`; `src/engine/topdown/bias.js::recovery` | misollar: `nordtest-tr537-recovery` | ✅ verified | — |
+| REQ-TDN-011 | Robust s × 1,25; PT provayderi U bersa U/2 (§6.2, pp. 21–22) | `src/engine/topdown/bias.js` | `tests/engine/topdown.test.js` | ✅ verified | — |
+| REQ-TDN-012 | QUAM recovery: u(Rec) = s/√n, t = \|1 − Rec\|/u(Rec), t_crit(n − 1; 95 %) (QUAM:2012 A4, p. 66) | `src/engine/topdown/recovery.js::evaluateRecovery` | misollar: `quam-a4-recovery` | ✅ verified | D-13 — (t_crit: D-13) |
+| REQ-TDN-013 | Tuzatilgan bias: hissa u(Rec)/Rec, natija y/Rec; u_c/P = 0,34 (Table A4.4, A4.5, p. 68) | `src/engine/topdown/index.js::evaluateTopDown`; `src/engine/topdown/index.js::QUAM_RECOVERY` | misollar: `quam-a4-recovery` | ✅ verified | — |
+| REQ-TDN-014 | Tuzatilmagan bias: hissa u(R_m); ahamiyatli bo'lsa ogohlantirish (§7.7.9, p. 20; §7.16.2, p. 25) | `src/engine/topdown/index.js::evaluateTopDown` | `tests/engine/topdown.test.js` | ✅ verified | (qoida manbadan; raqamli misol yo'q) |
+| REQ-TDN-015 | s_R asosida: u_c = s_R (+ qamralmagan omillar) (QUAM §7.6.3, p. 18; A6 Table A6.4–A6.5, p. 86; Nordtest §7, pp. 24–25) | `src/engine/topdown/reproducibility.js`; `src/engine/topdown/index.js::evaluateTopDown` | misollar: `quam-a6-empirical` | ✅ verified | — |
+| REQ-TDN-016 | Rejim parametri hissasi = sezgirlik × u(parametr) (QUAM Table A6.3, Note 4, p. 85) | `src/engine/topdown/index.js::additionalComponent` | `tests/engine/topdown.test.js` | ✅ verified | — |
+| REQ-TDN-017 | Empirik kattalik: usul bias'i 0 (QUAM §7.9.2, p. 21) | `src/engine/topdown/index.js::evaluateTopDown`; `src/engine/topdown/index.js::isEmpiricalMeasurand` | `tests/engine/topdown.test.js`; misollar: `quam-a6-empirical` | ✅ verified | — |
+| REQ-TDN-018 | u(x) = √(s₀² + (x·s₁)²); s₀ = √c, s₁ = √m (QUAM E.5.2.1 Eq. [1], p. 117; E.5.5.2, p. 119) | `src/engine/topdown/level.js::levelUncertainty`; `src/engine/topdown/level.js::fitLevelModel` | `tests/engine/topdown.test.js` | ✅ verified | (formula; manbada raqamli misol yo'q) |
+| REQ-TDN-019 | ISO 21748: laboratoriya s_r tekshiruvi (χ²), s_R′, u(δ̂) | `src/engine/topdown/reproducibility.js` | `tests/engine/topdown.test.js` | ❔ unverified | unverified (standart pullik) |
+| REQ-TDN-020 | **X11** — ikki marta hisoblash | `src/engine/topdown/index.js::evaluateTopDown`; `src/engine/topdown/index.js::x11_double_counting` | `tests/engine/topdown.test.js`; `tests/ui/topdown-app.test.js`; `tests/ui/topdown.test.js`; `tests/templates/topdown.test.js` | ✅ verified | — |
+| REQ-TDN-021 | **X12** — empirik kattalikda bias; "tayanch qiymat qaysi usul bilan olingan" savoli majburiy (egasi qarori 2026-11-17; QUAM §7.9.2–7.9.3) | `src/engine/topdown/index.js::evaluateTopDown`; `src/engine/topdown/index.js::referenceMethod`; `src/engine/topdown/index.js::x12_empirical_bias`; `src/engine/topdown/index.js::x12_bias_excluded` | `tests/engine/topdown.test.js`; `tests/ui/topdown.test.js`; `tests/ui/topdown-app.test.js` | ✅ verified | — |
+| REQ-TDN-022 | X11 chop etilgan hisobotda ham chiqadi, yashirib bo'lmaydi (egasi qarori) | `src/js/report.js::printTopdown` | `tests/ui/topdown.test.js` | ✅ verified | — |
+| REQ-TDN-023 | ν_eff (JCGM 100:2008 G.4.1 Eq. G.2b) ko'rsatiladi; ν_eff < 30 → t_P(⌊ν_eff⌋) taklifi; k = 2 o'zgarmaydi; hisobotda "k = 2, P ≈ 95 %" (egasi qarori; Nordtest §3.2) | `src/engine/topdown/index.js::evaluateTopDown`; `src/engine/topdown/index.js::nuEff`; `src/engine/topdown/index.js::kSuggested` | `tests/engine/topdown.test.js`; `tests/ui/topdown.test.js` | ✅ verified | (ν(bias) = N − 1 — R-20 dagi tafsilot) |
+| REQ-TDN-024 | Nisbiy va mutlaq aralashmasi → xato | `src/engine/topdown/scale.js::stated`; `src/engine/topdown/scale.js::declaredScale` | `tests/engine/topdown.test.js` | ✅ verified | — |
+| REQ-TDN-025 | Hisobot: y, U, nisbiy U %, k, yondashuv nomi (ISO/IEC 17025:2017 §7.8.3.1 c)) | `src/js/report.js::topdownSection` | `tests/ui/topdown.test.js`; `tests/ui/topdown-app.test.js` | ✅ verified | — |
+| REQ-TDN-026 | U = 0 ogohlantirishsiz chiqmaydi | `src/engine/topdown/index.js::evaluateTopDown` | `tests/ui/topdown.test.js` | ✅ verified | — |
+| REQ-TDN-027 | GUM va regressiya natijalari o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-TDN-028 | Mutatsiyaga sezgirlik (P09) | `src/engine/linter/rules/x11-double-counting.js`; `src/engine/linter/rules/x12-empirical-bias.js` | — | ✋ manual | Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda: 2n → n (8 test yiqildi); √ yig'indi → oddiy yig'indi (8); s/√n → s/n (6); X11 o'chirildi (6); X12 o'chirildi (3) |
+| REQ-TDN-029 | TOP_DOWN shablonlari | `src/templates/interpreter.js::buildTopDownState`; `src/templates/interpreter.js::topDown` | `tests/templates/topdown.test.js` | ✅ verified | (hammasi DRAFT, raqamsiz) |
+
+## SPM — Maxsus rejimlar (P10)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-SPM-001 | Klassik ichma-ich ANOVA: kvadratlar yig'indisi, s_between, s_samp, s_anal, % dispersiya (UfS:2019 Figure A1.2, p. 41) | `src/engine/sampling/index.js::classicalAnova` | `tests/engine/special-modes.test.js`; misollar: `ufs-a1-nitrate-classical` | ✅ verified | — |
+| REQ-SPM-002 | Klassik ANOVA, U′ va ᶠU = exp(2·s_G) (UfS Figure A2.2, p. 48; Table A2.3, p. 49; Eq. 4, 5) | `src/engine/sampling/index.js::evaluateSampling`; `src/engine/sampling/index.js::logTransform` | misollar: `ufs-a2-lead-classical` | ✅ verified | — |
+| REQ-SPM-003 | Robust ANOVA: o'rtacha, s_between, s_samp, s_anal, s_meas, % dispersiya, U′ (UfS Figure A1.2, A2.2) | `src/engine/sampling/index.js::robustAnova` | misollar: `ufs-a1-nitrate-robust`, `ufs-a2-lead-robust` | ✅ verified | D-16 — 4 qiymatli raqamgacha (qayta tiklangan algoritm — D-16, R-21) |
+| REQ-SPM-004 | s_meas² = s_samp² + s_anal²; U′ = 2·100·s_meas/x̄ (UfS Eq. 1–2, 4): A1 — 360,55 mg/kg; 16,4 % | `src/engine/sampling/index.js::evaluateSampling` | `tests/engine/special-modes.test.js`; misollar: `ufs-a1-nitrate-robust` | ✅ verified | — |
+| REQ-SPM-005 | Manfiy dispersiya bahosi → 0 va ogohlantirish | `src/engine/sampling/index.js::evaluateSampling` | `tests/engine/special-modes.test.js` | ✅ verified | — |
+| REQ-SPM-006 | Muvozanatsiz dizayn, kam ob'ekt, log uchun musbat bo'lmagan qiymat → aniq xato / ogohlantirish | `src/engine/sampling/index.js::evaluateSampling` | `tests/engine/special-modes.test.js` | ✅ verified | — |
+| REQ-SPM-007 | SS, SP, FP, FN ulushlari; LR(+), LR(−) (AQA:2021 §3.2, §4.2) | `src/engine/qualitative/index.js::evaluateQualitative` | `tests/engine/special-modes.test.js`; misollar: `aqa-e6-sarscov2` | ✅ verified | — |
+| REQ-SPM-008 | Wilson score 95 % CI (AQA §4.4 Eq. 8–11): [96,3; 100], [91,6; 99,0]; 400/400 → 99 %; 5/5 → 57 % | `src/engine/qualitative/index.js::wilsonInterval` | `tests/engine/special-modes.test.js`; misollar: `aqa-e6-sarscov2` | ✅ verified | D-17 — (D-17: 91,55 vs 91,6) |
+| REQ-SPM-009 | Posterior ehtimol PP (AQA §4.3 Eq. 6; Table E3.1): 0,963; 0,988; 0,963 | `src/engine/qualitative/index.js::posterior`; `src/engine/qualitative/index.js::evaluateQualitative` | misollar: `aqa-e3-emit-opiates`, `aqa-e3-emit-methadone`, `aqa-e3-emit-cocaine` | ✅ verified | D-15 — (D-15) |
+| REQ-SPM-010 | Clopper–Pearson (aniq binomial; loyiha qo'shimchasi — laboratoriya sozlamasi): 7/20, 97/100, 100/100, 0/50, 3/100, 45/60 (P = 0,95), 7/20 (P = 0,99) | `src/engine/qualitative/index.js::clopperPearsonInterval` | `tests/engine/special-modes.test.js` | ✅ verified | mustaqil ochiq dastur (qiymatlar sessiyada hisoblangan — RISKS R-21) |
+| REQ-SPM-011 | Interval usuli tanlovi (egasi qarori 2026-11-18): standart Wilson; `ciMethod: 'clopper_pearson'`; bosma hisobotda faqat tanlangani, usul nomi va P | `src/engine/qualitative/index.js::evaluateQualitative`; `src/js/report.js` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
+| REQ-SPM-012 | Mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; interval [10^(y−U); 10^(y+U)] (ISO 19036 — pullik) | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified |
+| REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914 — pullik) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified |
+| REQ-SPM-014 | BETA modullar: har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | `src/engine/micro/index.js::evaluateMicro`; `src/engine/medical/index.js::evaluateMedical`; `src/templates/interpreter.js::checkSpecialTemplate` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
+| REQ-SPM-015 | Hisobotda qo'llanilgan yondashuv va cheklovlar yozilgan (uch tilda) | `src/js/report.js::specialSection` | `tests/ui/special.test.js` | ✅ verified | — |
+| REQ-SPM-016 | "Maxsus rejimlar" oynasi: Excel'dan qo'yish, o'nlik vergul, bo'sh maydon ≠ 0, escape (XSS), CSP | `src/ui/special/` | `tests/ui/special.test.js` | ✅ verified | — |
+| REQ-SPM-017 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-SPM-018 | Mutatsiyaga sezgirlik (P10) | — | — | ✋ manual | Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda: σ_s² dagi /2 olib tashlandi (22 test yiqildi); robust τ² bo'luvchisi n → n − 1 (21); Wilson dagi z²/(4n²) hadi (7); Clopper–Pearson parametri (2); Puasson 1/√C → 1/C (2); kvadratlar yig'indisi → oddiy yig'indi (3) |
+
+## LNT — Metrologik linter, asoslangan qabul (P05a)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-LNT-001 | Kalibrlanayotgan asbob MPE si byudjetda bo'lmasligi (JCGM 100:2008 3.4.5, F.2.4.2; CLAUDE.md) | `src/engine/linter/rules/x01-mpe-in-budget.js` | `tests/engine/linter.test.js`; `tests/engine/linter-fixtures.test.js` | ✅ verified | — |
+| REQ-LNT-002 | Noaniqlik nol bo'la olmaydi (JCGM 100:2008 3.3.1, F.2.2.1) | `src/engine/linter/rules/x08-zero-uncertainty.js` | `tests/engine/linter-fixtures.test.js`; `tests/engine/linter.test.js` | ✅ verified | — |
+| REQ-LNT-003 | U ≥ CMC (ILAC P14:09/2020 §5.5) | `src/engine/linter/rules/x08-zero-uncertainty.js` | `tests/engine/linter.test.js` | ✅ verified | (havola P05b da PDF bilan solishtirildi) |
+| REQ-LNT-004 | Sertifikat U / k (4.3.3); ikki marta hisoblamaslik (4.3.10); korrelyatsiya (5.2.2–5.2.5); rezolyutsiya δ/(2√3) (F.2.2.1) | `src/engine/linter/rules/x02-certificate-divisor.js`; `src/engine/linter/rules/x03-hysteresis-double.js`; `src/engine/linter/rules/x04-correlation.js`; `src/engine/linter/rules/x05-resolution-divisor.js` | `tests/engine/linter.test.js` | ✅ verified | — |
+| REQ-LNT-005 | Birliklar (5.1.3; GUM-6 — repoda yo'q) | `src/engine/linter/rules/x06-units.js` | `tests/engine/linter.test.js` | ❔ unverified | / ❔ |
+| REQ-LNT-006 | k = 2 ning ishonchliligi (EA-4/02 M:2022 §5.1–5.5; JCGM 100 G.6.6) | `src/engine/linter/rules/x07-k2-reliability.js` | `tests/engine/linter.test.js` | ✅ verified | (chegaralar — loyiha qarori) |
+| REQ-LNT-007 | U ≤ 2 qiymatli raqam, y — U xonasigacha (JCGM 100 7.2.6) | `src/engine/linter/index.js::lintReported`; `src/engine/linter/rules/x09-reported-digits.js` | `tests/engine/linter.test.js` | ✅ verified | — |
+| REQ-LNT-008 | Etalon drifti (EA-4/02 M:2022 App. C, S2.4) | `src/engine/linter/rules/x10-no-drift.js` | `tests/engine/linter.test.js` | ✅ verified | — |
+| REQ-LNT-009 | X11, X12 (Nordtest TR 537 §3.2; QUAM:2012 §7.9) — R-20 qarorlari saqlangan | `src/engine/linter/rules/x11-double-counting.js`; `src/engine/linter/rules/x12-empirical-bias.js` | `tests/engine/linter.test.js`; `tests/engine/topdown.test.js`; `tests/ui/topdown-app.test.js`; `tests/ui/topdown.test.js` | ✅ verified | — |
+| REQ-LNT-010 | Ulush > 90 %; n < 3; ν ≤ 0; Grubbs (ISO 5725-2 — repoda yo'q) | `src/engine/linter/rules/a01-dominant-source.js`; `src/engine/linter/rules/a02-few-observations.js`; `src/engine/linter/rules/a03-invalid-nu.js`; `src/engine/linter/rules/a04-grubbs-outlier.js` | `tests/engine/linter.test.js` | ❔ unverified | / ❔ (A4) |
+| REQ-LNT-011 | Modul ogohlantirishlari `result.findings` da, kodlar o'zgarmagan | `src/engine/linter/rules/w01-gum-warnings.js`; `src/engine/linter/rules/w02-module-warnings.js` | `tests/engine/linter.test.js` | ✅ verified | — |
+| REQ-LNT-012 | 9 ta etalon nuqtada `error` yo'q | `src/engine/linter/index.js::lint` | `tests/engine/linter-fixtures.test.js` | ✅ verified | — |
+| REQ-LNT-013 | Model turi; muvofiqlik \|y\| ni xato deb faraz qilmaydi (RISKS R-07; ISO/IEC 17025 §7.8.6, JCGM 106 — repoda yo'q) | `src/engine/evaluate.js::evaluate`; `src/engine/evaluate.js::modelKind`; `src/engine/evaluate.js::deviation`; `src/engine/conformity.js::conformity`; `src/engine/linter/rules/m01-model-kind.js` | `tests/engine/linter.test.js`; `tests/engine/api.test.js`; `tests/ui/findings.test.js`; `tests/storage/acceptance.test.js`; `tests/storage/quality.test.js`; `tests/storage/registry.test.js`; `tests/storage/storage.test.js` | ❔ unverified | (loyiha qoidasi) JCGM 106:2012 P05b dan repoda; model turi qoidasi — loyiha qarori (R-07). |
+| REQ-LNT-014 | Asoslangan qabul: izoh ≥ 10 belgi; audit zanjiri (rol, vaqt, topilma id, izoh) — ISO/IEC 17025 §7.5, §7.11.3 | `src/storage/acceptance.js`; `src/engine/linter/index.js::withAcceptances`; `src/engine/linter/index.js::reportStatus` | `tests/storage/acceptance.test.js`; `tests/engine/linter.test.js` | ✅ verified | — |
+| REQ-LNT-015 | Barcha topilmalar bosma hisobotda; "RASMIY EMAS"; U = 0 / U < CMC belgisi yoki bloklash; ν qoidasi, MC seed va M, BETA (RISKS R-05) | `src/report/findings.js`; `src/js/report.js` | `tests/ui/findings.test.js` | ✅ verified | — |
+| REQ-LNT-016 | Matnlar uch tilda; i18n'dan tashqari matn yo'q (RISKS R-13) | `src/js/i18n-linter.js`; `src/js/i18n-admin.js` | `tests/i18n.test.js`; `tests/tools/hardcoded-text.js` | ✅ verified | — |
+| REQ-LNT-017 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+
+## RIO — Import / eksport, hisobot shakllari, qaror qoidasi (P05b)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-RIO-001 | Muvofiqlik ehtimoli p_c, normal taqsimot (JCGM 106:2012 §7.3.3 Example 1 — p. 15: p_c = 0,92; Example 2: 0,99; §7.4 — p. 16; Table 1) | `src/engine/decision.js::conformanceProbability` | `tests/engine/decision.test.js` | ✅ verified | — |
+| REQ-RIO-002 | Himoya zonasi w = r·U, qabul oralig'i (JCGM 106:2012 §8.3.2; §8.3.2.3 — p. 22) | `src/engine/decision.js::decide` | `tests/engine/decision.test.js` | ✅ verified | — |
+| REQ-RIO-003 | r = 0; 0,83; 1; 1,5; 3 uchun eng katta noto'g'ri qabul ehtimoli (ILAC G8:09/2019 Table 1 — p. 12) | `src/engine/decision.js::decide`; `src/engine/decision.js::maxFalseAccept` | `tests/engine/decision.test.js` | ✅ verified | — |
+| REQ-RIO-004 | Binar / nobinar bayonot (ILAC G8:09/2019 §4.2.1–4.2.3) | `src/engine/decision.js::decide`; `src/engine/decision.js::statement`; `src/engine/decision.js::verdict` | `tests/engine/decision.test.js` | ✅ verified | — |
+| REQ-RIO-005 | TUR = T / (2U) (JCGM 106 §7.6.2 C_m; ILAC G8 §1.13) | `src/engine/decision.js::decide`; `src/engine/decision.js::tur` | `tests/engine/decision.test.js` | ✅ verified | (ta'rif — loyiha qarori, R-22) |
+| REQ-RIO-006 | Bir va ikki tomonlama chegaralar (JCGM 106 §7.3, §8.3.3) | `src/engine/decision.js::decide`; `src/engine/decision.js::decisionInput` | `tests/engine/decision.test.js` | ✅ verified | — |
+| REQ-RIO-007 | Qoida yoki chegara yo'q → bayonot yo'q (ISO/IEC 17025 §7.1.3 — ILAC G8 §2.3 orqali) | `src/engine/decision.js::decisionInput`; `src/engine/linter/rules/d01-decision-rule.js` | `tests/engine/decision.test.js`; `tests/engine/linter.test.js`; `tests/report/forms.test.js` | ✅ verified | — |
+| REQ-RIO-008 | Ko'p nuqtali hisobot = Excel "Xulosa" jadvali (gazoanalizator 3 nuqta, termometr 5 nuqta; katak havolalari testda) | `src/report/summary.js::summaryRows`; `src/report/forms.js::buildReport` | `tests/report/forms.test.js` | ✅ verified | — |
+| REQ-RIO-009 | 4 ta shakl; rekvizitlar yetishmasa ogohlantirish (ISO/IEC 17025:2017 §7.8.2.1, §7.8.3.1, §7.8.4.1 — repoda yo'q) | `src/report/forms.js`; `src/report/requisites.js::missingRequisites` | `tests/report/forms.test.js` | ❔ unverified | (rekvizitlar ro'yxati unverified) |
+| REQ-RIO-010 | Normativ havolalar hisobot tilida; ekvivalent faqat tasdiqlangani (JCGM 106 = ISO/IEC Guide 98-4:2012 — ILAC G8 §9 [2]) | `src/report/normative.js` | `tests/report/forms.test.js` | ✅ verified | (GOST 34100.3 — qo'shilmagan, R-22) |
+| REQ-RIO-011 | Kanonik JSON (RFC 8785 JCS) SHA-256; kalitlar tartibiga bog'liq emas | `src/storage/canonical.js::canonicalizeJcs`; `src/storage/canonical.js::jcsHash` | `tests/io/calc-json.test.js` | ✅ verified | — |
+| REQ-RIO-012 | JSON eksport → import → qayta hisob bit darajasida bir xil | `src/io/calc-json.js`; `src/io/calc-json.js::buildCalcDoc`; `src/io/calc-json.js::parseCalcDoc`; `src/io/calc-json.js::reproduce` | `tests/io/calc-json.test.js`; `tests/ui/io.test.js` | ✅ verified | — |
+| REQ-RIO-013 | Hisobot pasti: versiya, build, shablon, hisob ID / sana, xesh, QR; bosma xesh = eksport xeshi | `src/report/footer.js` | `tests/report/forms.test.js` | ✅ verified | — |
+| REQ-RIO-014 | `.xlsx` / `.csv` import: hajm, qator, ustun, varaq, ZIP chegaralari; formula bajarilmaydi; HTML / skript escape | `src/io/import.js`; `src/io/csv.js`; `src/io/table-text.js`; `src/ui/io/app.js` | `tests/io/import.test.js`; `tests/io/table-text.test.js`; `tests/ui/io.test.js` | ✅ verified | — |
+| REQ-RIO-015 | `.xlsx` / `.csv` eksport: sonlar yaxlitlanmagan; formula-inyeksiya zararsizlantirilgan | `src/io/export-table.js`; `src/io/xlsx-write.js`; `src/io/csv.js` | `tests/io/export.test.js` | ✅ verified | — |
+| REQ-RIO-016 | Vendor: aniq versiya, LICENSE, SHA-256; npm `xlsx` yo'q; faqat dinamik import; CSP o'zgarmagan; `src/io/` da tarmoq chaqiruvi yo'q | `vendor/`; `src/io/vendor.js` | `tests/security/vendor.test.js`; `tests/io/import.test.js` | ✅ verified | — |
+| REQ-RIO-017 | Shaxsiy rekvizitlar Firebase'ga yozilmaydi (faqat `sessionStorage`) | `src/ui/report/app.js`; `src/report/requisites.js::splitRequisites` | `tests/report/forms.test.js` | ✅ verified | — |
+| REQ-RIO-018 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+
+## TPL — Metodika shablonlari (P04)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-TPL-001 | Shablon sxemasi (uc-template/1), o'z validator | `schemas/methodology.schema.json`; `src/templates/validator.js` | `tests/templates/workflow.test.js` | ✅ verified | — |
+| REQ-TPL-002 | Shablon → modelSpec → evaluate (dvigatel o'zgarmagan) | `src/templates/interpreter.js` | `tests/templates/builtin.test.js`; `tests/templates/correlation.test.js`; `tests/templates/guide-example.test.js`; `tests/templates/i18n-labels.test.js`; `tests/templates/implicit.test.js`; `tests/templates/outputs-editor.test.js`; `tests/templates/regression.test.js`; `tests/templates/topdown.test.js`; `tests/templates/validation-draft.test.js`; `tests/templates/view.test.js`; `tests/templates/wave1.test.js`; `tests/templates/workflow.test.js` | ✅ verified | — |
+| REQ-TPL-003 | 11 ta eski preset JSON'da, P03 bilan bit darajasida bir xil | `templates/builtin/` | `tests/templates/builtin.test.js` | ✅ verified | — |
+| REQ-TPL-004 | Zichlik, gazoanalizator (3), termometr (5) shablonlari Excel bilan | `templates/builtin/legacy-density.json`; `templates/builtin/legacy-gas_analyzer.json`; `templates/builtin/legacy-thermometer.json` | `tests/templates/builtin.test.js`; misollar: `excel-density`, `excel-gas-p1`, `excel-gas-p2-mc-ndig1`, `excel-gas-p2-mc`, `excel-gas-p2`, `excel-gas-p3`, `excel-term-p1`, `excel-term-p2`, `excel-term-p3`, `excel-term-p4`, `excel-term-p5` | ⚠️ verified (farq bilan) | D-03 — / ⚠️ D-03 (term p2–p4 ν_eff, avvalgidek) |
+| REQ-TPL-005 | Bitta asbob korrelyatsiyasi u(xi,xj) = r·u_X(xi)·u_X(xj) (§5.2.2, F.1.2.3) | `src/templates/interpreter.js::prepareState` | `tests/templates/workflow.test.js`; `tests/templates/wave1.test.js` | ✅ verified | (sintetik) |
+| REQ-TPL-006 | P04b: bitta asbob — covB faqat umumiy qismdan, nuqtaga xos qism r = 0 (EA-4/02 M:2022 D4–D5, D.6/D.8) | `src/templates/interpreter.js::prepareState` | `tests/templates/correlation.test.js` | ✅ verified | (qo'lda hisob; manba misoli yo'q) |
+| REQ-TPL-007 | P04b: `split: "unknown"` — r = 0 va r = 1, katta u_c (loyiha qarori; EA-4/02 D7 g'oyasi) | `src/templates/interpreter.js::evaluateState` | `tests/templates/correlation.test.js` | ✅ verified | (qo'lda hisob) |
+| REQ-TPL-008 | P04b: ikki marta hisoblash tekshiruvi u²(umumiy) + u²(nuqta) ≤ u²(sertifikat) | `src/templates/interpreter.js::prepareState` | `tests/templates/correlation.test.js` | ✅ verified | — |
+| REQ-TPL-009 | P04b: P04 dagi bitta qatorli nusxalar migratsiyasi → `split: "unknown"` | `src/templates/interpreter.js::migrateTemplate`; `src/templates/interpreter.js::upgradeState` | `tests/templates/correlation.test.js` | ✅ verified | — |
+| REQ-TPL-010 | Holat oqimi, qulflash, yangi versiya | `src/templates/interpreter.js` | `tests/templates/workflow.test.js` | ✅ verified | — |
+| REQ-TPL-011 | Saqlash: IndexedDB, uc_state_v2 migratsiyasi (natija bir xil), eksport→import bit darajasida, audit xesh zanjiri | `src/storage/` | `tests/storage/storage.test.js` | ✅ verified | — |
+| REQ-TPL-012 | Kodsiz yangi shablon | `docs/templates/examples/LAB-EXAMPLE-01.json` | `tests/templates/guide-example.test.js` | ✅ verified | — |
+
+## TPW — 1-to'lqin sinov shablonlari (24 ta, DRAFT)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-TPW-001 | T-01 Metall cho'zilishi: vaqtinchalik qarshilik va oquvchanlik chegarasi — ГОСТ 1497, ГОСТ 12004, ГОСТ 34028 | `templates/builtin/T-01.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-002 | T-02 Metall nisbiy uzayishi — ГОСТ 1497, ГОСТ 12004 | `templates/builtin/T-02.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-003 | T-03 Beton siqilishdagi mustahkamligi — ГОСТ 10180 | `templates/builtin/T-03.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-004 | T-04 Beton qorishmasi: konus cho'kishi va zichligi — ГОСТ 10181 | `templates/builtin/T-04.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-005 | T-05 Qurilish qorishmasi: o'rtacha zichlik va harakatchanlik — ГОСТ 5802 | `templates/builtin/T-05.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-006 | T-06 Chaqiq tosh / qum: donador tarkib (elakdagi xususiy qoldiq) — ГОСТ 8269.0, ГОСТ 8735 | `templates/builtin/T-06.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-007 | T-07 Qumning yiriklik moduli — ГОСТ 8735 | `templates/builtin/T-07.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-008 | T-08 Chaqiq tosh maydalanuvchanligi; chang va loy zarralari miqdori — ГОСТ 8269.0 | `templates/builtin/T-08.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-009 | T-09 Sochma zichlik (chaqiq tosh, qum) — ГОСТ 8269.0, ГОСТ 8735 | `templates/builtin/T-09.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-010 | T-10 Beton va g'isht o'rtacha zichligi — ГОСТ 12730.1, ГОСТ 7025 | `templates/builtin/T-10.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-011 | T-11 Suv shimuvchanlik (beton, g'isht, plitka) — ГОСТ 12730.3, ГОСТ 7025, ГОСТ 27180 | `templates/builtin/T-11.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-012 | T-12 Namlik (beton, grunt) — ГОСТ 12730.2, ГОСТ 5180 | `templates/builtin/T-12.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-013 | T-13 G'isht siqilish va egilishdagi mustahkamligi — ГОСТ 8462 | `templates/builtin/T-13.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-014 | T-14 Geometrik o'lchamlar va chetlanishlar — ГОСТ 26433.1 | `templates/builtin/T-14.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-015 | T-15 Plastmassa cho'zilishi — ГОСТ 11262 | `templates/builtin/T-15.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-016 | T-16 Rokvell qattiqligi — ГОСТ 9013 | `templates/builtin/T-16.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-017 | T-17 Titrlash (umumiy shablon): kislotalik, ishqoriylik, xloridlar, SAV — ГОСТ 3624, ГОСТ 5898, ГОСТ 5670, ГОСТ 26878, ГОСТ 4245, ГОСТ 22567.6 | `templates/builtin/T-17.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-018 | T-18 Quritish usulida namlik va uchuvchan moddalar — ГОСТ 29188.4, ГОСТ 13586.5, ГОСТ 5900 | `templates/builtin/T-18.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-019 | T-19 Kul miqdori — — | `templates/builtin/T-19.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-020 | T-20 pH (suvli eritma yoki ekstrakt) — ГОСТ 22567.5, ГОСТ 29188.2 | `templates/builtin/T-20.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+| REQ-TPW-021 | T-21 Gravimetrik massa ulushi (erimaydigan aralashmalar, sovun komponentlari) — ГОСТ 790, ГОСТ 22567.7 | `templates/builtin/T-21.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-022 | T-22 Izolyatsiya qarshiligi va oqish toki — IEC 60335, IEC 60204, IEC 60950, IEC 60598, IEC 60065, ГОСТ 3940, ГОСТ 2933 | `templates/builtin/T-22.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-023 | T-23 Elektr mustahkamlik: sinov kuchlanishi — IEC 60335, IEC 60204, IEC 60950, IEC 60598, IEC 60065, ГОСТ 3940, ГОСТ 2933 | `templates/builtin/T-23.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT |
+| REQ-TPW-024 | T-24 Qizish (harorat oshishi), qarshilik usuli — IEC 60335-1 | `templates/builtin/T-24.json` | `tests/templates/wave1.test.js` | ⏳ pending | pending — DRAFT; ⚠ Q1 |
+
+## LAB — Laboratoriya jarayonlari: reestr, CMC, QC (P11)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-LAB-001 | CMC ni ifodalash: bitta qiymat, diapazon (chiziqli interpolyatsiya), oshkor funksiya (ILAC P14 §4.2 a–c, p. 6); nisbiy (§4.3) | `src/engine/lab/cmc.js::cmcAt`; `src/engine/lab/cmc.js::findCmc` | `tests/engine/lab.test.js` | ✅ verified | verified |
+| REQ-LAB-002 | Diapazon chegarasi (kiradi), tashqarisi, tutashgan diapazonlar; ochiq interval rad etiladi (§4.2) | `src/engine/lab/cmc.js::cmcAt`; `src/engine/lab/cmc.js::cmcRowError` | `tests/engine/lab.test.js` | ✅ verified | (chegara qoidalari — loyiha qarori, R-25) |
+| REQ-LAB-003 | U < CMC(X) → `below_cmc` (ILAC P14 §5.5, p. 8); U almashtirilmaydi | `src/engine/evaluate.js::evaluate`; `src/engine/linter/rules/x08-zero-uncertainty.js` | `tests/engine/lab.test.js` | ✅ verified | verified |
+| REQ-LAB-004 | X sohadan tashqarida → `outside_scope`; X yo'q → `cmc_x_missing` (§4.1 c) | `src/engine/linter/rules/l02-cmc-scope.js` | `tests/engine/lab.test.js` | ✅ verified | (daraja — loyiha qarori) |
+| REQ-LAB-005 | Kuzatuvchanlik yo'llari 1) – 3b) (ILAC P10 §2, p. 6–7); akkreditatsiya belgisi yo'q → warning | `src/engine/lab/registry.js::hasTraceabilityEvidence`; `src/engine/linter/rules/l01-standard-validity.js` | `tests/engine/lab.test.js` | ✅ verified | verified (daraja — loyiha qarori) |
+| REQ-LAB-006 | Muddati o'tgan etalon → error, hisobot "RASMIY EMAS"; muddati yaqin (30 kun) → info | `src/engine/lab/registry.js::validityStatus`; `src/engine/linter/rules/l01-standard-validity.js` | `tests/engine/lab.test.js`; `tests/ui/lab.test.js` | ❔ unverified | (ISO/IEC 17025 §6.4, §6.5 — ❔ unverified; chegara — loyiha qarori) |
+| REQ-LAB-007 | Reestrdan B tur manbasi: U, k, ν, tuzatma, sertifikat; ID + versiya; reestr o'zgarsa eski hisob o'zgarmaydi | `src/engine/lab/registry.js::sourceFromStandard` | `tests/engine/lab.test.js`; `tests/storage/registry.test.js` | ✅ verified | — |
+| REQ-LAB-008 | Nuqtalar orasida interpolyatsiya; ekstrapolyatsiya yo'q | `src/engine/lab/registry.js::pointAt` | `tests/engine/lab.test.js` | ✅ verified | (U qoidasi — loyiha qarori) |
+| REQ-LAB-009 | MPE / tolerans manba sifatida taklif qilinmaydi | `src/engine/lab/registry.js::sourceFromStandard` | `tests/engine/lab.test.js` | ✅ verified | — |
+| REQ-LAB-010 | Drift:\|ΔC\|, u =\|ΔC\|/√3; trend; < 2 kalibrlash — yo'q; faqat tasdiqlangach qo'shiladi (EA-4/02 S2.4; JCGM 100 4.3.7) | `src/engine/lab/drift.js::driftProposal`; `src/engine/lab/drift.js::driftComponent` | `tests/engine/lab.test.js`; `tests/ui/lab.test.js` | ✅ verified | (qo'lda hisob; standart taqsimot — loyiha qarori) |
+| REQ-LAB-011 | Kalibrlash intervali (ILAC G24 / OIML D 10:2022 §6.3): trend → chegara; < 3 kalibrlash — yo'q; faqat tavsiya | `src/engine/lab/interval.js::intervalRecommendation` | `tests/engine/lab.test.js` | ✅ verified | qo'lda hisob; formula — loyiha qarori (hujjat formula bermaydi) |
+| REQ-LAB-012 | Shewhart konstantalari d₂, d₃, A₂, D₃, D₄ (n = 2…10) | `src/engine/lab/qc.js::SHEWHART_CONSTANTS` | `tests/engine/lab-qc.test.js` | ✅ verified | A₂, D₃, D₄ — NIST e-Handbook §6.3.2.1 (2.8.1 da D₄(3), D₄(5) NIST ga moslandi); d₂ (n ≥ 3), d₃ — ta'rifdan mustaqil hisob |
+| REQ-LAB-013 | I–MR va X̄–R chegaralari, ±2s / ±3s | `src/engine/lab/qc.js::individualsChart`; `src/engine/lab/qc.js::xbarRChart` | `tests/engine/lab-qc.test.js` | ✅ verified | I–MR misoli — NIST e-Handbook §6.3.2.2 (2.8.1) |
+| REQ-LAB-014 | Westgard 1₃s, 2₂s, R₄s, 4₁s, 10ₓ — har biri ijobiy va salbiy jadval | `src/engine/lab/westgard.js::rule13s`; `src/engine/lab/westgard.js::rule10x`; `src/engine/lab/westgard.js::westgard` | `tests/engine/lab-qc.test.js` | ✅ verified | Westgard 1981, 1–3-jadval testlari (2.8.1); nashr PDF i repoda yo'q — faqat qaydnoma `docs/references/westgard-1981-NOTES.md` |
+| REQ-LAB-015 | s_Rw kartadan → top-down (ν = n − 1) | `src/engine/lab/qc.js::sRwFromChart` | `tests/engine/lab-qc.test.js`; `tests/ui/lab.test.js` | ✅ verified | (top-down byudjetidagi qiymat bilan aynan) |
+| REQ-LAB-016 | Mehmon (`guest`) kiritgan reestr yozuvi / CMC jadvali → info `registry_unauthenticated` / `cmc_unauthenticated`; audit izida rol `guest` (egasi qarori 2026-11-18) | `src/storage/registry.js::saveRegistry`; `src/storage/registry.js::savedBy`; `src/engine/linter/rules/l01-standard-validity.js`; `src/engine/linter/rules/l02-cmc-scope.js` | `tests/engine/lab.test.js`; `tests/storage/registry.test.js`; `tests/ui/lab.test.js` | ✅ verified | — |
+| REQ-LAB-017 | R₄s seriya belgisisiz — "loyiha yaqinlashuvi" belgisi | `src/engine/lab/westgard.js::westgard` | `tests/engine/lab-qc.test.js`; `tests/ui/lab.test.js` | ✅ verified | — |
+| REQ-LAB-018 | Reestr: yaratish / tahrirlash / o'chirish audit izida (rol, vaqt, oldingi va yangi qiymat); rol cheklovi | `src/storage/registry.js::saveRegistry`; `src/storage/registry.js::removeRegistry` | `tests/storage/registry.test.js` | ✅ verified | — |
+| REQ-LAB-019 | Migratsiya 2 → 3: qo'lda kiritilgan B tur manbalari o'zgarmaydi; idempotent; audit | `src/storage/migrate.js::migrateSchema` | `tests/storage/registry.test.js` | ✅ verified | — |
+| REQ-LAB-020 | Import `.xlsx` / `.csv` (LIMITS), `uc-registry/1` eksport → import; formula bajarilmaydi | `src/io/registry.js::standardsFromGrid`; `src/io/registry.js::buildRegistryDoc`; `src/io/registry.js::parseRegistryDoc` | `tests/io/registry.test.js` | ✅ verified | — |
+| REQ-LAB-021 | Hisobot: reestr manbasi, CMC tekshiruvi (asoslangan qaror bilan), drift asosi — uch tilda | `src/report/lab.js` | `tests/ui/lab.test.js` | ✅ verified | (jsdom) |
+| REQ-LAB-022 | UI: uch yorliq, reestrdan tanlash, QC SVG, rol, escape, CSP | `src/ui/lab/` | `tests/ui/lab.test.js` | ✅ verified | jsdom + Chromium da mehmon yo'li bilan qo'lda (2026-11-18): konsolda xato yo'q |
+| REQ-LAB-023 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+
+## PTV — Malaka sinovlari va usul validatsiyasi (P12)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-PTV-001 | Grubbs: G = 2,4687; G_krit = 2,032 (α = 0,05, yuqori bir tomonlama); maksimum chetga chiquvchi (NIST §1.3.5.17.1, eda35h1.htm) | `src/engine/validation/grubbs.js::grubbsTest`; `src/engine/validation/grubbs.js::grubbsCriticalValue` | `tests/engine/validation.test.js` | ✅ verified | D-22 — verified (D-22: manba G ni kesgan — 2,468765) |
+| REQ-PTV-002 | Grubbs: nuqta o'chirilmaydi; chiqarish izoh ≥ 10 belgi bilan, audit; takror — foydalanuvchi harakati | `src/engine/validation/index.js::evaluateValidation`; `src/storage/quality.js::excludeValue` | `tests/engine/validation.test.js`; `tests/storage/quality.test.js`; `tests/ui/quality.test.js` | ✅ verified | — |
+| REQ-PTV-003 | Bir omilli ANOVA: SS 27,897 / 17,452 / 45,349; MS 13,949 / 1,454; F = 9,59; F₀,₀₅;₂,₁₂ = 3,89; p = 0,00325 (NIST §7.4.3.3–7.4.3.4) | `src/engine/validation/anova.js::oneWayAnova` | `tests/engine/validation.test.js` | ✅ verified | verified |
+| REQ-PTV-004 | Tasodifiy effektlar s_r, s_b, s_I; manfiy komponent → 0 (NIST §2.4.4.2: −0,00028072 → 0) | `src/engine/validation/anova.js::oneWayAnova`; `src/engine/validation/anova.js::varianceComponent`; `src/engine/validation/anova.js::nonNegative` | `tests/engine/validation.test.js` | ✅ verified | verified (s_b = 0 + info — loyiha qarori R-26 #2) |
+| REQ-PTV-005 | Pooled s₁ = 0,07871 (ν = 60), s₂ = 0,02742 (ν = 10) (NIST §2.4.4.1–2.4.4.2) | `src/engine/stats/anova.js::pooledSd` | `tests/engine/validation.test.js` | ✅ verified | verified |
+| REQ-PTV-006 | Teng bo'lmagan guruhlarda n₀ | `src/engine/validation/anova.js::oneWayAnova` | `tests/engine/validation.test.js` | ❔ unverified | unverified (formula manbasi repoda yo'q) |
+| REQ-PTV-007 | t-test (teng dispersiya): T = −12,62059; s_p = 6,34260; ν = 326; t = 1,9673 / 1,6495 (NIST §1.3.5.3) | `src/engine/validation/tests.js::twoSampleT` | `tests/engine/validation.test.js` | ✅ verified | verified (yig'ma kirish yaxlitlanishi toleransda) |
+| REQ-PTV-008 | Welch t-test — ν formulasi (NIST §1.3.5.3) | `src/engine/validation/tests.js::twoSampleT` | `tests/engine/validation.test.js` | ✅ verified | formula (sonli misol manbada yo'q) |
+| REQ-PTV-009 | F-test: F = 1,123037; kritik 0,7756 / 1,2894 (NIST §1.3.5.9) | `src/engine/validation/tests.js::fTest`; `src/engine/validation/tests.js::fCritical` | `tests/engine/validation.test.js` | ✅ verified | verified |
+| REQ-PTV-010 | Cochran C va kritik qiymat | `src/engine/validation/cochran.js::cochranTest`; `src/engine/validation/cochran.js::cochranCritical` | `tests/engine/validation.test.js` | ❔ unverified | unverified (ISO 5725-2) |
+| REQ-PTV-011 | Recovery t-testi — P09 funksiyasi chaqiriladi | `src/engine/topdown/recovery.js::evaluateRecovery` | `tests/engine/validation.test.js` | ✅ verified | (QUAM A4 — P09 da verified) |
+| REQ-PTV-012 | Chiziqlilik — P08 regressiyasi chaqiriladi | `src/engine/regression/index.js::evaluateRegression` | `tests/engine/validation.test.js` | ✅ verified | (P08) |
+| REQ-PTV-013 | LOD = 3·s′₀, LOQ = k_Q·s′₀; kalibrlash 3,3 / 10 | `src/engine/validation/lod.js::lodFromBlank`; `src/engine/validation/lod.js::lodFromCalibration` | `tests/engine/validation.test.js` | ❔ unverified | unverified (Eurachem FfP 2014 / ICH Q2) |
+| REQ-PTV-014 | PT ballari z, z′, ζ, E_n; null + sabab; xatolar (σ_pt ≤ 0, U ≤ 0, birlik) | `src/engine/pt/index.js::ptScores`; `src/engine/pt/index.js::evaluatePT` | `tests/engine/pt.test.js` | ❔ unverified | mustaqil qo'lda hisob; formula — ❔ ISO 13528 unverified |
+| REQ-PTV-015 | PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli; 10⁻¹² tolerans; hisobotda ball 2 xona, baho yaxlitlanmagan qiymatdan | `src/engine/pt/index.js::PT_LIMITS`; `src/engine/pt/index.js::verdictOf`; `src/report/pt-chart.js::scoreText` | `tests/engine/pt.test.js`; `tests/ui/quality.test.js` | ✅ verified | egasi tasdiqladi (R-26 #1); manba bilan ❔ (ISO 13528) |
+| REQ-PTV-016 | u(x_pt) > 0,3·σ_pt → info, avtomatik almashtirish yo'q | `src/engine/pt/index.js::evaluatePT` | `tests/engine/pt.test.js` | ❔ unverified | ISO 13528 unverified |
+| REQ-PTV-017 | PT tarixi → top-down u(bias) (Nordtest TR 537 §6.2) — mavjud dvigatel | `src/engine/pt/index.js::ptToTopDownBias`; `src/engine/topdown/bias.js::evaluateBias` | `tests/engine/pt.test.js`; `tests/ui/quality.test.js` | ✅ verified | (P09 da verified) |
+| REQ-PTV-018 | Top-down qoralama: DRAFT, RFC 8785 xesh, sana; builtin da raqam yo'q | `src/engine/validation/draft.js::topDownDraft`; `src/engine/validation/draft.js::checkTemplate` | `tests/templates/validation-draft.test.js`; `tests/ui/quality.test.js` | ✅ verified | — |
+| REQ-PTV-019 | Saqlash: `pt`, `validation` omborlari, audit, rol, IndexedDB 1 → 2 (eski ma'lumot saqlanadi) | `src/storage/quality.js` | `tests/storage/quality.test.js` | ✅ verified | — |
+| REQ-PTV-020 | Import `.csv` / `.xlsx` (LIMITS, formula bajarilmaydi), CSV / JSON eksport | `src/io/quality.js` | `tests/io/quality.test.js` | ✅ verified | — |
+| REQ-PTV-021 | UI va hisobot uch tilda; SVG skriptsiz; escape; CSP o'zgarmagan | `src/report/pt.js`; `src/report/validation.js` | `tests/ui/quality.test.js`; `tests/i18n.test.js`; `tests/security/auth-core.test.js`; `tests/security/engine.sha256.json`; `tests/security/escape.test.js`; `tests/security/firestore-rules.test.js`; `tests/security/session.test.js`; `tests/security/static.test.js`; `tests/security/vendor.test.js`; `tests/security/xss.test.js` | ✅ verified | jsdom; real brauzerda ko'rilmagan |
+| REQ-PTV-022 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-PTV-023 | ν(s_I) — Welch–Satterthwaite (JCGM 100 G.4.1): NIST §7.4.3 misolida ν = 3,903; s_b² < 0 → N − k | `src/engine/validation/anova.js::oneWayAnova` | `tests/engine/validation.test.js`; `tests/templates/validation-draft.test.js` | ✅ verified | formula (nazorat qiymati ≈ 3,90 — egasi bergan); loyiha qarori R-26 #7 |
+| REQ-PTV-024 | Linter L3: oxirgi PT raundi qoniqarsiz → info (GUM, TOP_DOWN); ijobiy va salbiy holatlar | `src/engine/linter/rules/l03-pt-last-round.js` | `tests/engine/linter-l3.test.js`; `tests/ui/quality.test.js` | ✅ verified | daraja — egasi qarori R-26 #6 |
+
+## SRC — Manba misollari qamrovi
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-SRC-001 | EA-4/02 M:2022 S2, S3 | — | misollar: `ea4-02-s2`, `ea4-02-s3` | ✅ verified | — |
+| REQ-SRC-002 | EA-4/02 M:2022 S4–S13 | — | — | ⏳ pending | keyingi nomzodlar (P05/P08) |
+| REQ-SRC-003 | EURACHEM/CITAC QUAM:2012 A1 | — | misollar: `quam-a1` | ✅ verified | D-06 — (D-06) |
+| REQ-SRC-004 | EURACHEM/CITAC QUAM:2012 A5 (kalibrlash qismi), E.4 | — | misollar: `quam-a5-calibration` | ✅ verified | (P08, §7) |
+| REQ-SRC-005 | EURACHEM/CITAC QUAM:2012 A4 (aniqlik, recovery t-test, tuzatish, u_c) | — | misollar: `quam-a4-recovery` | ✅ verified | D-13 — (P09, §8; t_crit — D-13) |
+| REQ-SRC-006 | EURACHEM/CITAC QUAM:2012 A6 (empirik usul, s_R + quritish) | — | misollar: `quam-a6-empirical` | ✅ verified | (P09, §8) |
+| REQ-SRC-007 | QUAM A2, A3; A5 ning qolgan qismi | — | — | ⏳ pending | keyingi nomzodlar |
+| REQ-SRC-008 | Nordtest TR 537 ed.4 (NH₄-N: §3.2, Appendix 4) | — | misollar: `nordtest-tr537-nh4n` | ✅ verified | (P09, §8) |
+| REQ-SRC-009 | Nordtest TR 537 ed.4 (dublikatlar — Appendix 5, 6; BOD — §8.2; recovery — §6.3) | — | misollar: `nordtest-tr537-nh4n-dup-low`, `nordtest-tr537-nh4n-dup-high`, `nordtest-tr537-oxygen-dup`, `nordtest-tr537-bod-crm`, `nordtest-tr537-bod-pt`, `nordtest-tr537-recovery` | ✅ verified | D-12 — (P09, §8; D-12) |
+| REQ-SRC-010 | ISO 21748 (pullik) — laboratoriya s_r tekshiruvi, u(δ̂) | — | `tests/engine/topdown.test.js` | ❔ unverified | unverified — ochiq manba misoli yoki laboratoriya Excel'i kerak (egasi qo'shadi) |
+| REQ-SRC-011 | EURACHEM/CITAC UfS:2019 A1, A2 (dublikat usuli, ANOVA, ᶠU) | — | misollar: `ufs-a1-nitrate-classical`, `ufs-a1-nitrate-robust`, `ufs-a2-lead-classical`, `ufs-a2-lead-robust` | ✅ verified | D-16 — (P10, §9; robust — D-16) |
+| REQ-SRC-012 | EURACHEM/CITAC AQA:2021 E3, 7.6 (posterior ehtimol, Wilson CI) | — | misollar: `aqa-e3-emit-opiates`, `aqa-e3-emit-methadone`, `aqa-e3-emit-cocaine`, `aqa-e6-sarscov2` | ✅ verified | D-15, D-17 — (P10, §9; D-15, D-17) |
+| REQ-SRC-013 | ISO 19036 (mikrobiologiya), ISO/TS 20914 (tibbiy laboratoriya) — pullik | — | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified — manba kerak (egasi qo'shadi) |
+| REQ-SRC-014 | NIST Uncertainty Machine qo'llanmasi | — | misollar: `nist-um-ratio` | ❔ unverified | PDF yo'q |
+| REQ-SRC-015 | ISO/TS 28037/28038 (pullik) | — | misollar: `york-pearson-wtls` | ❔ unverified | WTLS/GLS/polinom uchun ochiq manba misoli kerak (egasi qo'shadi) |
+| REQ-SRC-016 | JCGM GUM-6:2020, COOMET R/GM/32:2017 | — | — | ❔ unverified | PDF `docs/references/` da yo'q (egasi qo'shadi). JCGM 102, JCGM 106, ILAC P14, ILAC G8 — qo'shilgan (P05b, P07). |
+
+## INF — Test infratuzilmasi
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-INF-001 | Kutilgan qiymat — faqat manbadan, katak havolasi bilan | `tests/fixture-refs.test.js` | `tests/fixture-refs.test.js` | ✅ verified | — |
+| REQ-INF-002 | Mutatsiyaga sezgirlik | — | — | ✋ manual | Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda tekshirildi (P01): √3 bo'luvchi 1,7320 ga → 15 test yiqildi; rezolyutsiya bo'luvchisi 10⁻⁵ ga → 10; bitta kuzatuv qiymati → 7 |
+| REQ-INF-003 | i18n: har bir kalit uch tilda | `tests/i18n.test.js` | `tests/i18n.test.js` | ✅ verified | — |
+| REQ-INF-004 | 11 ta shablon tuzilmasi va hisobi; shablon ↔ etalon ma'lumot mosligi (R-11) | `tests/presets.test.js` | `tests/presets.test.js` | ✅ verified | — |
+| REQ-INF-005 | CI | `.github/workflows/test.yml` | `.github/workflows/test.yml` | ✅ verified | (push/PR) |
+
+## VAL — Validatsiya paketi, versiyalangan deploy, takrorlanuvchanlik (P13)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-VAL-001 | Hisobga ta'sir qilmasligi kerak bo'lgan o'zgarishda `tests/cases/` dagi barcha misollar natijasi bit darajasida o'zgarmaydi (regressiya nazorati skripti) | `scripts/cases-snapshot.js::compare`; `tests/crossbrowser/core.js::diffTrees` | `tests/validation/snapshot.test.js` | ✅ verified | — |
+| REQ-VAL-002 | Har bir talab kamida bitta testga bog'langan yoki aniq `unverified` / `pending` / `manual` belgisi bilan; bog'lanmagan talab — `npm test` xatosi | `scripts/rtm.js::checkRtm` | `tests/validation/rtm.test.js` | ✅ verified | — |
+| REQ-VAL-003 | Validatsiya hisoboti test natijalaridan avtomatik yaratiladi: skriptsiz, o'zi yetarli HTML va JSON; matnlar escape qilingan; sana va commit dan boshqa hamma narsa deterministik | `scripts/validation-report.js::buildReport`; `scripts/validation-report.js::renderHtml` | `tests/validation/report.test.js` | ✅ verified | — |
+| REQ-VAL-004 | Versiyalangan deploy: har bir mahalliy modul / skript / uslub havolasiga `?v=<commit SHA, 12 belgi>`; `build.json`; oq ro'yxat; vendor fayllari o'zgarmaydi; ishonchsiz holatda build to'xtaydi | `scripts/build-site.js::buildSite`; `scripts/build-site.js::verifySite`; `.github/workflows/deploy.yml` | `tests/build/build-site.test.js` | ✅ verified | Brauzerdagi tutun-testi — tests/crossbrowser/site.js (CI `validation` job) |
+| REQ-VAL-005 | Brauzer `build.json` ni `no-store` bilan o'qiydi; sahifadagi modul versiyasi farq qilsa — "yangi versiya" banneri; avtomatik qayta yuklash yo'q; build.json bo'lmasa — jim | `src/ui/build/watcher.js::createBuildWatcher`; `src/io/build.js::isOutdated` | `tests/ui/build.test.js`; `tests/io/env-build.test.js` | ✅ verified | — |
+| REQ-VAL-006 | Hisob hujjati (`uc-calc/1`) va hisobot pastiga build va hisoblagan muhit (brauzer qisqa nomi va versiyasi) yoziladi; to'liq userAgent saqlanmaydi; eski hujjatlar importi buzilmaydi | `src/io/env.js::describeEnvironment`; `src/io/calc-json.js::buildCalcDoc`; `src/report/footer.js::footerModel` | `tests/io/env-build.test.js`; `tests/io/calc-json.test.js`; `tests/report/forms.test.js` | ✅ verified | — |
+| REQ-VAL-007 | Brauzerlararo takrorlanuvchanlik (Chromium, Firefox, WebKit): hisobot qatlamida yaxlitlangan y, U, k, interval uchlari AYNAN bir xil; R(0, 1) ketma-ketligi bit darajasida bir xil; xom qiymatlarning nisbiy farqi ≤ 1·10⁻¹⁴ (o'lchangan qiymat hisobotda) | `tests/crossbrowser/run.js::compareRun`; `tests/crossbrowser/core.js::displayOf` | `tests/validation/crossbrowser.test.js` | ⚠️ verified (farq bilan) | Brauzerlardagi o'lchov — CI `validation` job (`npm run test:browsers`), natija validatsiya hisobotida. Shartlanganligi yomon hosila kattaliklar uchun istisnolar ro'yxati (`tests/crossbrowser/exceptions.json`) — egasi tasdig'ini kutadi (R-27 (1)). Safari (macOS / iOS) — qo'lda, PQ da. |
+| REQ-VAL-008 | NIST Uncertainty Machine bilan mustaqil o'zaro tekshiruv (5 ta vakil misol) | `tests/crosscheck/num/README.md` | `tests/validation/crosscheck.test.js` | ⏳ pending | Kirish ma'lumotlari tayyor; natijalarni egasi NUM da ishga tushirib beradi (`status: "owner-run"`). NUM qo'llanmasi PDF i repoda yo'q (unverified). |
+| REQ-VAL-009 | Foydalanuvchi qo'llanmasi (uz / ru / en) va validatsiya hujjatlari saytga skriptsiz statik HTML sifatida chiqadi (markdown → HTML, xom HTML o'tkazilmaydi) | `scripts/lib/markdown.js::renderMarkdown`; `scripts/lib/markdown.js::page` | `tests/build/markdown.test.js`; `tests/build/build-site.test.js` | ✅ verified | Uch til nusxalarining tuzilmasi bir xilligi — tests/build/markdown.test.js |
+

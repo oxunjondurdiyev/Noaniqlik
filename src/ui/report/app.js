@@ -4,7 +4,7 @@
    • Laboratoriya rekvizitlari va logotipi: FAQAT brauzerda (localStorage 'uc_report_lab_v1'); Firebase'ga yozilmaydi.
    • Hujjat rekvizitlari (raqam, sana, obyekt, usul …) va shaxsga tegishli maydonlar (buyurtmachi, tasdiqlovchi):
      faqat joriy sessiyada (sessionStorage 'uc_report_doc_v1') — oyna yopilganda o'chadi (minimallashtirish, CLAUDE.md).
-   • Build identifikatori: tests/security/engine.sha256.json dagi dvigatel xeshi (statik sayt — build bosqichi yo'q).
+   • Build identifikatori: window.UCBuild (src/ui/build/) — deploy'da build.json, lokal ishlashda dvigatel xeshi ("dev").
    CSP: inline skript / onclick yo'q; foydalanuvchi matni DOM ga faqat value / textContent / escHtml orqali.
    Global: window.UCReport.
 ═══════════════════════════════════════════════════════════════ */
@@ -41,16 +41,10 @@ function save() {
 /** Hisobot uchun joriy tanlov. */
 function options() { return { form, requisites: { ...requisites } }; }
 
-/* Build identifikatori — dvigatel xeshi (bir marta o'qiladi; topilmasa null → hisobotda "aniqlanmadi") */
-let buildPromise = null;
+/* Build identifikatori (P13): deploy'da build.json dagi commit SHA; lokal ishlashda — dvigatel xeshi ("dev").
+   window.UCBuild — src/ui/build/app.js; topilmasa null → hisobotda "aniqlanmadi". */
 function buildInfo() {
-  if (!buildPromise) {
-    buildPromise = fetch('tests/security/engine.sha256.json', { cache: 'no-cache' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(j => (j && typeof j.sha256 === 'string' ? { sha256: j.sha256, engineVersion: j.engineVersion } : null))
-      .catch(() => null);
-  }
-  return buildPromise;
+  return window.UCBuild ? window.UCBuild.forReport() : Promise.resolve(null);
 }
 
 /* ─── Asboblar paneli: shakl tanlovi + "Rekvizitlar" ─── */

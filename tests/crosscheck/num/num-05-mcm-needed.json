@@ -1,0 +1,33 @@
+{
+  "id": "num-05-mcm-needed",
+  "case": "jcgm101-9-4-mcm-x0-r0",
+  "caseFile": "tests/cases/jcgm101/jcgm101-9-4-mcm-x0-r0.json",
+  "kind": "MCM ga muhtoj model (x = 0 da LPU yaroqsiz)",
+  "tool": "NIST Uncertainty Machine",
+  "source": "JCGM 101:2008 (GUM-S1), 9.4.2.1.4 (M = 10⁶), Table 8",
+  "status": "pending",
+  "num": {
+    "output": "dY",
+    "expression": "X1 ^ 2 + X2 ^ 2",
+    "inputs": [
+      {
+        "name": "X1",
+        "distribution": "gaussian",
+        "mean": 0,
+        "sd": 0.005,
+        "source": "u(x1) = 0.005"
+      },
+      {
+        "name": "X2",
+        "distribution": "gaussian",
+        "mean": 0,
+        "sd": 0.005,
+        "source": "u(x2) = 0.005"
+      }
+    ],
+    "correlations": [],
+    "coverage": 0.95,
+    "nrep": 1000000
+  },
+  "results": null
+}

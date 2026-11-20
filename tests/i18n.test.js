@@ -27,6 +27,7 @@ const I18N_FILES = [
   'src/js/i18n-admin.js',
   'src/js/i18n-lab.js',
   'src/js/i18n-pt.js',
+  'src/js/i18n-build.js',
 ];
 
 // Berilgan fayllar bitta skript sifatida yuklanadi (top-level const TRANSLATIONS umumiy bo'lishi uchun)

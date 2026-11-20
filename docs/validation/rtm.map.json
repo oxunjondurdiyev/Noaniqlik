@@ -1,0 +1,4010 @@
+{
+ "REQ-GOV-001": {
+  "code": [
+   "src/engine/index.js"
+  ],
+  "tests": [
+   "tests/engine/api.test.js",
+   "tests/security/static.test.js"
+  ],
+  "status": "verified",
+  "note": "Brauzerda ishlashi — REQ-VAL-007 (Playwright)"
+ },
+ "REQ-GOV-002": {
+  "code": [
+   "src/report/rounding.js::roundResult",
+   "src/report/rounding.js::roundHalfAway"
+  ],
+  "tests": [
+   "tests/engine/rounding.test.js",
+   "tests/excel.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-003": {
+  "code": [
+   "src/engine/linter/rules/x01-mpe-in-budget.js",
+   "src/engine/lab/registry.js::sourceFromStandard"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js",
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-004": {
+  "code": [
+   "src/engine/linter/rules/x08-zero-uncertainty.js",
+   "src/engine/lab/cmc.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js",
+   "tests/engine/lab.test.js",
+   "tests/ui/findings.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-005": {
+  "code": [
+   "src/engine/coverage.js::coverage"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:excel-gas-p2",
+   "tests/engine/quantiles.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-006": {
+  "code": [
+   "src/engine/evaluate.js::evaluate",
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/fixture-refs.test.js",
+   "case:excel-density",
+   "case:excel-gas-p1",
+   "case:excel-gas-p2",
+   "case:excel-gas-p3",
+   "case:excel-term-p1",
+   "case:excel-term-p2",
+   "case:excel-term-p3",
+   "case:excel-term-p4",
+   "case:excel-term-p5",
+   "case:excel-gas-p2-mc"
+  ],
+  "status": "verified-discrepancy",
+  "note": "D-03 (Excel ν_B = 10⁹), D-04 (10-test toleransi — egasi qarori)",
+  "discrepancies": [
+   "D-03",
+   "D-04"
+  ]
+ },
+ "REQ-GOV-007": {
+  "code": [
+   "tests/cases/lib.js"
+  ],
+  "tests": [
+   "tests/run-cases.test.js",
+   "tests/fixture-refs.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-008": {
+  "code": [
+   "src/js/i18n.js"
+  ],
+  "tests": [
+   "tests/i18n.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-009": {
+  "code": [
+   "src/ui/escape.js"
+  ],
+  "tests": [
+   "tests/security/escape.test.js",
+   "tests/security/xss.test.js",
+   "tests/security/static.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-010": {
+  "code": [
+   "src/io/vendor.js",
+   "vendor/README.md"
+  ],
+  "tests": [
+   "tests/security/vendor.test.js",
+   "tests/security/static.test.js",
+   "tests/build/build-site.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-011": {
+  "code": [
+   "src/engine/version.js",
+   "tests/tools/engine-hash.js"
+  ],
+  "tests": [
+   "tests/security/static.test.js",
+   "tests/run-cases.test.js",
+   "tests/build/build-site.test.js"
+  ],
+  "status": "verified",
+  "note": "CHANGELOG yuritilishi — tartib (CHANGE_CONTROL.md), avtomatik tekshiruv: CHANGELOG ning birinchi yozuvi = ENGINE_VERSION"
+ },
+ "REQ-GOV-012": {
+  "code": [
+   "src/storage/migrate.js"
+  ],
+  "tests": [
+   "tests/storage/storage.test.js",
+   "tests/storage/registry.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-013": {
+  "code": [
+   "src/storage/registry.js",
+   "src/report/requisites.js",
+   "src/io/env.js"
+  ],
+  "tests": [
+   "tests/storage/registry.test.js",
+   "tests/report/forms.test.js",
+   "tests/io/env-build.test.js",
+   "tests/security/session.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-GOV-014": {
+  "code": [
+   "firestore.rules"
+  ],
+  "tests": [
+   "tests/security/firestore-rules.test.js",
+   "tests/security/static.test.js"
+  ],
+  "status": "verified",
+  "note": "firestore-rules.test.js — `npm run test:rules` (Emulator; CI da alohida job). Konsol amallari egasi tomonidan bajariladi."
+ },
+ "REQ-GUM-001": {
+  "code": [
+   "src/engine/typeA.js::typeA",
+   "src/engine/typeA.js::typeAx"
+  ],
+  "tests": [
+   "case:excel-density",
+   "case:excel-gas-p2",
+   "case:excel-gas-p3",
+   "case:ea4-02-s3"
+  ],
+  "status": "verified",
+  "evidence": "`excel-density`, `excel-gas-p2`, `-p3`, `ea4-02-s3`",
+  "codeNote": "`typeA.js::typeA`, `typeAx` (method 1)"
+ },
+ "REQ-GUM-002": {
+  "code": [
+   "src/engine/typeA.js::typeAx"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:ea4-02-s2"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h1` (u(d̄) = 13/√5), `ea4-02-s2`",
+  "codeNote": "`typeA.js::typeAx` (method 2); misollarda B komponent sifatida"
+ },
+ "REQ-GUM-003": {
+  "code": [
+   "src/engine/typeA.js::typeAx"
+  ],
+  "tests": [
+   "case:excel-term-p1",
+   "case:excel-term-p2",
+   "case:excel-term-p3",
+   "case:excel-term-p4",
+   "case:excel-term-p5"
+  ],
+  "status": "verified",
+  "evidence": "`excel-term-p1…p5`",
+  "codeNote": "`typeA.js::typeAx` (directional)"
+ },
+ "REQ-GUM-004": {
+  "code": [
+   "src/engine/typeB.js::getDivisor",
+   "src/engine/typeB.js::DIVISORS"
+  ],
+  "tests": [
+   "case:excel-density",
+   "case:excel-gas-p1",
+   "case:excel-gas-p2",
+   "case:excel-gas-p2-mc",
+   "case:excel-gas-p2-mc-ndig1",
+   "case:excel-gas-p3",
+   "case:excel-term-p1",
+   "case:excel-term-p2",
+   "case:excel-term-p3",
+   "case:excel-term-p4",
+   "case:excel-term-p5",
+   "case:jcgm100-h1",
+   "case:ea4-02-s3",
+   "case:quam-a1"
+  ],
+  "status": "verified",
+  "evidence": "`excel-*`, `jcgm100-h1` (arksinus), `ea4-02-s3` (uchburchak), `quam-a1`",
+  "codeNote": "`typeB.js::typeB`, `getDivisor`, `DIVISORS`"
+ },
+ "REQ-GUM-005": {
+  "code": [
+   "src/engine/typeB.js::valueOrExpr"
+  ],
+  "tests": [
+   "case:excel-gas-p1",
+   "case:excel-gas-p2",
+   "case:excel-gas-p3",
+   "case:excel-density"
+  ],
+  "status": "verified",
+  "evidence": "`excel-gas-p1…p3`, `excel-density` (V̄·γ·ΔT)",
+  "codeNote": "`typeB.js::valueOrExpr`"
+ },
+ "REQ-GUM-006": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:jcgm100-h1"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h1` (ν = 18, 24, 5, 8, 50, 2)",
+  "codeNote": "`evaluate.js::evaluate` (komponent `nu`)"
+ },
+ "REQ-GUM-007": {
+  "code": [
+   "src/engine/parser.js::parse",
+   "src/engine/parser.js::compileAst"
+  ],
+  "tests": [
+   "case:jcgm100-h2-R",
+   "case:jcgm100-h2-X",
+   "case:jcgm100-h2-Z",
+   "case:jcgm100-h2-vector",
+   "case:jcgm101-9-3-guf1",
+   "case:jcgm101-9-3-mcm",
+   "case:jcgm101-9-3-mcm-adaptive",
+   "case:jcgm101-9-4-mcm-x0-r0",
+   "case:jcgm101-9-4-mcm-x0-r09",
+   "case:jcgm101-9-4-mcm-x001-r0",
+   "case:jcgm101-9-4-mcm-x001-r09",
+   "case:jcgm101-9-4-mcm-x005-r0",
+   "case:jcgm101-9-4-mcm-x005-r09",
+   "case:jcgm101-9-4-x0-r0-guf1",
+   "case:jcgm101-9-4-x001-r0-guf1",
+   "case:jcgm101-9-4-x001-r09-guf1",
+   "case:jcgm101-9-4-x005-r0-guf1"
+  ],
+  "status": "verified",
+  "evidence": "barcha `verified` misollar; nochiziqli: `jcgm100-h2-*`, `jcgm101-9-3-*`, `jcgm101-9-4-*`",
+  "codeNote": "`parser.js::parse`, `compileAst`"
+ },
+ "REQ-GUM-008": {
+  "code": [
+   "src/engine/parser.js::derivative",
+   "src/engine/sensitivity.js::sensitivities"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:ea4-02-s3",
+   "tests/engine/sensitivity.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-07"
+  ],
+  "evidence": "`jcgm100-h1` (c_d = 1, 1e-12), `ea4-02-s3`, `tests/engine/sensitivity.test.js`",
+  "note": "D-07 yopildi (P03)",
+  "codeNote": "`parser.js::derivative` (simvolik), `sensitivity.js::sensitivities` (sonli o'zaro tekshiruv, `c_zero`/`c_nan`/`c_mismatch`)"
+ },
+ "REQ-GUM-009": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:ea4-02-s2",
+   "case:ea4-02-s3",
+   "case:quam-a1",
+   "case:jcgm101-9-2-2-guf",
+   "case:jcgm101-9-2-3-guf",
+   "case:jcgm101-9-2-4-guf"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h1`, `ea4-02-s2`, `-s3`, `quam-a1`, `jcgm101-9-2-*-guf`",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-GUM-010": {
+  "code": [
+   "src/engine/typeA.js::correlation",
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:excel-density",
+   "case:jcgm100-h2-R",
+   "case:jcgm100-h2-Z",
+   "case:jcgm100-h2-X"
+  ],
+  "status": "verified-discrepancy",
+  "discrepancies": [
+   "D-05"
+  ],
+  "evidence": "`excel-density`, `jcgm100-h2-R`, `-Z` · `jcgm100-h2-X`",
+  "note": "· D-05 (manba nuansi)",
+  "codeNote": "`typeA.js::correlation`, `evaluate` (paired)"
+ },
+ "REQ-GUM-011": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:jcgm101-9-4-x001-r09-guf1"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-4-x001-r09-guf1`",
+  "codeNote": "`evaluate` (covB)"
+ },
+ "REQ-GUM-012": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:excel-density",
+   "case:excel-gas-p1",
+   "case:excel-gas-p2",
+   "case:excel-gas-p2-mc",
+   "case:excel-gas-p2-mc-ndig1",
+   "case:excel-gas-p3",
+   "case:excel-term-p2",
+   "case:excel-term-p3",
+   "case:excel-term-p5"
+  ],
+  "status": "verified-discrepancy",
+  "discrepancies": [
+   "D-03"
+  ],
+  "evidence": "`jcgm100-h1` (16,74 vs 16,7), `excel-density`, `excel-gas-*` · `excel-term-p2`, `-p3`, `-p5`",
+  "note": "· D-03 (Excel ν_B = 10⁹)",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-GUM-013": {
+  "code": [
+   "src/engine/coverage.js::coverage"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:excel-gas-p2"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h1` (16,7 → 16, k₉₉ = 2,92), `excel-gas-p2` (6,93 → 6)",
+  "codeNote": "`coverage.js::coverage` (`settings.nuRule`, natijada `coverage.nuRule`)"
+ },
+ "REQ-GUM-014": {
+  "code": [
+   "src/engine/coverage.js::coverage",
+   "src/engine/special.js::tQuantile"
+  ],
+  "tests": [
+   "case:jcgm100-h1",
+   "case:excel-density",
+   "case:excel-gas-p2",
+   "case:excel-gas-p3",
+   "tests/engine/quantiles.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h1` (P = 0,99), `excel-density`, `excel-gas-p2`, `-p3`; Table G.2 (168 katak, D-11); mpmath 1 ≤ ν ≤ 200 (1e-6 talab, amalda < 1e-11) — `tests/engine/quantiles.test.js`",
+  "codeNote": "`coverage.js::coverage`, `special.js::tQuantile`"
+ },
+ "REQ-GUM-015": {
+  "code": [
+   "src/engine/special.js::normalQuantile"
+  ],
+  "tests": [
+   "case:excel-gas-p1",
+   "case:excel-term-p1",
+   "case:excel-term-p4"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-01"
+  ],
+  "evidence": "NORMSINV(0,97725) 1e-12; `excel-gas-p1`, `excel-term-p1`, `-p4`",
+  "note": "D-01 yopildi (P03)",
+  "codeNote": "`special.js::normalQuantile` (AS241)"
+ },
+ "REQ-GUM-016": {
+  "code": [
+   "src/engine/coverage.js",
+   "src/engine/special.js"
+  ],
+  "tests": [
+   "case:excel-term-p2",
+   "case:excel-term-p3",
+   "case:excel-term-p5"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-02"
+  ],
+  "evidence": "`excel-term-p2`, `-p3`, `-p5` (tolerans 1e-3, sabab testda); uzluksizlik testi",
+  "note": "D-02 yopildi (P03)",
+  "codeNote": "`coverage.js`, `special.js` (ν ≥ 2000 — Cornish–Fisher)"
+ },
+ "REQ-GUM-017": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:ea4-02-s2",
+   "case:ea4-02-s3",
+   "case:quam-a1"
+  ],
+  "status": "verified",
+  "evidence": "`ea4-02-s2`, `-s3`, `quam-a1`",
+  "codeNote": "`evaluate` (`kMethod: 'k2'`)"
+ },
+ "REQ-GUM-018": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-01",
+   "D-02"
+  ],
+  "evidence": "barcha `verified`",
+  "note": "(D-01/D-02 dagi k orqali)",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-GUM-019": {
+  "code": [
+   "src/engine/sensitivity.js::higherDerivatives",
+   "src/engine/sensitivity.js::secondOrderTerms"
+  ],
+  "tests": [
+   "case:jcgm100-h1-2nd",
+   "tests/engine/second-order.test.js"
+  ],
+  "status": "verified",
+  "evidence": "Y = X² (2u⁴), `jcgm100-h1-2nd` (H.1.7: 32 → 34 nm), `tests/engine/second-order.test.js`",
+  "codeNote": "`sensitivity.js::higherDerivatives`, `secondOrderTerms`"
+ },
+ "REQ-GUM-020": {
+  "code": [
+   "src/engine/evaluate.js"
+  ],
+  "tests": [
+   "tests/engine/api.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/api.test.js`",
+  "codeNote": "`evaluate.js` (`negative_variance`, `bad_correlation`)"
+ },
+ "REQ-GUM-021": {
+  "code": [
+   "src/engine/units.js::parseUnit",
+   "src/engine/units.js::analyzeDimensions",
+   "src/engine/units.js::convert"
+  ],
+  "tests": [
+   "tests/engine/units.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`tests/engine/units.test.js` (mustaqil qo'lda hisob; mA ↔ % об. misoli)",
+  "note": "manba PDF kerak (unverified)",
+  "codeNote": "`units.js::parseUnit`, `analyzeDimensions`, `convert`"
+ },
+ "REQ-GUM-022": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "case:jcgm101-9-4-x0-r0-guf1"
+  ],
+  "status": "pending",
+  "evidence": "`jcgm101-9-4-x0-r0-guf1`",
+  "note": "(ogohlantirish); hisobotda bloklash ⏳ P05",
+  "codeNote": "`evaluate` (`zero_u`)"
+ },
+ "REQ-GUM-023": {
+  "code": [
+   "src/engine/regression/index.js::evaluateRegression"
+  ],
+  "tests": [
+   "case:jcgm100-h3"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h3`",
+  "note": "(P08, §7)",
+  "codeNote": "`regression/index.js::evaluateRegression`"
+ },
+ "REQ-RND-001": {
+  "code": [
+   "src/report/rounding.js::roundResult"
+  ],
+  "tests": [
+   "tests/engine/rounding.test.js"
+  ],
+  "status": "verified",
+  "evidence": "9 ta Excel nuqtasi `expectedDisplay` (`Nuqta_i!D41/D42`, `D42/D43`, `3_Hisob!D73/D74`); 0,0999 → 0,10; −0,125 → −0,13 — `tests/engine/rounding.test.js`",
+  "note": "(egasi qarorlari, P03)",
+  "codeNote": "`src/report/rounding.js::roundResult`"
+ },
+ "REQ-MCM-001": {
+  "code": [
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "case:jcgm101-9-2-2-mcm",
+   "case:jcgm101-9-2-3-mcm",
+   "case:jcgm101-9-2-4-mcm",
+   "case:jcgm101-9-3-mcm"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-2-2-mcm` (normal), `-9-2-3-mcm` (to'g'ri burchakli, analitik ±3,88), `-9-2-4-mcm`, `-9-3-mcm` (nochiziqli)",
+  "note": "(manba δ bilan)",
+  "codeNote": "`montecarlo.js::monteCarlo`"
+ },
+ "REQ-MCM-002": {
+  "code": [
+   "src/engine/montecarlo.js::coverageIntervals",
+   "src/engine/montecarlo.js::symLow",
+   "src/engine/montecarlo.js::symHigh"
+  ],
+  "tests": [
+   "case:jcgm101-9-2-2-mcm",
+   "case:jcgm101-9-2-3-mcm",
+   "case:jcgm101-9-2-4-mcm",
+   "case:excel-gas-p2-mc",
+   "case:excel-gas-p2-mc-ndig1"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-2-*-mcm`, `excel-gas-p2-mc*`",
+  "codeNote": "`coverageIntervals` (`symLow` / `symHigh`)"
+ },
+ "REQ-MCM-003": {
+  "code": [
+   "src/engine/montecarlo.js::coverageIntervals",
+   "src/engine/montecarlo.js::low"
+  ],
+  "tests": [
+   "case:jcgm101-9-3-mcm",
+   "case:jcgm101-9-4-mcm-x0-r0",
+   "case:jcgm101-9-4-mcm-x0-r09",
+   "case:jcgm101-9-4-mcm-x001-r0",
+   "case:jcgm101-9-4-mcm-x001-r09",
+   "case:jcgm101-9-4-mcm-x005-r0",
+   "case:jcgm101-9-4-mcm-x005-r09",
+   "case:jcgm101-9-5-mcm"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-18"
+  ],
+  "evidence": "`jcgm101-9-3-mcm`, `-9-4-mcm-*`, `-9-5-mcm`",
+  "note": "(D-18)",
+  "codeNote": "`coverageIntervals` (`low` / `high`)"
+ },
+ "REQ-MCM-004": {
+  "code": [
+   "src/engine/mc/distributions.js::sampleT"
+  ],
+  "tests": [
+   "case:excel-gas-p2-mc",
+   "case:excel-gas-p2-mc-ndig1"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-04"
+  ],
+  "evidence": "`excel-gas-p2-mc` (10-test, n_dig = 2), `excel-gas-p2-mc-ndig1`",
+  "note": "(D-04 — egasi qarori Q-3 (b))",
+  "codeNote": "`mc/distributions.js::sampleT`"
+ },
+ "REQ-MCM-005": {
+  "code": [
+   "src/engine/montecarlo.js::numericalTolerance",
+   "src/engine/montecarlo.js::monteCarlo",
+   "src/engine/montecarlo.js::delta"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js",
+   "case:jcgm101-9-2-2-mcm-adaptive",
+   "case:jcgm101-9-2-4-mcm-adaptive",
+   "case:jcgm101-9-3-mcm-adaptive"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js`; `jcgm101-*-mcm-adaptive`",
+  "codeNote": "`numericalTolerance`, `monteCarlo` (`delta`, `validated`)"
+ },
+ "REQ-MCM-006": {
+  "code": [
+   "src/engine/mc/distributions.js::sampleMvn"
+  ],
+  "tests": [
+   "case:jcgm101-9-4-mcm-x0-r09",
+   "case:jcgm101-9-4-mcm-x001-r09",
+   "case:jcgm101-9-4-mcm-x005-r09"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-4-mcm-*-r09` (Table 9)",
+  "codeNote": "`cholesky`, `sampleMvn`"
+ },
+ "REQ-MCM-007": {
+  "code": [
+   "src/engine/mc/distributions.js"
+  ],
+  "tests": [
+   "case:jcgm101-9-5-mcm"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-5-mcm` (Table 11)",
+  "codeNote": "`mc/distributions.js`"
+ },
+ "REQ-MCM-008": {
+  "code": [
+   "src/engine/mc/rng.js"
+  ],
+  "tests": [
+   "tests/engine/mc-rng.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`mc-rng.test.js`: konstantalar; d_j = a_j·b_j + c_j",
+  "codeNote": "`mc/rng.js` (`WH_A…WH_D`)"
+ },
+ "REQ-MCM-009": {
+  "code": [
+   "src/engine/mc/rng.js::wichmannHill",
+   "src/engine/mc/rng.js::wichmannHillStep32"
+  ],
+  "tests": [
+   "tests/engine/mc-rng.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`mc-rng.test.js`: 10⁵ qadam × 3 urug'; BigInt bilan 2·10⁴ qadam; eng katta ko'paytma 100 938 168 924 626",
+  "note": "(manbaning ikki ta'rifi o'zaro)",
+  "codeNote": "`wichmannHill`, `wichmannHillStep32`"
+ },
+ "REQ-MCM-010": {
+  "code": [
+   "src/engine/mc/rng.js::wichmannHill"
+  ],
+  "tests": [
+   "tests/engine/mc-rng.test.js"
+  ],
+  "status": "verified",
+  "evidence": "χ² (100 katak, N = 10⁶), Kolmogorov–Smirnov (N = 10⁵), ketma-ket korrelyatsiya (kechikish 1…10), juftliklar 20 × 20 — 3 urug'",
+  "note": "mustaqil tekshiruv (manbada sonli test qiymatlari yo'q; BigCrush — manbaning o'z bayoni, C.3.2.2)",
+  "codeNote": "`wichmannHill`"
+ },
+ "REQ-MCM-011": {
+  "code": [
+   "src/engine/mc/rng.js::wichmannHill"
+  ],
+  "tests": [
+   "tests/engine/mc-rng.test.js"
+  ],
+  "status": "verified",
+  "evidence": "muzlatilgan qiymatlar (`fixtures/mc-rng-golden.json`); Node 22 ↔ Chromium 157 — R(0, 1) va to'liq MCM natijasi (qat'iy va adaptiv) bit darajasida bir xil",
+  "note": "(V8); boshqa JS dvigatellari — tekshirilmagan (R-23)",
+  "codeNote": "`wichmannHill`"
+ },
+ "REQ-MCM-012": {
+  "code": [
+   "src/engine/mc/distributions.js::makeGauss"
+  ],
+  "tests": [
+   "tests/engine/mc-distributions.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`mc-distributions.test.js`: formula, momentlar, KS",
+  "codeNote": "`makeGauss`"
+ },
+ "REQ-MCM-013": {
+  "code": [
+   "src/engine/mc/distributions.js::sampleT"
+  ],
+  "tests": [
+   "tests/engine/mc-distributions.test.js"
+  ],
+  "status": "verified",
+  "evidence": "KS: ν = 2; 3; 5; 8; 18; 24; 6,93; dispersiya ν/(ν − 2)",
+  "codeNote": "`sampleT`"
+ },
+ "REQ-MCM-014": {
+  "code": [
+   "src/engine/mc/distributions.js::sampleRect",
+   "src/engine/mc/distributions.js::sampleTriang",
+   "src/engine/mc/distributions.js::sampleArcsine",
+   "src/engine/mc/distributions.js::sampleExp"
+  ],
+  "tests": [
+   "tests/engine/mc-distributions.test.js"
+  ],
+  "status": "verified",
+  "evidence": "momentlar (4,5 standart xato) + KS",
+  "codeNote": "`sampleRect`, `sampleTriang`, `sampleArcsine`, `sampleExp`"
+ },
+ "REQ-MCM-015": {
+  "code": [
+   "src/engine/mc/distributions.js::sampleTrap",
+   "src/engine/mc/distributions.js::typeB"
+  ],
+  "tests": [
+   "tests/engine/mc-distributions.test.js"
+  ],
+  "status": "verified",
+  "evidence": "momentlar, KS; β = 0 / 1 chegaralari",
+  "codeNote": "`sampleTrap`, `typeB` (`trap`)"
+ },
+ "REQ-MCM-016": {
+  "code": [
+   "src/engine/mc/distributions.js::sampleCTrap",
+   "src/engine/mc/distributions.js::typeB"
+  ],
+  "tests": [
+   "tests/engine/mc-distributions.test.js"
+  ],
+  "status": "verified",
+  "evidence": "momentlar; Eq. (3) zichligini integrallab KS; misol qiymati",
+  "codeNote": "`sampleCTrap`, `typeB` (`ctrap`)"
+ },
+ "REQ-MCM-017": {
+  "code": [
+   "src/engine/mc/distributions.js::lognormalParams"
+  ],
+  "tests": [],
+  "status": "unverified",
+  "evidence": "momentlar, KS",
+  "note": "unverified (JCGM 101 da yo'q) — mustaqil tekshiruv",
+  "codeNote": "`lognormalParams`"
+ },
+ "REQ-MCM-018": {
+  "code": [
+   "src/engine/mc/distributions.js::cholesky",
+   "src/engine/mc/distributions.js::sampleMvn"
+  ],
+  "tests": [
+   "tests/engine/mc-distributions.test.js"
+  ],
+  "status": "verified",
+  "evidence": "RᵀR = V; tanlanma kovariatsiyasi; musbat aniqlanmagan → null",
+  "codeNote": "`cholesky`, `sampleMvn`"
+ },
+ "REQ-MCM-019": {
+  "code": [
+   "src/engine/montecarlo.js::numericalTolerance"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js` (3 misol + §9 dagi δ lar)",
+  "codeNote": "`numericalTolerance`"
+ },
+ "REQ-MCM-020": {
+  "code": [
+   "src/engine/montecarlo.js::coverageIntervals"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js"
+  ],
+  "status": "verified",
+  "evidence": "qo'lda hisoblangan misollar",
+  "codeNote": "`coverageIntervals`"
+ },
+ "REQ-MCM-021": {
+  "code": [
+   "src/engine/montecarlo.js::createMonteCarlo"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js`; Table 2 (M 1,30·10⁶ — manbada 1,23 va 1,02·10⁶), Table 4 (0,05·10⁶ — 0,03 va 0,08), Table 6 (0,63·10⁶ — 0,72), Table 11 (0,99…1,50·10⁶, 12 urug' — 1,26)",
+  "codeNote": "`createMonteCarlo`"
+ },
+ "REQ-MCM-022": {
+  "code": [
+   "src/engine/montecarlo.js::monteCarlo",
+   "src/engine/montecarlo.js::dLow",
+   "src/engine/montecarlo.js::dHigh"
+  ],
+  "tests": [
+   "case:jcgm101-9-2-2-mcm-adaptive",
+   "case:jcgm101-9-2-4-mcm-adaptive",
+   "case:jcgm101-9-3-mcm-adaptive"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-2-2-mcm-adaptive`, `-9-2-4-mcm-adaptive`, `-9-3-mcm-adaptive`",
+  "codeNote": "`monteCarlo` (`dLow`, `dHigh`, `validated`)"
+ },
+ "REQ-MCM-023": {
+  "code": [
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "case:jcgm101-9-4-mcm-x0-r0",
+   "case:jcgm101-9-4-mcm-x005-r09",
+   "tests/tools/mc-scatter.js"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm101-9-4-mcm-x0-r0` … `-x005-r09` (tolerans: ½ oxirgi xona + o'lchangan tarqoqlik — `tests/tools/mc-scatter.js`)",
+  "codeNote": "`monteCarlo`"
+ },
+ "REQ-MCM-024": {
+  "code": [
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "case:jcgm101-9-5-mcm"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-18"
+  ],
+  "evidence": "`jcgm101-9-5-mcm`",
+  "note": "(D-18)",
+  "codeNote": "`monteCarlo` (adaptiv, n_dig = 2)"
+ },
+ "REQ-MCM-025": {
+  "code": [
+   "src/engine/linter/rules/m03-mc-validation.js"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js` (analitik: u²·χ²₁)",
+  "note": "mustaqil hisob",
+  "codeNote": "M3"
+ },
+ "REQ-MCM-026": {
+  "code": [
+   "src/engine/montecarlo.js::createMonteCarlo"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js`",
+  "note": "(loyiha qarori, R-23)",
+  "codeNote": "`createMonteCarlo`"
+ },
+ "REQ-MCM-027": {
+  "code": [
+   "src/engine/mc/legacy.js"
+  ],
+  "tests": [
+   "tests/engine/mc-legacy.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`mc-legacy.test.js` (6 hisob, `Object.is`)",
+  "note": "(regressiya)",
+  "codeNote": "`mc/legacy.js`"
+ },
+ "REQ-MCM-028": {
+  "code": [
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "case:excel-gas-p2-mc",
+   "case:excel-gas-p2-mc-ndig1"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-04"
+  ],
+  "evidence": "`excel-gas-p2-mc` — n_dig = 2, tolerans δ + 2·s_ref (egasi qarori Q-3 (b)); `excel-gas-p2-mc-ndig1`",
+  "note": "(D-04 yopildi)",
+  "codeNote": "`monteCarlo`"
+ },
+ "REQ-MCM-029": {
+  "code": [
+   "src/engine/montecarlo.js::createMonteCarlo",
+   "src/engine/montecarlo.js::uDefined"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js",
+   "tests/ui/mc.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js`; `tests/ui/mc.test.js` (matn uch tilda)",
+  "codeNote": "`createMonteCarlo` (`criteria: 'auto'`, `uDefined`)"
+ },
+ "REQ-MCM-030": {
+  "code": [
+   "src/engine/montecarlo.js::mcOptions",
+   "src/engine/montecarlo.js::validation",
+   "src/engine/montecarlo.js::tolDivisor"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js",
+   "tests/ui/mc.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`montecarlo.test.js`; `tests/ui/mc.test.js`",
+  "codeNote": "`mcOptions` (`validation`, `tolDivisor`), `result.validation`"
+ },
+ "REQ-MCM-031": {
+  "code": [
+   "schemas/methodology.schema.json",
+   "src/templates/interpreter.js"
+  ],
+  "tests": [
+   "tests/templates/workflow.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/workflow.test.js`",
+  "codeNote": "`schemas/methodology.schema.json`, `src/templates/interpreter.js`"
+ },
+ "REQ-MCM-032": {
+  "code": [
+   "src/ui/mc/"
+  ],
+  "tests": [
+   "tests/ui/mc.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/mc.test.js`; **Chromium 157 (headless), haqiqiy CSP bilan:** worker — M = 10⁶ 1,0 s, asosiy oqimda eng uzun to'xtash 12 ms, 63 kadr; worker'siz — 1,1 s, 70 ms; konsolda xato yo'q",
+  "codeNote": "`src/ui/mc/`"
+ },
+ "REQ-MCM-033": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "61 misolning natija JSON'i 2.5.0 (`c1cccce`) bilan bayt darajasida bir xil; 9 Excel nuqtasi",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-MVR-001": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/multivariate.test.js`",
+  "note": "verified",
+  "codeNote": "`evaluateMultivariate`"
+ },
+ "REQ-MVR-002": {
+  "code": [
+   "src/engine/multivariate/region.js::ellipsoidFactor",
+   "src/engine/multivariate/region.js::rectangleFactor"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`multivariate.test.js`",
+  "note": "verified",
+  "codeNote": "`ellipsoidFactor`, `rectangleFactor`"
+ },
+ "REQ-MVR-003": {
+  "code": [
+   "src/engine/multivariate/region.js::gaussianRegion",
+   "src/engine/multivariate/region.js::ellipseOf"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-19"
+  ],
+  "evidence": "`multivariate.test.js`",
+  "note": "verified (D-19)",
+  "codeNote": "`gaussianRegion`, `ellipseOf`"
+ },
+ "REQ-MVR-004": {
+  "code": [
+   "src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`multivariate.test.js`",
+  "note": "verified",
+  "codeNote": "`createMultivariateMonteCarlo`"
+ },
+ "REQ-MVR-005": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate",
+   "src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo"
+  ],
+  "tests": [
+   "case:jcgm102-9-2-2-guf",
+   "case:jcgm102-9-2-2-mcm-adaptive",
+   "case:jcgm102-9-2-2-mcm",
+   "case:jcgm102-9-2-2-validation",
+   "case:jcgm102-9-2-3-guf",
+   "case:jcgm102-9-2-3-mcm-adaptive",
+   "case:jcgm102-9-2-3-mcm",
+   "case:jcgm102-9-2-3-validation",
+   "case:jcgm102-9-2-4-guf",
+   "case:jcgm102-9-2-4-mcm-adaptive",
+   "case:jcgm102-9-2-4-mcm",
+   "case:jcgm102-9-2-4-validation"
+  ],
+  "status": "verified",
+  "evidence": "`tests/cases/jcgm102/jcgm102-9-2-*` (12 ta)",
+  "note": "verified. k_p GUF 2,45; MCM 2,45 / 2,38 / 2,28; k_q 2,21 / 2,15 / 1,87. §8: 9.2.2 tasdiqlanadi, 9.2.3 va 9.2.4 — yo'q (manba bilan bir xil)"
+ },
+ "REQ-MVR-006": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate",
+   "src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo"
+  ],
+  "tests": [
+   "case:jcgm102-9-3-x001-r0-guf",
+   "case:jcgm102-9-3-x001-r09-guf",
+   "case:jcgm102-9-3-x010-r0-guf",
+   "case:jcgm102-9-3-x010-r09-guf",
+   "case:jcgm102-9-3-x100-r0-guf",
+   "case:jcgm102-9-3-x100-r09-guf"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm102-9-3-*-guf`",
+  "note": "verified; MCM qatorlari — **yo'q** (`atan2`, R-24)"
+ },
+ "REQ-MVR-007": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate",
+   "src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo"
+  ],
+  "tests": [
+   "case:jcgm102-9-4-guf",
+   "case:jcgm102-9-4-mcm"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-20"
+  ],
+  "evidence": "`jcgm102-9-4-guf`, `jcgm102-9-4-mcm`",
+  "note": "verified (D-20)"
+ },
+ "REQ-MVR-008": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate",
+   "src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo"
+  ],
+  "tests": [
+   "tests/cases/jcgm100/jcgm100-h2-vector.json"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-05"
+  ],
+  "evidence": "`tests/cases/jcgm100/jcgm100-h2-vector.json`",
+  "note": "verified (`u.X` — D-05)"
+ },
+ "REQ-MVR-009": {
+  "code": [
+   "src/engine/montecarlo.js::createSampler"
+  ],
+  "tests": [
+   "tests/engine/montecarlo.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/montecarlo.test.js`",
+  "note": "mustaqil tekshiruv (taqsimot xossalari) + §9.4",
+  "codeNote": "`createSampler` (`montecarlo.js`)"
+ },
+ "REQ-MVR-010": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate",
+   "src/engine/multivariate/montecarlo.js::createMultivariateMonteCarlo"
+  ],
+  "tests": [
+   "case:jcgm101-9-2-2-mcm-adaptive",
+   "case:jcgm101-9-2-4-mcm-adaptive",
+   "case:jcgm101-9-3-mcm-adaptive",
+   "case:jcgm102-9-2-2-mcm-adaptive",
+   "case:jcgm102-9-2-3-mcm-adaptive",
+   "case:jcgm102-9-2-4-mcm-adaptive"
+  ],
+  "status": "verified",
+  "evidence": "`*-mcm-adaptive`",
+  "note": "(M urug'ga bog'liq; test — faqat yaqinlashganlik va qiymatlar)"
+ },
+ "REQ-MVR-011": {
+  "code": [
+   "src/engine/multivariate/lpu.js::evaluateMultivariate"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`multivariate.test.js`",
+  "codeNote": "`evaluateMultivariate`"
+ },
+ "REQ-MVR-012": {
+  "code": [
+   "src/engine/evaluate.js::evaluate",
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "barcha mavjud misollar; nazorat skripti (176 / 188 MC natijasi aynan; 12 tasi — juftlangan kuzatuvlar, CHANGELOG)",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`, `monteCarlo`"
+ },
+ "REQ-MVR-013": {
+  "code": [
+   "src/io/calc-json.js"
+  ],
+  "tests": [
+   "tests/ui/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/multivariate.test.js`",
+  "codeNote": "`src/io/calc-json.js`"
+ },
+ "REQ-MVR-014": {
+  "code": [
+   "src/report/sections.js::multivariateSection",
+   "src/report/ellipse.js"
+  ],
+  "tests": [
+   "tests/ui/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/multivariate.test.js`",
+  "note": "(jsdom; real brauzerda qo'lda ko'rilmagan)",
+  "codeNote": "`src/report/sections.js::multivariateSection`, `ellipse.js`"
+ },
+ "REQ-MVR-015": {
+  "code": [
+   "src/engine/linter/rules/mv01-output-correlation.js"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js",
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`multivariate.test.js`, `linter.test.js`",
+  "note": "(chegara — egasi tasdig'ini kutadi)",
+  "codeNote": "`linter/rules/mv01-output-correlation.js`"
+ },
+ "REQ-MVR-016": {
+  "code": [
+   "schemas/methodology.schema.json",
+   "src/templates/interpreter.js"
+  ],
+  "tests": [
+   "tests/templates/workflow.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/workflow.test.js`",
+  "codeNote": "sxema, interpreter"
+ },
+ "REQ-MVR-017": {
+  "code": [
+   "src/engine/multivariate/implicit.js::evaluateImplicit",
+   "src/engine/multivariate/implicit.js::newtonSolve",
+   "src/engine/multivariate/implicit.js::luSolve"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-21"
+  ],
+  "evidence": "`tests/cases/jcgm102/jcgm102-9-5-2-single`, `tests/engine/implicit.test.js`",
+  "note": "verified (C_x[3] — D-21: manbada bosma xato)",
+  "codeNote": "`evaluateImplicit`, `newtonSolve`, `luSolve`"
+ },
+ "REQ-MVR-018": {
+  "code": [
+   "src/engine/multivariate/implicit.js::evaluateImplicit"
+  ],
+  "tests": [
+   "case:jcgm102-9-5-3-several"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm102-9-5-3-several` (65 qiymat)",
+  "note": "verified (oxirgi xonaning yarmi)",
+  "codeNote": "`evaluateImplicit` (m = 10, N = 14)"
+ },
+ "REQ-MVR-019": {
+  "code": [
+   "src/engine/multivariate/implicit.js::evaluateImplicit"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`implicit.test.js`",
+  "note": "oshkor (§6.2) va oshkormas natija tengligi (manbada raqam yo'q)"
+ },
+ "REQ-MVR-020": {
+  "code": [
+   "src/engine/multivariate/implicit.js::newtonSolve"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`implicit.test.js`",
+  "note": "(mezon — loyiha qarori, tasdiq kutadi)",
+  "codeNote": "`newtonSolve`"
+ },
+ "REQ-MVR-021": {
+  "code": [
+   "src/engine/parser.js",
+   "src/engine/units.js"
+  ],
+  "tests": [
+   "tests/engine/atan2.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/atan2.test.js`",
+  "codeNote": "`parser.js`, `units.js`"
+ },
+ "REQ-MVR-022": {
+  "code": [
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "case:jcgm102-9-3-x001-r0-mcm",
+   "case:jcgm102-9-3-x001-r09-mcm",
+   "case:jcgm102-9-3-x010-r0-mcm",
+   "case:jcgm102-9-3-x010-r09-mcm",
+   "case:jcgm102-9-3-x100-r0-mcm",
+   "case:jcgm102-9-3-x100-r09-mcm"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm102-9-3-*-mcm`",
+  "note": "verified (30 / 30; tolerans ½ xona + 2√2·s, M = 3·10⁶, manbada 10⁷)",
+  "codeNote": "`monteCarlo`"
+ },
+ "REQ-MVR-023": {
+  "code": [
+   "src/engine/multivariate/region.js::smallestRegion"
+  ],
+  "tests": [
+   "tests/engine/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/multivariate.test.js`",
+  "note": "verified (9,35; 950 0xx). m > 2 — ❌ qilinmagan",
+  "codeNote": "`smallestRegion`"
+ },
+ "REQ-MVR-024": {
+  "code": [
+   "src/ui/tpl/outputs.js",
+   "src/ui/tpl/outputs.js::checkTemplate"
+  ],
+  "tests": [
+   "tests/templates/outputs-editor.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/outputs-editor.test.js`",
+  "note": "(jsdom + Chromium da qo'lda)",
+  "codeNote": "`src/ui/tpl/outputs.js`, `checkTemplate`"
+ },
+ "REQ-MVR-025": {
+  "code": [
+   "src/io/calc-state.js"
+  ],
+  "tests": [
+   "tests/io/calc-json.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/io/calc-json.test.js`",
+  "codeNote": "`src/io/calc-state.js`"
+ },
+ "REQ-MVR-026": {
+  "code": [
+   "src/engine/multivariate/implicit.js::annexB",
+   "src/engine/multivariate/implicit.js::luFactor",
+   "src/engine/multivariate/implicit.js::qrHouseholder"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/implicit.test.js`",
+  "note": "§9.5.2 va §9.5.3 da LU yo'li bilan ≤ 10⁻¹² nisbiy; Eq. (8) to'g'ridan-to'g'ri tekshirilgan; Table 15–16 dagi 65 qiymat o'zgarmagan",
+  "codeNote": "`annexB`, `luFactor`, `qrHouseholder`"
+ },
+ "REQ-MVR-027": {
+  "code": [
+   "src/engine/linter/rules/mv02-implicit-covariance.js"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js",
+   "tests/ui/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`implicit.test.js` (ijobiy / salbiy), `tests/ui/multivariate.test.js`",
+  "note": "(egasi qarori 2026-11-19)",
+  "codeNote": "linter MV2"
+ },
+ "REQ-MVR-028": {
+  "code": [
+   "src/engine/multivariate/implicit.js::evaluateImplicit"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`implicit.test.js`",
+  "note": "(chegara 10⁻⁸ va masshtab — loyiha qarori, tasdiq kutadi)",
+  "codeNote": "`evaluateImplicit`"
+ },
+ "REQ-MVR-029": {
+  "code": [
+   "src/engine/multivariate/implicit.js::evaluateImplicit"
+  ],
+  "tests": [
+   "tests/engine/implicit.test.js",
+   "tests/ui/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`implicit.test.js` (qo'lda hisob: 21), `tests/ui/multivariate.test.js`",
+  "codeNote": "`evaluateImplicit`, `sections.implicitLine`"
+ },
+ "REQ-MVR-030": {
+  "code": [
+   "src/templates/interpreter.js::checkTemplate",
+   "src/templates/interpreter.js::buildState"
+  ],
+  "tests": [
+   "tests/templates/implicit.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/implicit.test.js`",
+  "note": "(natija dvigatelning to'g'ridan-to'g'ri chaqiruvi bilan aynan bir xil)",
+  "codeNote": "sxema, `checkTemplate`, `buildState`"
+ },
+ "REQ-MVR-031": {
+  "code": [
+   "src/report/summary.js::vectorSummaryRows"
+  ],
+  "tests": [
+   "tests/ui/multivariate.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/multivariate.test.js`",
+  "note": "(egasi qarori 2026-11-19); real brauzerda ko'rilmagan",
+  "codeNote": "`vectorSummaryRows`, `vectorPointsSection`"
+ },
+ "REQ-MVR-032": {
+  "code": [
+   "src/engine/evaluate.js::evaluate",
+   "src/engine/montecarlo.js::monteCarlo"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "83 + 26 natija asosiy branch (`97e7586`, 2.8.0) bilan bit darajasida bir xil (nazorat skripti)",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`, `monteCarlo`"
+ },
+ "REQ-MVR-033": {
+  "code": [],
+  "tests": [],
+  "status": "pending",
+  "note": "❌ qilinmagan (R-24)"
+ },
+ "REQ-REG-001": {
+  "code": [
+   "src/engine/regression/fit.js::fitPolynomial"
+  ],
+  "tests": [
+   "case:jcgm100-h3"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h3` (a, u_a, b, u_b, r_ab, s, ν — ±½ oxirgi xona)",
+  "codeNote": "`fit.js::fitPolynomial`, `linalg.js::leastSquares`"
+ },
+ "REQ-REG-002": {
+  "code": [
+   "src/engine/regression/index.js::evaluateRegression"
+  ],
+  "tests": [
+   "case:jcgm100-h3"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h3` (`fitted.0…10`, `residuals.0…10`)",
+  "codeNote": "`evaluateRegression` (`fitted`, `residuals`)"
+ },
+ "REQ-REG-003": {
+  "code": [
+   "src/engine/regression/predict.js::predict"
+  ],
+  "tests": [
+   "case:jcgm100-h3"
+  ],
+  "status": "verified",
+  "evidence": "`jcgm100-h3` (`predict.0.*`), t_min = 24,0085",
+  "codeNote": "`predict.js::predict`"
+ },
+ "REQ-REG-004": {
+  "code": [
+   "src/engine/regression/index.js::evaluateRegression"
+  ],
+  "tests": [
+   "tests/engine/regression.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/regression.test.js`",
+  "codeNote": "`model.xRef`"
+ },
+ "REQ-REG-005": {
+  "code": [
+   "src/engine/regression/fit.js::fitPolynomial"
+  ],
+  "tests": [
+   "case:quam-a5-calibration"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a5-calibration`",
+  "codeNote": "`fitPolynomial`"
+ },
+ "REQ-REG-006": {
+  "code": [
+   "src/engine/regression/predict.js::inversePredict"
+  ],
+  "tests": [
+   "case:quam-a5-calibration",
+   "tests/engine/regression.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a5-calibration` (`inverse.0.u`); Eq. E3.3 ≡ E3.5 (1e-9) — `regression.test.js`",
+  "note": "(manbada A₀ yo'q — y₀ chiziqdan tiklanadi)",
+  "codeNote": "`predict.js::inversePredict`"
+ },
+ "REQ-REG-007": {
+  "code": [
+   "src/engine/regression/fit.js::fitPolynomial"
+  ],
+  "tests": [],
+  "status": "unverified",
+  "evidence": "OLS ≡ WLS (teng u(y)), GLS-diagonal ≡ WLS",
+  "note": "manba misoli yo'q; o'zaro tekshiruv ✅",
+  "codeNote": "`fitPolynomial` (`uy`)"
+ },
+ "REQ-REG-008": {
+  "code": [
+   "src/engine/regression/fit.js::fitPolynomial"
+  ],
+  "tests": [],
+  "status": "unverified",
+  "evidence": "aniq polinomni qayta tiklash, x_ref invariantligi, teskari ≡ to'g'ri",
+  "note": "unverified; o'zaro tekshiruv ✅",
+  "codeNote": "`fitPolynomial` (`degree`)"
+ },
+ "REQ-REG-009": {
+  "code": [
+   "src/engine/regression/fit.js::fitPolynomial",
+   "src/engine/regression/fit.js::covY"
+  ],
+  "tests": [],
+  "status": "unverified",
+  "evidence": "diagonal ≡ WLS; umumiy siljish: u²(a) + u_c²",
+  "note": "unverified",
+  "codeNote": "`fitPolynomial` (`covY`), `linalg.js::cholesky`"
+ },
+ "REQ-REG-010": {
+  "code": [
+   "src/engine/regression/wtls.js::fitWtls"
+  ],
+  "tests": [
+   "case:york-pearson-wtls"
+  ],
+  "status": "unverified",
+  "evidence": "u(x) = 0 → WLS (1e-12); tarqalish qonuni bilan sonli taqqoslash (2 %); x ↔ y simmetriyasi; `york-pearson-wtls` (a, b 5·10⁻⁹)",
+  "note": "unverified (manba repoda yo'q)",
+  "codeNote": "`wtls.js::fitWtls`"
+ },
+ "REQ-REG-011": {
+  "code": [
+   "src/engine/regression/chi2.js::chi2Quantile",
+   "src/engine/regression/index.js::evaluateRegression",
+   "src/engine/regression/index.js::chi2",
+   "src/engine/regression/index.js::regression_chi2_fail"
+  ],
+  "tests": [
+   "tests/engine/regression.test.js",
+   "tests/ui/regression.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "ν = 2 yopiq formula, ν = 1 = z², A&S 26.8 qiymatlari; yiqilish/o'tish — `regression.test.js`; UI/hisobotda uch tilda — `tests/ui/regression.test.js`",
+  "note": "(kvantil); test qoidasi ❔ (ISO/TS 28037 pullik)",
+  "codeNote": "`chi2.js::chi2Quantile`, `evaluateRegression` (`chi2`, `regression_chi2_fail`)"
+ },
+ "REQ-REG-012": {
+  "code": [
+   "src/engine/regression/index.js::evaluateRegression",
+   "src/engine/regression/index.js::inversePredict"
+  ],
+  "tests": [
+   "tests/engine/regression.test.js"
+  ],
+  "status": "verified",
+  "evidence": "m < n + 1, vertikal chiziq, u = 0, b ≈ 0 va boshqalar — `regression.test.js`",
+  "codeNote": "`evaluateRegression`, `inversePredict`"
+ },
+ "REQ-REG-013": {
+  "code": [
+   "src/engine/regression/urange.js::uRangeFunction"
+  ],
+  "tests": [],
+  "status": "unverified",
+  "evidence": "U(X_j) ≥ U_j, `max`, xatolar",
+  "note": "unverified — PDF repoda bor, lekin funksiya manba bilan solishtirilmagan",
+  "codeNote": "`urange.js::uRangeFunction`"
+ },
+ "REQ-REG-014": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "32 misolning natija JSON'i 2.0.0 bilan bayt darajasida bir xil (P08 da tekshirildi); 9 Excel nuqtasi, 10-test",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate` (format bo'yicha uzatish)"
+ },
+ "REQ-REG-015": {
+  "code": [
+   "src/templates/interpreter.js::buildRegressionSpec"
+  ],
+  "tests": [
+   "tests/templates/regression.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/regression.test.js` (R-01)",
+  "note": "(R-01 — DRAFT)",
+  "codeNote": "`interpreter.js::buildRegressionSpec`, sxema `regression`"
+ },
+ "REQ-TDN-001": {
+  "code": [
+   "src/engine/topdown/rw.js::evaluateRw"
+  ],
+  "tests": [
+   "case:nordtest-tr537-nh4n"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-nh4n` (`rw.u` = 1,67 %)",
+  "codeNote": "`rw.js::evaluateRw` (`control_limits`)"
+ },
+ "REQ-TDN-002": {
+  "code": [
+   "src/engine/topdown/bias.js::evaluateBias",
+   "src/engine/topdown/bias.js::pt"
+  ],
+  "tests": [
+   "case:nordtest-tr537-nh4n",
+   "case:nordtest-tr537-bod-pt"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-nh4n` (RMS 2,26; 6 ta u(C_ref,i); o'rtacha 1,52; u(bias) 2,73), `nordtest-tr537-bod-pt` (Table 6, p. 27)",
+  "codeNote": "`bias.js::evaluateBias` (`pt`)"
+ },
+ "REQ-TDN-003": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown"
+  ],
+  "tests": [
+   "case:nordtest-tr537-nh4n",
+   "case:nordtest-tr537-bod-crm",
+   "case:nordtest-tr537-bod-pt"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-nh4n` (3,20 %; 6,40 %), `-bod-crm` (5,2; 10,4), `-bod-pt` (4,87; 9,7)",
+  "codeNote": "`index.js::evaluateTopDown`"
+ },
+ "REQ-TDN-004": {
+  "code": [
+   "src/engine/topdown/rw.js::duplicateSd"
+  ],
+  "tests": [
+   "case:nordtest-tr537-nh4n-dup-low",
+   "case:nordtest-tr537-oxygen-dup"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-12"
+  ],
+  "evidence": "`nordtest-tr537-nh4n-dup-low` (0,44 µg/L), `nordtest-tr537-oxygen-dup` (0,0252 mg/L)",
+  "note": "(D-12: n = 46 / 47)",
+  "codeNote": "`rw.js::duplicateSd`"
+ },
+ "REQ-TDN-005": {
+  "code": [
+   "src/engine/topdown/rw.js::duplicateSd"
+  ],
+  "tests": [
+   "case:nordtest-tr537-nh4n-dup-high",
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-nh4n-dup-high` (3,8 %); Table 1 qiymatlari 2,019; 1,245; 10,554 — `topdown.test.js`",
+  "codeNote": "`duplicateSd` (`per_pair`)"
+ },
+ "REQ-TDN-006": {
+  "code": [
+   "src/engine/topdown/rw.js"
+  ],
+  "tests": [
+   "case:nordtest-tr537-oxygen-dup"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-oxygen-dup` (0,34 %)",
+  "codeNote": "`rw.js` (`pooled_over_mean`)"
+ },
+ "REQ-TDN-007": {
+  "code": [
+   "src/engine/topdown/rw.js::evaluateRw"
+  ],
+  "tests": [
+   "case:nordtest-tr537-nh4n-dup-low",
+   "case:nordtest-tr537-nh4n-dup-high",
+   "case:nordtest-tr537-oxygen-dup"
+  ],
+  "status": "verified",
+  "evidence": "`-dup-low` (0,7 µg/L), `-dup-high` (4,1 %), `-oxygen-dup` (0,60 %)",
+  "codeNote": "`evaluateRw`"
+ },
+ "REQ-TDN-008": {
+  "code": [
+   "src/engine/topdown/rw.js"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown.test.js` (0,5 / 20,01 → 2,5 %)",
+  "note": "(formula; manbada xom qator yo'q)",
+  "codeNote": "`rw.js` (`control_series`)"
+ },
+ "REQ-TDN-009": {
+  "code": [
+   "src/engine/topdown/bias.js",
+   "src/engine/topdown/bias.js::crm"
+  ],
+  "tests": [
+   "case:nordtest-tr537-bod-crm",
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-14"
+  ],
+  "evidence": "`nordtest-tr537-bod-crm` (4,5 %); §6.1: 4,1 %; 2,53 / 1,92 / 3,2 % — `topdown.test.js`",
+  "note": "(D-14: u(C_ref) 2,16 vs 2,17)",
+  "codeNote": "`bias.js` (`crm`)"
+ },
+ "REQ-TDN-010": {
+  "code": [
+   "src/engine/topdown/bias.js",
+   "src/engine/topdown/bias.js::recovery"
+  ],
+  "tests": [
+   "case:nordtest-tr537-recovery"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-recovery` (3,44; 1,0; 3,6 %)",
+  "codeNote": "`bias.js` (`recovery`)"
+ },
+ "REQ-TDN-011": {
+  "code": [
+   "src/engine/topdown/bias.js"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown.test.js`",
+  "codeNote": "`bias.js`"
+ },
+ "REQ-TDN-012": {
+  "code": [
+   "src/engine/topdown/recovery.js::evaluateRecovery"
+  ],
+  "tests": [
+   "case:quam-a4-recovery"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-13"
+  ],
+  "evidence": "`quam-a4-recovery` (0,0432; 2,31; ahamiyatli)",
+  "note": "(t_crit: D-13)",
+  "codeNote": "`recovery.js::evaluateRecovery`"
+ },
+ "REQ-TDN-013": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown",
+   "src/engine/topdown/index.js::QUAM_RECOVERY"
+  ],
+  "tests": [
+   "case:quam-a4-recovery"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a4-recovery` (0,048; 0,34; 1,1111; 0,377)",
+  "codeNote": "`evaluateTopDown` (`QUAM_RECOVERY`, gibrid)"
+ },
+ "REQ-TDN-014": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown.test.js`",
+  "note": "(qoida manbadan; raqamli misol yo'q)",
+  "codeNote": "`evaluateTopDown` (`topdown_bias_significant`)"
+ },
+ "REQ-TDN-015": {
+  "code": [
+   "src/engine/topdown/reproducibility.js",
+   "src/engine/topdown/index.js::evaluateTopDown"
+  ],
+  "tests": [
+   "case:quam-a6-empirical"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a6-empirical` (0,31; 0,62 % m/m; 12 %; 25 %); Nordtest Table 2 (27,5 → 55 %), §7.2 (8,8 → 17,6 %)",
+  "codeNote": "`reproducibility.js`, `evaluateTopDown`"
+ },
+ "REQ-TDN-016": {
+  "code": [
+   "src/engine/topdown/index.js::additionalComponent"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown.test.js` (0,00030; 0,00048; 0,0090; 0,0072)",
+  "codeNote": "`index.js::additionalComponent`"
+ },
+ "REQ-TDN-017": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown",
+   "src/engine/topdown/index.js::isEmpiricalMeasurand"
+  ],
+  "tests": [
+   "case:quam-a6-empirical",
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a6-empirical`; `topdown.test.js`",
+  "codeNote": "`evaluateTopDown` (`isEmpiricalMeasurand`)"
+ },
+ "REQ-TDN-018": {
+  "code": [
+   "src/engine/topdown/level.js::levelUncertainty",
+   "src/engine/topdown/level.js::fitLevelModel"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown.test.js` (ayniyat va qayta tiklash)",
+  "note": "(formula; manbada raqamli misol yo'q)",
+  "codeNote": "`level.js::levelUncertainty`, `fitLevelModel`"
+ },
+ "REQ-TDN-019": {
+  "code": [
+   "src/engine/topdown/reproducibility.js"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`topdown.test.js` (formula bo'yicha; natijada `topdown_unverified`)",
+  "note": "unverified (standart pullik)",
+  "codeNote": "`reproducibility.js`"
+ },
+ "REQ-TDN-020": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown",
+   "src/engine/topdown/index.js::x11_double_counting"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js",
+   "tests/ui/topdown-app.test.js",
+   "tests/ui/topdown.test.js",
+   "tests/templates/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "ijobiy: takrorlanuvchanlik, `covers` dagi tarozi, `reference_material`; salbiy: namuna olish, bir jinslilik — `topdown.test.js`; usta va hisobotda — `tests/ui/topdown*.test.js`; shablonda — `tests/templates/topdown.test.js`",
+  "codeNote": "`evaluateTopDown` (`x11_double_counting`)"
+ },
+ "REQ-TDN-021": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown",
+   "src/engine/topdown/index.js::referenceMethod",
+   "src/engine/topdown/index.js::x12_empirical_bias",
+   "src/engine/topdown/index.js::x12_bias_excluded"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js",
+   "tests/ui/topdown.test.js",
+   "tests/ui/topdown-app.test.js"
+  ],
+  "status": "verified",
+  "evidence": "javob yo'q → qo'shiladi + X12; `other` → chiqariladi; `same` → qo'shiladi (bias, recovery, u(δ̂)); salbiy: biassiz, empirik bo'lmagan — `topdown.test.js`; usta savoli va oqimi — `tests/ui/topdown.test.js`, `topdown-app.test.js`",
+  "codeNote": "`evaluateTopDown` (`referenceMethod`; `x12_empirical_bias`, `x12_bias_excluded`)"
+ },
+ "REQ-TDN-022": {
+  "code": [
+   "src/js/report.js::printTopdown"
+  ],
+  "tests": [
+   "tests/ui/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/topdown.test.js`",
+  "codeNote": "`report.js::printTopdown`, bosma CSS"
+ },
+ "REQ-TDN-023": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown",
+   "src/engine/topdown/index.js::nuEff",
+   "src/engine/topdown/index.js::kSuggested"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js",
+   "tests/ui/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown.test.js` (4 test), `tests/ui/topdown.test.js`",
+  "note": "(ν(bias) = N − 1 — R-20 dagi tafsilot)",
+  "codeNote": "`evaluateTopDown` (`nuEff`, `kSuggested`, `topdown_nu_low`)"
+ },
+ "REQ-TDN-024": {
+  "code": [
+   "src/engine/topdown/scale.js::stated",
+   "src/engine/topdown/scale.js::declaredScale"
+  ],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`topdown_mixed_scale`, `topdown_need_scale`, `topdown_unit_mismatch` — `topdown.test.js` (4 test)",
+  "codeNote": "`scale.js::stated`, `declaredScale`"
+ },
+ "REQ-TDN-025": {
+  "code": [
+   "src/js/report.js::topdownSection"
+  ],
+  "tests": [
+   "tests/ui/topdown.test.js",
+   "tests/ui/topdown-app.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/topdown.test.js` (uch tilda), `tests/ui/topdown-app.test.js` (usta boshidan oxirigacha, jsdom)",
+  "codeNote": "`src/js/report.js::topdownSection`"
+ },
+ "REQ-TDN-026": {
+  "code": [
+   "src/engine/topdown/index.js::evaluateTopDown"
+  ],
+  "tests": [
+   "tests/ui/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/topdown.test.js`",
+  "codeNote": "`evaluateTopDown` (`zero_u`)"
+ },
+ "REQ-TDN-027": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "35 misolning natija JSON'i 2.1.0 bilan bayt darajasida bir xil (P09 da tekshirildi); 9 Excel nuqtasi, 10-test",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate` (format bo'yicha uzatish)"
+ },
+ "REQ-TDN-028": {
+  "code": [
+   "src/engine/linter/rules/x11-double-counting.js",
+   "src/engine/linter/rules/x12-empirical-bias.js"
+  ],
+  "tests": [],
+  "status": "manual",
+  "note": "Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda: 2n → n (8 test yiqildi); √ yig'indi → oddiy yig'indi (8); s/√n → s/n (6); X11 o'chirildi (6); X12 o'chirildi (3)"
+ },
+ "REQ-TDN-029": {
+  "code": [
+   "src/templates/interpreter.js::buildTopDownState",
+   "src/templates/interpreter.js::topDown"
+  ],
+  "tests": [
+   "tests/templates/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/topdown.test.js` (TD-01…TD-04)",
+  "note": "(hammasi DRAFT, raqamsiz)",
+  "codeNote": "`interpreter.js::buildTopDownState`, sxema `topDown`"
+ },
+ "REQ-SPM-001": {
+  "code": [
+   "src/engine/sampling/index.js::classicalAnova"
+  ],
+  "tests": [
+   "case:ufs-a1-nitrate-classical",
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`ufs-a1-nitrate-classical` (11 kattalik, nisbiy 1·10⁻⁷); qo'lda hisoblangan 2 ob'ektli misol — `special-modes.test.js`",
+  "codeNote": "`sampling/index.js::classicalAnova`"
+ },
+ "REQ-SPM-002": {
+  "code": [
+   "src/engine/sampling/index.js::evaluateSampling",
+   "src/engine/sampling/index.js::logTransform"
+  ],
+  "tests": [
+   "case:ufs-a2-lead-classical"
+  ],
+  "status": "verified",
+  "evidence": "`ufs-a2-lead-classical` (23 kattalik; ᶠU = 2,6032 / 1,12 / 2,6207)",
+  "codeNote": "`evaluateSampling` (`logTransform`)"
+ },
+ "REQ-SPM-003": {
+  "code": [
+   "src/engine/sampling/index.js::robustAnova"
+  ],
+  "tests": [
+   "case:ufs-a1-nitrate-robust",
+   "case:ufs-a2-lead-robust"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-16"
+  ],
+  "evidence": "`ufs-a1-nitrate-robust` (14 kattalik), `ufs-a2-lead-robust` (13 kattalik) — nisbiy 2·10⁻⁴",
+  "note": "4 qiymatli raqamgacha (qayta tiklangan algoritm — D-16, R-21)",
+  "codeNote": "`robustAnova`"
+ },
+ "REQ-SPM-004": {
+  "code": [
+   "src/engine/sampling/index.js::evaluateSampling"
+  ],
+  "tests": [
+   "case:ufs-a1-nitrate-robust",
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`ufs-a1-nitrate-robust` (`uc`, `relU`); `special-modes.test.js`",
+  "codeNote": "`evaluateSampling`"
+ },
+ "REQ-SPM-005": {
+  "code": [
+   "src/engine/sampling/index.js::evaluateSampling"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`special-modes.test.js`",
+  "codeNote": "`evaluateSampling` (`sampling_negative_variance`)"
+ },
+ "REQ-SPM-006": {
+  "code": [
+   "src/engine/sampling/index.js::evaluateSampling"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`special-modes.test.js`",
+  "codeNote": "`evaluateSampling`"
+ },
+ "REQ-SPM-007": {
+  "code": [
+   "src/engine/qualitative/index.js::evaluateQualitative"
+  ],
+  "tests": [
+   "case:aqa-e6-sarscov2",
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`aqa-e6-sarscov2` (SS 100 %, SP 97 %); `special-modes.test.js`",
+  "codeNote": "`qualitative/index.js::evaluateQualitative`"
+ },
+ "REQ-SPM-008": {
+  "code": [
+   "src/engine/qualitative/index.js::wilsonInterval"
+  ],
+  "tests": [
+   "case:aqa-e6-sarscov2",
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-17"
+  ],
+  "evidence": "`aqa-e6-sarscov2`; `special-modes.test.js`",
+  "note": "(D-17: 91,55 vs 91,6)",
+  "codeNote": "`wilsonInterval`"
+ },
+ "REQ-SPM-009": {
+  "code": [
+   "src/engine/qualitative/index.js::posterior",
+   "src/engine/qualitative/index.js::evaluateQualitative"
+  ],
+  "tests": [
+   "case:aqa-e3-emit-opiates",
+   "case:aqa-e3-emit-methadone",
+   "case:aqa-e3-emit-cocaine"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-15"
+  ],
+  "evidence": "`aqa-e3-emit-opiates`, `-methadone`, `-cocaine`",
+  "note": "(D-15)",
+  "codeNote": "`posterior`, `evaluateQualitative` (`rates`, `prevalence`)"
+ },
+ "REQ-SPM-010": {
+  "code": [
+   "src/engine/qualitative/index.js::clopperPearsonInterval"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "verified",
+  "evidence": "SciPy 1.18.1 — `scipy.stats.binomtest(x, n).proportion_ci(confidence_level=P, method=\"exact\")` bilan 10⁻¹⁰ gacha; analitik: x = n → (α/2)^(1/n), simmetriya — `special-modes.test.js`",
+  "note": "mustaqil ochiq dastur (qiymatlar sessiyada hisoblangan — RISKS R-21)",
+  "codeNote": "`clopperPearsonInterval`"
+ },
+ "REQ-SPM-011": {
+  "code": [
+   "src/engine/qualitative/index.js::evaluateQualitative",
+   "src/js/report.js"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js",
+   "tests/ui/special.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`special-modes.test.js`, `tests/ui/special.test.js`",
+  "codeNote": "`evaluateQualitative`, `report.js::qualitativeSection`"
+ },
+ "REQ-SPM-012": {
+  "code": [
+   "src/engine/micro/index.js::evaluateMicro"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "analitik testlar — `special-modes.test.js`",
+  "note": "BETA / unverified",
+  "codeNote": "`micro/index.js::evaluateMicro`"
+ },
+ "REQ-SPM-013": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "analitik testlar — `special-modes.test.js`",
+  "note": "BETA / unverified",
+  "codeNote": "`medical/index.js::evaluateMedical`"
+ },
+ "REQ-SPM-014": {
+  "code": [
+   "src/engine/micro/index.js::evaluateMicro",
+   "src/engine/medical/index.js::evaluateMedical",
+   "src/templates/interpreter.js::checkSpecialTemplate"
+  ],
+  "tests": [
+   "tests/engine/special-modes.test.js",
+   "tests/ui/special.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`special-modes.test.js`, `tests/ui/special.test.js`",
+  "codeNote": "`evaluateMicro`, `evaluateMedical`; `interpreter.js::checkSpecialTemplate`"
+ },
+ "REQ-SPM-015": {
+  "code": [
+   "src/js/report.js::specialSection"
+  ],
+  "tests": [
+   "tests/ui/special.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/special.test.js`",
+  "codeNote": "`src/js/report.js::specialSection`"
+ },
+ "REQ-SPM-016": {
+  "code": [
+   "src/ui/special/"
+  ],
+  "tests": [
+   "tests/ui/special.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/special.test.js` (kontroller jsdom'da boshidan oxirigacha)",
+  "codeNote": "`src/ui/special/*`"
+ },
+ "REQ-SPM-017": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "43 misolning natija JSON'i 2.2.0 bilan bayt darajasida bir xil (P10 da tekshirildi); 9 Excel nuqtasi, 10-test",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate` (format bo'yicha uzatish)"
+ },
+ "REQ-SPM-018": {
+  "code": [],
+  "tests": [],
+  "status": "manual",
+  "note": "Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda: σ_s² dagi /2 olib tashlandi (22 test yiqildi); robust τ² bo'luvchisi n → n − 1 (21); Wilson dagi z²/(4n²) hadi (7); Clopper–Pearson parametri (2); Puasson 1/√C → 1/C (2); kvadratlar yig'indisi → oddiy yig'indi (3)"
+ },
+ "REQ-LNT-001": {
+  "code": [
+   "src/engine/linter/rules/x01-mpe-in-budget.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js",
+   "tests/engine/linter-fixtures.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js`; `linter-fixtures.test.js` — gazoanalizator qo'llanmasidagi asl protsedura (`.docx` iqtiboslari: u(Δк) = 0,23136; U = 0,463)",
+  "codeNote": "X1 `x01-mpe-in-budget.js`"
+ },
+ "REQ-LNT-002": {
+  "code": [
+   "src/engine/linter/rules/x08-zero-uncertainty.js"
+  ],
+  "tests": [
+   "tests/engine/linter-fixtures.test.js",
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter-fixtures.test.js` — nol nuqtada «0 ± 0»; `linter.test.js`",
+  "codeNote": "X8 `zero_u` (error)"
+ },
+ "REQ-LNT-003": {
+  "code": [
+   "src/engine/linter/rules/x08-zero-uncertainty.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js`",
+  "note": "(havola P05b da PDF bilan solishtirildi)",
+  "codeNote": "X8 `below_cmc` (error)"
+ },
+ "REQ-LNT-004": {
+  "code": [
+   "src/engine/linter/rules/x02-certificate-divisor.js",
+   "src/engine/linter/rules/x03-hysteresis-double.js",
+   "src/engine/linter/rules/x04-correlation.js",
+   "src/engine/linter/rules/x05-resolution-divisor.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js` (ijobiy + salbiy)",
+  "codeNote": "X2, X3, X4, X5"
+ },
+ "REQ-LNT-005": {
+  "code": [
+   "src/engine/linter/rules/x06-units.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`linter.test.js`",
+  "note": "/ ❔",
+  "codeNote": "X6"
+ },
+ "REQ-LNT-006": {
+  "code": [
+   "src/engine/linter/rules/x07-k2-reliability.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js`",
+  "note": "(chegaralar — loyiha qarori)",
+  "codeNote": "X7"
+ },
+ "REQ-LNT-007": {
+  "code": [
+   "src/engine/linter/index.js::lintReported",
+   "src/engine/linter/rules/x09-reported-digits.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js` (`rounding.js` chiqishi har doim o'tadi)",
+  "codeNote": "X9 `lintReported`; hisobot o'z satrlarini tekshiradi"
+ },
+ "REQ-LNT-008": {
+  "code": [
+   "src/engine/linter/rules/x10-no-drift.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js`",
+  "codeNote": "X10 (info)"
+ },
+ "REQ-LNT-009": {
+  "code": [
+   "src/engine/linter/rules/x11-double-counting.js",
+   "src/engine/linter/rules/x12-empirical-bias.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js",
+   "tests/engine/topdown.test.js",
+   "tests/ui/topdown-app.test.js",
+   "tests/ui/topdown.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js`; `tests/engine/topdown.test.js`, `tests/ui/topdown*.test.js` (o'zgarmagan holda o'tadi)",
+  "codeNote": "X11, X12 (dvigatel belgisidan)"
+ },
+ "REQ-LNT-010": {
+  "code": [
+   "src/engine/linter/rules/a01-dominant-source.js",
+   "src/engine/linter/rules/a02-few-observations.js",
+   "src/engine/linter/rules/a03-invalid-nu.js",
+   "src/engine/linter/rules/a04-grubbs-outlier.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`linter.test.js`",
+  "note": "/ ❔ (A4)",
+  "codeNote": "A1, A2, A3, A4"
+ },
+ "REQ-LNT-011": {
+  "code": [
+   "src/engine/linter/rules/w01-gum-warnings.js",
+   "src/engine/linter/rules/w02-module-warnings.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter.test.js` (har bir ogohlantirish — bitta topilma)",
+  "codeNote": "W1, W2"
+ },
+ "REQ-LNT-012": {
+  "code": [
+   "src/engine/linter/index.js::lint"
+  ],
+  "tests": [
+   "tests/engine/linter-fixtures.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`linter-fixtures.test.js` (topilmalar ro'yxati qayd etilgan — faqat info)",
+  "codeNote": "`lint`"
+ },
+ "REQ-LNT-013": {
+  "code": [
+   "src/engine/evaluate.js::evaluate",
+   "src/engine/evaluate.js::modelKind",
+   "src/engine/evaluate.js::deviation",
+   "src/engine/conformity.js::conformity",
+   "src/engine/linter/rules/m01-model-kind.js"
+  ],
+  "tests": [
+   "tests/engine/linter.test.js",
+   "tests/engine/api.test.js",
+   "tests/ui/findings.test.js",
+   "tests/storage/acceptance.test.js",
+   "tests/storage/quality.test.js",
+   "tests/storage/registry.test.js",
+   "tests/storage/storage.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`linter.test.js`; `api.test.js`; `tests/ui/findings.test.js`; migratsiya — `tests/storage/*.test.js`",
+  "note": "(loyiha qoidasi) JCGM 106:2012 P05b dan repoda; model turi qoidasi — loyiha qarori (R-07).",
+  "codeNote": "`evaluate` (`modelKind`, `deviation`), `conformity`, M1"
+ },
+ "REQ-LNT-014": {
+  "code": [
+   "src/storage/acceptance.js",
+   "src/engine/linter/index.js::withAcceptances",
+   "src/engine/linter/index.js::reportStatus"
+  ],
+  "tests": [
+   "tests/storage/acceptance.test.js",
+   "tests/engine/linter.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/storage/acceptance.test.js`; `linter.test.js`",
+  "codeNote": "`src/storage/acceptance.js`; `withAcceptances`, `reportStatus`"
+ },
+ "REQ-LNT-015": {
+  "code": [
+   "src/report/findings.js",
+   "src/js/report.js"
+  ],
+  "tests": [
+   "tests/ui/findings.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/findings.test.js` (jsdom); brauzerda (Chromium) boshidan oxirigacha ko'rildi",
+  "codeNote": "`src/report/findings.js`; `src/js/report.js`"
+ },
+ "REQ-LNT-016": {
+  "code": [
+   "src/js/i18n-linter.js",
+   "src/js/i18n-admin.js"
+  ],
+  "tests": [
+   "tests/i18n.test.js",
+   "tests/tools/hardcoded-text.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/i18n.test.js` (skaner: `tests/tools/hardcoded-text.js`)",
+  "codeNote": "`i18n-linter.js`, `i18n-admin.js`"
+ },
+ "REQ-LNT-017": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "55 misolning natija JSON'i 2.3.0 bilan bayt darajasida bir xil (yangi maydonlardan tashqari); 9 Excel nuqtasi, 10-test",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-RIO-001": {
+  "code": [
+   "src/engine/decision.js::conformanceProbability"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/decision.test.js` (sahifa havolasi bilan)",
+  "codeNote": "`src/engine/decision.js::conformanceProbability`"
+ },
+ "REQ-RIO-002": {
+  "code": [
+   "src/engine/decision.js::decide"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`decision.test.js`",
+  "codeNote": "`decide`"
+ },
+ "REQ-RIO-003": {
+  "code": [
+   "src/engine/decision.js::decide",
+   "src/engine/decision.js::maxFalseAccept"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`decision.test.js`",
+  "codeNote": "`decide` (`maxFalseAccept`)"
+ },
+ "REQ-RIO-004": {
+  "code": [
+   "src/engine/decision.js::decide",
+   "src/engine/decision.js::statement",
+   "src/engine/decision.js::verdict"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`decision.test.js`",
+  "codeNote": "`decide` (`statement`, `verdict`)"
+ },
+ "REQ-RIO-005": {
+  "code": [
+   "src/engine/decision.js::decide",
+   "src/engine/decision.js::tur"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`decision.test.js`",
+  "note": "(ta'rif — loyiha qarori, R-22)",
+  "codeNote": "`decide` (`tur`)"
+ },
+ "REQ-RIO-006": {
+  "code": [
+   "src/engine/decision.js::decide",
+   "src/engine/decision.js::decisionInput"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`decision.test.js`",
+  "codeNote": "`decide`, `decisionInput`"
+ },
+ "REQ-RIO-007": {
+  "code": [
+   "src/engine/decision.js::decisionInput",
+   "src/engine/linter/rules/d01-decision-rule.js"
+  ],
+  "tests": [
+   "tests/engine/decision.test.js",
+   "tests/engine/linter.test.js",
+   "tests/report/forms.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`decision.test.js`; `linter.test.js`; `tests/report/forms.test.js`",
+  "codeNote": "`decisionInput` (`pending`), D1"
+ },
+ "REQ-RIO-008": {
+  "code": [
+   "src/report/summary.js::summaryRows",
+   "src/report/forms.js::buildReport"
+  ],
+  "tests": [
+   "tests/report/forms.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/report/forms.test.js`",
+  "codeNote": "`src/report/summary.js::summaryRows`, `forms.js::buildReport`"
+ },
+ "REQ-RIO-009": {
+  "code": [
+   "src/report/forms.js",
+   "src/report/requisites.js::missingRequisites"
+  ],
+  "tests": [
+   "tests/report/forms.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`forms.test.js`",
+  "note": "(rekvizitlar ro'yxati unverified)",
+  "codeNote": "`forms.js`, `requisites.js::missingRequisites`"
+ },
+ "REQ-RIO-010": {
+  "code": [
+   "src/report/normative.js"
+  ],
+  "tests": [
+   "tests/report/forms.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`forms.test.js`",
+  "note": "(GOST 34100.3 — qo'shilmagan, R-22)",
+  "codeNote": "`normative.js`"
+ },
+ "REQ-RIO-011": {
+  "code": [
+   "src/storage/canonical.js::canonicalizeJcs",
+   "src/storage/canonical.js::jcsHash"
+  ],
+  "tests": [
+   "tests/io/calc-json.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/io/calc-json.test.js`",
+  "codeNote": "`src/storage/canonical.js::canonicalizeJcs`, `jcsHash`"
+ },
+ "REQ-RIO-012": {
+  "code": [
+   "src/io/calc-json.js",
+   "src/io/calc-json.js::buildCalcDoc",
+   "src/io/calc-json.js::parseCalcDoc",
+   "src/io/calc-json.js::reproduce"
+  ],
+  "tests": [
+   "tests/io/calc-json.test.js",
+   "tests/ui/io.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`calc-json.test.js`; `tests/ui/io.test.js`",
+  "codeNote": "`src/io/calc-json.js` (`buildCalcDoc`, `parseCalcDoc`, `reproduce`)"
+ },
+ "REQ-RIO-013": {
+  "code": [
+   "src/report/footer.js"
+  ],
+  "tests": [
+   "tests/report/forms.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`forms.test.js`; brauzerda (Chromium) ko'rildi",
+  "codeNote": "`footer.js`"
+ },
+ "REQ-RIO-014": {
+  "code": [
+   "src/io/import.js",
+   "src/io/csv.js",
+   "src/io/table-text.js",
+   "src/ui/io/app.js"
+  ],
+  "tests": [
+   "tests/io/import.test.js",
+   "tests/io/table-text.test.js",
+   "tests/ui/io.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/io/import.test.js`, `table-text.test.js`, `tests/ui/io.test.js`",
+  "codeNote": "`src/io/import.js`, `csv.js`, `table-text.js`; `src/ui/io/app.js`"
+ },
+ "REQ-RIO-015": {
+  "code": [
+   "src/io/export-table.js",
+   "src/io/xlsx-write.js",
+   "src/io/csv.js"
+  ],
+  "tests": [
+   "tests/io/export.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/io/export.test.js`",
+  "codeNote": "`export-table.js`, `xlsx-write.js`, `csv.js`"
+ },
+ "REQ-RIO-016": {
+  "code": [
+   "vendor/",
+   "src/io/vendor.js"
+  ],
+  "tests": [
+   "tests/security/vendor.test.js",
+   "tests/io/import.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/security/vendor.test.js`; `import.test.js`",
+  "codeNote": "`vendor/`, `src/io/vendor.js`"
+ },
+ "REQ-RIO-017": {
+  "code": [
+   "src/ui/report/app.js",
+   "src/report/requisites.js::splitRequisites"
+  ],
+  "tests": [
+   "tests/report/forms.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`forms.test.js`; brauzerda saqlash joylari tekshirildi",
+  "codeNote": "`src/ui/report/app.js`, `requisites.js::splitRequisites`"
+ },
+ "REQ-RIO-018": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "52 misolning natija JSON'i 2.4.0 bilan bir xil (`engineVersion`, `decision`, D1, `ref` dan tashqari); 9 Excel nuqtasi, 10-test",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-TPL-001": {
+  "code": [
+   "schemas/methodology.schema.json",
+   "src/templates/validator.js"
+  ],
+  "tests": [
+   "tests/templates/workflow.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/workflow.test.js`, `schema` tekshiruvi barcha 35 shablonda",
+  "codeNote": "`schemas/methodology.schema.json`, `src/templates/validator.js`"
+ },
+ "REQ-TPL-002": {
+  "code": [
+   "src/templates/interpreter.js"
+  ],
+  "tests": [
+   "tests/templates/builtin.test.js",
+   "tests/templates/correlation.test.js",
+   "tests/templates/guide-example.test.js",
+   "tests/templates/i18n-labels.test.js",
+   "tests/templates/implicit.test.js",
+   "tests/templates/outputs-editor.test.js",
+   "tests/templates/regression.test.js",
+   "tests/templates/topdown.test.js",
+   "tests/templates/validation-draft.test.js",
+   "tests/templates/view.test.js",
+   "tests/templates/wave1.test.js",
+   "tests/templates/workflow.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/*.test.js`",
+  "codeNote": "`src/templates/interpreter.js`"
+ },
+ "REQ-TPL-003": {
+  "code": [
+   "templates/builtin/"
+  ],
+  "tests": [
+   "tests/templates/builtin.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/builtin.test.js` (snapshot `snapshots/legacy-p03.json` + jonli P03 holati)",
+  "codeNote": "`templates/builtin/legacy-*.json`"
+ },
+ "REQ-TPL-004": {
+  "code": [
+   "templates/builtin/legacy-density.json",
+   "templates/builtin/legacy-gas_analyzer.json",
+   "templates/builtin/legacy-thermometer.json"
+  ],
+  "tests": [
+   "tests/templates/builtin.test.js",
+   "case:excel-density",
+   "case:excel-gas-p1",
+   "case:excel-gas-p2-mc-ndig1",
+   "case:excel-gas-p2-mc",
+   "case:excel-gas-p2",
+   "case:excel-gas-p3",
+   "case:excel-term-p1",
+   "case:excel-term-p2",
+   "case:excel-term-p3",
+   "case:excel-term-p4",
+   "case:excel-term-p5"
+  ],
+  "status": "verified-discrepancy",
+  "discrepancies": [
+   "D-03"
+  ],
+  "evidence": "`builtin.test.js` ← `tests/cases/excel/*.json` (katak havolalari)",
+  "note": "/ ⚠️ D-03 (term p2–p4 ν_eff, avvalgidek)",
+  "codeNote": "`legacy-density`, `legacy-gas_analyzer`, `legacy-thermometer`"
+ },
+ "REQ-TPL-005": {
+  "code": [
+   "src/templates/interpreter.js::prepareState"
+  ],
+  "tests": [
+   "tests/templates/workflow.test.js",
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`workflow.test.js`, `wave1.test.js` (analitik)",
+  "note": "(sintetik)",
+  "codeNote": "`interpreter.js::prepareState`"
+ },
+ "REQ-TPL-006": {
+  "code": [
+   "src/templates/interpreter.js::prepareState"
+  ],
+  "tests": [
+   "tests/templates/correlation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/correlation.test.js` — qo'lda hisob w = (m − m₁)/m₁, 1e-12",
+  "note": "(qo'lda hisob; manba misoli yo'q)",
+  "codeNote": "`interpreter.js::prepareState` (`share`)"
+ },
+ "REQ-TPL-007": {
+  "code": [
+   "src/templates/interpreter.js::evaluateState"
+  ],
+  "tests": [
+   "tests/templates/correlation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`correlation.test.js` (ayirma → r = 0, yig'indi va T-07 → r = 1, hisobot matni 3 tilda)",
+  "note": "(qo'lda hisob)",
+  "codeNote": "`interpreter.js::evaluateState`"
+ },
+ "REQ-TPL-008": {
+  "code": [
+   "src/templates/interpreter.js::prepareState"
+  ],
+  "tests": [
+   "tests/templates/correlation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`correlation.test.js`",
+  "codeNote": "`prepareState` (`split_exceeds`)"
+ },
+ "REQ-TPL-009": {
+  "code": [
+   "src/templates/interpreter.js::migrateTemplate",
+   "src/templates/interpreter.js::upgradeState"
+  ],
+  "tests": [
+   "tests/templates/correlation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`correlation.test.js`",
+  "codeNote": "`migrateTemplate`, `upgradeState`"
+ },
+ "REQ-TPL-010": {
+  "code": [
+   "src/templates/interpreter.js"
+  ],
+  "tests": [
+   "tests/templates/workflow.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`workflow.test.js`",
+  "codeNote": "`interpreter.js::transition/applyEdit/newVersion`"
+ },
+ "REQ-TPL-011": {
+  "code": [
+   "src/storage/"
+  ],
+  "tests": [
+   "tests/storage/storage.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/storage/storage.test.js`",
+  "codeNote": "`src/storage/*`"
+ },
+ "REQ-TPL-012": {
+  "code": [
+   "docs/templates/examples/LAB-EXAMPLE-01.json"
+  ],
+  "tests": [
+   "tests/templates/guide-example.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/guide-example.test.js`",
+  "codeNote": "`docs/templates/examples/LAB-EXAMPLE-01.json`"
+ },
+ "REQ-TPW-001": {
+  "code": [
+   "templates/builtin/T-01.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`σ = F / (pi * d0^2 / 4)` (variantlar: round, rect)"
+ },
+ "REQ-TPW-002": {
+  "code": [
+   "templates/builtin/T-02.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`δ = (lk - l0) / l0 * 100`"
+ },
+ "REQ-TPW-003": {
+  "code": [
+   "templates/builtin/T-03.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`R = alpha * F / (a * b)`"
+ },
+ "REQ-TPW-004": {
+  "code": [
+   "templates/builtin/T-04.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`OK = h0 - h1` (variantlar: slump, density)"
+ },
+ "REQ-TPW-005": {
+  "code": [
+   "templates/builtin/T-05.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`ρ = (m - m1) / V` (variantlar: density, mobility)"
+ },
+ "REQ-TPW-006": {
+  "code": [
+   "templates/builtin/T-06.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`a_i = m_i / m * 100`"
+ },
+ "REQ-TPW-007": {
+  "code": [
+   "templates/builtin/T-07.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`Mk = ((m25) + (m25 + m125) + (m25 + m125 + m063) + (m25 + m125 + m063 + m0315) + (m25 + m125 + m063 + m0315 + m016)) / (100 * m) * 100` (variantlar: masses, residues)"
+ },
+ "REQ-TPW-008": {
+  "code": [
+   "templates/builtin/T-08.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`X = (m - m1) / m * 100` (variantlar: crushing, dust_clay)"
+ },
+ "REQ-TPW-009": {
+  "code": [
+   "templates/builtin/T-09.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`ρ_n = (m1 - m) / V`"
+ },
+ "REQ-TPW-010": {
+  "code": [
+   "templates/builtin/T-10.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`ρ = m / (a * b * c) * 1000`"
+ },
+ "REQ-TPW-011": {
+  "code": [
+   "templates/builtin/T-11.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`W = (m1 - m) / m * 100`"
+ },
+ "REQ-TPW-012": {
+  "code": [
+   "templates/builtin/T-12.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`W = (m1 - m0) / (m0 - m) * 100`"
+ },
+ "REQ-TPW-013": {
+  "code": [
+   "templates/builtin/T-13.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`R = F / A` (variantlar: compression, bending)"
+ },
+ "REQ-TPW-014": {
+  "code": [
+   "templates/builtin/T-14.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`Δ = x - x_loyiha`"
+ },
+ "REQ-TPW-015": {
+  "code": [
+   "templates/builtin/T-15.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`σ = F / (b * h)` (variantlar: stress, strain)"
+ },
+ "REQ-TPW-016": {
+  "code": [
+   "templates/builtin/T-16.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`H = H_oq + Δ_et`"
+ },
+ "REQ-TPW-017": {
+  "code": [
+   "templates/builtin/T-17.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`X = (V - V0) * c * K * f / m` (variantlar: gost_3624, gost_5898, gost_5670, gost_26878, gost_4245, gost_22567_6)"
+ },
+ "REQ-TPW-018": {
+  "code": [
+   "templates/builtin/T-18.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`X = (m1 - m2) / (m1 - m0) * 100`"
+ },
+ "REQ-TPW-019": {
+  "code": [
+   "templates/builtin/T-19.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`X = (m2 - m0) / (m1 - m0) * 100`"
+ },
+ "REQ-TPW-020": {
+  "code": [
+   "templates/builtin/T-20.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`pH = pH_oq + δ_bufer + δ_T + δ_drift`"
+ },
+ "REQ-TPW-021": {
+  "code": [
+   "templates/builtin/T-21.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`X = (m2 - m1) / m * 100`"
+ },
+ "REQ-TPW-022": {
+  "code": [
+   "templates/builtin/T-22.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`R_iz = R` (variantlar: insulation, leakage)"
+ },
+ "REQ-TPW-023": {
+  "code": [
+   "templates/builtin/T-23.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT",
+  "codeNote": "`U_sin = U_oq`"
+ },
+ "REQ-TPW-024": {
+  "code": [
+   "templates/builtin/T-24.json"
+  ],
+  "tests": [
+   "tests/templates/wave1.test.js"
+  ],
+  "status": "pending",
+  "evidence": "`wave1.test.js` (struktura + sintetik 1e-9)",
+  "note": "pending — DRAFT; ⚠ Q1",
+  "codeNote": "`Δt = (R2 - R1) / R1 * (k + t1) - (t2 - t1)` (variantlar: copper, aluminium, thermocouple)"
+ },
+ "REQ-LAB-001": {
+  "code": [
+   "src/engine/lab/cmc.js::cmcAt",
+   "src/engine/lab/cmc.js::findCmc"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/lab.test.js`",
+  "note": "verified",
+  "codeNote": "`cmcAt`, `findCmc`"
+ },
+ "REQ-LAB-002": {
+  "code": [
+   "src/engine/lab/cmc.js::cmcAt",
+   "src/engine/lab/cmc.js::cmcRowError"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "note": "(chegara qoidalari — loyiha qarori, R-25)",
+  "codeNote": "`cmcAt`, `cmcRowError`"
+ },
+ "REQ-LAB-003": {
+  "code": [
+   "src/engine/evaluate.js::evaluate",
+   "src/engine/linter/rules/x08-zero-uncertainty.js"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "note": "verified",
+  "codeNote": "`evaluate` (`settings.cmcRows`), X8"
+ },
+ "REQ-LAB-004": {
+  "code": [
+   "src/engine/linter/rules/l02-cmc-scope.js"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "note": "(daraja — loyiha qarori)",
+  "codeNote": "linter L2"
+ },
+ "REQ-LAB-005": {
+  "code": [
+   "src/engine/lab/registry.js::hasTraceabilityEvidence",
+   "src/engine/linter/rules/l01-standard-validity.js"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "note": "verified (daraja — loyiha qarori)",
+  "codeNote": "`hasTraceabilityEvidence`, linter L1"
+ },
+ "REQ-LAB-006": {
+  "code": [
+   "src/engine/lab/registry.js::validityStatus",
+   "src/engine/linter/rules/l01-standard-validity.js"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`lab.test.js`, `tests/ui/lab.test.js`",
+  "note": "(ISO/IEC 17025 §6.4, §6.5 — ❔ unverified; chegara — loyiha qarori)",
+  "codeNote": "`validityStatus`, linter L1"
+ },
+ "REQ-LAB-007": {
+  "code": [
+   "src/engine/lab/registry.js::sourceFromStandard"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js",
+   "tests/storage/registry.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`, `tests/storage/registry.test.js`",
+  "codeNote": "`sourceFromStandard`"
+ },
+ "REQ-LAB-008": {
+  "code": [
+   "src/engine/lab/registry.js::pointAt"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "note": "(U qoidasi — loyiha qarori)",
+  "codeNote": "`pointAt`"
+ },
+ "REQ-LAB-009": {
+  "code": [
+   "src/engine/lab/registry.js::sourceFromStandard"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "codeNote": "`sourceFromStandard`"
+ },
+ "REQ-LAB-010": {
+  "code": [
+   "src/engine/lab/drift.js::driftProposal",
+   "src/engine/lab/drift.js::driftComponent"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`, `tests/ui/lab.test.js`",
+  "note": "(qo'lda hisob; standart taqsimot — loyiha qarori)",
+  "codeNote": "`driftProposal`, `driftComponent`"
+ },
+ "REQ-LAB-011": {
+  "code": [
+   "src/engine/lab/interval.js::intervalRecommendation"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`",
+  "note": "qo'lda hisob; formula — loyiha qarori (hujjat formula bermaydi)",
+  "codeNote": "`intervalRecommendation`"
+ },
+ "REQ-LAB-012": {
+  "code": [
+   "src/engine/lab/qc.js::SHEWHART_CONSTANTS"
+  ],
+  "tests": [
+   "tests/engine/lab-qc.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/lab-qc.test.js`",
+  "note": "A₂, D₃, D₄ — NIST e-Handbook §6.3.2.1 (2.8.1 da D₄(3), D₄(5) NIST ga moslandi); d₂ (n ≥ 3), d₃ — ta'rifdan mustaqil hisob",
+  "codeNote": "`SHEWHART_CONSTANTS`"
+ },
+ "REQ-LAB-013": {
+  "code": [
+   "src/engine/lab/qc.js::individualsChart",
+   "src/engine/lab/qc.js::xbarRChart"
+  ],
+  "tests": [
+   "tests/engine/lab-qc.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab-qc.test.js`",
+  "note": "I–MR misoli — NIST e-Handbook §6.3.2.2 (2.8.1)",
+  "codeNote": "`individualsChart`, `xbarRChart`"
+ },
+ "REQ-LAB-014": {
+  "code": [
+   "src/engine/lab/westgard.js::rule13s",
+   "src/engine/lab/westgard.js::rule10x",
+   "src/engine/lab/westgard.js::westgard"
+  ],
+  "tests": [
+   "tests/engine/lab-qc.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab-qc.test.js` (24 holat)",
+  "note": "Westgard 1981, 1–3-jadval testlari (2.8.1); nashr PDF i repoda yo'q — faqat qaydnoma `docs/references/westgard-1981-NOTES.md`",
+  "codeNote": "`rule13s` … `rule10x`, `westgard`"
+ },
+ "REQ-LAB-015": {
+  "code": [
+   "src/engine/lab/qc.js::sRwFromChart"
+  ],
+  "tests": [
+   "tests/engine/lab-qc.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab-qc.test.js`, `tests/ui/lab.test.js`",
+  "note": "(top-down byudjetidagi qiymat bilan aynan)",
+  "codeNote": "`sRwFromChart`"
+ },
+ "REQ-LAB-016": {
+  "code": [
+   "src/storage/registry.js::saveRegistry",
+   "src/storage/registry.js::savedBy",
+   "src/engine/linter/rules/l01-standard-validity.js",
+   "src/engine/linter/rules/l02-cmc-scope.js"
+  ],
+  "tests": [
+   "tests/engine/lab.test.js",
+   "tests/storage/registry.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab.test.js`, `tests/storage/registry.test.js`, `tests/ui/lab.test.js`",
+  "codeNote": "`saveRegistry` (`savedBy`), linter L1 / L2"
+ },
+ "REQ-LAB-017": {
+  "code": [
+   "src/engine/lab/westgard.js::westgard"
+  ],
+  "tests": [
+   "tests/engine/lab-qc.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`lab-qc.test.js`, `tests/ui/lab.test.js`",
+  "codeNote": "`westgard` (`approximation`)"
+ },
+ "REQ-LAB-018": {
+  "code": [
+   "src/storage/registry.js::saveRegistry",
+   "src/storage/registry.js::removeRegistry"
+  ],
+  "tests": [
+   "tests/storage/registry.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/storage/registry.test.js`",
+  "codeNote": "`saveRegistry`, `removeRegistry`"
+ },
+ "REQ-LAB-019": {
+  "code": [
+   "src/storage/migrate.js::migrateSchema"
+  ],
+  "tests": [
+   "tests/storage/registry.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/storage/registry.test.js`",
+  "codeNote": "`migrateSchema`"
+ },
+ "REQ-LAB-020": {
+  "code": [
+   "src/io/registry.js::standardsFromGrid",
+   "src/io/registry.js::buildRegistryDoc",
+   "src/io/registry.js::parseRegistryDoc"
+  ],
+  "tests": [
+   "tests/io/registry.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/io/registry.test.js`",
+  "codeNote": "`standardsFromGrid`, `buildRegistryDoc`, `parseRegistryDoc`"
+ },
+ "REQ-LAB-021": {
+  "code": [
+   "src/report/lab.js"
+  ],
+  "tests": [
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/lab.test.js`",
+  "note": "(jsdom)",
+  "codeNote": "`src/report/lab.js`"
+ },
+ "REQ-LAB-022": {
+  "code": [
+   "src/ui/lab/"
+  ],
+  "tests": [
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/lab.test.js` (15 test)",
+  "note": "jsdom + Chromium da mehmon yo'li bilan qo'lda (2026-11-18): konsolda xato yo'q",
+  "codeNote": "`src/ui/lab/`"
+ },
+ "REQ-LAB-023": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "83 misol 2.7.0 bilan bit darajasida bir xil (nazorat skripti); 9 Excel nuqtasi",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-PTV-001": {
+  "code": [
+   "src/engine/validation/grubbs.js::grubbsTest",
+   "src/engine/validation/grubbs.js::grubbsCriticalValue"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-22"
+  ],
+  "evidence": "`tests/engine/validation.test.js`",
+  "note": "verified (D-22: manba G ni kesgan — 2,468765)",
+  "codeNote": "`grubbsTest`, `grubbsCriticalValue`"
+ },
+ "REQ-PTV-002": {
+  "code": [
+   "src/engine/validation/index.js::evaluateValidation",
+   "src/storage/quality.js::excludeValue"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js",
+   "tests/storage/quality.test.js",
+   "tests/ui/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`, `tests/storage/quality.test.js`, `tests/ui/quality.test.js`",
+  "codeNote": "`evaluateValidation` (`excluded`), `excludeValue`"
+ },
+ "REQ-PTV-003": {
+  "code": [
+   "src/engine/validation/anova.js::oneWayAnova"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "verified",
+  "codeNote": "`oneWayAnova`"
+ },
+ "REQ-PTV-004": {
+  "code": [
+   "src/engine/validation/anova.js::oneWayAnova",
+   "src/engine/validation/anova.js::varianceComponent",
+   "src/engine/validation/anova.js::nonNegative"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "verified (s_b = 0 + info — loyiha qarori R-26 #2)",
+  "codeNote": "`oneWayAnova`, `varianceComponent`, `nonNegative`"
+ },
+ "REQ-PTV-005": {
+  "code": [
+   "src/engine/stats/anova.js::pooledSd"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "verified",
+  "codeNote": "`pooledSd`"
+ },
+ "REQ-PTV-006": {
+  "code": [
+   "src/engine/validation/anova.js::oneWayAnova"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`validation.test.js`",
+  "note": "unverified (formula manbasi repoda yo'q)",
+  "codeNote": "`oneWayAnova`"
+ },
+ "REQ-PTV-007": {
+  "code": [
+   "src/engine/validation/tests.js::twoSampleT"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "verified (yig'ma kirish yaxlitlanishi toleransda)",
+  "codeNote": "`twoSampleT`"
+ },
+ "REQ-PTV-008": {
+  "code": [
+   "src/engine/validation/tests.js::twoSampleT"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "formula (sonli misol manbada yo'q)",
+  "codeNote": "`twoSampleT`"
+ },
+ "REQ-PTV-009": {
+  "code": [
+   "src/engine/validation/tests.js::fTest",
+   "src/engine/validation/tests.js::fCritical"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "verified",
+  "codeNote": "`fTest`, `fCritical`"
+ },
+ "REQ-PTV-010": {
+  "code": [
+   "src/engine/validation/cochran.js::cochranTest",
+   "src/engine/validation/cochran.js::cochranCritical"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`validation.test.js` (Monte-Karlo: P(C > C_krit) ≈ 0,05 — `todo`)",
+  "note": "unverified (ISO 5725-2)",
+  "codeNote": "`cochranTest`, `cochranCritical`"
+ },
+ "REQ-PTV-011": {
+  "code": [
+   "src/engine/topdown/recovery.js::evaluateRecovery"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js` (P09 natijasi bilan aynan)",
+  "note": "(QUAM A4 — P09 da verified)",
+  "codeNote": "`evaluateRecovery`"
+ },
+ "REQ-PTV-012": {
+  "code": [
+   "src/engine/regression/index.js::evaluateRegression"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`",
+  "note": "(P08)",
+  "codeNote": "`evaluateRegression`"
+ },
+ "REQ-PTV-013": {
+  "code": [
+   "src/engine/validation/lod.js::lodFromBlank",
+   "src/engine/validation/lod.js::lodFromCalibration"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`validation.test.js` (manba misoli — `todo`)",
+  "note": "unverified (Eurachem FfP 2014 / ICH Q2)",
+  "codeNote": "`lodFromBlank`, `lodFromCalibration`"
+ },
+ "REQ-PTV-014": {
+  "code": [
+   "src/engine/pt/index.js::ptScores",
+   "src/engine/pt/index.js::evaluatePT"
+  ],
+  "tests": [
+   "tests/engine/pt.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`tests/engine/pt.test.js`",
+  "note": "mustaqil qo'lda hisob; formula — ❔ ISO 13528 unverified",
+  "codeNote": "`ptScores`, `evaluatePT`"
+ },
+ "REQ-PTV-015": {
+  "code": [
+   "src/engine/pt/index.js::PT_LIMITS",
+   "src/engine/pt/index.js::verdictOf",
+   "src/report/pt-chart.js::scoreText"
+  ],
+  "tests": [
+   "tests/engine/pt.test.js",
+   "tests/ui/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`pt.test.js`, `tests/ui/quality.test.js`",
+  "note": "egasi tasdiqladi (R-26 #1); manba bilan ❔ (ISO 13528)",
+  "codeNote": "`PT_LIMITS`, `verdictOf`, `scoreText`"
+ },
+ "REQ-PTV-016": {
+  "code": [
+   "src/engine/pt/index.js::evaluatePT"
+  ],
+  "tests": [
+   "tests/engine/pt.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`pt.test.js`",
+  "note": "ISO 13528 unverified",
+  "codeNote": "`evaluatePT`"
+ },
+ "REQ-PTV-017": {
+  "code": [
+   "src/engine/pt/index.js::ptToTopDownBias",
+   "src/engine/topdown/bias.js::evaluateBias"
+  ],
+  "tests": [
+   "tests/engine/pt.test.js",
+   "tests/ui/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`pt.test.js`, `tests/ui/quality.test.js`",
+  "note": "(P09 da verified)",
+  "codeNote": "`ptToTopDownBias`, `evaluateBias`"
+ },
+ "REQ-PTV-018": {
+  "code": [
+   "src/engine/validation/draft.js::topDownDraft",
+   "src/engine/validation/draft.js::checkTemplate"
+  ],
+  "tests": [
+   "tests/templates/validation-draft.test.js",
+   "tests/ui/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/templates/validation-draft.test.js`, `tests/ui/quality.test.js`",
+  "codeNote": "`topDownDraft`, `checkTemplate`"
+ },
+ "REQ-PTV-019": {
+  "code": [
+   "src/storage/quality.js"
+  ],
+  "tests": [
+   "tests/storage/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/storage/quality.test.js`",
+  "codeNote": "`src/storage/quality.js`"
+ },
+ "REQ-PTV-020": {
+  "code": [
+   "src/io/quality.js"
+  ],
+  "tests": [
+   "tests/io/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/io/quality.test.js`",
+  "codeNote": "`src/io/quality.js`"
+ },
+ "REQ-PTV-021": {
+  "code": [
+   "src/report/pt.js",
+   "src/report/validation.js"
+  ],
+  "tests": [
+   "tests/ui/quality.test.js",
+   "tests/i18n.test.js",
+   "tests/security/auth-core.test.js",
+   "tests/security/engine.sha256.json",
+   "tests/security/escape.test.js",
+   "tests/security/firestore-rules.test.js",
+   "tests/security/session.test.js",
+   "tests/security/static.test.js",
+   "tests/security/vendor.test.js",
+   "tests/security/xss.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/quality.test.js`, `tests/i18n.test.js`, `tests/security/*`",
+  "note": "jsdom; real brauzerda ko'rilmagan",
+  "codeNote": "`src/ui/lab/quality*.js`, `src/report/pt.js`, `validation.js`"
+ },
+ "REQ-PTV-022": {
+  "code": [
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/excel.test.js",
+   "tests/run-cases.test.js"
+  ],
+  "status": "verified",
+  "evidence": "91 misol 2.9.0 bilan bit darajasida bir xil (nazorat skripti); 9 Excel nuqtasi, 10-test",
+  "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
+  "codeNote": "`evaluate`"
+ },
+ "REQ-PTV-023": {
+  "code": [
+   "src/engine/validation/anova.js::oneWayAnova"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js",
+   "tests/templates/validation-draft.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`, `tests/templates/validation-draft.test.js`",
+  "note": "formula (nazorat qiymati ≈ 3,90 — egasi bergan); loyiha qarori R-26 #7",
+  "codeNote": "`oneWayAnova` (`nu.sI`)"
+ },
+ "REQ-PTV-024": {
+  "code": [
+   "src/engine/linter/rules/l03-pt-last-round.js"
+  ],
+  "tests": [
+   "tests/engine/linter-l3.test.js",
+   "tests/ui/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/linter-l3.test.js`, `tests/ui/quality.test.js`",
+  "note": "daraja — egasi qarori R-26 #6",
+  "codeNote": "`l03-pt-last-round.js`, `ptLinkOf`"
+ },
+ "REQ-SRC-001": {
+  "code": [],
+  "tests": [
+   "case:ea4-02-s2",
+   "case:ea4-02-s3"
+  ],
+  "status": "verified",
+  "evidence": "`ea4-02-s2`, `ea4-02-s3`"
+ },
+ "REQ-SRC-002": {
+  "code": [],
+  "tests": [],
+  "status": "pending",
+  "note": "keyingi nomzodlar (P05/P08)"
+ },
+ "REQ-SRC-003": {
+  "code": [],
+  "tests": [
+   "case:quam-a1"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-06"
+  ],
+  "evidence": "`quam-a1`",
+  "note": "(D-06)"
+ },
+ "REQ-SRC-004": {
+  "code": [],
+  "tests": [
+   "case:quam-a5-calibration"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a5-calibration`",
+  "note": "(P08, §7)"
+ },
+ "REQ-SRC-005": {
+  "code": [],
+  "tests": [
+   "case:quam-a4-recovery"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-13"
+  ],
+  "evidence": "`quam-a4-recovery`",
+  "note": "(P09, §8; t_crit — D-13)"
+ },
+ "REQ-SRC-006": {
+  "code": [],
+  "tests": [
+   "case:quam-a6-empirical"
+  ],
+  "status": "verified",
+  "evidence": "`quam-a6-empirical`",
+  "note": "(P09, §8)"
+ },
+ "REQ-SRC-007": {
+  "code": [],
+  "tests": [],
+  "status": "pending",
+  "note": "keyingi nomzodlar"
+ },
+ "REQ-SRC-008": {
+  "code": [],
+  "tests": [
+   "case:nordtest-tr537-nh4n"
+  ],
+  "status": "verified",
+  "evidence": "`nordtest-tr537-nh4n`",
+  "note": "(P09, §8)"
+ },
+ "REQ-SRC-009": {
+  "code": [],
+  "tests": [
+   "case:nordtest-tr537-nh4n-dup-low",
+   "case:nordtest-tr537-nh4n-dup-high",
+   "case:nordtest-tr537-oxygen-dup",
+   "case:nordtest-tr537-bod-crm",
+   "case:nordtest-tr537-bod-pt",
+   "case:nordtest-tr537-recovery"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-12"
+  ],
+  "evidence": "`nordtest-tr537-nh4n-dup-low`, `-dup-high`, `nordtest-tr537-oxygen-dup`, `-bod-crm`, `-bod-pt`, `-recovery`",
+  "note": "(P09, §8; D-12)"
+ },
+ "REQ-SRC-010": {
+  "code": [],
+  "tests": [
+   "tests/engine/topdown.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`tests/engine/topdown.test.js` (o'zaro tekshiruv)",
+  "note": "unverified — ochiq manba misoli yoki laboratoriya Excel'i kerak (egasi qo'shadi)"
+ },
+ "REQ-SRC-011": {
+  "code": [],
+  "tests": [
+   "case:ufs-a1-nitrate-classical",
+   "case:ufs-a1-nitrate-robust",
+   "case:ufs-a2-lead-classical",
+   "case:ufs-a2-lead-robust"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-16"
+  ],
+  "evidence": "`ufs-a1-nitrate-classical`, `-robust`, `ufs-a2-lead-classical`, `-robust`",
+  "note": "(P10, §9; robust — D-16)"
+ },
+ "REQ-SRC-012": {
+  "code": [],
+  "tests": [
+   "case:aqa-e3-emit-opiates",
+   "case:aqa-e3-emit-methadone",
+   "case:aqa-e3-emit-cocaine",
+   "case:aqa-e6-sarscov2"
+  ],
+  "status": "verified",
+  "discrepancies": [
+   "D-15",
+   "D-17"
+  ],
+  "evidence": "`aqa-e3-emit-opiates`, `-methadone`, `-cocaine`, `aqa-e6-sarscov2`",
+  "note": "(P10, §9; D-15, D-17)"
+ },
+ "REQ-SRC-013": {
+  "code": [],
+  "tests": [
+   "tests/engine/special-modes.test.js"
+  ],
+  "status": "unverified",
+  "evidence": "`tests/engine/special-modes.test.js` (analitik)",
+  "note": "BETA / unverified — manba kerak (egasi qo'shadi)"
+ },
+ "REQ-SRC-014": {
+  "code": [],
+  "tests": [
+   "case:nist-um-ratio"
+  ],
+  "status": "unverified",
+  "evidence": "`nist-um-ratio`",
+  "note": "PDF yo'q"
+ },
+ "REQ-SRC-015": {
+  "code": [],
+  "tests": [
+   "case:york-pearson-wtls"
+  ],
+  "status": "unverified",
+  "evidence": "`york-pearson-wtls` (unverified)",
+  "note": "WTLS/GLS/polinom uchun ochiq manba misoli kerak (egasi qo'shadi)"
+ },
+ "REQ-SRC-016": {
+  "code": [],
+  "tests": [],
+  "status": "unverified",
+  "note": "PDF `docs/references/` da yo'q (egasi qo'shadi). JCGM 102, JCGM 106, ILAC P14, ILAC G8 — qo'shilgan (P05b, P07)."
+ },
+ "REQ-INF-001": {
+  "code": [
+   "tests/fixture-refs.test.js"
+  ],
+  "tests": [
+   "tests/fixture-refs.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/cases/**.json` (`ref`), `tests/fixture-refs.test.js` (Excel kataklari, kirish ma'lumotlari va docx iqtiboslari har `npm test` da qayta o'qiladi)"
+ },
+ "REQ-INF-002": {
+  "code": [],
+  "tests": [],
+  "status": "manual",
+  "evidence": "qo'lda tekshirildi (P01): √3 bo'luvchi 1,7320 ga → 15 test yiqildi; rezolyutsiya bo'luvchisi 10⁻⁵ ga → 10; bitta kuzatuv qiymati → 7",
+  "note": "Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda tekshirildi (P01): √3 bo'luvchi 1,7320 ga → 15 test yiqildi; rezolyutsiya bo'luvchisi 10⁻⁵ ga → 10; bitta kuzatuv qiymati → 7"
+ },
+ "REQ-INF-003": {
+  "code": [
+   "tests/i18n.test.js"
+  ],
+  "tests": [
+   "tests/i18n.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/i18n.test.js`"
+ },
+ "REQ-INF-004": {
+  "code": [
+   "tests/presets.test.js"
+  ],
+  "tests": [
+   "tests/presets.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/presets.test.js`"
+ },
+ "REQ-INF-005": {
+  "code": [
+   ".github/workflows/test.yml"
+  ],
+  "tests": [
+   ".github/workflows/test.yml"
+  ],
+  "status": "verified",
+  "evidence": "`.github/workflows/test.yml`",
+  "note": "(push/PR)"
+ },
+ "REQ-VAL-001": {
+  "code": [
+   "scripts/cases-snapshot.js::compare",
+   "tests/crossbrowser/core.js::diffTrees"
+  ],
+  "tests": [
+   "tests/validation/snapshot.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-VAL-002": {
+  "code": [
+   "scripts/rtm.js::checkRtm"
+  ],
+  "tests": [
+   "tests/validation/rtm.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-VAL-003": {
+  "code": [
+   "scripts/validation-report.js::buildReport",
+   "scripts/validation-report.js::renderHtml"
+  ],
+  "tests": [
+   "tests/validation/report.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-VAL-004": {
+  "code": [
+   "scripts/build-site.js::buildSite",
+   "scripts/build-site.js::verifySite",
+   ".github/workflows/deploy.yml"
+  ],
+  "tests": [
+   "tests/build/build-site.test.js"
+  ],
+  "status": "verified",
+  "note": "Brauzerdagi tutun-testi — tests/crossbrowser/site.js (CI `validation` job)"
+ },
+ "REQ-VAL-005": {
+  "code": [
+   "src/ui/build/watcher.js::createBuildWatcher",
+   "src/io/build.js::isOutdated"
+  ],
+  "tests": [
+   "tests/ui/build.test.js",
+   "tests/io/env-build.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-VAL-006": {
+  "code": [
+   "src/io/env.js::describeEnvironment",
+   "src/io/calc-json.js::buildCalcDoc",
+   "src/report/footer.js::footerModel"
+  ],
+  "tests": [
+   "tests/io/env-build.test.js",
+   "tests/io/calc-json.test.js",
+   "tests/report/forms.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-VAL-007": {
+  "code": [
+   "tests/crossbrowser/run.js::compareRun",
+   "tests/crossbrowser/core.js::displayOf"
+  ],
+  "tests": [
+   "tests/validation/crossbrowser.test.js"
+  ],
+  "status": "verified-discrepancy",
+  "note": "Brauzerlardagi o'lchov — CI `validation` job (`npm run test:browsers`), natija validatsiya hisobotida. Shartlanganligi yomon hosila kattaliklar uchun istisnolar ro'yxati (`tests/crossbrowser/exceptions.json`) — egasi tasdig'ini kutadi (R-27 (1)). Safari (macOS / iOS) — qo'lda, PQ da."
+ },
+ "REQ-VAL-008": {
+  "code": [
+   "tests/crosscheck/num/README.md"
+  ],
+  "tests": [
+   "tests/validation/crosscheck.test.js"
+  ],
+  "status": "pending",
+  "note": "Kirish ma'lumotlari tayyor; natijalarni egasi NUM da ishga tushirib beradi (`status: \"owner-run\"`). NUM qo'llanmasi PDF i repoda yo'q (unverified)."
+ },
+ "REQ-VAL-009": {
+  "code": [
+   "scripts/lib/markdown.js::renderMarkdown",
+   "scripts/lib/markdown.js::page"
+  ],
+  "tests": [
+   "tests/build/markdown.test.js",
+   "tests/build/build-site.test.js"
+  ],
+  "status": "verified",
+  "note": "Uch til nusxalarining tuzilmasi bir xilligi — tests/build/markdown.test.js"
+ }
+}
