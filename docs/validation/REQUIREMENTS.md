@@ -362,6 +362,23 @@
 | REQ-PTV-023 | ν(s_I) — Welch–Satterthwaite (JCGM 100 G.4.1): NIST §7.4.3 misolida ν = 3,903; s_b² < 0 → N − k | R-26 #7 |
 | REQ-PTV-024 | Linter L3: oxirgi PT raundi qoniqarsiz → info (GUM, TOP_DOWN); ijobiy va salbiy holatlar | R-26 #6 |
 
+## UIX — Interfeys 2.0 (P16)
+
+| ID | Talab | Kelib chiqishi |
+|---|---|---|
+| REQ-UIX-001 | Dizayn tokenlari yagona joyda (`src/css/tokens.css`); ikkala mavzuda matn va urg'u ranglari kontrasti ≥ 4,5:1; qorong'i fon `#1e2235` (sof qora yo'q) | P16 topshirig'i §1, §9 |
+| REQ-UIX-002 | Shriftlar `vendor/fonts/` da (SIL OFL, SHA-256); Google Fonts ishlatilmaydi; CSP `font-src 'self'`, `style-src` da tashqi manba yo'q | P16 topshirig'i §1, §9 |
+| REQ-UIX-003 | Ilova qobig'i: chap menyu guruhlari, stepper, pastki navigatsiya, buyruq qidiruvi; o'tishlar mavjud yorliqlar orqali; haqiqiy `<button>` / `<a>`, aria-label | P16 topshirig'i §2, §9 |
+| REQ-UIX-004 | Noaniqlik tasmasi: skriptsiz SVG, haqiqiy natijadan (y, u_c, U; MCM intervallari); yorliqlar `rounding.js` qoidalari bilan; U = 0 da chizilmaydi | P16 topshirig'i §3 |
+| REQ-UIX-005 | B tur manbasi varag'i: jonli u dvigatel funksiyalari orqali; klaviatura (Esc, fokus qaytishi); vergulli kasr | P16 topshirig'i §4 |
+| REQ-UIX-006 | Laboratoriya ko'rinishi: QC zonalari, ogohlantirish / rad etish nuqtalari, Westgard holati (darvoza, `suppressed`) — dvigatel natijasidan; etalon kartochkalari holati | P16 topshirig'i §5 |
+| REQ-UIX-007 | Hisobot: A4 ko'rinishi va bosma bitta quruvchidan; pastki qism (ENGINE, build, xesh, QR) har sahifada; jadval sarlavhasi takrorlanadi; eng kichik shrift 12 pt | P16 topshirig'i §6 |
+| REQ-UIX-008 | Vizual laboratoriya: har bir rejim dvigatel funksiyalari orqali (UI da qoida takrorlanmaydi); "o'quv namunasi" belgisi; hech narsa saqlanmaydi va hisobotga chiqmaydi | P16 topshirig'i §7 |
+| REQ-UIX-009 | Harakat: faqat CSS (transform / opacity); `prefers-reduced-motion: reduce` da o'chadi; JS sikli faqat Vizual laboratoriya va MC progressida | P16 topshirig'i §8 |
+| REQ-UIX-010 | Inline uslublar: P16 qismlarida yo'q; qolganlari soni oshmaydi; `validation.html` da `style-src 'self'` | P16 topshirig'i §9 |
+| REQ-UIX-011 | Brauzerda: 390 / 834 / 1440 px, ikkala mavzu — konsol xatosi yo'q, bosiladigan maydon ≥ 44 px, kontrast ≥ 4,5:1, gorizontal surilish yo'q, klaviatura (Ctrl+K, Esc, ko'rinadigan fokus) | P16 topshirig'i §10 |
+| REQ-UIX-012 | Hisob o'zgarmagan: `src/engine/` ga tegilmagan; misollar natijasi bit darajasida bir xil | P16 topshirig'i (maqsad) |
+
 ## SRC — Manba misollari qamrovi
 
 | ID | Talab | Kelib chiqishi |

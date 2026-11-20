@@ -516,3 +516,39 @@ The most important limitations (the full list is in the [known limitations](../v
 - **Not reviewed by hand in a browser:** some printed report forms, the special modes window, and the proficiency testing and validation sections (checked by automated tests only).
 - **Data in the browser only:** if the browser storage is cleared, calculations and registry data that were not exported are lost.
 - **Responsibility:** the program does not replace the metrologist's judgement — the laboratory is responsible for the list of sources, the distributions and the decision rule.
+
+## 14. Interface (2.0)
+
+The interface adapts to phones, tablets and desktops. The calculation methods and results are unchanged — only the appearance is new.
+
+### 14.1. Shell and navigation
+
+- **Top bar:** breadcrumb (section / calculation ID), command search, language (UZ / RU / EN), theme (dark / light), profile menu, "Report".
+- **Command search:** Ctrl+K finds a section, template or action by name; choose with the arrow keys, Enter opens, Esc closes.
+- **Left menu** (wide screens): "Calculation" (GUM, Monte Carlo, multi-output model), "Methods" (regression, top-down, special modes), "Laboratory" (QC charts, standards registry, proficiency tests, validation). On tablets it becomes a narrow icon rail; on phones — a bottom navigation bar and a primary action button.
+- **Steps:** Model → Type A → Type B → Result → Report. A completed step has a green mark, the current one is highlighted.
+- **Session settings** (number of measurements, parameters, presets) are under the "Session" button on the input page.
+
+### 14.2. Results screen
+
+- **Main result card:** y ± U (rounded), k, P, ν_eff and the rule used for it.
+- **Uncertainty ribbon:** the horizontal axis is the deviation from y (in units of U); the curve is the N(y, u_c) density; the amber frame is y ± U. If a Monte Carlo run exists, its coverage intervals (shortest and probabilistically symmetric) are drawn below. No histogram is drawn.
+- **Indicator tiles:** u_c, ν_eff, k, U and the dominant source share (marked when above 50 %).
+- **Budget:** "Table" or "Pareto" (sources in decreasing order of share). The table has a νᵢ column; a small ν (below 10) is shown in amber.
+- **Right panel** (below on narrow screens): check results, calculation settings, comparison with Monte Carlo.
+
+### 14.3. Entering a Type B source
+
+"Edit" on a source card opens a sheet: from the bottom on phones, from the right on wide screens. The distribution is chosen from a row of buttons, and the standard uncertainty is shown immediately while the value is typed. A comma is accepted as the decimal separator. "Select from registry" is also available inside the sheet. Esc or "Done" closes the sheet.
+
+### 14.4. Report view and printing
+
+The "Report" step shows the document on a white A4 page. The form (one of four) is switched with the buttons at the top. "Print" opens the browser print dialog; for "PDF" choose "Save as PDF" in that dialog. In print the table header repeats on every page and the footer (engine version, build, hash, QR) appears on every page.
+
+### 14.5. Visual lab
+
+A teaching tool: live Monte Carlo view, conformity simulator, extreme cases, QC drift, correlation and budget sensitivity. The numbers come from the calculation engine. Every mode carries a "teaching sample" label; results from here are not saved and do not appear in the report.
+
+### 14.6. Accessibility
+
+Everything can be operated from the keyboard, and focus is visible. Clickable elements are at least 44 px tall. When the system setting "reduce motion" is on, animations are switched off. The theme choice is stored in the browser.

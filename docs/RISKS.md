@@ -41,6 +41,7 @@
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: **build identifikatori — yopildi (P13: `build.json` + `?v=<sha>`; egasi Pages manbasini o'tkazadi — `docs/DEPLOY.md`)**; ochiq — ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi | O | P05b, P13 |
 | R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
 | R-28 | AI yordamchi (P14): **amalga oshirildi, egasi qarorlari kiritildi (2026-11-20)**; AI hisoblamaydi, standart holatda o'chiq, tashqariga faqat tuzilma; tasdiq kutadi — MPE filtri, sana ko'rinishlari, almashinuv muddati; qoldiq — hujjatdagi shaxs ismlari, chet el xizmati (yuridik baho egasida), brauzerdagi kalit | O | P14 |
+| R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -495,3 +496,27 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 ### R-16. Ishlash (P)
 - **MC qismi yopildi (P06):** hisob Web Worker'da (`src/ui/mc/`), progress va bekor qilish bilan; worker'siz — bo'laklab.
 - (P00) MC asosiy oqimda, M=10⁶ da bir necha soniya UI qotadi. Har bir `appState.set` butun holatni `JSON.stringify` qiladi va bir nechta komponent to'liq qayta chiziladi.
+
+### R-29. Interfeys 2.0: dizayn qarorlari va qoldiq (P) — P16 (2026-11-20, ENGINE 2.10.0 o'zgarmagan)
+
+**Holat.** UI to'liq yangi dizayn tizimiga o'tkazildi (`docs/ARCHITECTURE.md` — P16 bo'limi). Hisob o'zgarmagan: `src/engine/` ga tegilmagan, 91 misol bit darajasida bir xil.
+
+**Kontseptdan chetga chiqishlar (sababi bilan) — egasi qarorini kutadi:**
+
+1. **MCM gistogrammasi yo'q (tasma, Vizual laboratoriya — joriy hisob).** Topshiriq: "gistogramma `result.mc` dan". Dvigatelning Monte-Karlo natijasida namunalar ham, gistogramma ham yo'q (`docs/ENGINE_API.md` §12), `src/engine/` ga tegish esa taqiqlangan. Qilingani: tasmada MCM ning ikkala qamrov intervali (eng qisqa, ehtimoliy simmetrik) va o'rtachasi; Vizual laboratoriyada joriy hisob uchun jonli sonlar — dvigatel MCM ini o'sib boruvchi M bilan takror ishga tushirish orqali (har biri haqiqiy dvigatel natijasi); "tushayotgan nuqtalar" va gistogramma faqat o'quv modelida — dvigatelning o'z generatori (`createRng`) va tanlash funksiyalaridan olingan **illyustrativ** oqim, ekranda shunday deb yozilgan. **Variantlar:** (a) shunday qoldirish; (b) dvigatelga ixtiyoriy chiqish qo'shish (`opts.histogram: { bins }` → `mc.histogram`) — sonli natijaga ta'sir qilmaydi, lekin `src/engine/` o'zgaradi (xesh, `ENGINE_API.md`, semver bo'yicha minor), shundan keyin haqiqiy gistogramma tasmada ham chiziladi.
+2. **"Kragten" ko'rinishi qo'shilmadi.** Topshiriqda "mavjud funksiyalar" deyilgan, lekin repoda Kragten ham, Pareto ham yo'q edi. Pareto — yangi hisobsiz (dvigatel bergan ulushlarni saralash) qo'shildi. Kragten (QUAM:2012 E.2 — sonli elektron jadval usuli) — yangi metrologik funksiya: CLAUDE.md bo'yicha manbadan olingan test misolisiz qo'shilmaydi. Manba `docs/references/` da bor — alohida kichik bosqichda qo'shish mumkin.
+3. **`style-src 'unsafe-inline'`.** Olib tashlandi: `validation.html`. Qoldi: `index.html`, `admin.html`, `superadmin.html`. Sabab — eski auth / to'lov / hisob-faktura markup'ida inline uslub atributlari: `index.html` 52 ta + 1 ta `<style>`, `admin.html` 19, `superadmin.html` 8 + 1, `src/ui/templates.js` 60 (hisob-faktura — chop etiladigan hujjat), `src/js/table.js` 14. P16 da yozilgan / tozalangan hamma qismda (qobiq, natijalar, B tur, hisobot, laboratoriya, vizual laboratoriya, `src/report/`) inline uslub YO'Q; dinamik o'lchamlar SVG atributlari orqali. `tests/security/inline-style.test.js` qolgan sonni qotiradi — faqat kamayishi mumkin. To'liq olib tashlash — alohida kichik ish (≈ 150 ta atributni sinflarga ko'chirish; hisob-fakturani bosmada tekshirish kerak).
+4. **Vizual laboratoriya — bo'lim (yorliq), alohida sahifa emas.** Sabab: joriy hisobga (appState) to'g'ridan-to'g'ri kirish, bitta CSP / til / mavzu; modul birinchi ochilganda yuklanadi, asosiy sahifa yukini oshirmaydi.
+5. **Space Grotesk da kirill to'plami yo'q** (shrift muallifi chiqarmagan) — ruscha sarlavhalar Inter bilan chiziladi (`unicode-range`, avtomatik). Yunon harflari (ν, σ) va matematik belgilar tizim shriftidan — topshiriq "faqat lotin + kirill" degani uchun yunon to'plami qo'shilmadi (qo'shilsa ≈ +20 KB).
+6. **O'ng panel chegarasi 1180 px** (topshiriqda ≥ 980 px). 980–1179 px da chap menyu (248 px) bilan asosiy ustunga 360 px qolar edi — byudjet jadvali o'qilmaydi; shu oraliqda panel pastga tushadi. QC kartasidagi Westgard paneli ham shunday.
+7. **Bosmada eng kichik shrift 12 pt** (topshiriq) — hujjat hajmi oshdi: 5 nuqtali termometr hisoboti 16 bet (pastki qism har sahifada ≈ 35 mm joy oladi). Sonlar qator ichida bo'linmaydi. Variant: jadvallar uchun 10 pt.
+8. **"Manba bilan mos" nishoni ko'rsatilmaydi** — ish vaqtida bunday holat yo'q (verified misollar faqat testlarda); o'ylab topilmadi. Shablon holati (DRAFT / APPROVED) va MCM tekshiruvi natijasi avvalgidek haqiqiy holatdan chiqadi.
+9. **Yuqori paneldagi "Hisobot"** endi chop etish oynasini emas, "Hisobot" yorlig'ini (A4 ko'rinishi) ochadi; chop etish — o'sha yerdan.
+10. **νᵢ "kichik" chegarasi = 10** (byudjet jadvalida sariq) — faqat ko'rsatish; X7 dagi ν_eff < 10 bilan bir xil son. Hisobga va topilmalarga ta'sir qilmaydi.
+11. **Fon to'ri `linear-gradient` bilan chizilgan** (1 px chiziqlar) — "gradient fon" emas, texnik usul.
+
+**Tekshirilgani:** `npm test`; `cases-snapshot --compare` (91 / 91); Chromium da `npm run test:screens` (30 ekran: konsol xatosi yo'q, ≥ 44 px, kontrast ≥ 4,5:1, klaviatura); PDF (Chromium) — pastki qism har sahifada, jadval sarlavhasi takrorlanadi (`pdftotext` bilan).
+
+**Qilinmagan / qo'lda ko'rilmagan:** Safari (macOS / iOS) va real telefon / planshet; Firefox va WebKit da bosma (pastki qismning takrorlanishi brauzerga bog'liq — Safari `<tfoot>` ni takrorlamasligi mumkin); Lighthouse o'lchovi; landing, kirish / ro'yxatdan o'tish, admin va superadmin sahifalari faqat tokenlar orqali yangi ranglarga o'tdi (tuzilmasi o'zgarmagan); ekran o'quvchi (NVDA / VoiceOver) bilan qo'lda tekshiruv.
+
+**Avvaldan bor, P16 da tuzatilmagan (kuzatildi):** PT ekranidagi topilma matnida `{value}` o'rinbosari to'ldirilmay chiqishi mumkin (`w_pt_unsatisfactory`) — sababi `src/report/findings.js` parametrlari; alohida tekshirish kerak. `tests/ui/lab.test.js` dagi ikki IndexedDB testi mashina yuklangan paytda (parallel og'ir jarayonlar) vaqtga sezgir — yakka ishga tushirilganda barqaror.
