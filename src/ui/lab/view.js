@@ -1,10 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
-   LAB/VIEW.JS — P11: "Laboratoriya" oynasining HTML satrlari (Etalonlar / CMC / QC kartalari, reestrdan tanlash oynasi).
+   LAB/VIEW.JS — P11 / P16: "Laboratoriya" oynasining HTML satrlari (Etalonlar — kartalar; CMC; QC kartalari — zonali grafik
+   va Westgard holat paneli; reestrdan tanlash oynasi). Ko'rinish — src/css/lab2.css (style atributi yo'q — CSP).
    Sof modul: DOM'ga tegmaydi. Har qanday qiymat ctx.esc (escHtml) orqali. ctx = { t(key), esc(value) }.
    Hodisalar — app.js da (data-lb-* atributlari; inline handler yo'q — CSP).
 ═══════════════════════════════════════════════════════════════ */
 import { TRACEABILITY_ROUTES, DRIFT_METHODS, DRIFT_DISTRIBUTIONS, CMC_TYPES, WESTGARD_RULES } from '../../engine/lab/index.js';
-import { qcChartSVG } from './chart.js';
+import { qcChartSVG, qcPointStates, zText } from './chart.js';
 
 export const TABS = ['standards', 'cmc', 'qc', 'pt', 'validation'];   // P12: malaka sinovlari, validatsiya
 const num = (v, sig) => (typeof v === 'number' && Number.isFinite(v) ? String(Number(v.toPrecision(sig || 6))) : '—');
@@ -32,18 +33,37 @@ const badge = (ctx, status, daysLeft) => {
   return `<span class="badge ${cls}" data-lb-status="${status}">${ctx.esc(ctx.t('lb_status_' + status))}${status === 'expiring' && daysLeft !== null ? ` (${daysLeft})` : ''}</span>`;
 };
 
-/* ── Etalonlar ── */
+/* ── Etalonlar: kartalar ── */
+/* Holat (valid | expiring | expired | unknown) — app.js dan tayyor keladi (model.js::standardStatus → dvigatel
+   validityStatus); bu yerda qayta hisoblanmaydi. Holat har doim matnli nishon bilan (faqat rang bilan emas). */
+const statusBadge = (ctx, st) => {
+  const cls = { valid: 'badge-green', expiring: 'badge-orange', expired: 'badge-red', unknown: 'badge-orange' }[st.status];
+  const text = st.status === 'expired' ? `${ctx.t('lb_status_expired')} — ${ctx.t('lb_card_unofficial')}`
+    : ctx.t('lb_status_' + st.status) + (st.status === 'expiring' && st.daysLeft !== null ? ` (${st.daysLeft})` : '');
+  return `<span class="badge ${cls}" data-lb-status="${st.status}">${ctx.esc(text)}</span>`;
+};
+
+function standardCardHTML(s, m, ctx) {
+  const c = s.status.calibration, st = s.status.status, sel = m.selected === s.id;
+  const range = s.range.min === null && s.range.max === null ? '' : `${num(s.range.min)} … ${num(s.range.max)}${s.unit ? ' ' + s.unit : ''}`;
+  const row = (key, value, mono) => `<div class="lb-meta-row"><dt>${ctx.esc(ctx.t(key))}</dt><dd${mono ? ' class="lb-num"' : ''}>${ctx.esc(value || '—')}</dd></div>`;
+  const sub = [s.type, s.serial].filter(Boolean).join(' · ');
+  return `<li class="lb-std-card lb-std-${st}${sel ? ' is-selected' : ''}" data-lb-std="${ctx.esc(s.id)}"${sel ? ' aria-current="true"' : ''}>
+      <div class="lb-std-head">
+        <button type="button" class="lb-std-open" data-lb-act="open" data-lb-id="${ctx.esc(s.id)}">${ctx.esc(s.name || '—')}</button>
+        <span class="lb-std-ver lb-num">v${ctx.esc(s.version)}</span>
+      </div>
+      ${sub ? `<p class="lb-std-sub lb-num">${ctx.esc(sub)}</p>` : ''}
+      <dl class="lb-meta">
+        ${row('lb_f_calibrator', c ? c.calibrator : '')}${row('lb_f_certificate', c ? c.certificate : '', true)}
+        ${row('lb_f_valid', c ? c.validUntil : '', true)}${range ? row('lb_f_range', range, true) : ''}
+      </dl>
+      <div class="lb-std-badges">${statusBadge(ctx, s.status)}${c && !s.status.evidence ? ` <span class="badge badge-orange" data-lb-noaccr="1">${ctx.esc(ctx.t('lb_no_accreditation'))}</span>` : ''}</div>
+      ${st === 'expired' ? `<p class="lb-std-note" data-lb-unofficial="1">${ctx.esc(ctx.t('lb_card_unofficial_hint'))}</p>` : ''}
+    </li>`;
+}
+
 export function standardsListHTML(m, ctx) {
-  const rows = m.standards.map(s => {
-    const c = s.status.calibration;
-    return `<tr data-lb-std="${ctx.esc(s.id)}"${m.selected === s.id ? ' class="row-selected"' : ''}>
-      <td><button type="button" class="btn btn-ghost btn-sm" data-lb-act="open" data-lb-id="${ctx.esc(s.id)}">${ctx.esc(s.name || '—')}</button></td>
-      <td>${ctx.esc(s.type || '')}</td><td>${ctx.esc(s.serial || '')}</td>
-      <td>${ctx.esc(s.range.min === null && s.range.max === null ? '' : `${num(s.range.min)} … ${num(s.range.max)}${s.unit ? ' ' + s.unit : ''}`)}</td>
-      <td>${ctx.esc(c ? c.certificate : '—')}</td><td>${ctx.esc(c ? c.validUntil : '—')}</td>
-      <td>${badge(ctx, s.status.status, s.status.daysLeft)}${c && !s.status.evidence ? ` <span class="badge badge-orange" data-lb-noaccr="1">${ctx.esc(ctx.t('lb_no_accreditation'))}</span>` : ''}</td>
-      <td class="cell-num">v${ctx.esc(s.version)}</td></tr>`;
-  }).join('');
   return `<div class="card rg-card" data-lb-list="standards">
     <div class="rg-actions">
       <button type="button" class="btn btn-primary btn-sm" data-lb-act="new"${dis(m.readOnly)}>${ctx.esc(ctx.t('lb_std_new'))}</button>
@@ -52,8 +72,7 @@ export function standardsListHTML(m, ctx) {
       <button type="button" class="btn btn-outline btn-sm" data-lb-act="export-csv">${ctx.esc(ctx.t('lb_export_csv'))}</button>
     </div>
     <p class="text-xs text-muted">${ctx.esc(ctx.t('lb_import_hint'))}</p>
-    ${m.standards.length ? `<div class="table-scroll"><table class="data-table"><thead><tr>${['lb_f_name', 'lb_f_type', 'lb_f_serial', 'lb_f_range', 'lb_f_certificate', 'lb_f_valid', 'lb_f_status', 'lb_f_version']
-    .map(k => `<th>${ctx.esc(ctx.t(k))}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`
+    ${m.standards.length ? `<ul class="lb-cards lb-std-cards" data-lb-cards="standards">${m.standards.map(s => standardCardHTML(s, m, ctx)).join('')}</ul>`
     : `<div class="empty-state"><p>${ctx.esc(ctx.t('lb_std_empty'))}</p></div>`}
   </div>`;
 }
@@ -135,9 +154,9 @@ export function analysisHTML(a, ctx) {
 export function historyHTML(history, ctx) {
   if (!history || !history.length) return '';
   return `<details class="lb-history" data-lb-history="1"><summary>${ctx.esc(ctx.t('lb_history'))} (${history.length})</summary>
-    <table class="data-table"><thead><tr><th>${ctx.esc(ctx.t('lb_h_when'))}</th><th>${ctx.esc(ctx.t('lb_h_role'))}</th><th>${ctx.esc(ctx.t('lb_h_action'))}</th><th>${ctx.esc(ctx.t('lb_f_version'))}</th><th>${ctx.esc(ctx.t('lb_h_reason'))}</th></tr></thead><tbody>
+    <div class="table-scroll"><table class="data-table"><thead><tr><th>${ctx.esc(ctx.t('lb_h_when'))}</th><th>${ctx.esc(ctx.t('lb_h_role'))}</th><th>${ctx.esc(ctx.t('lb_h_action'))}</th><th>${ctx.esc(ctx.t('lb_f_version'))}</th><th>${ctx.esc(ctx.t('lb_h_reason'))}</th></tr></thead><tbody>
     ${history.map(e => `<tr><td>${ctx.esc(String(e.at).replace('T', ' ').slice(0, 19))}</td><td>${ctx.esc(e.actor)}</td><td>${ctx.esc(e.action)}</td><td>${ctx.esc((e.after || e.before || {}).version ?? '')}</td><td>${ctx.esc(e.reason)}</td></tr>`).join('')}
-    </tbody></table></details>`;
+    </tbody></table></div></details>`;
 }
 
 /* ── CMC ── */
@@ -172,6 +191,53 @@ export function cmcHTML(m, ctx) {
 }
 
 /* ── QC kartalari ── */
+/* Westgard holat paneli. HAMMASI dvigatel natijasidan (src/engine/lab/westgard.js::westgard → violations, suppressed,
+   gate, approximation); qoidalar bu yerda qayta tekshirilmaydi. Ko'rsatiladigan qoidalar ro'yxati — WESTGARD_RULES
+   (dvigatel standart bo'yicha shularning hammasini baholaydi). 1₂s — rad etish qoidasi emas, ±2s ogohlantirish chegarasi
+   va darvoza sharti: uning qatori grafikdagi "warn" nuqtalar bilan bir xil manbadan (chart.js::qcPointStates). */
+function westgardPanelHTML(an, ctx) {
+  const t = ctx.t, wg = an.westgard;
+  const idx = a => a.map(i => i + 1).join(', ');
+  const b = (cls, key) => `<span class="badge ${cls}">${ctx.esc(t(key))}</span>`;
+  const states = qcPointStates({ series: an.series, limits: an.limits, z: an.z, flagged: wg.flagged, suppressed: wg.suppressed });
+  const beyond = states.map((p, i) => (p.warn.includes('1_2s') ? i : -1)).filter(i => i >= 0);
+  const points = a => `<div class="lb-wg-points"><span>${ctx.esc(t('lb_wg_points'))}:</span> <span class="lb-num">${ctx.esc(idx(a))}</span></div>`;
+  const gateRow = `<li class="lb-wg-rule" data-lb-wg="1_2s" data-lb-wg-state="${beyond.length ? 'warn' : 'ok'}">
+      <div class="lb-wg-head"><strong class="lb-num">${ctx.esc(t('lb_rule_1_2s'))}</strong>${b(beyond.length ? 'badge-orange' : 'badge-green', beyond.length ? 'lb_wg_warn' : 'lb_wg_ok')}</div>
+      <div class="lb-wg-desc">${ctx.esc(t('lb_rule_desc_1_2s'))}</div>${beyond.length ? points(beyond) : ''}</li>`;
+  const rows = WESTGARD_RULES.map(r => {
+    const v = wg.violations.find(x => x.rule === r), s = (wg.suppressed || []).find(x => x.rule === r);
+    const state = v ? 'violated' : s ? 'suppressed' : 'ok';
+    return `<li class="lb-wg-rule" data-lb-wg="${r}" data-lb-wg-state="${state}"${v ? ` data-lb-rule="${ctx.esc(r)}"` : ''}${s ? ' data-lb-wg-suppressed="1"' : ''}>
+      <div class="lb-wg-head"><strong class="lb-num">${ctx.esc(t('lb_rule_' + r))}</strong>${v ? b('badge-red', 'lb_wg_violated') : ''}${s ? b('badge-orange', 'lb_wg_suppressed') : ''}${v || s ? '' : b('badge-green', 'lb_wg_ok')}</div>
+      <div class="lb-wg-desc">${ctx.esc(t('lb_rule_desc_' + r))}</div>
+      ${v ? points(v.indices) : ''}${s ? `<div class="lb-wg-points" data-lb-wg-sup="${r}"><span>${ctx.esc(t('lb_wg_suppressed'))}:</span> <span class="lb-num">${ctx.esc(idx(s.indices))}</span></div>` : ''}
+      ${v && v.approximation ? `<div class="lb-wg-desc"><em data-lb-approx="1">(${ctx.esc(t('lb_rule_approx'))})</em></div>` : ''}</li>`;
+  }).join('');
+  const out = wg.violations.length > 0;
+  return `<aside class="lb-wg" data-lb-wg-panel="1" aria-label="${ctx.esc(t('lb_wg_title'))}">
+      <h4 class="lb-wg-title">${ctx.esc(t('lb_wg_title'))}</h4>
+      <p class="lb-wg-overall"><span class="badge ${out ? 'badge-red' : 'badge-green'}" data-lb-westgard="${out ? 'out' : 'in'}">${ctx.esc(t(out ? 'lb_qc_violations' : 'lb_qc_in_control'))}</span></p>
+      <p class="lb-wg-gate" data-lb-gate-state="${wg.gate === false ? 'off' : 'on'}"><span>${ctx.esc(t('lb_wg_gate'))}:</span> ${b(wg.gate === false ? 'badge-orange' : 'badge-blue', wg.gate === false ? 'lb_wg_gate_off' : 'lb_wg_gate_on')}</p>
+      ${wg.gate === false ? `<p class="lb-wg-note" data-lb-gate="off"><em>${ctx.esc(t('lb_qc_gate_off'))}</em></p>` : `<p class="lb-wg-note">${ctx.esc(t('lb_wg_gate_on_note'))}</p>`}
+      <ul class="lb-wg-rules">${gateRow}${rows}</ul>
+      ${(wg.suppressed || []).length ? `<p class="lb-wg-note" data-lb-suppressed="1">${ctx.esc(fill(t('lb_qc_suppressed'), { rules: wg.suppressed.map(v => t('lb_rule_' + v.rule) + ' (' + idx(v.indices) + ')').join('; ') }))}</p>` : ''}
+      ${out ? `<p class="lb-wg-note">${ctx.esc(t('lb_qc_westgard_note'))}</p>` : ''}
+    </aside>`;
+}
+
+/* Grafik izohi: zona va nuqta turlari — matn bilan (rang yagona belgi emas). */
+function legendHTML(ctx) {
+  const sw = inner => `<svg class="lb-sw" viewBox="0 0 20 20" aria-hidden="true" focusable="false">${inner}</svg>`;
+  const zone = n => sw(`<rect class="qc-zone qc-z${n}" x="1" y="3" width="18" height="14"/>`);
+  const items = [
+    [zone(1), 'lb_lg_zone1'], [zone(2), 'lb_lg_zone2'], [zone(3), 'lb_lg_zone3'],
+    [sw('<g class="qc-warn"><circle cx="10" cy="10" r="6.5"/><path d="M10 6.5v4M10 12.5v1"/></g>'), 'lb_lg_warn'],
+    [sw('<g class="qc-flag"><circle cx="10" cy="10" r="8"/><path d="M6.5 6.5l7 7m0 -7l-7 7"/></g>'), 'lb_lg_reject'],
+  ];
+  return `<ul class="lb-legend" data-lb-legend="1">${items.map(x => `<li>${x[0]}<span>${ctx.esc(ctx.t(x[1]))}</span></li>`).join('')}</ul>`;
+}
+
 export function qcHTML(m, ctx) {
   const t = ctx.t, c = m.chart;
   const list = `<div class="rg-actions">
@@ -182,18 +248,25 @@ export function qcHTML(m, ctx) {
   const an = m.analysis;
   let body = '';
   if (an && !an.error) {
-    const flags = an.westgard.violations.map(v => `<li data-lb-rule="${ctx.esc(v.rule)}"><strong>${ctx.esc(t('lb_rule_' + v.rule))}</strong> — ${ctx.esc(t('lb_rule_desc_' + v.rule))}: ${ctx.esc(v.indices.map(i => i + 1).join(', '))}${v.approximation ? ` <em data-lb-approx="1">(${ctx.esc(t('lb_rule_approx'))})</em>` : ''}</li>`).join('');
-    body = `${qcChartSVG({ series: an.series, limits: an.limits, flagged: an.westgard.flagged, labels: an.labels }, { esc: ctx.esc, title: c.name, ruleLabel: r => t('lb_rule_' + r) })}
+    const wg = an.westgard, zLast = an.z[an.z.length - 1];
+    const kpi = (label, value, attr) => `<div class="lb-kpi"${attr || ''}><span class="lb-kpi-label">${ctx.esc(label)}</span><span class="lb-kpi-value lb-num">${ctx.esc(value)}</span></div>`;
+    // z — dvigatelga (westgard) berilgan z-ballar: model.js::analyseQc → z (yangi hisob emas, faqat ko'rsatish).
+    const svg = qcChartSVG({ series: an.series, limits: an.limits, flagged: wg.flagged, labels: an.labels, z: an.z, suppressed: wg.suppressed },
+      { esc: ctx.esc, title: `${c.name || ''} — ${t(wg.violations.length ? 'lb_qc_violations' : 'lb_qc_in_control')}`, ruleLabel: r => t('lb_rule_' + r) });
+    body = `<div class="lb-kpis" data-lb-kpis="1">
+        ${kpi(t('lb_kpi_cl'), num(an.limits.center) + (c.unit ? ' ' + c.unit : ''))}${kpi(t('lb_kpi_s'), num(an.limits.sigma))}${kpi(t('lb_kpi_n'), String(an.n))}
+        ${kpi(t('lb_kpi_last_z'), zText(zLast) || '—', ' data-lb-last-z="1"')}
+      </div>
+      <div class="lb-qc-grid">
+        <div class="lb-qc-main"><figure class="lb-chart-card" data-lb-chart="1"><div class="lb-chart-scroll" tabindex="0" role="group" aria-label="${ctx.esc(c.name || t('lb_qc_chart'))}">${svg}</div>${legendHTML(ctx)}</figure>
       <p class="text-sm" data-lb-limits="1">${ctx.esc(fill(t('lb_qc_limits'), { cl: num(an.limits.center), s: num(an.limits.sigma), lwl: num(an.limits.lwl), uwl: num(an.limits.uwl), lcl: num(an.limits.lcl), ucl: num(an.limits.ucl) }))}
         — ${ctx.esc(t(an.fromTarget ? 'lb_qc_from_target' : (an.type === 'xbar' ? 'lb_qc_from_rbar' : 'lb_qc_from_mr')))}</p>
       <p class="text-sm">${ctx.esc(fill(t(an.type === 'xbar' ? 'lb_qc_r_limits' : 'lb_qc_mr_limits'), { cl: num(an.range.center), lcl: num(an.range.lcl), ucl: num(an.range.ucl) }))}${an.outRange.length ? ' — ' + ctx.esc(fill(t('lb_qc_r_out'), { i: an.outRange.map(i => i + 1).join(', ') })) : ''}</p>
-      ${flags ? `<div class="warn-box" data-lb-westgard="out"><strong>${ctx.esc(t('lb_qc_violations'))}</strong><ul>${flags}</ul><small>${ctx.esc(t('lb_qc_westgard_note'))}</small></div>`
-    : `<p class="text-sm" data-lb-westgard="in">${ctx.esc(t('lb_qc_in_control'))}</p>`}
-      ${an.westgard.gate === false ? `<p class="text-xs" data-lb-gate="off"><em>${ctx.esc(t('lb_qc_gate_off'))}</em></p>` : ''}
-      ${(an.westgard.suppressed || []).length ? `<p class="text-xs text-muted" data-lb-suppressed="1">${ctx.esc(fill(t('lb_qc_suppressed'), { rules: an.westgard.suppressed.map(v => t('lb_rule_' + v.rule) + ' (' + v.indices.map(i => i + 1).join(', ') + ')').join('; ') }))}</p>` : ''}
       <div class="rg-actions" data-lb-srw="1">
         <span>${ctx.esc(fill(t('lb_qc_srw'), { s: num(an.sRw.sRw), n: an.sRw.n, nu: an.sRw.nu }))}</span>
         <button type="button" class="btn btn-outline btn-sm" data-lb-act="to-topdown">${ctx.esc(t('lb_qc_to_topdown'))}</button>
+      </div></div>
+        ${westgardPanelHTML(an, ctx)}
       </div>`;
   } else body = `<p class="text-muted" data-lb-qc-error="1">${ctx.esc(t('lb_err_' + ((an && an.error) || 'qc_need_data')))}</p>`;
   const pts = c.points.map((p, i) => `<tr><td>${i + 1}</td><td>${ctx.esc(p.date)}</td><td>${ctx.esc(p.run)}</td><td class="cell-num mono">${ctx.esc(p.values.join('; '))}</td>
@@ -217,7 +290,7 @@ export function qcHTML(m, ctx) {
       ${field(ctx, 'lb_qc_values', inp(ctx, 'data-lb-qc="newValues"', m.entry.values, { decimal: true }), c.type === 'xbar' ? 'lb_qc_values_hint_xbar' : 'lb_qc_values_hint_imr')}
     </div>
     <div class="rg-actions"><button type="button" class="btn btn-outline btn-sm" data-lb-act="add-qc-point">${ctx.esc(t('lb_qc_add'))}</button></div>
-    ${c.points.length ? `<details class="lb-history"><summary>${ctx.esc(t('lb_qc_points'))} (${c.points.length})</summary><table class="data-table"><thead><tr><th>#</th><th>${ctx.esc(t('lb_qc_date'))}</th><th>${ctx.esc(t('lb_qc_run'))}</th><th>${ctx.esc(t('lb_qc_values'))}</th><th></th></tr></thead><tbody>${pts}</tbody></table></details>` : ''}
+    ${c.points.length ? `<details class="lb-history"><summary>${ctx.esc(t('lb_qc_points'))} (${c.points.length})</summary><div class="table-scroll"><table class="data-table"><thead><tr><th>#</th><th>${ctx.esc(t('lb_qc_date'))}</th><th>${ctx.esc(t('lb_qc_run'))}</th><th>${ctx.esc(t('lb_qc_values'))}</th><th></th></tr></thead><tbody>${pts}</tbody></table></div></details>` : ''}
     ${historyHTML(m.history, ctx)}
     <p class="text-xs text-muted">${ctx.esc(t('lb_qc_source_note'))} (${ctx.esc(WESTGARD_RULES.map(r => t('lb_rule_' + r)).join(', '))})</p>
   </div>`;
