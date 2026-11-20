@@ -369,3 +369,13 @@ label { color: var(--c-text-2); }
   .io-bar, .report-bar { width: 100%; }
   .io-bar .btn { flex: 1 1 40%; }
 }
+
+/* Chap chetida rangli chiziqli kartalar ishlatilmaydi (eski qoidalar bosib o'tiladi); topilma nishonlari — tokenlardan */
+.tpl-banner, .td-unanswered, .report-missing { border-left-width: 1px; }
+.tpl-banner { border-color: var(--c-amber-line); background: var(--c-amber-soft); border-radius: var(--r-button); }
+.tpl-banner-ok { border-color: var(--c-green-line); background: var(--c-green-soft); }
+.td-unanswered { border: 1px solid var(--c-amber-line); border-radius: var(--r-control); padding: var(--s-2) var(--s-3); }
+.report-missing { border-color: var(--c-amber-line); }
+.finding-rule-error   { background: var(--c-red-soft);   color: var(--c-red-text); border: 1px solid var(--c-red-line); }
+.finding-rule-warning { background: var(--c-amber-soft); color: var(--c-amber);    border: 1px solid var(--c-amber-line); }
+.finding-rule-info    { background: var(--c-blue-soft);  color: var(--c-blue);     border: 1px solid var(--c-blue-line); }
