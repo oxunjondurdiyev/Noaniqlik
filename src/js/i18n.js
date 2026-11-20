@@ -199,6 +199,8 @@ const TRANSLATIONS = {
     section_expanded:  'Expanded Uncertainty',
 
     toast_calc_done:   'Calculation complete!',
+    toast_typea_done:  "Type A evaluated — now add Type B sources.",
+    toast_sample_done: "Sample data filled in.",
     toast_need_data:   'Please enter measurement data first.',
     toast_need_typeb:  'Add at least one Type B component.',
 
@@ -402,6 +404,8 @@ const TRANSLATIONS = {
     section_expanded:  'Расширенная неопределённость',
 
     toast_calc_done:   'Расчёт завершён!',
+    toast_typea_done:  "Тип A рассчитан — теперь источники типа B.",
+    toast_sample_done: "Примерные данные заполнены.",
     toast_need_data:   'Сначала введите данные измерений.',
     toast_need_typeb:  'Добавьте хотя бы один компонент типа B.',
 
@@ -604,6 +608,8 @@ const TRANSLATIONS = {
     section_expanded:  'Kengaytirilgan noaniqlik',
 
     toast_calc_done:   'Hisoblash yakunlandi!',
+    toast_typea_done:  "A tur hisoblandi — endi B tur manbalari.",
+    toast_sample_done: "Namuna ma'lumotlar to'ldirildi.",
     toast_need_data:   'Avval o\'lchash ma\'lumotlarini kiriting.',
     toast_need_typeb:  'Kamida bitta B-tip komponent qo\'shing.',
 

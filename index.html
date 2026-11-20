@@ -568,6 +568,8 @@
       <symbol id="ic-registry" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
       <symbol id="ic-pt" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
       <symbol id="ic-validation" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.600-1 8-4.500 8-9V6z"/><path d="m8.500 12 2.500 2.500 4.500-5"/></symbol>
+      <symbol id="ic-templates" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M17 14v6M14 17h6"/></symbol>
+      <symbol id="ic-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.700 3.600 3 8 3s8-1.300 8-3V6M4 12v6c0 1.700 3.600 3 8 3s8-1.300 8-3v-6"/></symbol>
       <symbol id="ic-vizlab" viewBox="0 0 24 24"><path d="M3 12s3.500-6 9-6 9 6 9 6-3.500 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.500"/></symbol>
       <symbol id="ic-report" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
       <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.500-3.500"/></symbol>
@@ -638,6 +640,7 @@
       <div class="nav-scroll">
       <p class="nav-group" data-i18n="sh_g_calc">Calculation</p>
       <ul class="nav-list">
+        <li><button type="button" class="nav-item" data-open-templates="1" data-nav-action="templates"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span class="nav-label" data-i18n="tpl_open_catalog"></span><span class="nav-short" data-i18n="sh_s_templates" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="gum"><svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg><span class="nav-label" data-i18n="sh_n_gum"></span><span class="nav-short" data-i18n="sh_s_gum" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="mc"><svg class="ic" aria-hidden="true"><use href="#ic-mc"/></svg><span class="nav-label" data-i18n="sh_n_mc"></span><span class="nav-short" data-i18n="sh_s_mc" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="multi"><svg class="ic" aria-hidden="true"><use href="#ic-multi"/></svg><span class="nav-label" data-i18n="sh_n_multi"></span><span class="nav-short" data-i18n="sh_s_multi" aria-hidden="true"></span></button></li>
@@ -654,6 +657,8 @@
         <li><button type="button" class="nav-item" data-nav="lab-standards"><svg class="ic" aria-hidden="true"><use href="#ic-registry"/></svg><span class="nav-label" data-i18n="sh_n_registry"></span><span class="nav-short" data-i18n="sh_s_registry" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="lab-pt"><svg class="ic" aria-hidden="true"><use href="#ic-pt"/></svg><span class="nav-label" data-i18n="sh_n_pt"></span><span class="nav-short" data-i18n="sh_s_pt" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="lab-validation"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span class="nav-label" data-i18n="sh_n_validation"></span><span class="nav-short" data-i18n="sh_s_validation" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-open-lab="1" data-nav-action="lab-settings"><svg class="ic" aria-hidden="true"><use href="#ic-sliders"/></svg><span class="nav-label" data-i18n="tpl_btn_lab"></span><span class="nav-short" data-i18n="sh_s_labset" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-open-data="1" data-nav-action="data"><svg class="ic" aria-hidden="true"><use href="#ic-data"/></svg><span class="nav-label" data-i18n="tpl_btn_data"></span><span class="nav-short" data-i18n="sh_s_data" aria-hidden="true"></span></button></li>
       </ul>
       </div>
       <div class="nav-foot">
@@ -765,6 +770,7 @@
       </div>
     </section>
         <div class="data-scroll">
+          <div class="model-start"><button type="button" class="btn btn-outline" data-open-templates="1" data-model-template="1"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span data-i18n="sh_tpl_start">Start from a template</span></button></div>
           <div id="template-box"></div>
           <div id="model-box"></div>
           <div id="table-hint-box"></div>

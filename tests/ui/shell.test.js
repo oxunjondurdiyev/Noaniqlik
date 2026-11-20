@@ -125,3 +125,55 @@ test('mavzu: tanlov localStorage `uc_theme` da saqlanadi (eski kalit o\'zgarmaga
   assert.match(js, /localStorage\.setItem\('uc_theme', next\)/);
   assert.match(js, /localStorage\.getItem\('uc_theme'\) \|\| 'dark'/);
 });
+
+test('chap menyu: "Shablonlar katalogi" (HISOB guruhi tepasida), "Laboratoriya sozlamalari" va "Ma\'lumotlar" (LABORATORIYA); 1-qadamda "Shablondan boshlash"', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const { JSDOM } = require('jsdom');
+  const root = path.join(__dirname, '..', '..');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const doc = new JSDOM(html).window.document;
+  const lists = [...doc.querySelectorAll('#side-nav .nav-scroll .nav-list')];
+  const first = lists[0].querySelector('.nav-item');
+  assert.equal(first.dataset.navAction, 'templates');
+  assert.ok(first.hasAttribute('data-open-templates'), 'mavjud ishlovchi (openCatalog) orqali ochiladi');
+  assert.equal(first.querySelector('.nav-label').dataset.i18n, 'tpl_open_catalog');
+  assert.ok(doc.getElementById(first.querySelector('use').getAttribute('href').slice(1)), 'ikonka mavjud');
+  const lab = [...lists[2].querySelectorAll('.nav-item')];
+  assert.deepEqual(lab.slice(-2).map(b => b.dataset.navAction), ['lab-settings', 'data']);
+  assert.ok(lab[lab.length - 2].hasAttribute('data-open-lab') && lab[lab.length - 1].hasAttribute('data-open-data'));
+  assert.deepEqual(lab.slice(-2).map(b => b.querySelector('.nav-label').dataset.i18n), ['tpl_btn_lab', 'tpl_btn_data']);
+  // amal bandlari yorliq almashtirmaydi (data-nav yo'q) — NAV modeli va faol band mantig'i o'zgarmagan
+  for (const b of doc.querySelectorAll('[data-nav-action]')) {
+    assert.equal(b.tagName, 'BUTTON');
+    assert.ok(!b.hasAttribute('data-nav'));
+    assert.ok(b.querySelector('.nav-short[data-i18n]') && doc.getElementById(b.querySelector('use').getAttribute('href').slice(1)));
+  }
+  const start = doc.querySelector('#tab-data [data-model-template]');
+  assert.ok(start && start.hasAttribute('data-open-templates'));
+  assert.equal(start.querySelector('[data-i18n]').dataset.i18n, 'sh_tpl_start');
+  assert.ok(start.compareDocumentPosition(doc.getElementById('model-box')) & 4, 'model qutisidan oldin');
+  const tplApp = fs.readFileSync(path.join(root, 'src/ui/tpl/app.js'), 'utf8');
+  assert.match(tplApp, /closest\('\[data-open-templates\]'\)\) \{ openCatalog\(\)/);
+  assert.equal((tplApp.match(/closest\('\[data-open-templates\]'\)/g) || []).length, 1, 'ishlovchi bir marta ulangan');
+});
+
+test('toast: bir xil xabar ekranda turganida ikkinchi nusxa qo\'shilmaydi; A tur va yakuniy hisob xabarlari alohida', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const { JSDOM } = require('jsdom');
+  const root = path.join(__dirname, '..', '..');
+  const { createToast } = require('../../src/ui/toast.js');
+  const doc = new JSDOM('<!doctype html><body></body>').window.document;
+  const a = createToast(doc, 'Hisoblash yakunlandi!', 'success', 50);
+  const b = createToast(doc, 'Hisoblash yakunlandi!', 'success', 50);
+  assert.equal(a, b);
+  assert.equal(doc.querySelectorAll('.toast').length, 1);
+  createToast(doc, 'Hisoblash yakunlandi!', 'error', 50);          // boshqa tur — alohida
+  createToast(doc, 'boshqa xabar', 'success', 50);
+  assert.equal(doc.querySelectorAll('.toast').length, 3);
+  assert.equal(doc.querySelector('.toast span').textContent, 'Hisoblash yakunlandi!');
+  clearTimeout(a._timer); [...doc.querySelectorAll('.toast')].forEach(t => clearTimeout(t._timer));
+  const table = fs.readFileSync(path.join(root, 'src/js/table.js'), 'utf8');
+  assert.ok(!table.includes("'toast_calc_done'"), 'A tur / namuna to\'ldirish "Hisoblash yakunlandi!" demaydi');
+  assert.match(table, /toast_typea_done/); assert.match(table, /toast_sample_done/);
+  assert.equal((fs.readFileSync(path.join(root, 'src/js/typeB.js'), 'utf8').match(/'toast_calc_done'/g) || []).length, 1);
+});
