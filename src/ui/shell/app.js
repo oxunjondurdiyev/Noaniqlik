@@ -192,7 +192,9 @@ function closeCmdk() {
   const box = $('cmdk');
   if (!box || box.hidden) return;
   box.hidden = true;
-  if (opener && opener.focus) opener.focus();
+  // fokus ochgan elementga qaytadi; klaviatura (Ctrl+K) bilan ochilgan bo'lsa — qidiruv tugmasiga
+  const back = opener && opener !== document.body && opener.focus ? opener : $('btn-cmdk');
+  if (back) back.focus();
   opener = null;
 }
 function runItem(i) {

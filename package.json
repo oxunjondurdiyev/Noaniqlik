@@ -13,7 +13,8 @@
     "rtm": "node scripts/rtm.js --write",
     "validation:report": "node scripts/validation-report.js",
     "build:site": "node scripts/build-site.js",
-    "test:site": "node tests/crossbrowser/site.js"
+    "test:site": "node tests/crossbrowser/site.js",
+    "test:screens": "node tests/crossbrowser/screens.js"
   },
   "engines": {
     "node": ">=20"

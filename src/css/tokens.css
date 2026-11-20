@@ -107,7 +107,7 @@
   --c-violet:        #c4b5fd;   /* 4-seriya */
   --c-on-accent:     #10203c;   /* urg'u fonidagi matn */
 
-  --c-blue-soft:     rgba(90, 169, 255, .12);
+  --c-blue-soft:     rgba(90, 169, 255, .10);
   --c-amber-soft:    rgba(243, 191, 114, .14);
   --c-green-soft:    rgba(69, 211, 154, .14);
   --c-red-soft:      rgba(232, 112, 122, .14);
