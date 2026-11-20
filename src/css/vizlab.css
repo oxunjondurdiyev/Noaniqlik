@@ -1,1 +1,181 @@
-/* VIZLAB.CSS — P16 (Interfeys 2.0). Qiymatlar faqat tokens.css dan. */
+/* ═══════════════════════════════════════════════════════════════
+   VIZLAB.CSS — P16 (Interfeys 2.0): Vizual laboratoriya (src/ui/vizlab/).
+   Qiymatlar faqat tokens.css dan: rang kodi, gradient, soya, emoji va chap chetida rangli chiziqli karta yo'q.
+   SVG ranglari shu yerdagi sinflar orqali (JS `style` atributi yozmaydi). @keyframes — faqat transform / opacity.
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── Tuzilma ───────────────────────────────────────── */
+.vz { display: grid; gap: var(--s-5); min-width: 0; }
+.vz-head { display: grid; gap: var(--s-3); min-width: 0; }
+.vz-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); }
+.vz-mode-head { display: grid; gap: var(--s-2); min-width: 0; }
+.vz-title { margin: 0; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--c-text); }
+.vz-intro, .vz-mode-desc { margin: 0; max-width: 78ch; color: var(--c-text-2); line-height: 1.55; }
+.vz-mode-desc { font-size: .92rem; }
+.vz-mode-title { margin: 0; font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--c-text); }
+.vz-modes, .vz-seg { margin: 0; gap: var(--s-2); }
+.vz-panel { display: grid; gap: var(--s-4); min-width: 0; }
+.vz-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.vz-grid { display: grid; gap: var(--s-4); align-items: start; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); min-width: 0; }
+.vz-grid-4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+.vz-col { display: grid; gap: var(--s-4); align-content: start; min-width: 0; }
+@media (min-width: 980px) {
+  .vz-grid-mc { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+}
+
+.vz-card {
+  display: grid; gap: var(--s-3); align-content: start; min-width: 0;
+  padding: var(--s-5);
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card);
+}
+.vz-card-title { margin: 0; font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--c-text); overflow-wrap: anywhere; }
+.vz-sub { margin: var(--s-2) 0 0; font-size: .82rem; font-weight: 600; letter-spacing: .02em; color: var(--c-text-2); }
+@media (max-width: 719px) {
+  .vz-card { padding: var(--s-4); }
+  .vz-title { font-size: 1.3rem; }
+}
+
+/* ─── Boshqaruv (har biri ≥ 44 px) ──────────────────── */
+.vz-ctl { display: grid; gap: var(--s-1); min-width: 0; }
+.vz-ctl-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--s-2); }
+.vz-ctl-head label, .vz-ctl-label { font-size: .88rem; font-weight: 500; color: var(--c-text-2); }
+.vz-ctl-val { font-family: var(--font-mono); font-size: .9rem; color: var(--c-text); }
+.vz-range { width: 100%; min-height: var(--tap); margin: 0; padding: 0; background: transparent; accent-color: var(--c-blue); cursor: pointer; }
+.vz-select { width: 100%; min-height: var(--tap); border-radius: var(--r-control); }
+.vz-hint { margin: 0; font-size: .8rem; line-height: 1.45; color: var(--c-text-3); }
+.vz-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.vz-actions .btn { min-height: var(--tap); }
+.vz-check-row { display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap); }
+.vz-check-row label { display: flex; align-items: center; min-height: var(--tap); font-size: .88rem; color: var(--c-text-2); cursor: pointer; }
+.vz-check { flex: 0 0 auto; width: 22px; height: 22px; margin: 0; accent-color: var(--c-blue); cursor: pointer; }
+.vz-progress { display: block; width: 100%; height: 8px; accent-color: var(--c-blue); }
+
+/* ─── Ko'rsatkichlar, izohlar, jadval ───────────────── */
+.vz-stats { display: grid; margin: 0; }
+.vz-stat { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--s-1) var(--s-3); padding: var(--s-2) 0; border-bottom: 1px solid var(--c-border); }
+.vz-stat:last-child { border-bottom: 0; }
+.vz-stat dt { font-size: .86rem; color: var(--c-text-2); }
+.vz-stat dd { margin: 0 0 0 auto; font-family: var(--font-mono); font-size: .9rem; color: var(--c-text); text-align: right; overflow-wrap: anywhere; }
+
+.vz-note { margin: 0; font-size: .84rem; line-height: 1.5; }
+.vz-info, .vz-warn { padding: var(--s-2) var(--s-3); border-radius: var(--r-control); border: 1px solid var(--c-blue-line); background: var(--c-blue-soft); color: var(--c-text-2); }
+.vz-warn { border-color: var(--c-amber-line); background: var(--c-amber-soft); color: var(--c-text); }
+.vz-verdict { display: grid; gap: var(--s-2); min-width: 0; }
+.vz-verdict-line { margin: 0; line-height: 1.6; }
+.vz-list { margin: 0; padding-left: var(--s-5); color: var(--c-text-2); }
+
+.vz-table-wrap { overflow-x: auto; }
+.vz-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.vz-table th, .vz-table td { padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--c-border); text-align: right; color: var(--c-text); background: transparent; }
+.vz-table thead th { font-size: .8rem; font-weight: 600; color: var(--c-text-3); }
+.vz-table th[scope="row"], .vz-table thead th:first-child { text-align: left; font-weight: 500; color: var(--c-text-2); padding-left: 0; overflow-wrap: anywhere; }
+.vz-table td:last-child, .vz-table th:last-child { padding-right: 0; }
+.vz-changed { color: var(--c-amber); font-weight: 600; }
+
+.vz-log { display: grid; gap: var(--s-2); max-height: 280px; margin: 0; padding: 0; overflow: auto; list-style: none; }
+.vz-log-item { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); padding-bottom: var(--s-2); border-bottom: 1px solid var(--c-border); }
+.vz-log-pt { min-width: 3.5rem; color: var(--c-text-2); font-size: .86rem; }
+
+/* ─── Rasmlar (SVG) ─────────────────────────────────── */
+.vz-chart { min-width: 0; }
+.vz-svg { display: block; width: 100%; height: auto; max-width: 720px; margin-inline: auto; overflow: hidden; }
+.vz-tick { fill: var(--c-text-3); font-family: var(--font-mono); font-size: 12px; }
+.vz-tick-2 { font-size: 11px; }
+.vz-axis { stroke: var(--c-border-strong); stroke-width: 1; }
+.vz-center { stroke: var(--c-border-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+.vz-plot { fill: none; stroke: var(--c-border); stroke-width: 1; }
+.vz-curve { fill: none; stroke: var(--c-blue); stroke-width: 2; stroke-linejoin: round; }
+.vz-bar { fill: var(--c-blue-soft); stroke: var(--c-blue-line); stroke-width: .5; }
+.vz-dot { fill: var(--c-blue); }
+.vz-iv-lpu { fill: none; stroke: var(--c-amber); stroke-width: 2; }
+.vz-iv-mcm { fill: none; stroke: var(--c-violet); stroke-width: 2; }
+.vz-iv-lpu-t { fill: var(--c-amber); stroke: none; }
+.vz-iv-mcm-t { fill: var(--c-violet); stroke: none; }
+
+/* b) muvofiqlik */
+.vz-z-accept { fill: var(--c-green-soft); }
+.vz-z-guard  { fill: var(--c-amber-soft); }
+.vz-z-reject { fill: var(--c-red-soft); }
+.vz-lim-t { stroke: var(--c-text-2); stroke-width: 1.5; }
+.vz-lim-a { stroke: var(--c-green); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.vz-mark { stroke-width: 2; }
+.vz-st-accept { stroke: var(--c-green); }
+.vz-st-guard  { stroke: var(--c-amber); }
+.vz-st-reject { stroke: var(--c-red); }
+.vz-mark-dot.vz-st-accept { fill: var(--c-green); }
+.vz-mark-dot.vz-st-guard  { fill: var(--c-amber); }
+.vz-mark-dot.vz-st-reject { fill: var(--c-red); }
+.vz-gauge-row { display: grid; gap: var(--s-3); align-items: center; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+.vz-gauge { max-width: 240px; }
+.vz-gauge-bg, .vz-gauge-fg { fill: none; stroke-width: 12; }
+.vz-gauge-bg { stroke: var(--c-border-strong); }
+.vz-gauge-num { fill: var(--c-text); font-family: var(--font-display); font-size: 24px; font-weight: 600; }
+
+/* d) QC kartasi */
+.vz-qc-l3 { stroke: var(--c-red); stroke-width: 1; stroke-dasharray: 6 4; }
+.vz-qc-l2 { stroke: var(--c-amber); stroke-width: 1; stroke-dasharray: 3 4; }
+.vz-qc-cl { stroke: var(--c-text-3); stroke-width: 1; }
+.vz-qc-path { fill: none; stroke: var(--c-blue-line); stroke-width: 1.5; }
+.vz-qc-dot circle { fill: var(--c-blue); }
+.vz-qc-flag circle { fill: var(--c-red-soft); stroke: var(--c-red); stroke-width: 1.5; }
+.vz-qc-flag path { fill: none; stroke: var(--c-red); stroke-width: 1.5; }
+.vz-qc-sup circle { fill: var(--c-amber-soft); stroke: var(--c-amber); stroke-width: 1.5; }
+.vz-qc-new { transform-box: fill-box; transform-origin: center; animation: vz-pop var(--t-base) var(--ease); }
+
+/* e) korrelyatsiya */
+.vz-cloud { max-width: 440px; }
+.vz-cloud-pts circle { fill: var(--c-blue); opacity: .5; }
+.vz-ellipse { fill: var(--c-amber-soft); stroke: var(--c-amber); stroke-width: 2; stroke-linejoin: round; }
+
+/* ulush chiziqlari (e, f) */
+.vz-bars { display: grid; gap: var(--s-2); min-width: 0; }
+.vz-bar-row { display: grid; grid-template-columns: minmax(0, 9.5rem) minmax(40px, 1fr) auto; align-items: center; gap: var(--s-3); min-height: 28px; }
+.vz-bar-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--c-text-2); }
+.vz-bar-row-sel .vz-bar-name { color: var(--c-text); font-weight: 600; }
+.vz-share { display: block; width: 100%; height: 8px; }
+.vz-share-bg { fill: var(--c-border-strong); opacity: .5; }
+.vz-share-fg { fill: var(--c-blue); }
+.vz-share-neg { fill: var(--c-violet); }
+.vz-bar-sel .vz-share-fg, .vz-bar-plus .vz-share-fg { fill: var(--c-amber); }
+.vz-bar-zero .vz-share-fg { fill: var(--c-text-3); }
+.vz-bar-minus .vz-share-fg { fill: var(--c-violet); }
+
+/* c) chegaraviy holatlar */
+.vz-ex-card { gap: var(--s-2); }
+.vz-sketch { max-width: 300px; margin-inline: 0; }
+.vz-ex-do { margin: 0; color: var(--c-text-2); }
+.vz-ex-card p { margin: 0; line-height: 1.55; color: var(--c-text-2); }
+.vz-sk-axis  { fill: none; stroke: var(--c-border-strong); stroke-width: 1; }
+.vz-sk-dash  { fill: none; stroke: var(--c-text-3); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.vz-sk-ghost { fill: none; stroke: var(--c-text-3); stroke-width: 1.5; }
+.vz-sk-hot   { fill: none; stroke: var(--c-amber); stroke-width: 2; }
+.vz-sk-wall  { stroke: var(--c-red); stroke-width: 2; }
+.vz-sk-fill  { fill: var(--c-red-soft); stroke: var(--c-red-line); stroke-width: 1; }
+.vz-anim-pulse { animation: vz-pulse 3s var(--ease) infinite alternate; }
+
+/* ─── Izoh belgilari (legend) ───────────────────────── */
+.vz-legend { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); margin: 0; padding: 0; list-style: none; font-size: .8rem; color: var(--c-text-2); }
+.vz-legend li { display: flex; align-items: center; gap: var(--s-2); }
+.vz-legend li::before { content: ''; flex: 0 0 auto; width: 16px; height: 3px; border-radius: 2px; background: var(--c-text-3); }
+.vz-legend .vz-lg-curve::before, .vz-legend .vz-lg-qc-dot::before, .vz-legend .vz-lg-cloud::before { background: var(--c-blue); }
+.vz-legend .vz-lg-lpu::before, .vz-legend .vz-lg-ellipse::before { background: var(--c-amber); }
+.vz-legend .vz-lg-mcm::before { background: var(--c-violet); }
+.vz-legend .vz-lg-hist::before, .vz-legend .vz-lg-accept::before, .vz-legend .vz-lg-guard::before, .vz-legend .vz-lg-reject::before { height: 10px; border: 1px solid var(--c-border-strong); }
+.vz-legend .vz-lg-hist::before   { background: var(--c-blue-soft);  border-color: var(--c-blue-line); }
+.vz-legend .vz-lg-accept::before { background: var(--c-green-soft); border-color: var(--c-green-line); }
+.vz-legend .vz-lg-guard::before  { background: var(--c-amber-soft); border-color: var(--c-amber-line); }
+.vz-legend .vz-lg-reject::before { background: var(--c-red-soft);   border-color: var(--c-red-line); }
+.vz-legend .vz-lg-qc-dot::before, .vz-legend .vz-lg-qc-flag::before, .vz-legend .vz-lg-qc-sup::before, .vz-legend .vz-lg-cloud::before { width: 10px; height: 10px; border-radius: 50%; }
+.vz-legend .vz-lg-qc-flag::before { background: var(--c-red-soft);   border: 1.5px solid var(--c-red); }
+.vz-legend .vz-lg-qc-sup::before  { background: var(--c-amber-soft); border: 1.5px solid var(--c-amber); }
+
+/* ─── Harakat: faqat transform / opacity (prefers-reduced-motion — motion.css da umumiy o'chiriladi) ─── */
+@keyframes vz-pop {
+  from { opacity: 0; transform: scale(.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes vz-pulse {
+  from { opacity: .3; }
+  to   { opacity: 1; }
+}
