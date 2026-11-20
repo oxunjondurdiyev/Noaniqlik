@@ -380,3 +380,21 @@ label { color: var(--c-text-2); }
 .finding-rule-error   { background: var(--c-red-soft);   color: var(--c-red-text); border: 1px solid var(--c-red-line); }
 .finding-rule-warning { background: var(--c-amber-soft); color: var(--c-amber);    border: 1px solid var(--c-amber-line); }
 .finding-rule-info    { background: var(--c-blue-soft);  color: var(--c-blue);     border: 1px solid var(--c-blue-line); }
+
+/* P14 + P16: AI yordamchi — tokenlar bilan (belgilar, alohida sahifa ai.html); telefonda tugma ixcham */
+.ai-badge { background: var(--c-amber-soft); color: var(--c-amber); border: 1px solid var(--c-amber-line); }
+.ai-unofficial { border: 1px dashed var(--c-amber-line); color: var(--c-amber); border-radius: var(--r-button); }
+.tpl-st-ai { border: 1px dashed var(--c-amber-line); }
+.ai-own-page { max-width: 900px; margin: var(--s-6) auto var(--s-12); padding: var(--s-6); gap: var(--s-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card); }
+.ai-own-page label { display: flex; flex-direction: column; gap: var(--s-1); }
+.ai-own-page textarea { min-height: 240px; width: 100%; }
+.ai-own-page img { border: 1px solid var(--c-border); border-radius: var(--r-control); }
+a.topbar-brand { text-decoration: none; color: var(--c-text); }
+/* qobiq layout.css siz ham ishlaydi (ai.html) */
+.topbar { display: flex; align-items: center; justify-content: space-between; }
+.topbar-left, .topbar-right, .topbar-brand { display: flex; align-items: center; }
+@media (max-width: 719px) {
+  .topbar-right > [data-ai-open] { padding: 0 var(--s-2); font-size: .74rem; }
+  .ai-own-page { margin: var(--s-3); padding: var(--s-4); }
+  a.topbar-brand .topbar-brand-name, a.topbar-brand span { display: inline; }
+}

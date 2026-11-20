@@ -6,7 +6,7 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 
 ## P16 — Interfeys 2.0: yangi dizayn tizimi, moslashuvchan qobiq, Vizual laboratoriya (2026-11-20)
 
-**ENGINE_VERSION o'zgarmadi (2.10.0): HISOB O'ZGARMAGAN, faqat ko'rinish.** `src/engine/` ga tegilmagan (bitta bayt ham). `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi P13 holati (`f09e418`) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0) — har bir bosqichdan keyin tekshirildi. `tests/security/engine.sha256.json` yangilandi: sabab — faqat `src/report/` dagi markup (pastga qarang).
+**ENGINE_VERSION o'zgarmadi (2.10.0): HISOB O'ZGARMAGAN, faqat ko'rinish.** `src/engine/` ga tegilmagan (bitta bayt ham). `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi P13 holati (`f09e418`; P14 — `88e271e` — ham dvigatelga tegmagan) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0) — har bir bosqichdan keyin tekshirildi. `tests/security/engine.sha256.json` yangilandi: sabab — faqat `src/report/` dagi markup (pastga qarang).
 
 ### Qo'shilganlar
 
@@ -16,8 +16,9 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Natijalar ekrani**: asosiy natija kartasi, **noaniqlik tasmasi** (`src/report/ribbon.js` — skriptsiz SVG: N(y, u_c), ±U ramkasi, MCM intervallari), KPI plitkalari (u_c, ν_eff, k, U, ustun manba ulushi), byudjet jadvalida νᵢ ustuni va "Jadval / Pareto" ko'rinishi, o'ng panel (topilmalar, hisob sozlamalari, Monte-Karlo bilan solishtirish).
 - **Kiritish**: B tur manbasi varag'i — telefonda pastdan chiqadi (bottom sheet), ≥ 720 px da yon panel; taqsimot segmenti; jonli "u = a/√3 = …" dvigatel funksiyalari orqali.
 - **Laboratoriya**: QC kartasida ±1s / ±2s / ±3s zonalari, ogohlantirish va rad etish nuqtalari, oxirgi nuqta yorlig'i (qoida + z), Westgard qoidalari holati paneli (1₂s darvozasi, `suppressed`); etalonlar reestri kartochkalari (amal qiladi / 30 kun ichida tugaydi / muddati o'tgan); PT va validatsiya shu uslubda.
-- **Hisobot**: "Hisobot" yorlig'i — oq A4 qog'oz ko'rinishi, 4 shaklli almashtirgich, "PDF" va "Chop etish"; bosma CSS (`src/css/print.css`): jadval sarlavhasi sahifa bo'linishida takrorlanadi, eng kichik shrift 12 pt, **pastki qism (ENGINE, build, xesh, QR) har sahifada**.
+- **Hisobot**: "Hisobot" yorlig'i — oq A4 qog'oz ko'rinishi, 4 shaklli almashtirgich, "PDF" va "Chop etish"; bosma CSS (`src/css/print.css`): jadval sarlavhasi sahifa bo'linishida takrorlanadi; shrift — asosiy matn 11 pt, jadvallar 10 pt, pastki qism 9 pt (egasi qarori 2026-11-20); **pastki qism (ENGINE, build, xesh, QR) har sahifada**. Sahifalar soni (Chromium PDF): zichlik — 3, gazoanalizator (3 nuqta) — 8, termometr (5 nuqta) — 16.
 - **Vizual laboratoriya** (`src/ui/vizlab/`, o'quv vositasi, dvigatelga ulangan; birinchi ochilganda yuklanadi): Monte-Karlo jonli, muvofiqlik simulyatori (`decide()`), ekstremal holatlar, QC siljishi (`westgard()`), korrelyatsiya, byudjet sezgirligi (`evaluate()`). Har bir rejimda "o'quv namunasi" yorlig'i; natija saqlanmaydi va hisobotga chiqmaydi.
+- **AI sahifasi (P14) yangi dizaynda**: `ai.html` va AI oynasi tokenlar / qobiq uslubida; `ai.html` CSP si o'zgarmagan — faqat Google Fonts manbalari olib tashlandi; saqlangan mavzu qo'llanadi. P16 P14 (`88e271e`) ustiga rebase qilingan.
 - **Harakat** (`src/css/motion.css`): faqat CSS, faqat transform / opacity; `prefers-reduced-motion: reduce` da hammasi o'chadi (test).
 - **Testlar**: `tests/ui/{shell,contrast,motion,sheet,lab2,vizlab}.test.js`, `tests/report/{ribbon,print}.test.js`, `tests/security/inline-style.test.js`; brauzerda — `npm run test:screens` (`tests/crossbrowser/screens.js`: 5 ekran × 3 o'lcham × 2 mavzu; ≥ 44 px, kontrast, klaviatura, konsol xatosi; skrinshotlar — CI artifact `ui-screens`).
 

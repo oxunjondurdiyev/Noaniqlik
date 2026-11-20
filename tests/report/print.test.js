@@ -22,7 +22,7 @@ const I18N = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', '
 const caseSpec = id => require(`../cases/excel/${id}.json`).modelSpec;
 const frag = html => new JSDOM('<!doctype html><body><div id="r">' + html + '</div></body>').window.document.getElementById('r');
 
-test('print.css: A4, oq qog\'oz, fon to\'ri va soya yo\'q, jadval sarlavhasi takrorlanadi, eng kichik shrift 12 pt', () => {
+test('print.css: A4, oq qog\'oz, fon to\'ri va soya yo\'q, jadval sarlavhasi takrorlanadi; matn ≥ 11 pt, jadval ≥ 10 pt, pastki qism ≥ 9 pt', () => {
   const css = strip(read('src/css/print.css'));
   assert.match(css, /@page\s*\{\s*size:\s*A4;/);
   const print = css.slice(css.indexOf('@media print'));
@@ -31,10 +31,14 @@ test('print.css: A4, oq qog\'oz, fon to\'ri va soya yo\'q, jadval sarlavhasi tak
   assert.match(css, /\.report-doc \.print-table thead\s*\{\s*display:\s*table-header-group;/);
   assert.match(css, /\.report-doc \.report-frame-foot\s*\{\s*display:\s*table-footer-group;/);
   assert.match(css, /\.report-doc \.print-table tr\s*\{\s*break-inside:\s*avoid;/);
-  // hisobot hujjatidagi har bir shrift o'lchami ≥ 12 pt
-  const sizes = [...css.matchAll(/font-size:\s*([\d.]+)pt/g)].map(m => Number(m[1]));
-  assert.ok(sizes.length >= 8);
-  for (const s of sizes) assert.ok(s >= 12, s + ' pt');
+  // shrift o'lchamlari (egasi qarori 2026-11-20, R-29 #7): asosiy matn ≥ 11 pt, jadvallar ≥ 10 pt, pastki qism ≥ 9 pt
+  const rules = [...css.matchAll(/([^{}]+)\{([^{}]*font-size:\s*([\d.]+)pt[^{}]*)\}/g)].map(m => ({ sel: m[1].trim(), pt: Number(m[3]) }));
+  assert.ok(rules.length >= 8);
+  for (const r of rules) {
+    const min = /report-foot/.test(r.sel) ? 9 : /print-table/.test(r.sel) ? 10 : 11;
+    assert.ok(r.pt >= min, `${r.sel}: ${r.pt} pt < ${min} pt`);
+  }
+  assert.equal(rules.find(r => r.sel === '.report-doc').pt, 11);
   assert.ok(!/font-size:\s*[\d.]+(px|rem|em)/.test(css.slice(css.indexOf('.report-doc {'))), 'hujjat ichida faqat pt');
   // qog'oz ranglari — tokens.css dan (yagona joy)
   assert.deepEqual(css.match(/#[0-9a-fA-F]{3,8}\b|rgba?\(/g) || [], []);

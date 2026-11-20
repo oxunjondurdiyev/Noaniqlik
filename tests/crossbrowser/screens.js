@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* TESTS/CROSSBROWSER/SCREENS.JS — P16 (Interfeys 2.0): skrinshot va kirish imkoniyati testi (haqiqiy brauzer, Playwright).
-   Ekranlar: Natijalar, Kiritish (B tur varag'i), QC, Hisobot, Vizual laboratoriya — 390×844, 834×1194, 1440×900;
+   Ekranlar: Natijalar, Kiritish (B tur varag'i), QC, Hisobot, Vizual laboratoriya, AI sahifasi (ai.html) — 390×844, 834×1194, 1440×900;
    qorong'i va yorug' mavzu. Skrinshotlar `--out` papkasiga (CI artifact — egasi kontsept bilan solishtiradi).
    Har bir ekranda AVTOMATIK tekshiruv (birortasi buzilsa — chiqish kodi 1):
      • konsolda xato / sahifa xatosi / CSP buzilishi yo'q (build.json 404 — lokal ishlashda kutilgan holat);
@@ -140,6 +140,43 @@ async function run(name, playwright, server) {
           if (s.after) await s.after(page);
         } catch (e) { problems.push(`${id}: ${String(e && e.message || e).split('\n')[0]}`); }
       }
+      // AI sahifasi (ai.html, P14 — alohida CSP): yangi tokenlar / qobiq bilan; tarmoqqa chiqilmaydi (so'rov yo'q — "so'rov topilmadi" holati)
+      try {
+        const ai = await ctx.newPage();
+        const aiErrors = [];
+        await ai.route('**/*', route => (new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort()));
+        ai.on('pageerror', e => aiErrors.push('pageerror: ' + (e && e.message || e)));
+        ai.on('console', m => { if (m.type() === 'error') aiErrors.push('console: ' + m.text()); });
+        await ai.goto(server.url + '/ai.html', { waitUntil: 'load' });
+        await ai.waitForFunction(() => document.getElementById('ai-own-model').options.length > 0, null, { timeout: 15000 });
+        await ai.waitForTimeout(300);
+        await ai.screenshot({ path: path.join(OUT, `${name}-ai-${tag}.png`) });
+        const au = await ai.evaluate(({ minTap, minContrast, minLarge }) => {
+          const out = { tap: [], contrast: [], overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth), theme: document.documentElement.getAttribute('data-theme'), font: getComputedStyle(document.body).fontFamily };
+          const parse = c => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[,\s/]+/).filter(Boolean).map(Number); return [p[0], p[1], p[2], p[3] === undefined ? 1 : p[3]]; };
+          const over = (f, b) => [0, 1, 2].map(i => f[i] * f[3] + b[i] * (1 - f[3])).concat(1);
+          const lum = c => { const f = v => { const x = v / 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+          const bgOf = el => { const layers = []; for (let p = el; p; p = p.parentElement) { const c = parse(getComputedStyle(p).backgroundColor); if (c && c[3] > 0) { layers.push(c); if (c[3] >= 1) break; } } let base = [255, 255, 255, 1]; for (let i = layers.length - 1; i >= 0; i--) base = over(layers[i], base); return base; };
+          for (const el of document.querySelectorAll('button, select, input, textarea')) { const r = el.getBoundingClientRect(); if (r.width > 0 && r.height < minTap - 0.5) out.tap.push((el.id || el.tagName) + ' ' + Math.round(r.height) + 'px'); }
+          for (const el of document.querySelectorAll('h1, span, div.warn-box, button, #ai-own-msg, a')) {
+            if (!el.textContent.trim() || !el.getBoundingClientRect().width || el.disabled) continue;
+            const cs = getComputedStyle(el), fg0 = parse(cs.color); if (!fg0) continue;
+            const bg = bgOf(el), fg = over(fg0, bg), l1 = lum(fg), l2 = lum(bg), r = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+            const size = parseFloat(cs.fontSize), large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
+            if (r < (large ? minLarge : minContrast) - 0.01) out.contrast.push((el.id || el.tagName) + ' ' + r.toFixed(2));
+          }
+          return out;
+        }, { minTap: MIN_TAP, minContrast: MIN_CONTRAST, minLarge: MIN_CONTRAST_LARGE });
+        const id = `${name} ai ${tag}`;
+        if (au.theme !== theme) problems.push(`${id}: mavzu qo'llanmadi (${au.theme})`);
+        if (!/Inter/.test(au.font)) problems.push(`${id}: shrift tokenlardan emas (${au.font})`);
+        if (au.tap.length) problems.push(`${id}: < ${MIN_TAP}px: ${au.tap.join('; ')}`);
+        if (au.contrast.length) problems.push(`${id}: kontrast: ${au.contrast.join('; ')}`);
+        if (au.overflow > 1) problems.push(`${id}: gorizontal surilish ${au.overflow}px`);
+        if (aiErrors.length) problems.push(`${id}: ${[...new Set(aiErrors)].slice(0, 3).join(' | ')}`);
+        rows.push({ screen: 'ai', size: `${w}x${h}`, theme, tap: au.tap.length, contrast: au.contrast.length, overflow: au.overflow });
+        await ai.close();
+      } catch (e) { problems.push(`${name} ai ${tag}: ${String(e && e.message || e).split('\n')[0]}`); }
       // klaviatura: Ctrl+K → qidiruv, yozish, Esc; fokus ko'rinadi
       await page.evaluate(() => window.UCShell.goStep('results'));
       await page.keyboard.press('Control+k');
@@ -168,7 +205,7 @@ const server = await startServer(ROOT);
 const results = [];
 try { for (const b of browsers) results.push(await run(b, playwright, server)); } finally { await server.close(); }
 const problems = results.flatMap(r => r.problems);
-fs.writeFileSync(path.join(OUT, 'screens.json'), JSON.stringify({ sizes: SIZES.map(s => s.join('x')), themes: THEMES, screens: SCREENS.map(s => s.key), results, ok: problems.length === 0 }, null, 2));
+fs.writeFileSync(path.join(OUT, 'screens.json'), JSON.stringify({ sizes: SIZES.map(s => s.join('x')), themes: THEMES, screens: [...SCREENS.map(s => s.key), 'ai'], results, ok: problems.length === 0 }, null, 2));
 console.log(`skrinshotlar: ${results.reduce((n, r) => n + r.rows.length, 0)} ta → ${path.relative(ROOT, OUT)}/`);
 for (const p of problems) console.log('  ✗ ' + p);
 if (problems.length) { console.log(`XATO: ${problems.length} ta muammo`); process.exit(1); }

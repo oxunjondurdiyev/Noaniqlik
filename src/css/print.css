@@ -2,7 +2,8 @@
    PRINT.CSS — P16 (Interfeys 2.0): Hisobot — ekrandagi A4 ko'rinishi va bosma.
    `.report-doc` — hisobot hujjati (ekrandagi qog'oz #report-preview va bosma maydoni #print-report): mavzudan qat'i nazar
    oq qog'oz (elementda data-theme="light"; qog'oz ranglari — tokens.css --paper-*).
-   Bosmada: fon to'ri yo'q, soya yo'q, jadval sarlavhasi sahifa bo'linishida takrorlanadi, eng kichik shrift 12 pt,
+   Bosmada: fon to'ri yo'q, soya yo'q, jadval sarlavhasi sahifa bo'linishida takrorlanadi; shrift (egasi qarori 2026-11-20, R-29 #7): asosiy matn ≥ 11 pt,
+   jadvallar 10 pt, pastki qism 9 pt;
    pastki qism (ENGINE, build, xesh, QR) HAR SAHIFADA (ramka jadvalining <tfoot> i — src/report/forms.js).
 ═══════════════════════════════════════════════════════════════ */
 
@@ -25,7 +26,7 @@
 /* ─── Hisobot hujjati (ekran + bosma) ───────────────── */
 .report-doc {
   font-family: var(--font-text);
-  font-size: 12pt; line-height: 1.4;
+  font-size: 11pt; line-height: 1.4;
   color: var(--paper-ink);
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
@@ -36,16 +37,16 @@
 .report-doc .mono, .report-doc .num, .report-doc .cell-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .report-doc .print-report-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; margin-bottom: 1.2em; padding-bottom: .8em; border-bottom: 2px solid var(--paper-ink); }
 .report-doc .print-report-title { font-size: 16pt; font-weight: 700; font-family: var(--font-display); }
-.report-doc .print-report-meta, .report-doc .print-kpi-lbl { font-size: 12pt; color: var(--paper-muted); }
+.report-doc .print-report-meta, .report-doc .print-kpi-lbl { font-size: 11pt; color: var(--paper-muted); }
 .report-doc .print-point-title { font-size: 14pt; font-weight: 700; margin: .8em 0 .3em; }
-.report-doc .print-section { margin: 1em 0 .5em; font-size: 13pt; font-weight: 600; border-bottom: 1px solid var(--paper-rule); break-after: avoid; }
-.report-doc .print-note, .report-doc .report-line { font-size: 12pt; margin: .25em 0; }
-.report-doc .print-note-lg { font-size: 12pt; margin: .4em 0 .6em; }
-.report-doc .print-lead, .report-doc .report-result { font-size: 13pt; margin: .5em 0; }
-.report-doc .print-table { width: 100%; border-collapse: collapse; font-size: 12pt; margin-bottom: 1em; }
+.report-doc .print-section { margin: 1em 0 .5em; font-size: 12pt; font-weight: 600; border-bottom: 1px solid var(--paper-rule); break-after: avoid; }
+.report-doc .print-note, .report-doc .report-line { font-size: 11pt; margin: .25em 0; }
+.report-doc .print-note-lg { font-size: 11pt; margin: .4em 0 .6em; }
+.report-doc .print-lead, .report-doc .report-result { font-size: 12pt; margin: .5em 0; }
+.report-doc .print-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 1em; }
 .report-doc .print-table thead { display: table-header-group; }     /* sahifa bo'linishida sarlavha takrorlanadi */
 .report-doc .print-table tr { break-inside: avoid; }
-.report-doc .print-table th { background: var(--paper-fill); padding: .3em .35em; text-align: left; border: 1px solid var(--paper-rule); font-size: 12pt; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--paper-ink); }
+.report-doc .print-table th { background: var(--paper-fill); padding: .3em .35em; text-align: left; border: 1px solid var(--paper-rule); font-size: 10pt; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--paper-ink); }
 .report-doc .print-table td { padding: .25em .35em; border: 1px solid var(--paper-rule); overflow-wrap: break-word; }
 .report-doc .print-table th:first-child, .report-doc .print-table td:first-child { min-width: 30mm; }
 .report-doc .print-table .num { text-align: right; white-space: nowrap; overflow-wrap: normal; letter-spacing: -.03em; }
@@ -54,10 +55,10 @@
 .report-doc .print-kpi-row { display: flex; gap: 2em; flex-wrap: wrap; margin: .75em 0; }
 .report-doc .print-kpi-val { font-size: 14pt; font-weight: 700; font-family: var(--font-mono); }
 .report-doc .print-page-break { break-before: page; }
-.report-doc .report-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 1em; margin-top: 1em; padding-top: .5em; border-top: 1px solid var(--paper-ink); font-size: 12pt; line-height: 1.25; break-inside: avoid; }
+.report-doc .report-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 1em; margin-top: 1em; padding-top: .5em; border-top: 1px solid var(--paper-ink); font-size: 9pt; line-height: 1.25; break-inside: avoid; }
 .report-doc .report-foot-value { font-family: var(--font-mono); word-break: break-all; }
 .report-doc .report-foot-note { color: var(--paper-muted); }
-.report-doc .report-qr { width: 30mm; height: 30mm; flex: 0 0 auto; }
+.report-doc .report-qr { width: 22mm; height: 22mm; flex: 0 0 auto; }
 .report-doc .badge { border: 1px solid var(--paper-rule); background: transparent; color: var(--paper-ink); }
 .report-doc .formula-box { background: transparent; border: 1px solid var(--paper-rule); color: var(--paper-ink); }
 .report-doc .finding, .report-doc .warn-box, .report-doc .findings-block { background: transparent; border-color: var(--paper-rule); color: var(--paper-ink); }
@@ -68,7 +69,7 @@
 @media print {
   :root { color-scheme: light !important; }
   html, body { background: var(--paper-bg) !important; background-image: none !important; color: var(--paper-ink); }
-  body.print-report-mode { font-size: 12pt; }
+  body.print-report-mode { font-size: 11pt; }
   body.print-report-mode #print-report { display: block !important; }
   #print-report.report-doc { padding: 0; border: 0; box-shadow: none; }
   * { box-shadow: none !important; text-shadow: none !important; }

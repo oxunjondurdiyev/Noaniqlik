@@ -372,7 +372,7 @@
 | REQ-UIX-004 | Noaniqlik tasmasi: skriptsiz SVG, haqiqiy natijadan (y, u_c, U; MCM intervallari); yorliqlar `rounding.js` qoidalari bilan; U = 0 da chizilmaydi | P16 topshirig'i §3 |
 | REQ-UIX-005 | B tur manbasi varag'i: jonli u dvigatel funksiyalari orqali; klaviatura (Esc, fokus qaytishi); vergulli kasr | P16 topshirig'i §4 |
 | REQ-UIX-006 | Laboratoriya ko'rinishi: QC zonalari, ogohlantirish / rad etish nuqtalari, Westgard holati (darvoza, `suppressed`) — dvigatel natijasidan; etalon kartochkalari holati | P16 topshirig'i §5 |
-| REQ-UIX-007 | Hisobot: A4 ko'rinishi va bosma bitta quruvchidan; pastki qism (ENGINE, build, xesh, QR) har sahifada; jadval sarlavhasi takrorlanadi; eng kichik shrift 12 pt | P16 topshirig'i §6 |
+| REQ-UIX-007 | Hisobot: A4 ko'rinishi va bosma bitta quruvchidan; pastki qism (ENGINE, build, xesh, QR) har sahifada; jadval sarlavhasi takrorlanadi; shrift: matn ≥ 11 pt, jadvallar ≥ 10 pt, pastki qism ≥ 9 pt (egasi qarori 2026-11-20) | P16 topshirig'i §6 |
 | REQ-UIX-008 | Vizual laboratoriya: har bir rejim dvigatel funksiyalari orqali (UI da qoida takrorlanmaydi); "o'quv namunasi" belgisi; hech narsa saqlanmaydi va hisobotga chiqmaydi | P16 topshirig'i §7 |
 | REQ-UIX-009 | Harakat: faqat CSS (transform / opacity); `prefers-reduced-motion: reduce` da o'chadi; JS sikli faqat Vizual laboratoriya va MC progressida | P16 topshirig'i §8 |
 | REQ-UIX-010 | Inline uslublar: P16 qismlarida yo'q; qolganlari soni oshmaydi; `validation.html` da `style-src 'self'` | P16 topshirig'i §9 |

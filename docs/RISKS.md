@@ -501,7 +501,17 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 
 **Holat.** UI to'liq yangi dizayn tizimiga o'tkazildi (`docs/ARCHITECTURE.md` — P16 bo'limi). Hisob o'zgarmagan: `src/engine/` ga tegilmagan, 91 misol bit darajasida bir xil.
 
-**Kontseptdan chetga chiqishlar (sababi bilan) — egasi qarorini kutadi:**
+**Egasi qarorlari (2026-11-20):**
+
+- **(0) P14 birlashtirildi (`88e271e`)** — `feat/p16-ui2` shu commit ustiga rebase qilindi; `ai.html` va AI oynasi yangi tokenlar / qobiqqa o'tkazildi (`ai.html` CSP si o'zgarmagan — faqat Google Fonts manbalari olib tashlandi); AI sahifasi skrinshot testida.
+- **(#1) MCM gistogrammasi — RUXSAT, lekin P16 da emas:** alohida PR **P16b** (P16 dan keyin): `opts.histogram` (opt-in), sonli natija bit darajasida o'zgarmaydi (snapshot 91 / 91), `ENGINE_VERSION` 2.11.0 (minor), `// Ref: JCGM 101:2008 §7.5`.
+- **(#2) Kragten — HA, alohida bosqich P17:** QUAM:2012 Appendix E.2; kutilgan qiymatlar FAQAT QUAM ishlangan misolidan (sahifa havolasi bilan); LPU o'rnini bosmaydi — solishtirish ko'rinishi, farq hisobotda yoziladi; minor versiya.
+- **(#3) `'unsafe-inline'` — HA, TO'LIQ olib tashlanadi:** alohida xavfsizlik PR'ida, P16 dan keyin; `npm run test:rules` va sayt tutun-testi o'tishi shart; `tests/security/inline-style.test.js` dagi qotirilgan son — 0.
+- **(#7) Bosma shrift:** jadvallar 10 pt; asosiy matn ≥ 11 pt; pastki qism ≥ 9 pt; keng byudjet sahifasi landscape bo'lishi mumkin (hozir qo'llanmadi — 10 pt da A4 portretga sig'adi). **Qo'llandi** (`src/css/print.css`, test). Sahifalar soni (Chromium PDF, A4): zichlik (1 nuqta) — 3 bet; gazoanalizator (3 nuqta) — 8 bet; termometr (5 nuqta) — 16 bet (har bir nuqta yangi sahifadan boshlanadi; pastki qism har sahifada).
+
+**Ochiq savollar (egasi javobini kutadi):** #4 (Vizual laboratoriya — yorliq), #5 (Space Grotesk kirillsiz; yunon to'plami), #6 (o'ng panel chegarasi 1180 px), #8 ("Manba bilan mos" nishoni yo'q), #9 ("Hisobot" tugmasi ko'rinishni ochadi), #10 (νᵢ < 10 belgisi), #12 (Vizual laboratoriyada n_dig = 1).
+
+**Kontseptdan chetga chiqishlar (sababi bilan):**
 
 1. **MCM gistogrammasi yo'q (tasma, Vizual laboratoriya — joriy hisob).** Topshiriq: "gistogramma `result.mc` dan". Dvigatelning Monte-Karlo natijasida namunalar ham, gistogramma ham yo'q (`docs/ENGINE_API.md` §12), `src/engine/` ga tegish esa taqiqlangan. Qilingani: tasmada MCM ning ikkala qamrov intervali (eng qisqa, ehtimoliy simmetrik) va o'rtachasi; Vizual laboratoriyada joriy hisob uchun jonli sonlar — dvigatel MCM ini o'sib boruvchi M bilan takror ishga tushirish orqali (har biri haqiqiy dvigatel natijasi); "tushayotgan nuqtalar" va gistogramma faqat o'quv modelida — dvigatelning o'z generatori (`createRng`) va tanlash funksiyalaridan olingan **illyustrativ** oqim, ekranda shunday deb yozilgan. **Variantlar:** (a) shunday qoldirish; (b) dvigatelga ixtiyoriy chiqish qo'shish (`opts.histogram: { bins }` → `mc.histogram`) — sonli natijaga ta'sir qilmaydi, lekin `src/engine/` o'zgaradi (xesh, `ENGINE_API.md`, semver bo'yicha minor), shundan keyin haqiqiy gistogramma tasmada ham chiziladi.
 2. **"Kragten" ko'rinishi qo'shilmadi.** Topshiriqda "mavjud funksiyalar" deyilgan, lekin repoda Kragten ham, Pareto ham yo'q edi. Pareto — yangi hisobsiz (dvigatel bergan ulushlarni saralash) qo'shildi. Kragten (QUAM:2012 E.2 — sonli elektron jadval usuli) — yangi metrologik funksiya: CLAUDE.md bo'yicha manbadan olingan test misolisiz qo'shilmaydi. Manba `docs/references/` da bor — alohida kichik bosqichda qo'shish mumkin.
@@ -509,7 +519,7 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 4. **Vizual laboratoriya — bo'lim (yorliq), alohida sahifa emas.** Sabab: joriy hisobga (appState) to'g'ridan-to'g'ri kirish, bitta CSP / til / mavzu; modul birinchi ochilganda yuklanadi, asosiy sahifa yukini oshirmaydi.
 5. **Space Grotesk da kirill to'plami yo'q** (shrift muallifi chiqarmagan) — ruscha sarlavhalar Inter bilan chiziladi (`unicode-range`, avtomatik). Yunon harflari (ν, σ) va matematik belgilar tizim shriftidan — topshiriq "faqat lotin + kirill" degani uchun yunon to'plami qo'shilmadi (qo'shilsa ≈ +20 KB).
 6. **O'ng panel chegarasi 1180 px** (topshiriqda ≥ 980 px). 980–1179 px da chap menyu (248 px) bilan asosiy ustunga 360 px qolar edi — byudjet jadvali o'qilmaydi; shu oraliqda panel pastga tushadi. QC kartasidagi Westgard paneli ham shunday.
-7. **Bosmada eng kichik shrift 12 pt** (topshiriq) — hujjat hajmi oshdi: 5 nuqtali termometr hisoboti 16 bet (pastki qism har sahifada ≈ 35 mm joy oladi). Sonlar qator ichida bo'linmaydi. Variant: jadvallar uchun 10 pt.
+7. **Bosma shrifti** — topshiriqda "minimal 12 pt" edi; egasi qarori bilan (yuqorida) jadvallar 10 pt, matn 11 pt, pastki qism 9 pt. Sonlar qator ichida bo'linmaydi.
 8. **"Manba bilan mos" nishoni ko'rsatilmaydi** — ish vaqtida bunday holat yo'q (verified misollar faqat testlarda); o'ylab topilmadi. Shablon holati (DRAFT / APPROVED) va MCM tekshiruvi natijasi avvalgidek haqiqiy holatdan chiqadi.
 9. **Yuqori paneldagi "Hisobot"** endi chop etish oynasini emas, "Hisobot" yorlig'ini (A4 ko'rinishi) ochadi; chop etish — o'sha yerdan.
 10. **νᵢ "kichik" chegarasi = 10** (byudjet jadvalida sariq) — faqat ko'rsatish; X7 dagi ν_eff < 10 bilan bir xil son. Hisobga va topilmalarga ta'sir qilmaydi.
