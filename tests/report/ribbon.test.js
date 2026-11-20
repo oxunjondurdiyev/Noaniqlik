@@ -117,7 +117,10 @@ test('byudjet: νᵢ ustuni (kichik ν belgilanadi), ulush chizig\'i SVG (uslub 
     const cell = rows[i].children[7];
     const noNu = b.kind === 'corr' || b.kind === 'second';
     assert.equal(cell.textContent.trim(), noNu ? '—' : (isFinite(b.nu) ? String(Math.floor(b.nu)) : '∞'));
-    assert.equal(cell.hasAttribute('data-nu-low'), !noNu && isFinite(b.nu) && b.nu < 10);
+    // egasi qarori: νᵢ < 10 VA |ulush| ≥ 5 % bo'lsa belgilanadi; ν = ∞ va kichik ulushli manba — yo'q; izohda "loyiha qarori"
+    const low = !noNu && isFinite(b.nu) && b.nu < 10 && Math.abs(b.share) >= 5;
+    assert.equal(cell.hasAttribute('data-nu-low'), low);
+    if (low) assert.equal(cell.getAttribute('title'), DICT.uz.nu_low_tip);
     assert.equal(Number(rows[i].querySelector('svg.share-bar rect').getAttribute('width')), Math.min(100, Math.abs(b.share)));
   });
   assert.equal(doc.querySelector('[data-nu-eff]').textContent, String(Math.floor(r.nuEff)));

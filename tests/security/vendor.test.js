@@ -68,9 +68,9 @@ test('vendor/README.md: har bir kutubxona versiyasi, litsenziyasi va SHA-256 bil
 });
 
 /* P16: shriftlar o'z-o'zidan joylangan (SIL OFL), Google Fonts yo'q — foydalanuvchi IP si uchinchi tomonga ketmaydi */
-test('vendor/fonts: SIL OFL litsenziyasi, faqat lotin + kirill woff2; har biri tokens.css da ishlatilgan va README da xeshi bor', () => {
+test('vendor/fonts: SIL OFL litsenziyasi, lotin + kirill (Inter — + yunon) woff2; har biri tokens.css da ishlatilgan va README da xeshi bor', () => {
   const md = read('vendor/README.md'), css = read('src/css/tokens.css');
-  const fonts = { inter: ['latin', 'cyrillic'], 'jetbrains-mono': ['latin', 'cyrillic'], 'space-grotesk': ['latin'] };
+  const fonts = { inter: ['latin', 'cyrillic', 'greek'], 'jetbrains-mono': ['latin', 'cyrillic'], 'space-grotesk': ['latin'] };
   for (const [name, subsets] of Object.entries(fonts)) {
     const dir = `vendor/fonts/${name}/5.3.0`;
     assert.match(read(dir + '/LICENSE'), /SIL Open Font License, Version 1\.1/, name);
@@ -82,6 +82,10 @@ test('vendor/fonts: SIL OFL litsenziyasi, faqat lotin + kirill woff2; har biri t
       assert.ok(md.includes(sha256(f)), 'README da xesh yo\'q: ' + f);
     }
   }
+  // yunon harflari (ν, σ, ρ) Inter dan: unicode-range U+0370… va mono / sarlavha zanjirida Inter bor (tizim shriftiga tushmaydi)
+  assert.match(css, /inter-greek-wght-normal\.woff2'\) format\('woff2'\);\s*unicode-range: U\+0370/);
+  assert.match(css, /--font-mono:\s*'JetBrains Mono', 'Inter',/);
+  assert.match(css, /--font-display:\s*'Space Grotesk', 'Inter',/);
   // tokens.css dagi har bir url() mavjud faylga ishora qiladi
   for (const m of css.matchAll(/url\('([^')]+)'\)/g)) assert.ok(fs.existsSync(path.join(ROOT, 'src/css', m[1])), m[1]);
 });

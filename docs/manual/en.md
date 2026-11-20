@@ -547,7 +547,7 @@ The "Report" step shows the document on a white A4 page. The form (one of four) 
 
 ### 14.5. Visual lab
 
-A teaching tool: live Monte Carlo view, conformity simulator, extreme cases, QC drift, correlation and budget sensitivity. The numbers come from the calculation engine. Every mode carries a "teaching sample" label; results from here are not saved and do not appear in the report.
+Direct link: add `#lab` to the page address. A teaching tool: live Monte Carlo view, conformity simulator, extreme cases, QC drift, correlation and budget sensitivity. The numbers come from the calculation engine. Every mode carries a "teaching sample" label; results from here are not saved and do not appear in the report.
 
 ### 14.6. Accessibility
 

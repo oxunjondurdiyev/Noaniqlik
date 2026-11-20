@@ -398,3 +398,7 @@ a.topbar-brand { text-decoration: none; color: var(--c-text); }
   .ai-own-page { margin: var(--s-3); padding: var(--s-4); }
   a.topbar-brand .topbar-brand-name, a.topbar-brand span { display: inline; }
 }
+
+/* Shablon kartasi: "Manba bilan mos" / unverified belgisi (avtomatik — templates/validation/builtin.json) */
+.tpl-validation { margin: var(--s-2) 0; }
+.tpl-validation .badge { white-space: normal; text-align: left; border-radius: var(--r-control); font-family: var(--font-text); font-weight: 500; line-height: 1.35; padding: var(--s-1) var(--s-2); }

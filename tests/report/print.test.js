@@ -137,3 +137,51 @@ test('"Hisobot" yorlig\'i: natija yo\'q — bo\'sh holat, tugmalar o\'chirilgan,
   assert.ok(doc.querySelector('#report-root .empty-state'));
   for (const b of doc.querySelectorAll('#report-root [data-report-print]')) assert.ok(b.disabled);
 });
+
+test('Ctrl+P (egasi qarori): GUM ish oqimi yorlig\'ida A4 hisobot chop etiladi (brauzerning sahifa bosmasi emas); natija yo\'q — odatiy xatti-harakat', async () => {
+  const { w, doc, printed } = setup();
+  const app = doc.createElement('div'); app.id = 'app'; doc.body.appendChild(app);
+  doc.getElementById('tab-report').classList.remove('active');
+  const res = doc.createElement('div'); res.className = 'tab-panel active'; res.id = 'tab-results'; doc.body.appendChild(res);
+  const press = (init) => { const e = new w.KeyboardEvent('keydown', { key: 'p', ctrlKey: true, bubbles: true, cancelable: true, ...init }); doc.dispatchEvent(e); return e; };
+  const e1 = press();
+  assert.equal(e1.defaultPrevented, true);
+  await new Promise(r => setTimeout(r, 80));
+  assert.equal(printed(), 1);
+  assert.ok(doc.querySelector('#print-report.report-doc .report-frame [data-report-body="GUM"]'));
+  assert.ok(doc.querySelector('#print-report [data-report-footer]'));
+  // Ctrl+Shift+P, boshqa yorliq yoki natijasiz — aralashilmaydi
+  assert.equal(press({ shiftKey: true }).defaultPrevented, false);
+  res.id = 'tab-regression';
+  assert.equal(press().defaultPrevented, false);
+  res.id = 'tab-results';
+  w.eval('appState.set({ combined: null, points: [] })');
+  assert.equal(press().defaultPrevented, false);
+  assert.equal(printed(), 1);
+});
+
+test('brauzer menyusidan chop etish (beforeprint): oxirgi qurilgan A4 hujjat qo\'yiladi va print-report-mode yoqiladi', async () => {
+  const { w, doc } = setup();
+  const app = doc.createElement('div'); app.id = 'app'; doc.body.appendChild(app);
+  await w.Results.renderReportTab();
+  doc.getElementById('print-report').innerHTML = '';
+  w.dispatchEvent(new w.Event('beforeprint'));
+  assert.ok(doc.body.classList.contains('print-report-mode'));
+  assert.ok(doc.querySelector('#print-report.report-doc[data-theme="light"] [data-report-footer]'));
+  w.dispatchEvent(new w.Event('afterprint'));
+  assert.ok(!doc.body.classList.contains('print-report-mode'));
+});
+
+test('980–1179 px (egasi sharti): byudjet jadvalida uᵢ(y) va "Ulush %" ustunlari yashirilmaydi — tor joyda gorizontal surish', () => {
+  for (const f of ['src/css/results.css', 'src/css/shell.css', 'src/css/sheet.css']) {
+    const css = strip(read(f));
+    for (const m of css.matchAll(/([^{}]*(?:budget|data-table|share-bar|math-head)[^{}]*)\{([^{}]*)\}/g)) {
+      if (/pareto/.test(m[1])) continue;
+      assert.ok(!/display:\s*none|visibility:\s*hidden/.test(m[2]), `${f}: ${m[1].trim()}`);
+    }
+  }
+  const css = strip(read('src/css/results.css'));
+  assert.match(css, /\.budget-table-wrap\s*\{[^}]*overflow-x:\s*auto/);
+  assert.match(css, /\.budget-table-wrap \.data-table\s*\{\s*min-width:\s*720px/);
+  assert.match(css, /@media \(max-width: 1179px\)\s*\{\s*\.results-layout\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\)/);
+});

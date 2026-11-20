@@ -35,6 +35,7 @@ export function createSections(environment) {
   /* P16: byudjet jadvalida "kichik ν" belgisi chegarasi — ko'rsatish uchun loyiha qarori (X7 dagi ν_eff < 10 bilan bir xil son;
    docs/RISKS.md R-29). Hisobga, k ga va topilmalarga ta'sir qilmaydi. */
 const NU_LOW = 10;
+const NU_LOW_MIN_SHARE = 5;   // %
 const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_triang',
                       ushape: 'dist_ushape', resol: 'dist_resol',
                       trap: 'dist_trap', ctrap: 'dist_ctrap', exp: 'dist_exp', lognorm: 'dist_lognorm' };   // P06 (JCGM 101:2008 §6.4)
@@ -397,7 +398,8 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
       const w = Math.min(100, Math.abs(b.share));
       // P16: νᵢ ustuni; kichik ν (chekli va < NU_LOW) sariq bilan belgilanadi — faqat ko'rsatish, hisobga ta'sir qilmaydi
       const noNu = b.kind === 'corr' || b.kind === 'second';
-      const nuLow = !noNu && isFinite(b.nu) && b.nu < NU_LOW;
+      // Egasi qarori (2026-11-20, R-29 #10): ulushi < NU_LOW_MIN_SHARE % bo'lgan manba va ν = ∞ belgilanmaydi
+      const nuLow = !noNu && isFinite(b.nu) && b.nu < NU_LOW && Math.abs(b.share) >= NU_LOW_MIN_SHARE;
       return `<tr>
         <td>${name}</td>
         <td>${badge}</td>
@@ -406,7 +408,7 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
         <td class="cell-num num mono">${Calc.fmtSci(b.c)}</td>
         <td class="cell-num num mono">${b.ui === null ? '—' : Calc.fmtSci(b.ui)}</td>
         <td class="cell-num num mono">${Calc.fmtSci(b.contrib)}</td>
-        <td class="cell-num num mono${nuLow ? ' nu-low' : ''}"${nuLow ? ' data-nu-low="1"' : ''}>${noNu ? '—' : nuText(b.nu)}</td>
+        <td class="cell-num num mono${nuLow ? ' nu-low' : ''}"${nuLow ? ` data-nu-low="1" title="${escHtml(i18n.t('nu_low_tip'))}"` : ''}>${noNu ? '—' : nuText(b.nu)}</td>
         <td class="cell-num num mono">${b.share.toFixed(2)}${withBar ? `
           <svg class="share-bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect class="${b.share < 0 ? 'neg' : 'pos'}" width="${w}" height="4"/></svg>` : ''}</td>
       </tr>`;

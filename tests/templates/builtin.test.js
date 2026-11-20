@@ -53,11 +53,7 @@ function dataFromCase(tpl, st) {
   return { observations: st.measurements, sources, settings: st.settings, directions: st.directions };
 }
 
-const EXCEL = [
-  ['legacy-density', ['excel-density']],
-  ['legacy-gas_analyzer', ['excel-gas-p1', 'excel-gas-p2', 'excel-gas-p3']],
-  ['legacy-thermometer', ['excel-term-p1', 'excel-term-p2', 'excel-term-p3', 'excel-term-p4', 'excel-term-p5']],
-];
+const { EXCEL } = require('../../scripts/lib/template-cases.js');   // P16: yagona ro'yxat (validation.json generatori ham shundan)
 const PICK = { y: r => r.y, uc: r => r.uc, nu_eff: r => r.nuEff, k: r => r.k, U: r => r.U };
 
 for (const [tplId, cases] of EXCEL) {

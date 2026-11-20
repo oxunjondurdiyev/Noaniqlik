@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 341 |
-| Kamida bitta testga bog'langan | 328 |
-| ✅ verified | 277 |
+| Talablar | 343 |
+| Kamida bitta testga bog'langan | 330 |
+| ✅ verified | 279 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -387,6 +387,8 @@
 | REQ-UIX-010 | Inline uslublar: P16 qismlarida yo'q; qolganlari soni oshmaydi; `validation.html` da `style-src 'self'` | `index.html`; `validation.html` | `tests/security/inline-style.test.js` | ✅ verified | index / admin / superadmin da 'unsafe-inline' qolgan (R-29 #3) |
 | REQ-UIX-011 | Brauzerda: 390 / 834 / 1440 px, ikkala mavzu — konsol xatosi yo'q, bosiladigan maydon ≥ 44 px, kontrast ≥ 4,5:1, gorizontal surilish yo'q, klaviatura (Ctrl+K, Esc, ko'rinadigan fokus) | `tests/crossbrowser/screens.js` | — | ✋ manual | `npm run test:screens` — Playwright (CI `validation` job; `npm test` tarkibida emas). Safari va real qurilmalar — qo'lda, PQ |
 | REQ-UIX-012 | Hisob o'zgarmagan: `src/engine/` ga tegilmagan; misollar natijasi bit darajasida bir xil | `scripts/cases-snapshot.js` | `tests/validation/snapshot.test.js`; `tests/security/static.test.js` | ✅ verified | Solishtirish natijasi PR tavsifida: 91 / 91, farq 0 |
+| REQ-UIX-013 | Shablon kartasidagi "Manba bilan mos" belgisi avtomatik: shablon hisobi etalon misol (tests/fixtures) bilan solishtiriladi → `templates/validation/builtin.json` (`source`, `clause`, `status`, `relDiff`); qo'lda bayroq yo'q; fayl eskirsa test xatosi; foydalanuvchi natijasida belgi yo'q | `scripts/template-validation.js::build`; `scripts/lib/template-cases.js`; `src/ui/tpl/view.js` | `tests/templates/validation-badge.test.js`; `tests/templates/builtin.test.js` | ✅ verified | Etalon: zichlik, gazoanalizator (3 nuqta), termometr (5 nuqta) Excel fayllari; termometrda Δ = 0,087 % (D-02), ma'lum farq D-03 |
+| REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat | `src/ui/shell/app.js`; `src/js/report.js`; `src/css/tokens.css`; `src/report/sections.js::createSections` | `tests/report/print.test.js`; `tests/report/ribbon.test.js`; `tests/security/vendor.test.js` | ✅ verified | `#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas |
 
 ## SRC — Manba misollari qamrovi
 

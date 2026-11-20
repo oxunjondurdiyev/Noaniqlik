@@ -207,7 +207,8 @@ function runItem(i) {
 /* ─── Ulash ─── */
 function bind() {
   if (!$('app')) return;
-  document.addEventListener('tabchange', e => { tab = e.detail.tab; renderAll(); if (tab === 'vizlab') openVizlab(); });
+  document.addEventListener('tabchange', e => { tab = e.detail.tab; renderAll(); if (tab === 'vizlab') openVizlab(); syncHash(); });
+  window.addEventListener('hashchange', fromHash);
   document.addEventListener('langchange', () => { renderAll(); renderBuild(); });
   if (window.appState) window.appState.subscribe(() => { renderStepper(); renderCrumbId(); });
 
@@ -257,6 +258,21 @@ function bind() {
   }
   renderAll();
   renderBuild();
+  setTimeout(fromHash, 0);          // app.js (bootstrap) dan keyin
+}
+
+/* `#lab` — Vizual laboratoriyani to'g'ridan-to'g'ri ochadigan havola (egasi qarori 2026-11-20). Hisob boshlanmagan bo'lsa ham
+   ochiladi (o'quv modeli bilan); sinov hisoblagichiga ta'sir qilmaydi. Yorliq almashganda manzil satri mos yangilanadi. */
+const LAB_HASH = '#lab';
+function fromHash() {
+  if (window.location.hash !== LAB_HASH || tab === 'vizlab') return;
+  if ($('app').classList.contains('hidden') && window.App) window.App.showScreen('app');
+  go('vizlab');
+}
+function syncHash() {
+  const on = window.location.hash === LAB_HASH;
+  if (tab === 'vizlab' && !on) window.history.replaceState(null, '', LAB_HASH);
+  else if (tab !== 'vizlab' && on) window.history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
 /* Vizual laboratoriya — birinchi ochilganda yuklanadi (asosiy sahifa yukini oshirmaydi) */

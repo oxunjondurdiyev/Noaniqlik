@@ -118,6 +118,8 @@ export function mcMode(ctx, st) {
     verdict.appendChild(h(doc, 'p', { class: 'vz-verdict-line' },
       badge(doc, t('vz_mc_valid_' + key), key === 'yes' ? 'green' : key === 'no' ? 'red' : 'orange'),
       h(doc, 'span', { class: 'text-sm', text: ' ' + t('vz_mc_valid_' + key + '_txt') })));
+    // Egasi qarori (2026-11-20): o'quv rejimidagi LPU ↔ MCM xulosasi rasmiy emas — aniq belgilanadi; hisobotga tushmaydi
+    verdict.appendChild(h(doc, 'p', { class: 'vz-verdict-line', 'data-mc-teach': '1' }, badge(doc, tf('vz_mc_teach_badge', { n: res.nDig }), 'orange')));
     if (notConverged) verdict.appendChild(note(doc, tf('vz_mc_not_converged', { M: Number(res.M).toLocaleString() }), 'vz-warn'));
     verdict.appendChild(note(doc, tf('vz_mc_ndig', { n: res.nDig }), 'text-muted'));
     ctx.announce(t('vz_mc_valid_' + key));

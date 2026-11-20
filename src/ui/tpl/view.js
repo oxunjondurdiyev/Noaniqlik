@@ -34,6 +34,19 @@ function standardsLine(tpl, ctx) {
 }
 
 /** Katalog kartasi */
+/** P16 (egasi qarori 2026-11-20): shablon kartasidagi "Manba bilan mos" belgisi. Qo'lda yoziladigan bayroq EMAS —
+    templates/validation/builtin.json (scripts/template-validation.js: hisob ↔ tests/fixtures etalon misoli) dan.
+    Foydalanuvchi nusxasi (local) va ro'yxatda yo'q shablon — "unverified". Δ — nisbiy farq, foizda. */
+export function validationBadge(tpl, local, ctx) {
+  const v = !local && ctx.validation ? ctx.validation[tpl.id] : null;
+  const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (o[k] === undefined ? m : o[k]));
+  if (!v || v.status !== 'verified') return `<div class="tpl-validation" data-tpl-validation="unverified"><span class="badge badge-orange">${ctx.esc(ctx.t('tplv_unverified'))}</span></div>`;
+  const pct = v.relDiff * 100;
+  const d = pct === 0 ? '0' : pct >= 0.001 ? String(Number(pct.toPrecision(2))) : pct.toExponential(1);
+  const known = (v.known || []).length ? ` <span class="text-xs text-muted">${ctx.esc(fill(ctx.t('tplv_known'), { ids: v.known.join(', ') }))}</span>` : '';
+  return `<div class="tpl-validation" data-tpl-validation="verified" title="${ctx.esc(ctx.t('tplv_tip'))}"><span class="badge badge-green">${ctx.esc(fill(ctx.t('tplv_verified'), { source: v.source, clause: v.clause, d }))}</span>${known}</div>`;
+}
+
 export function cardHTML(entry, ctx) {
   const { tpl, local } = entry;
   const key = `${tpl.id}@${tpl.version}`;
@@ -57,6 +70,7 @@ export function cardHTML(entry, ctx) {
         <dt>${ctx.esc(ctx.t('tpl_labs'))}</dt><dd>${tpl.labCount === null || tpl.labCount === undefined ? '—' : ctx.esc(tpl.labCount)}</dd>
         ${oq ? `<dt>${ctx.esc(ctx.t('tpl_open_q'))}</dt><dd>${ctx.esc(oq)}</dd>` : ''}
       </dl>
+      ${validationBadge(tpl, local, ctx)}
       ${hasDemo(tpl) ? `<div class="tpl-demo" data-demo-warning="1">⚠ ${ctx.esc(ctx.t('tpl_demo_badge'))}</div>` : ''}
       ${local ? `<div class="text-xs text-muted">${ctx.esc(ctx.t('tpl_local_copy'))}</div>` : ''}
       ${variantSel}

@@ -1,0 +1,300 @@
+{
+ "format": "uc-template-validation/1",
+ "engineVersion": "2.10.0",
+ "note": "AVTOMATIK — qo'lda tahrirlanmaydi: node scripts/template-validation.js --write",
+ "templates": {
+  "legacy-mass": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-volume": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-density": {
+   "source": "Zichlik_noaniqligi_hisobi.xlsx",
+   "clause": "3_Hisob",
+   "status": "verified",
+   "relDiff": 2.7e-14,
+   "cases": [
+    "excel-density"
+   ],
+   "checked": 5,
+   "known": []
+  },
+  "legacy-voltage": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-resistance": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-power": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-length": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-area": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-temperature": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "legacy-gas_analyzer": {
+   "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
+   "clause": "Nuqta_1, Nuqta_2, Nuqta_3",
+   "status": "verified",
+   "relDiff": 2.9e-15,
+   "cases": [
+    "excel-gas-p1",
+    "excel-gas-p2",
+    "excel-gas-p3"
+   ],
+   "checked": 15,
+   "known": []
+  },
+  "legacy-thermometer": {
+   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+   "clause": "Nuqta_1, Nuqta_2, Nuqta_3, Nuqta_4, Nuqta_5",
+   "status": "verified",
+   "relDiff": 0.00087,
+   "cases": [
+    "excel-term-p1",
+    "excel-term-p2",
+    "excel-term-p3",
+    "excel-term-p4",
+    "excel-term-p5"
+   ],
+   "checked": 22,
+   "known": [
+    "D-03"
+   ]
+  },
+  "T-01": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-02": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-03": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-04": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-05": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-06": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-07": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-08": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-09": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-10": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-11": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-12": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-13": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-14": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-15": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-16": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-17": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-18": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-19": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-20": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-21": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-22": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-23": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "T-24": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "R-01": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "TD-01": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "TD-02": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "TD-03": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "TD-04": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "SP-01": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "SP-02": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "SP-03": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "SP-04": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  },
+  "MV-01": {
+   "source": null,
+   "clause": null,
+   "status": "unverified",
+   "relDiff": null
+  }
+ }
+}

@@ -378,6 +378,8 @@
 | REQ-UIX-010 | Inline uslublar: P16 qismlarida yo'q; qolganlari soni oshmaydi; `validation.html` da `style-src 'self'` | P16 topshirig'i §9 |
 | REQ-UIX-011 | Brauzerda: 390 / 834 / 1440 px, ikkala mavzu — konsol xatosi yo'q, bosiladigan maydon ≥ 44 px, kontrast ≥ 4,5:1, gorizontal surilish yo'q, klaviatura (Ctrl+K, Esc, ko'rinadigan fokus) | P16 topshirig'i §10 |
 | REQ-UIX-012 | Hisob o'zgarmagan: `src/engine/` ga tegilmagan; misollar natijasi bit darajasida bir xil | P16 topshirig'i (maqsad) |
+| REQ-UIX-013 | Shablon kartasidagi "Manba bilan mos" belgisi avtomatik: shablon hisobi etalon misol (tests/fixtures) bilan solishtiriladi → `templates/validation/builtin.json` (`source`, `clause`, `status`, `relDiff`); qo'lda bayroq yo'q; fayl eskirsa test xatosi; foydalanuvchi natijasida belgi yo'q | Egasi qarori 2026-11-20 (R-29 #8); ISO/IEC 17025 §7.11.2 (unverified) |
+| REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat |ulush| ≥ 5 % va chekli ν da | Egasi qarori 2026-11-20 (R-29) |
 
 ## SRC — Manba misollari qamrovi
 

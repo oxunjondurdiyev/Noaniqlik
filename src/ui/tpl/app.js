@@ -14,7 +14,7 @@ import * as View from './view.js';
 import { outputsHTML, addOutput, removeOutput, setOutputField } from './outputs.js';
 
 const $ = id => document.getElementById(id);
-const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang });
+const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang, validation });
 const t = k => window.i18n.t(k);
 const esc = v => window.escHtml(v);
 const toast = (m, type = 'info', ms) => window.showToast && window.showToast(m, type, ms);
@@ -24,6 +24,7 @@ const keyOf = tpl => `${tpl.id}@${tpl.version}`;
 let db = null;
 let schema = null;
 let builtins = [];
+let validation = {};     // { <shablon id>: { source, clause, status, relDiff, known } } — faqat builtin shablonlar uchun
 let locals = [];
 let labCache = { ...Store.LAB_DEFAULTS };
 let loadError = null;
@@ -44,6 +45,8 @@ const ready = (async () => {
     const idx = await fetchJSON('templates/builtin/index.json');
     builtins = await Promise.all(idx.templates.map(f => fetchJSON('templates/builtin/' + f)));
   } catch (e) { loadError = e; }
+  // P16: "Manba bilan mos" dalili — avtomatik yaratilgan fayl (scripts/template-validation.js); bo'lmasa belgi "unverified"
+  try { validation = (await fetchJSON('templates/validation/builtin.json')).templates || {}; } catch (e) { validation = {}; }
   try {
     db = await new Store.LocalAdapter().open();
     const mig = await Store.migrateLegacy(window.localStorage, db);

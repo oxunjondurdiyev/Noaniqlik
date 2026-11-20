@@ -32,7 +32,7 @@ const SHORT = 12;
 /* ─── Oq ro'yxat: saytga FAQAT shular chiqadi (docs/RISKS.md R-27 (2) — egasi tasdig'ini kutadi) ─── */
 const WHITELIST = Object.freeze({
   files: ['index.html', 'admin.html', 'superadmin.html', 'validation.html', 'ai.html', '.nojekyll', 'LICENSE'],
-  dirs: ['src', 'vendor', 'schemas', 'templates/builtin'],
+  dirs: ['src', 'vendor', 'schemas', 'templates/builtin', 'templates/validation'],
 });
 /* Yig'ilgan saytda bo'lishi MUMKIN EMAS (nusxalashdan keyin tekshiriladi) */
 const FORBIDDEN = [/^tests\//, /^docs\//, /^node_modules\//, /^scripts\//, /^\.github\//, /^\.git\//, /\.pdf$/i, /\.xlsx$/i, /\.docx$/i,

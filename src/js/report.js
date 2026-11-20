@@ -53,6 +53,26 @@ const Results = (() => {
     });
     document.addEventListener('tabchange', e => { if (e.detail && e.detail.tab === 'report') renderReportTab(); });
     document.addEventListener('langchange', () => { if (reportTabActive()) renderReportTab(); });
+    // P16 (egasi qarori 2026-11-20): asosiy sahifada Ctrl+P ham shu A4 hisobot va bosma CSS dan foydalanadi (GUM ish oqimi
+    // yorliqlarida, natija bo'lsa). Brauzer menyusidagi "Chop etish" — beforeprint: oxirgi qurilgan hujjat qo'yiladi.
+    document.addEventListener('keydown', e => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key !== 'p' && e.key !== 'P')) return;
+      if (!printable()) return;
+      e.preventDefault();
+      printReport();
+    });
+    window.addEventListener('beforeprint', () => {
+      if (document.body.classList.contains('print-report-mode') || !printable()) return;
+      const pv = document.getElementById('report-preview');
+      const html = (reportTabActive() && pv && pv.innerHTML) || lastReportHTML;
+      if (!html) return;
+      const el = document.getElementById('print-report');
+      el.setAttribute('data-theme', 'light');
+      el.classList.add('report-doc');
+      el.innerHTML = html;
+      document.body.classList.add('print-report-mode');
+      window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
+    });
     // rekvizitlar saqlanganda yoki shakl boshqa joydan o'zgarganda ko'rinish yangilanadi
     document.addEventListener('click', e => { if (reportTabActive() && e.target.closest && e.target.closest('[data-req-save]')) setTimeout(renderReportTab, 0); });
     document.addEventListener('findingschange', e => { if (!e.detail || e.detail.scope === 'gum') render(); });
@@ -61,6 +81,7 @@ const Results = (() => {
       if (!changes || changes.combined !== undefined || changes.points !== undefined ||
           changes.summary !== undefined || changes.currentPoint !== undefined) {
         lastMC = null;
+        lastReportHTML = '';
         render();
       }
     });
@@ -518,6 +539,13 @@ const Results = (() => {
     } catch (_) { return null; }
   }
   /** HTML ni chop etish maydoniga qo'yish → pastki qismni (xesh, QR) to'ldirish → chop etish oynasi */
+  let lastReportHTML = '';     // oxirgi qurilgan hujjat (pastki qismi bilan) — brauzer menyusidan chop etish uchun
+  /** Joriy yorliq GUM ish oqimida va chop etiladigan natija bor (boshqa yorliqlarda Ctrl+P — brauzerning odatiy xatti-harakati) */
+  function printable() {
+    const app = document.getElementById('app'), p = document.querySelector('.tab-panel.active');
+    if (!app || app.classList.contains('hidden') || !p || !['tab-data', 'tab-typeb', 'tab-results', 'tab-report'].includes(p.id)) return false;
+    return !!(current() || currentMulti() || (appState.get('points') || []).some(x => x.result && !x.result.error));
+  }
   let previewTarget = null;    // P16: "Hisobot" yorlig'idagi A4 ko'rinishi — o'sha HTML, chop etish oynasisiz
   async function show(build, scope, fallbackDoc) {
     const preview = previewTarget;
@@ -527,6 +555,7 @@ const Results = (() => {
     el.innerHTML = build(null);                       // darhol (xesh hisoblanguncha pastki qismsiz)
     const footer = await footerFor(scope, fallbackDoc);
     if (footer) el.innerHTML = build(footer);
+    lastReportHTML = el.innerHTML;
     if (preview) return true;
     document.body.classList.add('print-report-mode');
     window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });

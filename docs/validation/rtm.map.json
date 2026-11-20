@@ -4314,5 +4314,33 @@
   ],
   "status": "verified",
   "note": "Solishtirish natijasi PR tavsifida: 91 / 91, farq 0"
+ },
+ "REQ-UIX-013": {
+  "code": [
+   "scripts/template-validation.js::build",
+   "scripts/lib/template-cases.js",
+   "src/ui/tpl/view.js"
+  ],
+  "tests": [
+   "tests/templates/validation-badge.test.js",
+   "tests/templates/builtin.test.js"
+  ],
+  "status": "verified",
+  "note": "Etalon: zichlik, gazoanalizator (3 nuqta), termometr (5 nuqta) Excel fayllari; termometrda Δ = 0,087 % (D-02), ma'lum farq D-03"
+ },
+ "REQ-UIX-014": {
+  "code": [
+   "src/ui/shell/app.js",
+   "src/js/report.js",
+   "src/css/tokens.css",
+   "src/report/sections.js::createSections"
+  ],
+  "tests": [
+   "tests/report/print.test.js",
+   "tests/report/ribbon.test.js",
+   "tests/security/vendor.test.js"
+  ],
+  "status": "verified",
+  "note": "`#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas"
  }
 }

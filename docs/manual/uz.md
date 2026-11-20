@@ -547,7 +547,7 @@ Manba kartasidagi "Tahrirlash" varaqni ochadi: telefonda pastdan, keng ekranda o
 
 ### 14.5. Vizual laboratoriya
 
-O'quv vositasi: Monte-Karlo jonli ko'rinishi, muvofiqlik simulyatori, ekstremal holatlar, QC siljishi, korrelyatsiya va byudjet sezgirligi. Sonlar hisoblash dvigatelidan olinadi. Har bir rejimda "o'quv namunasi" yorlig'i turadi; bu yerdagi natijalar saqlanmaydi va hisobotga chiqmaydi.
+To'g'ridan-to'g'ri havola: sahifa manzili oxiriga `#lab` qo'shiladi. O'quv vositasi: Monte-Karlo jonli ko'rinishi, muvofiqlik simulyatori, ekstremal holatlar, QC siljishi, korrelyatsiya va byudjet sezgirligi. Sonlar hisoblash dvigatelidan olinadi. Har bir rejimda "o'quv namunasi" yorlig'i turadi; bu yerdagi natijalar saqlanmaydi va hisobotga chiqmaydi.
 
 ### 14.6. Kirish imkoniyati
 

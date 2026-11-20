@@ -21,6 +21,14 @@
   src: url('../../vendor/fonts/inter/5.3.0/inter-cyrillic-wght-normal.woff2') format('woff2');
   unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
 }
+/* Yunon harflari (ν, σ, ρ, χ, δ, μ …) — Inter ning greek to'plami (egasi qarori 2026-11-20): tizim shriftiga tushmaydi.
+   Space Grotesk va JetBrains Mono da yunon to'plami qo'shilmagan — shrift zanjirida Inter turadi (--font-display, --font-mono). */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('../../vendor/fonts/inter/5.3.0/inter-greek-wght-normal.woff2') format('woff2');
+  unicode-range: U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;
+}
 @font-face {
   font-family: 'Space Grotesk';
   font-style: normal; font-weight: 300 700; font-display: swap;
@@ -44,7 +52,7 @@
   /* Shrift oilalari */
   --font-text:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-mono:    'JetBrains Mono', 'Inter', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* Radiuslar: kichik boshqaruv / tugma / karta / asosiy karta */
   --r-control: 10px;
