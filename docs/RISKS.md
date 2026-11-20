@@ -37,14 +37,9 @@
 | R-23 | Monte-Karlo 2.0: egasi qarorlari bajarildi; ko'p o'lchovli t — **yopildi (P07, 2.7.0)**; brauzerlararo takrorlanuvchanlik — **yopildi (P13, egasi qarori B — R-24)**; qoldiq — log-normal unverified, Safari qo'lda (PQ) | O | P06, P07 → P13 |
 | R-24 | Ko'p o'zgaruvchili modellar: P07b da oshkormas model (U_y — Annex B), `atan2`, eng kichik soha (m = 2), shablonda `outputs` / `implicit`, ko'p chiqish + ko'p nuqta bajarildi; egasi qarorlari (2026-11-19) kiritildi; qoldiq — oshkormas model uchun MCM (keyingi bosqich) va UI shakli, m > 2 da eng kichik soha, nuqtalararo soha; sonli tafsilotlar tasdiq kutadi | O | P07, P07b → egasi qarori |
 | R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); NIST e-Handbook §6.3.2 va Westgard 1981 manbalari 2.8.1 da solishtirildi (`docs/references/nist-ehandbook-6.3.2/`, `westgard-1981-NOTES.md`) — **yopildi**; ochiq — faqat ISO/IEC 17025 §6.4–6.5, §7.7.1 (pullik) | O | P11 (ochiq: ISO/IEC 17025 — pullik) |
-<<<<<<< HEAD
-| R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; PT chegaralari, s_b² < 0, Grubbs, Cochran, LOD/LOQ, L3, s_I ning ν — **egasi qarorini kutadi**; ISO 13528 / 5725-2 pullik, Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi | O | P12 → egasi qarori |
+| R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; **egasi qarorlari kiritildi (2026-11-19)** — PT chegaralari + 10⁻¹² tolerans, s_b² < 0 → 0, Grubbs, Cochran / LOD (unverified belgisi bilan), L3 (info, yoqildi), ν(s_I) Welch–Satterthwaite; ochiq — faqat manbalar (ISO 13528 / 5725-2 pullik; Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi) | O | P12 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: **build identifikatori — yopildi (P13: `build.json` + `?v=<sha>`; egasi Pages manbasini o'tkazadi — `docs/DEPLOY.md`)**; ochiq — ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi | O | P05b, P13 |
 | R-27 | Validatsiya paketi (P13): brauzerlararo istisnolar ro'yxati, saytga chiqadigan fayllar va hisobotning ommaviyligi, NUM toleranslari, semver qoidasi — **egasi qarorini kutadi**; NUM natijalari va qo'llanmasi, Pages manbasi — egasi bajaradi | O | P13 → egasi qarori |
-=======
-| R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; **egasi qarorlari kiritildi (2026-11-19)** — PT chegaralari + 10⁻¹² tolerans, s_b² < 0 → 0, Grubbs, Cochran / LOD (unverified belgisi bilan), L3 (info, yoqildi), ν(s_I) Welch–Satterthwaite; ochiq — faqat manbalar (ISO 13528 / 5725-2 pullik; Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi) | O | P12 (ochiq: manbalar — egasi) |
-| R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: ochiq qarorlar va tekshirilmagan qism (ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi) | O | P05b |
->>>>>>> origin/claude/create-uncertainty-platform-y5EVM
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -344,7 +339,6 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 5. **Chiqishga xos sozlamalar** (MPE, qaror qoidasi) faqat `outputs[j].settings` orqali; umumiy `settings` dagi MPE vektor hisobda e'tiborga olinmaydi.
 6. **Ko'p o'lchovli t `nonNormalCorrelation: 'gaussian'` sozlamasidan ustun** (2.7.0 da MCM natijasi o'zgargan holat — CHANGELOG).
 
-<<<<<<< HEAD
 ### R-27. Validatsiya paketi (P13): egasi qarorini kutadigan bandlar (O) — 2026-11-19
 
 Bajarilgan: `docs/validation/` (reja, talablar, RTM, o'zgarishlarni boshqarish, cheklovlar, PQ / URS shablonlari, FAQ), `scripts/validation-report.js`, `scripts/rtm.js`, `scripts/build-site.js`, `scripts/cases-snapshot.js`, `.github/workflows/deploy.yml`, `tests/crossbrowser/`, `tests/crosscheck/num/`, `validation.html`, `docs/manual/`. Hisob natijalari o'zgarmagan (91 misol P12 bilan bit darajasida bir xil).
@@ -371,10 +365,7 @@ Bajarilgan: `docs/validation/` (reja, talablar, RTM, o'zgarishlarni boshqarish, 
 
 **Qilinmagan (P13):** PTB TraCIM bilan tekshiruv (rejalashtirilgan); validatsiya hujjatlarining ruscha nusxasi (ixtiyoriy edi); Safari; GitHub Actions `action` larini commit SHA bo'yicha qotirish; mustaqil tashqi ko'rib chiqish; saytdagi "Validatsiya" sahifasi va yig'ilgan sayt faqat Chromium da lokal ko'rildi (Firefox / WebKit — CI tutun-testi).
 
-### R-26. PT va usul validatsiyasi: loyiha standartlari va tekshirilmagan qism (O) — P12 (2026-11-19, ENGINE 2.10.0)
-=======
 ### R-26. PT va usul validatsiyasi: egasi qarorlari va tekshirilmagan qism (O) — P12 (2026-11-19, ENGINE 2.10.0)
->>>>>>> origin/claude/create-uncertainty-platform-y5EVM
 
 Bajarilgan: `src/engine/pt/` (z, z′, ζ, E_n, PT tarixi → top-down), `src/engine/validation/` (Grubbs, Cochran, bir omilli ANOVA, t / F testlari, recovery → P09, chiziqlilik → P08, LOD/LOQ, top-down qoralama), saqlash (IndexedDB v2), UI, hisobot, linter L3. **Verified:** NIST/SEMATECH e-Handbook §1.3.5.17.1, §7.4.3, §2.4.4.1–2.4.4.2, §1.3.5.3, §1.3.5.9 (D-22 — manbada G kesilgan).
 
