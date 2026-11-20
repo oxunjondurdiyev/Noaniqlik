@@ -39,7 +39,7 @@
 | R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); NIST e-Handbook §6.3.2 va Westgard 1981 manbalari 2.8.1 da solishtirildi (`docs/references/nist-ehandbook-6.3.2/`, `westgard-1981-NOTES.md`) — **yopildi**; ochiq — faqat ISO/IEC 17025 §6.4–6.5, §7.7.1 (pullik) | O | P11 (ochiq: ISO/IEC 17025 — pullik) |
 | R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; **egasi qarorlari kiritildi (2026-11-19)** — PT chegaralari + 10⁻¹² tolerans, s_b² < 0 → 0, Grubbs, Cochran / LOD (unverified belgisi bilan), L3 (info, yoqildi), ν(s_I) Welch–Satterthwaite; ochiq — faqat manbalar (ISO 13528 / 5725-2 pullik; Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi) | O | P12 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: **build identifikatori — yopildi (P13: `build.json` + `?v=<sha>`; egasi Pages manbasini o'tkazadi — `docs/DEPLOY.md`)**; ochiq — ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi | O | P05b, P13 |
-| R-27 | Validatsiya paketi (P13): brauzerlararo istisnolar ro'yxati, saytga chiqadigan fayllar va hisobotning ommaviyligi, NUM toleranslari, semver qoidasi — **egasi qarorini kutadi**; NUM natijalari va qo'llanmasi, Pages manbasi — egasi bajaradi | O | P13 → egasi qarori |
+| R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), "Kim" maydoni va ruscha FAQ / cheklovlar (kod), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -355,6 +355,19 @@ Bajarilgan: `docs/validation/` (reja, talablar, RTM, o'zgarishlarni boshqarish, 
 | 6 | **Shablon muharriridagi "Kim" maydoni** (`src/ui/tpl/app.js::persist`): erkin matn, audit `actor` ga yoziladi; yorliqda "login yoki rol, ism emas" deyilgan, lekin texnik cheklov yo'q (faqat IndexedDB, Firebase'ga yozilmaydi) | o'zgartirilmagan (P13 doirasidan tashqari) | (a) qoldirish; (b) rol ro'yxatidan tanlash (`cleanRole` — reestr va P12 dagidek) |
 | 7 | **RTM holati `manual`** (3 talab: P01, P09, P10 dagi bir martalik mutatsiya tekshiruvlari — avtomatik test yo'q) | aniq belgi sifatida qabul qilingan (`unverified` / `pending` qatorida) | (a) hozirgidek; (b) mutatsiya testini avtomatlashtirish (keyingi bosqich); (c) bu qatorlarni talablardan chiqarish |
 | 8 | **Talablar ro'yxati** (`docs/validation/REQUIREMENTS.md`, 312 ta: 289 tasi eski matritsadan ko'chirilgan, 14 GOV, 9 VAL) va **ASSESSOR_FAQ / KNOWN_LIMITATIONS** | yozilgan | egasi ko'rib chiqadi va tasdiqlaydi |
+
+**Egasi qarorlari (2026-11-20):**
+
+| # | Qaror |
+|---|---|
+| 1 | **(a)** — aniq istisnolar ro'yxati (`tests/crossbrowser/exceptions.json`), har biri sababi bilan, yuqori chegara 10⁻⁹; yangi band faqat egasi tasdig'i bilan. Sabab: yaxlitlangan natijalar uchala brauzerda aynan bir xil; istisnolar — hisobotga chiqmaydigan, shartlanganligi yomon hosila kattaliklar. |
+| 2 | **(a)** — saytga faqat oq ro'yxat; validatsiya hisoboti va hujjatlari **ommaviy** (shaffoflik — EHM ro'yxati va akkreditatsiya uchun). `docs/references/` dagi PDF lar saytga **chiqmaydi** (qayta tarqatish shartlari har xil). |
+| 3 | Joriy tolerans vaqtincha qabul; NUM natijalari kelgach o'lchangan tarqoqlik bilan qayta ko'riladi. |
+| 4 | **(a)** — `PAGES_DEPLOY = actions` o'zgaruvchisi bilan. |
+| 5 | Yangi semver qoidasi — `docs/validation/CHANGE_CONTROL.md` §1 (yaxlitlangan natija o'zgarsa — major); 2.10.0 dan keyin, retroaktiv emas. |
+| 6 | **(b)** — shablon muharriridagi "Kim" maydoni rol ro'yxatidan (`cleanRole`), erkin matn yo'q (kod — keyingi PR). |
+| 7 | **(a)** — `manual` holati izoh bilan qoladi; mutatsiya testini avtomatlashtirish — keyinroq. |
+| — | Ruscha nusxa — faqat `ASSESSOR_FAQ.md` va `KNOWN_LIMITATIONS.md`. Safari — egasi qo'lda (PQ). PTB TraCIM va mustaqil tashqi ko'rib chiqish — rejada. |
 
 **Egasi bajaradigan / beradigan:**
 - GitHub → Settings → Pages → Source: "GitHub Actions", so'ng `PAGES_DEPLOY = actions` (`docs/DEPLOY.md` §4); birinchi deploy'dan keyingi tekshiruv ro'yxati (§5).
