@@ -351,7 +351,7 @@
 | REQ-PTV-012 | Chiziqlilik — P08 regressiyasi chaqiriladi | Matritsa §15 |
 | REQ-PTV-013 | LOD = 3·s′₀, LOQ = k_Q·s′₀; kalibrlash 3,3 / 10 | Matritsa §15 |
 | REQ-PTV-014 | PT ballari z, z′, ζ, E_n; null + sabab; xatolar (σ_pt ≤ 0, U ≤ 0, birlik) | Matritsa §15 |
-| REQ-PTV-015 | PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli | Matritsa §15 |
+| REQ-PTV-015 | PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli; 10⁻¹² tolerans; hisobotda ball 2 xona, baho yaxlitlanmagan qiymatdan | Matritsa §15, R-26 #1 |
 | REQ-PTV-016 | u(x_pt) > 0,3·σ_pt → info, avtomatik almashtirish yo'q | Matritsa §15 |
 | REQ-PTV-017 | PT tarixi → top-down u(bias) (Nordtest TR 537 §6.2) — mavjud dvigatel | Matritsa §15 |
 | REQ-PTV-018 | Top-down qoralama: DRAFT, RFC 8785 xesh, sana; builtin da raqam yo'q | Matritsa §15 |
@@ -359,6 +359,8 @@
 | REQ-PTV-020 | Import `.csv` / `.xlsx` (LIMITS, formula bajarilmaydi), CSV / JSON eksport | Matritsa §15 |
 | REQ-PTV-021 | UI va hisobot uch tilda; SVG skriptsiz; escape; CSP o'zgarmagan | Matritsa §15 |
 | REQ-PTV-022 | Mavjud natijalar o'zgarmagan | Matritsa §15 |
+| REQ-PTV-023 | ν(s_I) — Welch–Satterthwaite (JCGM 100 G.4.1): NIST §7.4.3 misolida ν = 3,903; s_b² < 0 → N − k | R-26 #7 |
+| REQ-PTV-024 | Linter L3: oxirgi PT raundi qoniqarsiz → info (GUM, TOP_DOWN); ijobiy va salbiy holatlar | R-26 #6 |
 
 ## SRC — Manba misollari qamrovi
 

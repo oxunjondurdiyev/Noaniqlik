@@ -7,6 +7,13 @@ import { PT_LIMITS } from '../engine/pt/index.js';
 
 const f = v => (Math.round(v * 100) / 100).toString();
 
+/** Ball — 2 o'nlik xona (round half away from zero; egasi qarori 2026-11-19, R-26 #1). Baho yaxlitlanmagan qiymatdan (dvigatel). */
+export function scoreText(v) {
+  if (typeof v !== 'number' || !Number.isFinite(v)) return '—';
+  const r = Math.round(Math.abs(v) * 100) / 100;
+  return (v < 0 && r > 0 ? '-' : '') + r.toFixed(2);
+}
+
 /**
  * @param {{id:string, date:string, score:number, primary:string, verdict:string}[]} rounds  (bitta oila: z-oila yoki E_n)
  * @param {{esc:Function, family:'z'|'En', title?:string, label?:Function, width?:number, height?:number}} o
@@ -27,7 +34,7 @@ export function ptChartSVG(rounds, o) {
   const grid = hl(0, 'qc-cl', '0') + lines.map(l => hl(...l)).join('');
   const path = pts.map((p, i) => `${i ? 'L' : 'M'}${f(X(i))} ${f(Y(p.score))}`).join(' ');
   const dots = pts.map((p, i) => {
-    const label = `${p.id}${p.date ? ' · ' + p.date : ''}: ${p.primary} = ${Number(p.score.toPrecision(4))}${o.label ? ' — ' + o.label(p.verdict) : ''}`;
+    const label = `${p.id}${p.date ? ' · ' + p.date : ''}: ${p.primary} = ${scoreText(p.score)}${o.label ? ' — ' + o.label(p.verdict) : ''}`;
     return p.verdict === 'satisfactory'
       ? `<circle class="qc-dot" data-pt-index="${i}" cx="${f(X(i))}" cy="${f(Y(p.score))}" r="3"><title>${esc(label)}</title></circle>`
       : `<g class="qc-flag" data-pt-flag="${esc(p.verdict)}" data-pt-index="${i}"><circle cx="${f(X(i))}" cy="${f(Y(p.score))}" r="6"/><path d="M${f(X(i) - 3)} ${f(Y(p.score) - 3)}l6 6m0 -6l-6 6"/><title>${esc(label)}</title></g>`;

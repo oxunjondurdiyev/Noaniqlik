@@ -63,7 +63,7 @@ export {
 export * from './lab/index.js';
 // P12: malaka sinovlari (format 'uc-pt/1') va usul validatsiyasi statistikasi (format 'uc-validation/1')
 export {
-  evaluatePT, ptScores, verdictOf, primaryScore, ptToTopDownBias,
+  evaluatePT, ptScores, verdictOf, primaryScore, ptToTopDownBias, lastRound as ptLastRound, ptLinkOf,
   PT_FORMAT, PT_SCORES, PT_LIMITS, PT_LIMITS_REF, PT_BOUNDARY_TOL, PT_UXPT_RATIO, PT_VERDICTS, PT_ERRORS, PT_NULL_REASONS, PT_FINDINGS,
 } from './pt/index.js';
 export {

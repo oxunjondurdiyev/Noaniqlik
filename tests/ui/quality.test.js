@@ -30,6 +30,11 @@ const frag = html => new JSDOM('<!doctype html><body><div id="r">' + html + '</d
 const URANIUM = [199.31, 199.53, 200.19, 200.82, 201.92, 201.95, 202.18, 245.57];
 
 /* ── model ── */
+test('scoreText: 2 o\'nlik xona, round half away from zero', () => {
+  const { scoreText } = require('../../src/report/pt.js');
+  assert.deepEqual([2.005, -2.005, 2.0000000000000018, -0.004, 3.14159, null].map(scoreText), ['2.01', '-2.01', '2.00', '0.00', '3.14', '—']);
+});
+
 test('model: raund shakli → yozuv (bo\'sh — bo\'sh, son emas — xato); test shakli ↔ spetsifikatsiya', () => {
   assert.deepEqual(QM.roundOf({ id: 'R1', x: '10,6', xpt: '10', sigmaPt: '0,25', Ux: 'abc' }).bad, ['Ux']);
   const r = QM.roundOf({ x: '10,6', xpt: '10', sigmaPt: '0,25' }).round;
@@ -77,6 +82,13 @@ test('ko\'rinish va hisobot uch tilda: barcha kalitlar lug\'atda; SVG skriptsiz;
     frag(QV.validationHTML({ list: [], selected: '', set: null }, c));
     // bosma hisobot bo'limlari
     const rp = frag(ptSectionHTML(c, pr, { print: true }));
+    // R-26 #1: ball 2 o'nlik xonada, qoida va tolerans izohda
+    assert.equal(rp.querySelector('[data-pt-round="R1"] [data-pt-primary]').textContent.trim(), '2.40');
+    assert.ok(rp.querySelector('[data-pt-score-rule]').textContent.includes('10⁻¹²'));
+    // R-26 #4, #5: Cochran va LOD — (unverified) belgisi bosma hisobotda ham
+    const vp = frag(validationSectionHTML(c, vr, { print: true }));
+    for (const id of ['T3', 'T8', 'T9']) assert.ok(vp.querySelector(`[data-vl-test="${id}"] [data-vl-unverified-title]`), id);
+    assert.ok(!vp.querySelector('[data-vl-test="T1"] [data-vl-unverified-title]'));
     assert.ok(rp.querySelector('[data-pt-limits]').textContent.includes('R-26'));
     frag(validationSectionHTML(c, vr, { print: true }));
     frag(ptSectionHTML(c, E.evaluate({ format: 'uc-pt/1', rounds: [] })));
@@ -105,7 +117,8 @@ before(async () => {
   w.i18n.lang = 'ru';
   w.showToast = (m, type) => toasts.push({ m, type });
   w.confirm = () => true;
-  w.appState = { get: () => ({}), set() {}, addTypeBComponent() {}, subscribe() {} };
+  w.__st = { settings: {} };
+  w.appState = { get: k => (k ? w.__st[k] : { ...w.__st }), set: u => Object.assign(w.__st, u), addTypeBComponent() {}, subscribe() {} };
   w.AuthManager = { role: 'employee', getSession() { return { role: this.role }; } };
   w.UCTopDown = { getState: () => ({ step: 1, unit: '' }), setState: s => { sent = s; } };
   w.switchTab = name => { w.__tab = name; };
@@ -137,6 +150,12 @@ test('kontroller PT: xodim seriya yaratadi, raund qo\'shadi (audit), ballar chiq
   assert.ok($('[data-pt-bad]'));
   click('[data-pt-act="to-topdown"]'); await tick();
   assert.deepEqual([sent.bias, sent.scale, sent.unit, w.__tab], ['pt', 'absolute', 'mg/L', 'topdown']);
+  assert.equal(sent.ptLink.lastRound.id, 'R2');                       // L3 uchun seriya nusxasi
+  // joriy GUM hisobiga bog'lash — settings.ptLink nusxasi
+  click('[data-pt-act="link-calc"]'); await tick();
+  assert.equal(w.__st.settings.ptLink.seriesId, rec.id);
+  click('[data-pt-act="unlink-calc"]'); await tick();
+  assert.ok(!('ptLink' in w.__st.settings));
   const spec = await import(pathToFileURL(path.join(ROOT, 'src/ui/topdown/build.js')).href);
   const b = spec.buildSpec({ ...spec.defaults(), ...sent, qcValues: '1 2 3' }).spec.bias;
   assert.deepEqual(b.rounds.map(r => r.uRef), [0.05, 0.06]);

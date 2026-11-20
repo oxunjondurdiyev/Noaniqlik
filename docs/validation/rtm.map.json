@@ -3565,15 +3565,17 @@
  "REQ-PTV-015": {
   "code": [
    "src/engine/pt/index.js::PT_LIMITS",
-   "src/engine/pt/index.js::verdictOf"
+   "src/engine/pt/index.js::verdictOf",
+   "src/report/pt-chart.js::scoreText"
   ],
   "tests": [
-   "tests/engine/pt.test.js"
+   "tests/engine/pt.test.js",
+   "tests/ui/quality.test.js"
   ],
-  "status": "unverified",
-  "evidence": "`pt.test.js`",
-  "note": "loyiha standarti (R-26 #1)",
-  "codeNote": "`PT_LIMITS`, `verdictOf`"
+  "status": "verified",
+  "evidence": "`pt.test.js`, `tests/ui/quality.test.js`",
+  "note": "egasi tasdiqladi (R-26 #1); manba bilan ❔ (ISO 13528)",
+  "codeNote": "`PT_LIMITS`, `verdictOf`, `scoreText`"
  },
  "REQ-PTV-016": {
   "code": [
@@ -3670,6 +3672,32 @@
   "evidence": "91 misol 2.9.0 bilan bit darajasida bir xil (nazorat skripti); 9 Excel nuqtasi, 10-test",
   "note": "Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001).",
   "codeNote": "`evaluate`"
+ },
+ "REQ-PTV-023": {
+  "code": [
+   "src/engine/validation/anova.js::oneWayAnova"
+  ],
+  "tests": [
+   "tests/engine/validation.test.js",
+   "tests/templates/validation-draft.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`validation.test.js`, `tests/templates/validation-draft.test.js`",
+  "note": "formula (nazorat qiymati ≈ 3,90 — egasi bergan); loyiha qarori R-26 #7",
+  "codeNote": "`oneWayAnova` (`nu.sI`)"
+ },
+ "REQ-PTV-024": {
+  "code": [
+   "src/engine/linter/rules/l03-pt-last-round.js"
+  ],
+  "tests": [
+   "tests/engine/linter-l3.test.js",
+   "tests/ui/quality.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/engine/linter-l3.test.js`, `tests/ui/quality.test.js`",
+  "note": "daraja — egasi qarori R-26 #6",
+  "codeNote": "`l03-pt-last-round.js`, `ptLinkOf`"
  },
  "REQ-SRC-001": {
   "code": [],

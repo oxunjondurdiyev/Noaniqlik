@@ -737,10 +737,11 @@ evaluate({ format: 'uc-pt/1', quantity, method, matrix, savedBy,
 ```
 
 - z = d/σ_pt; z′ = d/√(σ_pt² + u²(x_pt)); ζ = d/√(u²(x) + u²(x_pt)); E_n = d/√(U²(x) + U²(x_pt)), d = x − x_pt (ISO 13528:2022 — **unverified**).
-- `PT_LIMITS = { warn: 2, action: 3, en: 1 }` — yagona joy; chegaradagi qiymat qoniqarli; solishtirish `PT_BOUNDARY_TOL` = 10⁻¹² nisbiy tolerans bilan (R-26 #1).
+- `PT_LIMITS = { warn: 2, action: 3, en: 1 }` — yagona joy; chegaradagi qiymat qoniqarli; solishtirish `PT_BOUNDARY_TOL` = 10⁻¹² nisbiy tolerans bilan (egasi tasdiqladi, R-26 #1). Hisobotda ball 2 o'nlik xonada (`src/report/pt.js::scoreText`), baho yaxlitlanmagan qiymatdan.
 - `primary` — `'z' | 'zPrime' | 'zeta' | 'En'`; bo'sh bo'lsa mavjudlaridan birinchisi (E_n, z, z′, ζ). Ball **avtomatik almashtirilmaydi**.
 - Xatolar: `pt_bad_spec`, `pt_bad_data`, `pt_sigma_nonpositive` (σ_pt ≤ 0), `pt_u_nonpositive` (u(x), U ≤ 0; u(x_pt) < 0), `pt_unit_mismatch`, `pt_unit_unknown`, `pt_no_score`.
 - Topilmalar: `pt_uxpt_large` (info; u(x_pt) > 0,3·σ_pt va asosiy ball z), `pt_questionable` (info), `pt_unsatisfactory` (warning), `pt_limits_unverified` (info, har doim), `pt_unauthenticated` (info, `savedBy: 'guest'`).
+- `lastRound(result)` (indeksda `ptLastRound`), `ptLinkOf(series, result)` → `{ seriesId, version, name, quantity, method, lastRound: { id, date, primary, score, verdict } }` — hisobga yoziladigan seriya nusxasi (`settings.ptLink`; GUM va `uc-topdown/1` `settings`): linter **L3** `pt_last_unsatisfactory` (info) oxirgi raund qoniqarsiz bo'lsa.
 - `ptToTopDownBias(result)` → `{ bias: { type: 'pt', unit, rounds: [{ id, assigned, result, uRef | U, k }] }, rounds, missingUref }` — P09 `evaluateBias` ga (Nordtest TR 537 §6.2); formula qayta yozilmagan. UI uni top-down ustasining `ptRows` matniga ("x − x_pt; u(x_pt)") aylantiradi.
 
 ### 15.2. `uc-validation/1` — usul validatsiyasi (`src/engine/validation/`)
@@ -756,7 +757,7 @@ Bitta test xatosi qolganlarini to'xtatmaydi. Test turlari (`VALIDATION_TESTS`):
 |---|---|---|---|
 | `grubbs` | `values`, `side`: `two` \| `max` \| `min`, `alpha` (0,05), `excluded` | `G`, `critical`, `outlier`, `index`, `flaggedIndex`, `value`, `excluded` | NIST §1.3.5.17.1 (verified) |
 | `cochran` | `groups` (teng hajm; qatorlar yoki `{sd, n}`), `alpha`, `excluded` | `C`, `critical`, `flaggedIndex`, `unverified: true` | ISO 5725-2 (unverified) |
-| `anova` | `groups` (qatorlar yoki `{mean, sd, n}`) | `ss`, `df`, `ms`, `F`, `p`, `critical`, `sr`, `sb2`, `sb`, `sI`, `n0`, `negative`, `nu.sr` | NIST §7.4.3, §2.4.4 (verified); n₀ (teng emas) — unverified |
+| `anova` | `groups` (qatorlar yoki `{mean, sd, n}`) | `ss`, `df`, `ms`, `F`, `p`, `critical`, `sr`, `sb2`, `sb`, `sI`, `n0`, `negative`, `nu.sr`, `nu.sI` (Welch–Satterthwaite, loyiha qarori R-26 #7; s_b² < 0 → N − k), `nuSIRule` | NIST §7.4.3, §2.4.4 (verified); n₀ (teng emas) — unverified |
 | `ttest` | `a`, `b` (qatorlar yoki `{mean, sd, n}`), `equalVariance` (true), `tail`, `alpha` | `T`, `df`, `sp`, `critical`, `p`, `reject` | NIST §1.3.5.3 (verified) |
 | `ftest` | `a`, `b`, `tail`, `alpha` | `F`, `df1`, `df2`, `lower`, `upper`, `p`, `reject` | NIST §1.3.5.9 (verified) |
 | `recovery` | `values` (%) yoki `mean, s, n`; `correction` | P09 `evaluateRecovery` natijasi | QUAM:2012 A4 (verified, P09) |
@@ -770,7 +771,7 @@ Bitta test xatosi qolganlarini to'xtatmaydi. Test turlari (`VALIDATION_TESTS`):
 
 ### 15.3. Top-down shablon qoralamasi
 
-`topDownDraft(result, { id, date, sourceHash, precisionTest, recoveryTest?, scale?, measurand? })` → `{ template }` | `{ error }` — `uc-template/1`, `status: 'DRAFT'`, `evaluationMode: 'TOP_DOWN'`, `topDown.rwSources: ['stated']`, tiklanish bo'lsa `biasSource: 'recovery_quam'`; raqamlar `validationBasis` da (sxemada; builtin shablonda taqiqlangan — `checkTemplate(tpl, schema, { builtin: true })`). `sourceHash` — chaqiruvchi hisoblaydi (`jcsHash(validationSpec)`, RFC 8785 SHA-256; dvigatelda kripto yo'q). Xatolar: `draft_bad_result`, `draft_bad_id`, `draft_bad_date`, `draft_bad_hash`, `draft_need_precision`, `draft_need_recovery`, `draft_recovery_relative`, `draft_need_unit`. `buildTopDownState` s_I ni `statedS` ga, tiklanish R_m / s / n ni `quam*` ga qo'yadi; `statedN` bo'sh (R-26 #7).
+`topDownDraft(result, { id, date, sourceHash, precisionTest, recoveryTest?, scale?, measurand? })` → `{ template }` | `{ error }` — `uc-template/1`, `status: 'DRAFT'`, `evaluationMode: 'TOP_DOWN'`, `topDown.rwSources: ['stated']`, tiklanish bo'lsa `biasSource: 'recovery_quam'`; raqamlar `validationBasis` da (sxemada; builtin shablonda taqiqlangan — `checkTemplate(tpl, schema, { builtin: true })`). `sourceHash` — chaqiruvchi hisoblaydi (`jcsHash(validationSpec)`, RFC 8785 SHA-256; dvigatelda kripto yo'q). Xatolar: `draft_bad_result`, `draft_bad_id`, `draft_bad_date`, `draft_bad_hash`, `draft_need_precision`, `draft_need_recovery`, `draft_recovery_relative`, `draft_need_unit`. `buildTopDownState` s_I ni `statedS` ga, ν(s_I) ni `statedNu` ga (foydalanuvchi o'zgartira oladi), tiklanish R_m / s / n ni `quam*` ga qo'yadi; `statedN` bo'sh. Top-down `stated` komponentida ixtiyoriy `nu` (berilsa n − 1 o'rniga; ≤ 0 — `topdown_bad_data`; berilmasa natija o'zgarmagan).
 
 ### 15.4. Saqlash (`src/storage/quality.js`, IndexedDB v2)
 

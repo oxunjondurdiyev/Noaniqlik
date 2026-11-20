@@ -154,7 +154,7 @@
           "type": "object", "required": ["test", "sI", "sr", "sb", "nuSr"], "additionalProperties": false,
           "properties": {
             "test": { "type": "string" }, "sI": { "type": "number", "minimum": 0 }, "sr": { "type": "number", "minimum": 0 }, "sb": { "type": "number", "minimum": 0 },
-            "nuSr": { "type": "number", "minimum": 1 }, "k": { "type": "integer", "minimum": 2 }, "N": { "type": "integer", "minimum": 2 }, "negativeComponent": { "type": "boolean" }
+            "nuSr": { "type": "number", "minimum": 1 }, "nuSI": { "type": "number", "exclusiveMinimum": 0 }, "nuSIRule": { "enum": ["welch_satterthwaite", "negative_component"] }, "k": { "type": "integer", "minimum": 2 }, "N": { "type": "integer", "minimum": 2 }, "negativeComponent": { "type": "boolean" }
           }
         },
         "recovery": {

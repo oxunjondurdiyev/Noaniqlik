@@ -26,6 +26,7 @@ function lines(env, x) {
       add('vl_anova_line', { k: x.k, N: x.N, F: num(x.F, 4), crit: num(x.critical, 4), p: num(x.p, 3), a: num(x.alpha) });
       add(x.significant ? 'vl_anova_sig' : 'vl_anova_nsig');
       add('vl_anova_components', { sr: num(x.sr), sb: num(x.sb), sI: num(x.sI), nu: x.nu.sr, n0: num(x.n0, 5) });
+      add(x.nuSIRule === 'negative_component' ? 'vl_anova_nu_si_neg' : 'vl_anova_nu_si', { nu: num(x.nu.sI, 3) });
       if (x.negative) add('vl_anova_negative', { v: num(x.sb2, 4) });
       break;
     case 'ttest':
@@ -68,10 +69,11 @@ export function validationSectionHTML(env, r, opt = {}) {
   const head = (k, lvl) => (opt.print ? `<div class="print-section">${esc(t(k))}</div>` : `<div class="${lvl ? 'rg-card-title' : 'section-title'}">${esc(t(k))}</div>`);
   const meta = [['pt_f_method', r.method], ['pt_f_quantity', r.quantity], ['pt_f_matrix', r.matrix]].filter(x => x[1]).map(x => `${esc(t(x[0]))}: ${esc(x[1])}`).join(' · ');
   const blocks = r.tests.map(x => {
-    const title = `${esc(x.id)} — ${esc(t('vl_type_' + x.type))}${x.label ? ' · ' + esc(x.label) : ''}`;
+    // R-26 #4, #5 (egasi qarori 2026-11-19): tekshirilmagan test sarlavhada ham "(unverified)" belgisi bilan — bosma hisobotda ham
+    const title = `${esc(x.id)} — ${esc(t('vl_type_' + x.type))}${x.label ? ' · ' + esc(x.label) : ''}${x.unverified ? ' <em data-vl-unverified-title="1">(unverified)</em>' : ''}`;
     if (x.error) return `<div class="vl-test" data-vl-test="${esc(x.id)}" data-vl-error="${esc(x.error)}"><p class="report-line"><strong>${title}</strong></p><p class="report-line">⚠ ${esc(t('vl_err_' + x.error))}${x.detail ? ' (' + esc(x.detail) + ')' : ''}</p></div>`;
     const body = lines(env, x).map(l => `<p class="report-line">${esc(l)}</p>`).join('');
-    const unv = x.unverified || x.n0Unverified ? `<p class="report-line" data-vl-unverified="1"><em>⚠ ${esc(t('vl_unverified_mark'))}</em></p>` : '';
+    const unv = x.unverified || x.n0Unverified ? `<p class="report-line" data-vl-unverified="1"><em>⚠ (unverified) ${esc(t('vl_unverified_mark'))}</em></p>` : '';
     const ex = (x.excluded || []).length ? `<div data-vl-excluded="1"><p class="report-line"><strong>${esc(t('vl_excluded_title'))}</strong></p><ul>${x.excluded.map(e =>
       `<li>${esc(fill(t('vl_excluded_line'), { i: e.index + 1, v: e.value === undefined ? '' : num(e.value), c: e.comment, role: e.role || '—', at: String(e.at || '').slice(0, 10) }))}</li>`).join('')}</ul></div>` : '';
     return `<div class="vl-test" data-vl-test="${esc(x.id)}" data-vl-type="${esc(x.type)}"><p class="report-line"><strong>${title}</strong></p>${body}${unv}${ex}

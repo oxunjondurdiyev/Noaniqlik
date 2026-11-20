@@ -8,11 +8,11 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 312 |
-| Kamida bitta testga bog'langan | 300 |
-| ✅ verified | 248 |
+| Talablar | 314 |
+| Kamida bitta testga bog'langan | 302 |
+| ✅ verified | 251 |
 | ⚠️ verified (farq bilan) | 5 |
-| ❔ unverified | 27 |
+| ❔ unverified | 26 |
 | ⏳ pending | 29 |
 | ✋ manual | 3 |
 | Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 12 |
@@ -360,7 +360,7 @@
 | REQ-PTV-012 | Chiziqlilik — P08 regressiyasi chaqiriladi | `src/engine/regression/index.js::evaluateRegression` | `tests/engine/validation.test.js` | ✅ verified | (P08) |
 | REQ-PTV-013 | LOD = 3·s′₀, LOQ = k_Q·s′₀; kalibrlash 3,3 / 10 | `src/engine/validation/lod.js::lodFromBlank`; `src/engine/validation/lod.js::lodFromCalibration` | `tests/engine/validation.test.js` | ❔ unverified | unverified (Eurachem FfP 2014 / ICH Q2) |
 | REQ-PTV-014 | PT ballari z, z′, ζ, E_n; null + sabab; xatolar (σ_pt ≤ 0, U ≤ 0, birlik) | `src/engine/pt/index.js::ptScores`; `src/engine/pt/index.js::evaluatePT` | `tests/engine/pt.test.js` | ❔ unverified | mustaqil qo'lda hisob; formula — ❔ ISO 13528 unverified |
-| REQ-PTV-015 | PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli | `src/engine/pt/index.js::PT_LIMITS`; `src/engine/pt/index.js::verdictOf` | `tests/engine/pt.test.js` | ❔ unverified | loyiha standarti (R-26 #1) |
+| REQ-PTV-015 | PT chegaralari 2 / 3, E_n 1; chegaradagi qiymat qoniqarli; 10⁻¹² tolerans; hisobotda ball 2 xona, baho yaxlitlanmagan qiymatdan | `src/engine/pt/index.js::PT_LIMITS`; `src/engine/pt/index.js::verdictOf`; `src/report/pt-chart.js::scoreText` | `tests/engine/pt.test.js`; `tests/ui/quality.test.js` | ✅ verified | egasi tasdiqladi (R-26 #1); manba bilan ❔ (ISO 13528) |
 | REQ-PTV-016 | u(x_pt) > 0,3·σ_pt → info, avtomatik almashtirish yo'q | `src/engine/pt/index.js::evaluatePT` | `tests/engine/pt.test.js` | ❔ unverified | ISO 13528 unverified |
 | REQ-PTV-017 | PT tarixi → top-down u(bias) (Nordtest TR 537 §6.2) — mavjud dvigatel | `src/engine/pt/index.js::ptToTopDownBias`; `src/engine/topdown/bias.js::evaluateBias` | `tests/engine/pt.test.js`; `tests/ui/quality.test.js` | ✅ verified | (P09 da verified) |
 | REQ-PTV-018 | Top-down qoralama: DRAFT, RFC 8785 xesh, sana; builtin da raqam yo'q | `src/engine/validation/draft.js::topDownDraft`; `src/engine/validation/draft.js::checkTemplate` | `tests/templates/validation-draft.test.js`; `tests/ui/quality.test.js` | ✅ verified | — |
@@ -368,6 +368,8 @@
 | REQ-PTV-020 | Import `.csv` / `.xlsx` (LIMITS, formula bajarilmaydi), CSV / JSON eksport | `src/io/quality.js` | `tests/io/quality.test.js` | ✅ verified | — |
 | REQ-PTV-021 | UI va hisobot uch tilda; SVG skriptsiz; escape; CSP o'zgarmagan | `src/report/pt.js`; `src/report/validation.js` | `tests/ui/quality.test.js`; `tests/i18n.test.js`; `tests/security/auth-core.test.js`; `tests/security/engine.sha256.json`; `tests/security/escape.test.js`; `tests/security/firestore-rules.test.js`; `tests/security/session.test.js`; `tests/security/static.test.js`; `tests/security/vendor.test.js`; `tests/security/xss.test.js` | ✅ verified | jsdom; real brauzerda ko'rilmagan |
 | REQ-PTV-022 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
+| REQ-PTV-023 | ν(s_I) — Welch–Satterthwaite (JCGM 100 G.4.1): NIST §7.4.3 misolida ν = 3,903; s_b² < 0 → N − k | `src/engine/validation/anova.js::oneWayAnova` | `tests/engine/validation.test.js`; `tests/templates/validation-draft.test.js` | ✅ verified | formula (nazorat qiymati ≈ 3,90 — egasi bergan); loyiha qarori R-26 #7 |
+| REQ-PTV-024 | Linter L3: oxirgi PT raundi qoniqarsiz → info (GUM, TOP_DOWN); ijobiy va salbiy holatlar | `src/engine/linter/rules/l03-pt-last-round.js` | `tests/engine/linter-l3.test.js`; `tests/ui/quality.test.js` | ✅ verified | daraja — egasi qarori R-26 #6 |
 
 ## SRC — Manba misollari qamrovi
 

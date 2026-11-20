@@ -99,7 +99,7 @@ export function step2HTML(st, ctx) {
     if (src.includes('control_limits')) body += `<div class="card rg-card" data-td-input="control_limits"><h3 class="rg-card-title">${ctx.esc(ctx.t('td_src_control_limits'))}</h3>
       <div class="settings-grid">${lab('td-limit', 'td_limit', text(ctx, st, 'limit'))}${field(ctx, 'td-sigmas', 'td_sigmas', text(ctx, st, 'sigmas'), 'td_sigmas_hint')}</div></div>`;
     if (src.includes('stated')) body += `<div class="card rg-card" data-td-input="stated"><h3 class="rg-card-title">${ctx.esc(ctx.t('td_src_stated'))}</h3>
-      <div class="settings-grid">${lab('td-statedS', 'td_stated_s', text(ctx, st, 'statedS'))}${field(ctx, 'td-statedN', 'td_stated_n', text(ctx, st, 'statedN'))}</div></div>`;
+      <div class="settings-grid">${lab('td-statedS', 'td_stated_s', text(ctx, st, 'statedS'))}${field(ctx, 'td-statedN', 'td_stated_n', text(ctx, st, 'statedN'))}${field(ctx, 'td-statedNu', 'td_stated_nu', text(ctx, st, 'statedNu'))}</div></div>`;
     if (st.bias === 'crm') body += `<div class="card rg-card" data-td-input="crm"><h3 class="rg-card-title">${ctx.esc(ctx.t('td_bias_crm'))}</h3>
       ${pasteField(ctx, st, 'crmRows', 'td_crm_rows', rel ? 'td_crm_rows_hint' : 'td_crm_rows_hint_abs', 5)}</div>`;
     if (st.bias === 'pt') body += `<div class="card rg-card" data-td-input="pt"><h3 class="rg-card-title">${ctx.esc(ctx.t('td_bias_pt'))}</h3>
