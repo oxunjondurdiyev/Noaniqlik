@@ -11,9 +11,12 @@
     "vendor:firebase": "node scripts/vendor-firebase.mjs",
     "test:browsers": "node tests/crossbrowser/run.js",
     "rtm": "node scripts/rtm.js --write",
+    "validate:templates": "node scripts/template-validation.js --write",
+    "validate:templates:check": "node scripts/template-validation.js --check",
     "validation:report": "node scripts/validation-report.js",
     "build:site": "node scripts/build-site.js",
-    "test:site": "node tests/crossbrowser/site.js"
+    "test:site": "node tests/crossbrowser/site.js",
+    "test:screens": "node tests/crossbrowser/screens.js"
   },
   "engines": {
     "node": ">=20"

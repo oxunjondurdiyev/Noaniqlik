@@ -1,0 +1,63 @@
+/* ═══════════════════════════════════════════════════════════════
+   MOTION.CSS — P16: harakat (animatsiya). Faqat CSS, faqat transform / opacity (qayta joylashuv chaqirmaydi).
+   Sekin va bezovta qilmaydigan: natija tasmasida "nafas olish" va ±U bo'ylab skaner chizig'i, joriy qadamda puls.
+   `prefers-reduced-motion: reduce` da HAMMA animatsiya va o'tish o'chadi (tests/ui/motion.test.js tekshiradi).
+   JS sikli faqat Vizual laboratoriya va MC progressida (sahifa yashirin bo'lsa to'xtaydi — visibilitychange).
+═══════════════════════════════════════════════════════════════ */
+
+@keyframes uc-pulse {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50%      { opacity: 0;   transform: scale(1.55); }
+}
+@keyframes uc-breathe {
+  0%, 100% { opacity: .82; }
+  50%      { opacity: 1; }
+}
+@keyframes uc-scan {
+  0%   { transform: translateX(0);    opacity: 0; }
+  12%  { opacity: .9; }
+  88%  { opacity: .9; }
+  100% { transform: translateX(var(--scan-span, 100px)); opacity: 0; }
+}
+@keyframes uc-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes uc-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes uc-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Joriy qadamda puls */
+.step.current .step-mark::after {
+  content: ''; position: absolute; inset: -1px; border-radius: 50%;
+  border: 2px solid var(--c-blue);
+  animation: uc-pulse 2.8s var(--ease) infinite;
+  pointer-events: none;
+}
+
+/* Natija tasmasi (src/report/ribbon.js): egri chiziq "nafas oladi", ±U bo'ylab skaner chizig'i */
+.ribbon .ribbon-curve { animation: uc-breathe 5.5s ease-in-out infinite; }
+.ribbon .ribbon-scan  { animation: uc-scan 7s linear infinite; }
+
+/* Yumshoq paydo bo'lish */
+.cmdk-panel, .profile-menu { animation: uc-rise var(--t-base) var(--ease); }
+.cmdk-backdrop, .sheet-backdrop { animation: uc-fade var(--t-base) var(--ease); }
+.sheet-panel { animation: uc-sheet-up 260ms var(--ease); }
+.tab-panel.active { animation: uc-fade var(--t-base) var(--ease); }
+
+.btn, .nav-item, .step, .icon-btn, .menu-item, .bnav-item, .cmdk-trigger {
+  transition: background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

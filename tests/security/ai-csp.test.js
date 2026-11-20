@@ -11,8 +11,9 @@ const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const csp = f => { const m = read(f).match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/); assert.ok(m, f); return m[1]; };
 const dirs = s => Object.fromEntries(s.split(';').map(x => x.trim()).filter(Boolean).map(x => { const [k, ...v] = x.split(/\s+/); return [k, v]; }));
 
-/* P14 gacha bo'lgan CSP (P02 dan beri) — so'zma-so'z */
-const MAIN_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'";
+/* Asosiy sahifalar CSP si — so'zma-so'z. P16 (egasi topshirig'i): shriftlar vendor/fonts/ ga ko'chgach Google Fonts manbalari
+   olib tashlandi (style-src va font-src toraytirildi); connect-src va qolgan direktivalar P14 gacha bo'lgan holatda (P02 dan beri). */
+const MAIN_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'";
 
 test('asosiy sahifalar (index, admin, superadmin): CSP o\'zgarmagan; api.anthropic.com yo\'q', () => {
   for (const f of ['index.html', 'admin.html', 'superadmin.html']) {
@@ -46,4 +47,12 @@ test('tashqi AI manzili kodda faqat transport-api.js da; yig\'iladigan saytga ai
   const hits = walk('src').filter(f => f.endsWith('.js') && read(f).replace(/\/\*[\s\S]*?\*\//g, '').includes('api.anthropic.com'));
   assert.deepEqual(hits, ['src/ai/transport-api.js']);
   assert.ok(require('../../scripts/build-site.js').WHITELIST.files.includes('ai.html'));
+});
+
+test('ai.html (P16): Google Fonts yo\'q — style-src / font-src da tashqi manba yo\'q; qolgan direktivalar o\'zgarmagan', () => {
+  const d = dirs(csp('ai.html'));
+  assert.deepEqual(d['style-src'], ["'self'", "'unsafe-inline'"]);
+  assert.deepEqual(d['font-src'], ["'self'"]);
+  assert.deepEqual(Object.keys(d).sort(), ['base-uri', 'connect-src', 'default-src', 'font-src', 'form-action', 'img-src', 'object-src', 'script-src', 'style-src']);
+  assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(read('ai.html')));
 });

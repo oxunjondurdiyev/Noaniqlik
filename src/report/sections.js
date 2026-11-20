@@ -15,6 +15,7 @@ import { lint, lintReported } from '../engine/index.js';
 import { roundResult } from './rounding.js';
 import { fmtSci } from './format.js';
 import { ellipseSvg } from './ellipse.js';
+import { ribbonSvg } from './ribbon.js';
 import { findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText } from './findings.js';
 import { labSectionHTML } from './lab.js';
 import { ptSectionHTML } from './pt.js';
@@ -31,7 +32,11 @@ export function createSections(environment) {
   const escHtml = env.esc;
   const Calc = { lint, lintReported, roundResult, fmtSci, findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText };
 
-  const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_triang',
+  /* P16: byudjet jadvalida "kichik ν" belgisi chegarasi — ko'rsatish uchun loyiha qarori (X7 dagi ν_eff < 10 bilan bir xil son;
+   docs/RISKS.md R-29). Hisobga, k ga va topilmalarga ta'sir qilmaydi. */
+const NU_LOW = 10;
+const NU_LOW_MIN_SHARE = 5;   // %
+const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_triang',
                       ushape: 'dist_ushape', resol: 'dist_resol',
                       trap: 'dist_trap', ctrap: 'dist_ctrap', exp: 'dist_exp', lognorm: 'dist_lognorm' };   // P06 (JCGM 101:2008 §6.4)
 
@@ -222,6 +227,31 @@ export function createSections(environment) {
   /* Monte-Karlo natijasi (P06). Hisobotda majburiy: interval turi, P, M, generator, urug', n_dig (JCGM 101:2008 §7.9, §8).
      Tekshiruv (§8.1.3) tanlangan interval turi bo'yicha; ikkinchi tur — ma'lumot uchun. LPU tasdiqlanmasa,
      natija sifatida MCM intervali ko'rsatiladi (M3 topilmasi bilan birga). */
+  /** MCM sonli toleransga yetmagan (M chegarasi yoki qat'iy M yetarli emas): §8 solishtiruvi ishonchli emas.
+      Ref: JCGM 101:2008 §8.2 — tekshiruv uchun MCM natijalari δ/5 sonli toleransga yetgan bo'lishi kerak; §7.9.4 — barqarorlashuv mezoni. */
+  function mcNotConverged(mc) {
+    return !!(mc && mc.validation && mc.validation.requested !== false && mc.validation.met === false);
+  }
+  /** Og'ir dumli chiqish: ν ≤ 2 bo'lgan t-kirish — u(y) aniqlanmagan (JCGM 101:2008 §6.4.9.4; dvigatel: uDefined / varianceUndefined). */
+  function mcHeavyTailed(mc) {
+    return !!mc && (mc.uDefined === false || (Array.isArray(mc.varianceUndefined) && mc.varianceUndefined.length > 0));
+  }
+  /** §8 xulosasi berilmaydigan holat. Egasi qarori (2026-11-20, R-29):
+      — MCM yaqinlashmagan bo'lsa "tasdiqlandi" yozuvi TAQIQLANGAN (har qanday modelda);
+      — og'ir dumli modelda yaqinlashmasa — "LPU validatsiyasi o'tkazilmadi" (erishilgan n_dig va M bilan).
+      Yengil dumli modelda yaqinlashmagan MCM bilan "tasdiqlanmadi" — avvalgidek (egasi qarorini kutadi, R-29). */
+  function mcNotPerformed(mc) {
+    return mcNotConverged(mc) && (mc.validated === true || mcHeavyTailed(mc));
+  }
+  function mcVerdict(mc) {
+    if (mcNotPerformed(mc)) {
+      const a = mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? String(mc.nDigAchieved) : '—';
+      return `<span class="badge badge-orange" data-mc-validation="not-performed">${escHtml(i18n.t('mc_not_performed')
+        .replace('{n}', String(mc.nDig || 2)).replace('{a}', a).replace('{M}', Number(mc.M).toLocaleString()))}</span>`;
+    }
+    return mc.validated ? `<span class="badge badge-green" data-mc-validation="valid">${i18n.t('mc_valid')}</span>`
+      : `<span class="badge badge-orange" data-mc-validation="not-valid">${i18n.t('mc_not_valid')}</span>`;
+  }
   function mcLines(r, mc) {
     const d = rounded(r).digits + 1;
     const shortest = (mc.interval || 'shortest') !== 'symmetric';
@@ -243,7 +273,7 @@ export function createSections(environment) {
     // §8 xulosasi faqat tekshiruv so'ralganda (oddiy MCM da berilmaydi — egasi qarori Q-8)
     if (mc.validated !== null && mc.validated !== undefined) {
       lines.push(`JCGM 101 §8: n_dig = ${nDig};  δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ` +
-        (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>` : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span>`));
+        mcVerdict(mc));
     }
     // MCM natijalarining sonli toleransi: talab (§8.2: δ/5; oddiy MCM: δ) va erishilgani (2·max s); δ ga tushirilgan bo'lsa — belgi
     if (val.required !== null && val.required !== undefined) {
@@ -256,7 +286,7 @@ export function createSections(environment) {
         `${i18n.t(ad.enabled ? 'mc_mode_adaptive' : 'mc_mode_fixed')}` +
         (ad.enabled ? ` (JCGM 101 §7.9.4): ${i18n.t('mc_blocks')} ${mc.blocks} × ${mc.blockSize.toLocaleString()} — ${i18n.t(ad.converged ? 'mc_converged' : 'mc_not_converged')}` : '') +
         (mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? `;  ${i18n.t('mc_ndig_achieved')} = ${mc.nDigAchieved}` : '') + '</span>');
-    if (mc.validated === false) {
+    if (mc.validated === false && !mcNotPerformed(mc)) {
       lines.push(`<strong data-mc-result="1">${i18n.t('mc_result_instead')}: ${escHtml(r.symbol)} = ${mc.mean.toFixed(d)}${unitOf(r)};  ` +
         `${i18n.t(mainKey)} (${pct(mc.P)} %): [${main[0].toFixed(d)}; ${main[1].toFixed(d)}]${unitOf(r)}</strong>`);
     }
@@ -267,6 +297,59 @@ export function createSections(environment) {
     const list = mc && Array.isArray(mc.findings) ? mc.findings : [];
     if (!list.length) return '';
     return Calc.findingsBlockHTML(list, { ...fctx(), scope: 'mc', print: !!(o && o.print), acceptances: {}, canAccept: false });
+  }
+
+  /** P16: asosiy natija kartasi — y (katta), ± U, k, P, ν_eff va uning qoidasi; noaniqlik tasmasi (./ribbon.js).
+      Hammasi natijadan; yaxlitlash — rounded() (rounding.js). mc — Monte-Karlo natijasi (bo'lsa, intervallari chiziladi). */
+  function heroCard(r, o) {
+    const mc = (o && o.mc) || null;
+    const rr = rounded(r);
+    const [yText, uText] = rr.resultText.split(' ± ');
+    const plain = `${r.symbol} = (${rr.resultText})${r.unit ? ' ' + r.unit : ''}; k = ${r.k.toFixed(2)}; P ≈ ${pct(r.P)} %`;
+    const ribbon = ribbonSvg({ y: r.y, uc: r.uc, U: r.U, roundUp: r.roundUp, mc, esc: escHtml,
+      labels: { title: plain, lpu: i18n.t('rb_lpu'), mcShortest: i18n.t('mc_interval'), mcSymmetric: i18n.t('mc_interval_sym') } });
+    return `
+      <section class="hero-card" data-hero="1">
+        <div class="hero-label">${i18n.t('res_statement')}</div>
+        <div class="hero-value mono" data-hero-value="1">
+          <span class="hero-sym">${escHtml(r.symbol)} =</span>
+          <span class="hero-y">${escHtml(yText)}</span>
+          <span class="hero-pm">± ${escHtml(uText)}</span>
+          ${r.unit ? `<span class="hero-unit">${escHtml(r.unit)}</span>` : ''}
+        </div>
+        <div class="hero-meta mono" data-hero-meta="1">
+          <span>k = ${r.k.toFixed(2)}</span><span>P ≈ ${pct(r.P)} %</span><span>ν_eff = ${nuText(r.nuEff)}</span><span class="hero-rule">${escHtml(nuRuleText(r))}</span>
+        </div>
+        ${ribbon ? `<div class="hero-ribbon">${ribbon}</div>
+        <p class="hero-legend text-xs">${escHtml(i18n.t('rb_legend'))}${mc ? ' ' + escHtml(i18n.t('rb_legend_mc')) : ''}</p>` : ''}
+        <p class="hero-note text-xs">${ilacNote(r)}</p>
+      </section>`;
+  }
+  /** P16: KPI plitkalari — u_c, ν_eff, k, ustun manba ulushi (dvigatel natijasidagi eng katta |ulush|) */
+  function dominantSource(r) {
+    const rows = (r.budget || []).filter(b => isFinite(b.share));
+    if (!rows.length) return null;
+    const top = rows.reduce((a, b) => (Math.abs(b.share) > Math.abs(a.share) ? b : a));
+    return { name: budgetName(top), share: top.share, kind: top.kind };
+  }
+  function kpiTiles(r) {
+    const dom = dominantSource(r);
+    const tiles = [
+      { key: 'uc', label: i18n.t('kpi_uc'), value: Calc.fmtSci(r.uc), sub: r.relUc !== null && r.relUc !== undefined ? r.relUc.toFixed(4) + ' %' : (r.unit || '') },
+      { key: 'nu', label: 'ν_eff', value: nuText(r.nuEff), sub: 'Welch–Satterthwaite', warn: isFinite(r.nuEff) && r.nuEff < NU_LOW },
+      { key: 'k', label: i18n.t('res_k'), value: r.k.toFixed(3), sub: `P = ${pct(r.P)} %` },
+      { key: 'U', label: i18n.t('res_U'), value: Calc.fmtSci(r.U), sub: r.relU !== null && r.relU !== undefined ? r.relU.toFixed(4) + ' %' : (r.unit || '') },
+    ];
+    if (dom) tiles.push({ key: 'dominant', label: i18n.t('kpi_dominant'), value: dom.share.toFixed(1) + ' %', subHtml: dom.name, warn: Math.abs(dom.share) > 50 });
+    return `
+      <div class="kpi-grid" data-kpi-grid="1">
+        ${tiles.map(k => `
+          <div class="kpi-tile${k.warn ? ' kpi-warn' : ''}" data-kpi="${k.key}">
+            <div class="kpi-label math">${k.label}</div>
+            <div class="kpi-value mono">${k.value}</div>
+            <div class="kpi-sub">${k.subHtml !== undefined ? k.subHtml : escHtml(k.sub || '')}</div>
+          </div>`).join('')}
+      </div>`;
   }
 
   function renderKPIs(r) {
@@ -338,6 +421,10 @@ export function createSections(environment) {
                  : b.kind === 'second' ? escHtml(i18n.t('so_title'))
                  : `${i18n.t('budget_corr')} ${escHtml(b.name)}`;
       const w = Math.min(100, Math.abs(b.share));
+      // P16: νᵢ ustuni; kichik ν (chekli va < NU_LOW) sariq bilan belgilanadi — faqat ko'rsatish, hisobga ta'sir qilmaydi
+      const noNu = b.kind === 'corr' || b.kind === 'second';
+      // Egasi qarori (2026-11-20, R-29 #10): ulushi < NU_LOW_MIN_SHARE % bo'lgan manba va ν = ∞ belgilanmaydi
+      const nuLow = !noNu && isFinite(b.nu) && b.nu < NU_LOW && Math.abs(b.share) >= NU_LOW_MIN_SHARE;
       return `<tr>
         <td>${name}</td>
         <td>${badge}</td>
@@ -346,8 +433,9 @@ export function createSections(environment) {
         <td class="cell-num num mono">${Calc.fmtSci(b.c)}</td>
         <td class="cell-num num mono">${b.ui === null ? '—' : Calc.fmtSci(b.ui)}</td>
         <td class="cell-num num mono">${Calc.fmtSci(b.contrib)}</td>
+        <td class="cell-num num mono${nuLow ? ' nu-low' : ''}"${nuLow ? ` data-nu-low="1" title="${escHtml(i18n.t('nu_low_tip'))}"` : ''}>${noNu ? '—' : nuText(b.nu)}</td>
         <td class="cell-num num mono">${b.share.toFixed(2)}${withBar ? `
-          <div class="share-bar"><span class="${b.share < 0 ? 'neg' : ''}" style="width:${w}%"></span></div>` : ''}</td>
+          <svg class="share-bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect class="${b.share < 0 ? 'neg' : 'pos'}" width="${w}" height="4"/></svg>` : ''}</td>
       </tr>`;
     }).join('');
   }
@@ -363,18 +451,45 @@ export function createSections(environment) {
           <th class="cell-num">cᵢ</th>
           <th class="cell-num">|cᵢ|·u(xᵢ)</th>
           <th class="cell-num">uᵢ²(${escHtml(r.symbol)})</th>
+          <th class="cell-num">νᵢ</th>
           <th class="cell-num">${i18n.t('col_share')}</th>
         </tr></thead>
         <tbody>
           ${budgetRows(r, withBar)}
-          <tr style="font-weight:600;border-top:2px solid var(--border)">
+          <tr class="row-total">
             <td colspan="5">${i18n.t('budget_total')}</td>
             <td class="cell-num num mono">${Calc.fmtSci(r.uc)}</td>
             <td class="cell-num num mono">${Calc.fmtSci(r.uc2)}</td>
+            <td class="cell-num num mono" data-nu-eff="1">${nuText(r.nuEff)}</td>
             <td class="cell-num num mono">100.00</td>
           </tr>
         </tbody>
       </table>`;
+  }
+
+  /** P16: Pareto ko'rinishi — byudjet qatorlari |ulush| bo'yicha kamayish tartibida, yig'ma ulush bilan.
+      Hisob yo'q: ulushlar dvigatel natijasidan (r.budget[].share); bu yerda faqat saralash va yig'indi. */
+  function paretoRows(r) {
+    const rows = r.budget.filter(b => isFinite(b.share)).map(b => ({ b, abs: Math.abs(b.share) })).sort((x, y) => y.abs - x.abs);
+    let cum = 0;
+    return rows.map(x => { cum += x.b.share; return { name: budgetName(x.b), kind: x.b.kind, share: x.b.share, cumulative: cum }; });
+  }
+  function budgetName(b) {
+    return b.kind === 'A' ? `${escHtml(b.name)}: ${i18n.t('budget_repeat')}`
+      : b.kind === 'B' ? `${escHtml(b.param)}: ${b.auto ? i18n.t('budget_hyst') : escHtml(b.name)}`
+      : b.kind === 'second' ? escHtml(i18n.t('so_title'))
+      : `${i18n.t('budget_corr')} ${escHtml(b.name)}`;
+  }
+  function budgetPareto(r) {
+    const rows = paretoRows(r);
+    if (!rows.length) return '';
+    return `<ol class="pareto" data-pareto="1">${rows.map(x => `
+      <li class="pareto-row" data-pareto-kind="${escHtml(x.kind)}">
+        <span class="pareto-name">${x.name}</span>
+        <svg class="share-bar pareto-bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect class="${x.share < 0 ? 'neg' : 'pos'}" width="${Math.min(100, Math.abs(x.share)).toFixed(2)}" height="4"/></svg>
+        <span class="pareto-share mono">${x.share.toFixed(2)} %</span>
+        <span class="pareto-cum mono text-muted">Σ ${x.cumulative.toFixed(1)} %</span>
+      </li>`).join('')}</ol>`;
   }
 
   function renderBudget(r) {
@@ -493,14 +608,14 @@ export function createSections(environment) {
 
   /** @param {{acceptances?:object, conf?:object, mc?:object}} [extra]  nuqtaga tegishli qabul qilishlar; yagona k bilan qayta hisoblangan muvofiqlik */
   function pointDetail(r, snap, title, rr, k, extra) {
-    const p9 = l => `<p style="font-size:9pt;margin:.25em 0">${l}</p>`;
+    const p9 = l => `<p class="print-note">${l}</p>`;
     const ex = extra || {};
     const conf = confLines(r, ex.conf, ex.decision);
     return `
       ${title ? `<div class="print-point-title">${escHtml(title)}</div>` : ''}
       ${findingsHtml(r, { scope: 'gum', print: true, spec: snap, acceptances: ex.acceptances, showEmpty: true })}
       <div class="print-section">${i18n.t('model_title')}</div>
-      <p style="font-size:10pt;margin:.4em 0 .6em"><strong>${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</strong></p>
+      <p class="print-note-lg"><strong>${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</strong></p>
       ${p9(`<span data-model-kind-info="${confKind(r)}">${modelKindLine(r)}</span>`)}
       ${r.implicit ? p9(escHtml(i18n.t('n_implicit_model'))) + p9(implicitLine(r)) : ''}
 
@@ -525,7 +640,7 @@ export function createSections(environment) {
       ${conf.length ? `<div class="print-section">${i18n.t('conf_title')}</div>${conf.map(p9).join('')}` : ''}
 
       <div class="print-section">${i18n.t('res_statement')}</div>
-      <p style="font-size:11pt;margin:.5em 0"><strong>${statement(r, rr, k)}</strong></p>
+      <p class="print-lead"><strong>${statement(r, rr, k)}</strong></p>
       ${p9(ilacNote(r))}
       ${ex.mc ? `<div class="print-section">${i18n.t('mc_title')}</div>${mcLines(r, ex.mc).map(p9).join('')}${mcFindingsHtml(ex.mc, { print: true })}` : ''}
       ${marksHtml(r, { mc: ex.mc })}`;
@@ -976,8 +1091,7 @@ export function createSections(environment) {
       }
       if (mc.validated !== null && mc.validated !== undefined) {
         const bad = (mc.comparison || []).filter(c => !c.ok).map(c => (c.q === 'lambdaMax' ? 'λ_max' : c.q === 'kp' ? 'k_p' : c.q === 'kq' ? 'k_q' : `${c.q}(${escHtml(c.output)})`));
-        lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>`
-          : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span> (${bad.join(', ')})`));
+        lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + mcVerdict(mc) + (mc.validated || mcNotPerformed(mc) ? '' : ` (${bad.join(', ')})`));
       }
       const v = mc.validation || {};
       if (v.items && v.items.length) {
@@ -1025,7 +1139,7 @@ export function createSections(environment) {
     const opt = o || {};
     if (!r) return '';
     const cls = opt.print ? 'print-table' : 'data-table';
-    const wrap = l => (opt.print ? `<p style="font-size:9pt;margin:.25em 0">${l}</p>` : `<div class="formula-box">${l}</div>`);
+    const wrap = l => (opt.print ? `<p class="print-note">${l}</p>` : `<div class="formula-box">${l}</div>`);
     const title = k => (opt.print ? `<div class="print-section">${i18n.t(k)}</div>` : `<div class="section-title">${i18n.t(k)}</div>`);
     const mc = opt.mc && opt.mc.multivariate ? opt.mc : null;
     return `<div data-mv-section="1">
@@ -1051,6 +1165,6 @@ export function createSections(environment) {
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, ptSection, validationSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, heroCard, kpiTiles, dominantSource, budgetPareto, paretoRows, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, ptSection, validationSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }

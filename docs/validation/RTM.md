@@ -8,14 +8,14 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 329 |
-| Kamida bitta testga bog'langan | 317 |
-| ✅ verified | 266 |
+| Talablar | 343 |
+| Kamida bitta testga bog'langan | 330 |
+| ✅ verified | 279 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
-| ✋ manual | 3 |
-| Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 12 |
+| ✋ manual | 4 |
+| Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 13 |
 
 ## GOV — Loyihaning majburiy qoidalari (CLAUDE.md, egasi qarorlari)
 
@@ -370,6 +370,25 @@
 | REQ-PTV-022 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
 | REQ-PTV-023 | ν(s_I) — Welch–Satterthwaite (JCGM 100 G.4.1): NIST §7.4.3 misolida ν = 3,903; s_b² < 0 → N − k | `src/engine/validation/anova.js::oneWayAnova` | `tests/engine/validation.test.js`; `tests/templates/validation-draft.test.js` | ✅ verified | formula (nazorat qiymati ≈ 3,90 — egasi bergan); loyiha qarori R-26 #7 |
 | REQ-PTV-024 | Linter L3: oxirgi PT raundi qoniqarsiz → info (GUM, TOP_DOWN); ijobiy va salbiy holatlar | `src/engine/linter/rules/l03-pt-last-round.js` | `tests/engine/linter-l3.test.js`; `tests/ui/quality.test.js` | ✅ verified | daraja — egasi qarori R-26 #6 |
+
+## UIX — Interfeys 2.0 (P16)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-UIX-001 | Dizayn tokenlari yagona joyda (`src/css/tokens.css`); ikkala mavzuda matn va urg'u ranglari kontrasti ≥ 4,5:1; qorong'i fon `#1e2235` (sof qora yo'q) | `src/css/tokens.css` | `tests/ui/contrast.test.js` | ✅ verified | WCAG 2.1 formulasi bo'yicha tokenlardan avtomatik hisob; haqiqiy brauzerdagi hisoblangan uslublar — tests/crossbrowser/screens.js (CI) |
+| REQ-UIX-002 | Shriftlar `vendor/fonts/` da (SIL OFL, SHA-256); Google Fonts ishlatilmaydi; CSP `font-src 'self'`, `style-src` da tashqi manba yo'q | `src/css/tokens.css`; `vendor/README.md` | `tests/security/vendor.test.js` | ✅ verified | — |
+| REQ-UIX-003 | Ilova qobig'i: chap menyu guruhlari, stepper, pastki navigatsiya, buyruq qidiruvi; o'tishlar mavjud yorliqlar orqali; haqiqiy `<button>` / `<a>`, aria-label | `src/ui/shell/model.js::activeNav`; `src/ui/shell/model.js::stepStates`; `src/ui/shell/model.js::search`; `src/ui/shell/app.js` | `tests/ui/shell.test.js` | ✅ verified | — |
+| REQ-UIX-004 | Noaniqlik tasmasi: skriptsiz SVG, haqiqiy natijadan (y, u_c, U; MCM intervallari); yorliqlar `rounding.js` qoidalari bilan; U = 0 da chizilmaydi | `src/report/ribbon.js::ribbonSvg`; `src/report/sections.js::createSections` | `tests/report/ribbon.test.js` | ✅ verified | MCM gistogrammasi yo'q — dvigatel namunalarni qaytarmaydi (R-29 #1) |
+| REQ-UIX-005 | B tur manbasi varag'i: jonli u dvigatel funksiyalari orqali; klaviatura (Esc, fokus qaytishi); vergulli kasr | `src/js/typeB.js` | `tests/ui/sheet.test.js` | ✅ verified | — |
+| REQ-UIX-006 | Laboratoriya ko'rinishi: QC zonalari, ogohlantirish / rad etish nuqtalari, Westgard holati (darvoza, `suppressed`) — dvigatel natijasidan; etalon kartochkalari holati | `src/ui/lab/chart.js::qcChartSVG`; `src/ui/lab/view.js` | `tests/ui/lab2.test.js`; `tests/ui/lab.test.js` | ✅ verified | — |
+| REQ-UIX-007 | Hisobot: A4 ko'rinishi va bosma bitta quruvchidan; pastki qism (ENGINE, build, xesh, QR) har sahifada; jadval sarlavhasi takrorlanadi; shrift: matn ≥ 11 pt, jadvallar ≥ 10 pt, pastki qism ≥ 9 pt (egasi qarori 2026-11-20) | `src/report/forms.js::buildReport`; `src/css/print.css`; `src/js/report.js` | `tests/report/print.test.js` | ✅ verified | Sahifalar bo'yicha takrorlanish Chromium PDF + pdftotext bilan qo'lda tekshirildi; Safari — qo'lda (R-29) |
+| REQ-UIX-008 | Vizual laboratoriya: har bir rejim dvigatel funksiyalari orqali (UI da qoida takrorlanmaydi); "o'quv namunasi" belgisi; hech narsa saqlanmaydi va hisobotga chiqmaydi | `src/ui/vizlab/app.js`; `src/ui/vizlab/model.js` | `tests/ui/vizlab.test.js` | ✅ verified | O'quv ko'rinishida MCM n_dig = 1 bilan (ekranda yozilgan); gistogramma — illyustrativ oqim (R-29 #1) |
+| REQ-UIX-009 | Harakat: faqat CSS (transform / opacity); `prefers-reduced-motion: reduce` da o'chadi; JS sikli faqat Vizual laboratoriya va MC progressida | `src/css/motion.css` | `tests/ui/motion.test.js` | ✅ verified | — |
+| REQ-UIX-010 | Inline uslublar: P16 qismlarida yo'q; qolganlari soni oshmaydi; `validation.html` da `style-src 'self'` | `index.html`; `validation.html` | `tests/security/inline-style.test.js` | ✅ verified | index / admin / superadmin da 'unsafe-inline' qolgan (R-29 #3) |
+| REQ-UIX-011 | Brauzerda: 390 / 834 / 1440 px, ikkala mavzu — konsol xatosi yo'q, bosiladigan maydon ≥ 44 px, kontrast ≥ 4,5:1, gorizontal surilish yo'q, klaviatura (Ctrl+K, Esc, ko'rinadigan fokus) | `tests/crossbrowser/screens.js` | — | ✋ manual | `npm run test:screens` — Playwright (CI `validation` job; `npm test` tarkibida emas). Safari va real qurilmalar — qo'lda, PQ |
+| REQ-UIX-012 | Hisob o'zgarmagan: `src/engine/` ga tegilmagan; misollar natijasi bit darajasida bir xil | `scripts/cases-snapshot.js` | `tests/validation/snapshot.test.js`; `tests/security/static.test.js` | ✅ verified | Solishtirish natijasi PR tavsifida: 91 / 91, farq 0 |
+| REQ-UIX-013 | Shablon kartasidagi "Manba bilan mos" belgisi avtomatik: shablon hisobi etalon misol (tests/fixtures) bilan solishtiriladi → `templates/validation/builtin.json` (`source`, `clause`, `status`, `relDiff`); qo'lda bayroq yo'q; fayl eskirsa test xatosi; foydalanuvchi natijasida belgi yo'q Fayl `_generated` belgili, yozuvlar: templateId, templateHash, ENGINE_VERSION, testId, source, clause, relDiff, date; runtime'da xesh / versiya mos kelmasa yoki shablon builtin bo'lmasa — unverified; CI qayta yaratib solishtiradi; A4 hisobotida bitta qator (holat + manba + ENGINE_VERSION). | `scripts/template-validation.js::build`; `scripts/lib/template-cases.js`; `src/templates/validation-status.js::templateValidation`; `src/ui/tpl/view.js` | `tests/templates/validation-badge.test.js`; `tests/templates/builtin.test.js` | ✅ verified | Etalon: zichlik, gazoanalizator (3 nuqta), termometr (5 nuqta) Excel fayllari; termometrda Δ = 0,087 % (D-02), ma'lum farq D-03 |
+| REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat | `src/ui/shell/app.js`; `src/js/report.js`; `src/css/tokens.css`; `src/report/sections.js::createSections` | `tests/report/print.test.js`; `tests/report/ribbon.test.js`; `tests/security/vendor.test.js` | ✅ verified | `#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas |
 
 ## SRC — Manba misollari qamrovi
 

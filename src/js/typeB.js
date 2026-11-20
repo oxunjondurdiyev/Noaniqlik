@@ -26,8 +26,32 @@ const TypeB = (() => {
     { value: 0.9973, label: '99.73 %  (k ≈ 3)' },
   ];
 
+  /* ─── P16: manba varag'i (telefonda pastdan chiqadi — bottom sheet; desktopda yon panel) ───
+     Yangi forma yozilmagan: aynan shu kartaning maydonlari (data-field → onFieldChange) varaq ko'rinishida ochiladi.
+     Jonli "u = a/√3 = …" — dvigatel funksiyalari orqali (Calc.typeB, Calc.getDivisorLabel); UI da formula takrorlanmaydi. */
+  const MAIN_DISTS = ['normal', 'rect', 'triang', 'ushape', 'resol'];
+  let openId = null;        // ochiq varaqdagi manba
+  let returnFocus = null;   // yopilganda fokus qaytadigan tugma (data-tb-edit)
+  function openSheet(id) {
+    openId = id;
+    render();
+    const card = document.querySelector('.typeb-card.is-open');
+    const first = card && card.querySelector('[data-field="halfWidth"]');
+    if (first) first.focus();
+  }
+  function closeSheet() {
+    if (!openId) return;
+    const id = openId;
+    openId = null;
+    render();
+    const btn = Array.from(document.querySelectorAll('[data-tb-edit]')).find(b => b.dataset.tbEdit === id);
+    if (btn) btn.focus();
+  }
+
   function init() {
     document.getElementById('btn-add-typeb').addEventListener('click', addComponent);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && openId) { e.preventDefault(); closeSheet(); } });
+    document.addEventListener('tabchange', () => { if (openId) { openId = null; render(); } });
     document.getElementById('btn-calc-combined').addEventListener('click', calcCombined);
 
     appState.subscribe((changes) => {
@@ -62,6 +86,7 @@ const TypeB = (() => {
       sensitivity:  1,
       unit:         '',
     });
+    if (!isPreset) { const list = appState.get('typeB'); const last = list[list.length - 1]; if (last) openSheet(last.id); }
   }
 
   /* Means of all inputs (needed when a half-width is written as an expression) */
@@ -106,6 +131,8 @@ const TypeB = (() => {
       const btnEmpty = el.querySelector('#btn-add-typeb-empty');
       if (btnEmpty) btnEmpty.addEventListener('click', addComponent);
       sumEl.innerHTML = '';
+      openId = null;
+      document.body.classList.remove('sheet-open');
     } else {
       el.innerHTML = state.typeB.map(comp => renderComponent(comp, state)).join('');
       renderSummary(state);
@@ -120,8 +147,20 @@ const TypeB = (() => {
         });
       });
       el.querySelectorAll('.btn-remove-tb').forEach(btn => {
-        btn.addEventListener('click', () => appState.removeTypeBComponent(btn.dataset.id));
+        btn.addEventListener('click', () => { if (openId === btn.dataset.id) openId = null; appState.removeTypeBComponent(btn.dataset.id); });
       });
+      // P16: varaq — ochish / yopish, taqsimot segmenti, jonli u, reestr
+      if (openId && !state.typeB.some(c => c.id === openId)) openId = null;
+      el.insertAdjacentHTML('beforeend', `<div class="sheet-backdrop" data-tb-close="1"${openId ? '' : ' hidden'}></div>`);
+      el.querySelectorAll('[data-tb-edit]').forEach(b => b.addEventListener('click', () => openSheet(b.dataset.tbEdit)));
+      el.querySelectorAll('[data-tb-close]').forEach(b => b.addEventListener('click', closeSheet));
+      el.querySelectorAll('[data-tb-dist]').forEach(b => b.addEventListener('click', () => setField(b.dataset.id, 'distribution', b.dataset.tbDist)));
+      el.querySelectorAll('[data-tb-registry]').forEach(b => b.addEventListener('click', () => { closeSheet(); const r = document.getElementById('btn-typeb-registry'); if (r) r.click(); }));
+      const open = el.querySelector('.typeb-card.is-open');
+      if (open) {
+        open.querySelectorAll('input[data-field]').forEach(inp => inp.addEventListener('input', () => livePreview(open)));
+        document.body.classList.add('sheet-open');
+      } else document.body.classList.remove('sheet-open');
     }
 
     renderSettings(state);
@@ -131,10 +170,6 @@ const TypeB = (() => {
     const { std, mult, u, a, bad } = compStd(comp, state);
     const isExpr = typeof comp.halfWidth === 'string' && !isFinite(Calc.toNum(comp.halfWidth)) && comp.halfWidth.trim() !== '';
     const dist = comp.distribution;
-
-    const distOpts = DIST_OPTIONS.map(d =>
-      `<option value="${d.value}" ${dist === d.value ? 'selected' : ''}>${i18n.t(d.labelKey)}</option>`
-    ).join('');
 
     const paramOpts = state.params.map(p =>
       `<option value="${escHtml(p)}" ${comp.param === p ? 'selected' : ''}>${escHtml(p)}</option>`
@@ -158,37 +193,53 @@ const TypeB = (() => {
         </div>` : '';
     const uFormula = dist === 'ctrap' ? '√(a²/3 + d²/9)' : `${aSym} / ${divLabel}`;
 
+    const isOpen = openId === comp.id;
+    const distName = i18n.t((DIST_OPTIONS.find(d => d.value === dist) || DIST_OPTIONS[0]).labelKey).replace(/\s*\(.*$/, '');
+    const uLine = `u = ${mult !== 1 ? Calc.fmtSci(Math.abs(mult)) + ' · ' : ''}${uFormula} = ${Calc.fmtSci(u)}`;
+    const others = DIST_OPTIONS.filter(d => !MAIN_DISTS.includes(d.value));
+    const distSeg = `
+        <div class="form-group tb-dist-group">
+          <span class="tb-label" id="tb-dist-${escHtml(comp.id)}">${i18n.t('label_distribution')}</span>
+          <div class="seg tb-dist-seg" role="group" aria-labelledby="tb-dist-${escHtml(comp.id)}">
+            ${MAIN_DISTS.map(v => `<button type="button" class="seg-btn${dist === v ? ' active' : ''}" data-id="${escHtml(comp.id)}" data-tb-dist="${v}" aria-pressed="${dist === v}">${escHtml(i18n.t('dist_' + v).replace(/\s*\(.*$/, ''))}</button>`).join('')}
+          </div>
+          <select data-id="${escHtml(comp.id)}" data-field="distribution" aria-label="${escHtml(i18n.t('tb_dist_other'))}" class="tb-dist-other${MAIN_DISTS.includes(dist) ? '' : ' active'}">
+            <option value="${MAIN_DISTS.includes(dist) ? escHtml(dist) : ''}" ${MAIN_DISTS.includes(dist) ? 'selected' : ''}>${escHtml(i18n.t('tb_dist_other'))}</option>
+            ${others.map(d => `<option value="${d.value}" ${dist === d.value ? 'selected' : ''}>${i18n.t(d.labelKey)}</option>`).join('')}
+          </select>
+        </div>`;
+
     return `
-    <div class="typeb-card" data-id="${escHtml(comp.id)}">
+    <div class="typeb-card${isOpen ? ' is-open sheet-panel' : ''}" data-id="${escHtml(comp.id)}"${isOpen ? ` role="dialog" aria-modal="true" aria-label="${escHtml(comp.name || i18n.t('label_component'))}"` : ''}>
+      ${isOpen ? '<div class="sheet-grip" aria-hidden="true"></div>' : ''}
       <div class="typeb-card-header">
         <input type="text" value="${escHtml(comp.name)}" data-id="${escHtml(comp.id)}" data-field="name"
-          placeholder="${i18n.t('label_component')}" />
+          placeholder="${i18n.t('label_component')}" aria-label="${escHtml(i18n.t('label_component'))}" />
         <span class="dist-badge ${distCls}">${escHtml(comp.param || '')}</span>
-        <button class="btn btn-sm btn-danger btn-remove-tb" data-id="${escHtml(comp.id)}" title="${escHtml(i18n.t('c_remove'))}">
+        ${isOpen ? '' : `<button type="button" class="btn btn-sm btn-outline" data-tb-edit="${escHtml(comp.id)}" aria-haspopup="dialog">${escHtml(i18n.t('tb_edit'))}</button>`}
+        <button class="btn btn-sm btn-danger btn-remove-tb" data-id="${escHtml(comp.id)}" title="${escHtml(i18n.t('c_remove'))}" aria-label="${escHtml(i18n.t('c_remove'))}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
         </button>
       </div>
-      ${comp.share === 'point' && window.UCTemplates && window.UCTemplates.pointRowIgnored(comp, state) ? `<div class="typeb-hint text-xs" style="color:var(--warning)">${escHtml(i18n.t('tpl_point_ignored'))}</div>` : ''}
+      ${comp.share === 'point' && window.UCTemplates && window.UCTemplates.pointRowIgnored(comp, state) ? `<div class="typeb-hint text-xs tb-warn">${escHtml(i18n.t('tpl_point_ignored'))}</div>` : ''}
       ${comp.registry ? `<div class="typeb-hint text-xs text-muted" data-registry-link="${escHtml(comp.registry.id)}">${escHtml(i18n.t('lb_link').replace('{cert}', comp.registry.certificate || '—').replace('{date}', comp.registry.date || '—').replace('{valid}', comp.registry.validUntil || '—').replace('{v}', comp.registry.version))}${comp.registry.correction === null || comp.registry.correction === undefined ? '' : ' · ' + escHtml(i18n.t('lb_pick_correction').replace('{c}', comp.registry.correction))}</div>` : ''}
       ${comp.drift ? `<div class="typeb-hint text-xs text-muted" data-drift-link="1">${escHtml(i18n.t('lb_drift_link').replace('{dc}', comp.drift.deltaC).replace('{div}', comp.drift.divisorLabel || '√3'))}</div>` : ''}
       ${comp.hint || comp.note ? `<div class="typeb-hint text-xs text-muted">${comp.optional ? '⚠ ' + escHtml(i18n.t('tpl_optional')) + '. ' : ''}${escHtml(comp.hint || '')}${comp.note ? ' — ' + escHtml(comp.note) : ''}</div>` : ''}
+      <div class="tb-summary mono" data-tb-summary="1"><span class="tb-summary-dist">${escHtml(distName)}</span><span data-tb-u="1"${bad ? ' class="tb-bad"' : ''}>${escHtml(uLine)}</span></div>
       <div class="typeb-card-body">
+        ${distSeg}
         <div class="form-group">
           <label>${i18n.t('label_param')}</label>
           <select data-id="${escHtml(comp.id)}" data-field="param">${paramOpts}</select>
         </div>
         <div class="form-group">
-          <label>${i18n.t('label_distribution')}</label>
-          <select data-id="${escHtml(comp.id)}" data-field="distribution">${distOpts}</select>
-        </div>
-        <div class="form-group">
           <label>${aLabel}</label>
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.halfWidth))}"
             data-id="${escHtml(comp.id)}" data-field="halfWidth" placeholder="0.0005  ${escHtml(i18n.t('hw_expr_ph'))}" autocomplete="off"
-            ${bad ? 'style="border-color:var(--danger)"' : ''} />
-          ${isExpr ? `<span class="text-xs ${bad ? '' : 'text-muted'}" style="${bad ? 'color:var(--danger)' : ''}">${bad ? i18n.t('err_bad_formula') : '= ' + Calc.fmtSci(a)}</span>` : ''}
+            ${bad ? 'class="input-bad" aria-invalid="true"' : ''} />
+          ${isExpr ? `<span class="text-xs ${bad ? 'tb-bad' : 'text-muted'}">${bad ? i18n.t('err_bad_formula') : '= ' + Calc.fmtSci(a)}</span>` : ''}
         </div>
         ${extraHtml}
         ${withK ? `
@@ -223,14 +274,37 @@ const TypeB = (() => {
           <input type="text" inputmode="decimal" value="${escHtml(String(comp.nu ?? ''))}"
             data-id="${escHtml(comp.id)}" data-field="nu" placeholder="∞" autocomplete="off" />
         </div>
-        <div class="form-group">
+        <div class="form-group tb-live">
           <label>${i18n.t('label_std_unc')}</label>
-          <div class="formula-box" style="color:var(--accent)">
-            u = ${mult !== 1 ? Calc.fmtSci(Math.abs(mult)) + ' · ' : ''}${uFormula} = ${Calc.fmtSci(u)}
-          </div>
+          <div class="formula-box tb-live-box" data-tb-live="1" aria-live="polite">${escHtml(uLine)}</div>
         </div>
       </div>
+      ${isOpen ? `<div class="sheet-actions">
+        <button type="button" class="btn btn-outline" data-tb-registry="1">${escHtml(i18n.t('lb_pick_btn'))}</button>
+        <button type="button" class="btn btn-primary" data-tb-close="1">${escHtml(i18n.t('tb_done'))}</button>
+      </div>` : ''}
     </div>`;
+  }
+
+  /** Varaqda yozilayotgan (hali saqlanmagan) qiymatlar bo'yicha jonli u — xuddi shu compStd (dvigatel) orqali */
+  function livePreview(card) {
+    const state = appState.get();
+    const comp = state.typeB.find(c => c.id === card.dataset.id);
+    const box = card.querySelector('[data-tb-live]');
+    if (!comp || !box) return;
+    const draft = { ...comp };
+    card.querySelectorAll('input[data-field]').forEach(inp => {
+      const f = inp.dataset.field;
+      if (f === 'name' || f === 'unit') return;
+      const n = Calc.toNum(inp.value);
+      draft[f] = isFinite(n) ? n : inp.value.trim();
+    });
+    const { mult, u, bad } = compStd(draft, state);
+    const withK = draft.distribution === 'normal' || draft.distribution === 'lognorm';
+    const aSym = withK ? 'U' : draft.distribution === 'resol' ? 'd' : draft.distribution === 'exp' ? 'x' : 'a';
+    const formula = draft.distribution === 'ctrap' ? '√(a²/3 + d²/9)' : `${aSym} / ${Calc.getDivisorLabel(draft.distribution, draft.k)}`;
+    box.textContent = bad ? i18n.t('err_bad_formula') : `u = ${mult !== 1 ? Calc.fmtSci(Math.abs(mult)) + ' · ' : ''}${formula} = ${Calc.fmtSci(u)}`;
+    box.classList.toggle('tb-bad', !!bad);
   }
 
   function renderSummary(state) {
@@ -244,8 +318,8 @@ const TypeB = (() => {
       const uB = Math.sqrt(own.reduce((s, c) => s + compStd(c, state, means).u ** 2, 0));
       return `
         <div class="stat-item">
-          <span class="stat-label" style="text-transform:none">u_B(${escHtml(p)})</span>
-          <span class="stat-value" style="color:var(--warning)">${Calc.fmtSci(uB)}</span>
+          <span class="stat-label stat-label-plain">u_B(${escHtml(p)})</span>
+          <span class="stat-value tb-warn">${Calc.fmtSci(uB)}</span>
         </div>`;
     }).join('');
 
@@ -302,7 +376,7 @@ const TypeB = (() => {
             <tbody>${pairRows}</tbody>
           </table>
         </div>
-        <p class="text-muted text-xs" style="margin:.4rem 0 .8rem">${i18n.t('corr_hint')}</p>` : ''}
+        <p class="text-muted text-xs u-my">${i18n.t('corr_hint')}</p>` : ''}
         <div class="settings-grid">
           <div class="form-group">
             <label>${i18n.t('label_P')}</label>
@@ -334,7 +408,7 @@ const TypeB = (() => {
           <input type="checkbox" id="chk-second-order" ${settings.secondOrder === true ? 'checked' : ''} />
           <span>${i18n.t('set_second_order')} ⓘ</span>
         </label>
-        <div class="model-card-title" style="margin-top:.9rem">${i18n.t('conf_title')} <span class="text-muted text-xs">ISO/IEC 17025 7.8.6 · JCGM 106 · ILAC G8</span></div>
+        <div class="model-card-title u-mt">${i18n.t('conf_title')} <span class="text-muted text-xs">ISO/IEC 17025 7.8.6 · JCGM 106 · ILAC G8</span></div>
         <div class="settings-grid">
           <div class="form-group">
             <label title="${escHtml(i18n.t('mk_hint'))}">${i18n.t('mk_label')} ⓘ</label>
@@ -436,9 +510,10 @@ const TypeB = (() => {
   }
 
   function onFieldChange(e) {
-    const id    = e.target.dataset.id;
-    const field = e.target.dataset.field;
-    let val     = e.target.value;
+    if (e.target.dataset.field === 'distribution' && e.target.value === '') return;   // "boshqa taqsimot" sarlavhasi
+    setField(e.target.dataset.id, e.target.dataset.field, e.target.value);
+  }
+  function setField(id, field, val) {
 
     // Shablon manbasi (P04): bo'sh qiymat 0 / k = 2 deb jimgina olinmaydi — hisob oldidan so'raladi
     const comp = (appState.get('typeB') || []).find(c => c.id === id) || {};

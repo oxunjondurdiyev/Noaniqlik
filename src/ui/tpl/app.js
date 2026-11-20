@@ -11,10 +11,12 @@
 import * as Interp from '../../templates/interpreter.js';
 import * as Store from '../../storage/index.js';
 import * as View from './view.js';
+import { templateValidation, templateHashOf } from '../../templates/validation-status.js';
+import { ENGINE_VERSION } from '../../engine/version.js';
 import { outputsHTML, addOutput, removeOutput, setOutputField } from './outputs.js';
 
 const $ = id => document.getElementById(id);
-const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang });
+const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang, validationOf });
 const t = k => window.i18n.t(k);
 const esc = v => window.escHtml(v);
 const toast = (m, type = 'info', ms) => window.showToast && window.showToast(m, type, ms);
@@ -24,6 +26,18 @@ const keyOf = tpl => `${tpl.id}@${tpl.version}`;
 let db = null;
 let schema = null;
 let builtins = [];
+let validationFile = null;       // templates/validation/builtin.json (avtomatik yaratilgan; `_generated`)
+const builtinHashes = new Map();  // builtin shablon obyekti → RFC 8785 SHA-256 (yuklangan zahoti, o'zgartirilmasdan oldin)
+/** Shablonning validatsiya holati: faqat builtin, xesh va ENGINE_VERSION mos bo'lsa "verified" (src/templates/validation-status.js) */
+function validationOf(tpl, local) {
+  const b = !local && tpl ? builtins.find(x => x.id === tpl.id && x.version === tpl.version) : null;
+  return templateValidation(validationFile, { templateId: tpl ? tpl.id : '', templateHash: b ? builtinHashes.get(b) : null, engineVersion: ENGINE_VERSION, builtin: !!b });
+}
+/** Hisobdagi shablon belgisi (meta) bo'yicha: brauzerda shu ID li nusxa bo'lsa — builtin emas (unverified) */
+function validationOfMeta(meta) {
+  const e = meta ? entries().find(x => x.tpl.id === meta.id) : null;
+  return validationOf(meta, !e || e.local);
+}
 let locals = [];
 let labCache = { ...Store.LAB_DEFAULTS };
 let loadError = null;
@@ -44,6 +58,11 @@ const ready = (async () => {
     const idx = await fetchJSON('templates/builtin/index.json');
     builtins = await Promise.all(idx.templates.map(f => fetchJSON('templates/builtin/' + f)));
   } catch (e) { loadError = e; }
+  // P16: "Manba bilan mos" dalili — avtomatik yaratilgan fayl (scripts/template-validation.js); bo'lmasa belgi "unverified"
+  try {
+    validationFile = await fetchJSON('templates/validation/builtin.json');
+    for (const b of builtins) builtinHashes.set(b, await templateHashOf(b));
+  } catch (e) { validationFile = null; }
   try {
     db = await new Store.LocalAdapter().open();
     const mig = await Store.migrateLegacy(window.localStorage, db);
@@ -605,11 +624,15 @@ window.UCTemplates = Object.freeze({
   evaluateState: Interp.evaluateState,
   pointRowIgnored: (entry, state) => !!(state && state.template) && Interp.pointRowIgnored(entry, Interp.upgradeState(state).template.correlations || []),
   missingInState: Interp.missingInState,
-  reportNoticeHTML: (meta, result) => View.reportNoticeHTML(meta, ctx(), result),
+  reportNoticeHTML: (meta, result) => View.reportNoticeHTML(meta, { ...ctx(), validation: validationOfMeta(meta) }, result),
+  validationOf: meta => validationOfMeta(meta),
   missingText: list => View.missingText(list, ctx()),
   labSettings: () => ({ ...labCache }),
   saveCalculation,
   openCatalog,
+  /** P16: buyruq qidiruvi uchun katalog ro'yxati (faqat ko'rsatish maydonlari) va shablonni yuklash */
+  list: async () => { await ready; return entries().map(e => ({ key: keyOf(e.tpl), id: e.tpl.id, title: e.tpl.title || e.tpl.id, standard: e.tpl.standard || '', status: e.tpl.status || '' })); },
+  use: (key, variant) => useTemplate(key, variant),
 });
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();

@@ -4189,5 +4189,159 @@
   ],
   "status": "verified",
   "note": ""
+ },
+ "REQ-UIX-001": {
+  "code": [
+   "src/css/tokens.css"
+  ],
+  "tests": [
+   "tests/ui/contrast.test.js"
+  ],
+  "status": "verified",
+  "note": "WCAG 2.1 formulasi bo'yicha tokenlardan avtomatik hisob; haqiqiy brauzerdagi hisoblangan uslublar — tests/crossbrowser/screens.js (CI)"
+ },
+ "REQ-UIX-002": {
+  "code": [
+   "src/css/tokens.css",
+   "vendor/README.md"
+  ],
+  "tests": [
+   "tests/security/vendor.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UIX-003": {
+  "code": [
+   "src/ui/shell/model.js::activeNav",
+   "src/ui/shell/model.js::stepStates",
+   "src/ui/shell/model.js::search",
+   "src/ui/shell/app.js"
+  ],
+  "tests": [
+   "tests/ui/shell.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UIX-004": {
+  "code": [
+   "src/report/ribbon.js::ribbonSvg",
+   "src/report/sections.js::createSections"
+  ],
+  "tests": [
+   "tests/report/ribbon.test.js"
+  ],
+  "status": "verified",
+  "note": "MCM gistogrammasi yo'q — dvigatel namunalarni qaytarmaydi (R-29 #1)"
+ },
+ "REQ-UIX-005": {
+  "code": [
+   "src/js/typeB.js"
+  ],
+  "tests": [
+   "tests/ui/sheet.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UIX-006": {
+  "code": [
+   "src/ui/lab/chart.js::qcChartSVG",
+   "src/ui/lab/view.js"
+  ],
+  "tests": [
+   "tests/ui/lab2.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UIX-007": {
+  "code": [
+   "src/report/forms.js::buildReport",
+   "src/css/print.css",
+   "src/js/report.js"
+  ],
+  "tests": [
+   "tests/report/print.test.js"
+  ],
+  "status": "verified",
+  "note": "Sahifalar bo'yicha takrorlanish Chromium PDF + pdftotext bilan qo'lda tekshirildi; Safari — qo'lda (R-29)"
+ },
+ "REQ-UIX-008": {
+  "code": [
+   "src/ui/vizlab/app.js",
+   "src/ui/vizlab/model.js"
+  ],
+  "tests": [
+   "tests/ui/vizlab.test.js"
+  ],
+  "status": "verified",
+  "note": "O'quv ko'rinishida MCM n_dig = 1 bilan (ekranda yozilgan); gistogramma — illyustrativ oqim (R-29 #1)"
+ },
+ "REQ-UIX-009": {
+  "code": [
+   "src/css/motion.css"
+  ],
+  "tests": [
+   "tests/ui/motion.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UIX-010": {
+  "code": [
+   "index.html",
+   "validation.html"
+  ],
+  "tests": [
+   "tests/security/inline-style.test.js"
+  ],
+  "status": "verified",
+  "note": "index / admin / superadmin da 'unsafe-inline' qolgan (R-29 #3)"
+ },
+ "REQ-UIX-011": {
+  "code": [
+   "tests/crossbrowser/screens.js"
+  ],
+  "tests": [],
+  "status": "manual",
+  "note": "`npm run test:screens` — Playwright (CI `validation` job; `npm test` tarkibida emas). Safari va real qurilmalar — qo'lda, PQ"
+ },
+ "REQ-UIX-012": {
+  "code": [
+   "scripts/cases-snapshot.js"
+  ],
+  "tests": [
+   "tests/validation/snapshot.test.js",
+   "tests/security/static.test.js"
+  ],
+  "status": "verified",
+  "note": "Solishtirish natijasi PR tavsifida: 91 / 91, farq 0"
+ },
+ "REQ-UIX-013": {
+  "code": [
+   "scripts/template-validation.js::build",
+   "scripts/lib/template-cases.js",
+   "src/templates/validation-status.js::templateValidation",
+   "src/ui/tpl/view.js"
+  ],
+  "tests": [
+   "tests/templates/validation-badge.test.js",
+   "tests/templates/builtin.test.js"
+  ],
+  "status": "verified",
+  "note": "Etalon: zichlik, gazoanalizator (3 nuqta), termometr (5 nuqta) Excel fayllari; termometrda Δ = 0,087 % (D-02), ma'lum farq D-03"
+ },
+ "REQ-UIX-014": {
+  "code": [
+   "src/ui/shell/app.js",
+   "src/js/report.js",
+   "src/css/tokens.css",
+   "src/report/sections.js::createSections"
+  ],
+  "tests": [
+   "tests/report/print.test.js",
+   "tests/report/ribbon.test.js",
+   "tests/security/vendor.test.js"
+  ],
+  "status": "verified",
+  "note": "`#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas"
  }
 }

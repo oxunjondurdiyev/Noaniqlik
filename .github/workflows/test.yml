@@ -24,6 +24,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # Shablon validatsiyasi dalili (templates/validation/builtin.json) faqat skript bilan yaratiladi:
+      # qayta yaratilgani repodagi fayl bilan AYNAN bir xil bo'lishi shart (qo'lda tahrir yoki eskirgan fayl — xato)
+      - name: templates/validation/builtin.json — qayta yaratish va solishtirish
+        run: |
+          node scripts/template-validation.js --check
+          node scripts/template-validation.js --write
+          git diff --exit-code -- templates/validation/builtin.json
 
   rules:
     name: Firestore qoidalari (Emulator)
@@ -65,6 +72,18 @@ jobs:
         id: site
         continue-on-error: true
         run: node tests/crossbrowser/site.js --validation=_validation --out=site-smoke.json
+      - name: Skrinshotlar va kirish imkoniyati (P16 — 390 / 834 / 1440 px, qorong'i va yorug'; ≥ 44 px, kontrast ≥ 4,5:1)
+        id: screens
+        continue-on-error: true
+        run: node tests/crossbrowser/screens.js --out=_screens
+      - name: Skrinshotlarni artifact sifatida saqlash (egasi kontsept bilan solishtiradi)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screens
+          path: _screens/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Hisobotni artifact sifatida saqlash
         if: always()
         uses: actions/upload-artifact@v4
@@ -81,3 +100,4 @@ jobs:
           node -e "const r=require('./_validation/validation-report.json'); if(!r.ok){console.error('validatsiya hisoboti: XATO — _validation/validation-report.html ni ko\'ring'); process.exit(1)}"
           test "${{ steps.browsers.outcome }}" = "success"
           test "${{ steps.site.outcome }}" = "success"
+          test "${{ steps.screens.outcome }}" = "success"

@@ -516,3 +516,39 @@ Eng muhim cheklovlar (to'liq ro'yxat — [ma'lum cheklovlar](../validation/KNOWN
 - **Brauzerda qo'lda ko'rilmagan:** bosma hisobotning ayrim shakllari, maxsus rejimlar oynasi, malaka sinovlari va validatsiya bo'limlari (faqat avtomatik testlar bilan tekshirilgan).
 - **Ma'lumot faqat brauzerda:** brauzer xotirasi tozalansa, eksport qilinmagan hisoblar va reestr yo'qoladi.
 - **Mas'uliyat:** dastur metrologning qarorini almashtirmaydi — manbalar ro'yxati, taqsimotlar va qaror qoidasi uchun laboratoriya javob beradi.
+
+## 14. Interfeys (2.0)
+
+Interfeys telefon, planshet va kompyuterga moslashadi. Hisoblash usullari va natijalar avvalgidek — faqat ko'rinish o'zgargan.
+
+### 14.1. Qobiq va navigatsiya
+
+- **Yuqori panel:** joylashuv yo'li (bo'lim / hisob ID), buyruq qidiruvi, til (UZ / RU / EN), mavzu (qorong'i / yorug'), profil menyusi, "Hisobot".
+- **Buyruq qidiruvi:** Ctrl+K — bo'lim, shablon yoki amalni nomi bo'yicha topadi; strelkalar bilan tanlanadi, Enter — ochadi, Esc — yopadi.
+- **Chap menyu** (keng ekran): "Hisob" (GUM, Monte-Karlo, ko'p chiqishli model), "Usullar" (regressiya, top-down, maxsus rejimlar), "Laboratoriya" (QC kartalari, etalonlar reestri, malaka sinovlari, validatsiya). Planshetda — ikonkali tor ustun; telefonda — pastki navigatsiya va asosiy amal tugmasi.
+- **Qadamlar:** Model → A tur → B tur → Natija → Hisobot. Bajarilgan qadam yashil belgi bilan, joriysi ajratib ko'rsatiladi.
+- **Sessiya sozlamalari** (o'lchashlar soni, parametrlar, presetlar) — "Kiritish" sahifasidagi "Sessiya" tugmasi ostida.
+
+### 14.2. Natijalar ekrani
+
+- **Asosiy natija kartasi:** y ± U (yaxlitlangan), k, P, ν_eff va uning qoidasi.
+- **Noaniqlik tasmasi:** gorizontal o'q — y dan og'ish (U birligida); egri chiziq — N(y, u_c) zichligi; sariq ramka — y ± U. Monte-Karlo bajarilgan bo'lsa, pastda uning qamrov intervallari (eng qisqa va ehtimoliy simmetrik) chiziladi. Gistogramma chizilmaydi.
+- **Ko'rsatkich plitkalari:** u_c, ν_eff, k, U va ustun manba ulushi (50 % dan katta bo'lsa belgilanadi).
+- **Byudjet:** "Jadval" yoki "Pareto" (manbalar ulushi bo'yicha kamayish tartibida). Jadvalda νᵢ ustuni bor; kichik ν (10 dan kam) sariq bilan ko'rsatiladi.
+- **O'ng panel** (tor ekranda — pastda): tekshiruv natijalari, hisob sozlamalari, Monte-Karlo bilan solishtirish.
+
+### 14.3. B tur manbasini kiritish
+
+Manba kartasidagi "Tahrirlash" varaqni ochadi: telefonda pastdan, keng ekranda o'ng tomondan. Taqsimot tugmalar qatoridan tanlanadi, qiymat kiritilayotganda standart noaniqlik darhol ko'rsatiladi. Kasr ajratuvchisi sifatida vergul ham qabul qilinadi. "Reestrdan tanlash" tugmasi varaq ichida ham bor. Esc yoki "Tayyor" varaqni yopadi.
+
+### 14.4. Hisobot ko'rinishi va chop etish
+
+"Hisobot" qadami hujjatni oq A4 qog'ozda ko'rsatadi. Shakl (to'rttadan biri) yuqoridagi tugmalar bilan almashtiriladi. "Chop etish" — brauzerning chop etish oynasi; "PDF" — shu oynada «PDF sifatida saqlash» tanlanadi. Bosmada jadval sarlavhasi har sahifada takrorlanadi, pastki qism (dvigatel versiyasi, build, xesh, QR) har sahifada chiqadi.
+
+### 14.5. Vizual laboratoriya
+
+To'g'ridan-to'g'ri havola: sahifa manzili oxiriga `#lab` qo'shiladi. O'quv vositasi: Monte-Karlo jonli ko'rinishi, muvofiqlik simulyatori, ekstremal holatlar, QC siljishi, korrelyatsiya va byudjet sezgirligi. Sonlar hisoblash dvigatelidan olinadi. Har bir rejimda "o'quv namunasi" yorlig'i turadi; bu yerdagi natijalar saqlanmaydi va hisobotga chiqmaydi.
+
+### 14.6. Kirish imkoniyati
+
+Barcha amallar klaviatura bilan bajariladi, fokus ko'rinib turadi. Bosiladigan elementlar balandligi kamida 44 px. Tizimda "harakatni kamaytirish" yoqilgan bo'lsa, animatsiyalar o'chadi. Mavzu tanlovi brauzerda saqlanadi.

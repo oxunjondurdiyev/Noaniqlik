@@ -519,7 +519,7 @@
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
   padding: .25rem .6rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: .8rem;
   color: var(--text);
 }

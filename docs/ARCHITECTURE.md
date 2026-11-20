@@ -4,6 +4,26 @@
 > Maqsadli arxitektura va bosqichlar: [PLAN.md](PLAN.md). Xavflar: [RISKS.md](RISKS.md).
 > Qator raqamlari shu commit bo'yicha; kod o'zgarsa yangilansin.
 
+> **Yangilanish — P16 (2026-11-20, `feat/p16-ui2`).** Interfeys 2.0 — UI qatlami (hisoblash dvigateli o'zgarmagan):
+>
+> | Fayl | Vazifasi (P16) |
+> |---|---|
+> | `src/css/tokens.css` | dizayn tokenlari — YAGONA joy (mavzular, urg'ular, radius, bo'shliq, shrift, `--paper-*`); `@font-face` (`vendor/fonts/`) |
+> | `src/css/theme.css` | eski o'zgaruvchi nomlari — tokenlarning taxalluslari (`:root, [data-theme]` — ichki mavzuli bo'lakda qayta hisoblanadi) |
+> | `src/css/shell.css`, `results.css`, `sheet.css`, `lab2.css`, `vizlab.css`, `print.css`, `motion.css` | qobiq va umumiy komponentlar; Natijalar; B tur varag'i; Laboratoriya; Vizual laboratoriya; A4 ko'rinishi va bosma; harakat (eng oxirida yuklanadi) |
+> | `src/ui/shell/model.js` (sof), `app.js` | chap menyu, stepper, joylashuv yo'li, buyruq qidiruvi, pastki navigatsiya; `window.UCShell` (`go`, `goStep`, `openSearch`) |
+> | `src/report/ribbon.js` | noaniqlik tasmasi (skriptsiz SVG; sof) |
+> | `src/report/sections.js` | + `heroCard`, `kpiTiles`, `budgetPareto` (sof) |
+> | `src/js/report.js` | Natijalar tartibi (asosiy ustun + o'ng panel), "Hisobot" yorlig'i (`renderReportTab`, `preview`) |
+> | `src/js/typeB.js` | B tur manbasi varag'i (kartaning o'zi `is-open` holatida) |
+> | `src/ui/lab/chart.js`, `view.js`, `quality-view.js` | zonali QC grafigi, Westgard paneli, kartochkalar |
+> | `src/ui/vizlab/` | Vizual laboratoriya (kechiktirib yuklanadi: `import('../vizlab/app.js')`) |
+> | `tests/crossbrowser/screens.js` | skrinshot va kirish imkoniyati testi (`npm run test:screens`) |
+>
+> **Qobiq tuzilmasi (`index.html` → `#app`):** `header.topbar` (sticky) → `.shell-body` (`nav.side-nav` + `main.content-area`: `ol.stepper`, yashirin `.tab-bar`, `.tab-panel` lar) → `nav.bottom-nav`, `#fab-primary`, `#cmdk`. Yorliqlar: `data`, `typeb`, `results`, `regression`, `topdown`, `special`, `lab`, `report`, `vizlab`. **Yorliq almashtirish — faqat `window.switchTab`**; u `tabchange` hodisasini tarqatadi (qobiq, hisobot ko'rinishi va vizual laboratoriya shunga quloq soladi). Avvalgi chap panel (n, parametrlar, presetlar) — "Kiritish" yorlig'idagi `#sidebar.session-panel` (ID lar saqlangan).
+> **Bog'liqlik yo'nalishi o'zgarmagan:** `ui → report → engine`; `src/ui/vizlab` dvigatelni to'g'ridan-to'g'ri import qiladi (`evaluate`, `createMonteCarlo`, `decide`, `westgard`) — UI da metrologik qoida takrorlanmaydi.
+> **Brauzer xotirasi:** yangi kalit yo'q; mavzu — avvalgi `uc_theme`. Vizual laboratoriya hech narsa saqlamaydi.
+
 > **Yangilanish — P13 (2026-11-19, `feat/p13-validation-package`).** Validatsiya paketi, versiyalangan deploy, brauzerlararo tekshiruv (hisoblash dvigateli o'zgarmagan):
 >
 > | Fayl | Vazifasi (P13) |

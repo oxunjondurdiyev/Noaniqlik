@@ -146,7 +146,9 @@ export function buildReport(o) {
   const anyDecision = mode === 'GUM' && [...(o.rows || []).map(x => x.decision !== undefined ? x.decision : x.r.decision), o.result ? o.result.decision : null].some(d => d && !d.pending && !d.error);
   const refs = normativeRefs(o.lang, { form, mode, decision: anyDecision, monteCarlo: !!o.mc });
   const body = mode === 'GUM' ? gumBody(o, form) : (o.bodyHTML || '');
-  return `
+  // P16: hujjat "ramka jadvali" ichida — pastki qism (ENGINE, build, xesh, QR) .report-frame-foot da, shuning uchun bosmada
+  // HAR BIR SAHIFADA takrorlanadi (display: table-footer-group sahifa bo'linishida takrorlanadi). Mazmun o'zgarmagan.
+  const content = `
     ${headerHTML(o, form)}
     ${missingHTML(o, form)}
     ${o.marksHTML || ''}
@@ -154,8 +156,16 @@ export function buildReport(o) {
     <div class="report-body" data-report-body="${esc(mode)}">${body}</div>
     ${o.extraHTML || ''}
     <div class="report-refs" data-report-refs="${esc(o.lang || '')}"><span class="report-refs-label">${esc(t('rf_refs'))}:</span> ${refs.map(esc).join('; ')}</div>
-    ${form === 'budget' ? '' : signatureHTML(o)}
-    ${o.footer ? footerHTML(o.footer.model, o.env, o.footer.qr) : ''}`;
+    ${form === 'budget' ? '' : signatureHTML(o)}`;
+  // Ramka — HAQIQIY <table>: brauzerlar sahifa bo'linishida faqat haqiqiy jadvalning <tfoot> ini takrorlaydi
+  // (CSS display: table-footer-group li <div> takrorlanmaydi — Chromium 157 da tekshirildi, P16).
+  // Oqibat: hujjat ichida "tbody tr" kabi avlod selektorlari ramka <tbody> siga ham ilashadi — aniq selektor ishlating
+  // (masalan ".print-table > tbody > tr").
+  return `
+    <table class="report-frame" role="presentation" data-report-frame="${esc(form)}">
+      ${o.footer ? `<tfoot class="report-frame-foot"><tr><td>${footerHTML(o.footer.model, o.env, o.footer.qr)}</td></tr></tfoot>` : ''}
+      <tbody class="report-frame-body"><tr><td>${content}</td></tr></tbody>
+    </table>`;
 }
 
 /** Rekvizitlar oynasi uchun maydonlar ro'yxati (UI). */

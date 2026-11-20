@@ -4,17 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- P14 (egasi qarori S-7 b): tashqi AI xizmatiga ulanish ruxsati FAQAT shu sahifada. Asosiy sahifalar CSP si o'zgarmagan. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.anthropic.com; object-src 'none'; base-uri 'self'; form-action 'none'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.anthropic.com; object-src 'none'; base-uri 'self'; form-action 'none'" />
   <meta name="referrer" content="no-referrer" />
   <title data-i18n="ai_page_title">AI assistant — own key</title>
+  <link rel="stylesheet" href="src/css/tokens.css" />
   <link rel="stylesheet" href="src/css/theme.css" />
   <link rel="stylesheet" href="src/css/components.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/css/shell.css" />
+  <link rel="stylesheet" href="src/css/motion.css" />
 </head>
 <body>
+<!-- P16: yangi qobiq uslubi (tokenlar, sticky yuqori panel); mazmun va CSP mantiqi o'zgarmagan -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a class="topbar-brand" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+        <rect width="56" height="56" rx="14" fill="var(--c-blue)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="var(--c-on-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="app_name">UncertaintyCalc</span>
+    </a>
+  </div>
+</header>
 <main class="ai-own-page">
-  <h1 data-i18n="ai_own_title">Send with your own key</h1>
+  <h1 class="panel-title" data-i18n="ai_own_title">Send with your own key</h1>
   <div class="warn-box" id="ai-own-warning" data-i18n="ai_own_warning">The text is sent to the service of Anthropic, PBC (USA).</div>
   <div class="tpl-ed-row">
     <label><span data-i18n="ai_own_key">Anthropic API key</span>
@@ -31,6 +44,7 @@
     <button type="button" class="btn btn-ghost btn-sm" id="ai-own-clear" data-i18n="ai_own_clear">Delete the key</button>
   </div>
 </main>
+<script src="src/ui/theme-boot.js"></script>
 <script nomodule src="src/ui/legacy-warning.js"></script>
 <script src="src/ui/escape.js"></script>
 <script src="src/js/i18n.js"></script>

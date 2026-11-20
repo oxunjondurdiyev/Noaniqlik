@@ -2,9 +2,11 @@
    LAB/QUALITY-VIEW.JS — P12: "Malaka sinovlari" va "Validatsiya" bo'limlarining HTML satrlari. Sof modul: DOM'ga tegmaydi.
    Har qanday qiymat ctx.esc (escHtml) orqali; ctx = { t(key), esc(value) }. Hodisalar — quality.js da (data-pt-* / data-vl-*;
    inline handler yo'q — CSP). Hisobot bo'limlari — src/report/pt.js, src/report/validation.js (ekranda ham shular).
+   P16: raundlar tarixi va test natijalari — kartalar (lab2.css; QC grafigi bilan bir xil palitra sinflari). Kartalardagi
+   har bir qiymat dvigatel natijasidan (evaluatePT / evaluateValidation) — bu yerda hisob va baho yo'q.
 ═══════════════════════════════════════════════════════════════ */
 import { PT_SCORES, VALIDATION_TESTS, GRUBBS_SIDES, TAILS, LOD_METHODS } from '../../engine/index.js';
-import { ptSectionHTML } from '../../report/pt.js';
+import { ptSectionHTML, scoreText } from '../../report/pt.js';
 import { validationSectionHTML } from '../../report/validation.js';
 import { findingsBlockHTML } from '../../report/findings.js';
 import { historyHTML } from './view.js';
@@ -19,6 +21,56 @@ const field = (ctx, labelKey, inner, hintKey) =>
 const findings = (ctx, r, scope) => (r && !r.error && (r.findings || []).length
   ? findingsBlockHTML(r.findings, { t: ctx.t, esc: ctx.esc, scope, print: false, acceptances: {}, canAccept: false }) : '');
 const ALPHAS = ['0.05', '0.01'];
+const num = (v, sig) => (typeof v === 'number' && Number.isFinite(v) ? String(Number(v.toPrecision(sig || 6))) : '—');
+const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (o[k] === undefined ? m : o[k]));
+const kpi = (ctx, label, value, attr) => `<div class="lb-kpi"${attr || ''}><span class="lb-kpi-label">${ctx.esc(label)}</span><span class="lb-kpi-value lb-num">${ctx.esc(value)}</span></div>`;
+const VERDICT_BADGE = { satisfactory: 'badge-green', questionable: 'badge-orange', unsatisfactory: 'badge-red' };
+
+/** PT tarixi kartalari: har bir raund — asosiy ball (scoreText: hisobotdagi bilan bir xil ko'rinish) va baho (dvigatel). */
+function ptCardsHTML(r, ctx) {
+  const t = ctx.t;
+  if (!r || r.error || !(r.rounds || []).length) return '';
+  const cards = r.rounds.map(x => {
+    const u = x.unit ? ' ' + x.unit : '';
+    const sub = [x.date, x.scheme].filter(Boolean).join(' · ');
+    return `<li class="lb-pt-card lb-pt-${ctx.esc(x.verdict)}" data-pt-card="${ctx.esc(x.id)}" data-pt-card-verdict="${ctx.esc(x.verdict)}">
+      <div class="lb-std-head"><strong class="lb-num">${ctx.esc(x.id)}</strong><span class="badge ${VERDICT_BADGE[x.verdict] || 'badge-blue'}">${ctx.esc(t('pt_verdict_' + x.verdict))}</span></div>
+      ${sub ? `<p class="lb-std-sub lb-num">${ctx.esc(sub)}</p>` : ''}
+      <p class="lb-score"><span class="lb-score-name">${ctx.esc(t('pt_score_' + x.primary))}</span> <span class="lb-score-value lb-num">${ctx.esc(scoreText(x.score))}</span></p>
+      <dl class="lb-meta">
+        <div class="lb-meta-row"><dt>${ctx.esc(t('pt_col_x'))}</dt><dd class="lb-num">${ctx.esc(num(x.x) + u)}</dd></div>
+        <div class="lb-meta-row"><dt>${ctx.esc(t('pt_col_xpt'))}</dt><dd class="lb-num">${ctx.esc(num(x.xpt) + u)}</dd></div>
+      </dl></li>`;
+  }).join('');
+  return `<h4 class="rg-card-title">${ctx.esc(t('pt_cards_title'))}</h4>
+    <div class="lb-kpis" data-pt-summary="1">
+      ${kpi(ctx, t('pt_kpi_rounds'), String(r.n))}${kpi(ctx, t('pt_verdict_satisfactory'), String(r.counts.satisfactory), ' data-pt-count="satisfactory"')}
+      ${kpi(ctx, t('pt_verdict_questionable'), String(r.counts.questionable), ' data-pt-count="questionable"')}${kpi(ctx, t('pt_verdict_unsatisfactory'), String(r.counts.unsatisfactory), ' data-pt-count="unsatisfactory"')}
+    </div>
+    <ul class="lb-cards lb-pt-cards" data-pt-cards="1">${cards}</ul>`;
+}
+
+/** Validatsiya testlari kartalari: test turi, statistika (dvigatel maydonlari) va holat nishonlari. Xulosa chiqarilmaydi. */
+const VL_STATS = [['G', 'G'], ['C', 'C'], ['T', 't'], ['F', 'F'], ['p', 'p']];
+function vlCardsHTML(r, ctx) {
+  const t = ctx.t;
+  if (!r || r.error || !(r.tests || []).length) return '';
+  const b = (cls, text, attr) => `<span class="badge ${cls}"${attr || ''}>${ctx.esc(text)}</span>`;
+  const cards = r.tests.map(x => {
+    const ex = (x.excluded || []).length;
+    const flagged = !x.error && x.flaggedIndex !== null && x.flaggedIndex !== undefined;
+    const stats = x.error ? '' : VL_STATS.filter(k => typeof x[k[0]] === 'number' && Number.isFinite(x[k[0]]))
+      .map(k => `<div class="lb-meta-row"><dt class="lb-num">${k[1]}</dt><dd class="lb-num">${ctx.esc(num(x[k[0]], 4))}</dd></div>`).join('');
+    const state = x.error ? 'error' : flagged ? 'flagged' : 'done';
+    return `<li class="lb-vl-card lb-vl-${state}" data-vl-card="${ctx.esc(x.id)}" data-vl-card-state="${state}">
+      <div class="lb-std-head"><strong class="lb-num">${ctx.esc(x.id)}</strong><span class="badge badge-blue">${ctx.esc(t('vl_type_' + x.type))}</span></div>
+      ${x.label ? `<p class="lb-std-sub">${ctx.esc(x.label)}</p>` : ''}
+      ${stats ? `<dl class="lb-meta">${stats}</dl>` : ''}
+      <div class="lb-std-badges">${x.error ? b('badge-red', t('vl_err_' + x.error)) : ''}${flagged ? b('badge-orange', t('vl_flagged')) : ''}${ex ? b('badge-orange', fill(t('vl_card_excluded'), { n: ex })) : ''}${x.unverified || x.n0Unverified ? b('badge-orange', t('vl_card_unverified'), ' data-vl-card-unverified="1"') : ''}</div>
+    </li>`;
+  }).join('');
+  return `<ul class="lb-cards lb-vl-cards" data-vl-cards="1">${cards}</ul>`;
+}
 
 /* ── Malaka sinovlari ── */
 /** m: { list, selected, series, entry, result, history, canAdmin, bad } */
@@ -60,7 +112,7 @@ export function ptHTML(m, ctx) {
     </div>
     ${m.bad && m.bad.length ? `<div class="warn-box" data-pt-bad="1">${ctx.esc(t('lb_bad_fields'))}: ${ctx.esc(m.bad.join(', '))}</div>` : ''}
     <div class="rg-actions"><button type="button" class="btn btn-outline btn-sm" data-pt-act="add-round">${ctx.esc(t('pt_add_round'))}</button></div>
-    ${m.result ? `<div data-pt-result="1">${ptSectionHTML(ctx, m.result)}${findings(ctx, m.result, 'pt')}
+    ${m.result ? `<div data-pt-result="1">${ptCardsHTML(m.result, ctx)}<div class="lb-report">${ptSectionHTML(ctx, m.result)}</div>${findings(ctx, m.result, 'pt')}
       <div class="rg-actions">
         <button type="button" class="btn btn-outline btn-sm" data-pt-act="to-topdown"${dis(m.result.error)}>${ctx.esc(t('pt_to_topdown'))}</button>
         <button type="button" class="btn btn-outline btn-sm" data-pt-act="link-calc"${dis(m.result.error)}>${ctx.esc(t('pt_link_calc'))}</button>
@@ -161,13 +213,13 @@ export function validationHTML(m, ctx) {
       <button type="button" class="btn btn-danger btn-sm" data-vl-act="delete"${dis(!m.canAdmin)}>${ctx.esc(t('lb_delete'))}</button>
     </div>
     <h4 class="rg-card-title">${ctx.esc(t('vl_tests_title'))} (${s.tests.length})</h4>
-    ${s.tests.length ? `<table class="data-table" data-vl-tests="1"><thead><tr>${['vl_f_id', 'vl_f_type', 'vl_f_label', 'vl_excluded_short'].map(k => `<th>${ctx.esc(t(k))}</th>`).join('')}<th></th></tr></thead><tbody>${tests}</tbody></table>` : `<p class="text-muted">${ctx.esc(t('vl_no_tests'))}</p>`}
+    ${s.tests.length ? `<div class="table-scroll"><table class="data-table" data-vl-tests="1"><thead><tr>${['vl_f_id', 'vl_f_type', 'vl_f_label', 'vl_excluded_short'].map(k => `<th>${ctx.esc(t(k))}</th>`).join('')}<th></th></tr></thead><tbody>${tests}</tbody></table></div>` : `<p class="text-muted">${ctx.esc(t('vl_no_tests'))}</p>`}
     <h4 class="rg-card-title">${ctx.esc(t(m.editing === null ? 'vl_add_title' : 'vl_edit_title'))}</h4>
     ${testFormHTML(m.form, ctx)}
     ${m.bad && m.bad.length ? `<div class="warn-box" data-vl-bad="1">${ctx.esc(t('lb_bad_fields'))}: ${ctx.esc(m.bad.join(', '))}</div>` : ''}
     <div class="rg-actions"><button type="button" class="btn btn-outline btn-sm" data-vl-act="add-test">${ctx.esc(t(m.editing === null ? 'vl_add_test' : 'vl_update_test'))}</button>
       ${m.editing === null ? '' : `<button type="button" class="btn btn-ghost btn-sm" data-vl-act="cancel-edit">${ctx.esc(t('lb_close'))}</button>`}</div>
-    ${m.result ? `<div data-vl-result="1">${flagsHTML(m, ctx)}${validationSectionHTML(ctx, m.result)}${findings(ctx, m.result, 'validation')}
+    ${m.result ? `<div data-vl-result="1">${flagsHTML(m, ctx)}${vlCardsHTML(m.result, ctx)}<div class="lb-report">${validationSectionHTML(ctx, m.result)}</div>${findings(ctx, m.result, 'validation')}
       <div class="rg-actions"><button type="button" class="btn btn-outline btn-sm" data-vl-act="print">${ctx.esc(t('rg_print'))}</button></div>
       ${draftHTML(m, ctx)}</div>` : ''}
     ${historyHTML(m.history, ctx)}

@@ -104,6 +104,8 @@
     document.querySelectorAll('.tab-panel').forEach(panel => {
       panel.classList.toggle('active', panel.id === 'tab-' + tabName);
     });
+    // P16: qobiq (src/ui/shell/app.js) — chap menyu, stepper va joylashuv yo'li shu hodisadan yangilanadi
+    document.dispatchEvent(new CustomEvent('tabchange', { detail: { tab: tabName } }));
   };
 
   // Yagona escape: src/ui/escape.js (P02)
@@ -336,8 +338,9 @@
 
   function initSidebar() {
     // Sidebar toggle
-    document.getElementById('btn-sidebar-toggle').addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+    document.getElementById('btn-sidebar-toggle').addEventListener('click', e => {
+      const collapsed = sidebar.classList.toggle('collapsed');
+      e.currentTarget.setAttribute('aria-expanded', String(!collapsed));
     });
 
     // Apply n button
@@ -415,7 +418,7 @@
       return;
     }
     derivedList.innerHTML = derived.map(d => `
-      <div class="derived-item" data-formula="${escHtml(d.formula)}" title="${escHtml(i18n.t('derived_apply'))}" style="cursor:pointer">
+      <div class="derived-item" data-formula="${escHtml(d.formula)}" title="${escHtml(i18n.t('derived_apply'))}">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>

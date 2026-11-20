@@ -34,6 +34,33 @@ function standardsLine(tpl, ctx) {
 }
 
 /** Katalog kartasi */
+/** P16 (egasi qarori 2026-11-20): shablon kartasidagi "Manba bilan mos" belgisi. Qo'lda yoziladigan bayroq EMAS —
+    templates/validation/builtin.json (scripts/template-validation.js: hisob ↔ tests/fixtures etalon misoli) dan.
+    Foydalanuvchi nusxasi (local) va ro'yxatda yo'q shablon — "unverified". Δ — nisbiy farq, foizda. */
+const fillText = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (o[k] === undefined ? m : o[k]));
+const deltaText = rel => { const pct = rel * 100; return pct === 0 ? '0' : pct >= 0.001 ? String(Number(pct.toPrecision(2))) : pct.toExponential(1); };
+
+export function validationBadge(tpl, local, ctx) {
+  const v = ctx.validationOf ? ctx.validationOf(tpl, local) : null;
+  if (!v || v.status !== 'verified') {
+    const why = v && v.reason ? ctx.t('tplv_why_' + v.reason) : '';
+    return `<div class="tpl-validation" data-tpl-validation="unverified" data-tpl-validation-reason="${ctx.esc(v && v.reason ? v.reason : 'no_record')}"><span class="badge badge-orange">${ctx.esc(ctx.t('tplv_unverified'))}</span>` +
+      (why && v.reason !== 'no_record' ? ` <span class="text-xs text-muted">${ctx.esc(why)}</span>` : '') + '</div>';
+  }
+  const known = v.known.length ? ` <span class="text-xs text-muted">${ctx.esc(fillText(ctx.t('tplv_known'), { ids: v.known.join(', ') }))}</span>` : '';
+  return `<div class="tpl-validation" data-tpl-validation="verified" title="${ctx.esc(ctx.t('tplv_tip'))}"><span class="badge badge-green">${ctx.esc(fillText(ctx.t('tplv_verified'), { source: v.source, clause: v.clause, d: deltaText(v.relDiff) }))}</span>${known}</div>`;
+}
+
+/** A4 hisobotidagi BITTA qator (egasi sharti): validatsiya holati + manba + ENGINE_VERSION */
+export function validationLineHTML(v, ctx) {
+  if (!v) return '';
+  const text = v.status === 'verified'
+    ? fillText(ctx.t('tplv_report_verified'), { source: v.source, clause: v.clause, d: deltaText(v.relDiff), date: v.date, ev: v.engineVersion }) +
+      (v.known.length ? ' ' + fillText(ctx.t('tplv_known'), { ids: v.known.join(', ') }) : '')
+    : fillText(ctx.t('tplv_report_unverified'), { why: ctx.t('tplv_why_' + (v.reason || 'no_record')), source: v.source || '—', ev: v.engineVersion });
+  return `<div class="tpl-report-validation" data-report-validation="${ctx.esc(v.status)}" data-report-validation-reason="${ctx.esc(v.reason || '')}">${ctx.esc(text)}</div>`;
+}
+
 export function cardHTML(entry, ctx) {
   const { tpl, local } = entry;
   const key = `${tpl.id}@${tpl.version}`;
@@ -57,6 +84,7 @@ export function cardHTML(entry, ctx) {
         <dt>${ctx.esc(ctx.t('tpl_labs'))}</dt><dd>${tpl.labCount === null || tpl.labCount === undefined ? '—' : ctx.esc(tpl.labCount)}</dd>
         ${oq ? `<dt>${ctx.esc(ctx.t('tpl_open_q'))}</dt><dd>${ctx.esc(oq)}</dd>` : ''}
       </dl>
+      ${validationBadge(tpl, local, ctx)}
       ${hasDemo(tpl) ? `<div class="tpl-demo" data-demo-warning="1">⚠ ${ctx.esc(ctx.t('tpl_demo_badge'))}</div>` : ''}
       ${local ? `<div class="text-xs text-muted">${ctx.esc(ctx.t('tpl_local_copy'))}</div>` : ''}
       ${variantSel}
@@ -172,6 +200,7 @@ export function reportNoticeHTML(meta, ctx, result) {
   const corr = (meta.correlations || []).filter(c => c.enabled);
   if (corr.length) lines.push(`<div>${ctx.esc(ctx.t('tpl_report_corr'))}: ${corr.map(c => ctx.esc(c.inputs.join(' ↔ ')) + ' (' + (c.split === 'known' ? 'r = ' + ctx.esc(c.r) + ', ' + ctx.esc(ctx.t('tpl_split_known')) : ctx.esc(ctx.t('tpl_split_unknown'))) + ')').join('; ')}</div>`);
   lines.push(...boundLinesHTML(result, ctx));
+  lines.push(validationLineHTML(ctx.validation, ctx));
   if (meta.decisionRule && meta.decisionRule.required) lines.push(`<div>⚖ ${ctx.esc(ctx.t('tpl_decision_required'))}</div>`);
   return `<div class="tpl-report-notice">${lines.join('')}</div>`;
 }

@@ -220,6 +220,16 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 - **Nima buzilishi mumkin:** shaxsiy yoki mijoz ma'lumotlarining tashqi AI xizmatiga chiqib ketishi — shaxsiy ma'lumot yuborilmaydi, yuboriladigan ma'lumot foydalanuvchiga ko'rsatiladi.
 - **Qanday tekshiriladi:** AI o'chirilganda ham barcha funksiyalar ishlaydi; AI tavsiyasi tasdiqlanmaguncha hisobga kirmaydi.
 
+## P16 — Interfeys 2.0
+
+> **Holat: bajarildi (2026-11-20, `feat/p16-ui2`, ENGINE_VERSION 2.10.0 — o'zgarmagan).** P14 dan keyin (P14 birlashtirilgan `88e271e` ustiga). Dizayn tizimi (`src/css/tokens.css`), o'z-o'zidan joylangan shriftlar (Google Fonts yo'q), moslashuvchan qobiq (chap menyu / tor ustun / pastki navigatsiya, stepper, Ctrl+K), Natijalar ekrani va noaniqlik tasmasi, B tur varag'i, Laboratoriya ko'rinishi, "Hisobot" yorlig'i va bosma CSS, Vizual laboratoriya, kirish imkoniyati va skrinshot testlari. **Hisob o'zgarmagan** (91 misol bit darajasida bir xil). Chetga chiqishlar va ochiq qarorlar — `docs/RISKS.md` R-29.
+
+### P16 dan keyingi ishlar (egasi qarorlari 2026-11-20, `docs/RISKS.md` R-29)
+
+- **P16b — MCM gistogrammasi** (alohida PR): dvigatelda `opts.histogram` (opt-in) → natijada gistogramma; sonli natija bit darajasida o'zgarmaydi (snapshot 91 / 91); ENGINE 2.11.0 (minor); Ref: JCGM 101:2008 §7.5; shundan keyin tasmada va Vizual laboratoriyada haqiqiy gistogramma.
+- **Xavfsizlik PR'i — `style-src 'unsafe-inline'` ni to'liq olib tashlash**: index / admin / superadmin / ai dagi inline uslublar sinflarga; `npm run test:rules` + sayt tutun-testi shart; `tests/security/inline-style.test.js` dagi son — 0.
+- **P17 — Kragten usuli** (QUAM:2012 Appendix E.2): solishtirish ko'rinishi (LPU o'rnini bosmaydi; farq hisobotda); kutilgan qiymatlar faqat QUAM ishlangan misolidan, sahifa havolasi bilan; minor versiya.
+
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 
 - **Mazmun:** Node.js servis `src/engine/` ni **aynan o'zi** import qiladi; `POST /api/v1/evaluate` (mustaqil qayta hisob va solishtirish), `POST /api/v1/certificates` (tasdiqlash, xesh, QR, saqlash), `GET /verify/{id}` ochiq tekshirish sahifasi; PostgreSQL (append-only jadvallar), TLS, zaxira nusxa, autentifikatsiya va rollar; `RemoteAdapter` ulanadi; shaxsiy ma'lumotlarni Firebase'dan ko'chirish (`docs/DATA_RESIDENCY.md` rejasi bo'yicha) — Firebase'da faqat anonim ID qoladi; pd.gov.uz reestri bo'yicha yo'riqnoma.

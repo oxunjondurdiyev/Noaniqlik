@@ -3,15 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://noaniqlikbazasi.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title data-i18n="idx_title">Measurement Uncertainty Calculator | ISO/IEC 17025:2017</title>
+  <link rel="stylesheet" href="src/css/tokens.css" />
   <link rel="stylesheet" href="src/css/theme.css" />
   <link rel="stylesheet" href="src/css/layout.css" />
   <link rel="stylesheet" href="src/css/components.css" />
   <link rel="stylesheet" href="src/css/auth.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/css/shell.css" />
+  <link rel="stylesheet" href="src/css/results.css" />
+  <link rel="stylesheet" href="src/css/sheet.css" />
+  <link rel="stylesheet" href="src/css/lab2.css" />
+  <link rel="stylesheet" href="src/css/vizlab.css" />
+  <link rel="stylesheet" href="src/css/print.css" />
+  <link rel="stylesheet" href="src/css/motion.css" />
 </head>
 <body>
 
@@ -547,58 +553,157 @@
      MAIN APP SHELL
 ══════════════════════════════════════════════════ -->
 <div id="app" class="app-shell hidden">
+  <a class="skip-link" href="#main-content" data-i18n="sh_skip">Skip to content</a>
 
-  <!-- TOP BAR -->
+  <!-- Ikonkalar (sprite; CSP: tashqi resurs yo'q) -->
+  <svg class="ic-sprite" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <symbol id="ic-gum" viewBox="0 0 24 24"><path d="M3 18c4 0 5-12 9-12s5 12 9 12"/><path d="M3 21h18"/></symbol>
+      <symbol id="ic-mc" viewBox="0 0 24 24"><path d="M4 20V11M9 20V6M14 20V9M19 20v-6"/><path d="M3 20h18"/></symbol>
+      <symbol id="ic-multi" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="5" transform="rotate(-28 12 12)"/><circle cx="12" cy="12" r="1.2"/></symbol>
+      <symbol id="ic-regression" viewBox="0 0 24 24"><path d="M4 19 20 5"/><circle cx="7" cy="14" r="1.2"/><circle cx="11" cy="14.5" r="1.2"/><circle cx="14" cy="8.5" r="1.2"/><circle cx="18" cy="9" r="1.2"/></symbol>
+      <symbol id="ic-topdown" viewBox="0 0 24 24"><path d="M12 4v13M6 12l6 6 6-6"/><path d="M4 21h16"/></symbol>
+      <symbol id="ic-special" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></symbol>
+      <symbol id="ic-qc" viewBox="0 0 24 24"><path d="M3 7h18M3 17h18" stroke-dasharray="2 3"/><path d="M3 13l4-3 4 4 4-6 6 5"/></symbol>
+      <symbol id="ic-registry" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+      <symbol id="ic-pt" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+      <symbol id="ic-validation" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.600-1 8-4.500 8-9V6z"/><path d="m8.500 12 2.500 2.500 4.500-5"/></symbol>
+      <symbol id="ic-vizlab" viewBox="0 0 24 24"><path d="M3 12s3.500-6 9-6 9 6 9 6-3.500 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.500"/></symbol>
+      <symbol id="ic-report" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+      <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.500-3.500"/></symbol>
+      <symbol id="ic-input" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></symbol>
+      <symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+      <symbol id="ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.220 4.220l1.420 1.420M18.360 18.360l1.420 1.420M1 12h2M21 12h2M4.220 19.780l1.420-1.420M18.360 5.640l1.420-1.420"/></symbol>
+      <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M21 12.790A9 9 0 1 1 11.210 3 7 7 0 0 0 21 12.790z"/></symbol>
+      <symbol id="ic-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+      <symbol id="ic-check" viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></symbol>
+      <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 4.500v15l12-7.500z"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- YUQORI PANEL (sticky) -->
   <header class="topbar">
     <div class="topbar-left">
-      <button class="icon-btn" id="btn-sidebar-toggle" title="Toggle sidebar" data-i18n-title="c_sidebar_toggle">
-        <svg width="18" height="18" viewBox="0 0 18 18"><rect y="3" width="18" height="2" rx="1" fill="currentColor"/><rect y="8" width="18" height="2" rx="1" fill="currentColor"/><rect y="13" width="18" height="2" rx="1" fill="currentColor"/></svg>
-      </button>
       <span class="topbar-brand">
-        <svg width="22" height="22" viewBox="0 0 56 56" fill="none">
-          <rect width="56" height="56" rx="14" fill="var(--accent)"/>
-          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="26" height="26" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+          <rect width="56" height="56" rx="14" fill="var(--c-blue)"/>
+          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="var(--c-on-accent)" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span data-i18n="app_name">UncertaintyCalc</span>
+        <span class="topbar-brand-name" data-i18n="app_name">UncertaintyCalc</span>
       </span>
+      <nav class="crumbs" aria-label="Breadcrumb" data-i18n-aria="sh_crumbs">
+        <span class="crumb" id="crumb-section"></span>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb crumb-id mono" id="crumb-calc"></span>
+      </nav>
     </div>
+    <button type="button" class="cmdk-trigger" id="btn-cmdk" aria-haspopup="dialog" aria-keyshortcuts="Control+K" aria-label="Search" data-i18n-aria="sh_search">
+      <svg class="ic" aria-hidden="true"><use href="#ic-search"/></svg><span class="cmdk-trigger-text" data-i18n="sh_search_ph">Search</span><kbd class="cmdk-kbd" aria-hidden="true" data-i18n="sh_kbd_ctrlk"></kbd>
+    </button>
     <div class="topbar-right">
       <button type="button" class="btn btn-outline btn-sm" data-ai-open="1" data-i18n="ai_btn_open" hidden>AI assistant</button>
-      <!-- Language Switcher -->
-      <div class="lang-switcher">
+      <div class="lang-switcher" role="group" aria-label="Language" data-i18n-aria="sh_lang">
         <button class="lang-btn" data-lang="uz">UZ</button>
         <button class="lang-btn" data-lang="ru">RU</button>
         <button class="lang-btn active" data-lang="en">EN</button>
       </div>
-      <!-- Theme Toggle -->
-      <button class="icon-btn theme-toggle" id="btn-theme" title="Toggle theme" data-i18n-title="c_theme_toggle">
-        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <button class="icon-btn theme-toggle" id="btn-theme" title="Toggle theme" data-i18n-title="c_theme_toggle" aria-label="Toggle theme" data-i18n-aria="c_theme_toggle">
+        <svg class="ic icon-sun" aria-hidden="true"><use href="#ic-sun"/></svg>
+        <svg class="ic icon-moon" aria-hidden="true"><use href="#ic-moon"/></svg>
       </button>
-      <!-- User badge (auth) -->
-      <div class="user-badge" id="topbar-user-badge" style="display:none">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <div>
-          <div class="user-badge-name" id="topbar-user-name"></div>
-          <div class="user-badge-role" id="topbar-user-role"></div>
+      <div class="profile">
+        <button type="button" class="icon-btn" id="btn-profile" aria-haspopup="true" aria-expanded="false" aria-controls="profile-menu" title="Profile" data-i18n-title="sh_profile" aria-label="Profile" data-i18n-aria="sh_profile"><svg class="ic" aria-hidden="true"><use href="#ic-user"/></svg></button>
+        <div class="profile-menu" id="profile-menu" hidden>
+          <div class="user-badge" id="topbar-user-badge" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#ic-user"/></svg>
+            <div>
+              <div class="user-badge-name" id="topbar-user-name"></div>
+              <div class="user-badge-role" id="topbar-user-role"></div>
+            </div>
+          </div>
+          <a href="validation.html" class="menu-item" id="btn-validation-link" data-i18n="val_nav">Validation</a>
+          <a href="admin.html" class="menu-item" id="btn-admin-link" hidden data-i18n="c_admin_panel">Admin panel</a>
+          <button type="button" class="menu-item" id="btn-reset" data-i18n="btn_new">New Session</button>
+          <button type="button" class="menu-item" id="btn-topbar-logout" hidden data-i18n="c_logout">Log out</button>
         </div>
       </div>
-      <a href="validation.html" class="btn btn-sm btn-ghost" id="btn-validation-link" data-i18n="val_nav">Validatsiya</a>
-      <a href="admin.html" class="btn btn-sm btn-ghost" id="btn-admin-link" style="display:none" data-i18n="c_admin_panel">Admin panel</a>
-      <button class="btn btn-sm btn-ghost" id="btn-topbar-logout" style="display:none" data-i18n="c_logout">Chiqish</button>
-      <button class="btn btn-outline btn-sm" id="btn-reset" data-i18n="btn_new">New Session</button>
-      <button class="btn btn-primary btn-sm" id="btn-print" data-i18n="btn_report">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Print Report
-      </button>
+      <button class="btn btn-primary btn-report" id="btn-print"><svg class="ic" aria-hidden="true"><use href="#ic-report"/></svg><span data-i18n="btn_report">Report</span></button>
     </div>
   </header>
 
-  <!-- MAIN LAYOUT -->
-  <div class="main-layout">
+  <div class="shell-body">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
+    <!-- CHAP MENYU (≥ 980 px to'liq; 720–979 px — ikonkali tor ustun; < 720 px — pastki navigatsiya) -->
+    <nav class="side-nav" id="side-nav" aria-label="Sections" data-i18n-aria="sh_nav">
+      <div class="nav-scroll">
+      <p class="nav-group" data-i18n="sh_g_calc">Calculation</p>
+      <ul class="nav-list">
+        <li><button type="button" class="nav-item" data-nav="gum"><svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg><span class="nav-label" data-i18n="sh_n_gum"></span><span class="nav-short" data-i18n="sh_s_gum" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="mc"><svg class="ic" aria-hidden="true"><use href="#ic-mc"/></svg><span class="nav-label" data-i18n="sh_n_mc"></span><span class="nav-short" data-i18n="sh_s_mc" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="multi"><svg class="ic" aria-hidden="true"><use href="#ic-multi"/></svg><span class="nav-label" data-i18n="sh_n_multi"></span><span class="nav-short" data-i18n="sh_s_multi" aria-hidden="true"></span></button></li>
+      </ul>
+      <p class="nav-group" data-i18n="sh_g_methods">Methods</p>
+      <ul class="nav-list">
+        <li><button type="button" class="nav-item" data-nav="regression"><svg class="ic" aria-hidden="true"><use href="#ic-regression"/></svg><span class="nav-label" data-i18n="tab_regression"></span><span class="nav-short" data-i18n="sh_s_regression" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="topdown"><svg class="ic" aria-hidden="true"><use href="#ic-topdown"/></svg><span class="nav-label" data-i18n="tab_topdown"></span><span class="nav-short" data-i18n="sh_s_topdown" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="special"><svg class="ic" aria-hidden="true"><use href="#ic-special"/></svg><span class="nav-label" data-i18n="sh_n_special"></span><span class="nav-short" data-i18n="sh_s_special" aria-hidden="true"></span></button></li>
+      </ul>
+      <p class="nav-group" data-i18n="sh_g_lab">Laboratory</p>
+      <ul class="nav-list">
+        <li><button type="button" class="nav-item" data-nav="lab-qc"><svg class="ic" aria-hidden="true"><use href="#ic-qc"/></svg><span class="nav-label" data-i18n="sh_n_qc"></span><span class="nav-short" data-i18n="sh_s_qc" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="lab-standards"><svg class="ic" aria-hidden="true"><use href="#ic-registry"/></svg><span class="nav-label" data-i18n="sh_n_registry"></span><span class="nav-short" data-i18n="sh_s_registry" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="lab-pt"><svg class="ic" aria-hidden="true"><use href="#ic-pt"/></svg><span class="nav-label" data-i18n="sh_n_pt"></span><span class="nav-short" data-i18n="sh_s_pt" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="lab-validation"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span class="nav-label" data-i18n="sh_n_validation"></span><span class="nav-short" data-i18n="sh_s_validation" aria-hidden="true"></span></button></li>
+      </ul>
+      </div>
+      <div class="nav-foot">
+        <button type="button" class="nav-item" data-nav="vizlab"><svg class="ic" aria-hidden="true"><use href="#ic-vizlab"/></svg><span class="nav-label" data-i18n="sh_n_vizlab"></span><span class="nav-short" data-i18n="sh_s_vizlab" aria-hidden="true"></span></button>
+        <a class="nav-item" href="validation/validation-report.html" id="nav-validation-report"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span class="nav-label" data-i18n="sh_n_valreport"></span><span class="nav-short" data-i18n="sh_s_valreport" aria-hidden="true"></span></a>
+        <p class="nav-build mono" id="nav-build" aria-live="off"></p>
+      </div>
+    </nav>
+
+    <!-- CONTENT AREA -->
+    <main class="content-area" id="main-content" tabindex="-1">
+
+      <!-- ISH OQIMI QADAMLARI — o'tish mavjud yorliqlar (switchTab) orqali -->
+      <ol class="stepper" id="stepper" aria-label="Workflow" data-i18n-aria="sh_steps">
+        <li><button type="button" class="step" data-step="model"><span class="step-mark" aria-hidden="true">1</span><span data-i18n="sh_st_model">Model</span></button></li>
+        <li><button type="button" class="step" data-step="typea"><span class="step-mark" aria-hidden="true">2</span><span data-i18n="sh_st_typea">Type A</span></button></li>
+        <li><button type="button" class="step" data-step="typeb"><span class="step-mark" aria-hidden="true">3</span><span data-i18n="sh_st_typeb">Type B</span></button></li>
+        <li><button type="button" class="step" data-step="results"><span class="step-mark" aria-hidden="true">4</span><span data-i18n="sh_st_results">Result</span></button></li>
+        <li><button type="button" class="step" data-step="report"><span class="step-mark" aria-hidden="true">5</span><span data-i18n="sh_st_report">Report</span></button></li>
+      </ol>
+
+      <!-- TAB BAR (mantiq saqlangan: switchTab; ko'rinishda chap menyu va stepper ishlatiladi) -->
+      <div class="tab-bar" hidden>
+        <button class="tab-btn active" data-tab="data" data-i18n="tab_data">Data Entry</button>
+        <button class="tab-btn" data-tab="typeb" data-i18n="tab_typeb">Type B</button>
+        <button class="tab-btn" data-tab="results" data-i18n="tab_results">Results</button>
+        <button class="tab-btn" data-tab="regression" data-i18n="tab_regression">Regression</button>
+        <button class="tab-btn" data-tab="topdown" data-i18n="tab_topdown">Top-down</button>
+        <button class="tab-btn" data-tab="special" data-i18n="tab_special">Special</button>
+        <button class="tab-btn" data-tab="lab" data-i18n="tab_lab">Laboratory</button>
+        <button class="tab-btn" data-tab="report" data-i18n="sh_st_report">Report</button>
+        <button class="tab-btn" data-tab="vizlab" data-i18n="sh_n_vizlab">Visual lab</button>
+      </div>
+
+      <!-- TAB: DATA ENTRY -->
+      <div class="tab-panel active" id="tab-data">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title" data-i18n="data_title">Measurement Data</h2>
+            <p class="panel-sub text-muted" data-i18n="data_sub">Enter your observed values for each measurement</p>
+          </div>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-sm btn-outline" id="btn-sidebar-toggle" aria-controls="sidebar" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#ic-sliders"/></svg><span data-i18n="sidebar_session">Session</span></button>
+            <button type="button" class="btn btn-sm btn-ghost" id="btn-import-table" data-io-act="import-table" data-io-target="gum" data-i18n="io_import_file">Import from file</button>
+            <button class="btn btn-sm btn-ghost" id="btn-fill-sample" data-i18n="btn_sample">Fill Sample Data</button>
+            <button class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
+          </div>
+        </div>
+        <!-- Sessiya sozlamalari (avvalgi chap panel): n, parametrlar, hosila kattaliklar, shablonlar, presetlar -->
+        <section class="sidebar session-panel collapsed" id="sidebar" aria-label="Session" data-i18n-aria="sidebar_session">
       <div class="sidebar-section">
         <h3 class="sidebar-heading" data-i18n="sidebar_session">Session</h3>
         <div class="form-group">
@@ -658,35 +763,7 @@
           </optgroup>
         </select>
       </div>
-    </aside>
-
-    <!-- CONTENT AREA -->
-    <main class="content-area">
-
-      <!-- TAB BAR -->
-      <div class="tab-bar">
-        <button class="tab-btn active" data-tab="data" data-i18n="tab_data">Data Entry</button>
-        <button class="tab-btn" data-tab="typeb" data-i18n="tab_typeb">Type B</button>
-        <button class="tab-btn" data-tab="results" data-i18n="tab_results">Results</button>
-        <button class="tab-btn" data-tab="regression" data-i18n="tab_regression">Regression</button>
-        <button class="tab-btn" data-tab="topdown" data-i18n="tab_topdown">Top-down</button>
-        <button class="tab-btn" data-tab="special" data-i18n="tab_special">Special</button>
-        <button class="tab-btn" data-tab="lab" data-i18n="tab_lab">Laboratory</button>
-      </div>
-
-      <!-- TAB: DATA ENTRY -->
-      <div class="tab-panel active" id="tab-data">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title" data-i18n="data_title">Measurement Data</h2>
-            <p class="panel-sub text-muted" data-i18n="data_sub">Enter your observed values for each measurement</p>
-          </div>
-          <div class="panel-actions">
-            <button type="button" class="btn btn-sm btn-ghost" id="btn-import-table" data-io-act="import-table" data-io-target="gum" data-i18n="io_import_file">Import from file</button>
-            <button class="btn btn-sm btn-ghost" id="btn-fill-sample" data-i18n="btn_sample">Fill Sample Data</button>
-            <button class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
-          </div>
-        </div>
+    </section>
         <div class="data-scroll">
           <div id="template-box"></div>
           <div id="model-box"></div>
@@ -801,7 +878,40 @@
         <div id="lab-root"></div>
       </div>
 
+      <!-- TAB: HISOBOT (P16) — A4 ko'rinishi, shakl almashtirgich, chop etish; mazmunni src/js/report.js chizadi -->
+      <div class="tab-panel" id="tab-report">
+        <div id="report-root"></div>
+      </div>
+
+      <!-- TAB: VIZUAL LABORATORIYA (P16) — o'quv vositasi; modul birinchi ochilganda yuklanadi (src/ui/vizlab/app.js) -->
+      <div class="tab-panel" id="tab-vizlab">
+        <div id="vizlab-root"></div>
+      </div>
+
     </main>
+  </div>
+
+  <!-- PASTKI NAVIGATSIYA (< 720 px) + bosh barmoq zonasidagi asosiy amal -->
+  <button type="button" class="fab" id="fab-primary" hidden><svg class="ic" aria-hidden="true"><use href="#ic-play"/></svg><span id="fab-label"></span></button>
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Sections" data-i18n-aria="sh_nav">
+    <button type="button" class="bnav-item" data-bnav="results"><svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg><span data-i18n="sh_b_calc">Result</span></button>
+    <button type="button" class="bnav-item" data-bnav="data"><svg class="ic" aria-hidden="true"><use href="#ic-input"/></svg><span data-i18n="sh_b_input">Input</span></button>
+    <button type="button" class="bnav-item" data-bnav="lab"><svg class="ic" aria-hidden="true"><use href="#ic-qc"/></svg><span data-i18n="sh_b_lab">Lab</span></button>
+    <button type="button" class="bnav-item" data-bnav="profile" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#ic-user"/></svg><span data-i18n="sh_b_profile">Profile</span></button>
+  </nav>
+
+  <!-- BUYRUQ QIDIRUVI (Ctrl+K) -->
+  <div class="cmdk" id="cmdk" hidden>
+    <div class="cmdk-backdrop" data-cmdk-close="1"></div>
+    <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Search" data-i18n-aria="sh_search">
+      <div class="cmdk-input-row">
+        <svg class="ic" aria-hidden="true"><use href="#ic-search"/></svg>
+        <input type="text" id="cmdk-input" role="combobox" aria-expanded="true" aria-controls="cmdk-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Search" data-i18n-ph="sh_search_ph" aria-label="Search" data-i18n-aria="sh_search" />
+        <kbd class="cmdk-kbd" aria-hidden="true" data-i18n="sh_kbd_esc"></kbd>
+      </div>
+      <ul class="cmdk-list" id="cmdk-list" role="listbox" aria-label="Results" data-i18n-aria="sh_search_results"></ul>
+      <p class="cmdk-empty" id="cmdk-empty" hidden data-i18n="sh_search_empty">Nothing found</p>
+    </div>
   </div>
 </div>
 
@@ -920,6 +1030,8 @@
 <script src="src/js/i18n-pt.js"></script>
 <script src="src/js/i18n-build.js"></script>
 <script src="src/js/i18n-ai.js"></script>
+<script src="src/js/i18n-shell.js"></script>
+<script src="src/js/i18n-vizlab.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
 <script src="src/js/table.js"></script>
@@ -938,6 +1050,7 @@
 <script type="module" src="src/ui/io/app.js"></script>
 <script type="module" src="src/ui/mc/app.js"></script>
 <script type="module" src="src/ui/ai-boot.js"></script>
+<script type="module" src="src/ui/shell/app.js"></script>
 <script src="src/ui/index-auth.js"></script>
 
 </body>

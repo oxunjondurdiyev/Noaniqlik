@@ -270,6 +270,11 @@
       w_validation_unauthenticated: "Validatsiya ma'lumoti autentifikatsiyasiz kiritilgan",
       why_validation_unauthenticated: "To'plam tizimga kirmagan foydalanuvchi (guest) tomonidan saqlangan.",
       fix_validation_unauthenticated: "Laboratoriya administratori tizimga kirib ma'lumotni tekshirsin va qayta saqlasin.",
+      // P16 (Interfeys 2.0, 4-bosqich): kartalar, zonali QC grafigi, Westgard holat paneli
+      pt_cards_title: "Raundlar tarixi",
+      pt_kpi_rounds: "Raundlar",
+      vl_card_excluded: "chiqarilgan: {n}",
+      vl_card_unverified: "unverified (manba repoda yo'q)",
     },
     ru: {
       lb_tab_pt: "Проверка квалификации",
@@ -535,6 +540,11 @@
       w_validation_unauthenticated: "Данные валидации внесены без аутентификации",
       why_validation_unauthenticated: "Набор сохранён пользователем без входа (guest).",
       fix_validation_unauthenticated: "Администратор лаборатории должен войти, проверить данные и сохранить их снова.",
+      // P16 (Interfeys 2.0, 4-bosqich): kartalar, zonali QC grafigi, Westgard holat paneli
+      pt_cards_title: "История раундов",
+      pt_kpi_rounds: "Раунды",
+      vl_card_excluded: "исключено: {n}",
+      vl_card_unverified: "unverified (источника нет в репозитории)",
     },
     en: {
       lb_tab_pt: "Proficiency testing",
@@ -800,6 +810,11 @@
       w_validation_unauthenticated: "The validation data were entered without authentication",
       why_validation_unauthenticated: "The set was saved by a user who was not signed in (guest).",
       fix_validation_unauthenticated: "The laboratory administrator should sign in, check the data and save them again.",
+      // P16 (Interfeys 2.0, 4-bosqich): kartalar, zonali QC grafigi, Westgard holat paneli
+      pt_cards_title: "Round history",
+      pt_kpi_rounds: "Rounds",
+      vl_card_excluded: "excluded: {n}",
+      vl_card_unverified: "unverified (source not in the repository)",
     },
   };
   Object.keys(EXT).forEach(lang => {

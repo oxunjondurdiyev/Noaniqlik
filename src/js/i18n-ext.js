@@ -64,6 +64,7 @@
       mc_hint: "A tur — siljitilgan Styudent t (JCGM 101 §6.4.9), B tur — o'z taqsimoti (§6.4); generator — Wichmann–Hill (C.3.3)",
       mc_interval: "Eng qisqa qamrov intervali", mc_half: 'yarim kengligi',
       mc_valid: 'GUM natijasi tasdiqlandi', mc_not_valid: 'GUM natijasi tasdiqlanmadi',
+      mc_not_performed: "MCM n_dig = {n} da yaqinlashmadi (erishilgan n_dig = {a}, M = {M}) — LPU validatsiyasi o'tkazilmadi",
       mc_corr_note: "Korrelyatsiyalangan kirishlar ko'p o'lchovli normal taqsimotdan olingan (JCGM 101 §6.4.8, C.5).",
       mc_advice: "Farq katta — odatda kuzatuvlar soni kam (n < 5) bo'lganda. n ni oshiring yoki s_p dan foydalaning; sertifikatda Monte-Karlo intervalini ko'rsatish mumkin.",
       /* ── P06: Monte-Karlo 2.0 va yangi taqsimotlar ── */
@@ -220,6 +221,7 @@
       mc_hint: "Тип A — смещённое t-распределение Стьюдента (JCGM 101 §6.4.9), тип B — своё распределение (§6.4); генератор — Вихмана–Хилла (C.3.3)",
       mc_interval: "Наименьший интервал охвата", mc_half: 'полуширина',
       mc_valid: 'Результат GUM подтверждён', mc_not_valid: 'Результат GUM не подтверждён',
+      mc_not_performed: "MCM не сошёлся при n_dig = {n} (достигнуто n_dig = {a}, M = {M}) — валидация LPU не проведена",
       mc_corr_note: "Коррелированные входные величины получены из многомерного нормального распределения (JCGM 101 §6.4.8, C.5).",
       mc_advice: 'Расхождение велико — обычно при малом числе наблюдений (n < 5). Увеличьте n или используйте s_p; в сертификате можно привести интервал Монте-Карло.',
       /* ── P06: Monte-Karlo 2.0 va yangi taqsimotlar ── */
@@ -376,6 +378,7 @@
       mc_hint: "Type A — scaled and shifted Student's t (JCGM 101 §6.4.9), Type B — its own distribution (§6.4); generator — Wichmann–Hill (C.3.3)",
       mc_interval: "Shortest coverage interval", mc_half: 'half-width',
       mc_valid: 'GUM result validated', mc_not_valid: 'GUM result not validated',
+      mc_not_performed: "MCM did not converge at n_dig = {n} (achieved n_dig = {a}, M = {M}) — LPU validation not performed",
       mc_corr_note: "Correlated inputs were drawn from a multivariate Gaussian distribution (JCGM 101 §6.4.8, C.5).",
       mc_advice: 'Large difference — typical for few observations (n < 5). Increase n or use s_p; the Monte Carlo interval may be reported.',
       /* ── P06: Monte-Karlo 2.0 va yangi taqsimotlar ── */
