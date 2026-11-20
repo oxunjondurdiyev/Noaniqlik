@@ -9,8 +9,9 @@ import { StorageAdapter, STORES, keyOf } from './adapter.js';
 import { makeEntry, verifyChain } from './audit.js';
 
 export const DB_NAME = 'uncertaintycalc';
-/** 2 — P12: `pt` va `validation` omborlari qo'shildi (onupgradeneeded faqat YO'Q omborlarni yaratadi — mavjud ma'lumot o'zgarmaydi). */
-export const DB_VERSION = 2;
+/** 2 — P12: `pt` va `validation` omborlari qo'shildi (onupgradeneeded faqat YO'Q omborlarni yaratadi — mavjud ma'lumot o'zgarmaydi).
+    3 — P14: `ai_exchange` ombori (vaqtinchalik; eksportga kirmaydi). */
+export const DB_VERSION = 3;
 
 const req = r => new Promise((resolve, reject) => { r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
 const done = tx => new Promise((resolve, reject) => {
@@ -110,6 +111,13 @@ export class LocalAdapter extends StorageAdapter {
   async rawPutAll(store, records) {
     const { tx, os } = this._store(store, 'readwrite');
     for (const r of records) os.put(r);
+    await done(tx);
+  }
+
+  async rawRemove(store, key) {
+    if (store !== 'ai_exchange') throw new Error('raw_remove_not_allowed:' + store);
+    const { tx, os } = this._store(store, 'readwrite');
+    os.delete(key);
     await done(tx);
   }
 

@@ -72,7 +72,7 @@ test('IndexedDB 1 → 2: eski omborlardagi ma\'lumot va audit saqlanadi; yangi o
     r.onerror = () => reject(r.error);
   });
   const db = await new S.LocalAdapter({ indexedDB: idb, name }).open();
-  assert.equal(S.DB_VERSION, 2);
+  assert.equal(S.DB_VERSION, 3);                              // P14: 3 — `ai_exchange` (vaqtinchalik) ombori qo'shildi; eski ma'lumot o'zgarmaydi
   assert.deepEqual((await db.get('calculations', 'c1')).state, { params: ['x'] });
   await S.saveQuality(db, 'pt', series(), { role: 'admin' });
   assert.equal((await S.listQuality(db, 'pt')).length, 1);
