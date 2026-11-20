@@ -152,7 +152,7 @@ const Results = (() => {
           <button class="btn btn-outline btn-sm" id="btn-pt-new">${i18n.t('pt_new')}</button>
         </div>
         ${rows.length ? `
-        <div class="table-scroll" style="padding:0;margin-top:.7rem">
+        <div class="table-scroll u-mt">
           <table class="data-table math-head">
             <thead><tr>
               <th>${i18n.t('pt_col')}</th>
@@ -174,7 +174,7 @@ const Results = (() => {
                 ${anyGamma ? `<td class="cell-num mono">${x.r.gamma !== null && x.r.gamma !== undefined ? x.r.gamma.toFixed(3) : '—'}</td>` : ''}
                 ${anyConf ? `<td class="cell-num mono">${x.conf && x.conf.mpe > 0 ? Calc.fmtSci(x.conf.mpe, 3) : '—'}</td>
                   <td>${x.conf && x.conf.pending ? `<span class="badge badge-orange" data-conf-pending="1">${escHtml(i18n.t('mk_pending_short'))}</span>` : sec().decisionCell(x.r, x.decision)}</td>` : ''}
-                <td style="white-space:nowrap">
+                <td class="u-nowrap">
                   <button class="btn btn-ghost btn-sm" data-pt-load="${x.id}">${i18n.t('pt_open')}</button>
                   <button class="btn btn-ghost btn-sm" data-pt-del="${x.id}" title="${escHtml(i18n.t('pt_delete'))}">✕</button>
                 </td>
@@ -207,8 +207,8 @@ const Results = (() => {
           <button class="btn btn-outline btn-sm" id="btn-pt-new">${i18n.t('pt_new')}</button>
         </div>
         ${rows.length ? `
-        <div class="table-scroll" style="padding:0;margin-top:.7rem">${sec().vectorSummaryTable(rows, 'data-table math-head')}</div>
-        <div class="points-actions" style="margin-top:.5rem">${rows.map(x => `<span style="white-space:nowrap">
+        <div class="table-scroll u-mt">${sec().vectorSummaryTable(rows, 'data-table math-head')}</div>
+        <div class="points-actions u-mt">${rows.map(x => `<span class="u-nowrap">
           <button class="btn btn-ghost btn-sm" data-pt-load="${escHtml(x.id)}">${i18n.t('pt_open')}: ${escHtml(x.label)}</button><button class="btn btn-ghost btn-sm" data-pt-del="${escHtml(x.id)}" title="${escHtml(i18n.t('pt_delete'))}">✕</button></span>`).join('')}</div>
         <p class="text-xs text-muted" data-vector-note="1">${escHtml(i18n.t('pt_vector_note'))}</p>` : ''}
       </div>`;
@@ -267,30 +267,60 @@ const Results = (() => {
       return;
     }
 
+    const mc = lastMC && !lastMC.error ? lastMC : null;
+    const seg = (view, key) => `<button type="button" role="tab" class="seg-btn${budgetView === view ? ' active' : ''}" data-budget-view="${view}" aria-selected="${budgetView === view}">${escHtml(i18n.t(key))}</button>`;
+    // P16: asosiy natija kartasi + tasma, KPI plitkalari, byudjet (Jadval / Pareto), o'ng panel (topilmalar, sozlamalar, MCM)
     el.innerHTML = `
       ${renderPoints()}
-      <div class="result-statement">
-        <div class="result-statement-label">${i18n.t('res_statement')}</div>
-        <div class="result-statement-value mono">${statement(r)}</div>
-        <div class="text-xs text-muted" style="margin-top:.45rem">${ilacNote(r)}</div>
+      <div class="results-layout">
+        <div class="results-main">
+          ${sec().heroCard(r, { mc })}
+          ${templateNotice()}
+          ${notesHtml(r)}
+          ${sec().kpiTiles(r)}
+          ${renderConformity(r)}
+          <div class="seg" role="tablist" aria-label="${escHtml(i18n.t('rs_views'))}" data-budget-seg="1">${seg('table', 'rs_view_table')}${seg('pareto', 'rs_view_pareto')}</div>
+          <div data-budget-panel="table"${budgetView === 'table' ? '' : ' hidden'}>${renderBudget(r)}</div>
+          <div data-budget-panel="pareto"${budgetView === 'pareto' ? '' : ' hidden'}>
+            <div class="section-title">${i18n.t('results_title')}</div>
+            <div class="budget-table-wrap">${sec().budgetPareto(r)}</div>
+          </div>
+          ${renderInputs(r)}
+          <details class="results-details">
+            <summary>${escHtml(i18n.t('rs_details'))}</summary>
+            ${renderCorrelation(r)}
+            ${renderSteps(r)}
+            ${renderVerify(r)}
+          </details>
+        </div>
+        <aside class="results-side" aria-label="${escHtml(i18n.t('rs_side'))}">
+          <div class="side-card" data-side="findings">${findingsHtml(r, { scope: 'gum', spec: appState.get(), showEmpty: true })}</div>
+          <div class="side-card" data-side="settings">
+            <div class="section-title">${escHtml(i18n.t('rs_side_settings'))}</div>
+            ${marksHtml(r, { mc })}
+            <button type="button" class="btn btn-outline btn-sm" data-goto-settings="1">${escHtml(i18n.t('rs_edit_settings'))}</button>
+          </div>
+          <div class="side-card" data-side="mc">${renderMC(r)}</div>
+        </aside>
       </div>
-      ${templateNotice()}
-      ${findingsHtml(r, { scope: 'gum', spec: appState.get(), showEmpty: true })}
-      ${notesHtml(r)}
-      ${marksHtml(r, { mc: lastMC && !lastMC.error ? lastMC : null })}
-      ${renderKPIs(r)}
-      ${renderConformity(r)}
-      ${renderInputs(r)}
-      ${renderBudget(r)}
-      ${renderCorrelation(r)}
-      ${renderSteps(r)}
-      ${renderVerify(r)}
-      ${renderMC(r)}
     `;
     bindPoints(el);
     bindModelKind(el);
     bindDecision(el);
     bindMC(el);
+    bindBudgetView(el);
+  }
+
+  /* P16: byudjet ko'rinishi (Jadval / Pareto) — faqat ko'rinish almashadi, qayta hisob yo'q */
+  let budgetView = 'table';
+  function bindBudgetView(el) {
+    el.querySelectorAll('[data-budget-view]').forEach(b => b.addEventListener('click', () => {
+      budgetView = b.dataset.budgetView;
+      el.querySelectorAll('[data-budget-view]').forEach(x => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-selected', String(on)); });
+      el.querySelectorAll('[data-budget-panel]').forEach(p => { p.hidden = p.dataset.budgetPanel !== budgetView; });
+    }));
+    const go = el.querySelector('[data-goto-settings]');
+    if (go) go.addEventListener('click', () => { switchTab('typeb'); const s = document.getElementById('typeb-settings'); if (s && s.scrollIntoView) s.scrollIntoView({ block: 'start' }); });
   }
 
   /* ── Monte-Karlo paneli (P06) ─────────────────────────────────────
@@ -404,7 +434,7 @@ const Results = (() => {
     const sel = (v, cur) => (String(v) === String(cur) ? 'selected' : '');
     const running = !!mcJob;
     return `
-      <div class="section-title">${i18n.t('mc_title')}</div>
+      <div class="section-title">${i18n.t(currentMulti() ? 'mc_title' : 'rs_mc_compare')}</div>
       <div class="mc-row" data-mc-panel="1">
         <select data-mc-opt="validation" title="${escHtml(i18n.t('mc_purpose'))}" ${running ? 'disabled' : ''}>
           <option value="validation" ${u.validation !== false ? 'selected' : ''}>${i18n.t(u.lowered ? 'mc_purpose_validation_delta' : 'mc_purpose_validation')}</option>
@@ -428,7 +458,7 @@ const Results = (() => {
           <option value="shortest" ${sel('shortest', u.interval)}>${i18n.t('mc_int_shortest')}</option>
           <option value="symmetric" ${sel('symmetric', u.interval)}>${i18n.t('mc_int_symmetric')}</option>
         </select>
-        <label class="text-xs">${i18n.t('mc_seed')} <input type="text" inputmode="numeric" data-mc-opt="seed" value="${escHtml(String(u.seed))}" style="width:7.5em" autocomplete="off" ${running ? 'disabled' : ''} /></label>
+        <label class="text-xs">${i18n.t('mc_seed')} <input type="text" inputmode="numeric" data-mc-opt="seed" value="${escHtml(String(u.seed))}" class="mono mc-seed" autocomplete="off" ${running ? 'disabled' : ''} /></label>
         <button class="btn btn-outline btn-sm" id="btn-mc" ${running ? 'disabled' : ''}>${i18n.t(running ? 'mc_running' : 'mc_run')}</button>
         ${running ? `<button class="btn btn-outline btn-sm" data-mc-cancel="1">${i18n.t('mc_cancel')}</button>
           <progress data-mc-progress="1" max="100" value="${Math.round(((mcJob.info || {}).progress || 0) * 100)}"></progress>
@@ -438,7 +468,7 @@ const Results = (() => {
         <label class="text-xs"><input type="checkbox" data-mc-opt="gaussian" ${u.gaussian ? 'checked' : ''} ${running ? 'disabled' : ''} /> ${i18n.t('mc_gauss_approx')}</label>
         <span class="text-muted text-xs">${i18n.t('mc_hint')}</span>
       </div>
-      ${err ? `<div class="formula-box" data-mc-error="${escHtml(err.error)}" style="border-color:var(--danger)">${escHtml(mcErrorText(err))}</div>${sec().mcFindingsHtml(err)}` : ''}
+      ${err ? `<div class="formula-box box-danger" data-mc-error="${escHtml(err.error)}">${escHtml(mcErrorText(err))}</div>${sec().mcFindingsHtml(err)}` : ''}
       ${mc && mc.multivariate ? '' : mc ? mcLines(r, mc).map(l => `<div class="formula-box">${l}</div>`).join('') +
         (mc.correlated ? `<div class="text-xs text-muted">${i18n.t('mc_corr_note')}</div>` : '') +
         sec().mcFindingsHtml(mc) +

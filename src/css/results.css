@@ -1,1 +1,103 @@
-/* RESULTS.CSS — P16 (Interfeys 2.0). Qiymatlar faqat tokens.css dan. */
+/* ═══════════════════════════════════════════════════════════════
+   RESULTS.CSS — P16 (Interfeys 2.0): Natijalar ekrani. Qiymatlar faqat tokens.css dan.
+   Asosiy natija kartasi (yagona soyali element), noaniqlik tasmasi (src/report/ribbon.js), KPI plitkalari,
+   byudjet (Jadval / Pareto), o'ng panel (≥ 980 px; kichik ekranda pastga tushadi).
+═══════════════════════════════════════════════════════════════ */
+
+.results-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: var(--s-5); align-items: start; }
+.results-main { min-width: 0; display: flex; flex-direction: column; gap: var(--s-4); }
+.results-main > .section-title { margin-top: var(--s-2); }
+.results-side { min-width: 0; display: flex; flex-direction: column; gap: var(--s-4); position: sticky; top: calc(var(--topbar-h) + var(--s-4)); max-height: calc(100vh - var(--topbar-h) - var(--s-8)); overflow-y: auto; }
+.side-card { padding: var(--s-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card); }
+.side-card:empty { display: none; }
+.side-card .section-title { margin-top: 0; }
+.side-card .findings-block { margin: 0; }
+.side-card .mc-row { flex-direction: column; align-items: stretch; }
+.side-card .mc-row select, .side-card .mc-row .btn { width: 100%; }
+.mc-seed { width: 9em; }
+.box-danger { border-color: var(--c-red-line); color: var(--c-red-text); }
+.u-mt { margin-top: var(--s-3); }
+.u-nowrap { white-space: nowrap; }
+.row-total td { font-weight: 600; border-top: 1px solid var(--c-border-strong); }
+
+/* ─── Asosiy natija kartasi ─────────────────────────── */
+.hero-card {
+  padding: var(--s-6);
+  background: var(--c-raised-bottom);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-hero);
+  box-shadow: var(--shadow-hero);                 /* soya FAQAT shu kartada */
+}
+.hero-label { font-size: .74rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--c-text-3); }
+.hero-value { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-3); margin-top: var(--s-2); line-height: 1.15; }
+.hero-sym  { font-size: 1.3rem; color: var(--c-text-2); }
+.hero-y    { font-size: clamp(2rem, 5.2vw, 3.3rem); font-weight: 600; color: var(--c-text); letter-spacing: -.01em; }
+.hero-pm   { font-size: clamp(1.5rem, 3.8vw, 2.3rem); font-weight: 500; color: var(--c-amber); }
+.hero-unit { font-size: 1.15rem; color: var(--c-text-2); }
+.hero-meta { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); font-size: .84rem; color: var(--c-text-2); }
+.hero-meta span { padding: 2px var(--s-3); border: 1px solid var(--c-border-strong); border-radius: 999px; }
+.hero-meta .hero-rule { font-family: var(--font-text); }
+.hero-ribbon { margin-top: var(--s-4); }
+.hero-legend, .hero-note { margin: var(--s-2) 0 0; color: var(--c-text-3); }
+
+/* ─── Noaniqlik tasmasi (SVG) ───────────────────────── */
+.ribbon { display: block; width: 100%; height: auto; max-height: 240px; overflow: visible; }
+.ribbon-band   { fill: var(--c-amber-soft); stroke: var(--c-amber-line); stroke-width: 1; }
+.ribbon-curve  { fill: none; stroke: var(--c-blue); stroke-width: 2.2; stroke-linejoin: round; }
+.ribbon-axis   { stroke: var(--c-border-strong); stroke-width: 1; }
+.ribbon-center { stroke: var(--c-text-3); stroke-width: 1; stroke-dasharray: 3 4; }
+.ribbon-tick   { stroke: var(--c-text-3); stroke-width: 1; }
+.ribbon-scan   { stroke: var(--c-amber); stroke-width: 1.5; vector-effect: non-scaling-stroke; opacity: 0; }
+.ribbon-label  { fill: var(--c-text-3); font-family: var(--font-mono); font-size: 11px; }
+.ribbon-value  { fill: var(--c-text); font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
+.ribbon-note   { fill: var(--c-text-2); font-family: var(--font-mono); font-size: 10.5px; }
+.ribbon-lpu    { fill: var(--c-blue); }
+.ribbon-mc-shortest path  { fill: none; stroke: var(--c-green); stroke-width: 2; }
+.ribbon-mc-symmetric path { fill: none; stroke: var(--c-violet); stroke-width: 2; stroke-dasharray: 5 3; }
+.ribbon-mc-mean { stroke: var(--c-green); stroke-width: 1.5; stroke-dasharray: 2 3; }
+
+/* ─── KPI plitkalari ────────────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s-3); }
+.kpi-tile { min-width: 0; padding: var(--s-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card); }
+.kpi-label { font-size: .76rem; color: var(--c-text-3); font-weight: 600; }
+.kpi-value { margin-top: var(--s-1); font-size: 1.35rem; font-weight: 600; color: var(--c-text); overflow-wrap: anywhere; }
+.kpi-sub { margin-top: 2px; font-size: .76rem; color: var(--c-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kpi-warn { border-color: var(--c-amber-line); }
+.kpi-warn .kpi-value { color: var(--c-amber); }
+
+/* ─── Segment (Jadval / Pareto) ─────────────────────── */
+.seg { display: inline-flex; align-self: flex-start; border: 1px solid var(--c-border-strong); border-radius: var(--r-button); overflow: hidden; }
+.seg-btn { min-height: var(--tap); padding: 0 var(--s-4); border: 0; background: transparent; color: var(--c-text-2); font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; }
+.seg-btn + .seg-btn { border-left: 1px solid var(--c-border-strong); }
+.seg-btn.active { background: var(--c-blue-soft); color: var(--c-text); }
+
+/* ─── Byudjet ───────────────────────────────────────── */
+.budget-table-wrap { padding: var(--s-2) var(--s-4); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.budget-table-wrap .data-table { min-width: 720px; }
+.nu-low { color: var(--c-amber); font-weight: 600; }
+.share-bar { display: block; width: 100%; min-width: 64px; height: 4px; margin-top: 3px; border-radius: 2px; background: var(--c-blue-soft); overflow: hidden; }
+.share-bar .pos { fill: var(--c-blue); }
+.share-bar .neg { fill: var(--c-green); }
+.pareto { list-style: none; margin: 0; padding: var(--s-2) 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.pareto-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(80px, 3fr) 6.5em 6.5em; gap: var(--s-3); align-items: center; font-size: .88rem; }
+.pareto-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pareto-bar { height: 10px; border-radius: 5px; margin: 0; }
+.pareto-share, .pareto-cum { text-align: right; }
+.results-details { padding: var(--s-3) var(--s-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card); }
+.results-details > summary { min-height: var(--tap); display: flex; align-items: center; cursor: pointer; font-weight: 600; color: var(--c-text-2); }
+
+/* ─── Planshet / telefon: bir ustun; o'ng panel pastga ─ */
+@media (max-width: 1179px) {
+  .results-layout { grid-template-columns: minmax(0, 1fr); }
+  .results-side { position: static; max-height: none; overflow: visible; }
+}
+@media (max-width: 719px) {
+  .hero-card { padding: var(--s-4); border-radius: var(--r-card); }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pareto-row { grid-template-columns: minmax(0, 1fr) 5.5em; }
+  .pareto-bar { grid-column: 1 / -1; order: 3; }
+  .pareto-cum { display: none; }
+  .ribbon-note { font-size: 13px; }
+  .ribbon-label { font-size: 14px; }
+  .ribbon-value { font-size: 15px; }
+}

@@ -19,7 +19,7 @@ const A5 = require('../cases/quam/quam-a5-calibration.json');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js']; // report.js top-down bo'limi (P09) kalitlari ham shu yerda tekshiriladi
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js', 'src/js/i18n-shell.js']; // report.js top-down bo'limi (P09) kalitlari ham shu yerda tekshiriladi
 
 /** report.js ni jsdom'da yuklash (brauzerdagi tartib: escape → i18n → report) */
 function loadReport(lang) {

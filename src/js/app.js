@@ -418,7 +418,7 @@
       return;
     }
     derivedList.innerHTML = derived.map(d => `
-      <div class="derived-item" data-formula="${escHtml(d.formula)}" title="${escHtml(i18n.t('derived_apply'))}" style="cursor:pointer">
+      <div class="derived-item" data-formula="${escHtml(d.formula)}" title="${escHtml(i18n.t('derived_apply'))}">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>
