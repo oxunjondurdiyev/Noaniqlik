@@ -7,7 +7,15 @@
 
 Yagona joy — `src/engine/version.js`. Qoida (`CLAUDE.md`): **hisoblash natijasiga ta'sir qiladigan har qanday o'zgarishda versiya oshiriladi va `CHANGELOG.md` da qayd etiladi.** Har bir saqlangan hisob va `uc-calc/1` hujjati o'zi hisoblangan `engineVersion` ni saqlaydi.
 
-Major / minor / patch chegarasi alohida hujjatda ta'riflanmagan; quyidagi jadval — `CHANGELOG.md` dagi mavjud amaliyot.
+**Qoida (egasi qarori, 2026-11-20, R-27 (5)) — 2.10.0 dan keyingi versiyalardan qo'llanadi, avvalgilari qayta raqamlanmaydi:**
+
+| Daraja | Qachon |
+|---|---|
+| **major** | hisobot qatlamida yaxlitlangan natija (y, U, k, qamrov intervali uchlari, muvofiqlik bayonoti) birorta mavjud misolda o'zgarsa; yoki API / natija tuzilmasi moslikni buzsa |
+| **minor** | yangi imkoniyat; yoki faqat xom (yaxlitlanmagan) raqamlar o'zgarib, yaxlitlangan natija hamma misolda bir xil qolsa |
+| **patch** | hisob natijasiga ta'sir yo'q (hisobot matni, topilma darajasi, xatoni tuzatish natijani o'zgartirmasa) |
+
+Tekshiruv: `node scripts/cases-snapshot.js --compare` — yaxlitlangan farq bo'lsa major. Quyidagi jadval — 2.10.0 gacha bo'lgan amaliyot (tarix).
 
 | Daraja | Amalda qachon qo'llangan | Misol (`CHANGELOG.md`) |
 |---|---|---|
