@@ -12,12 +12,24 @@
 
   function showErr(id, msg) {
     const el = $(id);
-    el.textContent = msg;
+    el.textContent = msg;               // matn sifatida (HTML talqin qilinmaydi — escHtml ga teng)
     el.classList.toggle('visible', !!msg);
   }
 
-  function showAuthScreen() { $('auth-screen').style.display = 'flex'; }
-  function hideAuthScreen() { $('auth-screen').style.display = 'none'; }
+  let _opener = null;
+  function showAuthScreen() {
+    _opener = document.activeElement;
+    $('auth-screen').hidden = false;
+    const first = document.querySelector('#auth-screen .auth-panel.active input');
+    if (first) first.focus();
+  }
+  function hideAuthScreen() {
+    $('auth-screen').hidden = true;
+    if (_opener && _opener.focus) _opener.focus();
+  }
+  window.UCAuthScreen = Object.freeze({ show: tab => { showAuthScreen(); const b = document.querySelector('[data-auth-tab="' + (tab === 'register' ? 'register' : 'login') + '"]'); if (b) b.click(); }, hide: hideAuthScreen });
+  $('auth-btn-back').addEventListener('click', hideAuthScreen);
+  $('auth-screen').addEventListener('keydown', e => { if (e.key === 'Escape') hideAuthScreen(); });
 
   /* ─── Sessiya → UI (Firebase Auth holatidan) ─────── */
   const navBtn = $('btn-nav-login');
@@ -78,8 +90,9 @@
       document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
+      document.querySelectorAll('.auth-tab-btn').forEach(b => b.setAttribute('aria-selected', String(b === btn)));
       $('auth-panel-' + btn.dataset.authTab).classList.add('active');
-      $('auth-tabs-row').style.display = '';
+      $('auth-tabs-row').hidden = false;
       showErr('login-error', ''); showErr('reg-error', '');
     });
   });
@@ -90,7 +103,7 @@
   function showPendingPanel(org) {
     _pendingOrg = org;
     document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
-    $('auth-tabs-row').style.display = 'none';
+    $('auth-tabs-row').hidden = true;
     $('auth-panel-pending').classList.add('active');
     $('pending-org-info').innerHTML = T.pendingOrgInfoHTML(org, PLANS);
   }
@@ -143,7 +156,7 @@
     if (!login) { msg.textContent = ''; return; }
     const ok = window.AuthCore.isValidLogin(login);
     msg.textContent = ok ? t('auth_login_ok') : t('auth_login_bad');
-    msg.style.color = ok ? 'var(--success)' : 'var(--danger)';
+    msg.dataset.state = ok ? 'ok' : 'bad';
   }
 
   $('reg-firstname').addEventListener('input', updateLoginSuggestion);
@@ -165,20 +178,21 @@
       await AuthManager.login(user, pwd);
       $('login-pwd').value = '';
       hideAuthScreen();
+      if (window.App) window.App.showScreen('dash');      // kirgandan keyin — Bosh sahifa
     } catch (e) {
       showErr('login-error', e.message);
+      $('login-user').focus();
     } finally {
       btn.disabled = false; btn.textContent = t('auth_signin_btn');
     }
   }
 
-  $('btn-do-login').addEventListener('click', doLogin);
-  [$('login-user'), $('login-pwd')].forEach(inp => {
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  });
+  // <form> — Enter bilan yuborish brauzerning o'zida; sahifa qayta yuklanmaydi
+  $('auth-panel-login').addEventListener('submit', e => { e.preventDefault(); doLogin(); });
 
   /* ─── RO'YXATDAN O'TISH ───────────────────────────── */
-  $('btn-do-register').addEventListener('click', async () => {
+  $('auth-panel-register').addEventListener('submit', async e => {
+    e.preventDefault();
     showErr('reg-error', '');
     const inn        = $('reg-inn').value.trim();
     const phone      = $('reg-phone').value.trim();
@@ -232,6 +246,9 @@
       const show = inp.type === 'password';
       inp.type = show ? 'text' : 'password';
       btn.classList.toggle('visible', show);
+      btn.setAttribute('aria-pressed', String(show));
+      const lab = t(show ? 'auth_hide_pwd' : 'auth_show_pwd');
+      btn.setAttribute('aria-label', lab); btn.title = lab;
       inp.focus();
     });
   });

@@ -77,6 +77,9 @@
     appShell     .classList.toggle('hidden', name !== 'app');
     const tplScreen = document.getElementById('templates-screen');
     if (tplScreen) tplScreen.classList.toggle('hidden', name !== 'templates');
+    const dash = document.getElementById('dash-screen');          // Bosh sahifa (src/ui/home/)
+    if (dash) dash.classList.toggle('hidden', name !== 'dash');
+    document.dispatchEvent(new CustomEvent('screenchange', { detail: { screen: name } }));
     if (name !== 'home') window.scrollTo(0, 0);
   }
 
@@ -145,8 +148,8 @@
 
   /* ─── HOME PAGE ─────────────────────────────────── */
   function initHome() {
-    document.getElementById('btn-home-start').addEventListener('click',  () => showScreen('welcome'));
-    document.getElementById('btn-home-start2').addEventListener('click', () => showScreen('welcome'));
+    document.getElementById('btn-home-start').addEventListener('click',  () => showScreen('dash'));
+    document.getElementById('btn-home-start2').addEventListener('click', () => showScreen('dash'));
     /* Formula cycling animation */
     const items = document.querySelectorAll('.fc-item');
     const dots  = document.querySelectorAll('.fc-dot');
@@ -162,7 +165,7 @@
 
   /* ─── WELCOME SCREEN ────────────────────────────── */
   function initWelcome() {
-    document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'));
+    document.getElementById('btn-back-home').addEventListener('click', () => showScreen('dash'));
     document.getElementById('btn-start').addEventListener('click', startSession);
     updateTrialBanner();
 
@@ -464,15 +467,13 @@
     modal.querySelector('#paywall-btn-register').addEventListener('click', () => {
       hidePaywall();
       showScreen('home');
-      document.getElementById('auth-screen').style.display = 'flex';
-      document.querySelector('[data-auth-tab="register"]').click();
+      window.UCAuthScreen.show('register');
     });
 
     modal.querySelector('#paywall-btn-login').addEventListener('click', () => {
       hidePaywall();
       showScreen('home');
-      document.getElementById('auth-screen').style.display = 'flex';
-      document.querySelector('[data-auth-tab="login"]').click();
+      window.UCAuthScreen.show('login');
     });
   }
 

@@ -4343,5 +4343,31 @@
   ],
   "status": "verified",
   "note": "`#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas"
+ },
+ "REQ-UIX-015": {
+  "code": [
+   "src/ui/index-auth.js",
+   "src/css/home.css",
+   "src/js/i18n-shell.js"
+  ],
+  "tests": [
+   "tests/ui/home.test.js"
+  ],
+  "status": "verified",
+  "note": "Enter bilan yuborish, parol tugmasi, til / mavzu va `<html lang>` Chromium da qo'lda tekshirildi; haqiqiy Firebase bilan kirish sinalmagan (jsdom / lokal)"
+ },
+ "REQ-UIX-016": {
+  "code": [
+   "src/ui/home/model.js::recentSessions",
+   "src/ui/home/model.js::sessionPatch",
+   "src/ui/home/app.js",
+   "src/ui/toast.js"
+  ],
+  "tests": [
+   "tests/ui/home.test.js",
+   "tests/ui/shell.test.js"
+  ],
+  "status": "verified",
+  "note": "ochish / nusxalash / o'chirish IndexedDB bilan Chromium da tekshirildi (jsdom testida faqat sof model)"
  }
 }

@@ -123,7 +123,7 @@ const TRANSLATIONS = {
 
     /* Main app */
     btn_new:           'New Session',
-    btn_report:        'Print Report',
+    btn_report:        'Report',
     btn_apply:         'Apply',
     btn_add_param:     'Add Parameter',
     btn_sample:        'Fill Sample Data',
@@ -328,7 +328,7 @@ const TRANSLATIONS = {
     btn_back_home:     '\u2190 Назад',
 
     btn_new:           'Новая сессия',
-    btn_report:        'Печать отчёта',
+    btn_report:        'Отчёт',
     btn_apply:         'Применить',
     btn_add_param:     'Добавить параметр',
     btn_sample:        'Заполнить образец',
@@ -532,7 +532,7 @@ const TRANSLATIONS = {
     btn_back_home:     '\u2190 Orqaga',
 
     btn_new:           'Yangi sessiya',
-    btn_report:        'Hisobot chop etish',
+    btn_report:        'Hisobot',
     btn_apply:         'Qo\'llash',
     btn_add_param:     'Parametr qo\'shish',
     btn_sample:        'Namuna ma\'lumotlarni to\'ldirish',

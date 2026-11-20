@@ -102,6 +102,7 @@
 | KL-076 | Holat `localStorage` (`uc_special_v1`) da — audit izisiz | qoldiq xavf | RISKS R-21 | — |
 | KL-077 | Manba nuanslari D-15, D-17 (AQA:2021) — toleransda hisobga olingan | qoldiq xavf (manba nuansi) | DISCREPANCIES D-15, D-17 | — |
 | KL-078 | `SP-01…SP-04` shablonlari DRAFT, raqamsiz | qoldiq xavf | `CLAUDE.md` (P10) | — |
+| KL-079 | Mikrobiologiya (M8, ISO 19036) — qo'llab-quvvatlanMAYDI: tasdiqlash (konfirmatsiya) noaniqligi u_conf (§7.3); MPN noaniqligi u_MPN (§7.4); §8.1.3 varianti; tuzatilgan oraliq takrorlanuvchanlik s_IR,corr (D ilova); LOQ dan past natija (§9.2). Band raqamlari egasi ko'rsatmasidan (standart matni repoda yo'q — unverified) | qilinmagan / BETA | egasi ko'rsatmasi (2026-11-20); `CLAUDE.md` (P10); RISKS R-21 | modul to'liq standart matni bilan tasdiqlanmaguncha BETA bo'lib qoladi; bu holatlarda natija ISO 19036 ga muvofiq deb berilmaydi; ISO matni repoga qo'shilmaydi |
 
 ## 7. Laboratoriya reestri, CMC, QC
 

@@ -133,7 +133,8 @@ test('chap menyu: "Shablonlar katalogi" (HISOB guruhi tepasida), "Laboratoriya s
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const doc = new JSDOM(html).window.document;
   const lists = [...doc.querySelectorAll('#side-nav .nav-scroll .nav-list')];
-  const first = lists[0].querySelector('.nav-item');
+  assert.equal(lists[0].querySelector('.nav-item').dataset.navAction, 'home');
+  const first = lists[0].querySelectorAll('.nav-item')[1];
   assert.equal(first.dataset.navAction, 'templates');
   assert.ok(first.hasAttribute('data-open-templates'), 'mavjud ishlovchi (openCatalog) orqali ochiladi');
   assert.equal(first.querySelector('.nav-label').dataset.i18n, 'tpl_open_catalog');
