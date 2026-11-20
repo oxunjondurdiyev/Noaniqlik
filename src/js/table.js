@@ -560,7 +560,7 @@ const Table = (() => {
       );
       appState.setMeasurements(p, vals);
     });
-    showToast(i18n.t('toast_calc_done'), 'success');
+    showToast(i18n.t('toast_sample_done'), 'info');
   }
 
   function clearData() {
@@ -599,7 +599,7 @@ const Table = (() => {
     }
 
     appState.set({ typeA });
-    showToast(i18n.t('toast_calc_done'), 'success');
+    showToast(i18n.t('toast_typea_done'), 'success');
 
     // Switch to Type B tab
     switchTab('typeb');

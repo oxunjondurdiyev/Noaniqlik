@@ -26,6 +26,14 @@
     return svg;
   }
 
+  function leave(toast) {
+    toast.dataset.toastLeaving = '1';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    toast.style.transition = 'opacity .3s, transform .3s';
+    setTimeout(() => toast.remove(), 300);
+  }
+
   function createToast(doc, msg, type, duration) {
     type = ICONS[type] ? type : 'info';
     duration = duration === undefined ? 3000 : duration;
@@ -36,20 +44,20 @@
       container.id = 'toast-container';
       doc.body.appendChild(container);
     }
+    const label = msg === null || msg === undefined ? '' : String(msg);
+    // Bir xil xabar hali ekranda bo'lsa ikkinchi nusxa qo'shilmaydi — mavjudining vaqti yangilanadi
+    const same = [...container.children].find(el => el.dataset.toastKey === type + '|' + label && !el.dataset.toastLeaving);
+    if (same) { clearTimeout(same._timer); same._timer = setTimeout(() => leave(same), duration); return same; }
     const toast = doc.createElement('div');
     toast.className = 'toast ' + type;
+    toast.dataset.toastKey = type + '|' + label;
     toast.appendChild(makeIcon(doc, type));
     const text = doc.createElement('span');
-    text.textContent = msg === null || msg === undefined ? '' : String(msg);
+    text.textContent = label;
     toast.appendChild(text);
     container.appendChild(toast);
 
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
-      toast.style.transition = 'opacity .3s, transform .3s';
-      setTimeout(() => toast.remove(), 300);
-    }, duration);
+    toast._timer = setTimeout(() => leave(toast), duration);
     return toast;
   }
 
