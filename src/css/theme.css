@@ -3,7 +3,8 @@
    ISO/IEC 17025 Measurement Uncertainty Calculator
 ═══════════════════════════════════════════════════════════════ */
 
-:root {
+:root, [data-theme] {
+  /* Taxalluslar har bir [data-theme] ostida qayta hisoblanadi (hisobot qog'ozi har doim yorug' — data-theme="light"). */
   /* P16: bu fayldagi nomlar — src/css/tokens.css dagi tokenlarning TAXALLUSLARI (eski CSS o'zgarmasdan ishlashi uchun).
      Yangi qiymat faqat tokens.css ga qo'shiladi. */
   --accent:          var(--c-blue);

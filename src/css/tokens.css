@@ -69,6 +69,13 @@
   --t-base: 220ms;
   --ease: cubic-bezier(.4, 0, .2, 1);
 
+  /* Hisobot qog'ozi (ekrandagi ko'rinish va bosma): mavzudan qat'i nazar oq qog'oz, qora siyoh */
+  --paper-bg:    #ffffff;
+  --paper-ink:   #14171f;
+  --paper-muted: #474e60;
+  --paper-rule:  #9aa3b5;
+  --paper-fill:  #eef0f5;
+
   /* Soya — FAQAT asosiy natija kartasida */
   --shadow-hero: 0 20px 60px rgba(5, 8, 20, .45);
 }

@@ -47,7 +47,14 @@ const Results = (() => {
   function specialSection(...a) { return sec().specialSection(...a); }
 
   function init() {
-    document.getElementById('btn-print').addEventListener('click', () => { printReport(); });
+    // P16: yuqori paneldagi "Hisobot" — avval A4 ko'rinishi ("Hisobot" qadami); chop etish o'sha yerdan. Qobiq yo'q bo'lsa — to'g'ridan-to'g'ri.
+    document.getElementById('btn-print').addEventListener('click', () => {
+      if (document.getElementById('report-root') && typeof window.switchTab === 'function') window.switchTab('report'); else printReport();
+    });
+    document.addEventListener('tabchange', e => { if (e.detail && e.detail.tab === 'report') renderReportTab(); });
+    document.addEventListener('langchange', () => { if (reportTabActive()) renderReportTab(); });
+    // rekvizitlar saqlanganda yoki shakl boshqa joydan o'zgarganda ko'rinish yangilanadi
+    document.addEventListener('click', e => { if (reportTabActive() && e.target.closest && e.target.closest('[data-req-save]')) setTimeout(renderReportTab, 0); });
     document.addEventListener('findingschange', e => { if (!e.detail || e.detail.scope === 'gum') render(); });
     if (window.UCFindings) window.UCFindings.register('gum', () => { const r = current(); return r ? findingsOf(r, appState.get()) : []; });
     appState.subscribe((changes) => {
@@ -511,11 +518,16 @@ const Results = (() => {
     } catch (_) { return null; }
   }
   /** HTML ni chop etish maydoniga qo'yish → pastki qismni (xesh, QR) to'ldirish → chop etish oynasi */
+  let previewTarget = null;    // P16: "Hisobot" yorlig'idagi A4 ko'rinishi — o'sha HTML, chop etish oynasisiz
   async function show(build, scope, fallbackDoc) {
-    const el = document.getElementById('print-report');
+    const preview = previewTarget;
+    const el = preview || document.getElementById('print-report');
+    el.setAttribute('data-theme', 'light');           // qog'oz har doim yorug' (tokens.css; mavzuga bog'liq emas)
+    el.classList.add('report-doc');
     el.innerHTML = build(null);                       // darhol (xesh hisoblanguncha pastki qismsiz)
     const footer = await footerFor(scope, fallbackDoc);
     if (footer) el.innerHTML = build(footer);
+    if (preview) return true;
     document.body.classList.add('print-report-mode');
     window.addEventListener('afterprint', () => document.body.classList.remove('print-report-mode'), { once: true });
     window.print();
@@ -526,6 +538,49 @@ const Results = (() => {
     if (block) showToast(i18n.t(block === 'zero_u' ? 'fnd_blocked_zero_u' : 'cmc_blocked'), 'error', 6000);
     return !!block;
   }
+
+  /* ─── P16: "Hisobot" yorlig'i — A4 qog'oz ko'rinishi, shakl almashtirgich (4 shakl), "PDF" va "Chop etish" ───
+     Ko'rinish ham, bosma ham AYNAN bitta quruvchidan (printReport → Calc.buildReport) chiqadi. */
+  async function preview(el) {
+    previewTarget = el;
+    try { return await printReport(); } finally { previewTarget = null; }
+  }
+  function renderReportTab() {
+    const root = document.getElementById('report-root');
+    if (!root) return Promise.resolve(false);
+    const cur = reportOptions().form;
+    const forms = (window.Calc && Calc.REPORT_FORMS) || [];
+    const has = !!(current() || currentMulti() || (appState.get('points') || []).some(p => p.result && !p.result.error));
+    root.innerHTML = `
+      <div class="panel-header"><div>
+        <h2 class="panel-title">${escHtml(i18n.t('rp2_title'))}</h2>
+        <p class="panel-sub text-muted">${escHtml(i18n.t('rp2_sub'))}</p>
+      </div>
+      <div class="panel-actions">
+        <button type="button" class="btn btn-outline" data-report-print="pdf" ${has ? '' : 'disabled'}>${escHtml(i18n.t('rp2_pdf'))}</button>
+        <button type="button" class="btn btn-primary" data-report-print="print" ${has ? '' : 'disabled'}>${escHtml(i18n.t('rp2_print'))}</button>
+      </div></div>
+      <div class="report-tools">
+        <div class="seg report-form-seg" role="group" aria-label="${escHtml(i18n.t('rp_form_label'))}">
+          ${forms.map(f => `<button type="button" class="seg-btn${f === cur ? ' active' : ''}" data-report-pick="${escHtml(f)}" aria-pressed="${f === cur}">${escHtml(i18n.t('rp_form_' + f))}</button>`).join('')}
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" data-report-requisites-open="1">${escHtml(i18n.t('rp_requisites_btn'))}</button>
+      </div>
+      <p class="text-xs text-muted">${escHtml(i18n.t('rp2_pdf_hint'))}</p>
+      <div class="paper-stage">${has
+        ? '<article class="paper report-doc" id="report-preview" data-theme="light" tabindex="0"></article>'
+        : `<div class="empty-state"><p>${escHtml(i18n.t('results_empty'))}</p></div>`}</div>`;
+    root.querySelectorAll('[data-report-pick]').forEach(b => b.addEventListener('click', () => {
+      if (window.UCReport) window.UCReport.setForm(b.dataset.reportPick);
+      renderReportTab();
+    }));
+    root.querySelectorAll('[data-report-print]').forEach(b => b.addEventListener('click', () => { printReport(); }));
+    const paper = root.querySelector('#report-preview');
+    if (!paper) return Promise.resolve(false);
+    paper.setAttribute('aria-label', i18n.t('rp2_title'));
+    return preview(paper);
+  }
+  function reportTabActive() { const p = document.getElementById('tab-report'); return !!p && p.classList.contains('active'); }
 
   function printReport() {
     const state = appState.get();
@@ -633,7 +688,7 @@ const Results = (() => {
 
   const escHtml = window.escHtml;
 
-  return { init, render, printReport, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, printPT, printValidation, findingsOf, findingsHtml, statusOf };
+  return { init, render, printReport, preview, renderReportTab, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, printPT, printValidation, findingsOf, findingsHtml, statusOf };
 
 
 })();

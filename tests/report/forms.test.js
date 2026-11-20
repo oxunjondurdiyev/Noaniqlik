@@ -108,7 +108,7 @@ test('ko\'p nuqtali hisobot: AVVAL umumiy jadval, KEYIN har bir nuqta; har bir n
       const summary = d.querySelector('[data-report-summary]'), pointsEl = d.querySelectorAll('[data-report-point]');
       assert.equal(pointsEl.length, 3);
       assert.ok(summary.compareDocumentPosition(pointsEl[0]) & 4, 'umumiy jadval nuqtalardan oldin');   // DOCUMENT_POSITION_FOLLOWING
-      assert.equal(summary.querySelectorAll('tbody tr').length, 3);
+      assert.equal(summary.querySelectorAll('table > tbody > tr').length, 3);   // P16: aniq selektor — hujjat ramka jadvali ichida
       assert.equal(d.querySelectorAll('[data-findings]').length, 3);                                  // topilmalar har bir shaklda
       assert.equal(d.querySelectorAll('.print-page-break').length, 3);
       assert.ok(!/\b(rf|rq|dr|rp|fnd|mk|w|fix|why)_[a-z0-9_]+\b|undefined|NaN|\[object/.test(d.textContent), `${lang} ${form}: ${(d.textContent.match(/\b(rf|rq|dr|rp|fnd|mk)_[a-z0-9_]+|undefined|NaN/) || [])[0]}`);

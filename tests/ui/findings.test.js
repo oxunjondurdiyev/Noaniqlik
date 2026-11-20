@@ -335,7 +335,7 @@ test('R-07: "kattalik qiymati (nominal bilan)" — |Y − nominal| MPE bilan sol
   const pts = [{ id: 'a', label: 'P1', snapshot: BASE(), result: good }, { id: 'b', label: 'P2', snapshot: BASE(), result: legacy }];
   const w2 = load('uz', { ...BASE(), combined: good, points: pts });
   await w2.Results.printReport();
-  const rows = w2.document.querySelectorAll('#print-report .print-table')[0].querySelectorAll('tbody tr');
+  const rows = w2.document.querySelectorAll('#print-report .print-table')[0].querySelectorAll(':scope > tbody > tr');   // P16: aniq selektor (ramka jadvali)
   assert.match(rows[0].lastElementChild.textContent, /Muvofiq/i);
   assert.equal(rows[1].lastElementChild.textContent, w2.i18n.t('mk_pending_short'));
 });
