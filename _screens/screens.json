@@ -14,6 +14,9 @@
     "qc",
     "report",
     "vizlab",
+    "home",
+    "auth",
+    "auth-register",
     "ai"
   ],
   "results": [
@@ -61,6 +64,30 @@
           "overflow": 0
         },
         {
+          "screen": "home",
+          "size": "390x844",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth",
+          "size": "390x844",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth-register",
+          "size": "390x844",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
           "screen": "ai",
           "size": "390x844",
           "theme": "dark",
@@ -109,6 +136,30 @@
           "overflow": 0
         },
         {
+          "screen": "home",
+          "size": "390x844",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth",
+          "size": "390x844",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth-register",
+          "size": "390x844",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
           "screen": "ai",
           "size": "390x844",
           "theme": "light",
@@ -157,6 +208,30 @@
           "overflow": 0
         },
         {
+          "screen": "home",
+          "size": "834x1194",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth",
+          "size": "834x1194",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth-register",
+          "size": "834x1194",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
           "screen": "ai",
           "size": "834x1194",
           "theme": "dark",
@@ -205,6 +280,30 @@
           "overflow": 0
         },
         {
+          "screen": "home",
+          "size": "834x1194",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth",
+          "size": "834x1194",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth-register",
+          "size": "834x1194",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
           "screen": "ai",
           "size": "834x1194",
           "theme": "light",
@@ -253,6 +352,30 @@
           "overflow": 0
         },
         {
+          "screen": "home",
+          "size": "1440x900",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth",
+          "size": "1440x900",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth-register",
+          "size": "1440x900",
+          "theme": "dark",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
           "screen": "ai",
           "size": "1440x900",
           "theme": "dark",
@@ -294,6 +417,30 @@
         },
         {
           "screen": "vizlab",
+          "size": "1440x900",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "home",
+          "size": "1440x900",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth",
+          "size": "1440x900",
+          "theme": "light",
+          "tap": 0,
+          "contrast": 0,
+          "overflow": 0
+        },
+        {
+          "screen": "auth-register",
           "size": "1440x900",
           "theme": "light",
           "tap": 0,

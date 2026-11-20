@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="src/css/sheet.css" />
   <link rel="stylesheet" href="src/css/lab2.css" />
   <link rel="stylesheet" href="src/css/vizlab.css" />
+  <link rel="stylesheet" href="src/css/home.css" />
   <link rel="stylesheet" href="src/css/print.css" />
   <link rel="stylesheet" href="src/css/motion.css" />
 </head>
@@ -24,161 +25,174 @@
 <!-- ══════════════════════════════════════════════════
      AUTH SCREEN (login / register)
 ══════════════════════════════════════════════════ -->
-<div id="auth-screen" style="display:none">
-  <div class="auth-wrap">
-
-    <div class="auth-brand">
-      <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
-        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
-        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="auth-brand-name">UncertaintyCalc</span>
+<div id="auth-screen" class="auth2" hidden>
+  <div class="auth2-top">
+    <button type="button" class="btn btn-ghost" id="auth-btn-back" data-i18n="btn_back_home">← Back</button>
+    <div class="auth2-top-right">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn" data-lang="uz">UZ</button>
+        <button type="button" class="lang-btn" data-lang="ru">RU</button>
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+      </div>
+      <button type="button" class="icon-btn theme-toggle" title="Toggle theme" data-i18n-title="c_theme_toggle" aria-label="Toggle theme" data-i18n-aria="c_theme_toggle">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
+  </div>
+  <div class="auth2-grid">
+
+    <!-- Chap tomon: platforma nima qiladi, me'yoriy asos, ma'lumotlar qayerda saqlanadi -->
+    <aside class="auth2-aside" aria-labelledby="auth-aside-title">
+      <div class="auth2-brand" translate="no">
+        <svg width="36" height="36" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+          <rect width="56" height="56" rx="14" fill="var(--c-blue)"/>
+          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="var(--c-on-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="auth2-brand-name">UncertaintyCalc</span>
+      </div>
+      <h1 class="auth2-title" id="auth-aside-title" data-i18n="au_title">Measurement uncertainty platform</h1>
+      <p class="auth2-lead" data-i18n="au_lead"></p>
+      <p class="auth2-formula mono" translate="no">Y = y ± U,&nbsp; U = k · u<sub>c</sub>(y)</p>
+      <h2 class="auth2-sub" data-i18n="au_norm_title">Normative basis</h2>
+      <ul class="auth2-norms">
+        <li><span class="mono" translate="no">JCGM 100:2008</span><span data-i18n="au_n_100"></span></li>
+        <li><span class="mono" translate="no">JCGM 101:2008</span><span data-i18n="au_n_101"></span></li>
+        <li><span class="mono" translate="no">JCGM 102:2011</span><span data-i18n="au_n_102"></span></li>
+        <li><span class="mono" translate="no">ISO/IEC 17025:2017 §7.6</span><span data-i18n="au_n_17025"></span></li>
+        <li><span class="mono" translate="no">ILAC P14:09/2020</span><span data-i18n="au_n_p14"></span></li>
+      </ul>
+      <p class="auth2-privacy" data-auth-privacy="1"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span data-i18n="au_privacy"></span></p>
+    </aside>
 
     <div class="auth-card">
-      <div class="auth-tabs" id="auth-tabs-row">
-        <button class="auth-tab-btn active" data-auth-tab="login" data-i18n="auth_tab_login">Kirish</button>
-        <button class="auth-tab-btn" data-auth-tab="register" data-i18n="auth_tab_register">Ro'yxatdan o'tish</button>
+      <div class="auth-tabs" id="auth-tabs-row" role="tablist">
+        <button type="button" class="auth-tab-btn active" data-auth-tab="login" data-i18n="auth_tab_login" role="tab">Kirish</button>
+        <button type="button" class="auth-tab-btn" data-auth-tab="register" data-i18n="auth_tab_register" role="tab">Ro'yxatdan o'tish</button>
       </div>
 
       <div class="auth-body">
 
         <!-- ── KIRISH ── -->
-        <div class="auth-panel active" id="auth-panel-login">
-          <div class="auth-error" id="login-error"></div>
+        <form class="auth-panel active" id="auth-panel-login" novalidate>
+          <div class="auth-error" id="login-error" role="alert" aria-live="assertive"></div>
           <div class="auth-group">
-            <label data-i18n="c_login">Login</label>
-            <input type="text" id="login-user" placeholder="sizning loginingiz" data-i18n-ph="auth_login_ph" autocomplete="username" />
+            <label for="login-user" data-i18n="c_login">Login</label>
+            <input type="text" id="login-user" placeholder="sizning loginingiz" data-i18n-ph="auth_login_ph" autocomplete="username" autocapitalize="none" spellcheck="false" translate="no" aria-describedby="login-error" />
           </div>
           <div class="auth-group">
-            <label data-i18n="c_password">Parol</label>
+            <label for="login-pwd" data-i18n="c_password">Parol</label>
             <div class="pwd-wrap">
-              <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password" />
-              <button type="button" class="pwd-eye" data-target="login-pwd" tabindex="-1" title="Parolni ko'rish" data-i18n-title="auth_show_pwd"></button>
+              <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password" aria-describedby="login-error" />
+              <button type="button" class="pwd-eye" data-target="login-pwd" aria-pressed="false" aria-label="Show password" data-i18n-aria="auth_show_pwd" title="Show password" data-i18n-title="auth_show_pwd"></button>
             </div>
           </div>
-          <button class="btn btn-primary w-full btn-lg" id="btn-do-login" data-i18n="auth_signin_btn">Kirish →</button>
+          <button type="submit" class="btn btn-primary w-full btn-lg" id="btn-do-login" data-i18n="auth_signin_btn">Kirish →</button>
           <div class="auth-divider" data-i18n="auth_or">yoki</div>
-          <p class="text-muted text-sm" style="text-align:center">
+          <p class="text-muted text-sm auth2-center">
             <span data-i18n="auth_no_org">Tashkilotingiz hali ro'yxatdan o'tmadimi?</span>
-            <a href="#" style="color:var(--accent)" id="link-to-register" data-i18n="auth_tab_register">Ro'yxatdan o'tish</a>
+            <a href="#" class="auth2-link" id="link-to-register" data-i18n="auth_tab_register">Ro'yxatdan o'tish</a>
           </p>
-        </div>
+        </form>
 
         <!-- ── TO'LOV KUTILMOQDA ── -->
-        <div class="auth-panel" id="auth-panel-pending" style="text-align:center">
-          <div style="font-size:2.5rem;margin-bottom:.75rem">✅</div>
-          <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:.4rem" data-i18n="auth_registered_title">Ro'yxatdan o'tdingiz!</h3>
-          <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem" data-i18n="auth_registered_text">Hisobingizni faollashtirish uchun to'lovni amalga oshiring. To'lovdan keyin superadmin hisobingizni tekshirib aktivlashtiradi.</p>
+        <div class="auth-panel auth2-center" id="auth-panel-pending">
+          <div class="auth2-done" aria-hidden="true"><svg class="ic"><use href="#ic-check"/></svg></div>
+          <h3 class="auth2-h3" data-i18n="auth_registered_title">Ro'yxatdan o'tdingiz!</h3>
+          <p class="auth2-note" data-i18n="auth_registered_text"></p>
 
-          <div id="pending-org-info" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;text-align:left;font-size:.82rem;margin-bottom:1.25rem">
+          <div id="pending-org-info" class="auth2-orginfo">
             <!-- JS tomonidan to'ldiriladi -->
           </div>
 
-          <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.6rem;text-align:left" data-i18n="auth_choose_pay">To'lov tizimini tanlang:</p>
-          <div style="display:flex;gap:.6rem;margin-bottom:.6rem">
-            <button id="pending-btn-click" class="btn w-full" style="background:#00AAFF;color:#fff;border-color:#00AAFF">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              Click
-            </button>
-            <button id="pending-btn-payme" class="btn w-full" style="background:#1AC46A;color:#fff;border-color:#1AC46A">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              Payme
-            </button>
+          <p class="auth2-note auth2-left" data-i18n="auth_choose_pay">To'lov tizimini tanlang:</p>
+          <div class="auth2-pay">
+            <button type="button" id="pending-btn-click" class="btn btn-outline w-full" translate="no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Click</button>
+            <button type="button" id="pending-btn-payme" class="btn btn-outline w-full" translate="no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Payme</button>
           </div>
-          <button id="pending-btn-bank" class="btn w-full" style="background:#15803d;color:#fff;border-color:#15803d;margin-bottom:1rem">
+          <button type="button" id="pending-btn-bank" class="btn btn-outline w-full auth2-bank">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><path d="M5 15h2M11 15h2"/></svg>
             <span data-i18n="auth_bank_invoice">Bank o'tkazmasi — Hisob-faktura olish</span>
           </button>
 
-          <p class="text-muted text-xs" style="margin-bottom:1rem" data-i18n="auth_after_pay">To'lovdan so'ng superadmin hisobingizni aktivlashtiradi. Keyin login qilishingiz mumkin.</p>
-          <button class="btn btn-outline w-full" id="pending-to-login" data-i18n="auth_to_login">← Kirishga o'tish</button>
+          <p class="text-muted text-xs auth2-note" data-i18n="auth_after_pay"></p>
+          <button type="button" class="btn btn-outline w-full" id="pending-to-login" data-i18n="auth_to_login">← Kirishga o'tish</button>
         </div>
 
-        <!-- ── RO'YXATDAN O'TISH ── -->
-        <div class="auth-panel" id="auth-panel-register">
-          <div class="auth-error" id="reg-error"></div>
+        <!-- ── RO'YXATDAN O'TISH (maydonlar o'zgarmagan — yangi shaxsiy maydon qo'shilmaydi) ── -->
+        <form class="auth-panel" id="auth-panel-register" novalidate>
+          <div class="auth-error" id="reg-error" role="alert" aria-live="assertive"></div>
 
-          <!-- Qator 1: INN + Telefon -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-            <div class="auth-group" style="margin:0">
-              <label><span data-i18n="c_inn">INN</span> <span class="text-muted text-xs" data-i18n="auth_inn_hint">(9 raqam)</span></label>
-              <input type="text" id="reg-inn" inputmode="numeric" maxlength="9"
-                placeholder="123456789" autocomplete="off" />
+          <div class="auth2-row">
+            <div class="auth-group">
+              <label for="reg-inn"><span data-i18n="c_inn">INN</span> <span class="text-muted text-xs" data-i18n="auth_inn_hint">(9 raqam)</span></label>
+              <input type="text" id="reg-inn" inputmode="numeric" maxlength="9" placeholder="123456789" autocomplete="off" translate="no" />
             </div>
-            <div class="auth-group" style="margin:0">
-              <label data-i18n="auth_phone">Telefon raqam</label>
-              <input type="tel" id="reg-phone" placeholder="+998901234567" autocomplete="tel" />
+            <div class="auth-group">
+              <label for="reg-phone" data-i18n="auth_phone">Telefon raqam</label>
+              <input type="tel" id="reg-phone" placeholder="+998901234567" autocomplete="tel" translate="no" />
             </div>
           </div>
-          <div style="height:.75rem"></div>
 
-          <!-- Qator 2: Ism + Familya -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-            <div class="auth-group" style="margin:0">
-              <label data-i18n="auth_first_name">Ism</label>
+          <div class="auth2-row">
+            <div class="auth-group">
+              <label for="reg-firstname" data-i18n="auth_first_name">Ism</label>
               <input type="text" id="reg-firstname" placeholder="Ahmad" data-i18n-ph="auth_first_ph" autocomplete="given-name" />
             </div>
-            <div class="auth-group" style="margin:0">
-              <label data-i18n="auth_last_name">Familya</label>
+            <div class="auth-group">
+              <label for="reg-lastname" data-i18n="auth_last_name">Familya</label>
               <input type="text" id="reg-lastname" placeholder="Karimov" data-i18n-ph="auth_last_ph" autocomplete="family-name" />
             </div>
           </div>
-          <div style="height:.75rem"></div>
 
-          <!-- Login tavsiyasi -->
           <div class="auth-group">
-            <label>
+            <label for="reg-login">
               <span data-i18n="c_login">Login</span>
-              <span class="text-muted text-xs" style="font-weight:400;margin-left:.35rem" data-i18n="auth_login_hint">(ism/familyadan avtomatik tavsiya qilinadi; a-z, 0-9, ". _ -")</span>
+              <span class="text-muted text-xs" data-i18n="auth_login_hint"></span>
             </label>
             <div class="inn-row">
-              <input type="text" id="reg-login" placeholder="a.karimov" data-i18n-ph="auth_login_example"
-                autocomplete="username" style="font-family:'JetBrains Mono',monospace" />
-              <button class="btn btn-outline btn-sm" id="btn-suggest-login" title="Qayta tavsiya qilish" data-i18n-title="auth_resuggest">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <input type="text" id="reg-login" class="mono" placeholder="a.karimov" data-i18n-ph="auth_login_example" autocomplete="username" autocapitalize="none" spellcheck="false" translate="no" aria-describedby="login-check-msg" />
+              <button type="button" class="btn btn-outline auth2-icon-btn" id="btn-suggest-login" title="Qayta tavsiya qilish" data-i18n-title="auth_resuggest" aria-label="Suggest again" data-i18n-aria="auth_resuggest">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <polyline points="23 4 23 10 17 10"/>
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                 </svg>
               </button>
             </div>
-            <div id="login-check-msg" style="font-size:.75rem;margin-top:.3rem"></div>
+            <div id="login-check-msg" class="auth2-check" aria-live="polite"></div>
           </div>
 
-          <!-- Parol -->
           <div class="auth-group">
-            <label><span data-i18n="c_password">Parol</span> <span class="text-muted text-xs" data-i18n="auth_pwd_hint">(8+ belgi)</span></label>
+            <label for="reg-pwd"><span data-i18n="c_password">Parol</span> <span class="text-muted text-xs" data-i18n="auth_pwd_hint">(8+ belgi)</span></label>
             <div class="pwd-wrap">
               <input type="password" id="reg-pwd" placeholder="••••••••" autocomplete="new-password" />
-              <button type="button" class="pwd-eye" data-target="reg-pwd" tabindex="-1" title="Parolni ko'rish" data-i18n-title="auth_show_pwd"></button>
+              <button type="button" class="pwd-eye" data-target="reg-pwd" aria-pressed="false" aria-label="Show password" data-i18n-aria="auth_show_pwd" title="Show password" data-i18n-title="auth_show_pwd"></button>
             </div>
           </div>
           <div class="auth-group">
-            <label data-i18n="auth_pwd_confirm">Parolni tasdiqlang</label>
+            <label for="reg-pwd2" data-i18n="auth_pwd_confirm">Parolni tasdiqlang</label>
             <div class="pwd-wrap">
               <input type="password" id="reg-pwd2" placeholder="••••••••" autocomplete="new-password" />
-              <button type="button" class="pwd-eye" data-target="reg-pwd2" tabindex="-1" title="Parolni ko'rish" data-i18n-title="auth_show_pwd"></button>
+              <button type="button" class="pwd-eye" data-target="reg-pwd2" aria-pressed="false" aria-label="Show password" data-i18n-aria="auth_show_pwd" title="Show password" data-i18n-title="auth_show_pwd"></button>
             </div>
           </div>
 
-          <!-- Xodimlar soni -->
           <div class="auth-group">
-            <label data-i18n="auth_emp_count">Tashkilotda nechta xodim platforma ishlatadi?</label>
-            <input type="number" id="reg-empcount" min="1" max="999" value="1"
-              placeholder="Masalan: 5" data-i18n-ph="auth_emp_count_ph" />
+            <label for="reg-empcount" data-i18n="auth_emp_count">Tashkilotda nechta xodim platforma ishlatadi?</label>
+            <input type="number" id="reg-empcount" min="1" max="999" value="1" placeholder="Masalan: 5" data-i18n-ph="auth_emp_count_ph" translate="no" />
           </div>
 
-          <button class="btn btn-primary w-full btn-lg" id="btn-do-register" data-i18n="auth_register_btn">Ro'yxatdan o'tish →</button>
+          <button type="submit" class="btn btn-primary w-full btn-lg" id="btn-do-register" data-i18n="auth_register_btn">Ro'yxatdan o'tish →</button>
           <div class="auth-divider" data-i18n="auth_or">yoki</div>
-          <p class="text-muted text-sm" style="text-align:center">
+          <p class="text-muted text-sm auth2-center">
             <span data-i18n="auth_already">Allaqachon ro'yxatdan o'tganmisiz?</span>
-            <a href="#" style="color:var(--accent)" id="link-to-login" data-i18n="auth_tab_login">Kirish</a>
+            <a href="#" class="auth2-link" id="link-to-login" data-i18n="auth_tab_login">Kirish</a>
           </p>
-        </div>
+        </form>
 
       </div><!-- /auth-body -->
     </div><!-- /auth-card -->
-  </div><!-- /auth-wrap -->
+  </div><!-- /auth2-grid -->
 </div><!-- /#auth-screen -->
 
 <!-- ══════════════════════════════════════════════════
@@ -410,6 +424,70 @@
 </div><!-- /#home-screen -->
 
 <!-- ══════════════════════════════════════════════════
+     BOSH SAHIFA (kirgandan keyingi ekran) — src/ui/home/
+══════════════════════════════════════════════════ -->
+<div id="dash-screen" class="overlay-screen hidden">
+  <div class="home-wrap">
+    <header class="home-top">
+      <button type="button" class="home-brand" data-home-landing="1" translate="no" aria-label="UncertaintyCalc">
+        <svg width="30" height="30" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+          <rect width="56" height="56" rx="14" fill="var(--c-blue)"/>
+          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="var(--c-on-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>UncertaintyCalc</span>
+      </button>
+      <div class="home-top-right">
+        <div class="lang-switcher">
+          <button type="button" class="lang-btn" data-lang="uz">UZ</button>
+          <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        </div>
+        <button type="button" class="icon-btn theme-toggle" title="Toggle theme" data-i18n-title="c_theme_toggle" aria-label="Toggle theme" data-i18n-aria="c_theme_toggle">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="home-main">
+      <h1 class="home-title" data-i18n="hm_title">Home</h1>
+      <p class="home-lead text-muted" data-i18n="hm_lead"></p>
+
+      <div class="home-start">
+        <button type="button" class="home-card" data-home-new="1">
+          <svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg>
+          <span class="home-card-title" data-i18n="hm_new_title">New calculation</span>
+          <span class="home-card-text" data-i18n="hm_new_text"></span>
+        </button>
+        <button type="button" class="home-card" data-open-templates="1" data-home-templates="1">
+          <svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg>
+          <span class="home-card-title" data-i18n="sh_tpl_start">Start from a template</span>
+          <span class="home-card-text" data-i18n="hm_tpl_text"></span>
+        </button>
+      </div>
+
+      <section class="home-section" aria-labelledby="home-recent-title">
+        <h2 class="home-h2" id="home-recent-title" data-i18n="hm_recent">Recent sessions</h2>
+        <p class="text-xs text-muted" data-i18n="hm_recent_note"></p>
+        <div id="home-sessions" aria-live="polite"></div>
+      </section>
+
+      <section class="home-section" aria-labelledby="home-links-title">
+        <h2 class="home-h2" id="home-links-title" data-i18n="hm_links">Quick links</h2>
+        <div class="home-links">
+          <button type="button" class="home-link" data-open-lab="1"><svg class="ic" aria-hidden="true"><use href="#ic-sliders"/></svg><span data-i18n="tpl_btn_lab"></span></button>
+          <button type="button" class="home-link" data-home-lab="lab-standards"><svg class="ic" aria-hidden="true"><use href="#ic-registry"/></svg><span data-i18n="sh_n_registry"></span></button>
+          <button type="button" class="home-link" data-home-lab="lab-qc"><svg class="ic" aria-hidden="true"><use href="#ic-qc"/></svg><span data-i18n="sh_n_qc"></span></button>
+          <a class="home-link" href="validation/validation-report.html"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span data-i18n="sh_n_valreport"></span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="home-foot mono text-xs" id="home-foot"></footer>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
      WELCOME SCREEN
 ══════════════════════════════════════════════════ -->
 <div id="welcome-screen" class="overlay-screen hidden">
@@ -568,6 +646,7 @@
       <symbol id="ic-registry" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
       <symbol id="ic-pt" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
       <symbol id="ic-validation" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.600-1 8-4.500 8-9V6z"/><path d="m8.500 12 2.500 2.500 4.500-5"/></symbol>
+      <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.500 12 4l9 7.500"/><path d="M5.500 10v10h13V10M10 20v-6h4v6"/></symbol>
       <symbol id="ic-templates" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M17 14v6M14 17h6"/></symbol>
       <symbol id="ic-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.700 3.600 3 8 3s8-1.300 8-3V6M4 12v6c0 1.700 3.600 3 8 3s8-1.300 8-3v-6"/></symbol>
       <symbol id="ic-vizlab" viewBox="0 0 24 24"><path d="M3 12s3.500-6 9-6 9 6 9 6-3.500 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.500"/></symbol>
@@ -640,6 +719,7 @@
       <div class="nav-scroll">
       <p class="nav-group" data-i18n="sh_g_calc">Calculation</p>
       <ul class="nav-list">
+        <li><button type="button" class="nav-item" data-go-home="1" data-nav-action="home"><svg class="ic" aria-hidden="true"><use href="#ic-home"/></svg><span class="nav-label" data-i18n="sh_n_home"></span><span class="nav-short" data-i18n="sh_s_home" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-open-templates="1" data-nav-action="templates"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span class="nav-label" data-i18n="tpl_open_catalog"></span><span class="nav-short" data-i18n="sh_s_templates" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="gum"><svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg><span class="nav-label" data-i18n="sh_n_gum"></span><span class="nav-short" data-i18n="sh_s_gum" aria-hidden="true"></span></button></li>
         <li><button type="button" class="nav-item" data-nav="mc"><svg class="ic" aria-hidden="true"><use href="#ic-mc"/></svg><span class="nav-label" data-i18n="sh_n_mc"></span><span class="nav-short" data-i18n="sh_s_mc" aria-hidden="true"></span></button></li>
@@ -1057,6 +1137,7 @@
 <script type="module" src="src/ui/mc/app.js"></script>
 <script type="module" src="src/ui/ai-boot.js"></script>
 <script type="module" src="src/ui/shell/app.js"></script>
+<script type="module" src="src/ui/home/app.js"></script>
 <script src="src/ui/index-auth.js"></script>
 
 </body>

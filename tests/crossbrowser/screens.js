@@ -36,10 +36,10 @@ function auditInPage({ minTap, minContrast, minLarge }) {
     for (let p = el; p; p = p.parentElement) if (p.hidden || getComputedStyle(p).display === 'none') return false;
     return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
   };
-  const scope = document.querySelector('.cmdk:not([hidden])') || document.querySelector('.typeb-card.is-open') || document.getElementById('app');
+  const scope = document.querySelector('#auth-screen:not([hidden])') || document.querySelector('#dash-screen:not(.hidden)') || document.querySelector('.cmdk:not([hidden])') || document.querySelector('.typeb-card.is-open') || document.getElementById('app');
   const name = el => (el.id ? '#' + el.id : el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '')) + ' "' + (el.textContent || el.value || '').trim().slice(0, 24) + '"';
   // 1) bosiladigan maydon
-  for (const el of scope.querySelectorAll('button, a.btn, a.nav-item, a.menu-item, select, input[type="text"], input[type="number"], input[type="search"], input[type="date"], textarea')) {
+  for (const el of scope.querySelectorAll('button, a.btn, a.nav-item, a.menu-item, select, a.home-link, a.auth2-link, input[type="text"], input[type="password"], input[type="tel"], input[type="number"], input[type="search"], input[type="date"], textarea')) {
     if (!visible(el) || el.closest('.report-doc') || el.closest('.data-table')) continue;      // jadval kataklari: nozik ko'rsatkichda 36 px (shell.css)
     const r = el.getBoundingClientRect();
     if (r.height < minTap - 0.5) out.tap.push(name(el) + ' ' + Math.round(r.height) + 'px');
@@ -87,10 +87,18 @@ const SCREENS = [
   }); } },
   { key: 'report', label: 'Hisobot', go: async p => { await p.evaluate(() => window.UCShell.goStep('report')); await p.waitForSelector('#report-preview [data-report-footer]', { timeout: 15000 }); } },
   { key: 'vizlab', label: 'Vizual laboratoriya', go: async p => { await p.evaluate(() => window.UCShell.go('vizlab')); await p.waitForFunction(() => document.getElementById('vizlab-root').children.length > 0, null, { timeout: 15000 }); } },
+  // P16 davomi: Bosh sahifa (so'nggi sessiyalar ro'yxati bilan) va kirish / ro'yxatdan o'tish ekrani
+  { key: 'home', label: 'Bosh sahifa', go: async p => { await p.evaluate(() => window.App.showScreen('dash')); await p.waitForSelector('#dash-screen [data-home-session]', { timeout: 15000 }); await p.waitForSelector('#home-foot [data-home-validation]'); },
+    after: async p => { await p.evaluate(() => window.App.showScreen('app')); } },
+  { key: 'auth', label: 'Kirish', go: async p => { await p.evaluate(() => window.UCAuthScreen.show('login')); await p.waitForSelector('#auth-screen:not([hidden]) #login-user'); },
+    after: async p => { await p.evaluate(() => window.UCAuthScreen.hide()); } },
+  { key: 'auth-register', label: "Ro'yxatdan o'tish", go: async p => { await p.evaluate(() => window.UCAuthScreen.show('register')); await p.waitForSelector('#auth-screen:not([hidden]) #reg-inn'); },
+    after: async p => { await p.evaluate(() => window.UCAuthScreen.hide()); } },
 ];
 
 async function seed(page) {
-  await page.click('#btn-home-start');
+  await page.click('#btn-home-start');                       // Bosh sahifa
+  await page.click('#dash-screen [data-home-new]');          // "Yangi hisob" → sozlash oynasi
   await page.selectOption('#inp-preset', 'density');
   await page.click('#btn-start');
   await page.waitForFunction(() => !!(window.UCShell && window.UCLab && window.Calc));

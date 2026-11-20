@@ -598,7 +598,7 @@ function bind() {
     }
     const ed = e.target.closest('[data-tpl-edit]');
     if (ed) { ready.then(() => { const tpl = findByKey(ed.dataset.tplEdit); if (tpl) openEditor(tpl); }); return; }
-    if (e.target.closest('#tpl-btn-back')) { window.App.showScreen(window.appState.get('params').length && Object.keys(window.appState.get('measurements')).length ? 'app' : 'welcome'); return; }
+    if (e.target.closest('#tpl-btn-back')) { window.App.showScreen(window.appState.get('params').length && Object.keys(window.appState.get('measurements')).length ? 'app' : 'dash'); return; }
     if (e.target.closest('#tpl-btn-new')) { ready.then(() => openEditor(skeleton(), true)); return; }
     if (e.target.closest('#tpl-btn-import')) { importTemplate(); return; }
     if (e.target.closest('[data-open-lab]')) { openLab(); return; }
@@ -626,6 +626,19 @@ window.UCTemplates = Object.freeze({
   missingInState: Interp.missingInState,
   reportNoticeHTML: (meta, result) => View.reportNoticeHTML(meta, { ...ctx(), validation: validationOfMeta(meta) }, result),
   validationOf: meta => validationOfMeta(meta),
+  // Bosh sahifa (src/ui/home/): saqlangan hisoblar (IndexedDB `calculations`) va builtin shablonlar validatsiyasi xulosasi
+  listCalculations: async () => { await ready; return db ? db.list('calculations') : []; },
+  getCalculation: async id => { await ready; return db ? db.get('calculations', id) : null; },
+  copyCalculation: async id => {
+    await ready;
+    const rec = db ? await db.get('calculations', id) : null;
+    if (!rec) return null;
+    const copy = { ...clone(rec), id: 'calc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6), createdAt: new Date().toISOString(), copyOf: rec.id };
+    await db.save('calculations', copy, { action: 'copy', reason: rec.id });
+    return copy;
+  },
+  removeCalculation: async id => { await ready; if (!db) return false; await db.remove('calculations', id, { action: 'delete', reason: 'home' }); return true; },
+  validationSummary: () => ({ total: builtins.length, verified: builtins.filter(b => validationOf(b, false).status === 'verified').length, engineVersion: ENGINE_VERSION }),
   missingText: list => View.missingText(list, ctx()),
   labSettings: () => ({ ...labCache }),
   saveCalculation,

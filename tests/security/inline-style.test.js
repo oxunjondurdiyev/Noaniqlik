@@ -18,7 +18,7 @@ const cspOf = page => Object.fromEntries(read(page).match(/Content-Security-Poli
 
 /* Qolgan inline uslublar (2026-11-20). Faqat KAMAYISHI mumkin. */
 const LIMITS = {
-  html: { 'index.html': { attr: 52, tag: 1 }, 'admin.html': { attr: 19, tag: 0 }, 'superadmin.html': { attr: 8, tag: 1 }, 'validation.html': { attr: 0, tag: 0 }, 'ai.html': { attr: 0, tag: 0 } },
+  html: { 'index.html': { attr: 25, tag: 1 }, 'admin.html': { attr: 19, tag: 0 }, 'superadmin.html': { attr: 8, tag: 1 }, 'validation.html': { attr: 0, tag: 0 }, 'ai.html': { attr: 0, tag: 0 } },
   js: { 'src/ui/templates.js': 60, 'src/js/table.js': 14 },
 };
 

@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 343 |
-| Kamida bitta testga bog'langan | 330 |
-| ✅ verified | 279 |
+| Talablar | 345 |
+| Kamida bitta testga bog'langan | 332 |
+| ✅ verified | 281 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -389,6 +389,8 @@
 | REQ-UIX-012 | Hisob o'zgarmagan: `src/engine/` ga tegilmagan; misollar natijasi bit darajasida bir xil | `scripts/cases-snapshot.js` | `tests/validation/snapshot.test.js`; `tests/security/static.test.js` | ✅ verified | Solishtirish natijasi PR tavsifida: 91 / 91, farq 0 |
 | REQ-UIX-013 | Shablon kartasidagi "Manba bilan mos" belgisi avtomatik: shablon hisobi etalon misol (tests/fixtures) bilan solishtiriladi → `templates/validation/builtin.json` (`source`, `clause`, `status`, `relDiff`); qo'lda bayroq yo'q; fayl eskirsa test xatosi; foydalanuvchi natijasida belgi yo'q Fayl `_generated` belgili, yozuvlar: templateId, templateHash, ENGINE_VERSION, testId, source, clause, relDiff, date; runtime'da xesh / versiya mos kelmasa yoki shablon builtin bo'lmasa — unverified; CI qayta yaratib solishtiradi; A4 hisobotida bitta qator (holat + manba + ENGINE_VERSION). | `scripts/template-validation.js::build`; `scripts/lib/template-cases.js`; `src/templates/validation-status.js::templateValidation`; `src/ui/tpl/view.js` | `tests/templates/validation-badge.test.js`; `tests/templates/builtin.test.js` | ✅ verified | Etalon: zichlik, gazoanalizator (3 nuqta), termometr (5 nuqta) Excel fayllari; termometrda Δ = 0,087 % (D-02), ma'lum farq D-03 |
 | REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat | `src/ui/shell/app.js`; `src/js/report.js`; `src/css/tokens.css`; `src/report/sections.js::createSections` | `tests/report/print.test.js`; `tests/report/ribbon.test.js`; `tests/security/vendor.test.js` | ✅ verified | `#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas |
+| REQ-UIX-015 | Kirish / ro'yxatdan o'tish ekrani yangi tokenlarda: til va mavzu tugmalari, chap tomonda tavsif + me'yoriy asos + "o'lchash ma'lumotlari faqat brauzerda" bayonoti; maydonlar ro'yxati qotirilgan (yangi shaxsiy maydon yo'q); xato inline (`role="alert"`, textContent); parolni ko'rsatish / yashirish; Enter bilan yuborish; `<html lang>` joriy tilda; formulalar va raqamlarda `translate="no"` | `src/ui/index-auth.js`; `src/css/home.css`; `src/js/i18n-shell.js` | `tests/ui/home.test.js` | ✅ verified | Enter bilan yuborish, parol tugmasi, til / mavzu va `<html lang>` Chromium da qo'lda tekshirildi; haqiqiy Firebase bilan kirish sinalmagan (jsdom / lokal) |
+| REQ-UIX-016 | "Bosh sahifa": "Yangi hisob" va "Shablondan boshlash" kartalari; so'nggi sessiyalar (IndexedDB `calculations`: ochish / nusxalash / o'chirish — audit izi bilan; natija faqat aynan shu `ENGINE_VERSION` da hisoblangan bo'lsa tiklanadi); tezkor havolalar; pastda `ENGINE_VERSION` va validatsiya xulosasi (builtin.json bo'yicha); chap menyuda "Bosh sahifa", "Shablonlar katalogi", "Laboratoriya sozlamalari", "Ma'lumotlar"; bir xil toast takrorlanmaydi | `src/ui/home/model.js::recentSessions`; `src/ui/home/model.js::sessionPatch`; `src/ui/home/app.js`; `src/ui/toast.js` | `tests/ui/home.test.js`; `tests/ui/shell.test.js` | ✅ verified | ochish / nusxalash / o'chirish IndexedDB bilan Chromium da tekshirildi (jsdom testida faqat sof model) |
 
 ## SRC — Manba misollari qamrovi
 
