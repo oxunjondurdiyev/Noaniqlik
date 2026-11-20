@@ -5,3 +5,11 @@ e85daf9f173e00a2f0d3b2007451813505396d56a2f364bbc2deb8e7ca1614e3  qrcode-generat
 1586b85e7ecc265235f1e224c1ac1b44a2f3edb19e50e0ed369491f9bb239478  firebase/9.23.0/firebase-app-compat.js
 1242c193650f903910325afa222e364b8db720057cf4f6159692f3eb61bf2c9a  firebase/9.23.0/firebase-auth-compat.js
 b206cb711185de987a37eca683dce8cbd905403581bc994277419b18c2811f47  firebase/9.23.0/firebase-firestore-compat.js
+3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345  fonts/inter/5.3.0/LICENSE
+71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075  fonts/inter/5.3.0/inter-cyrillic-wght-normal.woff2
+3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62  fonts/inter/5.3.0/inter-latin-wght-normal.woff2
+403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b  fonts/jetbrains-mono/5.3.0/LICENSE
+d274604c40757f98f07df623a8b8fb5194508a6fa4f5413a7a107f09e3b7452a  fonts/jetbrains-mono/5.3.0/jetbrains-mono-cyrillic-wght-normal.woff2
+18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e  fonts/jetbrains-mono/5.3.0/jetbrains-mono-latin-wght-normal.woff2
+18a4de52385f6b988782639d5d0cc1326e5a8c2de9a7f01d7b20d9aedcc60943  fonts/space-grotesk/5.3.0/LICENSE
+0640890476fc1198ab4de571fb658de443c4d85b66466ec09534a8737ab1ce9d  fonts/space-grotesk/5.3.0/space-grotesk-latin-wght-normal.woff2

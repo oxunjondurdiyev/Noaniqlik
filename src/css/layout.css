@@ -68,7 +68,7 @@
   font-size: 1.2rem;
   font-weight: 700;
   color: #fff;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 .lstat-label {
   font-size: .78rem;
@@ -129,7 +129,7 @@
   border-radius: 100px;
   font-size: .72rem;
   font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   background: var(--accent-light);
   color: var(--accent);
   border: 1px solid var(--accent-border);
@@ -181,7 +181,7 @@
 }
 .fc-item {
   display: none;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1.15rem;
   color: var(--accent);
   font-weight: 500;
@@ -267,7 +267,7 @@
 .step-num {
   font-size: 2.5rem;
   font-weight: 800;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: var(--accent);
   opacity: .25;
   line-height: 1;
@@ -293,7 +293,7 @@
   transition: background var(--transition), border-color var(--transition);
 }
 .std-code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--accent);
@@ -303,7 +303,7 @@
   font-size: .75rem;
   color: var(--text-muted);
   margin-bottom: .75rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 .std-card p { font-size: .84rem; color: var(--text-secondary); line-height: 1.6; }
 
@@ -337,7 +337,7 @@
 .about-name { font-size: 1.15rem; font-weight: 700; margin-bottom: .2rem; }
 .about-role { font-size: .83rem; color: var(--text-muted); margin-bottom: .9rem; }
 .about-desc { font-size: .9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: .75rem; }
-.about-open { font-size: .75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.about-open { font-size: .75rem; color: var(--text-muted); font-family: var(--font-mono); }
 
 /* ─── Collaboration card ────────────────────────────── */
 .collab-card {
@@ -447,7 +447,7 @@
 .welcome-sub {
   color: var(--text-muted);
   font-size: .75rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   letter-spacing: .03em;
 }
 
@@ -520,7 +520,7 @@
   padding: .35rem .25rem;
   font-size: 1.15rem;
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   background: transparent;
   border: none;
   box-shadow: none;
@@ -543,7 +543,7 @@
   font-size: .68rem;
   color: var(--text-muted);
   margin-top: .4rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 /* ─── Preset select ──────────────────────────────────── */

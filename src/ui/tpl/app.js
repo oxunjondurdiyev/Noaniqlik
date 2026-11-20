@@ -610,6 +610,9 @@ window.UCTemplates = Object.freeze({
   labSettings: () => ({ ...labCache }),
   saveCalculation,
   openCatalog,
+  /** P16: buyruq qidiruvi uchun katalog ro'yxati (faqat ko'rsatish maydonlari) va shablonni yuklash */
+  list: async () => { await ready; return entries().map(e => ({ key: keyOf(e.tpl), id: e.tpl.id, title: e.tpl.title || e.tpl.id, standard: e.tpl.standard || '', status: e.tpl.status || '' })); },
+  use: (key, variant) => useTemplate(key, variant),
 });
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();

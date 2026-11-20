@@ -29,17 +29,17 @@
     if (session && (session.role === 'admin' || session.role === 'employee')) {
       $('topbar-user-name').textContent = session.name || session.login || '';
       $('topbar-user-role').textContent = session.role === 'admin' ? t('role_admin') : t('role_employee');
-      $('topbar-user-badge').style.display = 'flex';
-      $('btn-topbar-logout').style.display = '';
-      $('btn-admin-link').style.display    = session.role === 'admin' ? '' : 'none';
+      $('topbar-user-badge').hidden = false;
+      $('btn-topbar-logout').hidden = false;
+      $('btn-admin-link').hidden = session.role !== 'admin';
       if (navBtn) {
         navBtn.textContent = session.role === 'admin' ? t('c_admin_panel') : t('c_calc');
         navBtn.dataset.mode = session.role;
       }
     } else {
-      $('topbar-user-badge').style.display = 'none';
-      $('btn-topbar-logout').style.display = 'none';
-      $('btn-admin-link').style.display    = 'none';
+      $('topbar-user-badge').hidden = true;
+      $('btn-topbar-logout').hidden = true;
+      $('btn-admin-link').hidden = true;
       if (navBtn) {
         navBtn.textContent = t('auth_tab_login');
         navBtn.dataset.mode = 'login';

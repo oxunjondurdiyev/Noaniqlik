@@ -1,0 +1,150 @@
+/* ═══════════════════════════════════════════════════════════════
+   TOKENS.CSS — dizayn tizimi (P16, Interfeys 2.0). YAGONA JOY:
+   ranglar, shriftlar, radiuslar, bo'shliq shkalasi, soya, harakat davomiyligi shu yerda;
+   boshqa CSS fayllar faqat var(--…) orqali oladi (eski nomlar — theme.css dagi taxalluslar).
+   Qoidalar: sof #000 fon taqiqlangan (qorong'i fon #1e2235); gradient fon, emoji va chap chetida rangli
+   chiziqli kartalar ishlatilmaydi; soya faqat asosiy natija kartasida (--shadow-hero).
+   Kontrast (≥ 4,5:1, ikkala mavzu) — tests/ui/contrast.test.js shu fayldan o'qib tekshiradi.
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── Shriftlar: vendor/fonts (SIL OFL 1.1; lotin + kirill; vendor/README.md) ───
+   Space Grotesk da kirill yo'q — kirill sarlavhalar Inter bilan chiziladi (unicode-range orqali avtomatik). */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('../../vendor/fonts/inter/5.3.0/inter-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('../../vendor/fonts/inter/5.3.0/inter-cyrillic-wght-normal.woff2') format('woff2');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal; font-weight: 300 700; font-display: swap;
+  src: url('../../vendor/fonts/space-grotesk/5.3.0/space-grotesk-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal; font-weight: 100 800; font-display: swap;
+  src: url('../../vendor/fonts/jetbrains-mono/5.3.0/jetbrains-mono-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal; font-weight: 100 800; font-display: swap;
+  src: url('../../vendor/fonts/jetbrains-mono/5.3.0/jetbrains-mono-cyrillic-wght-normal.woff2') format('woff2');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+:root {
+  /* Shrift oilalari */
+  --font-text:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Radiuslar: kichik boshqaruv / tugma / karta / asosiy karta */
+  --r-control: 10px;
+  --r-button:  12px;
+  --r-card:    16px;
+  --r-hero:    22px;
+
+  /* Bo'shliq shkalasi (4 px asosida) */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 20px;
+  --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+  /* O'lchamlar */
+  --tap: 44px;               /* eng kichik bosiladigan maydon */
+  --topbar-h: 60px;
+  --nav-w: 248px;
+  --nav-w-rail: 76px;
+  --bottom-nav-h: 64px;
+  --grid-size: 32px;         /* fon to'ri (o'lchov qog'ozi) */
+
+  /* Harakat */
+  --t-fast: 140ms;
+  --t-base: 220ms;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+
+  /* Soya — FAQAT asosiy natija kartasida */
+  --shadow-hero: 0 20px 60px rgba(5, 8, 20, .45);
+}
+
+/* ─── QORONG'I MAVZU (standart) ─────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --c-bg:            #1e2235;
+  --c-surface:       rgba(38, 45, 74, .78);
+  --c-surface-solid: #262d4a;               /* shaffof sirtning shaffof bo'lmagan ekvivalenti (modal, menyu) */
+  --c-raised-top:    #262d4a;
+  --c-raised-bottom: #20263f;
+  --c-sunken:        #1a1e30;               /* kiritish maydonlari */
+  --c-border:        rgba(255, 255, 255, .07);
+  --c-border-strong: rgba(255, 255, 255, .16);
+  --c-text:          #eaeef9;
+  --c-text-2:        #a9b3cf;
+  --c-text-3:        #8e99ba;
+  --c-grid:          rgba(140, 160, 220, .05);
+  --c-overlay:       rgba(10, 13, 28, .62);
+
+  /* Urg'u ranglari */
+  --c-blue:          #5aa9ff;   /* asosiy amal, egri chiziq */
+  --c-amber:         #f3bf72;   /* ±U oralig'i, ogohlantirish */
+  --c-green:         #45d39a;   /* muvofiq, "manba bilan mos" */
+  --c-green-text:    #8ff0c4;
+  --c-red:           #e8707a;   /* rad etish, xato */
+  --c-red-text:      #ffb8bf;
+  --c-violet:        #c4b5fd;   /* 4-seriya */
+  --c-on-accent:     #10203c;   /* urg'u fonidagi matn */
+
+  --c-blue-soft:     rgba(90, 169, 255, .12);
+  --c-amber-soft:    rgba(243, 191, 114, .14);
+  --c-green-soft:    rgba(69, 211, 154, .14);
+  --c-red-soft:      rgba(232, 112, 122, .14);
+  --c-violet-soft:   rgba(196, 181, 253, .14);
+  --c-blue-line:     rgba(90, 169, 255, .40);
+  --c-amber-line:    rgba(243, 191, 114, .40);
+  --c-green-line:    rgba(69, 211, 154, .40);
+  --c-red-line:      rgba(232, 112, 122, .45);
+}
+
+/* ─── YORUG' MAVZU ──────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+  --c-bg:            #f5f7fa;
+  --c-surface:       #ffffff;
+  --c-surface-solid: #ffffff;
+  --c-raised-top:    #ffffff;
+  --c-raised-bottom: #ffffff;
+  --c-sunken:        #ffffff;
+  --c-border:        #dfe4ee;
+  --c-border-strong: #b9c2d6;
+  --c-text:          #1b2033;
+  --c-text-2:        #4a5570;
+  --c-text-3:        #5f6a86;
+  --c-grid:          rgba(60, 80, 140, .06);
+  --c-overlay:       rgba(27, 32, 51, .42);
+
+  /* Urg'ular to'qroq variantda (oq sirtda ≥ 4,5:1) */
+  --c-blue:          #1c62c4;
+  --c-amber:         #8a5a00;
+  --c-green:         #0d7a52;
+  --c-green-text:    #0b6a47;
+  --c-red:           #c0303c;
+  --c-red-text:      #a32530;
+  --c-violet:        #6a4bd1;
+  --c-on-accent:     #ffffff;
+
+  --c-blue-soft:     rgba(28, 98, 196, .09);
+  --c-amber-soft:    rgba(138, 90, 0, .10);
+  --c-green-soft:    rgba(13, 122, 82, .10);
+  --c-red-soft:      rgba(192, 48, 60, .09);
+  --c-violet-soft:   rgba(106, 75, 209, .10);
+  --c-blue-line:     rgba(28, 98, 196, .38);
+  --c-amber-line:    rgba(138, 90, 0, .40);
+  --c-green-line:    rgba(13, 122, 82, .40);
+  --c-red-line:      rgba(192, 48, 60, .42);
+}

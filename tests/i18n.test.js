@@ -29,6 +29,7 @@ const I18N_FILES = [
   'src/js/i18n-pt.js',
   'src/js/i18n-build.js',
   'src/js/i18n-ai.js',
+  'src/js/i18n-shell.js',
 ];
 
 // Berilgan fayllar bitta skript sifatida yuklanadi (top-level const TRANSLATIONS umumiy bo'lishi uchun)
@@ -418,7 +419,7 @@ const ALLOW_PHRASES = [
 // (2) Aynan shu matnli literallar (to'liq mos kelganda)
 const ALLOW_LITERALS = new Set([
   'use strict',                 // JS direktivasi
-  'Enter', 'Tab',               // KeyboardEvent.key qiymatlari
+  'Enter', 'Tab', 'Escape', 'Home', 'End',   // KeyboardEvent.key qiymatlari (P16: + buyruq qidiruvi klavishlari)
   'opacity .3s, transform .3s', // CSS transition qiymati (toast.js)
   'Unknown batch op:',          // DB.batch() ga noto'g'ri op berilganda ishlab chiquvchi uchun xato (dasturlash xatosi, UI'ga chiqmaydi)
   'NIST/SEMATECH e-Handbook of Statistical Methods', // P12: normativ manba nomi (tarjima qilinmaydi — JCGM / ISO nomlari kabi)

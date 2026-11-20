@@ -149,7 +149,7 @@ select:focus {
 }
 
 input[type="number"] {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 select {
@@ -216,7 +216,7 @@ select {
 }
 
 .data-table .cell-num {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   text-align: right;
 }
 
@@ -241,7 +241,7 @@ select {
 @media (max-width: 640px) { .model-row { grid-template-columns: 1fr; } }
 .model-chips { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: .55rem 0 .2rem; }
 .model-chip {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--font-mono);
   font-size: .82rem;
   padding: .15rem .55rem;
   border-radius: 4px;
@@ -252,7 +252,7 @@ select {
 }
 .model-chip:hover { background: var(--accent); color: #fff; }
 .model-status { font-size: .84rem; margin-top: .45rem; color: var(--text-muted); min-height: 1.2em; word-break: break-word; }
-.model-status.ok   { color: var(--success); font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+.model-status.ok   { color: var(--success); font-family: var(--font-mono); }
 .model-status.err  { color: var(--danger); }
 .model-status.warn { color: var(--warning); }
 .model-check { display: flex; align-items: flex-start; gap: .5rem; margin-top: .7rem; font-size: .86rem; color: var(--text-secondary); cursor: pointer; }
@@ -455,7 +455,7 @@ select {
 .result-kpi-value {
   font-size: 1.35rem;
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: var(--text);
   line-height: 1.2;
 }
@@ -504,7 +504,7 @@ select {
   border-radius: 4px;
   font-size: .72rem;
   font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 .dist-rect     { background: var(--accent-light);   color: var(--accent); }
 .dist-normal   { background: var(--success-light);  color: var(--success); }
@@ -534,7 +534,7 @@ select {
 .stat-value {
   font-size: .95rem;
   font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: var(--text);
 }
 
@@ -544,7 +544,7 @@ select {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: .6rem 1rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: .82rem;
   color: var(--text-secondary);
   margin: .5rem 0;

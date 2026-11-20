@@ -104,6 +104,8 @@
     document.querySelectorAll('.tab-panel').forEach(panel => {
       panel.classList.toggle('active', panel.id === 'tab-' + tabName);
     });
+    // P16: qobiq (src/ui/shell/app.js) — chap menyu, stepper va joylashuv yo'li shu hodisadan yangilanadi
+    document.dispatchEvent(new CustomEvent('tabchange', { detail: { tab: tabName } }));
   };
 
   // Yagona escape: src/ui/escape.js (P02)
@@ -336,8 +338,9 @@
 
   function initSidebar() {
     // Sidebar toggle
-    document.getElementById('btn-sidebar-toggle').addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+    document.getElementById('btn-sidebar-toggle').addEventListener('click', e => {
+      const collapsed = sidebar.classList.toggle('collapsed');
+      e.currentTarget.setAttribute('aria-expanded', String(!collapsed));
     });
 
     // Apply n button

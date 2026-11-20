@@ -4,90 +4,54 @@
 ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Accent */
-  --accent:          #4f8ef7;
-  --accent-hover:    #3a7ae8;
-  --accent-light:    rgba(79, 142, 247, 0.12);
-  --accent-border:   rgba(79, 142, 247, 0.35);
+  /* P16: bu fayldagi nomlar — src/css/tokens.css dagi tokenlarning TAXALLUSLARI (eski CSS o'zgarmasdan ishlashi uchun).
+     Yangi qiymat faqat tokens.css ga qo'shiladi. */
+  --accent:          var(--c-blue);
+  --accent-hover:    var(--c-blue);
+  --accent-light:    var(--c-blue-soft);
+  --accent-border:   var(--c-blue-line);
 
-  /* Success / Warning / Danger */
-  --success:         #34c77b;
-  --success-light:   rgba(52, 199, 123, 0.12);
-  --warning:         #f5a623;
-  --warning-light:   rgba(245, 166, 35, 0.12);
-  --danger:          #e8495a;
-  --danger-light:    rgba(232, 73, 90, 0.12);
+  --success:         var(--c-green);
+  --success-light:   var(--c-green-soft);
+  --warning:         var(--c-amber);
+  --warning-light:   var(--c-amber-soft);
+  --danger:          var(--c-red);
+  --danger-light:    var(--c-red-soft);
 
-  /* Transitions */
-  --transition:      0.22s cubic-bezier(.4,0,.2,1);
-  --radius:          10px;
-  --radius-sm:       6px;
-  --radius-lg:       16px;
+  --transition:      var(--t-base) var(--ease);
+  --radius:          var(--r-button);
+  --radius-sm:       var(--r-control);
+  --radius-lg:       var(--r-card);
 
-  /* Shadows */
-  --shadow-sm:       0 1px 3px rgba(0,0,0,.18);
-  --shadow:          0 4px 16px rgba(0,0,0,.22);
-  --shadow-lg:       0 12px 40px rgba(0,0,0,.32);
-}
+  /* Soya faqat asosiy natija kartasida (tokens.css) — qolgan joylarda yo'q */
+  --shadow-sm:       none;
+  --shadow:          none;
+  --shadow-lg:       none;
 
-/* ─── DARK THEME (default) ─────────────────────────── */
-[data-theme="dark"] {
-  color-scheme: dark;
+  --bg:              var(--c-bg);
+  --bg-secondary:    var(--c-surface);
+  --bg-tertiary:     var(--c-blue-soft);
+  --bg-hover:        var(--c-blue-soft);
+  --bg-card:         var(--c-surface);
+  --bg-input:        var(--c-sunken);
 
-  --bg:              #1e2235;
-  --bg-secondary:    #252a40;
-  --bg-tertiary:     #2d3350;
-  --bg-hover:        #333a56;
-  --bg-card:         #252a40;
-  --bg-input:        #1a1f32;
+  --border:          var(--c-border-strong);
+  --border-light:    var(--c-border);
 
-  --border:          #3a4060;
-  --border-light:    #2d3350;
+  --text:            var(--c-text);
+  --text-secondary:  var(--c-text-2);
+  --text-muted:      var(--c-text-3);
 
-  --text:            #e4e8f5;
-  --text-secondary:  #a8b3cc;
-  --text-muted:      #6b7899;
+  --sidebar-bg:      var(--c-surface);
+  --topbar-bg:       var(--c-surface);
+  --topbar-border:   var(--c-border);
 
-  --sidebar-bg:      #1a1f32;
-  --topbar-bg:       #1a1f32;
-  --topbar-border:   #2d3350;
+  --table-header:    var(--c-blue-soft);
+  --table-row-alt:   transparent;
+  --table-border:    var(--c-border);
 
-  --table-header:    #2d3350;
-  --table-row-alt:   rgba(255,255,255,0.025);
-  --table-border:    #2d3350;
-
-  --scrollbar-track: #1a1f32;
-  --scrollbar-thumb: #3a4060;
-}
-
-/* ─── LIGHT THEME ───────────────────────────────────── */
-[data-theme="light"] {
-  color-scheme: light;
-
-  --bg:              #f5f7fa;
-  --bg-secondary:    #ffffff;
-  --bg-tertiary:     #eef0f5;
-  --bg-hover:        #e8ecf4;
-  --bg-card:         #ffffff;
-  --bg-input:        #ffffff;
-
-  --border:          #dde1ec;
-  --border-light:    #eaecf4;
-
-  --text:            #1a2038;
-  --text-secondary:  #4a5578;
-  --text-muted:      #8891a8;
-
-  --sidebar-bg:      #ffffff;
-  --topbar-bg:       #ffffff;
-  --topbar-border:   #e4e8f0;
-
-  --table-header:    #eef0f7;
-  --table-row-alt:   rgba(0,0,0,0.022);
-  --table-border:    #dde1ec;
-
-  --scrollbar-track: #f0f2f8;
-  --scrollbar-thumb: #c8cede;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--c-border-strong);
 }
 
 /* ─── BASE RESET ────────────────────────────────────── */
@@ -103,7 +67,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-text);
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
@@ -135,7 +99,7 @@ h3 { font-size: .95rem;  font-weight: 600; text-transform: uppercase; letter-spa
 .text-secondary{ color: var(--text-secondary); }
 .text-sm       { font-size: .875rem; }
 .text-xs       { font-size: .8rem; }
-.mono          { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+.mono          { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
 /* ─── UTILITY ───────────────────────────────────────── */
 .hidden  { display: none !important; }

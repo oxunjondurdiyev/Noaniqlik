@@ -17,7 +17,7 @@ test('vendor/SHA256SUMS.txt: har bir fayl xeshi mos; vendor/ dagi har bir .js / 
   for (const [hash, file] of sums) assert.equal(sha256('vendor/' + file), hash, file);
   const listed = new Set(sums.map(s => s[1]));
   const walk = dir => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap(d => (d.isDirectory() ? walk(dir + '/' + d.name) : [dir + '/' + d.name]));
-  for (const f of walk('vendor').map(f => f.replace(/^vendor\//, '')).filter(f => /\.(m?js)$/.test(f))) assert.ok(listed.has(f), 'ro\'yxatda yo\'q: ' + f);
+  for (const f of walk('vendor').map(f => f.replace(/^vendor\//, '')).filter(f => /\.(m?js|woff2)$/.test(f))) assert.ok(listed.has(f), 'ro\'yxatda yo\'q: ' + f);
 });
 
 test('SheetJS: rasmiy tarqatma, versiya ≥ 0.20.2 (CVE-2023-30533, CVE-2024-22363 tuzatilgan); npm `xlsx` bog\'liqligi yo\'q', () => {
@@ -65,4 +65,34 @@ test('vendor/README.md: har bir kutubxona versiyasi, litsenziyasi va SHA-256 bil
   for (const s of ['0.20.3', 'Apache-2.0', 'cdn.sheetjs.com', 'CVE-2023-30533', 'CVE-2024-22363', '2.0.4', 'MIT', '9.23.0']) assert.ok(md.includes(s), s);
   assert.ok(md.includes(sha256('vendor/sheetjs/0.20.3/xlsx.js')));
   assert.ok(md.includes(sha256('vendor/qrcode-generator/2.0.4/qrcode.js')));
+});
+
+/* P16: shriftlar o'z-o'zidan joylangan (SIL OFL), Google Fonts yo'q — foydalanuvchi IP si uchinchi tomonga ketmaydi */
+test('vendor/fonts: SIL OFL litsenziyasi, faqat lotin + kirill woff2; har biri tokens.css da ishlatilgan va README da xeshi bor', () => {
+  const md = read('vendor/README.md'), css = read('src/css/tokens.css');
+  const fonts = { inter: ['latin', 'cyrillic'], 'jetbrains-mono': ['latin', 'cyrillic'], 'space-grotesk': ['latin'] };
+  for (const [name, subsets] of Object.entries(fonts)) {
+    const dir = `vendor/fonts/${name}/5.3.0`;
+    assert.match(read(dir + '/LICENSE'), /SIL Open Font License, Version 1\.1/, name);
+    assert.deepEqual(fs.readdirSync(path.join(ROOT, dir)).filter(f => f.endsWith('.woff2')).sort(), subsets.map(s => `${name}-${s}-wght-normal.woff2`).sort(), name);
+    for (const s of subsets) {
+      const f = `${dir}/${name}-${s}-wght-normal.woff2`;
+      assert.equal(fs.readFileSync(path.join(ROOT, f)).subarray(0, 4).toString('latin1'), 'wOF2', f);
+      assert.ok(css.includes(`../../${f}`), 'tokens.css da yo\'q: ' + f);
+      assert.ok(md.includes(sha256(f)), 'README da xesh yo\'q: ' + f);
+    }
+  }
+  // tokens.css dagi har bir url() mavjud faylga ishora qiladi
+  for (const m of css.matchAll(/url\('([^')]+)'\)/g)) assert.ok(fs.existsSync(path.join(ROOT, 'src/css', m[1])), m[1]);
+});
+
+test('Google Fonts yo\'q: sahifalar, CSP va CSS da fonts.googleapis.com / fonts.gstatic.com uchramaydi', () => {
+  const walk = dir => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap(d => (d.isDirectory() ? walk(dir + '/' + d.name) : [dir + '/' + d.name]));
+  const files = [...fs.readdirSync(ROOT).filter(f => f.endsWith('.html')), ...walk('src').filter(f => /\.(css|js|html)$/.test(f))];
+  for (const f of files) assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(read(f)), f);
+  for (const page of fs.readdirSync(ROOT).filter(f => f.endsWith('.html'))) {
+    const csp = read(page).match(/Content-Security-Policy" content="([^"]+)"/)[1];
+    assert.match(csp, /font-src 'self'(;|$)/, page);
+    assert.ok(!/style-src[^;]*https?:/.test(csp), page + ': style-src da tashqi manba bo\'lmasin');
+  }
 });
