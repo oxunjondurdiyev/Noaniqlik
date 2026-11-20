@@ -58,6 +58,10 @@ export async function saveRegistry(store, rec, ctx = {}) {
   // savedBy — oxirgi saqlagan ROL (ism emas). 'guest' — tizimga kirmasdan (autentifikatsiyasiz) kiritilgan yozuv:
   // undan foydalangan hisobotda info topilma chiqadi (egasi qarori 2026-11-18; linter L1 / L2).
   const out = { ...rec, format: REGISTRY_RECORD_FORMAT, schema: REGISTRY_SCHEMA, version: ((prev && prev.version) || 0) + 1, updatedAt: at, savedBy: cleanRole(ctx.role) };
+  // P14 (egasi qarori S-4 a, 2026-11-20): AI qoralamasidan yaratilgan yozuv belgisi — FAQAT saqlash qatlamida va audit izida.
+  // Dvigatel (cleanStandard) bu maydonni bilmaydi va tashlaydi, shuning uchun belgi shu yerda oldingi yozuvdan olib o'tiladi:
+  // bir marta qo'yilgan belgi keyingi tahrirlarda ham saqlanadi (hisobga ta'sir qilmaydi).
+  if (ctx.origin === 'ai' || rec.origin === 'ai' || (prev && prev.origin === 'ai')) out.origin = 'ai'; else delete out.origin;
   return store.save(REGISTRY_STORE, out, { actor: cleanRole(ctx.role), reason: ctx.reason || `registry_${rec.kind}`, at, action: ctx.action });
 }
 

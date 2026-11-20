@@ -1,6 +1,7 @@
 # Ma'lum cheklovlar — yagona ro'yxat
 
-> **Holat:** `ENGINE_VERSION` 2.10.0, P13 (2026-11-19).
+> Ruscha nusxa: [KNOWN_LIMITATIONS.ru.md](KNOWN_LIMITATIONS.ru.md) (asosiy matn — o'zbekcha; farq bo'lsa shu hujjat amal qiladi).
+> **Holat:** `ENGINE_VERSION` 2.10.0, P14 (2026-11-20).
 > Bu ro'yxat yangi cheklov kiritmaydi — faqat yig'adi. Manbalar: `CLAUDE.md` ("Joriy holat bo'yicha eslatmalar"), `docs/RISKS.md`, `tests/cases/DISCREPANCIES.md`, `docs/VALIDATION_MATRIX.md`, `docs/LINTER_RULES.md` §4, `docs/PLAN.md`. Zid kelsa `CLAUDE.md` va `docs/RISKS.md` ustun.
 > ID lar barqaror: band yopilsa o'chirilmaydi — "yopildi" deb belgilanadi (sana va versiya bilan); yangi band oxiridan qo'shiladi.
 
@@ -195,9 +196,24 @@
 |---|---|---|---|---|
 | KL-170 | NIST Uncertainty Machine bilan o'zaro tekshiruv: `tests/crosscheck/num/` da 5 misol uchun kirish ma'lumotlari tayyor; natijalar — `pending` (egasi NUM da ishga tushiradi) | rejalashtirilgan (pending) | [VALIDATION_PLAN.md](VALIDATION_PLAN.md) §5 | solishtiruv hali bajarilmagan |
 | KL-171 | PTB TraCIM bilan o'zaro tekshiruv | rejalashtirilgan (qilinmagan) | `docs/PLAN.md` P13 | — |
-| KL-172 | AI yordamchi (P14, ixtiyoriy) | rejalashtirilgan | `docs/PLAN.md` P14 | — |
+| KL-172 | AI yordamchi (P14, ixtiyoriy) | yopildi | `docs/PLAN.md` P14 | P14 da amalga oshirildi (2026-11-20) — cheklovlari 15-bo'limda (KL-175 … KL-184) |
 | KL-173 | O'zbekistondagi server (P15): mustaqil qayta hisob, tasdiqlash, `/verify`, server audit, zaxira | rejalashtirilgan (hosting qaroridan keyin) | `docs/PLAN.md` P15 | — |
 | KL-174 | Mustaqil (tashqi) ko'rib chiqish | rejalashtirilgan | `docs/PLAN.md` P13 ("mustaqil ko'rib chiqish") | — |
+
+## 15. AI yordamchi (P14)
+
+| ID | Cheklov | Turi | Manba | Foydalanuvchiga ta'siri |
+|---|---|---|---|---|
+| KL-175 | AI yordamchi — ixtiyoriy, standart holatda o'chiq; AI hech narsa hisoblamaydi. "O'z kaliti" rejimida ma'lumot chet eldagi xizmatga (Anthropic) ketadi; nusxa-qo'y rejimida — foydalanuvchi o'zi tanlagan xizmatga | qoldiq xavf (egasi qarori) | `docs/AI_DESIGN.md` §11; `docs/RISKS.md` R-28 | Yuridik baho (O'RQ-547) laboratoriya / egasi tomonida; dastur faqat ogohlantiradi |
+| KL-176 | Foydalanuvchi yuklagan metodika / sertifikat matnidagi shaxs ismlarini dastur ishonchli topa olmaydi — faqat email, telefon, STIR ko'rinishidagi parchalar soni ko'rsatiladi; matn avtomatik tozalanmaydi | qoldiq xavf | `docs/AI_DESIGN.md` §4.3 | Hujjatni yuborishdan oldin foydalanuvchi o'zi tekshiradi |
+| KL-177 | Rasm / PDF dan o'qilgan sertifikat qiymatlarida manba parchasi dastur tomonidan tekshirilmaydi (faqat matnli kirishda tekshiriladi); nusxa-qo'y rejimida rasmni foydalanuvchi AI ga o'zi biriktiradi | qilinmagan | `docs/AI_DESIGN.md` §5 b, §13 (6) | Oynada ogohlantirish; har bir qiymat hujjat bilan qo'lda solishtiriladi |
+| KL-178 | MPE filtri kalit so'zlarga tayanadi (uz / ru / en) — to'liq kafolat emas; `specification` turidagi taklif ogohlantirish bilan ko'rsatiladi | tasdiq kutadi | `docs/AI_DESIGN.md` §13 (1); `docs/RISKS.md` R-28 | Ikkinchi himoya — linter X1; qaror foydalanuvchida |
+| KL-179 | AI tushuntirishi va bosma ilova faqat GUM hisobi uchun; regressiya, top-down, maxsus rejimlar, PT — ulanmagan | qilinmagan | `docs/AI_DESIGN.md` §13 (2), (3) | — |
+| KL-180 | Sertifikat sanasi faqat KK.OO.YYYY, KK/OO/YYYY, YYYY-OO-KK ko'rinishida qabul qilinadi; oy nomi bilan yozilgan sana rad etiladi | tasdiq kutadi | `docs/AI_DESIGN.md` §13 (4) | Sana qo'lda kiritiladi |
+| KL-181 | Brauzerdagi API kaliti (faqat `ai.html`, `sessionStorage`) XSS bo'lsa o'g'irlanishi mumkin; to'liq yechim — server orqali chaqiruv | rejalashtirilgan (P15 dan keyin) | `docs/AI_DESIGN.md` §9 | Kalit foydalanuvchining o'ziniki, oyna yopilganda o'chadi; asosiy sahifalarda kalit yo'q |
+| KL-182 | Haqiqiy AI xizmati bilan avtomatik test yo'q (CI da kalit yo'q) — faqat mock; Chromium da mock bilan tutun-testi o'tkazilgan; Firefox / Safari da AI oynasi qo'lda ko'rilmagan | ko'rilmagan | `docs/AI_DESIGN.md` §13 | — |
+| KL-183 | Prompt matni (a, b da hujjat bilan) "o'z kaliti" rejimida brauzer IndexedDB sidagi vaqtinchalik omborda 1 soatgacha turadi (eksportga va auditga kirmaydi; javob olingach o'chiriladi) | qoldiq xavf | `docs/AI_DESIGN.md` §13 (5) | — |
+| KL-184 | ISO/IEC 42001 repoda yo'q (pullik) — AI boshqaruviga oid bandlar tamoyil darajasida, iqtibossiz | unverified | `docs/AI_DESIGN.md` §10 | — |
 
 ---
 

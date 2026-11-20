@@ -451,6 +451,10 @@ const Results = (() => {
   }
 
   /* P08: regressiya yorlig'ida hisob bajarilgan bo'lsa, u umumiy hisobotga alohida sahifa bo'lib qo'shiladi */
+  /* P14: AI izohi — FAQAT foydalanuvchi tanlasa, alohida ichki ilova sifatida, "rasmiy emas" belgisi bilan.
+     AI moduli yuklanmagan bo'lsa (standart holat) — bo'sh. Hisob hujjati (uc-calc/1) va uning xeshiga kirmaydi. */
+  function aiAppendix() { return window.UCAINote && typeof window.UCAINote.appendixHTML === 'function' ? window.UCAINote.appendixHTML() : ''; }
+
   function regressionAppendix() {
     const rg = window.UCRegression && window.UCRegression.current();
     if (!rg || !rg.result || rg.result.error) return '';
@@ -525,7 +529,7 @@ const Results = (() => {
     const build = footer => Calc.buildReport({
       form: opt.form, lang: i18n.lang, env: fctx(), sections: sec(), requisites: opt.requisites, mode: 'GUM',
       ...(rows.length ? { rows, uniformK } : { result: r, snapshot: snap, mc }),
-      marksHTML: officialMarksHtml(statuses), noticeHTML: templateNotice(), extraHTML: regressionAppendix(), footer,
+      marksHTML: officialMarksHtml(statuses), noticeHTML: templateNotice(), extraHTML: regressionAppendix() + aiAppendix(), footer,
     });
     const tm = state.template || null;
     return show(build, 'gum', () => {

@@ -994,3 +994,12 @@ tr.row-bad td { background: color-mix(in srgb, var(--danger) 10%, transparent); 
 .val-facts dd { margin: 0; overflow-wrap: anywhere; }
 .val-list { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.7; }
 @media (max-width: 640px) { .val-facts { grid-template-columns: 1fr; } }
+
+/* P14: AI yordamchi — belgilar va alohida sahifa (ai.html) */
+.ai-badge { background: var(--warning); color: #000; font-size: .7rem; white-space: nowrap; }
+.ai-unofficial { border: 1px dashed var(--warning); color: var(--warning); padding: .35rem .6rem; border-radius: var(--radius); margin: .4rem 0; font-weight: 600; }
+.ai-menu { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0; }
+.tpl-st-ai { border: 1px dashed var(--warning); }
+.ai-own-page { max-width: 900px; margin: 2rem auto; padding: 0 1rem; display: flex; flex-direction: column; gap: .8rem; }
+.ai-own-page img { max-width: 100%; border: 1px solid var(--border); }
+[data-ai-open][hidden], .ai-own-page [hidden] { display: none !important; }

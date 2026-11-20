@@ -214,6 +214,8 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ## P14 — AI yordamchi (ixtiyoriy)
 
+> **Holat: bajarildi (2026-11-20, `feat/p14-ai-assistant`; ENGINE_VERSION o'zgarmagan — 2.10.0).** Loyiha hujjati `docs/AI_DESIGN.md` (egasi tasdiqlagan). `src/ai/` (ruxsat ro'yxati, prompt shablonlari, javob validatori), `src/ui/ai/` + `ai.html` ("o'z kaliti", alohida CSP), `AI_DRAFT` holati, audit, `aiEnabled` (standart o'chiq). Dvigatel va hisobot qatlami o'zgarmagan; 91 misol bit darajasida bir xil. Shu PR da R-27 dan: "Kim" maydoni — rol ro'yxati; FAQ va cheklovlarning ruscha nusxasi. Tasdiq kutadi — `docs/RISKS.md` R-28.
+
 - **Mazmun:** `docs/prompts` P13 bo'yicha (ISO/IEC 42001 tamoyillari). AI faqat tavsiya beradi (manba taklifi, linter topilmasini tushuntirish, shablon qoralamasi); hisoblash natijasini o'zgartirmaydi; har bir tavsiya foydalanuvchi tomonidan tasdiqlanadi va audit izida qayd etiladi.
 - **Nima buzilishi mumkin:** shaxsiy yoki mijoz ma'lumotlarining tashqi AI xizmatiga chiqib ketishi — shaxsiy ma'lumot yuborilmaydi, yuboriladigan ma'lumot foydalanuvchiga ko'rsatiladi.
 - **Qanday tekshiriladi:** AI o'chirilganda ham barcha funksiyalar ishlaydi; AI tavsiyasi tasdiqlanmaguncha hisobga kirmaydi.

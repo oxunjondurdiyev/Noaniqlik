@@ -29,6 +29,8 @@ export {
  *   criticalMode — U = 0, u_c = 0 yoki U < CMC bo'lgan natija: 'mark' (standart — hisobot aniq belgi bilan chiqadi) |
  *                  'block' (hisobot chop etilmaydi) (P05a, RISKS R-05). cmcMode: 'block' avvalgidek ishlaydi.
  *   westgardGate — Westgard 1₂s darvozasi (Westgard 1981, 1-rasm): true (standart) | false — qoidalar mustaqil (P11, W-4)
+ *   aiEnabled    — AI yordamchi (P14): false (standart) — AI kodi yuklanmaydi; faqat admin / superadmin / lokal guest yoqadi (canToggleAi)
+ *   aiModel      — "o'z kaliti" rejimidagi model nomi (docs/AI_DESIGN.md §9); nusxa-qo'y rejimida ishlatilmaydi
  *   expiryWarnDays — etalon amal qilish muddati tugashiga necha kun qolganda ogohlantirish (linter L1, info; P11) — standart 30
  */
 export const LAB_DEFAULTS = Object.freeze({
@@ -38,6 +40,8 @@ export const LAB_DEFAULTS = Object.freeze({
   mcMode: 'adaptive', mcNDig: 2, mcTolerance: 'delta5',
   expiryWarnDays: 30,
   westgardGate: true,
+  // P14 (egasi qarorlari 2026-11-20): AI yordamchi standart holatda O'CHIQ; standart model — hujjat tavsiyasi (S-2 a)
+  aiEnabled: false, aiModel: 'claude-opus-5-5',
 });
 export const LAB_SETTINGS_KEY = 'lab';
 
@@ -72,6 +76,11 @@ export function latestVersions(records) {
   }
   return [...by.values()];
 }
+// P14: AI yordamchi — audit izi va ai.html bilan almashinuv ombori (kalit HECH QACHON saqlanmaydi)
+export {
+  AI_ENTITY, AI_ACTIONS, AI_MODES, AI_EXCHANGE_STORE, AI_EXCHANGE_TTL_MS, canToggleAi, aiAudit, aiAuditTrail,
+  newExchangeId, putExchange, getExchange, removeExchange, purgeExchange,
+} from './ai.js';
 // P12: malaka sinovlari va usul validatsiyasi (IndexedDB v2 — `pt`, `validation` omborlari)
 export {
   PT_STORE, VALIDATION_STORE, QUALITY_SCHEMA, QUALITY_RECORD_FORMAT, EXCLUDE_ACTION, INCLUDE_ACTION, MIN_EXCLUDE_COMMENT as MIN_EXCLUDE_COMMENT_STORE,

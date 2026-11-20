@@ -414,3 +414,13 @@ Email maydoni hech qayerda yo'q. Hisob-faktura (`buildInvoiceHTML`) INN, F.I.Sh.
 - `superadmin.html` `onOrgsSnapshot` orqali **barcha** tashkilotlarni (INN, telefon, F.I.Sh., xesh) real vaqtda oladi.
 - `DB.exportAll()` — barcha tashkilot va xodimlarni qaytaradi.
 - Firestore xavfsizlik qoidalari (`firestore.rules`) repoda **yo'q**; `firebase-config.js:9` "Test mode" da ishga tushirishni tavsiya qiladi. Agar qoidalar haqiqatan ochiq bo'lsa, yuqoridagi barcha shaxsiy ma'lumotlar Internetdagi istalgan kishiga o'qish/yozish uchun ochiq (RISKS R-S1).
+
+> **P14 (2026-11-20) — AI yordamchi (ixtiyoriy, standart holatda o'chiq).** Batafsil — [AI_DESIGN.md](AI_DESIGN.md).
+>
+> | Qatlam | Fayllar | Eslatma |
+> |---|---|---|
+> | Sof | `src/ai/payload.js`, `prompts/index.js`, `response.js`, `transport-api.js`; `schemas/ai/*.json` | DOM, saqlash, tarmoq yo'q; dvigatel faqat tekshiruv uchun (`parseUnit`, `checkTemplate`) |
+> | Saqlash | `src/storage/ai.js` | audit (`entity: 'ai'`), `ai_exchange` ombori (IndexedDB v3; eksportga kirmaydi) |
+> | UI | `src/ui/ai-boot.js` (har doim), `src/ui/ai/*` (dinamik import), `ai.html` + `own-key.js`, `key.js` | tashqi chaqiruv faqat `ai.html` da (o'z CSP si) |
+>
+> Ma'lumot oqimi: hisob holati → `payload.js` (ruxsat ro'yxati) → prompt (to'liq ko'rsatiladi) → nusxa-qo'y yoki `ai.html` → javob → `response.js` (sxema, manba parchasi) → qoralama → foydalanuvchi tasdig'i → mavjud saqlash yo'li. `src/engine/` va `src/report/` AI qatlamini bilmaydi.

@@ -1,11 +1,12 @@
 # Akkreditatsiya eksperti uchun savol-javoblar
 
-> **Holat:** `ENGINE_VERSION` 2.10.0, P13 (2026-11-19).
+> Ruscha nusxa: [ASSESSOR_FAQ.ru.md](ASSESSOR_FAQ.ru.md) (asosiy matn — o'zbekcha; farq bo'lsa shu hujjat amal qiladi).
+> **Holat:** `ENGINE_VERSION` 2.10.0, P14 (2026-11-20).
 > Javoblar faqat repoda haqiqatan mavjud narsani tavsiflaydi; har birida tekshirish mumkin bo'lgan havola bor (kod fayli`::`funksiya, test fayli, misol ID si yoki hujjat bo'limi). Yo'q narsa "qilinmagan" yoki "rejalashtirilgan" deb yozilgan va [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) ga havola qilingan (KL-ID).
 > Savollarning bir qismi `docs/audit/gemini-audit-2026-11.md` §8.2 dagi "ekspert odatda beradigan savollar" dan olingan. O'sha hisobotdagi **javoblar va raqamlar** bu yerga ko'chirilmagan (ular unverified; bir qismi o'sha paytda mavjud bo'lmagan imkoniyatlarni tavsiflagan).
 > ISO/IEC 17025:2017 repoda yo'q (pullik) — uning bandlariga havolalar **(unverified)**; bu hujjat standart matnidan iqtibos keltirmaydi.
 
-Mundarija: [A. Validatsiya](#a-validatsiya-va-test-misollari) · [B. Hisob](#b-hisob-formulalar-yaxlitlash-k) · [C. Himoya qoidalari](#c-himoya-qoidalari-mpe-u--0-cmc-qaror-qoidasi) · [D. Monte-Karlo va brauzerlar](#d-monte-karlo-va-brauzerlar) · [E. Versiya va qayta tiklash](#e-versiya-ozgarishlar-qayta-tiklash) · [F. Ma'lumotlar va huquqlar](#f-malumotlar-va-kirish-huquqlari) · [G. Laboratoriya va cheklovlar](#g-laboratoriyaning-vazifasi-va-cheklovlar)
+Mundarija: [A. Validatsiya](#a-validatsiya-va-test-misollari) · [B. Hisob](#b-hisob-formulalar-yaxlitlash-k) · [C. Himoya qoidalari](#c-himoya-qoidalari-mpe-u--0-cmc-qaror-qoidasi) · [D. Monte-Karlo va brauzerlar](#d-monte-karlo-va-brauzerlar) · [E. Versiya va qayta tiklash](#e-versiya-ozgarishlar-qayta-tiklash) · [F. Ma'lumotlar va huquqlar](#f-malumotlar-va-kirish-huquqlari) · [G. Laboratoriya va cheklovlar](#g-laboratoriyaning-vazifasi-va-cheklovlar) · [H. AI yordamchi](#h-ai-yordamchi)
 
 ---
 
@@ -57,7 +58,7 @@ Standart qoida — `floor`: k = t_P(⌊ν_eff⌋), chegarasiz (katta ν_eff da h
 
 ### 11. Sezgirlik koeffitsiyentlari qanday hisoblanadi? Nochiziqli modelda xato bermaydimi?
 
-c_i — formulaning simvolik hosilasi (`src/engine/sensitivity.js::sensitivities`); sonli hosila faqat zaxira va o'zaro tekshiruv. c = 0 yoki NaN jimgina yutilmaydi — `c_zero` / `c_nan` topilmasi chiqadi. 2-tartibli hadlar (JCGM 100:2008 §5.1.2 Note) hisoblanadi (`secondOrderTerms`) — standartda diagnostika sifatida, `nonlinear` ogohlantirishi bilan; test: `tests/engine/second-order.test.js`, `jcgm100-h1-2nd` (GUM H.1.7). Cheklov: 2-tartibli hadlar faqat normal, korrelyatsiyasiz kirishlarda haqiqiy (KL-014). Mustaqil tekshiruv uchun Monte-Karlo bor (16–18-savollar).
+c_i — formulaning simvolik hosilasi (`src/engine/sensitivity.js::sensitivities`); sonli hosila faqat zaxira va o'zaro tekshiruv. c = 0 yoki NaN jimgina yutilmaydi — `c_zero` / `c_nan` topilmasi chiqadi. 2-tartibli hadlar (JCGM 100:2008 §5.1.2 Note) hisoblanadi (`secondOrderTerms`) — standartda diagnostika sifatida, `nonlinear` ogohlantirishi bilan; test: `tests/engine/second-order.test.js`, `jcgm100-h1-2nd` (GUM H.1.7). Cheklov: 2-tartibli hadlar faqat normal, korrelyatsiyasiz kirishlarda haqiqiy (KL-014). Mustaqil tekshiruv uchun Monte-Karlo bor (18–19-savollar).
 
 ### 12. Birliklar aralashib ketmaydimi?
 
@@ -174,3 +175,27 @@ Pullik standartlar repoga joylanmaydi (`docs/references/README.md`). Bunday funk
 ### 35. Dastur "ISO/IEC 17025 bo'yicha validatsiya qilingan" deb aytish mumkinmi?
 
 Yo'q — bunday da'vo qilinmaydi. Mavjud narsa: ishlab chiquvchi tomonidagi hujjatlashtirilgan tekshiruv (talablar, RTM, avtomatik testlar, validatsiya hisoboti, o'zgarishlarni boshqarish, ma'lum cheklovlar ro'yxati). Laboratoriya sharoitida foydalanishga yaroqlilikni laboratoriyaning o'zi PQ bilan tasdiqlaydi. ISO/IEC 17025:2017 matni repoda yo'q, shuning uchun uning bandlariga muvofiqlik bu paketda tekshirilmagan (KL-001). Mustaqil (tashqi) ko'rib chiqish — rejalashtirilgan (KL-174).
+
+---
+
+## H. AI yordamchi
+
+### 36. Dasturda sun'iy intellekt bormi? U natijaga ta'sir qiladimi?
+
+Ixtiyoriy AI yordamchi bor, standart holatda **o'chiq** (`LAB_DEFAULTS.aiEnabled: false`; faqat laboratoriya admini yoqadi, o'zgarish audit izida). U hisoblamaydi va natijani o'zgartirmaydi: y, u_c, ν_eff, k, U ni faqat deterministik dvigatel (`src/engine/`) hisoblaydi; dvigatel va hisobot qatlami AI kodini bilmaydi, dvigatel xeshi va `ENGINE_VERSION` P14 da o'zgarmagan (`tests/security/static.test.js`, `tests/ui/ai.test.js`). AI faqat qoralama va matn taklif qiladi: shablon qoralamasi, sertifikatdan reestr yozuvi qoralamasi, topilmalarni tushuntirish, e'tibordan chetda qolgan manbalar ro'yxati (qiymatsiz). O'chiq holatda AI kodi umuman yuklanmaydi. To'liq tavsif — `docs/AI_DESIGN.md`.
+
+### 37. AI qanday nazorat qilinadi? Uning xatosi hisobotga tushib qolmaydimi?
+
+- **Inson tasdig'i:** har bir taklif alohida tasdiqlanadi; "hammasini tasdiqlash" tugmasi yo'q (kalibrlash nuqtalarida — qator bo'yicha). Tasdiqlanmagan qiymat shablonga, reestrga va hisobga kirmaydi (`src/ai/response.js::applyNumbers`, `certificateToCalibration`).
+- **Raqam o'ylab topishga qarshi:** AI bergan har bir son manba parchasi bilan keladi; dastur parcha kirish matnida aynan borligini va son shu parchada uchrashini tekshiradi — aks holda qiymat rad etiladi (`evidenceProblem`; `tests/ai/response.test.js`). Rasmdan o'qilgan qiymatlarda bu tekshiruv yo'q — oynada ogohlantirish (KL-177).
+- **Ishonchsiz javob:** javob qat'iy JSON va sxema bo'yicha tekshiriladi; ortiqcha maydon, HTML / skript, mos kelmaydigan birlik, kalibrlanayotgan asbobning MPE sini manba qilish taklifi — rad etiladi.
+- **Belgilar:** AI qoralamasidan tuzilgan shablon `AI_DRAFT` holatida; u bilan bajarilgan hisob hisoboti "RASMIY EMAS" suv belgisi bilan chiqadi. `DRAFT` ga o'tkazish — metrolog izohi (≥ 10 belgi) bilan. AI izohi ekranda "AI izohi — rasmiy emas" belgisi bilan; bosma hisobotga faqat foydalanuvchi tanlasa, alohida ichki ilova sifatida. Sertifikat / protokolning rasmiy matni AI dan chiqmaydi.
+- **Audit:** har bir AI amali (tayyorlash, nusxalash / yuborish, javob, har bir tasdiq / rad) audit zanjirida: rol, rejim, model, prompt versiyasi, yuborilgan matn va javobning SHA-256 xeshi (`src/storage/ai.js::aiAudit`). Matnning o'zi auditga yozilmaydi.
+
+### 38. AI ga qanday ma'lumot yuboriladi? O'lchov natijalari va mijoz ma'lumotlari chiqib ketmaydimi?
+
+Faqat tuzilma, ruxsat ro'yxati bo'yicha: model formulasi, kattalik belgilari va birliklari, manba va taqsimot turlari, linter topilma kodlari, hissalar tartibi (raqamsiz). O'lchov qiymatlari, natijalar, yarim kengliklar, mijoz, shaxs ismlari, laboratoriya rekvizitlari, sertifikat va akkreditatsiya raqamlari, hisob ID si yuborilmaydi; yuboriladigan obyektda son tipidagi qiymat bo'la olmaydi (`src/ai/payload.js::assertAllowed`). Bu barcha manba misollarida (9 etalon nuqta bilan) va "kanareyka" qiymatlar bilan tekshirilgan (`tests/ai/payload.test.js`). Istisno — foydalanuvchi o'zi yuklagan metodika yoki sertifikat matni: u faqat alohida tasdiq belgisi bilan yuboriladi va unda shaxs ismlari bo'lishi mumkin (KL-176). Yuborishdan oldin to'liq matn har doim ko'rsatiladi.
+
+### 39. AI qaysi xizmatga ulanadi? Kalit qayerda saqlanadi?
+
+Ikki rejim. **Nusxa-qo'y** (asosiy): dastur tarmoqqa chiqmaydi — foydalanuvchi matnni nusxalab o'zi tanlagan AI ga qo'yadi va javobni qaytaradi. **O'z kaliti** (ixtiyoriy): alohida `ai.html` sahifasi foydalanuvchining o'z Anthropic API kaliti bilan `api.anthropic.com` ga murojaat qiladi; bu manzilga ruxsat faqat shu sahifaning CSP sida, asosiy sahifalar CSP si o'zgarmagan (`tests/security/ai-csp.test.js`). Kalit faqat shu oynaning `sessionStorage` ida, oyna yopilganda o'chadi; doimiy xotiraga, IndexedDB ga, eksportga, auditga yozilmaydi (`tests/ai/key.test.js`). Bu rejimda ma'lumot chet eldagi xizmatga ketadi — sahifada ogohlantirish bor; yuridik baho laboratoriya tomonida (KL-175). Haqiqiy xizmat bilan avtomatik test yo'q — faqat mock (KL-182).

@@ -280,7 +280,7 @@ function editorHTML(tpl) {
     <p class="text-xs text-muted">${esc(t('ed_role_note'))}</p>
     ${locked.length ? `<div class="tpl-banner-status">🔒 ${esc(t('ed_locked'))} <span class="mono text-xs">${esc(locked.join(', '))}</span></div>` : ''}
     <div class="tpl-ed-row">
-      <label>${esc(t('ed_by'))}<input type="text" id="ed-by" autocomplete="off" /></label>
+      <label>${esc(t('ed_by'))}${View.roleSelectHTML(sessionRole(), ctx())}</label>
       <label>${esc(t('ed_reason'))}<input type="text" id="ed-reason" autocomplete="off" /></label>
     </div>
     <div class="tpl-ed-row">
@@ -325,7 +325,7 @@ function openEditor(tpl, isNew = false) {
 
 /** Muharrirni joriy JSON bilan qayta chizish (saqlanmagan o'zgarishlar va "kim / sabab" maydonlari saqlanadi) */
 function redrawEditor(tpl) {
-  const by = ($('ed-by') || {}).value || '', reason = ($('ed-reason') || {}).value || '';
+  const by = edRole(), reason = ($('ed-reason') || {}).value || '';
   const base = editing.tpl, isNew = editing.isNew;
   openEditor(tpl, isNew);
   editing.tpl = base;                       // "saqlangan" holat o'zgarmaydi — applyEdit va holat o'tishlari shunga nisbatan
@@ -358,9 +358,19 @@ function showCheck(tpl) {
   return chk;
 }
 
+/* R-27 (6): "Kim" — rol ro'yxatidan (erkin matn yo'q); auditga faqat cleanRole dan o'tgan rol identifikatori yoziladi */
+function sessionRole() {
+  const s = window.AuthManager && window.AuthManager.getSession ? window.AuthManager.getSession() : null;
+  return Store.cleanRole(s && s.role);
+}
+function edRole() {
+  const el = $('ed-by');
+  return Store.cleanRole(View.editorRole(el ? el.value : sessionRole()));
+}
+
 async function persist(tpl, action, reason) {
   if (!db) { toast(t('st_no_idb'), 'error'); return false; }
-  await db.save('templates', tpl, { actor: ($('ed-by') || {}).value || '', reason, action });
+  await db.save('templates', tpl, { actor: edRole(), reason, action });
   locals = migrateLocals(await db.list('templates'));
   toast(t('ed_saved'), 'success');
   return true;
@@ -370,7 +380,7 @@ async function onEditorAction(e) {
   const btn = e.target.closest('[data-ed]');
   if (!btn || !editing) return;
   const act = btn.dataset.ed;
-  const by = ($('ed-by') || {}).value || '';
+  const by = edRole();
   const reason = (($('ed-reason') || {}).value || '').trim();
   if (act === 'close') { closeModal(); renderCatalog(); return; }
   if (act === 'export') { download(`${editing.tpl.id}-v${editing.tpl.version}.json`, JSON.stringify(editing.tpl, null, 2) + '\n'); return; }
@@ -398,6 +408,7 @@ async function onEditorAction(e) {
       if (rev && rev.by && rev.by === by) toast(t('ed_same_person'), 'info', 5000);
     }
     const r = Interp.transition(cur, to, { by, note: reason });
+    if (r.error === 'ai_draft_note_required') { toast(t('ed_to_ai_note'), 'error', 6000); return; }
     if (r.error) { toast(r.error + ': ' + r.detail, 'error'); return; }
     if (await persist(r.template, 'status:' + to, reason || to)) openEditor(r.template);
     return;
@@ -418,6 +429,9 @@ async function onEditorAction(e) {
 }
 
 /* ─── Laboratoriya sozlamalari ─── */
+/* P14: "o'z kaliti" rejimidagi model nomlari (docs/AI_DESIGN.md §9; src/ai/transport-api.js MODELS bilan bir xil —
+   tests/ai/key.test.js tekshiradi). Bu yerda takrorlangan: AI kodi faqat yoqilganda yuklanadi. */
+const AI_MODELS = ['claude-opus-5-5', 'claude-sonnet-5-5'];
 function labHTML(l) {
   const opt = (v, cur, label) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(label)}</option>`;
   return `
@@ -437,6 +451,9 @@ function labHTML(l) {
       <label>${esc(t('lab_mc_tolerance'))}<select id="lab-mcTolerance">${opt('delta5', l.mcTolerance, t('lab_mc_tol_delta5'))}${opt('delta', l.mcTolerance, t('lab_mc_tol_delta'))}</select></label>
       <label>${esc(t('lb_set_expiry_days'))}<input type="number" id="lab-expiryWarnDays" min="0" max="3650" step="1" value="${esc(l.expiryWarnDays)}" /></label>
     </div>
+    <label class="model-check"><input type="checkbox" id="lab-aiEnabled" ${l.aiEnabled === true ? 'checked' : ''} ${Store.canToggleAi(sessionRole()) ? '' : 'disabled'} /> <span>${esc(t('ai_set_enable'))}</span></label>
+    <div class="tpl-ed-row"><label>${esc(t('ai_set_model'))}<select id="lab-aiModel" ${Store.canToggleAi(sessionRole()) ? '' : 'disabled'}>${AI_MODELS.map(m => opt(m, l.aiModel, m)).join('')}</select></label></div>
+    <p class="text-xs text-muted">${esc(t('ai_set_hint'))}</p>
     <label class="model-check"><input type="checkbox" id="lab-secondOrder" ${l.secondOrder ? 'checked' : ''} /> <span>${esc(t('set_second_order'))}</span></label>
     <label class="model-check"><input type="checkbox" id="lab-westgardGate" ${l.westgardGate !== false ? 'checked' : ''} /> <span>${esc(t('lab_westgard_gate'))}</span></label>
     <p class="text-xs text-muted">${esc(t('lab_westgard_gate_hint'))}</p>
@@ -462,8 +479,15 @@ async function onLabAction(e) {
     westgardGate: $('lab-westgardGate').checked,   // W-4: Westgard 1₂s darvozasi (Westgard 1981, 1-rasm)
   };
   if (!db) { toast(t('st_no_idb'), 'error'); return; }
-  await Store.saveLabSettings(db, v, { reason: 'lab settings' });
+  // P14: AI ni faqat admin / superadmin / lokal guest yoqadi (xodim — avvalgi qiymat saqlanadi); o'zgarish audit izida
+  const canAi = Store.canToggleAi(sessionRole());
+  v.aiEnabled = canAi ? $('lab-aiEnabled').checked : labCache.aiEnabled === true;
+  v.aiModel = canAi && AI_MODELS.includes($('lab-aiModel').value) ? $('lab-aiModel').value : labCache.aiModel;
+  const aiChanged = v.aiEnabled !== (labCache.aiEnabled === true);
+  await Store.saveLabSettings(db, v, { reason: 'lab settings', actor: sessionRole() });
+  if (aiChanged) await Store.aiAudit(db, { action: v.aiEnabled ? 'ai_enable' : 'ai_disable', role: sessionRole() });
   labCache = await Store.getLabSettings(db);
+  document.dispatchEvent(new CustomEvent('uc:lab-settings', { detail: { aiEnabled: labCache.aiEnabled === true } }));
   toast(t('lab_saved'), 'success');
   closeModal();
 }
@@ -564,6 +588,8 @@ function bind() {
   });
   const modal = $('tpl-modal');
   if (modal) modal.addEventListener('click', e => { onEditorAction(e); onLabAction(e); onDataAction(e); });
+  // P14: AI oynasi qoralama shablon saqlaganda katalog yangilanadi
+  document.addEventListener('uc:templates-changed', async () => { if (db) { locals = migrateLocals(await db.list('templates')); renderCatalog(); } });
   const search = $('tpl-search');
   if (search) search.addEventListener('input', renderCatalog);
   const box = $('template-box');

@@ -107,3 +107,11 @@ Alohida tartib belgilanmagan — umumiy tartib (§2) qo'llanadi: branch, test, v
 ## 12. Laboratoriya tomoni
 
 Platformaning yangi versiyasi chiqqanda laboratoriya o'zi qaror qiladi, PQ ni takrorlash kerakmi: `CHANGELOG.md` dagi "natijaga ta'siri" bandi va bosma hisobotdagi versiya / build shu qaror uchun asos. Avvalgi hisobni qayta tekshirish — `uc-calc/1` faylini import qilib qayta hisoblash (`src/io/calc-json.js::reproduce`). Tavsiya etilgan shakl — [PQ_PROTOCOL_TEMPLATE.md](PQ_PROTOCOL_TEMPLATE.md).
+
+## 13. AI yordamchi (P14)
+
+- AI hisob zanjiriga kirmaydi: `src/engine/` va `src/report/` AI qatlamini bilmaydi (`tests/ui/ai.test.js`); AI bilan bog'liq o'zgarish `ENGINE_VERSION` ni oshirmaydi va `CHANGELOG.md` da **"ilova"** yozuvi sifatida qayd etiladi.
+- **Prompt shablonlari** (`src/ai/prompts/index.js`): har biri `id` + `version` (semver). Matn yoki qoida o'zgarsa — versiya oshadi, `CHANGELOG.md` ga yoziladi; audit izida har bir amal prompt `id` va versiyasi bilan qoladi.
+- **Javob sxemalari** (`schemas/ai/*.json`) va **ruxsat ro'yxati** (`src/ai/payload.js::PAYLOAD_SHAPES`) o'zgarishi — egasi tasdig'i bilan (`docs/AI_DESIGN.md` §4); yangi maydon qo'shilsa `tests/ai/payload.test.js` dagi "kanareyka" testi yangilanadi.
+- **Model nomi** — sozlama (`aiModel`); ro'yxat `src/ai/transport-api.js::MODELS`. API tafsilotlari (versiya sarlavhasi, model nomlari) o'zgarganda `docs/AI_DESIGN.md` §9 sana bilan yangilanadi.
+- ISO/IEC 42001 — **(unverified — hujjat repoda yo'q)**.

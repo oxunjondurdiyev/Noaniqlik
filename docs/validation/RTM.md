@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 314 |
-| Kamida bitta testga bog'langan | 302 |
-| ✅ verified | 251 |
+| Talablar | 329 |
+| Kamida bitta testga bog'langan | 317 |
+| ✅ verified | 266 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -415,4 +415,24 @@
 | REQ-VAL-007 | Brauzerlararo takrorlanuvchanlik (Chromium, Firefox, WebKit): hisobot qatlamida yaxlitlangan y, U, k, interval uchlari AYNAN bir xil; R(0, 1) ketma-ketligi bit darajasida bir xil; xom qiymatlarning nisbiy farqi ≤ 1·10⁻¹⁴ (o'lchangan qiymat hisobotda) | `tests/crossbrowser/run.js::compareRun`; `tests/crossbrowser/core.js::displayOf` | `tests/validation/crossbrowser.test.js` | ⚠️ verified (farq bilan) | Brauzerlardagi o'lchov — CI `validation` job (`npm run test:browsers`), natija validatsiya hisobotida. Shartlanganligi yomon hosila kattaliklar uchun istisnolar ro'yxati (`tests/crossbrowser/exceptions.json`) — egasi tasdig'ini kutadi (R-27 (1)). Safari (macOS / iOS) — qo'lda, PQ da. |
 | REQ-VAL-008 | NIST Uncertainty Machine bilan mustaqil o'zaro tekshiruv (5 ta vakil misol) | `tests/crosscheck/num/README.md` | `tests/validation/crosscheck.test.js` | ⏳ pending | Kirish ma'lumotlari tayyor; natijalarni egasi NUM da ishga tushirib beradi (`status: "owner-run"`). NUM qo'llanmasi PDF i repoda yo'q (unverified). |
 | REQ-VAL-009 | Foydalanuvchi qo'llanmasi (uz / ru / en) va validatsiya hujjatlari saytga skriptsiz statik HTML sifatida chiqadi (markdown → HTML, xom HTML o'tkazilmaydi) | `scripts/lib/markdown.js::renderMarkdown`; `scripts/lib/markdown.js::page` | `tests/build/markdown.test.js`; `tests/build/build-site.test.js` | ✅ verified | Uch til nusxalarining tuzilmasi bir xilligi — tests/build/markdown.test.js |
+
+## AIA — AI yordamchi (P14) va R-27 dan kod qismi
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-AIA-001 | AI hech narsa hisoblamaydi va natijani o'zgartirmaydi: `src/engine/` va `src/report/` AI qatlamini bilmaydi; javob sxemalarida natija maydoni yo'q; dvigatel xeshi va `ENGINE_VERSION` o'zgarmagan | `src/ai/response.js::parseResponse` | `tests/ui/ai.test.js`; `tests/ai/response.test.js`; `tests/security/static.test.js` | ✅ verified | — |
+| REQ-AIA-002 | AI o'chirilgan (standart: `aiEnabled: false`) holatda platforma to'liq ishlaydi; AI kodi faqat dinamik `import()` bilan, yoqilgandagina yuklanadi; yoqish — admin / superadmin / lokal guest, audit bilan | `src/ui/ai-boot.js`; `src/storage/ai.js::canToggleAi` | `tests/ui/ai.test.js`; `tests/storage/ai.test.js` | ✅ verified | — |
+| REQ-AIA-003 | Tashqariga faqat tuzilma ketadi (ruxsat ro'yxati): payload da son tipidagi qiymat, o'lchov qiymati, natija, mijoz, shaxs ismi, rekvizit, hisob ID / xesh, login bo'lmaydi; noma'lum kalit va shaxsiy ma'lumotga o'xshash matn rad etiladi; manba nomi yuborilmaydi | `src/ai/payload.js::assertAllowed`; `src/ai/payload.js::buildExplainPayload`; `src/ai/payload.js::buildSourceSuggestPayload` | `tests/ai/payload.test.js` | ✅ verified | — |
+| REQ-AIA-004 | Foydalanuvchi hujjati (metodika / sertifikat) faqat a va b funksiyalarda va alohida tasdiq belgisi bilan yuboriladi; yuborish / nusxalashdan oldin TO'LIQ matn ko'rsatiladi | `src/ai/payload.js::buildTemplateDraftPayload`; `src/ai/payload.js::previewPayload`; `src/ai/prompts/index.js::buildPrompt` | `tests/ai/payload.test.js`; `tests/ai/response.test.js`; `tests/ui/ai.test.js` | ✅ verified | — |
+| REQ-AIA-005 | AI javobi — ishonchsiz ma'lumot: qat'iy JSON, sxema (`additionalProperties: false`), hajm chegaralari; HTML / skript rad etiladi yoki escape qilinadi; `eval` / `Function` yo'q | `src/ai/response.js::extractJson`; `src/ai/response.js::parseResponse`; `src/ui/ai/view.js` | `tests/ai/response.test.js`; `tests/ui/ai.test.js`; `tests/ai/key.test.js` | ✅ verified | — |
+| REQ-AIA-006 | Har bir son manba parchasi bilan keladi; parcha kirish matnida aynan topilmasa yoki son parchada bo'lmasa — qiymat qabul qilinmaydi; tasdiqlanmagan son shablonga / reestrga kirmaydi; har bir qiymat alohida tasdiqlanadi (nuqtalarda — qator) | `src/ai/response.js::evidenceProblem`; `src/ai/response.js::applyNumbers`; `src/ai/response.js::certificateToCalibration` | `tests/ai/response.test.js`; `tests/ui/ai.test.js` | ✅ verified | — |
+| REQ-AIA-007 | AI qoralamasi shabloni `AI_DRAFT` holatida: faqat `DRAFT` ga, izoh (≥ 10 belgi) bilan; builtin shablonda taqiqlangan; u bilan hisobot — "RASMIY EMAS" | `src/templates/interpreter.js::transition`; `src/templates/interpreter.js::checkTemplate`; `src/ui/tpl/view.js::reportNoticeHTML` | `tests/ui/ai.test.js`; `tests/ai/response.test.js` | ✅ verified | — |
+| REQ-AIA-008 | Sertifikatdan reestr yozuvi: shaxs ismi uchun maydon yo'q, `cleanStandard` dan o'tadi; yozuvda `origin: 'ai'` (saqlash qatlamida, audit izida); k faraz qilinmaydi | `src/storage/registry.js::saveRegistry`; `src/ai/response.js::certificateToCalibration` | `tests/storage/ai.test.js`; `tests/ai/response.test.js` | ✅ verified | — |
+| REQ-AIA-009 | Manba taklifi faqat nom va tur — qiymatsiz; kalibrlanayotgan asbobning MPE si manba sifatida taklif qilinmaydi (filtr); birlik mos kelmasa manba rad etiladi | `src/ai/response.js::looksLikeMpe`; `src/ai/response.js::parseResponse` | `tests/ai/response.test.js` | ✅ verified | — |
+| REQ-AIA-010 | AI izohi ekranda "AI izohi — rasmiy emas" belgisi bilan; bosma hisobotga faqat foydalanuvchi tanlasa, alohida ichki ilova sifatida | `src/ui/ai/view.js::appendixHTML`; `src/ui/ai/view.js::explainBodyHTML` | `tests/ui/ai.test.js` | ✅ verified | — |
+| REQ-AIA-011 | API kaliti faqat `sessionStorage` da (ai.html); doimiy xotira, IndexedDB, eksport, audit va xato xabarlarida yo'q; "Kalitni o'chirish" tugmasi | `src/ui/ai/key.js::setKey`; `src/ui/ai/key.js::clearKey`; `src/storage/ai.js::putExchange`; `src/ai/transport-api.js::callApi` | `tests/ai/key.test.js`; `tests/storage/ai.test.js` | ✅ verified | Mock bilan; haqiqiy API chaqirilmaydi |
+| REQ-AIA-012 | Tashqi AI xizmatiga ulanish faqat `ai.html` da (o'z CSP si: `connect-src 'self' https://api.anthropic.com`); asosiy sahifalar CSP si o'zgarmagan; nusxa-qo'y rejimida tashqi so'rov yo'q | `src/ai/transport-api.js::buildApiRequest`; `src/ui/ai/own-key.js` | `tests/security/ai-csp.test.js`; `tests/ai/key.test.js` | ✅ verified | Mock bilan; haqiqiy API chaqirilmaydi |
+| REQ-AIA-013 | Har bir AI amali audit zanjirida: amal, rejim, model (api), prompt id + versiya, yuborilgan matn va javobning SHA-256 xeshi, rol; matnning o'zi, kalit va qiymat yozilmaydi | `src/storage/ai.js::aiAudit` | `tests/storage/ai.test.js` | ✅ verified | — |
+| REQ-AIA-014 | Prompt shablonlari versiyalangan (`id`, semver); javob sxemalari `schemas/ai/` da; barcha AI matnlari uch tilda | `src/ai/prompts/index.js::PROMPTS`; `src/js/i18n-ai.js` | `tests/ai/response.test.js`; `tests/i18n.test.js` | ✅ verified | — |
+| REQ-AIA-015 | Shablon muharriridagi "Kim" maydoni — rol ro'yxati (erkin matn yo'q); auditga faqat rol identifikatori yoziladi | `src/ui/tpl/view.js::roleSelectHTML`; `src/ui/tpl/view.js::editorRole` | `tests/ui/ai.test.js` | ✅ verified | — |
 

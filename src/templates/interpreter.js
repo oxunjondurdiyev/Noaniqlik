@@ -112,6 +112,8 @@ export function checkTemplate(tpl, schema, opts) {
   // P12: validationBasis (validatsiyadan raqamli asos) — faqat TOP_DOWN foydalanuvchi shablonida; builtin shablon raqamsiz qoladi
   if (tpl.validationBasis && !isTopDown(tpl)) errors.push('validationBasis: only for evaluationMode TOP_DOWN');
   if (tpl.validationBasis && opts && opts.builtin) errors.push('validationBasis: not allowed in builtin templates (numbers are never added to builtin templates)');
+  // P14: AI qoralamasi faqat foydalanuvchi shabloni bo'la oladi — ichki (builtin) shablonda taqiqlangan
+  if (tpl.status === 'AI_DRAFT' && opts && opts.builtin) errors.push('status AI_DRAFT: not allowed in builtin templates');
   if (isRegression(tpl)) return checkRegressionTemplate(tpl, errors, warnings);
   if (isTopDown(tpl)) return checkTopDownTemplate(tpl, errors, warnings);
   if (isSpecial(tpl)) return checkSpecialTemplate(tpl, errors, warnings);
@@ -929,7 +931,10 @@ export function evaluateTemplate(tpl, data = {}, opts = {}) {
 
 /* ─── Holat oqimi va versiyalash (muharrir uchun, sof) ─────────── */
 
-const NEXT = { DRAFT: ['REVIEWED'], REVIEWED: ['APPROVED', 'DRAFT'], APPROVED: ['RETIRED'], RETIRED: [] };
+/* P14: AI_DRAFT — AI yordamchi taklif qilgan qoralama (docs/AI_DESIGN.md §5a). Yagona chiqish yo'li — DRAFT (metrolog tasdig'i,
+   izoh ≥ AI_DRAFT_NOTE_MIN belgi; egasi qarori S-8, 2026-11-20); AI_DRAFT ga hech qaysi holatdan QAYTILMAYDI. */
+export const AI_DRAFT_NOTE_MIN = 10;
+const NEXT = { AI_DRAFT: ['DRAFT'], DRAFT: ['REVIEWED'], REVIEWED: ['APPROVED', 'DRAFT'], APPROVED: ['RETIRED'], RETIRED: [] };
 
 /** Ruxsat etilgan holat o'tishlari: DRAFT → REVIEWED → APPROVED (→ RETIRED); REVIEWED → DRAFT (qaytarish). */
 export function canTransition(from, to) {
@@ -939,6 +944,7 @@ export function canTransition(from, to) {
 /** Holatni o'zgartirish (yangi obyekt). APPROVED dan keyin tahrir — faqat newVersion orqali. */
 export function transition(tpl, to, { by = '', at = new Date().toISOString(), note = '' } = {}) {
   if (!canTransition(tpl.status, to)) return { error: 'bad_transition', detail: `${tpl.status} → ${to}` };
+  if (tpl.status === 'AI_DRAFT' && String(note || '').trim().length < AI_DRAFT_NOTE_MIN) return { error: 'ai_draft_note_required', detail: `>= ${AI_DRAFT_NOTE_MIN}` };
   const t = clone(tpl);
   t.status = to;
   if (to === 'APPROVED' && !t.locked) t.locked = [...DEFAULT_LOCKED];

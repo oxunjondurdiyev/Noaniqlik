@@ -406,3 +406,25 @@
 | REQ-VAL-007 | Brauzerlararo takrorlanuvchanlik (Chromium, Firefox, WebKit): hisobot qatlamida yaxlitlangan y, U, k, interval uchlari AYNAN bir xil; R(0, 1) ketma-ketligi bit darajasida bir xil; xom qiymatlarning nisbiy farqi ≤ 1·10⁻¹⁴ (o'lchangan qiymat hisobotda) | Egasi qarori B (2026-11-19), R-24 |
 | REQ-VAL-008 | NIST Uncertainty Machine bilan mustaqil o'zaro tekshiruv (5 ta vakil misol) | P13 topshirig'i §5 |
 | REQ-VAL-009 | Foydalanuvchi qo'llanmasi (uz / ru / en) va validatsiya hujjatlari saytga skriptsiz statik HTML sifatida chiqadi (markdown → HTML, xom HTML o'tkazilmaydi) | P13 topshirig'i §6 |
+
+## AIA — AI yordamchi (P14) va R-27 dan kod qismi
+
+> AI — ixtiyoriy, standart holatda o'chiq. Loyiha hujjati — `docs/AI_DESIGN.md`. ISO/IEC 42001 — **(unverified — hujjat repoda yo'q)**. Haqiqiy API bilan avtomatik test yo'q (CI da kalit yo'q) — faqat mock.
+
+| ID | Talab | Manba |
+|---|---|---|
+| REQ-AIA-001 | AI hech narsa hisoblamaydi va natijani o'zgartirmaydi: `src/engine/` va `src/report/` AI qatlamini bilmaydi; javob sxemalarida natija maydoni yo'q; dvigatel xeshi va `ENGINE_VERSION` o'zgarmagan | P14 topshirig'i, 1-tamoyil |
+| REQ-AIA-002 | AI o'chirilgan (standart: `aiEnabled: false`) holatda platforma to'liq ishlaydi; AI kodi faqat dinamik `import()` bilan, yoqilgandagina yuklanadi; yoqish — admin / superadmin / lokal guest, audit bilan | P14 topshirig'i, 3-tamoyil; egasi qarori S-6 (2026-11-20) |
+| REQ-AIA-003 | Tashqariga faqat tuzilma ketadi (ruxsat ro'yxati): payload da son tipidagi qiymat, o'lchov qiymati, natija, mijoz, shaxs ismi, rekvizit, hisob ID / xesh, login bo'lmaydi; noma'lum kalit va shaxsiy ma'lumotga o'xshash matn rad etiladi; manba nomi yuborilmaydi | Egasi qarori B (2026-11-19), S-1 (2026-11-20) |
+| REQ-AIA-004 | Foydalanuvchi hujjati (metodika / sertifikat) faqat a va b funksiyalarda va alohida tasdiq belgisi bilan yuboriladi; yuborish / nusxalashdan oldin TO'LIQ matn ko'rsatiladi | Egasi qarori B (2026-11-19) |
+| REQ-AIA-005 | AI javobi — ishonchsiz ma'lumot: qat'iy JSON, sxema (`additionalProperties: false`), hajm chegaralari; HTML / skript rad etiladi yoki escape qilinadi; `eval` / `Function` yo'q | P14 topshirig'i, 4-tamoyil |
+| REQ-AIA-006 | Har bir son manba parchasi bilan keladi; parcha kirish matnida aynan topilmasa yoki son parchada bo'lmasa — qiymat qabul qilinmaydi; tasdiqlanmagan son shablonga / reestrga kirmaydi; har bir qiymat alohida tasdiqlanadi (nuqtalarda — qator) | P14 topshirig'i §2 a, b; egasi qarori S-5 (2026-11-20) |
+| REQ-AIA-007 | AI qoralamasi shabloni `AI_DRAFT` holatida: faqat `DRAFT` ga, izoh (≥ 10 belgi) bilan; builtin shablonda taqiqlangan; u bilan hisobot — "RASMIY EMAS" | P14 topshirig'i §2 a; egasi qarori S-8 (2026-11-20) |
+| REQ-AIA-008 | Sertifikatdan reestr yozuvi: shaxs ismi uchun maydon yo'q, `cleanStandard` dan o'tadi; yozuvda `origin: 'ai'` (saqlash qatlamida, audit izida); k faraz qilinmaydi | P14 topshirig'i §2 b; egasi qarori S-4 (2026-11-20) |
+| REQ-AIA-009 | Manba taklifi faqat nom va tur — qiymatsiz; kalibrlanayotgan asbobning MPE si manba sifatida taklif qilinmaydi (filtr); birlik mos kelmasa manba rad etiladi | P14 topshirig'i §2 d; `CLAUDE.md` (MPE qoidasi) |
+| REQ-AIA-010 | AI izohi ekranda "AI izohi — rasmiy emas" belgisi bilan; bosma hisobotga faqat foydalanuvchi tanlasa, alohida ichki ilova sifatida | P14 topshirig'i §2 c |
+| REQ-AIA-011 | API kaliti faqat `sessionStorage` da (ai.html); doimiy xotira, IndexedDB, eksport, audit va xato xabarlarida yo'q; "Kalitni o'chirish" tugmasi | Egasi qarori A (2026-11-19) |
+| REQ-AIA-012 | Tashqi AI xizmatiga ulanish faqat `ai.html` da (o'z CSP si: `connect-src 'self' https://api.anthropic.com`); asosiy sahifalar CSP si o'zgarmagan; nusxa-qo'y rejimida tashqi so'rov yo'q | Egasi qarorlari A (2026-11-19), S-7 (2026-11-20) |
+| REQ-AIA-013 | Har bir AI amali audit zanjirida: amal, rejim, model (api), prompt id + versiya, yuborilgan matn va javobning SHA-256 xeshi, rol; matnning o'zi, kalit va qiymat yozilmaydi | P14 topshirig'i §3 |
+| REQ-AIA-014 | Prompt shablonlari versiyalangan (`id`, semver); javob sxemalari `schemas/ai/` da; barcha AI matnlari uch tilda | P14 topshirig'i §2; `CLAUDE.md` (i18n) |
+| REQ-AIA-015 | Shablon muharriridagi "Kim" maydoni — rol ro'yxati (erkin matn yo'q); auditga faqat rol identifikatori yoziladi | Egasi qarori R-27 (6) (b), 2026-11-20 |

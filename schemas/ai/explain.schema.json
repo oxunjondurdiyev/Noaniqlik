@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "uc-ai/explain/1",
+  "title": "AI: topilmalarni tushuntirish",
+  "description": "Oddiy tildagi izoh. Rasmiy emas. Son maydoni yo'q.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "summary",
+    "items"
+  ],
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "text"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

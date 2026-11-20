@@ -28,7 +28,7 @@
     "schemaVersion": { "const": "uc-template/1" },
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$", "maxLength": 64 },
     "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-    "status": { "enum": ["DRAFT", "REVIEWED", "APPROVED", "RETIRED"] },
+    "status": { "enum": ["AI_DRAFT", "DRAFT", "REVIEWED", "APPROVED", "RETIRED"] },
     "domain": { "enum": ["CALIBRATION", "TESTING"] },
     "section": { "enum": ["calibration", "construction", "food_chem", "electrical", "general"] },
     "field": { "type": "string" },
@@ -127,7 +127,7 @@
       "items": {
         "type": "object", "required": ["at", "status"], "additionalProperties": false,
         "properties": {
-          "at": { "type": "string" }, "status": { "enum": ["DRAFT", "REVIEWED", "APPROVED", "RETIRED"] },
+          "at": { "type": "string" }, "status": { "enum": ["AI_DRAFT", "DRAFT", "REVIEWED", "APPROVED", "RETIRED"] },
           "by": { "type": "string" }, "version": { "type": "string" }, "note": { "type": "string" }
         }
       }

@@ -16,6 +16,7 @@ export const STORES = Object.freeze({
   registries: 'id',              // etalonlar reestri va h.k. (P11)
   pt: 'id',                      // malaka sinovlari seriyalari (P12; IndexedDB v2)
   validation: 'id',              // usul validatsiyasi to'plamlari (P12; IndexedDB v2)
+  ai_exchange: 'id',             // P14: ai.html ("o'z kaliti" rejimi) bilan vaqtinchalik almashinuv (IndexedDB v3). Eksportga KIRMAYDI, auditga yozilmaydi
   audit: 'seq',                  // append-only (./audit.js)
   meta: 'key',                   // migratsiyalar holati va h.k.
 });
@@ -48,5 +49,7 @@ export class StorageAdapter {
   /** Eksport/import uchun xom yozuvlar (audit qo'shilmaydi) */
   async rawList(store) { return this.list(store); }
   async rawPutAll(store, records) { throw new Error('not_implemented'); }
+  /** Auditsiz o'chirish — faqat vaqtinchalik (eksport qilinmaydigan) omborlar uchun (P14: ai_exchange) */
+  async rawRemove(store, key) { throw new Error('not_implemented'); }
   async clearAll() { throw new Error('not_implemented'); }
 }

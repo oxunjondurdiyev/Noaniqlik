@@ -1,0 +1,210 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "uc-ai/template-draft/1",
+  "title": "AI: shablon qoralamasi",
+  "description": "Metodika matnidan shablon qoralamasi. Har bir son manba parchasi (quote) bilan; son tasdiqlanmaguncha shablonga kirmaydi. Hisob natijasi maydoni YO'Q.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "formula",
+    "measurand",
+    "inputs",
+    "sources",
+    "standards",
+    "notes"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "formula": {
+      "type": "string"
+    },
+    "measurand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "name",
+        "unit"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "symbol",
+          "name",
+          "unit",
+          "kind"
+        ],
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "observation",
+              "reference",
+              "influence",
+              "nominal"
+            ]
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input",
+          "name",
+          "kind",
+          "distribution",
+          "unit",
+          "halfWidth",
+          "k"
+        ],
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "certificate",
+              "specification",
+              "resolution",
+              "drift",
+              "environment",
+              "procedure",
+              "reference",
+              "sample_variability",
+              "other"
+            ]
+          },
+          "distribution": {
+            "enum": [
+              "normal",
+              "rect",
+              "triang",
+              "ushape",
+              "resol",
+              "trap",
+              "ctrap",
+              "exp",
+              "lognorm"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "halfWidth": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "quote",
+                  "section"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "quote": {
+                    "type": "string"
+                  },
+                  "section": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "k": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "quote",
+                  "section"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "quote": {
+                    "type": "string"
+                  },
+                  "section": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "standards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "clause",
+          "quote"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "clause": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
