@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    PROMPTS — AI yordamchi (P14) prompt shablonlari. SOF modul.
    Har bir shablon: { id, version (semver), fn, schemaId, rules }. Matn o'zgarsa `version` oshiriladi va
-   CHANGELOG.md ga "ilova" yozuvi qo'shiladi (docs/validation/CHANGE_CONTROL.md §7); audit izida id + versiya qoladi.
+   CHANGELOG.md ga "ilova" yozuvi qo'shiladi (docs/validation/CHANGE_CONTROL.md §13); audit izida id + versiya qoladi.
    Prompt = qat'iy ko'rsatmalar + ruxsat ro'yxatidan o'tgan payload (src/ai/payload.js) + javob sxemasi.
    Ko'rsatmalar ingliz tilida (model uchun); javob tili — payload.lang.
    Prompt matnida foydalanuvchi interfeysi matni yo'q — u faqat tashqi AI ga boradi va foydalanuvchiga

@@ -25,6 +25,7 @@ export function inputHTML(fn, ctx) {
     ${doc ? `<label>${ctx.esc(ctx.t('ai_doc_label'))}<textarea id="ai-doc" class="mono tpl-ed-json" spellcheck="false"></textarea></label>
       ${fn === 'certificate_extract' ? `<label>${ctx.esc(ctx.t('ai_doc_file'))} <input type="file" id="ai-file" accept="image/png,image/jpeg,image/webp,application/pdf" /></label>` : ''}
       <label class="model-check"><input type="checkbox" id="ai-consent" /> <span>${ctx.esc(ctx.t('ai_doc_consent'))}</span></label>` : ''}
+    <div id="ai-msg"></div>
     ${actions(btn('prepare', ctx.t('ai_prepare'), ctx, 'btn-primary') + btn('menu', ctx.t('ai_back'), ctx, 'btn-ghost'))}`;
 }
 

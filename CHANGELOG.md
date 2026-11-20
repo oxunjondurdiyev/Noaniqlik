@@ -4,6 +4,33 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## P14 — AI yordamchi (ilova; ixtiyoriy, standart holatda o'chiq) (2026-11-20)
+
+**ENGINE_VERSION o'zgarmadi (2.10.0): hisob natijalari o'zgarmagan.** `src/engine/` va `src/report/` ga tegilmagan — `tests/security/engine.sha256.json` o'zgarmagan. `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi asos (`f09e418`) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0). 9 ta etalon nuqta va 10-test o'zgarmagan. Bu — "ilova" yozuvi (`docs/validation/CHANGE_CONTROL.md` §13).
+
+### Qo'shilganlar
+
+- **AI yordamchi** (`docs/AI_DESIGN.md`, egasi tasdiqlagan): AI hech narsa hisoblamaydi va natijani o'zgartirmaydi; faqat qoralama va matn; har bir taklif inson tasdig'idan o'tadi. To'rt funksiya: metodika matnidan shablon qoralamasi, sertifikatdan reestr yozuvi qoralamasi, topilmalarni tushuntirish, manba taklifi (qiymatsiz).
+- **Ma'lumot siyosati:** tashqariga faqat tuzilma (`src/ai/payload.js` — ruxsat ro'yxati; payload da son tipidagi qiymat bo'lmaydi). Yuboriladigan to'liq matn har doim ko'rsatiladi.
+- **Ikki rejim:** nusxa-qo'y (tarmoq chaqiruvi va kalit yo'q) va "o'z kaliti" — alohida `ai.html` sahifasi (o'z CSP si; asosiy sahifalar CSP si o'zgarmagan). Kalit faqat `sessionStorage` da.
+- **Prompt shablonlari** (versiya 1.0.0): `uc-ai/explain`, `uc-ai/source_suggest`, `uc-ai/template_draft`, `uc-ai/certificate_extract`; javob sxemalari — `schemas/ai/`.
+- **Shablon holati `AI_DRAFT`** (faqat `DRAFT` ga, izoh ≥ 10 belgi bilan; builtin da taqiqlangan; u bilan hisobot — "RASMIY EMAS").
+- **Audit:** har bir AI amali xesh zanjirida (faqat xeshlar va kodlar; matn, kalit, qiymat yozilmaydi).
+- **Laboratoriya sozlamalari:** `aiEnabled` (standart `false`), `aiModel` (`claude-opus-5-5`).
+- **R-27 dan:** shablon muharriridagi "Kim" maydoni — rol ro'yxati; `ASSESSOR_FAQ.ru.md`, `KNOWN_LIMITATIONS.ru.md` (ruscha nusxa).
+
+### O'zgarganlar
+
+- IndexedDB **v2 → v3**: `ai_exchange` ombori (vaqtinchalik; eksportga kirmaydi). Mavjud ma'lumot o'zgarmaydi (faqat yo'q ombor yaratiladi).
+- Reestr yozuvida ixtiyoriy `origin: 'ai'` (saqlash qatlamida; hisobga ta'sir qilmaydi).
+- `schemas/methodology.schema.json`: `status` ro'yxatiga `AI_DRAFT` qo'shildi (mavjud shablonlar o'zgarmagan).
+- Shablon auditida `actor` endi faqat rol identifikatori (avval — erkin matn).
+- `docs/validation/ASSESSOR_FAQ.md` 11-savol: Monte-Karlo savollariga havola tuzatildi (16–18 → 18–19).
+
+### Egasi qarorini kutadi
+
+`docs/RISKS.md` R-28: MPE filtri (kalit so'zlar; `specification` — ogohlantirish bilan), tushuntirish faqat GUM uchun, sertifikat sanasi ko'rinishlari, almashinuv yozuvi muddati (1 soat), `fallbacks` qo'shilmagani.
+
 ## P13 — validatsiya paketi, versiyalangan deploy, brauzerlararo tekshiruv (2026-11-19)
 
 **ENGINE_VERSION o'zgarmadi (2.10.0): hisob natijalari o'zgarmagan.** `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi (yaxlitlanmagan qiymatlar + hisobot qatlamidagi ko'rinish) P12 holati (`e58913b`) bilan **bit darajasida bir xil** — `node scripts/cases-snapshot.js --compare`: "misollar: 91; bit darajasida bir xil: 91; farq qiladi: 0". 9 ta etalon Excel nuqtasi va 10-test o'zgarmadi. `src/report/` o'zgardi (hisobot pasti; `rounding.js` da faqat izoh) → dvigatel xeshi yangilandi (`tests/security/engine.sha256.json`).

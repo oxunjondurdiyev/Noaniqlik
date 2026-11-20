@@ -4006,5 +4006,188 @@
   ],
   "status": "verified",
   "note": "Uch til nusxalarining tuzilmasi bir xilligi — tests/build/markdown.test.js"
+ },
+ "REQ-AIA-001": {
+  "code": [
+   "src/ai/response.js::parseResponse"
+  ],
+  "tests": [
+   "tests/ui/ai.test.js",
+   "tests/ai/response.test.js",
+   "tests/security/static.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-002": {
+  "code": [
+   "src/ui/ai-boot.js",
+   "src/storage/ai.js::canToggleAi"
+  ],
+  "tests": [
+   "tests/ui/ai.test.js",
+   "tests/storage/ai.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-003": {
+  "code": [
+   "src/ai/payload.js::assertAllowed",
+   "src/ai/payload.js::buildExplainPayload",
+   "src/ai/payload.js::buildSourceSuggestPayload"
+  ],
+  "tests": [
+   "tests/ai/payload.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-004": {
+  "code": [
+   "src/ai/payload.js::buildTemplateDraftPayload",
+   "src/ai/payload.js::previewPayload",
+   "src/ai/prompts/index.js::buildPrompt"
+  ],
+  "tests": [
+   "tests/ai/payload.test.js",
+   "tests/ai/response.test.js",
+   "tests/ui/ai.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-005": {
+  "code": [
+   "src/ai/response.js::extractJson",
+   "src/ai/response.js::parseResponse",
+   "src/ui/ai/view.js"
+  ],
+  "tests": [
+   "tests/ai/response.test.js",
+   "tests/ui/ai.test.js",
+   "tests/ai/key.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-006": {
+  "code": [
+   "src/ai/response.js::evidenceProblem",
+   "src/ai/response.js::applyNumbers",
+   "src/ai/response.js::certificateToCalibration"
+  ],
+  "tests": [
+   "tests/ai/response.test.js",
+   "tests/ui/ai.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-007": {
+  "code": [
+   "src/templates/interpreter.js::transition",
+   "src/templates/interpreter.js::checkTemplate",
+   "src/ui/tpl/view.js::reportNoticeHTML"
+  ],
+  "tests": [
+   "tests/ui/ai.test.js",
+   "tests/ai/response.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-008": {
+  "code": [
+   "src/storage/registry.js::saveRegistry",
+   "src/ai/response.js::certificateToCalibration"
+  ],
+  "tests": [
+   "tests/storage/ai.test.js",
+   "tests/ai/response.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-009": {
+  "code": [
+   "src/ai/response.js::looksLikeMpe",
+   "src/ai/response.js::parseResponse"
+  ],
+  "tests": [
+   "tests/ai/response.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-010": {
+  "code": [
+   "src/ui/ai/view.js::appendixHTML",
+   "src/ui/ai/view.js::explainBodyHTML"
+  ],
+  "tests": [
+   "tests/ui/ai.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-011": {
+  "code": [
+   "src/ui/ai/key.js::setKey",
+   "src/ui/ai/key.js::clearKey",
+   "src/storage/ai.js::putExchange",
+   "src/ai/transport-api.js::callApi"
+  ],
+  "tests": [
+   "tests/ai/key.test.js",
+   "tests/storage/ai.test.js"
+  ],
+  "status": "verified",
+  "note": "Mock bilan; haqiqiy API chaqirilmaydi"
+ },
+ "REQ-AIA-012": {
+  "code": [
+   "src/ai/transport-api.js::buildApiRequest",
+   "src/ui/ai/own-key.js"
+  ],
+  "tests": [
+   "tests/security/ai-csp.test.js",
+   "tests/ai/key.test.js"
+  ],
+  "status": "verified",
+  "note": "Mock bilan; haqiqiy API chaqirilmaydi"
+ },
+ "REQ-AIA-013": {
+  "code": [
+   "src/storage/ai.js::aiAudit"
+  ],
+  "tests": [
+   "tests/storage/ai.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-014": {
+  "code": [
+   "src/ai/prompts/index.js::PROMPTS",
+   "src/js/i18n-ai.js"
+  ],
+  "tests": [
+   "tests/ai/response.test.js",
+   "tests/i18n.test.js"
+  ],
+  "status": "verified",
+  "note": ""
+ },
+ "REQ-AIA-015": {
+  "code": [
+   "src/ui/tpl/view.js::roleSelectHTML",
+   "src/ui/tpl/view.js::editorRole"
+  ],
+  "tests": [
+   "tests/ui/ai.test.js"
+  ],
+  "status": "verified",
+  "note": ""
  }
 }

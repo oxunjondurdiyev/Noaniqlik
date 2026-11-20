@@ -39,7 +39,8 @@
 | R-25 | Laboratoriya reestri (P11): loyiha qarorlarini egasi tasdiqladi (2026-11-18); NIST e-Handbook §6.3.2 va Westgard 1981 manbalari 2.8.1 da solishtirildi (`docs/references/nist-ehandbook-6.3.2/`, `westgard-1981-NOTES.md`) — **yopildi**; ochiq — faqat ISO/IEC 17025 §6.4–6.5, §7.7.1 (pullik) | O | P11 (ochiq: ISO/IEC 17025 — pullik) |
 | R-26 | PT va usul validatsiyasi (P12, 2.10.0): NIST misollari verified; **egasi qarorlari kiritildi (2026-11-19)** — PT chegaralari + 10⁻¹² tolerans, s_b² < 0 → 0, Grubbs, Cochran / LOD (unverified belgisi bilan), L3 (info, yoqildi), ν(s_I) Welch–Satterthwaite; ochiq — faqat manbalar (ISO 13528 / 5725-2 pullik; Eurachem PT Guide va Fitness for Purpose — egasi qo'shadi) | O | P12 (ochiq: manbalar — egasi) |
 | R-22 | Hisobot shakllari, qaror qoidasi, import/eksport: **build identifikatori — yopildi (P13: `build.json` + `?v=<sha>`; egasi Pages manbasini o'tkazadi — `docs/DEPLOY.md`)**; ochiq — ISO/IEC 17025 rekvizitlari, GOST ekvivalentligi | O | P05b, P13 |
-| R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), "Kim" maydoni va ruscha FAQ / cheklovlar (kod), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
+| R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
+| R-28 | AI yordamchi (P14): **amalga oshirildi, egasi qarorlari kiritildi (2026-11-20)**; AI hisoblamaydi, standart holatda o'chiq, tashqariga faqat tuzilma; tasdiq kutadi — MPE filtri, sana ko'rinishlari, almashinuv muddati; qoldiq — hujjatdagi shaxs ismlari, chet el xizmati (yuridik baho egasida), brauzerdagi kalit | O | P14 |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -339,15 +340,27 @@ Bajarilgan: vektor LPU (JCGM 102:2011 §6.2), qamrov sohasi (§6.5, §7.7.2, §7
 5. **Chiqishga xos sozlamalar** (MPE, qaror qoidasi) faqat `outputs[j].settings` orqali; umumiy `settings` dagi MPE vektor hisobda e'tiborga olinmaydi.
 6. **Ko'p o'lchovli t `nonNormalCorrelation: 'gaussian'` sozlamasidan ustun** (2.7.0 da MCM natijasi o'zgargan holat — CHANGELOG).
 
-### R-28. AI yordamchi (P14): xavflar va egasi qarorini kutadigan bandlar (O) — 2026-11-19
+### R-28. AI yordamchi (P14): xavflar, egasi qarorlari va tasdiq kutadigan bandlar (O) — 2026-11-20
 
-**Holat: loyiha hujjati tasdiq kutadi** — [AI_DESIGN.md](AI_DESIGN.md). Tasdiqgacha repoda faqat hujjat va sof `src/ai/payload.js` (+ `tests/ai/payload.test.js`); UI, prompt shablonlari, javob validatori, API chaqiruvi va CSP o'zgarishi yozilmagan. `src/engine/` va `src/report/` o'zgarmagan (dvigatel xeshi va `ENGINE_VERSION` 2.10.0 — o'sha).
+**Holat: amalga oshirildi** (`feat/p14-ai-assistant`); loyiha hujjati — [AI_DESIGN.md](AI_DESIGN.md), egasi tasdiqlagan (2026-11-20). `src/engine/` va `src/report/` o'zgarmagan (dvigatel xeshi va `ENGINE_VERSION` 2.10.0 — o'sha); 91 ta misol asos (`f09e418`) bilan bit darajasida bir xil.
 
-Xavflar va nazorat (to'liq jadval — `AI_DESIGN.md` §6): gallyutsinatsiya (raqam faqat manba parchasi bilan, parcha kirish matnida tekshiriladi, alohida tasdiq); noto'g'ri birlik (shablon validatori, o'lchamlik, linter); yashirin tuzatma (AI ga natija yuborilmaydi, hisob faqat dvigatelda); to'qilgan havola; prompt injection (javob — faqat ma'lumot, qat'iy sxema); kalit sizishi (faqat `sessionStorage`); model versiyasi o'zgarishi (auditda model va prompt versiyasi); ma'lumot chiqib ketishi (ruxsat ro'yxati + qo'riqchi — `tests/ai/payload.test.js`: barcha GUM misollari va "kanareyka" qiymatlar).
+**Egasi qarorlari (2026-11-20):** S-1 (a) manba nomi yuborilmaydi; S-2 (a) standart model `claude-opus-5-5`, sozlamada `claude-sonnet-5-5`; S-3 ogohlantirish matni tasdiqlandi; S-4 (a) `origin: 'ai'` faqat saqlash qatlamida; S-5 (b) nuqtalarda "qatorni tasdiqlash", "hammasini" yo'q; S-6 (a) lokal `guest` yoqa oladi; S-7 (b) "o'z kaliti" — alohida `ai.html`, asosiy CSP o'zgarmagan; S-8 (a) `AI_DRAFT → DRAFT` izohi ≥ 10 belgi; S-9 PR asosiy branchga qaratildi.
 
-**Qoldiq xavf:** foydalanuvchi o'zi yuklagan metodika / sertifikat matnida shaxs ismi bo'lishi mumkin — dastur faqat ogohlantiradi (email, telefon, STIR ko'rinishidagi parchalar soni), ismlarni ishonchli topa olmaydi. "O'z kaliti" rejimida ma'lumot chet el xizmatiga ketadi — yuridik baho egasida (`docs/DATA_RESIDENCY.md`). Brauzerdagi kalit XSS da o'g'irlanishi mumkin — to'liq yechim server orqali chaqiruv (P15 dan keyin).
+Xavflar va nazorat (to'liq jadval — `AI_DESIGN.md` §6): gallyutsinatsiya (son faqat manba parchasi bilan; parcha kirish matnida tekshiriladi; alohida tasdiq); noto'g'ri birlik (shablon validatori, o'lchamlik); yashirin tuzatma (AI ga natija yuborilmaydi; hisob faqat dvigatelda); to'qilgan havola (standart faqat hujjatdagi parcha bilan); prompt injection (javob — faqat ma'lumot, qat'iy sxema, ortiqcha maydon rad); kalit sizishi (faqat `ai.html`, `sessionStorage`); model versiyasi (auditda model va prompt versiyasi); ma'lumot chiqib ketishi (ruxsat ro'yxati + qo'riqchi + kanareyka testlari).
 
-**Egasi qarorini kutadi** (variantlar — `AI_DESIGN.md` §13): S-1 manba nomini yuborish (hozir — yo'q, faqat `B1`, `B2` …); S-2 standart model; S-3 ogohlantirish matni; S-4 reestr yozuvidagi `source: 'ai'` belgisi (dvigatelga tegmasdan — saqlash qatlamida); S-5 "hammasini tasdiqlash"; S-6 `guest` rejimida yoqish; S-7 CSP (umumiy sahifa yoki alohida `ai.html`); S-8 `AI_DRAFT → DRAFT` izohi; S-9 asos branch (P13 hali birlashtirilmagan).
+**Qoldiq xavf:** foydalanuvchi yuklagan hujjatdagi shaxs ismlari (dastur faqat ogohlantiradi); "o'z kaliti" rejimida ma'lumot chet el xizmatiga ketadi — yuridik baho egasida (`docs/DATA_RESIDENCY.md`); brauzerdagi kalit XSS da o'g'irlanishi mumkin (to'liq yechim — server orqali chaqiruv, P15 dan keyin); rasmdan o'qilgan qiymatlarda manba parchasi tekshirilmaydi; prompt matni "o'z kaliti" rejimida 1 soatgacha IndexedDB da turadi.
+
+**Amalga oshirishda paydo bo'lgan loyiha qarorlari — egasi tasdig'ini kutadi** (`AI_DESIGN.md` §13):
+
+| # | Band | Hozirgi holat | Variantlar |
+|---|---|---|---|
+| 1 | MPE filtri | kalit so'zlar (uz / ru / en) bo'yicha rad; `kind: 'specification'` rad etilmaydi, ogohlantirish bilan ko'rsatiladi (etalon pasport xatosi — to'g'ri manba) | (a) shunday; (b) model turi `error` bo'lsa `specification` ham rad etiladi (etalon pasporti ham tushib qoladi); (c) foydalanuvchidan "qaysi kirish — kalibrlanayotgan asbob" so'raladi va faqat o'shanga rad |
+| 2 | Tushuntirish va bosma ilova | faqat GUM hisobi | (a) shunday; (b) regressiya / top-down / maxsus rejimlar ham ulanadi (keyingi PR) |
+| 3 | Sertifikat sanasi | faqat raqamli ko'rinishlar; oy nomi bilan — rad | (a) shunday; (b) oy nomlari (uz / ru / en) lug'ati qo'shiladi |
+| 4 | Almashinuv yozuvi muddati | 1 soat | (a) shunday; (b) qisqaroq (masalan 15 daqiqa) |
+| 5 | `fallbacks` (rad etilganda zaxira model) | qo'shilmagan (beta parametr) | (a) shunday; (b) qo'shiladi |
+
+**Qilinmagan:** server orqali chaqiruv; ilova ichida PDF matnini ajratish; real API bilan sinov (faqat mock); Firefox / Safari da qo'lda ko'rish.
 
 ### R-27. Validatsiya paketi (P13): egasi qarorini kutadigan bandlar (O) — 2026-11-19
 
@@ -375,7 +388,7 @@ Bajarilgan: `docs/validation/` (reja, talablar, RTM, o'zgarishlarni boshqarish, 
 | 3 | Joriy tolerans vaqtincha qabul; NUM natijalari kelgach o'lchangan tarqoqlik bilan qayta ko'riladi. |
 | 4 | **(a)** — `PAGES_DEPLOY = actions` o'zgaruvchisi bilan. |
 | 5 | Yangi semver qoidasi — `docs/validation/CHANGE_CONTROL.md` §1 (yaxlitlangan natija o'zgarsa — major); 2.10.0 dan keyin, retroaktiv emas. |
-| 6 | **(b)** — shablon muharriridagi "Kim" maydoni rol ro'yxatidan (`cleanRole`), erkin matn yo'q (kod — keyingi PR). |
+| 6 | **(b)** — shablon muharriridagi "Kim" maydoni rol ro'yxatidan (`cleanRole`), erkin matn yo'q. **Bajarildi (2026-11-20, P14 PR):** `src/ui/tpl/view.js::roleSelectHTML`, test `tests/ui/ai.test.js`. |
 | 7 | **(a)** — `manual` holati izoh bilan qoladi; mutatsiya testini avtomatlashtirish — keyinroq. |
 | — | Ruscha nusxa — faqat `ASSESSOR_FAQ.md` va `KNOWN_LIMITATIONS.md`. Safari — egasi qo'lda (PQ). PTB TraCIM va mustaqil tashqi ko'rib chiqish — rejada. |
 
@@ -386,7 +399,7 @@ Bajarilgan: `docs/validation/` (reja, talablar, RTM, o'zgarishlarni boshqarish, 
 
 **Ko'chirishda topilgan va tuzatilgan (ma'lumot uchun):** `CHANGELOG.md` da `## [2.7.0]` sarlavhasi avvalgi merge'da buzilgan edi — tiklandi (matn o'zgarmagan). `src/report/rounding.js` izohi: ILAC P14 yaxlitlash bandi §5.4 emas, **§5.3** (PDF bilan solishtirildi). Eski matritsadagi eskirgan holatlar (JCGM 102 / 106 / ILAC "PDF yo'q", Shewhart / Westgard "unverified") `CLAUDE.md` bo'yicha yangilandi.
 
-**Qilinmagan (P13):** PTB TraCIM bilan tekshiruv (rejalashtirilgan); validatsiya hujjatlarining ruscha nusxasi (ixtiyoriy edi); Safari; GitHub Actions `action` larini commit SHA bo'yicha qotirish; mustaqil tashqi ko'rib chiqish; saytdagi "Validatsiya" sahifasi va yig'ilgan sayt faqat Chromium da lokal ko'rildi (Firefox / WebKit — CI tutun-testi).
+**Qilinmagan (P13):** PTB TraCIM bilan tekshiruv (rejalashtirilgan); validatsiya hujjatlarining ruscha nusxasi — **`ASSESSOR_FAQ.ru.md` va `KNOWN_LIMITATIONS.ru.md` qo'shildi (2026-11-20)**, qolgan hujjatlar o'zbekcha; Safari; GitHub Actions `action` larini commit SHA bo'yicha qotirish; mustaqil tashqi ko'rib chiqish; saytdagi "Validatsiya" sahifasi va yig'ilgan sayt faqat Chromium da lokal ko'rildi (Firefox / WebKit — CI tutun-testi).
 
 ### R-26. PT va usul validatsiyasi: egasi qarorlari va tekshirilmagan qism (O) — P12 (2026-11-19, ENGINE 2.10.0)
 

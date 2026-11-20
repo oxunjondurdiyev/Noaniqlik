@@ -1,7 +1,7 @@
 # AI yordamchi (P14) — loyiha hujjati
 
-> **Holat: QORALAMA — egasi tasdig'ini kutadi (2026-11-19).** Tasdiqgacha repoda faqat shu hujjat va sof `src/ai/payload.js` (+ `tests/ai/payload.test.js`) bor; UI, prompt shablonlari, javob validatori, API chaqiruvi, CSP o'zgarishi — **yozilmagan**.
-> Zid kelsa `CLAUDE.md`, `docs/PLAN.md` va egasining javoblari ustun. Ochiq savollar — §13.
+> **Holat: egasi tasdiqlagan (2026-11-20); amalga oshirilgan** (`feat/p14-ai-assistant`). Qarorlar va ochiq bandlar — §13.
+> Zid kelsa `CLAUDE.md`, `docs/PLAN.md` va egasining javoblari ustun.
 > ISO/IEC 42001 — pullik, repoda yo'q: unga tayangan har bir band **(unverified)**, iqtibos keltirilmaydi.
 
 ## 1. Maqsad va qamrov
@@ -27,26 +27,31 @@ AI yordamchi — ixtiyoriy, standart holatda **o'chirilgan** qo'shimcha. U metro
 
 ```
 src/ai/                 SOF qism (DOM, window, saqlash, tarmoq yo'q; Node'da test qilinadi)
-  payload.js            yuboriladigan ma'lumotni yig'ish + qo'riqchi (allowlist)      ← YOZILGAN
-  prompts/*.js          prompt shablonlari: { id, version (semver), build(payload), responseSchemaId }
+  payload.js            yuboriladigan ma'lumotni yig'ish + qo'riqchi (allowlist)
+  prompts/index.js      prompt shablonlari: { id, version (semver), fn, schemaId, rules }; buildPrompt(payload, sxema)
   response.js           javob validatori: JSON parse → schemas/ai/*.json → mazmun tekshiruvlari (§6)
-  schema.js             JSON Schema ning ishlatiladigan qismi uchun kichik validator (kutubxonasiz)
-  transport-api.js      "o'z kaliti" rejimi: so'rov tanasini yig'ish (sof); fetch tashqaridan beriladi
-schemas/ai/*.json       javob sxemalari (har bir funksiya uchun)
-src/ui/ai/              DOM qismi: oyna, ko'rinish (preview), tasdiqlash ro'yxati, kalit maydoni
+  transport-api.js      "o'z kaliti" rejimi: so'rov tanasi va chaqiruv (fetch tashqaridan beriladi) — faqat ai.html zanjirida
+schemas/ai/*.json       javob sxemalari (har bir funksiya uchun; Anthropic structured outputs cheklovlariga mos)
+src/ui/ai-boot.js       har doim yuklanadigan YAGONA modul: aiEnabled ni o'qiydi, tugmani ko'rsatadi, oynani dinamik import() qiladi
+src/ui/ai/view.js       sof HTML quruvchilar (escape, belgilar)
+src/ui/ai/app.js        asosiy oynadagi kontroller (nusxa-qo'y; tarmoq chaqiruvi va kalit YO'Q)
+src/ui/ai/own-key.js    ai.html kontrolleri ("o'z kaliti")
+src/ui/ai/key.js        kalit — faqat sessionStorage
+ai.html                 alohida sahifa, o'z CSP si bilan (connect-src 'self' https://api.anthropic.com)
 src/js/i18n-ai.js       barcha matnlar uch tilda
-src/storage/ai-audit.js audit yozuvlari (mavjud xesh zanjiriga, §7)
+src/storage/ai.js       audit yozuvlari (mavjud xesh zanjiriga, §7) va `ai_exchange` ombori (IndexedDB v3)
 ```
 
-`src/ai/` dvigatelni **import qilmaydi** (natija obyektini argument sifatida oladi) va `src/engine/` uni import qilmaydi. `src/ui/ai/` — yagona kirish nuqtasi; uni faqat `aiEnabled` yoqilganda dinamik `import()` yuklaydi (test: AI o'chiq holatda `src/ai/` va `src/ui/ai/` modullari so'ralmaydi).
+`payload.js` va `prompts/` dvigatelni **import qilmaydi** (natija obyektini argument sifatida oladi). `response.js` dvigateldan faqat **tekshiruv** uchun birlik tahlilchisini (`parseUnit`) va shablon tekshiruvchisini (`checkTemplate`) ishlatadi — `evaluate` chaqirilmaydi. `src/engine/` va `src/report/` AI qatlamini bilmaydi (test). Javob sxemasi uchun mavjud `src/templates/validator.js` ishlatiladi (alohida validator yozilmadi). AI kodini faqat `src/ui/ai-boot.js` dagi dinamik `import()` yuklaydi — `aiEnabled` yoqilgan va tugma bosilganda (test: o'chiq holatda hech narsa yuklanmaydi).
 
 ### 3.1. Ikki rejim (egasi qarori A)
 
 | | **Nusxa-qo'y** (asosiy) | **O'z kaliti** (ixtiyoriy) |
 |---|---|---|
-| Tarmoq | **yo'q** (test: `fetch` chaqirilmaydi) | brauzer → `https://api.anthropic.com/v1/messages` |
+| Qayerda | asosiy ilova oynasi (har joyda) | **alohida `ai.html` sahifasi** (o'z CSP si; egasi qarori S-7 b) |
+| Tarmoq | **yo'q** (faqat o'z kelib chiqishidagi statik sxema fayllari; test) | brauzer → `https://api.anthropic.com/v1/messages` |
 | Kalit | yo'q | foydalanuvchining o'z Anthropic API kaliti, faqat `sessionStorage` |
-| Oqim | prompt ko'rsatiladi → "Nusxalash" → foydalanuvchi o'zi tanlagan AI ga qo'yadi → javob JSON ini ilovaga qaytarib qo'yadi | prompt ko'rsatiladi → "Yuborish" → javob avtomatik qabul qilinadi |
+| Oqim | prompt ko'rsatiladi → "Nusxalash" → foydalanuvchi o'zi tanlagan AI ga qo'yadi → javob JSON ini ilovaga qaytarib qo'yadi | asosiy oynada prompt tayyorlanadi → `ai_exchange` omboriga → `ai.html` da to'liq matn va ogohlantirish ko'rsatiladi → "Yuborish" → javob omborga → asosiy oynada "javobni olish" |
 | Rasm (b) | foydalanuvchi rasmni AI ga o'zi biriktiradi; ilova faqat matnli promptni beradi | rasm so'rovga biriktiriladi |
 | Model | noma'lum (auditda `mode: 'paste'`, model yozilmaydi) | sozlamadagi model (auditda nomi) |
 
@@ -125,14 +130,15 @@ Har ikki rejimda yuborish / nusxalashdan oldin **to'liq matn** ko'rsatiladi (`pr
 
 ### a) Shablon qoralamasi
 - Javob → `schemas/ai/template-draft.schema.json` → `schemas/methodology.schema.json` (mavjud `src/templates/validator.js`) → o'lchamlik tekshiruvi (P04 birliklar) → linter.
-- Yangi holat **`AI_DRAFT`** (sxemaga qo'shiladi): `AI_DRAFT → DRAFT` faqat metrolog tasdig'i bilan (admin; audit). `AI_DRAFT` dan to'g'ridan-to'g'ri `APPROVED` ga o'tish **yo'q** (`AI_DRAFT → DRAFT → REVIEWED → APPROVED` — mavjud zanjir). `AI_DRAFT` shablon bilan hisob — "RASMIY EMAS" suv belgisi. Builtin shablonda `AI_DRAFT` taqiqlangan (`validationBasis` kabi).
+- Yangi holat **`AI_DRAFT`** (sxemada): `AI_DRAFT → DRAFT` faqat metrolog tasdig'i va izoh (≥ 10 belgi; S-8 a) bilan, audit izida. Lokal rejimda rol cheklovi — ogohlantirish darajasida (shablon muharriridagi mavjud qoida). `AI_DRAFT` dan to'g'ridan-to'g'ri `APPROVED` ga o'tish **yo'q** (`AI_DRAFT → DRAFT → REVIEWED → APPROVED` — mavjud zanjir). `AI_DRAFT` shablon bilan hisob — "RASMIY EMAS" suv belgisi. Builtin shablonda `AI_DRAFT` taqiqlangan (`validationBasis` kabi).
 - **Har bir raqam** (`halfWidth`, `k`, `nu`, `settings.mpe` …) javobda `evidence: { quote, section }` bilan keladi. Dastur `quote` kirish matnida **aynan** borligini tekshiradi (bo'shliqlar normallashtirilgan holda) va raqamning o'zi shu parchada uchrashini tekshiradi; topilmasa — qiymat tashlanadi, maydon bo'sh qoladi. Foydalanuvchi har birini alohida tasdiqlaydi.
 - 1-to'lqin qoidasi saqlanadi: tasdiqlanmagan raqam shablonga yozilmaydi.
 
 ### b) Sertifikatdan reestr yozuvi
 - Ajratiladi: sertifikat raqami, kalibrlovchi **tashkilot** nomi, sana, amal qilish muddati, kuzatuvchanlik yo'li, nuqtalar (X, tuzatma, U, k). Har biri `evidence` (sahifa, parcha) bilan; matnli kirishda parcha tekshiriladi, rasmli kirishda parcha faqat foydalanuvchiga ko'rsatiladi (dastur tekshira olmaydi — oynada shunday yoziladi).
 - Tasdiqlanmagan maydon bo'sh qoladi. `k` berilmagan bo'lsa — bo'sh (2 deb faraz qilinmaydi — P11 qoidasi).
-- Javob sxemasida shaxs ismi uchun maydon **yo'q**; saqlashdan oldin `cleanStandard` (noma'lum maydonlar tashlanadi). Yozuvga `source: 'ai'` (yangi ixtiyoriy maydon, `cleanStandard` ga qo'shiladi — bu `src/engine/lab/` da; **§13, S-4**).
+- Javob sxemasida shaxs ismi uchun maydon **yo'q**; saqlashdan oldin `cleanStandard` (noma'lum maydonlar tashlanadi). Yozuvga `origin: 'ai'` belgisi **saqlash qatlamida** qo'yiladi (`saveRegistry(…, { origin: 'ai' })`) va keyingi tahrirlarda oldingi yozuvdan olib o'tiladi; dvigatel o'zgarmagan (S-4 a).
+- Nuqtalar — "qatorni tasdiqlash" (X, tuzatma, U, k birga; S-5 b); maydonlar — har biri alohida.
 - Saqlash — mavjud `saveRegistry` (rol: `employee` etalonni tahrirlay olmaydi).
 
 ### c) Tushuntirish
@@ -142,7 +148,7 @@ Har ikki rejimda yuborish / nusxalashdan oldin **to'liq matn** ko'rsatiladi (`pr
 
 ### d) Manba taklifi
 - Javob: `[{ input, name, kind, distribution?, why }]` — son maydoni sxemada yo'q. Qo'shilsa, manba **qiymatsiz** qo'shiladi (P11 interpolyatsiya manbasi kabi).
-- **MPE filtri:** `kind: 'specification'` va kirish kalibrlanayotgan asbobga tegishli bo'lsa, yoki nom / izohda MPE, "ruxsat etilgan xato", "допускаемая погрешность", "maximum permissible error", "klass" kabi belgilar bo'lsa — taklif ko'rsatilmaydi (kalibrlanayotgan asbobning MPE si manba emas — `CLAUDE.md`). Qolganlari uchun ham linter X1 amal qiladi.
+- **MPE filtri:** nom yoki izohda MPE, "ruxsat etilgan xato", "допускаемая погрешность", "maximum permissible error", "aniqlik klassi" kabi belgilar bo'lsa — taklif rad etiladi (kalibrlanayotgan asbobning MPE si manba emas — `CLAUDE.md`). `kind: 'specification'` ogohlantirish bilan ko'rsatiladi (§13, 1-band). Qolganlari uchun ham linter X1 amal qiladi.
 
 ## 6. Xavflar va nazorat
 
@@ -178,7 +184,7 @@ Yozuv `after`: `{ fn, mode: 'paste' | 'api', model (faqat api), promptId, prompt
 
 ## 8. Rollar va o'chirib qo'yish
 
-- Laboratoriya sozlamasi **`aiEnabled`** (`LAB_DEFAULTS`, standart `false`) va `aiModel`. Faqat `admin` / `superadmin` o'zgartiradi; lokal `guest` rejimida — P11 dagi kabi ogohlantirish darajasida (§13, S-6).
+- Laboratoriya sozlamasi **`aiEnabled`** (`LAB_DEFAULTS`, standart `false`) va `aiModel`. `admin` / `superadmin` va lokal `guest` o'zgartiradi (`canToggleAi`; S-6 a), `employee` — yo'q; o'zgarish audit izida (`ai_enable` / `ai_disable`).
 - `employee`: c va d dan foydalanadi; a va b qoralamasini tayyorlay oladi, lekin saqlash mavjud rol qoidalari bo'yicha (shablonni `DRAFT` ga o'tkazish va etalonni saqlash — admin).
 - O'chirilganda: menyu bandi ko'rinmaydi, modullar yuklanmaydi, kalit `sessionStorage` dan o'chiriladi.
 
@@ -205,9 +211,9 @@ Manba: platform.claude.com hujjatlari, **2026-11-19 da tekshirildi**.
 
 **Rad etilganda zaxira model** (`fallbacks`) — beta parametr; qo'shilmaydi: rad etilgan so'rov foydalanuvchiga ko'rsatiladi, u nusxa-qo'y rejimidan foydalanishi mumkin.
 
-**CSP:** `connect-src` ga faqat `https://api.anthropic.com` qo'shiladi (uchta HTML da ham; `tests/security/` tekshiradi). Eslatma: CSP `<meta>` da bo'lgani uchun u AI o'chiq holatda ham amal qiladi — ya'ni ruxsat doim bor, lekin uni ishlatadigan kod yuklanmaydi (§13, S-7).
+**CSP (S-7 b):** `https://api.anthropic.com` faqat **`ai.html`** ning CSP sida (`connect-src 'self' https://api.anthropic.com`). `index.html`, `admin.html`, `superadmin.html` CSP si P14 gacha bo'lgan holatda so'zma-so'z qolgan (`tests/security/ai-csp.test.js`). `ai.html` da Firebase yuklanmaydi; `referrer: no-referrer`.
 
-**Kalit:** `sessionStorage['uc_ai_key_v1']`; maydon `type="password"`, `autocomplete="off"`; "Kalitni o'chirish" tugmasi; `aiEnabled` o'chirilsa — o'chiriladi. `localStorage`, IndexedDB, Firebase, eksport, audit, konsol logi — **hech qachon**.
+**Kalit:** `sessionStorage['uc_ai_key_v1']` — faqat `ai.html` oynasida (asosiy sahifalarda kalit umuman bo'lmaydi); maydon `type="password"`, `autocomplete="off"`; "Kalitni o'chirish" tugmasi; `aiEnabled` o'chirilgan bo'lsa sahifa ochilganda o'chiriladi. `ai_exchange` yozuviga kalitga o'xshash matn yozib bo'lmaydi (`ai_exchange_key_forbidden`). `localStorage`, IndexedDB, Firebase, eksport, audit, konsol logi — **hech qachon**.
 
 ## 10. ISO/IEC 42001 tamoyillari bo'yicha (unverified)
 
@@ -227,32 +233,46 @@ Manba: platform.claude.com hujjatlari, **2026-11-19 da tekshirildi**.
 - "O'z kaliti" rejimida ma'lumot **chet eldagi xizmatga** (Anthropic) ketadi; nusxa-qo'y rejimida — foydalanuvchi o'zi tanlagan xizmatga. O'RQ-547 (O'RQ-1125 tahriri) bo'yicha **yuridik baho egasida** (`docs/DATA_RESIDENCY.md`); dastur ogohlantiradi va tasdiq so'raydi, yuridik xulosa bermaydi.
 - Yangi shaxsiy maydon hech qayerga yozilmaydi; Firebase'ga AI bilan bog'liq hech narsa yozilmaydi.
 
-Ogohlantirish matni (taklif — §13, S-3): *"Yuboriladigan matn Anthropic (AQSh) xizmatiga jo'natiladi va ushbu ilovadan tashqarida qayta ishlanadi. Matnda shaxsga doir ma'lumot bo'lmasligi kerak — hujjatni yuborishdan oldin tekshiring. Kalit faqat shu brauzer oynasida saqlanadi va oyna yopilganda o'chadi."*
+Ogohlantirish matni (egasi tasdiqlagan, 2026-11-20; `ai.html` da har doim ko'rinadi, uch tilda): *"Yuboriladigan matn Anthropic, PBC (AQSh) xizmatiga jo'natiladi va bu ilovadan tashqarida qayta ishlanadi. O'lchov qiymatlari, natijalar, mijoz va laboratoriya rekvizitlari avtomatik ravishda olib tashlanadi. Yuklagan hujjatingizda (sertifikat, metodika) shaxs ismlari bo'lsa, yuborishdan oldin o'chiring. Kalit faqat shu brauzer oynasida saqlanadi va oyna yopilganda o'chadi."*
 
 ## 12. Testlar va qabul mezonlari
 
 | Fayl | Nima isbotlanadi | Holat |
 |---|---|---|
 | `tests/ai/payload.test.js` | allowlist: barcha GUM misollari (9 etalon nuqta bilan) va kanareyka qiymatlar (o'lchov, natija, ism, mijoz, rekvizit, hisob ID, P11 / P12 yozuvlari) — payload da yo'q; payload da son yo'q; qo'riqchi; hujjat tasdig'i; modul sof | **yozilgan, yashil** |
-| `tests/ai/response.test.js` | noto'g'ri JSON, sxemaga mos emas, parcha yo'q raqam, birlik mos emas, MPE taklifi, HTML / skript | tasdiqdan keyin |
-| `tests/ai/key.test.js` | kalit faqat `sessionStorage` da; nusxa-qo'y rejimida `fetch` yo'q | tasdiqdan keyin |
-| `tests/security/` | CSP `connect-src` — faqat bitta yangi domen; inline skript yo'q; i18n uch tilda | tasdiqdan keyin |
-| mavjud UI testlari | AI o'chiq holatda o'zgarishsiz; AI modullari yuklanmaydi | tasdiqdan keyin |
+| `tests/ai/response.test.js` | noto'g'ri JSON, sxemaga mos emas, parcha yo'q raqam, birlik mos emas, MPE taklifi, HTML / skript; tasdiqlanmagan son kirmaydi | yashil |
+| `tests/ai/key.test.js` | kalit faqat `sessionStorage` da; asosiy sahifalar zanjirida tashqi manzil va transport yo'q; API so'rovi shakli; xatolarda kalit yo'q (mock) | yashil |
+| `tests/security/ai-csp.test.js` | asosiy CSP so'zma-so'z o'zgarmagan; `ai.html` da `connect-src` — bitta yangi domen; inline skript yo'q | yashil |
+| `tests/storage/ai.test.js` | audit — faqat xesh va kodlar; almashinuv ombori (kalitsiz, auditsiz, eksportsiz); `origin: 'ai'` | yashil |
+| `tests/ui/ai.test.js` | escape; belgilar; "hammasini tasdiqlash" yo'q; AI_DRAFT; "RASMIY EMAS"; rol ro'yxati; AI o'chiq — modullar yuklanmaydi | yashil |
+| mavjud testlar | AI o'chiq holatda o'zgarishsiz (bitta tasdiq o'zgardi: `DB_VERSION` 2 → 3) | yashil |
 
 Haqiqiy API ga test chaqiruvi yo'q (faqat mock). Qabul: `npm test` yashil; `engine.sha256.json` o'zgarmagan; `docs/validation/` (REQUIREMENTS, RTM, KNOWN_LIMITATIONS, ASSESSOR_FAQ), `CLAUDE.md`, `docs/RISKS.md` R-28, `CHANGELOG.md`, `docs/PLAN.md` yangilangan.
 
-## 13. Egasidan so'raladiganlar
+## 13. Egasi qarorlari (2026-11-20) va ochiq bandlar
 
-**Majburiy to'xtash nuqtasi: shu hujjat tasdig'i.** Quyidagilarga javob kerak (tavsiya birinchi turadi):
+Hujjat tasdiqlandi. Qarorlar:
 
-| # | Savol | Variantlar |
+| # | Savol | Qaror |
 |---|---|---|
-| S-1 | Manba **nomi** (erkin matn) c va d da yuborilsinmi? | **(a) yo'q — faqat `B1`, `B2` + tur va taqsimot** (hozir shunday); (b) foydalanuvchi har safar belgilasa — ha (ko'rinishda ko'radi); (c) har doim. (a) da d funksiya "bu manba allaqachon bor" ekanini faqat turidan biladi — takliflar biroz takrorlanishi mumkin. |
-| S-2 | Standart model | **(a) `claude-opus-5-5`** (hujjat tavsiyasi); (b) `claude-sonnet-5-5` (arzonroq, tezroq); (c) `claude-haiku-5-5`. Sozlamada o'zgartiriladi. |
-| S-3 | "O'z kaliti" ogohlantirish matni | §11 dagi matn — tasdiqlash yoki tahrir. |
-| S-4 | `source: 'ai'` belgisi reestr yozuvida | `cleanStandard` noma'lum maydonni tashlaydi va u `src/engine/lab/` da — **dvigatelga tegilmaydi** tamoyili bilan to'qnashadi. **(a) belgi faqat audit izida va saqlash qatlamida** (`src/storage/registry.js` yozuvga `origin: 'ai'` qo'shadi; dvigatel o'zgarmaydi; `cleanStandard` dan keyin o'qilsa belgi yo'qolmasligi uchun saqlash qatlami uni alohida olib o'tadi); (b) `cleanStandard` ga ixtiyoriy `source` maydoni qo'shiladi — natijaga ta'sir qilmaydi, lekin dvigatel xeshi o'zgaradi (ENGINE_VERSION patch). |
-| S-5 | "Hammasini tasdiqlash" tugmasi | **(a) yo'q** — har bir qiymat alohida (sertifikatda 20 nuqta bo'lsa — 80 ta bosish); (b) nuqtalar jadvali uchun "qatorni tasdiqlash" (X, tuzatma, U, k birga); (c) "hammasini". |
-| S-6 | Lokal `guest` rejimida AI ni yoqish | **(a) ruxsat, auditda `guest`** (P11 dagi kabi); (b) faqat tizimga kirgan admin. |
-| S-7 | CSP dagi `https://api.anthropic.com` | CSP `<meta>` da — AI o'chiq laboratoriyalarda ham ruxsat ochiq turadi (kod yuklanmaydi). **(a) qabul qilinadi**; (b) "o'z kaliti" rejimi alohida sahifada (`ai.html`, o'z CSP si bilan) — asosiy sahifalar CSP si o'zgarmaydi. |
-| S-8 | `AI_DRAFT → DRAFT` o'tkazishda izoh | **(a) majburiy izoh ≥ 10 belgi** (topilmani qabul qilish kabi); (b) izohsiz. |
-| S-9 | Asos branch | `claude/create-uncertainty-platform-y5EVM` da P13 **birlashtirilmagan** (PR ochilmagan; `feat/p13-validation-package` alohida turibdi). Bu branch P13 uchidan (`7a34766`) olingan. **(a) avval P13 birlashtiriladi, keyin shu PR asosiy branchga qaratiladi**; (b) boshqa tartib. |
+| S-1 | Manba nomi (erkin matn) c va d da yuborilsinmi? | **(a) yo'q** — faqat `B1`, `B2` … + tur va taqsimot. `includeSourceNames` UI da ishlatilmaydi |
+| S-2 | Standart model | **(a) `claude-opus-5-5`**; `claude-sonnet-5-5` — sozlamada (`aiModel`) |
+| S-3 | "O'z kaliti" ogohlantirish matni | §11 dagi matn (uch tilda — `ai_own_warning`) |
+| S-4 | Reestr yozuvidagi AI belgisi | **(a)** `origin: 'ai'` — faqat saqlash qatlamida (`src/storage/registry.js`) va audit izida; dvigatel (`cleanStandard`) o'zgarmagan |
+| S-5 | "Hammasini tasdiqlash" | **(b)** nuqtalar jadvalida "qatorni tasdiqlash"; "hammasini tasdiqlash" yo'q |
+| S-6 | Lokal `guest` rejimida AI ni yoqish | **(a)** ruxsat, auditda `guest`; `employee` yoqa olmaydi |
+| S-7 | CSP | **(b)** "o'z kaliti" rejimi alohida `ai.html` da, o'z CSP si bilan; asosiy sahifalar CSP si o'zgarmagan (test); qoralama va natija IndexedDB (`ai_exchange`) orqali almashinadi; nusxa-qo'y rejimi hamma joyda |
+| S-8 | `AI_DRAFT → DRAFT` izohi | **(a)** majburiy, ≥ 10 belgi |
+| S-9 | Asos branch | PR #30 `claude/create-uncertainty-platform-y5EVM` ga qaratildi, rebase qilindi |
+
+**Amalga oshirishda paydo bo'lgan loyiha qarorlari — egasi tasdig'ini kutadi (`docs/RISKS.md` R-28):**
+
+1. **MPE filtri (d va a).** Kalit so'zlar bo'yicha (uz / ru / en: MPE, "ruxsat etilgan xato", "допускаемая погрешность", "accuracy class" …) — taklif rad etiladi. `kind: 'specification'` ning o'zi rad etilmaydi (etalonning pasport xatosi — to'g'ri manba, etalon misollarda ham bor), lekin ogohlantirish bilan ko'rsatiladi: "bu kalibrlanayotgan asbobning o'z MPE si bo'lmasligi kerak". Filtr til bilimiga tayanadi — to'liq kafolat emas; ikkinchi himoya — linter X1.
+2. **c) tushuntirish faqat GUM hisobi uchun** (joriy holat va uning natijasi). Regressiya, top-down, maxsus rejimlar, PT — keyingi bosqich (payload quruvchisi ularni holatsiz qo'llaydi, UI ulanmagan).
+3. **Bosma ilova faqat GUM hisobotida**; hisob o'zgarsa tanlov bekor bo'ladi (eski izoh boshqa hisobga yopishmasin).
+4. **Sana tekshiruvi:** sertifikat sanasi faqat `KK.OO.YYYY`, `KK/OO/YYYY`, `YYYY-OO-KK` ko'rinishida qabul qilinadi; oy nomi bilan yozilgan sana rad etiladi (taxmin qilinmaydi) — foydalanuvchi qo'lda kiritadi.
+5. **Almashinuv yozuvi** (`ai_exchange`) 1 soat yashaydi; prompt matni (hujjat bilan) shu muddat davomida brauzer IndexedDB sida turadi (eksportga va auditga kirmaydi; olingach o'chiriladi).
+6. **Nusxa-qo'y rejimida rasm:** ilova faqat matnli promptni beradi; rasmni foydalanuvchi AI ga o'zi biriktiradi. Rasmdan o'qilgan qiymatlarda manba parchasi dastur tomonidan tekshirilmaydi — oynada ogohlantirish.
+7. **`fallbacks` (rad etilganda zaxira model) qo'shilmagan** — beta parametr; rad etilgan so'rov foydalanuvchiga ko'rsatiladi.
+
+**Qilinmagan:** server orqali chaqiruv (P15 dan keyin); GUM dan boshqa rejimlar uchun tushuntirish; PDF matnini ilova ichida ajratish (foydalanuvchi matnni o'zi qo'yadi yoki rasm / PDF ni "o'z kaliti" rejimida yuboradi); real API bilan sinov (CI da kalit yo'q — faqat mock; Chromium da mock bilan tutun-testi o'tkazilgan); Firefox / Safari da qo'lda ko'rish.
