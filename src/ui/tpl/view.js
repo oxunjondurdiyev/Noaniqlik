@@ -13,8 +13,17 @@ export function hasDemo(tpl) {
   return !!((tpl.sampleData && tpl.sampleData.demo) || (tpl.points || []).some(p => p.demo) || (tpl.regression && tpl.regression.demo));
 }
 
+/* R-27 (6), egasi qarori (b), 2026-11-20: shablon muharriridagi "Kim" — erkin matn EMAS, rol ro'yxati
+   (reestr va P12 dagidek; audit `actor` va history `by` ga faqat rol identifikatori yoziladi — ism emas). */
+export const EDITOR_ROLES = Object.freeze(['admin', 'employee', 'superadmin', 'guest']);
+export const editorRole = v => (EDITOR_ROLES.includes(v) ? v : 'guest');
+export function roleSelectHTML(current, ctx) {
+  const cur = editorRole(current);
+  return `<select id="ed-by" data-ed-role="1">${EDITOR_ROLES.map(r => `<option value="${ctx.esc(r)}"${r === cur ? ' selected' : ''}>${ctx.esc(r)}</option>`).join('')}</select>`;
+}
+
 export function statusBadge(status, ctx) {
-  const cls = { DRAFT: 'tpl-st-draft', REVIEWED: 'tpl-st-reviewed', APPROVED: 'tpl-st-approved', RETIRED: 'tpl-st-retired' }[status] || 'tpl-st-draft';
+  const cls = { AI_DRAFT: 'tpl-st-draft tpl-st-ai', DRAFT: 'tpl-st-draft', REVIEWED: 'tpl-st-reviewed', APPROVED: 'tpl-st-approved', RETIRED: 'tpl-st-retired' }[status] || 'tpl-st-draft';
   return `<span class="tpl-badge ${cls}">${ctx.esc(ctx.t('tpl_status_' + status))}</span>`;
 }
 
@@ -151,6 +160,9 @@ export function boundLinesHTML(result, ctx) {
 export function reportNoticeHTML(meta, ctx, result) {
   if (!meta) return '';
   const lines = [];
+  // P14: AI_DRAFT shablon bilan hisob — "RASMIY EMAS" suv belgisi (src/report/findings.js::watermarkHTML bilan bir xil belgilash;
+  // hisobot qatlami (src/report/) o'zgartirilmagan — belgi shablon eslatmasi orqali qo'shiladi)
+  if (meta.status === 'AI_DRAFT') lines.push(`<div class="report-watermark" data-report-watermark="1" data-ai-draft="1" aria-hidden="true">${ctx.esc(ctx.t('fnd_unofficial'))}</div><div class="report-unofficial-banner" data-report-unofficial="1" data-ai-draft="1">${ctx.esc(ctx.t('fnd_unofficial'))} — ${ctx.esc(ctx.t('tpl_banner_AI_DRAFT'))}</div>`);
   if (meta.status !== 'APPROVED') lines.push(`<div class="tpl-report-warn" data-draft-warning="1">⚠ ${ctx.esc(ctx.t('tpl_banner_' + meta.status))}</div>`);
   if (meta.demo) lines.push(`<div class="tpl-report-warn" data-demo-warning="1">⚠ ${ctx.esc(ctx.t('tpl_banner_demo'))}</div>`);
   const std = (meta.standards || []).map(s => s.code).join(', ');

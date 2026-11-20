@@ -452,4 +452,6 @@ window.UCLab = Object.freeze({
   openPt: id => quality.openPt(id), openValidation: id => quality.openVl(id),
 });
 
+// P14: AI oynasi sertifikat qoralamasidan reestr yozuvi saqlaganda ro'yxat yangilanadi
+document.addEventListener('uc:registry-changed', async () => { await ready; await reload(); render(); });
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();

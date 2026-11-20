@@ -31,7 +31,7 @@ const SHORT = 12;
 
 /* ─── Oq ro'yxat: saytga FAQAT shular chiqadi (docs/RISKS.md R-27 (2) — egasi tasdig'ini kutadi) ─── */
 const WHITELIST = Object.freeze({
-  files: ['index.html', 'admin.html', 'superadmin.html', 'validation.html', '.nojekyll', 'LICENSE'],
+  files: ['index.html', 'admin.html', 'superadmin.html', 'validation.html', 'ai.html', '.nojekyll', 'LICENSE'],
   dirs: ['src', 'vendor', 'schemas', 'templates/builtin'],
 });
 /* Yig'ilgan saytda bo'lishi MUMKIN EMAS (nusxalashdan keyin tekshiriladi) */
