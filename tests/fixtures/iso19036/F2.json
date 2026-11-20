@@ -1,0 +1,36 @@
+{
+ "id": "F2",
+ "source": "ISO 19036:2019",
+ "clause": "Annex A, Formula (A.1); Table A.2",
+ "title": "s_IR — 10 guruh, portsiyalar 3,2,4,2,2,2,3,2,4,2 (jami 26)",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "status": "pending",
+ "pendingReason": "Table A.2 ning xom natijalari (26 ta qiymat) berilmagan — faqat portsiyalar soni va kutilgan natija. Egasi qiymatlarni bergach `input.technical.groups` to'ldiriladi va `status` olib tashlanadi. Kirish o'ylab topilmaydi.",
+ "portions": [
+  3,
+  2,
+  4,
+  2,
+  2,
+  2,
+  3,
+  2,
+  4,
+  2
+ ],
+ "input": null,
+ "expected": {
+  "msWithin": {
+   "value": 0.06159,
+   "tol": 0.000005
+  },
+  "sIR": {
+   "value": 0.24817,
+   "tol": 0.000005
+  },
+  "df": {
+   "value": 16,
+   "tol": 0
+  }
+ }
+}

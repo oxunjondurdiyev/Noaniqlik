@@ -370,7 +370,7 @@ Misol. Manba: EURACHEM/CITAC AQA:2021, Example E3 (Table E3.1, Eq. E3.1), §4.3 
 
 ### 8.3. Mikrobiologiya — BETA
 
-BETA, tekshirilmagan: ISO 19036 matni repozitoriyda yo'q, hisob manba misoli bilan tasdiqlanmagan. Natijada har doim ogohlantirish chiqadi; bu rejimdagi shablon `APPROVED` bo'la olmaydi. Misol raqamlari berilmaydi. Natijani rasmiy hisobotda ishlatishdan oldin standart bilan solishtiring.
+BETA: hisob ISO 19036:2019 bo'yicha bajariladi (texnik, matritsa va taqsimot noaniqliklari; U = 2·u_c; LOQ dan past natija) va standartning etalon misollari bilan solishtirilgan; ayrim misollar bo'yicha egasi qarori kutilmoqda, shuning uchun natijada ogohlantirish chiqadi va bu rejimdagi shablon `APPROVED` bo'la olmaydi. Standart matni repozitoriyda yo'q (pullik). U mikrobiologiyada oddiy qoida bilan (ISO 19036 §9.1) 2 ta qiymatli raqamgacha yaxlitlanadi. MPN qiymatining o'zi hisoblanmaydi; namuna olish noaniqligi va bias kiritilmaydi. Misol raqamlari berilmaydi.
 
 ### 8.4. Tibbiy laboratoriya — BETA
 
@@ -504,7 +504,7 @@ Dasturni ish jarayoniga kiritishdan oldin va har bir yangi dvigatel versiyasidan
 Eng muhim cheklovlar (to'liq ro'yxat — [ma'lum cheklovlar](../validation/KNOWN_LIMITATIONS.md)):
 
 - **ISO/IEC 17025:2017** matni repozitoriyda yo'q — unga havolalar va hisobot rekvizitlari ro'yxati tekshirilmagan.
-- **BETA rejimlar:** mikrobiologiya (ISO 19036) va tibbiy laboratoriya (ISO/TS 20914) — manba misoli bilan tasdiqlanmagan.
+- **BETA rejimlar:** mikrobiologiya (ISO 19036:2019 — etalon misollar bilan solishtirilgan, ayrimlari bo'yicha egasi qarori kutilmoqda) va tibbiy laboratoriya (ISO/TS 20914 — manba misoli bilan tasdiqlanmagan).
 - **Unverified usullar:** regressiyada WLS, GLS, WTLS va polinom; top-down da ISO 21748 ga tayanadigan qismlar; log-normal taqsimot; PT ball formulalari va chegaralari (ISO 13528); Cochran testi; LOD / LOQ; kalibrlash intervali formulasi.
 - **Oshkor bo'lmagan model:** Monte-Karlo yo'q; asosiy ekranda kiritish shakli yo'q.
 - **Eng kichik qamrov sohasi** — faqat ikki chiqish uchun.

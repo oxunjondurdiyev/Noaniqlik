@@ -370,7 +370,7 @@ Example. Source: EURACHEM/CITAC AQA:2021, Example E3 (Table E3.1, Eq. E3.1), §4
 
 ### 8.3. Microbiology — BETA
 
-BETA, unverified: the text of ISO 19036 is not in the repository and the calculation has not been confirmed against a source example. The result always carries a warning; a template in this mode cannot become `APPROVED`. No example numbers are given. Compare the result with the standard before using it in an official report.
+BETA: the calculation follows ISO 19036:2019 (technical, matrix and distributional uncertainties; U = 2·u_c; results below the LOQ) and has been compared with the reference examples of the standard; the owner's decision is pending for some of them, so the result carries a warning and a template in this mode cannot become `APPROVED`. The text of the standard is not in the repository (paid). In microbiology U is rounded by the ordinary rule (ISO 19036 §9.1) to 2 significant digits. The MPN value itself is not calculated; sampling uncertainty and bias are not included. No example numbers are given.
 
 ### 8.4. Medical laboratory — BETA
 
@@ -504,7 +504,7 @@ Before the program is put into routine use, and after every new engine version, 
 The most important limitations (the full list is in the [known limitations](../validation/KNOWN_LIMITATIONS.md)):
 
 - **ISO/IEC 17025:2017** — the text is not in the repository; references to it and the list of report details are unverified.
-- **BETA modes:** microbiology (ISO 19036) and medical laboratory (ISO/TS 20914) — not confirmed against a source example.
+- **BETA modes:** microbiology (ISO 19036:2019 — compared with the reference examples, the owner's decision is pending for some of them) and medical laboratory (ISO/TS 20914 — not confirmed against a source example).
 - **Unverified methods:** WLS, GLS, WTLS and polynomial in regression; the parts of top-down that rely on ISO 21748; the log-normal distribution; PT score formulas and limits (ISO 13528); the Cochran test; LOD / LOQ; the calibration interval formula.
 - **Implicit model:** no Monte Carlo method; no entry form on the main screen.
 - **Smallest coverage region** — for two outputs only.

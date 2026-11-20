@@ -257,7 +257,7 @@ To'rt rejim "Maxsus rejimlar" yorlig'ida ochiladi: shablon → `buildSpecialStat
 |---|---|---|---|
 | `SAMPLING` | namuna olish noaniqligi: dublikat usuli, ichma-ich ANOVA | EURACHEM/CITAC UfS:2019 | verified |
 | `QUALITATIVE` | sifatli (binar) test: 2×2 jadval, SS, SP, ishonch intervallari | EURACHEM/CITAC AQA:2021 | verified |
-| `MICROBIOLOGY` | mikrobiologik sanoq, log₁₀ shkala | ISO 19036 (repoda yo'q) | **BETA** |
+| `MICROBIOLOGY` | mikrobiologik natija, log₁₀ shkala (sanoq, tasdiqlash, MPN, instrumental) | ISO 19036:2019 (matni repoda yo'q; etalon — `tests/fixtures/iso19036/`, P17) | **BETA** (ochiq farqlar D-23…D-25, F2 yopilguncha) |
 | `MEDICAL` | tibbiy laboratoriya, IQC darajalari | ISO/TS 20914 (repoda yo'q) | **BETA** |
 
 ```json

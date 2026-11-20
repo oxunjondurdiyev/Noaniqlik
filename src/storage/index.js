@@ -26,6 +26,8 @@ export {
  *   secondOrder  — 2-tartibli hadlarni u_c ga qo'shish (GUM 5.1.2 Note; standartda o'chiq)
  *   cmcMode      — 'warn' (U < CMC → ogohlantirish) | 'block' (hisobot bloklanadi)
  *   ciMethod     — sifatli testlar ishonch intervali: 'wilson' (standart, AQA:2021) | 'clopper_pearson' (P10, R-21)
+ *   microRounding — M8 (mikrobiologiya, ISO 19036) da U ni yaxlitlash: 'half_up' (standart — ISO 19036:2019 §9.1 / ISO 7218; egasi qarori 2026-11-20) |
+ *                  'up' (ILAC P14 §5). Boshqa rejimlarga ta'sir qilmaydi (ular — `rounding`).
  *   criticalMode — U = 0, u_c = 0 yoki U < CMC bo'lgan natija: 'mark' (standart — hisobot aniq belgi bilan chiqadi) |
  *                  'block' (hisobot chop etilmaydi) (P05a, RISKS R-05). cmcMode: 'block' avvalgidek ishlaydi.
  *   westgardGate — Westgard 1₂s darvozasi (Westgard 1981, 1-rasm): true (standart) | false — qoidalar mustaqil (P11, W-4)
@@ -34,7 +36,7 @@ export {
  *   expiryWarnDays — etalon amal qilish muddati tugashiga necha kun qolganda ogohlantirish (linter L1, info; P11) — standart 30
  */
 export const LAB_DEFAULTS = Object.freeze({
-  P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson', criticalMode: 'mark',
+  P: 0.9545, kMethod: 'nu', nuRule: 'floor', rounding: 'normal', decisionRule: 'simple', secondOrder: false, cmcMode: 'warn', ciMethod: 'wilson', criticalMode: 'mark', microRounding: 'half_up',
   // P06 (egasi qarorlari 2026-11-18): Monte-Karlo — adaptiv M (standart) yoki qat'iy; n_dig; §8 tekshiruvi toleransi
   // 'delta5' (JCGM 101 §8.2, standart) yoki 'delta' (tushirilgan — hisobotda belgi bilan)
   mcMode: 'adaptive', mcNDig: 2, mcTolerance: 'delta5',

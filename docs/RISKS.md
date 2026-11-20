@@ -42,6 +42,7 @@
 | R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
 | R-28 | AI yordamchi (P14): **amalga oshirildi, egasi qarorlari kiritildi (2026-11-20)**; AI hisoblamaydi, standart holatda o'chiq, tashqariga faqat tuzilma; tasdiq kutadi — MPE filtri, sana ko'rinishlari, almashinuv muddati; qoldiq — hujjatdagi shaxs ismlari, chet el xizmati (yuridik baho egasida), brauzerdagi kalit | O | P14 |
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
+| R-30 | Mikrobiologiya (P17, ISO 19036:2019): F2 ma'lumoti berilmagan; D-23 (u_conf konstanta 2,303 ↔ Table 3), D-24, D-25 (manbadagi oraliq yaxlitlash); natural shkala ko'rinishi va x_LOQ kiritilishi — loyiha qarorlari; standart matni repoda yo'q | O | P17 → egasi qarorlari |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -553,3 +554,19 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 **Qilinmagan / qo'lda ko'rilmagan:** Safari (macOS / iOS) va real telefon / planshet; Firefox va WebKit da bosma (pastki qismning takrorlanishi brauzerga bog'liq — Safari `<tfoot>` ni takrorlamasligi mumkin); Lighthouse o'lchovi; landing, kirish / ro'yxatdan o'tish, admin va superadmin sahifalari faqat tokenlar orqali yangi ranglarga o'tdi (tuzilmasi o'zgarmagan); ekran o'quvchi (NVDA / VoiceOver) bilan qo'lda tekshiruv.
 
 **Avvaldan bor, P16 da tuzatilmagan (kuzatildi):** PT ekranidagi topilma matnida `{value}` o'rinbosari to'ldirilmay chiqishi mumkin (`w_pt_unsatisfactory`) — sababi `src/report/findings.js` parametrlari; alohida tekshirish kerak. `tests/ui/lab.test.js` dagi ikki IndexedDB testi mashina yuklangan paytda (parallel og'ir jarayonlar) vaqtga sezgir — yakka ishga tushirilganda barqaror.
+
+### R-30. Mikrobiologiya — ISO 19036:2019 bo'yicha validatsiya: ochiq farqlar va loyiha qarorlari (O) — P17 (2026-11-20, ENGINE 2.11.0)
+
+**Holat.** `src/engine/micro/` kengaytirildi; `tests/fixtures/iso19036/` dagi 12 fayldan 8 tasi to'liq o'tadi (F1, F3, F4, F5, F5b, F6, F9, F11), 3 tasi qisman (F7, F8, F10), F2 — ma'lumot kutilmoqda. Toleranslar va etalon qiymatlar o'zgartirilmagan. Standart matni repoda yo'q — manba qiymatlarini repodan qayta tekshirib bo'lmaydi (egasi bergan ro'yxatga tayaniladi).
+
+**Egasidan kutilayotgan qarorlar** (batafsil — `tests/cases/DISCREPANCIES.md`):
+
+1. **F2** — Annex A, Table A.2 ning 26 ta xom qiymati (kirish o'ylab topilmaydi).
+2. **D-23** — Table 3 da (15; 8) → 0,098 6: "1/2,303" bilan 0,098 5, ln 10 bilan 0,098 6. Variantlar: (a) 2,303 qoladi (standartdagi yozuv), farq "manba nuansi"; (b) `Math.LN10` (jadvalning to'rt qatori ham mos). u_c ga ta'siri ≤ 2·10⁻⁵.
+3. **D-24** — F8: y = 2,41 (hisob) / 2,42 (manba). Variant: "manba nuansi" (ikki bosqichli yaxlitlash) deb yopish.
+4. **D-25** — F10: 10^(y_LOQ + U) = 79,26 (hisob) / 79,16 (manba); chiqishda 79,3 / 79,2. Variant: "manba nuansi" deb yopish (dvigatel oraliq hisobni yaxlitlamaydi).
+5. **BETA belgisi** — yuqoridagilar yopilgach `MICRO_UNVERIFIED = false` (bitta konstanta), `interpreter.js::checkSpecialTemplate` dagi MICROBIOLOGY cheklovi va matnlar yangilanadi.
+
+**Loyiha qarorlari (tasdiq kutadi):** natural shkala ko'rinishi — x 2 qiymatli raqam, chegaralar x ning oxirgi xonasigacha (§9.2.2 misolidan); **x_LOQ foydalanuvchi tomonidan kiritiladi** (ISO 7218 hisobi dvigatelda yo'q — pullik, tekshirilmagan); n_c = 0 va Σx = 0 da ham x_LOQ kiritiladi; 1/5 qoidasida texnik had hech qachon tashlanmaydi va "eng katta had" barcha hadlar ichidan olinadi; Annex D da u²_matrix faqat s_IR tuzatishida ayiriladi (s_r da — yo'q); past sanoq chegarasi ΣC < 10 (avvalgi loyiha parametri) saqlangan; `micro_k_custom` — info.
+
+**Qilinmagan:** Annex D tuzatishi va qabul qilish filtrlari uchun UI (portsiya bo'yicha ΣC kiritish) — faqat API; MPN qiymatini hisoblash; `KNOWN_LIMITATIONS` ning inglizcha nusxasi (fayl mavjud emas — R-27 qarori bo'yicha faqat uz / ru); real brauzerda qo'lda ko'rish (jsdom testlari va Chromium tutun-testi o'tkazilgan); bosqich raqami: PLAN da avval "P17 — Kragten" edi — Kragten P18 ga ko'chirildi.

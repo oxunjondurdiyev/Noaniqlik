@@ -79,9 +79,17 @@ function labCiMethod() {
   return lab && lab.ciMethod === 'clopper_pearson' ? 'clopper_pearson' : 'wilson';
 }
 
+/** Laboratoriya sozlamasi: M8 (mikrobiologiya) da U ni yaxlitlash — 'half_up' (standart, ISO 19036 §9.1) | 'up' (ILAC P14) */
+function labMicroRounding() {
+  const lab = window.UCTemplates && window.UCTemplates.labSettings ? window.UCTemplates.labSettings() : null;
+  return lab && lab.microRounding === 'up' ? 'up' : 'half_up';
+}
+
 function calculate() {
   const { spec, bad } = buildSpec(state);
   if (state.mode === 'qualitative') spec.settings = { ...(spec.settings || {}), ciMethod: labCiMethod() };
+  // P17 (egasi qarori 2026-11-20): M8 da U — half_up (ISO 19036 §9.1); 'up' — laboratoriya sozlamasi yoki shakldagi tanlov
+  if (state.mode === 'micro' && !spec.settings.rounding) spec.settings.rounding = labMicroRounding();
   const prefix = { sampling: 'sampling', qualitative: 'qualitative', micro: 'micro', medical: 'medical' }[state.mode];
   const result = bad.length ? { error: `${prefix}_bad_data`, detail: bad.map(b => t('sp_f_' + b)).join(', ') } : evaluate(spec);
   last[state.mode] = result;
@@ -94,11 +102,12 @@ function calculate() {
 
 function onInput(e) {
   const el = e.target, d = el.dataset || {};
-  if (d.spFlag) { state[d.spFlag] = !!el.checked; save(); return; }
+  if (d.spFlag) { state[d.spFlag] = !!el.checked; save(); if (d.spRerender && e.type === 'change') render(); return; }
   const key = d.spField;
   if (!key) return;
   state[key] = el.value;
   save();
+  if (d.spRerender) { if (e.type === 'change') render(); return; }   // P17: tanlov o'zgarsa shakl qayta chiziladi
   const wrap = el.closest && el.closest('.td-paste');
   const cnt = wrap && wrap.querySelector('[data-sp-count-wrap]');
   if (cnt) cnt.innerHTML = countHTML(state, key, ctx());

@@ -9,7 +9,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { JSDOM } = require('jsdom');
 const { build, text, OUT } = require('../../scripts/template-validation.js');
-const { EXCEL } = require('../../scripts/lib/template-cases.js');
+const { EXCEL, ISO19036 } = require('../../scripts/lib/template-cases.js');
 const { templates, byId, ROOT } = require('./lib.js');
 const { escHtml } = require('../../src/ui/escape.js');
 
@@ -50,7 +50,17 @@ test('templates/validation/builtin.json yangi (avtomatik yaratilgan; qo\'lda tah
 });
 
 test('har bir yozuvda: templateId, templateHash, ENGINE_VERSION, testId, source, clause, relDiff, date; holat hisobdan', () => {
-  const recs = FILE().records;
+  const all = FILE().records;
+  // P17: SP-03 ← ISO 19036:2019 §8.3.1 (tests/fixtures/iso19036/F4.json) — alohida tekshiriladi (manba — pullik standart, fayl emas)
+  const iso = all.filter(r => ISO19036.some(([id]) => id === r.templateId));
+  assert.deepEqual(iso.map(r => [r.templateId, r.testId, r.source, r.status]), [['SP-03', 'F4', 'ISO 19036:2019', 'verified']]);
+  for (const r of iso) {
+    for (const k of RECORD_FIELDS) assert.ok(r[k] !== undefined && r[k] !== null && r[k] !== '', `${r.testId}: ${k}`);
+    assert.equal(r.templateHash, nodeHash(byId[r.templateId]));
+    assert.ok(fs.existsSync(path.join(ROOT, 'tests/fixtures/iso19036', r.testId + '.json')));
+    assert.match(r.clause, /§8\.3\.1/); assert.ok(r.checked >= 4 && r.relDiff < 1e-2, 'Δ = ' + r.relDiff);
+  }
+  const recs = all.filter(r => !iso.includes(r));
   const mapped = new Map(EXCEL);
   assert.deepEqual(recs.map(r => r.templateId + '|' + r.testId), [...mapped].flatMap(([id, ids]) => ids.map(t => id + '|' + t)).sort((a, b) => recs.findIndex(r => r.templateId + '|' + r.testId === a) - recs.findIndex(r => r.templateId + '|' + r.testId === b)));
   assert.equal(recs.length, 9, '9 ta etalon nuqta');

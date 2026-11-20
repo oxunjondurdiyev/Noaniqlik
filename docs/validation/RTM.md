@@ -8,12 +8,12 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 343 |
-| Kamida bitta testga bog'langan | 330 |
-| ✅ verified | 279 |
-| ⚠️ verified (farq bilan) | 5 |
+| Talablar | 352 |
+| Kamida bitta testga bog'langan | 339 |
+| ✅ verified | 284 |
+| ⚠️ verified (farq bilan) | 8 |
 | ❔ unverified | 26 |
-| ⏳ pending | 29 |
+| ⏳ pending | 30 |
 | ✋ manual | 4 |
 | Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 13 |
 
@@ -215,7 +215,16 @@
 | REQ-SPM-009 | Posterior ehtimol PP (AQA §4.3 Eq. 6; Table E3.1): 0,963; 0,988; 0,963 | `src/engine/qualitative/index.js::posterior`; `src/engine/qualitative/index.js::evaluateQualitative` | misollar: `aqa-e3-emit-opiates`, `aqa-e3-emit-methadone`, `aqa-e3-emit-cocaine` | ✅ verified | D-15 — (D-15) |
 | REQ-SPM-010 | Clopper–Pearson (aniq binomial; loyiha qo'shimchasi — laboratoriya sozlamasi): 7/20, 97/100, 100/100, 0/50, 3/100, 45/60 (P = 0,95), 7/20 (P = 0,99) | `src/engine/qualitative/index.js::clopperPearsonInterval` | `tests/engine/special-modes.test.js` | ✅ verified | mustaqil ochiq dastur (qiymatlar sessiyada hisoblangan — RISKS R-21) |
 | REQ-SPM-011 | Interval usuli tanlovi (egasi qarori 2026-11-18): standart Wilson; `ciMethod: 'clopper_pearson'`; bosma hisobotda faqat tanlangani, usul nomi va P | `src/engine/qualitative/index.js::evaluateQualitative`; `src/js/report.js` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
-| REQ-SPM-012 | Mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; interval [10^(y−U); 10^(y+U)] (ISO 19036 — pullik) | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified |
+| REQ-SPM-012 | Mikrobiologiya (ISO 19036:2019): u_Poisson = 0,4343/√ΣC (Formula (2)); s_IR juftliklardan (Formula (1), Table 1 — F1); u_c, U = 2·u_c (§8.3.1 — F4); interval [10^(y−U); 10^(y+U)] | `src/engine/micro/index.js::evaluateMicro`; `src/engine/micro/index.js::logDuplicateSd`; `src/engine/micro/index.js::uPoissonOf` | `tests/engine/micro.iso19036.test.js`; `tests/engine/special-modes.test.js` | ✅ verified | — |
+| REQ-SPM-019 | Mikrobiologiya: s_IR guruhlardan — ISO 19036:2019 Annex A, Formula (A.1), Table A.2 (F2: 0,248 17; df = 16) | `src/engine/micro/index.js::logPooledSd` | `tests/engine/micro.iso19036.test.js` | ⏳ pending | Table A.2 xom ma'lumoti egasidan kutilmoqda; formula Formula (1) bilan tengligi va df tuzilmasi tekshirilgan |
+| REQ-SPM-020 | Mikrobiologiya: Annex D tuzatishi (Table D.1 — F3: s_IR:corr = 0,235 03); manfiy dispersiya → 0 + ogohlantirish | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/micro.iso19036.test.js` | ✅ verified | — |
+| REQ-SPM-021 | Mikrobiologiya: 1/5 qoidasi (§8.1.2 NOTE; §8.3.2 — F5: u_c 0,269; o'chiq holatda F5b: 0,272 4); tashlangan had byudjetda qoladi | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/micro.iso19036.test.js` | ✅ verified | — |
+| REQ-SPM-022 | Mikrobiologiya: tasdiqlash noaniqligi u_conf (§7.3, Formula (3); §8.3.3 — F6; Table 3 — F7) | `src/engine/micro/index.js::uConfOf` | `tests/engine/micro.iso19036.test.js` | ⚠️ verified (farq bilan) | D-23: Table 3 (15; 8) — 0,098 5 / 0,098 6 (konstanta 2,303 / ln 10); egasi qarori kutilmoqda |
+| REQ-SPM-023 | Mikrobiologiya: u_MPN (Annex C, Formula (C.1), Table C.1 — F9: 0,212 9; §8.3.4 — F8: u_c 0,535, U 1,1) | `src/engine/micro/index.js::uMpnOf` | `tests/engine/micro.iso19036.test.js` | ⚠️ verified (farq bilan) | D-24: F8 da y = 2,41 / manbada 2,42; u_MPN, u_c, U mos |
+| REQ-SPM-024 | Mikrobiologiya: LOQ dan past natija (§9.2.2 — F10: u_c 0,470; U 0,940; x_LOQ 9,091); ΣC = 0 xato emas | `src/engine/micro/index.js::evaluateMicro`; `src/report/rounding.js::roundNatural` | `tests/engine/micro.iso19036.test.js`; `tests/ui/special.test.js` | ⚠️ verified (farq bilan) | D-25: 10^(y_LOQ + U) = 79,26 / manbada 79,16; qolgan qiymatlar mos |
+| REQ-SPM-025 | Mikrobiologiya: faqat s_R (§8.1.3 — F11: u_c = s_R) va hisobotdagi bayonot | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/micro.iso19036.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
+| REQ-SPM-026 | Mikrobiologiya: U ni yaxlitlash — half_up (ISO 19036 §9.1; egasi qarori 2026-11-20), `up` — sozlama; boshqa rejimlar o'zgarmagan; qoida hisobotda yoziladi | `src/report/rounding.js::roundResult`; `src/storage/index.js` | `tests/engine/micro.iso19036.test.js`; `tests/ui/special.test.js`; `tests/engine/rounding.test.js` | ✅ verified | egasi qarori 2026-11-20 |
+| REQ-SPM-027 | Mikrobiologiya: u_matrix manbalari (§6.2: 0,1; §6.3: s_r va sxema sharti), qabul qilish filtrlari (§5.2.2.3.1 — faqat ogohlantirish), k = 2 (§8.2) | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/micro.iso19036.test.js` | ❔ unverified | manbadan raqamli misol berilmagan (§6.2, §6.3, §5.2.2.3.1) — band havolasi bilan, analitik tekshiruv |
 | REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914 — pullik) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified |
 | REQ-SPM-014 | BETA modullar: har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | `src/engine/micro/index.js::evaluateMicro`; `src/engine/medical/index.js::evaluateMedical`; `src/templates/interpreter.js::checkSpecialTemplate` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
 | REQ-SPM-015 | Hisobotda qo'llanilgan yondashuv va cheklovlar yozilgan (uch tilda) | `src/js/report.js::specialSection` | `tests/ui/special.test.js` | ✅ verified | — |

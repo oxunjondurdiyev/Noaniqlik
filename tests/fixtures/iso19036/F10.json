@@ -1,0 +1,63 @@
+{
+ "id": "F10",
+ "source": "ISO 19036:2019",
+ "clause": "§9.2.2",
+ "title": "ΣC = 0: LOQ dan past natija; x_LOQ = 10¹·1/1,1 (d = 10¹, ikki suyultirish, ΣC = 1)",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "format": "uc-micro/1",
+  "unit": "cfu/g",
+  "result": {
+   "value": 0,
+   "sumCounts": 0,
+   "loq": "@10/1.1"
+  },
+  "technical": {
+   "s": 0.15,
+   "source": "intralab"
+  },
+  "matrix": {
+   "u": 0.1
+  }
+ },
+ "expected": {
+  "uPoisson": {
+   "value": 0.434,
+   "tol": 0.0005
+  },
+  "uc": {
+   "value": 0.47,
+   "tol": 0.0005
+  },
+  "U": {
+   "value": 0.94,
+   "tol": 0.0005
+  },
+  "xLOQ": {
+   "value": 9.091,
+   "tol": 0.0005
+  },
+  "yLOQ": {
+   "value": 0.959,
+   "tol": 0.0005
+  },
+  "yUpper": {
+   "value": 1.899,
+   "tol": 0.0005
+  },
+  "xUpper": {
+   "value": 79.16,
+   "tol": 0.005
+  }
+ },
+ "knownDiscrepancies": {
+  "xUpper": "D-25"
+ },
+ "report": {
+  "half_up": {
+   "U": "0.94"
+  },
+  "natural": "< 9.1 cfu/g [0.0; 79.2]",
+  "naturalDiscrepancy": "D-25"
+ }
+}

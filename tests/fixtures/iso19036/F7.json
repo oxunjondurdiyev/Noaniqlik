@@ -1,0 +1,32 @@
+{
+ "id": "F7",
+ "source": "ISO 19036:2019",
+ "clause": "§7.3, Table 3",
+ "title": "u_conf jadvali",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": null,
+ "table3": [
+  {
+   "np": 5,
+   "nc": 4,
+   "uConf": 0.0888
+  },
+  {
+   "np": 10,
+   "nc": 1,
+   "uConf": 0.4302
+  },
+  {
+   "np": 20,
+   "nc": 20,
+   "uConf": 0.0141
+  },
+  {
+   "np": 15,
+   "nc": 8,
+   "uConf": 0.0986,
+   "knownDiscrepancy": "D-23"
+  }
+ ],
+ "tol": 0.00005
+}

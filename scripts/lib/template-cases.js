@@ -8,4 +8,9 @@ module.exports = Object.freeze({
     ['legacy-gas_analyzer', ['excel-gas-p1', 'excel-gas-p2', 'excel-gas-p3']],
     ['legacy-thermometer', ['excel-term-p1', 'excel-term-p2', 'excel-term-p3', 'excel-term-p4', 'excel-term-p5']],
   ],
+  // P17: maxsus rejim shabloni ↔ tests/fixtures/iso19036/<id>.json (ISO 19036:2019 misoli; kutilgan qiymat va tolerans fixture'da).
+  // Shablonda raqam yo'q: fixture kirishi "Maxsus rejimlar" oynasi holatiga foydalanuvchi ma'lumoti sifatida beriladi.
+  ISO19036: [
+    ['SP-03', ['F4']],
+  ],
 });

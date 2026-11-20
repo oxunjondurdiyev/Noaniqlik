@@ -1,0 +1,47 @@
+{
+ "id": "F8",
+ "source": "ISO 19036:2019",
+ "clause": "§8.3.4 Example 4",
+ "title": "MPN: u_MPN tayyor (0,19), MPN 260/ml",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "format": "uc-micro/1",
+  "unit": "MPN/ml",
+  "method": "mpn",
+  "result": {
+   "value": 260,
+   "mpn": {
+    "u": 0.19
+   }
+  },
+  "technical": {
+   "s": 0.49,
+   "source": "intralab"
+  },
+  "matrix": {
+   "u": 0.1
+  }
+ },
+ "expected": {
+  "y": {
+   "value": 2.42,
+   "tol": 0.005
+  },
+  "uc": {
+   "value": 0.535,
+   "tol": 0.0005
+  },
+  "U": {
+   "value": 1.1,
+   "tol": 0.05
+  }
+ },
+ "knownDiscrepancies": {
+  "y": "D-24"
+ },
+ "report": {
+  "half_up": {
+   "U": "1.1"
+  }
+ }
+}

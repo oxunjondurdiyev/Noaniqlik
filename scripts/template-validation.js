@@ -16,7 +16,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { EXCEL } = require('./lib/template-cases.js');
+const { EXCEL, ISO19036 } = require('./lib/template-cases.js');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'templates/validation/builtin.json');
@@ -74,6 +74,43 @@ function build(prev) {
       const rec = {
         templateId: tpl.id, templateVersion: tpl.version, templateHash, ENGINE_VERSION, testId: id,
         source: path.basename(c.source.file), clause: c.source.sheet, relDiff: Number(relDiff.toPrecision(2)),
+        status: ok && checked > 0 ? 'verified' : 'unverified', checked, known: [...known].sort(), date: null,
+      };
+      const was = old.get(tpl.id + '|' + id);
+      rec.date = was && same(was, rec) && /^\d{4}-\d{2}-\d{2}$/.test(was.date || '') ? was.date : today();
+      records.push(rec);
+    }
+  }
+  /* P17: maxsus rejim shablonlari (MICROBIOLOGY) ↔ ISO 19036:2019 misollari (tests/fixtures/iso19036). Yo'l brauzerdagi bilan bir xil:
+     buildSpecialState (shablon) → oyna holati + fixture kirishi → src/ui/special/build.js::buildSpec → evaluate. Tolerans — fixture'dagi `tol`. */
+  const Sp = require('../src/ui/special/build.js');
+  const E = require('../src/engine/index.js');
+  const SP_PICK = { y: r => r.y, uc: r => r.uc, U: r => r.U, uPoisson: r => r.uPoisson };
+  for (const [tplId, ids] of ISO19036) {
+    const tpl = tpls.find(x => x.id === tplId);
+    if (!tpl) throw new Error(`${tplId}: builtin shablon topilmadi`);
+    const templateHash = crypto.createHash('sha256').update(canonicalizeJcs(tpl), 'utf8').digest('hex');
+    for (const id of ids) {
+      const f = readJSON(`tests/fixtures/iso19036/${id}.json`), inp = f.input;
+      const b = T.buildSpecialState(tpl, { lang: 'en' });
+      let ok = !b.error && !f.status, relDiff = 0, checked = 0;
+      const known = new Set(Object.values(f.knownDiscrepancies || {}));
+      if (ok) {
+        const state = { ...Sp.defaults(), ...b.state, miUnit: inp.unit || b.state.miUnit || '', miValue: String(inp.result.value), miSum: String(inp.result.sumCounts),
+          miTechKind: 'stated', miTechS: String(inp.technical.s), miTechSource: inp.technical.source || 'intralab', miMatrixKind: 'stated', miMatrix: String(inp.matrix.u) };
+        const built = Sp.buildSpec(state), run = built.bad.length ? { error: 'bad' } : E.evaluate(built.spec);
+        if (run.error) ok = false;
+        else for (const [q, e] of Object.entries(f.expected)) {
+          if ((f.knownDiscrepancies || {})[q]) continue;
+          const got = SP_PICK[q](run);
+          if (!(Math.abs(got - e.value) <= e.tol * (1 + 1e-9))) ok = false;
+          checked++;
+          if (REL.includes(q) && e.value !== 0) relDiff = Math.max(relDiff, Math.abs(got - e.value) / Math.abs(e.value));
+        }
+      }
+      const rec = {
+        templateId: tpl.id, templateVersion: tpl.version, templateHash, ENGINE_VERSION, testId: id,
+        source: f.source, clause: f.clause, relDiff: Number(relDiff.toPrecision(2)),
         status: ok && checked > 0 ? 'verified' : 'unverified', checked, known: [...known].sort(), date: null,
       };
       const was = old.get(tpl.id + '|' + id);

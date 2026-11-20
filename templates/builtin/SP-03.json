@@ -12,16 +12,16 @@
     "en": "Microbiological count (CFU): uncertainty on the log₁₀ scale — BETA"
   },
   "description": {
-    "uz": "Texnik noaniqlik (dublikatlarning log farqlaridan), matritsa hissasi va Puasson hissasi; natija log₁₀ da y ± U va oddiy shkalada asimmetrik interval.",
-    "ru": "Техническая неопределённость (по разностям логарифмов дубликатов), вклад матрицы и пуассоновский вклад; результат в log₁₀ как y ± U и несимметричный интервал в обычной шкале.",
-    "en": "Technical uncertainty (from log differences of duplicates), matrix contribution and Poisson contribution; the result is y ± U in log₁₀ and an asymmetric interval on the ordinary scale."
+    "uz": "ISO 19036:2019: texnik noaniqlik (s_IR yoki s_R), matritsa noaniqligi va taqsimot noaniqliklari (Puasson, tasdiqlash, MPN); natija log₁₀ da y ± U va oddiy shkalada asimmetrik interval.",
+    "ru": "ISO 19036:2019: техническая неопределённость (s_IR или s_R), неопределённость матрицы и неопределённости распределения (Пуассон, подтверждение, НВЧ); результат в log₁₀ как y ± U и несимметричный интервал в обычной шкале.",
+    "en": "ISO 19036:2019: technical uncertainty (s_IR or s_R), matrix uncertainty and distributional uncertainties (Poisson, confirmation, MPN); the result is y ± U in log₁₀ and an asymmetric interval on the natural scale."
   },
   "standards": [],
   "labCount": null,
   "sourceNote": {
-    "uz": "P10 shabloni (DRAFT, BETA). Yondashuv ISO 19036 ga tayanadi; standart matni repozitoriyda yo'q — tekshirilmagan. Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
-    "ru": "Шаблон P10 (DRAFT, BETA). Подход основан на ISO 19036; текста стандарта в репозитории нет — не проверено. Все числовые поля пусты — лаборатория вводит собственные данные.",
-    "en": "P10 template (DRAFT, BETA). The approach follows ISO 19036; the text of the standard is not in the repository — unverified. All numeric fields are empty — the laboratory enters its own data."
+    "uz": "P10 shabloni (DRAFT, BETA); P17 da hisob ISO 19036:2019 bo'yicha kengaytirildi va §8.3.1 misoli bilan solishtirildi (tests/fixtures/iso19036). Standart matni repozitoriyda yo'q (pullik). Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P10 (DRAFT, BETA); в P17 расчёт расширен по ISO 19036:2019 и сверен с примером §8.3.1 (tests/fixtures/iso19036). Текста стандарта в репозитории нет (платный). Все числовые поля пусты — лаборатория вводит собственные данные.",
+    "en": "P10 template (DRAFT, BETA); in P17 the calculation was extended according to ISO 19036:2019 and compared with the example of §8.3.1 (tests/fixtures/iso19036). The text of the standard is not in the repository (paid). All numeric fields are empty — the laboratory enters its own data."
   },
   "ref": "docs/TEMPLATE_GUIDE.md#11-maxsus-rejimlar-p10",
   "measurand": {
@@ -76,9 +76,9 @@
       "owner": "lab+owner",
       "blocking": true,
       "text": {
-        "uz": "⚠ BETA: ISO 19036 matni repozitoriyda yo'q — hisob manba misoli bilan tasdiqlanmagan. Shablon tasdiqlanishidan (APPROVED) oldin standart yoki laboratoriya Excel'i bilan solishtirilishi shart.",
-        "ru": "⚠ BETA: текста ISO 19036 в репозитории нет — расчёт не подтверждён примером из источника. До утверждения шаблона (APPROVED) обязательна сверка со стандартом или лабораторным Excel.",
-        "en": "⚠ BETA: the text of ISO 19036 is not in the repository — the calculation is not confirmed by a source example. Before the template is APPROVED it must be checked against the standard or a laboratory spreadsheet."
+        "uz": "⚠ BETA: hisob ISO 19036:2019 etalon misollari bilan solishtirilgan, lekin ayrim misollar bo'yicha egasi qarori kutilmoqda (Annex A jadvali ma'lumoti; D-23…D-25 farqlari — tests/cases/DISCREPANCIES.md). Ular yopilmaguncha shablon tasdiqlanmaydi (APPROVED).",
+        "ru": "⚠ BETA: расчёт сверен с эталонными примерами ISO 19036:2019, но по части примеров ожидается решение владельца (данные таблицы приложения A; расхождения D-23…D-25 — tests/cases/DISCREPANCIES.md). До их закрытия шаблон не утверждается (APPROVED).",
+        "en": "⚠ BETA: the calculation has been compared with the ISO 19036:2019 reference examples, but the owner's decision is pending for some of them (Annex A table data; discrepancies D-23…D-25 — tests/cases/DISCREPANCIES.md). The template cannot be APPROVED until they are closed."
       }
     }
   ],

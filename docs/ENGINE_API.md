@@ -50,7 +50,7 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `topdown/level.js` | u(x) = √(s₀² + (x·s₁)²), s₀ va s₁ ni aniqlash | QUAM:2012 E.5.2.1 Eq. [1], E.5.5.2 |
 | `sampling/index.js` | `evaluateSampling` — dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU (P10), §9.1 | EURACHEM/CITAC UfS:2019 §9.4–9.5, A1, A2 |
 | `qualitative/index.js` | `evaluateQualitative` — 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson (P10), §9.2 | EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 |
-| `micro/index.js` | `evaluateMicro` — log₁₀ sanoq: texnik, matritsa, Puasson (P10, **BETA**), §9.3 | ISO 19036 (repoda yo'q — unverified) |
+| `micro/index.js` | `evaluateMicro` — mikrobiologiya, log₁₀ shkala: u_tech, u_matrix, u_Poisson, u_conf, u_MPN, Annex A / C / D, LOQ (P10; P17 — **BETA**, ochiq farqlar yopilguncha), §9.3 | ISO 19036:2019 (matni repoda yo'q; etalon qiymatlar — `tests/fixtures/iso19036/`) |
 | `medical/index.js` | `evaluateMedical` — IQC darajalari: u = √(u_cal² + u_Rw²) (P10, **BETA**), §9.4 | ISO/TS 20914 (repoda yo'q — unverified) |
 | `linter/index.js`, `linter/rules/*.js` | `lint(spec, result, ctx)` — metrologik linter: X1–X12, A1–A4, M1, D1, W1, W2 (P05a, P05b); M2–M4 — Monte-Karlo natijasi uchun (P06), §10, §12 | [LINTER_RULES.md](LINTER_RULES.md) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
@@ -410,9 +410,38 @@ Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi
 
 **Interval usuli (egasi qarori 2026-11-18, RISKS R-21).** Standart — Wilson; `settings.ciMethod: 'clopper_pearson'` — laboratoriya sozlamasi (`LAB_DEFAULTS.ciMethod`, "Laboratoriya sozlamalari" oynasi). `Rate.ci` — tanlangan usul intervali; `wilson` va `clopperPearson` har doim natijada saqlanadi (ekrandagi solishtirish uchun). Bosma hisobotda faqat tanlangan usul intervali, usul nomi va P chiqadi. Noto'g'ri `ciMethod` → `qualitative_bad_data`. Ogohlantirishlar: `qualitative_zero_false`, `qualitative_small_n` (< 30 holat), `qualitative_prevalence_study`, `qualitative_cp_project_addition` (info; faqat Clopper–Pearson tanlanganda). Xatolar: `qualitative_bad_spec`, `qualitative_bad_data`, `qualitative_no_positive_cases`, `qualitative_no_negative_cases`.
 
-### 9.3. Mikrobiologiya: `uc-micro/1` — BETA, unverified
+### 9.3. Mikrobiologiya: `uc-micro/1` — ISO 19036:2019 (P17; BETA — ochiq farqlar yopilguncha)
 
-`{ result:{value, sumCounts}, technical?:{pairs:[[x1,x2]…]} | {s}, matrix?:{u}, unit?, settings?:{k=2, lowCountThreshold=10} }` → `{ mode:'MICROBIOLOGY', unverified:true, y (= log₁₀ N), uTech, uMatrix, uPoisson (= 0,4343/√ΣC), uc, k, U, interval:{low: 10^(y−U), high: 10^(y+U)}, intervalLog, budget[] }`. Har doim `micro_unverified` (warning); `micro_low_count`, `micro_no_technical`, `micro_few_pairs`. Xatolar: `micro_bad_spec`, `micro_bad_data`, `micro_zero_count`, `micro_need_result`.
+Kirish:
+
+```
+{ format: 'uc-micro/1', unit?,
+  method?: 'count' (standart) | 'count_confirm' | 'mpn' | 'instrumental',      // §7 — taqsimot hadlari
+  approach?: 'REPRO_ONLY',                                                      // §8.1.3 — u_c = s_R
+  result: { value, sumCounts?, loq?, confirm?: { np, nc }, mpn?: { u } | { mu?, aliquots: [{ m, x }] } },
+  technical?: { pairs: [[x1, x2]…], correct? } | { groups: [[x…]…], correct? } | { s, source?: 'intralab' | 'interlab' | 'pt' },
+  matrix?: { u } | { preset: 'homogeneous_liquid' } | { groups: [[x…]…], correct? },
+  settings?: { k = 2, ignoreNegligible = false, rounding: 'half_up' | 'up', reportForm: 'a' | 'b' | 'c', lowCountThreshold = 10 } }
+```
+
+Juftlik / guruh a'zosi — son (x) yoki `{ x, sumCounts?, maxPlate?, confirm?, mpnPositives? }` (qabul qilish filtrlari va Annex D uchun).
+
+| Qism | Band | Funksiya |
+|---|---|---|
+| s_IR — juftliklar | §5.2.2.4, Formula (1) | `logDuplicateSd` |
+| s — guruhlar (ANOVA) | Annex A, Formula (A.1) | `logPooledSd` → `{ s, s2, ss, df, n, N }` |
+| u_Poisson = (1/ln 10)/√ΣC; ΣC = 0 → 0,434 | §7.2, Formula (2); §9.2.2 | `uPoissonOf` |
+| u_conf (ko'paytuvchi `CONF_LN10 = 2,303`); n_c = 0 → 1 | §7.3, Formula (3) | `uConfOf(np, nc)` |
+| u_MPN; Σx = 0 → eng katta m da bitta musbat | Annex C, Formula (C.1) | `uMpnOf(mu, aliquots)` → `{ u, sum, assumed }` |
+| u²_unwanted = S/N; s²_corr = s² − u²_unwanted (manfiy → 0 + `micro_corr_negative`) | Annex D | `technical.correct` / `matrix.correct` |
+| u_c = √(u_tech² + u_matrix² + taqsimot²); 1/5 qoidasi | §8.1.2 (+ NOTE) | `settings.ignoreNegligible` |
+| U = 2·u_c | §8.2 | `MICRO_K` |
+
+Natija: `{ mode: 'MICROBIOLOGY', approach: 'LOG10_COUNT' | 'REPRO_ONLY', approachRef: 'ISO 19036:2019', unverified, method, value, valuePresumptive, sumCounts, y, yPresumptive, uTech, nPairs, dfTech, uMatrix, uPoisson, uConf, uMPN, uc, uc2, k, U, technical, matrix, confirm, mpn, ignoreNegligible, ignored[], budget[] ({ id, u, variance, share, ignored }), belowLOQ, loq ({ x, y, yUpper, yLower, xUpper, xLower: 0 }), interval, intervalLog, rounding, roundUp, reportForm, warnings[] }`. Natija yaxlitlanmaydi; `rounding` — hisobot qatlami uchun (M8 standart: `half_up`, ISO 19036 §9.1 — egasi qarori 2026-11-20).
+
+Ogohlantirishlar: `micro_unverified` (`MICRO_UNVERIFIED` true ekan), `micro_low_count`, `micro_no_technical`, `micro_few_pairs` (n < 10), `micro_matrix_design`, `micro_data_filter`, `micro_corr_negative`, `micro_below_loq`, `micro_negligible_ignored`, `micro_k_custom`, `micro_mpn_assumed_positive`. Xatolar: `micro_bad_spec`, `micro_bad_data`, `micro_zero_count`, `micro_need_result`, `micro_need_loq`, `micro_need_confirm`, `micro_need_mpn`, `micro_corr_need_counts`.
+
+Etalon: `tests/fixtures/iso19036/` (F1–F11), `tests/engine/micro.iso19036.test.js`; ochiq farqlar — `tests/cases/DISCREPANCIES.md` D-23…D-25, F2.
 
 ### 9.4. Tibbiy laboratoriya: `uc-medical/1` — BETA, unverified
 

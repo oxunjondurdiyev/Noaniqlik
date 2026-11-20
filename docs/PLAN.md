@@ -228,7 +228,16 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 - **P16b — MCM gistogrammasi** (alohida PR): dvigatelda `opts.histogram` (opt-in) → natijada gistogramma; sonli natija bit darajasida o'zgarmaydi (snapshot 91 / 91); ENGINE 2.11.0 (minor); Ref: JCGM 101:2008 §7.5; shundan keyin tasmada va Vizual laboratoriyada haqiqiy gistogramma.
 - **Xavfsizlik PR'i — `style-src 'unsafe-inline'` ni to'liq olib tashlash**: index / admin / superadmin / ai dagi inline uslublar sinflarga; `npm run test:rules` + sayt tutun-testi shart; `tests/security/inline-style.test.js` dagi son — 0.
-- **P17 — Kragten usuli** (QUAM:2012 Appendix E.2): solishtirish ko'rinishi (LPU o'rnini bosmaydi; farq hisobotda); kutilgan qiymatlar faqat QUAM ishlangan misolidan, sahifa havolasi bilan; minor versiya.
+- **P18 — Kragten usuli** (avval "P17" deb rejalashtirilgan; egasi 2026-11-20 da P17 raqamini M8 / ISO 19036 bosqichiga berdi — pastga qarang) (QUAM:2012 Appendix E.2): solishtirish ko'rinishi (LPU o'rnini bosmaydi; farq hisobotda); kutilgan qiymatlar faqat QUAM ishlangan misolidan, sahifa havolasi bilan; minor versiya.
+
+## P17 — M8 (ISO 19036:2019): to'liq standart bo'yicha validatsiya va kengaytirish
+
+> **Holat: kod bajarildi, qabul — egasi qarorini kutadi (2026-11-20, `claude/pensive-gauss-b2k711`, ENGINE_VERSION 2.11.0).** `src/engine/micro/` ISO 19036:2019 bo'yicha kengaytirildi (Annex A guruhlari, u_conf, u_MPN, 1/5 qoidasi, Annex D, §8.1.3, §9.2, filtrlar); etalon — `tests/fixtures/iso19036/` F1–F11. **Ochiq:** F2 (Table A.2 ma'lumoti berilmagan), D-23 (Table 3 (15; 8) ↔ konstanta 2,303), D-24 (F8 y), D-25 (F10 yuqori chegara) — `tests/cases/DISCREPANCIES.md`, `docs/RISKS.md` R-30; ular yopilmaguncha `micro_unverified` / BETA qoladi. Standart PDF'i repoga qo'shilmaydi.
+
+| Yaxlitlash qarori | Qoida | Manba |
+|---|---|---|
+| M1–M7, M9–M13 (barcha boshqa rejimlar) | o'zgarmagan (CLAUDE.md "Egasi qabul qilgan metrologik qarorlar") | ILAC P14 §5; egasi qarorlari |
+| **M8 (mikrobiologiya): U — `half_up`**, 2 qiymatli raqam (0,0999 → 0,10); y — round half away from zero; `up` — laboratoriya sozlamasi | ISO 19036 §9.1 (ISO 7218) | **egasi qarori 20.11.2026** |
 
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 

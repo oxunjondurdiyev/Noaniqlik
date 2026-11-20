@@ -361,3 +361,114 @@ test('kontroller: laboratoriya sozlamasi Clopper–Pearson bo\'lsa hisob va hiso
   assert.equal($('[data-sp-rate="ss"] [data-sp-ci="clopper_pearson"]').textContent, '[96.4; 100.0]');
   delete w.UCTemplates;
 });
+
+/* ── P17: ISO 19036:2019 — shakl → spetsifikatsiya, hisobot shakllari (§9.1, §9.2), yaxlitlash bayonoti ── */
+const FX19036 = id => require(`../fixtures/iso19036/${id}.json`);
+
+test('P17 mikrobiologiya: shakl holati → uc-micro/1 (usul, tasdiqlash, MPN, guruhlar, matritsa, 1/5 qoidasi, yaxlitlash); F4 va F6 natijalari', () => {
+  const f4 = B.buildSpec(st({ mode: 'micro', miValue: '1,0e5', miSum: '110', miTechKind: 'stated', miTechS: '0,15', miMatrix: '0,10' }));
+  assert.deepEqual(f4.bad, []);
+  assert.deepEqual(f4.spec.technical, { s: 0.15, source: 'intralab' });
+  assert.deepEqual(f4.spec.settings, { ignoreNegligible: false, reportForm: 'a' });
+  const r4 = E.evaluate(f4.spec), x4 = FX19036('F4').expected;
+  for (const k of ['uc', 'U', 'uPoisson']) assert.ok(Math.abs(r4[k] - x4[k].value) <= x4[k].tol, k);
+  const f6 = B.buildSpec(st({ mode: 'micro', miMethod: 'count_confirm', miValue: '1e5', miSum: '110', miNp: '5', miNc: '4', miTechKind: 'stated', miTechS: '0,15', miMatrix: '0,1', miRounding: 'up' }));
+  assert.deepEqual(f6.spec.result.confirm, { np: 5, nc: 4 }); assert.equal(f6.spec.settings.rounding, 'up');
+  assert.ok(Math.abs(E.evaluate(f6.spec).uc - 0.205) <= 0.0005);
+  const mpn = B.buildSpec(st({ mode: 'micro', miMethod: 'mpn', miValue: '170', miMpnMu: '1,7', miMpnAliquots: '1\t4\n0,1\t0\n0,01\t1', miTechKind: 'stated', miTechS: '0,2' }));
+  assert.deepEqual(mpn.spec.result.mpn, { aliquots: [{ m: 1, x: 4 }, { m: 0.1, x: 0 }, { m: 0.01, x: 1 }], mu: 1.7 });
+  assert.equal(mpn.spec.result.sumCounts, undefined);
+  assert.ok(Math.abs(E.evaluate(mpn.spec).uMPN - 0.2129) <= 0.00005);
+  assert.deepEqual(B.buildSpec(st({ mode: 'micro', miMethod: 'mpn', miValue: '1', miMpnAliquots: '1' })).bad, ['aliquots']);
+  const g = B.buildSpec(st({ mode: 'micro', miValue: '1e5', miSum: '110', miTechKind: 'groups', miGroups: '100\t120\t90\n2000\t1800', miMatrixKind: 'preset', miIgnore: true, miForm: 'c' }));
+  assert.deepEqual(g.spec.technical, { groups: [[100, 120, 90], [2000, 1800]] });
+  assert.deepEqual(g.spec.matrix, { preset: 'homogeneous_liquid' });
+  assert.deepEqual(g.spec.settings, { ignoreNegligible: true, reportForm: 'c' });
+  const ro = B.buildSpec(st({ mode: 'micro', miRepro: true, miValue: '1e5', miTechS: '0,25', miTechSource: 'interlab', miMatrix: '0,3', miPairs: '1\t2' }));
+  assert.equal(ro.spec.approach, 'REPRO_ONLY'); assert.equal(ro.spec.matrix, undefined); assert.deepEqual(ro.spec.technical, { s: 0.25, source: 'interlab' });
+  assert.equal(E.evaluate(ro.spec).uc, 0.25);
+  // jadval tanlangan, lekin bo'sh — tayyor qiymatga tushadi (avvalgi saqlangan holatlar bilan mos)
+  assert.deepEqual(B.buildSpec(st({ mode: 'micro', miValue: '1e4', miSum: '100', miTechS: '0,1' })).spec.technical, { s: 0.1, source: 'intralab' });
+});
+
+test('P17 mikrobiologiya shakli: faqat tanlangan variant maydonlari; inline uslub va skript yo\'q; uch tilda kalit qolmaydi', () => {
+  for (const lang of LANGS) {
+    const w = loadReport(lang), ctx = { t: k => w.i18n.t(k), esc: escHtml };
+    const q = (state, sel) => frag(w, V.formHTML(st({ mode: 'micro', ...state }), ctx)).querySelector(sel);
+    assert.ok(q({}, '#sp-miPairs') && !q({}, '#sp-miGroups') && !q({}, '#sp-miNp') && !q({}, '#sp-miMpnU'));
+    assert.ok(q({ miTechKind: 'groups' }, '#sp-miGroups') && !q({ miTechKind: 'groups' }, '#sp-miPairs'));
+    assert.ok(q({ miMethod: 'count_confirm' }, '#sp-miNp') && q({ miMethod: 'count_confirm' }, '#sp-miNc'));
+    assert.ok(q({ miMethod: 'mpn' }, '#sp-miMpnAliquots') && !q({ miMethod: 'mpn' }, '#sp-miSum'));
+    assert.ok(!q({ miMethod: 'instrumental' }, '#sp-miSum') && !q({ miMethod: 'instrumental' }, '#sp-miLoq'));
+    assert.ok(q({ miMatrixKind: 'groups' }, '#sp-miMatrixGroups') && !q({ miMatrixKind: 'preset' }, '#sp-miMatrix'));
+    assert.ok(!q({ miRepro: true }, '#sp-miMatrixKind') && !q({ miRepro: true }, '#sp-miPairs') && q({ miRepro: true }, '#sp-miTechS'));
+    assert.equal(q({}, '#sp-miMethod').options.length, 4);
+    const html = V.formHTML(st({ mode: 'micro', miMethod: 'mpn', miTechKind: 'groups', miMatrixKind: 'groups' }), ctx);
+    assert.ok(!/style=|<script|onclick=/.test(html));
+    assert.ok(!/\b(sp|td)_[a-z_]+\b/.test(frag(w, html).textContent), lang);
+  }
+});
+
+test('P17 hisobot: §9.1 bayonoti, uch shakl (tanlangani; bosmada faqat u), yaxlitlash qoidasi satri, tashlangan had kulrang va izohli', () => {
+  const f = FX19036('F6');
+  const r = E.evaluate(f.input), up = E.evaluate({ ...f.input, settings: { rounding: 'up', reportForm: 'b' } });
+  const ign = E.evaluate(FX19036('F5').input), ro = E.evaluate(FX19036('F11').input);
+  for (const lang of LANGS) {
+    const w = loadReport(lang);
+    const d = frag(w, w.Results.specialSection(r));
+    assert.equal(d.querySelector('[data-sp-u]').textContent.trim(), '0.41');                       // F6: half_up (ISO 19036 §9.1)
+    assert.equal(d.querySelector('[data-sp-y]').textContent.trim(), '4.90');
+    assert.equal(d.querySelector('[data-sp-rounding]').dataset.spRounding, 'half_up');
+    assert.match(d.querySelector('[data-sp-rounding]').textContent, /ISO 19036 §9\.1/);
+    assert.match(d.querySelector('[data-sp-statement]').textContent, /ISO 19036.*k = 2.*95 %/);
+    assert.equal(d.querySelectorAll('[data-sp-form]').length, 3);
+    assert.equal(d.querySelector('[data-sp-form-chosen]').dataset.spForm, 'a');
+    assert.match(d.querySelector('[data-sp-form="a"]').textContent, /4\.90 ± 0\.41 log10/);
+    assert.match(d.querySelector('[data-sp-form="b"]').textContent, /4\.90 \[4\.49; 5\.31\]/);
+    assert.match(d.querySelector('[data-sp-form="c"]').textContent, /80000 cfu\/g \[31000; 206000\]/);
+    assert.deepEqual([...d.querySelectorAll('[data-sp-budget] [data-sp-row]')].map(x => x.dataset.spRow), ['technical', 'matrix', 'poisson', 'confirm']);
+    const u = frag(w, w.Results.specialSection(up));
+    assert.equal(u.querySelector('[data-sp-u]').textContent.trim(), '0.42');                       // F6: 'up' sozlamasi (ILAC P14)
+    assert.equal(u.querySelector('[data-sp-rounding]').dataset.spRounding, 'up');
+    assert.match(u.querySelector('[data-sp-rounding]').textContent, /ILAC P14/);
+    const p = frag(w, w.Results.specialSection(up, { print: true }));
+    assert.deepEqual([...p.querySelectorAll('[data-sp-form]')].map(x => x.dataset.spForm), ['b']);   // bosmada faqat tanlangan shakl
+    const g = frag(w, w.Results.specialSection(ign));
+    const row = g.querySelector('[data-sp-row="poisson"]');
+    assert.ok(row.hasAttribute('data-sp-row-ignored') && row.classList.contains('text-muted'));
+    assert.match(row.textContent, /1\/5.*§8\.1\.2 NOTE/);
+    assert.ok(g.querySelector('[data-sp-ignored]'));
+    assert.equal(g.querySelector('[data-sp-u]').textContent.trim(), '0.54');
+    const s = frag(w, w.Results.specialSection(ro));
+    assert.equal(s.querySelector('[data-sp-statement]').dataset.spStatement, 'REPRO_ONLY');
+    assert.ok(s.querySelector('[data-sp-statement]').textContent.length > d.querySelector('[data-sp-statement]').textContent.length);
+    assert.equal(s.querySelector('[data-sp-u]').textContent.trim(), '0.50');
+    for (const x of [d, u, p, g, s]) assert.ok(!/(sp|td|w)_[a-z_]+|undefined|NaN/.test(x.textContent), lang);
+  }
+});
+
+test('P17 hisobot: LOQ dan past natija (§9.2.2, F10) — "<" belgisi, pastki chegara 0; yuqori chegara — D-25', async t => {
+  const f = FX19036('F10');
+  const r = E.evaluate({ ...f.input, result: { ...f.input.result, loq: 10 / 1.1 }, settings: { reportForm: 'c' } });
+  const w = loadReport('en');
+  const d = frag(w, w.Results.specialSection(r));
+  assert.equal(d.querySelector('[data-sp-u]').textContent.trim(), '0.94');
+  assert.equal(d.querySelector('[data-sp-y]').textContent.trim(), '< 0.96');
+  assert.ok(d.querySelector('[data-sp-loq]'));
+  const c = d.querySelector('[data-sp-form="c"]').textContent;
+  assert.match(c, /< 9\.1 cfu\/g \[0\.0; /);
+  assert.match(d.querySelector('[data-sp-form="a"]').textContent, /< 0\.96 ± 0\.94/);
+  assert.match(d.querySelector('[data-sp-form="b"]').textContent, /\[< 0\.02; 1\.90\]/);
+  await t.test('natural shakl standartdagi bilan aynan: "< 9,1 cfu/g [0,0; 79,2]" — ma\'lum farq D-25', { todo: 'D-25: egasi qarori kutilmoqda (hisob 79,26 → 79,3)' }, () => {
+    assert.ok(c.includes(f.report.natural), c);
+  });
+});
+
+test('P17: yaxlitlash faqat M8 da o\'zgargan — boshqa rejimlarda laboratoriya sozlamasi `rounding` avvalgidek; microRounding standart half_up', async () => {
+  const S = await import(pathToFileURL(path.join(ROOT, 'src/storage/index.js')).href);
+  assert.equal(S.LAB_DEFAULTS.microRounding, 'half_up');
+  assert.equal(S.LAB_DEFAULTS.rounding, 'normal');
+  const app = read('src/ui/special/app.js');
+  assert.match(app, /state\.mode === 'micro' && !spec\.settings\.rounding\) spec\.settings\.rounding = labMicroRounding\(\)/);
+  assert.match(read('src/ui/tpl/app.js'), /id="lab-microRounding"/);
+});

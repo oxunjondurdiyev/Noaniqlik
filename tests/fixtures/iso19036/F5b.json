@@ -1,0 +1,36 @@
+{
+ "id": "F5b",
+ "source": "mustaqil qo'lda hisob (egasi, P17 §2)",
+ "clause": "§8.1.2 (hisob — standart misoli emas)",
+ "title": "F5, ignoreNegligible: false — mustaqil hisob: √(0,25² + 0,10² + 0,041408²)",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "format": "uc-micro/1",
+  "unit": "cfu/g",
+  "result": {
+   "value": 100000,
+   "sumCounts": 110
+  },
+  "technical": {
+   "s": 0.25,
+   "source": "intralab"
+  },
+  "matrix": {
+   "u": 0.1
+  },
+  "settings": {
+   "ignoreNegligible": false
+  }
+ },
+ "expected": {
+  "uc": {
+   "value": 0.2724,
+   "tol": 0.00005
+  },
+  "U": {
+   "value": 0.5448,
+   "tol": 0.00005
+  }
+ },
+ "ignored": []
+}

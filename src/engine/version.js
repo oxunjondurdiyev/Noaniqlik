@@ -29,5 +29,9 @@
            Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)).
    2.10.0 — P12 (pt/ — z, z′, ζ, E_n, PT tarixi → top-down bias; validation/ — Grubbs, Cochran (unverified), bir omilli ANOVA,
            t / F testlari, LOD/LOQ (unverified), top-down shablon qoralamasi; stats/ — F-taqsimot, ANOVA yordamchilari.
-           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi). */
-export const ENGINE_VERSION = '2.10.0';
+           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi).
+   2.11.0 — P17 (micro/ — ISO 19036:2019 bo'yicha kengaytirildi: Annex A guruhlari, u_conf, u_MPN, 1/5 qoidasi, Annex D tuzatishi,
+           §8.1.3 (u_c = s_R), §9.2 (LOQ dan past natija — ΣC = 0 endi xato emas), qabul qilish filtrlari; etalon — tests/fixtures/iso19036.
+           Mikrobiologiyadan boshqa rejimlar natijalari 2.10.0 bilan bit darajasida bir xil; mavjud uc-micro/1 kirishlari uchun
+           y, u_c, U o'zgarmagan). */
+export const ENGINE_VERSION = '2.11.0';

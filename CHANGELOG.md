@@ -4,6 +4,52 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.11.0] — P17: mikrobiologiya (M8) ISO 19036:2019 bo'yicha kengaytirildi va etalon misollar bilan solishtirildi (2026-11-20)
+
+**Hisobga ta'siri.** Faqat mikrobiologiya rejimi (`uc-micro/1`). Boshqa barcha rejimlar natijalari 2.10.0 bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0); 9 ta etalon Excel nuqtasi va MC testi o'zgarmagan. Mavjud `uc-micro/1` kirishlari (natija + ΣC, juftliklar yoki tayyor s, matritsa u) uchun y, u_c, U **o'zgarmagan**; o'zgargani: `approachRef`, ogohlantirish matnlari / havolalari, natijadagi yangi maydonlar; **ΣC = 0 endi xato emas** (§9.2.2) — `micro_zero_count` o'rniga "LOQ dan past" natija (x_LOQ kiritilmagan bo'lsa `micro_need_loq`).
+
+**Manba.** ISO 19036:2019 (E), 1-nashr. Standart pullik — **matni / PDF repoda yo'q**; repoda faqat raqamli etalon qiymatlar va band havolalari (`tests/fixtures/iso19036/F1…F11.json`, egasi bergan).
+
+### Qo'shilganlar (`src/engine/micro/index.js`)
+
+- **u_tech (§5.2):** juftliklar — Formula (1); **guruhlar (> 2 portsiya) — Annex A, Formula (A.1)** (`logPooledSd`; df = Σ(p_i − 1)); tayyor qiymat manba belgisi bilan (`intralab` / `interlab` / `pt`). n < 10 namuna → `micro_few_pairs` (§5.2.2.3.2).
+- **u_matrix (§6):** tayyor | `preset: 'homogeneous_liquid'` → 0,1 (§6.2) | guruhlardan s_r (§6.3; sxema sharti bajarilmasa `micro_matrix_design`).
+- **Taqsimot noaniqliklari (§7), `method`:** `count` (u_Poisson, Formula (2)), `count_confirm` (+ **u_conf**, Formula (3); y = y_taxminiy + log₁₀(n_c/n_p)), `mpn` (**u_MPN** — Annex C, Formula (C.1) yoki tayyor qiymat; MPN qiymatining o'zi hisoblanmaydi), `instrumental` (taqsimot hadi yo'q). Formula (3) dagi ko'paytuvchi — alohida konstanta `CONF_LN10 = 2,303` (standartdagi yozuv).
+- **1/5 qoidasi (§8.1.2 NOTE):** `settings.ignoreNegligible` (standart `false` — konservativ); tashlangan had byudjetda `ignored: true` bilan qoladi.
+- **Annex D tuzatishi** (`technical.correct` / `matrix.correct`; portsiyalarda ΣC kerak): manfiy tuzatilgan dispersiya → 0 + `micro_corr_negative` (jimgina emas).
+- **§8.1.3:** `approach: 'REPRO_ONLY'` → u_c = s_R; hisobotda majburiy bayonot.
+- **§9.2:** ΣC = 0 / n_c = 0 / Σx = 0 — `belowLOQ`, `loq { x, y, yUpper, xUpper, xLower: 0 }`; x_LOQ kiritiladi (`result.loq`).
+- **§5.2.2.3.1 qabul qilish filtrlari** — faqat ogohlantirish (`micro_data_filter`), hech narsa o'chirilmaydi.
+- **k = 2 (§8.2)**; boshqa k — faqat sozlama orqali, `micro_k_custom` (info) bilan.
+
+### Yaxlitlash — egasi qarori (2026-11-20)
+
+- **M8 da U — `half_up`** (ISO 19036 §9.1 / ISO 7218: oddiy yaxlitlash, 2 qiymatli raqam; 0,0999 → 0,10); `up` (ILAC P14) — laboratoriya sozlamasi (`LAB_DEFAULTS.microRounding`) yoki shakldagi tanlov. Qo'llanilgan qoida hisobotda yoziladi. **Boshqa rejimlarda qoida o'zgarmagan.** Mikrobiologiya hisobotida U avval ham oddiy qoida bilan yaxlitlanar edi (`settings.rounding` berilmasa) — ya'ni mavjud hisoblarning yaxlitlangan natijasi o'zgarmagan (shu sababli minor versiya; CHANGE_CONTROL §1).
+- Natural shkala (`src/report/rounding.js::roundNatural`): x — 2 qiymatli raqam, chegaralar — x ning oxirgi xonasigacha (§9.2.2 misoli ko'rinishidan; loyiha qarori).
+
+### Etalon testlar (`tests/engine/micro.iso19036.test.js`)
+
+| ID | Band | Holat |
+|---|---|---|
+| F1 | Table 1, Formula (1) | o'tdi (Σ = 1,340 1; s_IR = 0,258 9) |
+| F2 | Annex A, Table A.2 | **kutilmoqda** — jadvalning 26 ta xom qiymati berilmagan (kirish o'ylab topilmaydi); formula juftliklarda Formula (1) bilan tengligi va df = 16 tuzilmasi tekshirilgan |
+| F3 | Annex D, Table D.1 | o'tdi (0,235 29; 0,011 76; 0,055 24; 0,235 03) |
+| F4, F5, F5b | §8.3.1, §8.3.2 | o'tdi |
+| F6 | §8.3.3 | o'tdi (U: 0,41 — half_up; 0,42 — `up`) |
+| F7 | Table 3 | 3 / 4 o'tdi; **(15; 8) — D-23** |
+| F8 | §8.3.4 | u_c, U o'tdi; **y — D-24** |
+| F9 | Annex C, Table C.1 | o'tdi (1,439 9; 0,212 9) |
+| F10 | §9.2.2 | u_c, U, x_LOQ, y_LOQ, y_LOQ + U o'tdi; **10^(y_LOQ + U) — D-25** |
+| F11 | §8.1.3 | o'tdi |
+
+**Ochiq farqlar (toleranslar o'zgartirilmagan; `tests/cases/DISCREPANCIES.md`):** D-23, D-24, D-25 va F2 ma'lumoti — egasi qarorini kutadi. Shu sababli **`micro_unverified` / "BETA" belgisi OLIB TASHLANMAGAN** (shart: barcha fixture'lar o'tishi) — `MICRO_UNVERIFIED` konstantasi.
+
+### Boshqa
+
+- UI ("Maxsus rejimlar" → Mikrobiologiya): usul, u_tech / u_matrix manbasi, 1/5 qoidasi, natija shakli (§9.1 a, b, c), yaxlitlash; matnlar uch tilda. Hisobot: §9.1 bayonoti, tashlangan hadlar, yaxlitlash qoidasi, LOQ shakllari. Annex D tuzatishi va filtrlar — hozircha faqat API orqali (portsiya bo'yicha ΣC kiritish shakli yo'q).
+- Shablon `SP-03` — `templates/validation/builtin.json` da F4 orqali "verified" (`scripts/lib/template-cases.js::ISO19036`); shablon matni yangilandi (DRAFT, BETA qoladi).
+- `tests/security/engine.sha256.json` yangilandi (dvigatel va `src/report/` o'zgargan).
+
 ## P16 — Interfeys 2.0: yangi dizayn tizimi, moslashuvchan qobiq, Vizual laboratoriya (2026-11-20)
 
 **ENGINE_VERSION o'zgarmadi (2.10.0): HISOB O'ZGARMAGAN, faqat ko'rinish.** `src/engine/` ga tegilmagan (bitta bayt ham). `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi P13 holati (`f09e418`; P14 — `88e271e` — ham dvigatelga tegmagan) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0) — har bir bosqichdan keyin tekshirildi. `tests/security/engine.sha256.json` yangilandi: sabab — faqat `src/report/` dagi markup (pastga qarang).

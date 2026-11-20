@@ -1,0 +1,57 @@
+{
+ "id": "F6",
+ "source": "ISO 19036:2019",
+ "clause": "§8.3.3 Example 3; §7.3, Formula (3)",
+ "title": "Tasdiqlash bilan: n_p = 5, n_c = 4",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "format": "uc-micro/1",
+  "unit": "cfu/g",
+  "result": {
+   "value": 100000,
+   "sumCounts": 110,
+   "confirm": {
+    "np": 5,
+    "nc": 4
+   }
+  },
+  "technical": {
+   "s": 0.15,
+   "source": "intralab"
+  },
+  "matrix": {
+   "u": 0.1
+  },
+  "method": "count_confirm"
+ },
+ "expected": {
+  "x": {
+   "value": 80000,
+   "tol": 0.5
+  },
+  "y": {
+   "value": 4.903,
+   "tol": 0.0005
+  },
+  "uConf": {
+   "value": 0.0888,
+   "tol": 0.00005
+  },
+  "uc": {
+   "value": 0.205,
+   "tol": 0.0005
+  },
+  "U": {
+   "value": 0.41,
+   "tol": 0.005
+  }
+ },
+ "report": {
+  "half_up": {
+   "U": "0.41"
+  },
+  "up": {
+   "U": "0.42"
+  }
+ }
+}

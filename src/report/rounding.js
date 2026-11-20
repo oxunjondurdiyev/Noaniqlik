@@ -55,3 +55,21 @@ export function roundResult(y, U, mode) {
   const show = v => (Object.is(v, -0) ? 0 : v).toFixed(digits);
   return { digits, decimals, Uround, yround, mode: up ? 'up' : 'normal', resultText: `${show(yround)} ± ${show(Uround)}` };
 }
+
+/**
+ * P17 — mikrobiologik natija oddiy (natural) shkalada: x — 2 qiymatli raqam (round half away from zero), interval chegaralari —
+ * x ning oxirgi xonasigacha. Ref: ISO 19036:2019 §9.1 c), §9.2.2 misoli ("< 9,1 cfu/g [0,0; 79,2]" — tests/fixtures/iso19036/F10.json).
+ * Ko'rinish — loyiha qarori (standart misolidan olingan); dvigatel natijasi yaxlitlanmaydi.
+ * @returns {{decimals:number, digits:number, x:string, low:string, high:string}}
+ */
+export function roundNatural(x, low, high) {
+  let decimals = x > 0 && isFinite(x) ? 1 - Math.floor(Math.log10(x)) : 0;
+  if (x > 0 && isFinite(x)) {
+    const s = clean(scaleBy(x, decimals));
+    if (s >= 100) decimals -= 1; else if (s < 10) decimals += 1;
+    if (clean(scaleBy(roundHalfAway(x, decimals), decimals)) >= 100) decimals -= 1;
+  }
+  const digits = Math.max(0, Math.min(12, decimals));
+  const show = v => (isFinite(v) ? roundHalfAway(v, decimals).toFixed(digits) : '—');
+  return { decimals, digits, x: show(x), low: show(low), high: show(high) };
+}

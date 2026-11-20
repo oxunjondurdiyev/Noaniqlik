@@ -1,0 +1,34 @@
+{
+ "id": "F9",
+ "source": "ISO 19036:2019",
+ "clause": "Annex C, Formula (C.1); Table C.1",
+ "title": "u_MPN: μ = 1,7; m = [1; 0,1; 0,01]; x = [4; 0; 1]",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "mu": 1.7,
+  "aliquots": [
+   {
+    "m": 1,
+    "x": 4
+   },
+   {
+    "m": 0.1,
+    "x": 0
+   },
+   {
+    "m": 0.01,
+    "x": 1
+   }
+  ]
+ },
+ "expected": {
+  "sum": {
+   "value": 1.4399,
+   "tol": 0.00005
+  },
+  "uMPN": {
+   "value": 0.2129,
+   "tol": 0.00005
+  }
+ }
+}

@@ -465,6 +465,7 @@ function labHTML(l) {
       <label>${esc(t('lab_cmc'))}<select id="lab-cmcMode">${opt('warn', l.cmcMode, t('lab_cmc_warn'))}${opt('block', l.cmcMode, t('lab_cmc_block'))}</select></label>
       <label>${esc(t('lab_critical'))}<select id="lab-criticalMode">${opt('mark', l.criticalMode, t('lab_critical_mark'))}${opt('block', l.criticalMode, t('lab_critical_block'))}</select></label>
       <label>${esc(t('lab_ci_method'))}<select id="lab-ciMethod">${opt('wilson', l.ciMethod, t('sp_ci_wilson'))}${opt('clopper_pearson', l.ciMethod, t('sp_ci_clopper_pearson'))}</select></label>
+      <label>${esc(t('lab_micro_rounding'))}<select id="lab-microRounding">${opt('half_up', l.microRounding, t('sp_mi_rounding_half_up'))}${opt('up', l.microRounding, t('sp_mi_rounding_up'))}</select></label>
       <label>${esc(t('lab_mc_mode'))}<select id="lab-mcMode">${opt('adaptive', l.mcMode, t('mc_mode_adaptive'))}${opt('fixed', l.mcMode, t('mc_mode_fixed'))}</select></label>
       <label>${esc(t('lab_mc_ndig'))}<select id="lab-mcNDig">${opt(1, l.mcNDig, '1')}${opt(2, l.mcNDig, '2')}</select></label>
       <label>${esc(t('lab_mc_tolerance'))}<select id="lab-mcTolerance">${opt('delta5', l.mcTolerance, t('lab_mc_tol_delta5'))}${opt('delta', l.mcTolerance, t('lab_mc_tol_delta'))}</select></label>
@@ -492,7 +493,7 @@ async function onLabAction(e) {
   if (b.dataset.lab === 'close') { closeModal(); return; }
   const v = {
     P: Number($('lab-P').value), kMethod: $('lab-kMethod').value, nuRule: $('lab-nuRule').value, rounding: $('lab-rounding').value,
-    decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, criticalMode: $('lab-criticalMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
+    decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, criticalMode: $('lab-criticalMode').value, ciMethod: $('lab-ciMethod').value, microRounding: $('lab-microRounding').value, secondOrder: $('lab-secondOrder').checked,
     mcMode: $('lab-mcMode').value, mcNDig: Number($('lab-mcNDig').value), mcTolerance: $('lab-mcTolerance').value,
     expiryWarnDays: Math.max(0, Math.round(Number($('lab-expiryWarnDays').value)) || 0),   // P11: etalon muddati ogohlantirishi (linter L1)
     westgardGate: $('lab-westgardGate').checked,   // W-4: Westgard 1₂s darvozasi (Westgard 1981, 1-rasm)

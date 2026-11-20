@@ -1,0 +1,45 @@
+{
+ "id": "F4",
+ "source": "ISO 19036:2019",
+ "clause": "§8.3.1 Example 1; Formula (2)",
+ "title": "Koloniya sanog'i",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "format": "uc-micro/1",
+  "unit": "cfu/g",
+  "result": {
+   "value": 100000,
+   "sumCounts": 110
+  },
+  "technical": {
+   "s": 0.15,
+   "source": "intralab"
+  },
+  "matrix": {
+   "u": 0.1
+  }
+ },
+ "expected": {
+  "uPoisson": {
+   "value": 0.0414,
+   "tol": 0.00005
+  },
+  "uc": {
+   "value": 0.185,
+   "tol": 0.0005
+  },
+  "U": {
+   "value": 0.37,
+   "tol": 0.005
+  },
+  "y": {
+   "value": 5,
+   "tol": 0.05
+  }
+ },
+ "report": {
+  "half_up": {
+   "U": "0.37"
+  }
+ }
+}

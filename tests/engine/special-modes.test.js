@@ -171,7 +171,7 @@ test('nol noto\'g\'ri natija: LR(+) = ∞ va ogohlantirish (AQA E3); kichik tanl
   assert.equal(ev({ table: { tp: 1, fn: 1, fp: 1, tn: 1 }, prevalence: 1.2 }).error, 'qualitative_bad_data');
 });
 
-/* ── Mikrobiologiya (BETA, tekshirilmagan) ── */
+/* ── Mikrobiologiya (P17: ISO 19036:2019 etalon misollari — tests/engine/micro.iso19036.test.js) ── */
 
 test('mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; asimmetrik interval', () => {
   const r = E.evaluate({ format: 'uc-micro/1', result: { value: 1e4, sumCounts: 100 }, technical: { pairs: [[100, 1000], [1000, 100]] }, matrix: { u: 0.1 } });
@@ -186,13 +186,15 @@ test('mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁�
   near(r.budget.reduce((s, b) => s + b.share, 0), 100, 1e-9);
 });
 
-test('mikrobiologiya: har doim "tekshirilmagan" belgisi; past sanoq; texnik hissa yo\'q; nol sanoq → xato', () => {
+test('mikrobiologiya: "tekshirilmagan" belgisi (egasi qarorigacha); past sanoq; texnik hissa yo\'q; nol sanoq → LOQ (§9.2)', () => {
   const r = E.evaluate({ format: 'uc-micro/1', result: { value: 40, sumCounts: 4 } });
   assert.equal(r.unverified, true);
   assert.deepEqual(codes(r), ['micro_unverified', 'micro_no_technical', 'micro_low_count']);
   assert.ok(r.warnings.every(w => w.ref && w.severity));
   assert.ok(!codes(E.evaluate({ format: 'uc-micro/1', result: { value: 40, sumCounts: 4 }, technical: { s: 0.1 }, settings: { lowCountThreshold: 3 } })).includes('micro_low_count'));
-  assert.equal(E.evaluate({ format: 'uc-micro/1', result: { value: 0, sumCounts: 0 } }).error, 'micro_zero_count');
+  // P17 (ISO 19036:2019 §9.2.2): ΣC = 0 endi xato emas — natija "LOQ dan past"; x_LOQ kiritilmagan bo'lsa aniq xato
+  assert.equal(E.evaluate({ format: 'uc-micro/1', result: { value: 0, sumCounts: 0 } }).error, 'micro_need_loq');
+  assert.equal(E.evaluate({ format: 'uc-micro/1', result: { value: 0, sumCounts: 0, loq: 10 }, technical: { s: 0.15 } }).belowLOQ, true);
   assert.equal(E.evaluate({ format: 'uc-micro/1', result: {} }).error, 'micro_need_result');
   assert.equal(E.evaluate({ format: 'uc-micro/1', result: { value: 10, sumCounts: 5 }, technical: { pairs: [[0, 5]] } }).error, 'micro_bad_data');
 });

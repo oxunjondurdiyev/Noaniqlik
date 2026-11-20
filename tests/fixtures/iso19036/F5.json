@@ -1,0 +1,47 @@
+{
+ "id": "F5",
+ "source": "ISO 19036:2019",
+ "clause": "§8.3.2 Example 2; §8.1.2 NOTE",
+ "title": "1/5 qoidasi: Puasson hadi tashlanadi (0,166 < 0,2)",
+ "tolerance": "har bir kutilgan qiymatda `tol` — manbada ko'rsatilgan oxirgi xona birligining yarmi",
+ "input": {
+  "format": "uc-micro/1",
+  "unit": "cfu/g",
+  "result": {
+   "value": 100000,
+   "sumCounts": 110
+  },
+  "technical": {
+   "s": 0.25,
+   "source": "intralab"
+  },
+  "matrix": {
+   "u": 0.1
+  },
+  "settings": {
+   "ignoreNegligible": true
+  }
+ },
+ "expected": {
+  "uc": {
+   "value": 0.269,
+   "tol": 0.0005
+  },
+  "U": {
+   "value": 0.54,
+   "tol": 0.005
+  },
+  "poissonRatio": {
+   "value": 0.166,
+   "tol": 0.0005
+  }
+ },
+ "ignored": [
+  "poisson"
+ ],
+ "report": {
+  "half_up": {
+   "U": "0.54"
+  }
+ }
+}

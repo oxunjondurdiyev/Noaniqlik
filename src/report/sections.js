@@ -12,7 +12,7 @@
    Bo'limlar mazmuni P05a dagi bilan AYNAN bir xil (funksiya tanalari o'zgarmagan) — tests/ui/*.test.js.
 ═══════════════════════════════════════════════════════════════ */
 import { lint, lintReported } from '../engine/index.js';
-import { roundResult } from './rounding.js';
+import { roundResult, roundNatural, roundHalfAway } from './rounding.js';
 import { fmtSci } from './format.js';
 import { ellipseSvg } from './ellipse.js';
 import { ribbonSvg } from './ribbon.js';
@@ -981,19 +981,50 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
         : (r.studyPrevalence !== null ? `<p class="rg-line text-muted">${i18n.t('sp_ql_study_prev')}: ${spPct(r.studyPrevalence)} %</p>` : '')}`);
   }
 
+  /* P17 — ISO 19036:2019. Natija uch shaklda (§9.1 a, b, c; LOQ dan past — §9.2); tanlangani (r.reportForm) — bayonotda,
+     bosmada faqat u. U — r.roundUp bo'yicha (M8 standart: half_up, §9.1); natural shkala — roundNatural. Hisob YO'Q — faqat ko'rinish. */
+  function microForms(r) {
+    const rr = Calc.roundResult(r.y, r.U, r.roundUp);
+    const f = v => roundHalfAwayText(v, rr), unit = rgUnit(r.unit), lt = r.belowLOQ ? '< ' : '';
+    const nat = roundNatural(r.value, r.interval.low, r.interval.high);
+    return { rr, nat,
+      a: `${lt}${f(r.y)} ± ${rr.Uround.toFixed(rr.digits)} log<sub>10</sub>${unit}`,
+      b: r.belowLOQ ? `[&lt; ${f(r.y - r.U)}; ${f(r.y + r.U)}] log<sub>10</sub>${unit}` : `${f(r.y)} [${f(r.y - r.U)}; ${f(r.y + r.U)}] log<sub>10</sub>${unit}`,
+      c: `${lt}${nat.x}${unit} [${nat.low}; ${nat.high}]` };
+  }
+  const roundHalfAwayText = (v, rr) => (x => (Object.is(x, -0) ? 0 : x).toFixed(rr.digits))(roundHalfAway(v, rr.decimals));
+  function microSourceLine(d, sym) {
+    if (!d) return '';
+    if (d.kind === 'stated') return `${sym}: ${i18n.t('sp_mi_src_stated')}${d.source ? ` — ${i18n.t('sp_mi_tech_source_' + d.source)}` : ''}`;
+    if (d.kind === 'preset') return `${sym}: ${i18n.t('sp_mi_matrix_kind_preset')} [ISO 19036:2019 §6.2]`;
+    const c = d.corrected;
+    return `${sym}: ${i18n.t('sp_mi_src_' + d.kind)}; n = ${d.n}, N = ${d.N}, df = ${d.df}, s = ${tdNum(d.sRaw, 5)}`
+      + (c ? `; ${i18n.t('sp_mi_src_corrected')}: S = ${tdNum(c.S, 5)}, u²<sub>unw</sub> = ${tdNum(c.u2Unwanted, 5)}, s<sub>corr</sub> = ${tdNum(Math.sqrt(c.s2Corr), 5)}` : '');
+  }
   function microSection(r, opt) {
     const cls = opt.print ? 'print-table' : 'data-table math-head';
-    const rr = Calc.roundResult(r.y, r.U, r.roundUp);
-    const unit = rgUnit(r.unit);
+    const F = microForms(r), rr = F.rr;
+    const unit = rgUnit(r.unit), form = r.reportForm || 'a';
+    const lt = r.belowLOQ ? '&lt; ' : '';
+    const shown = opt.print ? [form] : ['a', 'b', 'c'];
+    const lines = [microSourceLine(r.technical, 'u<sub>tech</sub>'), r.approach === 'REPRO_ONLY' ? '' : microSourceLine(r.matrix, 'u<sub>matrix</sub>'),
+      r.confirm ? `n<sub>p</sub> = ${escHtml(String(r.confirm.np))}, n<sub>c</sub> = ${escHtml(String(r.confirm.nc))}${r.valuePresumptive ? `; ${i18n.t('sp_mi_value_presumptive')}: ${tdNum(r.valuePresumptive, 3)}${unit}` : ''}` : '',
+      r.mpn ? `u<sub>MPN</sub>: ${i18n.t('sp_mi_mpn_' + r.mpn.kind)}${r.mpn.kind === 'computed' ? ` (μ = ${tdNum(r.mpn.mu, 4)}; Σ = ${tdNum(r.mpn.sum, 5)})` : ''}` : ''].filter(Boolean);
     return spHead(r, opt, `
-      <table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('sp_mi_value')}</th><th>log₁₀ y</th><th>U (log₁₀)</th><th>k</th><th>${i18n.t('sp_mi_interval')}</th></tr></thead>
-        <tbody><tr><td class="num">${tdNum(r.value, 3)}${unit}</td><td class="num" data-sp-y="1">${rr.yround.toFixed(rr.digits)}</td><td class="num" data-sp-u="1"><strong>${rr.Uround.toFixed(rr.digits)}</strong></td><td class="num">${escHtml(String(r.k))}</td>
-          <td class="num" data-sp-interval="1">[${tdNum(r.interval.low, 2)}; ${tdNum(r.interval.high, 2)}]${unit}</td></tr></tbody></table>
-      <p class="rg-line"><strong>${i18n.t('td_statement')}:</strong> log₁₀ = ${rr.resultText}; ${i18n.t('sp_mi_interval')} [10<sup>y−U</sup>; 10<sup>y+U</sup>]; k = ${escHtml(String(r.k))}; ΣC = ${escHtml(String(r.sumCounts))}</p>
+      <table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t(r.belowLOQ ? 'sp_mi_loq_value' : 'sp_mi_value')}</th><th>log₁₀ y</th><th>U (log₁₀)</th><th>k</th><th>${i18n.t('sp_mi_interval')}</th></tr></thead>
+        <tbody><tr><td class="num" data-sp-x="1">${lt}${F.nat.x}${unit}</td><td class="num" data-sp-y="1">${lt}${rr.yround.toFixed(rr.digits)}</td><td class="num" data-sp-u="1"><strong>${rr.Uround.toFixed(rr.digits)}</strong></td><td class="num">${escHtml(String(r.k))}</td>
+          <td class="num" data-sp-interval="1">[${F.nat.low}; ${F.nat.high}]${unit}</td></tr></tbody></table>
+      <p class="rg-line" data-sp-method="${escHtml(r.method)}"><strong>${i18n.t('sp_mi_method')}:</strong> ${i18n.t('sp_mi_method_' + r.method)}${r.sumCounts !== null && r.sumCounts !== undefined ? `; ΣC = ${escHtml(String(r.sumCounts))}` : ''}</p>
+      ${r.belowLOQ ? `<p class="rg-line" data-sp-loq="1"><strong>${i18n.t('sp_mi_below_loq')}</strong> [ISO 19036:2019 §9.2]</p>` : ''}
+      ${shown.map(k => `<p class="rg-line${k === form ? '' : ' text-muted'}" data-sp-form="${k}"${k === form ? ' data-sp-form-chosen="1"' : ''}>${k === form ? `<strong>${i18n.t('td_statement')}</strong>` : i18n.t('sp_mi_form_alt')} — ${i18n.t('sp_mi_form_' + k)}: ${k === form ? `<strong>${F[k]}</strong>` : F[k]}</p>`).join('')}
+      <p class="rg-line" data-sp-statement="${escHtml(r.approach)}">${i18n.t('sp_mi_stmt').replace('{k}', escHtml(String(r.k)))}${r.approach === 'REPRO_ONLY' ? ' ' + i18n.t('sp_mi_stmt_repro') : ''}</p>
+      ${r.ignored && r.ignored.length ? `<p class="rg-line" data-sp-ignored="1">${i18n.t('sp_mi_stmt_ignored')}: ${r.ignored.map(id => i18n.t('sp_mi_u_' + id)).join('; ')}</p>` : ''}
+      <p class="rg-line" data-sp-rounding="${escHtml(r.roundUp ? 'up' : 'half_up')}">${i18n.t(r.roundUp ? 'sp_mi_round_up_line' : 'sp_mi_round_half_up_line')}</p>
       <h4 class="rg-h">${i18n.t('td_budget')}</h4>
       <table class="${cls}" data-sp-budget="1"><thead><tr><th>${i18n.t('td_col_component')}</th><th>u (log₁₀)</th><th>${i18n.t('td_col_share')}</th></tr></thead>
-        <tbody>${r.budget.map(b => `<tr data-sp-row="${escHtml(b.id)}"><td>${i18n.t('sp_mi_u_' + b.id)}</td><td class="num">${tdNum(b.u)}</td><td class="num">${b.share.toFixed(1)}</td></tr>`).join('')}
-          <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">100.0</td></tr></tbody></table>`);
+        <tbody>${r.budget.map(b => `<tr data-sp-row="${escHtml(b.id)}"${b.ignored ? ' class="text-muted" data-sp-row-ignored="1"' : ''}><td>${i18n.t('sp_mi_u_' + b.id)}${b.ignored ? ` <span class="text-xs">(${i18n.t('sp_mi_ignored_note')})</span>` : ''}</td><td class="num">${tdNum(b.u)}</td><td class="num">${b.ignored ? '—' : b.share.toFixed(1)}</td></tr>`).join('')}
+          <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">100.0</td></tr></tbody></table>
+      ${lines.map(l => `<p class="rg-line text-xs" data-sp-detail="1">${l}</p>`).join('')}`);
   }
 
   function medicalSection(r, opt) {

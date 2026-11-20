@@ -11,3 +11,7 @@
 "9 ta etalon nuqta" = zichlik 1 + gazoanalizator 3 + termometr 5.
 
 Eslatma: termometr faylidagi kuzatuvlar o'quv maqsadidagi namuna qiymatlar (MS-MK-3 da raqamli misol yo'q). Ular dvigatelni tekshirish uchun yaroqli, lekin real laboratoriya ma'lumoti emas.
+
+## `iso19036/` — ISO 19036:2019 misollari (P17)
+
+`F1.json … F11.json` (+ `F5b.json`): mikrobiologiya (M8) uchun etalon qiymatlar. **Standart matni / PDF bu yerda YO'Q va qo'shilmaydi** (pullik, mualliflik huquqi; repo ochiq) — faqat raqamli qiymatlar va band havolalari. Qiymatlar egasi bergan ro'yxatdan (standartning lokal nusxasidan olingan). Har bir fayl: `{ id, source, clause, title, input, expected: { kattalik: { value, tol } } }`; `tol` — manbadagi oxirgi xona birligining yarmi (o'zgartirilmaydi). `knownDiscrepancies` — `tests/cases/DISCREPANCIES.md` (D-23…D-25); `F2` — `status: "pending"` (jadval ma'lumoti kutilmoqda). `F5b` — standart misoli emas, mustaqil hisob. Test: `tests/engine/micro.iso19036.test.js`.
