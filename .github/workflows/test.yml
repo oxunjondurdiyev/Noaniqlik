@@ -24,6 +24,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # Shablon validatsiyasi dalili (templates/validation/builtin.json) faqat skript bilan yaratiladi:
+      # qayta yaratilgani repodagi fayl bilan AYNAN bir xil bo'lishi shart (qo'lda tahrir yoki eskirgan fayl — xato)
+      - name: templates/validation/builtin.json — qayta yaratish va solishtirish
+        run: |
+          node scripts/template-validation.js --check
+          node scripts/template-validation.js --write
+          git diff --exit-code -- templates/validation/builtin.json
 
   rules:
     name: Firestore qoidalari (Emulator)

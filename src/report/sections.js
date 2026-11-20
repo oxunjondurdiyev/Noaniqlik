@@ -227,6 +227,31 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
   /* Monte-Karlo natijasi (P06). Hisobotda majburiy: interval turi, P, M, generator, urug', n_dig (JCGM 101:2008 §7.9, §8).
      Tekshiruv (§8.1.3) tanlangan interval turi bo'yicha; ikkinchi tur — ma'lumot uchun. LPU tasdiqlanmasa,
      natija sifatida MCM intervali ko'rsatiladi (M3 topilmasi bilan birga). */
+  /** MCM sonli toleransga yetmagan (M chegarasi yoki qat'iy M yetarli emas): §8 solishtiruvi ishonchli emas.
+      Ref: JCGM 101:2008 §8.2 — tekshiruv uchun MCM natijalari δ/5 sonli toleransga yetgan bo'lishi kerak; §7.9.4 — barqarorlashuv mezoni. */
+  function mcNotConverged(mc) {
+    return !!(mc && mc.validation && mc.validation.requested !== false && mc.validation.met === false);
+  }
+  /** Og'ir dumli chiqish: ν ≤ 2 bo'lgan t-kirish — u(y) aniqlanmagan (JCGM 101:2008 §6.4.9.4; dvigatel: uDefined / varianceUndefined). */
+  function mcHeavyTailed(mc) {
+    return !!mc && (mc.uDefined === false || (Array.isArray(mc.varianceUndefined) && mc.varianceUndefined.length > 0));
+  }
+  /** §8 xulosasi berilmaydigan holat. Egasi qarori (2026-11-20, R-29):
+      — MCM yaqinlashmagan bo'lsa "tasdiqlandi" yozuvi TAQIQLANGAN (har qanday modelda);
+      — og'ir dumli modelda yaqinlashmasa — "LPU validatsiyasi o'tkazilmadi" (erishilgan n_dig va M bilan).
+      Yengil dumli modelda yaqinlashmagan MCM bilan "tasdiqlanmadi" — avvalgidek (egasi qarorini kutadi, R-29). */
+  function mcNotPerformed(mc) {
+    return mcNotConverged(mc) && (mc.validated === true || mcHeavyTailed(mc));
+  }
+  function mcVerdict(mc) {
+    if (mcNotPerformed(mc)) {
+      const a = mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? String(mc.nDigAchieved) : '—';
+      return `<span class="badge badge-orange" data-mc-validation="not-performed">${escHtml(i18n.t('mc_not_performed')
+        .replace('{n}', String(mc.nDig || 2)).replace('{a}', a).replace('{M}', Number(mc.M).toLocaleString()))}</span>`;
+    }
+    return mc.validated ? `<span class="badge badge-green" data-mc-validation="valid">${i18n.t('mc_valid')}</span>`
+      : `<span class="badge badge-orange" data-mc-validation="not-valid">${i18n.t('mc_not_valid')}</span>`;
+  }
   function mcLines(r, mc) {
     const d = rounded(r).digits + 1;
     const shortest = (mc.interval || 'shortest') !== 'symmetric';
@@ -248,7 +273,7 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
     // §8 xulosasi faqat tekshiruv so'ralganda (oddiy MCM da berilmaydi — egasi qarori Q-8)
     if (mc.validated !== null && mc.validated !== undefined) {
       lines.push(`JCGM 101 §8: n_dig = ${nDig};  δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ` +
-        (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>` : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span>`));
+        mcVerdict(mc));
     }
     // MCM natijalarining sonli toleransi: talab (§8.2: δ/5; oddiy MCM: δ) va erishilgani (2·max s); δ ga tushirilgan bo'lsa — belgi
     if (val.required !== null && val.required !== undefined) {
@@ -261,7 +286,7 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
         `${i18n.t(ad.enabled ? 'mc_mode_adaptive' : 'mc_mode_fixed')}` +
         (ad.enabled ? ` (JCGM 101 §7.9.4): ${i18n.t('mc_blocks')} ${mc.blocks} × ${mc.blockSize.toLocaleString()} — ${i18n.t(ad.converged ? 'mc_converged' : 'mc_not_converged')}` : '') +
         (mc.nDigAchieved !== null && mc.nDigAchieved !== undefined ? `;  ${i18n.t('mc_ndig_achieved')} = ${mc.nDigAchieved}` : '') + '</span>');
-    if (mc.validated === false) {
+    if (mc.validated === false && !mcNotPerformed(mc)) {
       lines.push(`<strong data-mc-result="1">${i18n.t('mc_result_instead')}: ${escHtml(r.symbol)} = ${mc.mean.toFixed(d)}${unitOf(r)};  ` +
         `${i18n.t(mainKey)} (${pct(mc.P)} %): [${main[0].toFixed(d)}; ${main[1].toFixed(d)}]${unitOf(r)}</strong>`);
     }
@@ -1066,8 +1091,7 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
       }
       if (mc.validated !== null && mc.validated !== undefined) {
         const bad = (mc.comparison || []).filter(c => !c.ok).map(c => (c.q === 'lambdaMax' ? 'λ_max' : c.q === 'kp' ? 'k_p' : c.q === 'kq' ? 'k_q' : `${c.q}(${escHtml(c.output)})`));
-        lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + (mc.validated ? `<span class="badge badge-green">${i18n.t('mc_valid')}</span>`
-          : `<span class="badge badge-orange">${i18n.t('mc_not_valid')}</span> (${bad.join(', ')})`));
+        lines.push(`JCGM 102 §8: n_dig = ${mc.nDig}  →  ` + mcVerdict(mc) + (mc.validated || mcNotPerformed(mc) ? '' : ` (${bad.join(', ')})`));
       }
       const v = mc.validation || {};
       if (v.items && v.items.length) {

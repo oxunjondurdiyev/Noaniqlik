@@ -1,300 +1,139 @@
 {
- "format": "uc-template-validation/1",
- "engineVersion": "2.10.0",
- "note": "AVTOMATIK — qo'lda tahrirlanmaydi: node scripts/template-validation.js --write",
- "templates": {
-  "legacy-mass": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-volume": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-density": {
+ "_generated": "AVTOMATIK YARATILGAN — qo'lda tahrirlanmaydi. Yaratish: npm run validate:templates (node scripts/template-validation.js --write). Qo'lda o'zgartirilgan yoki eskirgan fayl `npm test` va CI da xato beradi.",
+ "format": "uc-template-validation/2",
+ "ENGINE_VERSION": "2.10.0",
+ "records": [
+  {
+   "templateId": "legacy-density",
+   "templateVersion": "1.0.0",
+   "templateHash": "ca152870eb2dc78ba88b685cc5e43d5602d6a2fa5052c094091908e03fc2ec63",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-density",
    "source": "Zichlik_noaniqligi_hisobi.xlsx",
    "clause": "3_Hisob",
-   "status": "verified",
    "relDiff": 2.7e-14,
-   "cases": [
-    "excel-density"
-   ],
+   "status": "verified",
    "checked": 5,
-   "known": []
+   "known": [],
+   "date": "2026-11-20"
   },
-  "legacy-voltage": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-resistance": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-power": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-length": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-area": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-temperature": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "legacy-gas_analyzer": {
+  {
+   "templateId": "legacy-gas_analyzer",
+   "templateVersion": "1.0.0",
+   "templateHash": "0751dba98b6cfb06c8da0564f0a3b3b1bfc19594b1e4334d75aa3c5f3f3eae8e",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-gas-p1",
    "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
-   "clause": "Nuqta_1, Nuqta_2, Nuqta_3",
+   "clause": "Nuqta_1",
+   "relDiff": 9.8e-16,
    "status": "verified",
-   "relDiff": 2.9e-15,
-   "cases": [
-    "excel-gas-p1",
-    "excel-gas-p2",
-    "excel-gas-p3"
-   ],
-   "checked": 15,
-   "known": []
+   "checked": 5,
+   "known": [],
+   "date": "2026-11-20"
   },
-  "legacy-thermometer": {
-   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
-   "clause": "Nuqta_1, Nuqta_2, Nuqta_3, Nuqta_4, Nuqta_5",
+  {
+   "templateId": "legacy-gas_analyzer",
+   "templateVersion": "1.0.0",
+   "templateHash": "0751dba98b6cfb06c8da0564f0a3b3b1bfc19594b1e4334d75aa3c5f3f3eae8e",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-gas-p2",
+   "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
+   "clause": "Nuqta_2",
+   "relDiff": 2.3e-15,
    "status": "verified",
+   "checked": 5,
+   "known": [],
+   "date": "2026-11-20"
+  },
+  {
+   "templateId": "legacy-gas_analyzer",
+   "templateVersion": "1.0.0",
+   "templateHash": "0751dba98b6cfb06c8da0564f0a3b3b1bfc19594b1e4334d75aa3c5f3f3eae8e",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-gas-p3",
+   "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
+   "clause": "Nuqta_3",
+   "relDiff": 2.9e-15,
+   "status": "verified",
+   "checked": 5,
+   "known": [],
+   "date": "2026-11-20"
+  },
+  {
+   "templateId": "legacy-thermometer",
+   "templateVersion": "1.0.0",
+   "templateHash": "81d44c678831a2bf0b53993ca328e7c18a172861d0c50c5256a132d3d7043866",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-term-p1",
+   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+   "clause": "Nuqta_1",
+   "relDiff": 4e-12,
+   "status": "verified",
+   "checked": 5,
+   "known": [],
+   "date": "2026-11-20"
+  },
+  {
+   "templateId": "legacy-thermometer",
+   "templateVersion": "1.0.0",
+   "templateHash": "81d44c678831a2bf0b53993ca328e7c18a172861d0c50c5256a132d3d7043866",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-term-p2",
+   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+   "clause": "Nuqta_2",
    "relDiff": 0.00087,
-   "cases": [
-    "excel-term-p1",
-    "excel-term-p2",
-    "excel-term-p3",
-    "excel-term-p4",
-    "excel-term-p5"
-   ],
-   "checked": 22,
+   "status": "verified",
+   "checked": 4,
    "known": [
     "D-03"
-   ]
+   ],
+   "date": "2026-11-20"
   },
-  "T-01": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
+  {
+   "templateId": "legacy-thermometer",
+   "templateVersion": "1.0.0",
+   "templateHash": "81d44c678831a2bf0b53993ca328e7c18a172861d0c50c5256a132d3d7043866",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-term-p3",
+   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+   "clause": "Nuqta_3",
+   "relDiff": 0.00024,
+   "status": "verified",
+   "checked": 4,
+   "known": [
+    "D-03"
+   ],
+   "date": "2026-11-20"
   },
-  "T-02": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
+  {
+   "templateId": "legacy-thermometer",
+   "templateVersion": "1.0.0",
+   "templateHash": "81d44c678831a2bf0b53993ca328e7c18a172861d0c50c5256a132d3d7043866",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-term-p4",
+   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+   "clause": "Nuqta_4",
+   "relDiff": 2.1e-13,
+   "status": "verified",
+   "checked": 5,
+   "known": [],
+   "date": "2026-11-20"
   },
-  "T-03": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-04": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-05": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-06": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-07": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-08": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-09": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-10": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-11": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-12": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-13": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-14": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-15": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-16": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-17": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-18": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-19": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-20": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-21": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-22": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-23": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "T-24": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "R-01": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "TD-01": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "TD-02": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "TD-03": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "TD-04": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "SP-01": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "SP-02": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "SP-03": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "SP-04": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
-  },
-  "MV-01": {
-   "source": null,
-   "clause": null,
-   "status": "unverified",
-   "relDiff": null
+  {
+   "templateId": "legacy-thermometer",
+   "templateVersion": "1.0.0",
+   "templateHash": "81d44c678831a2bf0b53993ca328e7c18a172861d0c50c5256a132d3d7043866",
+   "ENGINE_VERSION": "2.10.0",
+   "testId": "excel-term-p5",
+   "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
+   "clause": "Nuqta_5",
+   "relDiff": 0.00037,
+   "status": "verified",
+   "checked": 4,
+   "known": [
+    "D-03"
+   ],
+   "date": "2026-11-20"
   }
- }
+ ]
 }

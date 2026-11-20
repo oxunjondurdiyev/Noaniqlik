@@ -4319,6 +4319,7 @@
   "code": [
    "scripts/template-validation.js::build",
    "scripts/lib/template-cases.js",
+   "src/templates/validation-status.js::templateValidation",
    "src/ui/tpl/view.js"
   ],
   "tests": [

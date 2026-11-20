@@ -353,3 +353,36 @@ test('laboratoriya sozlamalari oynasida Monte-Karlo bo\'limi: rejim, n_dig, teks
     for (const lang of ['uz', 'ru', 'en']) { w.i18n.lang = lang; assert.notEqual(w.i18n.t(k), k, `${lang}.${k}`); }
   }
 });
+
+test('egasi qarori (2026-11-20, R-29): MCM yaqinlashmasa "tasdiqlandi" yozilmaydi; og\'ir dumli modelda — "LPU validatsiyasi o\'tkazilmadi" (erishilgan n_dig, M) — uch tilda', () => {
+  const gas = load('excel/excel-gas-p2-mc');
+  const r = E.evaluate(gas);
+  const mc = E.monteCarlo(gas, { mode: 'fixed', M: 20000 });                   // ν = 2 kirish: og'ir dum; δ/5 ga yetilmagan
+  assert.equal(mc.validation.met, false);
+  assert.equal(mc.uDefined, false);
+  const expected = {
+    uz: `MCM n_dig = 2 da yaqinlashmadi (erishilgan n_dig = ${mc.nDigAchieved}, M = ${mc.M.toLocaleString()}) — LPU validatsiyasi o'tkazilmadi`,
+    ru: `MCM не сошёлся при n_dig = 2 (достигнуто n_dig = ${mc.nDigAchieved}, M = ${mc.M.toLocaleString()}) — валидация LPU не проведена`,
+    en: `MCM did not converge at n_dig = 2 (achieved n_dig = ${mc.nDigAchieved}, M = ${mc.M.toLocaleString()}) — LPU validation not performed`,
+  };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  for (const lang of ['uz', 'ru', 'en']) {
+    const w = page(lang, stateOf(gas));
+    const S = w.Calc.createSections({ t: k => w.i18n.t(k), esc, acceptances: () => ({}), canAccept: () => false, lab: () => ({}) });
+    const lines = m => { const d = w.document.createElement('div'); d.innerHTML = S.mcLines(r, m).map(l => `<p>${l}</p>`).join(''); return d; };
+    // (1) og'ir dum + yaqinlashmagan: xulosa o'rnida "o'tkazilmadi"; "tasdiqlandi" / "tasdiqlanmadi" / "natija sifatida MCM" yo'q
+    let d = lines(mc);
+    assert.equal(d.querySelector('[data-mc-validation]').dataset.mcValidation, 'not-performed', lang);
+    assert.equal(d.querySelector('[data-mc-validation]').textContent, expected[lang], lang);
+    assert.ok(!d.textContent.includes(w.i18n.t('mc_valid')) && !d.textContent.includes(w.i18n.t('mc_not_valid')), lang);
+    assert.equal(d.querySelector('[data-mc-result]'), null, lang);
+    // (2) yaqinlashmagan MCM tasodifan d ≤ δ bersa ham (har qanday model) — "tasdiqlandi" TAQIQLANGAN
+    d = lines({ ...mc, uDefined: true, varianceUndefined: [], u: mc.uSample, validated: true });
+    assert.equal(d.querySelector('[data-mc-validation]').dataset.mcValidation, 'not-performed', lang);
+    assert.ok(!d.textContent.includes(w.i18n.t('mc_valid')), lang);
+    // (3) yaqinlashgan MCM: xulosa avvalgidek
+    d = lines({ ...mc, validation: { ...mc.validation, met: true }, validated: true });
+    assert.equal(d.querySelector('[data-mc-validation]').dataset.mcValidation, 'valid', lang);
+    assert.equal(d.querySelector('[data-mc-validation]').textContent, w.i18n.t('mc_valid'), lang);
+  }
+});
