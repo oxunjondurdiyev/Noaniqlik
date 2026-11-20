@@ -39,7 +39,7 @@ const FORBIDDEN = [/^tests\//, /^docs\//, /^node_modules\//, /^scripts\//, /^\.g
   /^package(-lock)?\.json$/, /^firestore\.rules$/, /^firebase\.json$/, /^CLAUDE\.md$/, /serviceAccount/i, /\.key\.json$/i, /\.env/];
 /* Markdown → HTML: saytdagi yo'l ← manba */
 const MANUAL = { 'manual/uz.html': 'docs/manual/uz.md', 'manual/ru.html': 'docs/manual/ru.md', 'manual/en.html': 'docs/manual/en.md' };
-const VALIDATION_DOCS = ['VALIDATION_PLAN', 'REQUIREMENTS', 'RTM', 'CHANGE_CONTROL', 'KNOWN_LIMITATIONS', 'PQ_PROTOCOL_TEMPLATE', 'USER_REQUIREMENTS_TEMPLATE', 'ASSESSOR_FAQ'];
+const VALIDATION_DOCS = ['VALIDATION_PLAN', 'REQUIREMENTS', 'RTM', 'CHANGE_CONTROL', 'KNOWN_LIMITATIONS', 'PQ_PROTOCOL_TEMPLATE', 'USER_REQUIREMENTS_TEMPLATE', 'ASSESSOR_FAQ', 'ASSESSOR_FAQ.ru', 'KNOWN_LIMITATIONS.ru'];
 const REPORT_FILES = ['validation-report.html', 'validation-report.json'];
 
 class BuildError extends Error {}
