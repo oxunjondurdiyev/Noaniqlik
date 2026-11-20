@@ -1,0 +1,259 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "uc-ai/certificate/1",
+  "title": "AI: sertifikatdan reestr yozuvi qoralamasi",
+  "description": "Kalibrlash sertifikatidan ajratilgan maydonlar. Shaxs ismi uchun maydon YO'Q. Har bir qiymat manba parchasi bilan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "certificate",
+    "calibrator",
+    "accreditation",
+    "date",
+    "validUntil",
+    "traceability",
+    "route",
+    "unit",
+    "points"
+  ],
+  "properties": {
+    "certificate": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "quote",
+            "page"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "page": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "calibrator": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "quote",
+            "page"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "page": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "accreditation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "quote",
+            "page"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "page": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "date": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "quote",
+            "page"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "page": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "validUntil": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "quote",
+            "page"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "page": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "traceability": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "quote",
+            "page"
+          ],
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "page": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "route": {
+      "enum": [
+        "nmi_cipm",
+        "accredited",
+        "nmi_other",
+        "lab_other",
+        "crm",
+        "unknown"
+      ]
+    },
+    "unit": {
+      "type": "string"
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "x",
+          "correction",
+          "U",
+          "k",
+          "quote",
+          "page"
+        ],
+        "properties": {
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "correction": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "U": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "k": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quote": {
+            "type": "string"
+          },
+          "page": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
