@@ -9,13 +9,13 @@
 | Ko'rsatkich | Soni |
 |---|---|
 | Talablar | 341 |
-| Kamida bitta testga bog'langan | 327 |
-| ✅ verified | 276 |
+| Kamida bitta testga bog'langan | 328 |
+| ✅ verified | 277 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
-| ⏳ pending | 30 |
+| ⏳ pending | 29 |
 | ✋ manual | 4 |
-| Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 14 |
+| Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 13 |
 
 ## GOV — Loyihaning majburiy qoidalari (CLAUDE.md, egasi qarorlari)
 
@@ -382,7 +382,7 @@
 | REQ-UIX-005 | B tur manbasi varag'i: jonli u dvigatel funksiyalari orqali; klaviatura (Esc, fokus qaytishi); vergulli kasr | `src/js/typeB.js` | `tests/ui/sheet.test.js` | ✅ verified | — |
 | REQ-UIX-006 | Laboratoriya ko'rinishi: QC zonalari, ogohlantirish / rad etish nuqtalari, Westgard holati (darvoza, `suppressed`) — dvigatel natijasidan; etalon kartochkalari holati | `src/ui/lab/chart.js::qcChartSVG`; `src/ui/lab/view.js` | `tests/ui/lab2.test.js`; `tests/ui/lab.test.js` | ✅ verified | — |
 | REQ-UIX-007 | Hisobot: A4 ko'rinishi va bosma bitta quruvchidan; pastki qism (ENGINE, build, xesh, QR) har sahifada; jadval sarlavhasi takrorlanadi; eng kichik shrift 12 pt | `src/report/forms.js::buildReport`; `src/css/print.css`; `src/js/report.js` | `tests/report/print.test.js` | ✅ verified | Sahifalar bo'yicha takrorlanish Chromium PDF + pdftotext bilan qo'lda tekshirildi; Safari — qo'lda (R-29) |
-| REQ-UIX-008 | Vizual laboratoriya: har bir rejim dvigatel funksiyalari orqali (UI da qoida takrorlanmaydi); "o'quv namunasi" belgisi; hech narsa saqlanmaydi va hisobotga chiqmaydi | `src/ui/vizlab/app.js` | — | ⏳ pending | 6-bosqich birlashtirilgach: tests/ui/vizlab.test.js |
+| REQ-UIX-008 | Vizual laboratoriya: har bir rejim dvigatel funksiyalari orqali (UI da qoida takrorlanmaydi); "o'quv namunasi" belgisi; hech narsa saqlanmaydi va hisobotga chiqmaydi | `src/ui/vizlab/app.js`; `src/ui/vizlab/model.js` | `tests/ui/vizlab.test.js` | ✅ verified | O'quv ko'rinishida MCM n_dig = 1 bilan (ekranda yozilgan); gistogramma — illyustrativ oqim (R-29 #1) |
 | REQ-UIX-009 | Harakat: faqat CSS (transform / opacity); `prefers-reduced-motion: reduce` da o'chadi; JS sikli faqat Vizual laboratoriya va MC progressida | `src/css/motion.css` | `tests/ui/motion.test.js` | ✅ verified | — |
 | REQ-UIX-010 | Inline uslublar: P16 qismlarida yo'q; qolganlari soni oshmaydi; `validation.html` da `style-src 'self'` | `index.html`; `validation.html` | `tests/security/inline-style.test.js` | ✅ verified | index / admin / superadmin da 'unsafe-inline' qolgan (R-29 #3) |
 | REQ-UIX-011 | Brauzerda: 390 / 834 / 1440 px, ikkala mavzu — konsol xatosi yo'q, bosiladigan maydon ≥ 44 px, kontrast ≥ 4,5:1, gorizontal surilish yo'q, klaviatura (Ctrl+K, Esc, ko'rinadigan fokus) | `tests/crossbrowser/screens.js` | — | ✋ manual | `npm run test:screens` — Playwright (CI `validation` job; `npm test` tarkibida emas). Safari va real qurilmalar — qo'lda, PQ |

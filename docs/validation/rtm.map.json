@@ -4267,11 +4267,14 @@
  },
  "REQ-UIX-008": {
   "code": [
-   "src/ui/vizlab/app.js"
+   "src/ui/vizlab/app.js",
+   "src/ui/vizlab/model.js"
   ],
-  "tests": [],
-  "status": "pending",
-  "note": "6-bosqich birlashtirilgach: tests/ui/vizlab.test.js"
+  "tests": [
+   "tests/ui/vizlab.test.js"
+  ],
+  "status": "verified",
+  "note": "O'quv ko'rinishida MCM n_dig = 1 bilan (ekranda yozilgan); gistogramma — illyustrativ oqim (R-29 #1)"
  },
  "REQ-UIX-009": {
   "code": [
