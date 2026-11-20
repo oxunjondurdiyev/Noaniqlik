@@ -1,1 +1,70 @@
-/* SHEET.CSS — P16 (Interfeys 2.0). Qiymatlar faqat tokens.css dan. */
+/* ═══════════════════════════════════════════════════════════════
+   SHEET.CSS — P16 (Interfeys 2.0): Kiritish. B tur manbasi varag'i: telefonda pastdan chiqadi (bottom sheet),
+   ≥ 720 px da o'ng yon panel. Yopiq holatda karta — ixcham qator (nom, kattalik, taqsimot, jonli u).
+   Qiymatlar faqat tokens.css dan.
+═══════════════════════════════════════════════════════════════ */
+
+.typeb-components { gap: var(--s-3); }
+.typeb-card { padding: var(--s-3) var(--s-4); }
+.typeb-card-header { gap: var(--s-2); padding: 0; border: 0; background: transparent; flex-wrap: wrap; }
+.typeb-card-header input[type="text"] { flex: 1 1 180px; min-width: 0; background: transparent; border-color: transparent; font-weight: 600; }
+.typeb-card-header input[type="text"]:hover { border-color: var(--c-border-strong); }
+.typeb-card-header .btn-remove-tb { min-width: var(--tap); padding: 0; justify-content: center; }
+.tb-summary { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); margin-top: var(--s-2); font-size: .84rem; color: var(--c-text-2); }
+.tb-summary-dist { color: var(--c-text-3); font-family: var(--font-text); }
+.tb-bad { color: var(--c-red-text); }
+.tb-warn { color: var(--c-amber); }
+.input-bad { border-color: var(--c-red) !important; }
+.stat-label-plain { text-transform: none; }
+.u-my { margin: var(--s-2) 0 var(--s-3); }
+.tb-label { display: block; margin-bottom: var(--s-1); font-size: .8rem; color: var(--c-text-2); }
+.tb-dist-group { grid-column: 1 / -1; }
+.tb-dist-seg { display: flex; flex-wrap: wrap; width: 100%; }
+.tb-dist-seg .seg-btn { flex: 1 1 auto; padding: 0 var(--s-3); }
+.tb-dist-other { margin-top: var(--s-2); width: 100%; color: var(--c-text-2); }
+.tb-dist-other.active { border-color: var(--c-blue); color: var(--c-text); }
+.tb-live { grid-column: 1 / -1; }
+.tb-live-box { color: var(--c-blue); font-size: 1rem; }
+
+/* Yopiq karta: forma yashirin */
+.typeb-card:not(.is-open) .typeb-card-body, .typeb-card:not(.is-open) .typeb-hint { display: none; }
+.typeb-card.is-open .tb-summary { display: none; }
+
+/* Fon pardasi */
+.sheet-backdrop { position: fixed; inset: 0; z-index: 400; background: var(--c-overlay); }
+body.sheet-open { overflow: hidden; }
+
+/* Ochiq varaq — desktop / planshet: o'ng yon panel */
+.typeb-card.is-open {
+  position: fixed; z-index: 410; top: 0; right: 0; bottom: 0;
+  width: min(460px, 100vw); margin: 0; padding: var(--s-5);
+  display: flex; flex-direction: column; gap: var(--s-3);
+  overflow-y: auto; overscroll-behavior: contain;
+  background: var(--c-surface-solid); border: 0; border-left: 1px solid var(--c-border-strong); border-radius: 0;
+}
+.typeb-card.is-open .typeb-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); padding: 0; }
+.typeb-card.is-open .typeb-card-header input[type="text"] { border-color: var(--c-border-strong); background: var(--c-sunken); }
+.sheet-grip { display: none; }
+.sheet-actions { position: sticky; bottom: calc(-1 * var(--s-5)); margin: auto calc(-1 * var(--s-5)) calc(-1 * var(--s-5)); padding: var(--s-3) var(--s-5); display: flex; gap: var(--s-3); background: var(--c-surface-solid); border-top: 1px solid var(--c-border); }
+.sheet-actions .btn { flex: 1; }
+
+/* Telefon: pastdan chiqadigan varaq */
+@media (max-width: 719px) {
+  .typeb-card.is-open {
+    top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: 88vh;
+    padding: var(--s-3) var(--s-4) var(--s-4);
+    border-left: 0; border-top: 1px solid var(--c-border-strong);
+    border-radius: var(--r-hero) var(--r-hero) 0 0;
+    padding-bottom: calc(var(--s-4) + env(safe-area-inset-bottom, 0px));
+  }
+  .sheet-grip { display: block; flex: 0 0 auto; width: 44px; height: 4px; margin: 0 auto var(--s-1); border-radius: 2px; background: var(--c-border-strong); }
+  .sheet-actions { bottom: calc(-1 * var(--s-4)); margin: auto calc(-1 * var(--s-4)) calc(-1 * var(--s-4)); padding: var(--s-3) var(--s-4); }
+  .tb-dist-seg .seg-btn { flex: 1 1 30%; border-top: 1px solid var(--c-border-strong); margin-top: -1px; }
+}
+@media (min-width: 720px) {
+  .sheet-panel.typeb-card.is-open { animation-name: uc-fade; }
+}
+
+/* Kiritish jadvali: kichik ekranda gorizontal scroll qutisi */
+.data-scroll .table-scroll { border: 1px solid var(--c-border); border-radius: var(--r-card); background: var(--c-surface); padding: var(--s-2); }
+#measurement-table input { min-width: 6.5em; }
