@@ -26,6 +26,7 @@ import { evaluateMultivariate, isMultiOutput, MULTIVARIATE_MODE } from './multiv
 import { evaluateImplicit, isImplicit } from './multivariate/implicit.js';
 import { evaluatePT, PT_FORMAT } from './pt/index.js';
 import { evaluateValidation, VALIDATION_FORMAT } from './validation/index.js';
+import { mcmDecision } from './mcm-decision.js';
 
 const DEFAULT_NONLIN_THRESHOLD = 0.01; // 1 % (PLAN P03 5-band; laboratoriya sozlamasi)
 
@@ -381,6 +382,9 @@ function evaluateCore(spec) {
     symbol, formula: formulaText, unit: model.unit || '',
     y, uc2, uc, nuEff, k, U, coverage: coverageInfo,
   };
+  // P20 (MET-01): LPU → MCM avtomatik qaror qoidasi — sonli natijani O'ZGARTIRMAYDI, faqat result.mcm ni qo'shadi.
+  // Ref: JCGM 100:2008 §5.1.2 NOTE; JCGM 101:2008 §5.7, §5.8; chegaralar — loyiha qarori (src/engine/mcm-decision.js)
+  const mcm = mcmDecision({ y, uc, U, nuEff, budget, inputs, secondOrder }, settings);
   return {
     engineVersion: ENGINE_VERSION,
     outputs: [out],
@@ -389,7 +393,7 @@ function evaluateCore(spec) {
     inputs: inputs.map(({ rowVals, deviations, values, warnings: w, ...rest }) => rest),
     pairs, budget, verify, conf, gamma, warnings, notes, units, secondOrder, cmc: isFinite(cmc) ? cmc : null,
     modelKind, nominal: modelKind === 'value' && isFinite(nominal) ? nominal : null, deviation,
-    decision,
+    decision, mcm,
     ...(cmcInfo ? { cmcCheck: cmcInfo } : {}),
     ...(isBlank(settings.measurementDate) ? {} : { measurementDate: String(settings.measurementDate) }),
     y, mean: y, uc2, uc, ucNoCorr, uc2FirstOrder: Math.max(0, uc2First),

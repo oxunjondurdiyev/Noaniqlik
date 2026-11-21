@@ -4,6 +4,9 @@
    yozadi va ikki holatni bit darajasida solishtiradi (`engineVersion` maydonidan tashqari).
      node scripts/cases-snapshot.js --out before.json          # joriy kod holati
      node scripts/cases-snapshot.js --compare before.json after.json
+     node scripts/cases-snapshot.js --compare before.json after.json --ignore '^result\.mcm(\.|$)'
+   --ignore <regex> — yangi QO'SHILGAN maydon yo'lini solishtiruvdan chiqarish (masalan P20: result.mcm); PR tavsifida
+   qaysi yo'l chiqarilgani yoziladi. Mavjud maydonlar uchun ishlatilmaydi.
    Solishtiruv: har bir son Object.is bilan (−0 va NaN ham), satrlar va tuzilma — aniq. Farq bo'lsa chiqish kodi 1.
    Ishlatilishi: hisobga ta'sir qilmasligi kerak bo'lgan o'zgarishdan OLDIN va KEYIN (natija PR tavsifida ko'rsatiladi). */
 'use strict';
@@ -25,7 +28,8 @@ function snapshot() {
   };
 }
 
-function compare(a, b) {
+function compare(a, b, extraIgnore) {
+  const ignore = extraIgnore ? (p => IGNORE(p) || extraIgnore.test(p)) : IGNORE;
   const { diffTrees } = require('../tests/crossbrowser/core.js');
   const byId = s => new Map(s.cases.map(c => [c.id, c]));
   const A = byId(a), B = byId(b);
@@ -34,7 +38,7 @@ function compare(a, b) {
     const x = A.get(id), y = B.get(id);
     if (!x || !y) { rows.push({ id, equal: false, note: x ? 'faqat birinchisida' : 'faqat ikkinchisida' }); continue; }
     const d = diffTrees({ result: x.result || null, display: x.display || null, error: x.error || null },
-      { result: y.result || null, display: y.display || null, error: y.error || null }, { rel: 0, ignore: IGNORE });
+      { result: y.result || null, display: y.display || null, error: y.error || null }, { rel: 0, ignore });
     rows.push({ id, equal: d.equal, numeric: d.numeric, differing: d.differing, maxRel: d.maxRel, maxRelPath: d.maxRelPath, structural: d.structural });
   }
   return { equal: rows.every(r => r.equal), total: rows.length, identical: rows.filter(r => r.equal).length, rows };
@@ -53,7 +57,8 @@ if (require.main === module) {
     for (const c of err) console.log(`  ${c.id}: ${c.error}`);
   } else if (arg[0] === '--compare' && arg[1] && arg[2]) {
     const [a, b] = [arg[1], arg[2]].map(f => JSON.parse(fs.readFileSync(f, 'utf8')));
-    const r = compare(a, b);
+    const ig = arg.indexOf('--ignore');
+    const r = compare(a, b, ig > 0 && arg[ig + 1] ? new RegExp(arg[ig + 1]) : null);
     console.log(`ENGINE_VERSION ${a.engineVersion} → ${b.engineVersion}; misollar: ${r.total}; bit darajasida bir xil: ${r.identical}; farq qiladi: ${r.total - r.identical}`);
     for (const row of r.rows.filter(x => !x.equal)) {
       console.log(`  ✗ ${row.id}: ${row.note || `${row.differing} ta son farq qiladi (maks. nisbiy ${row.maxRel.toExponential(2)} — ${row.maxRelPath})`}`);

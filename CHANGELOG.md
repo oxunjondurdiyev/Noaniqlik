@@ -4,6 +4,12 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
+
+**SONLI NATIJALAR O'ZGARMAGAN.** `tests/cases/` dagi 91 ta misolning to'liq natijasi 2.10.0 (`e460e89`) bilan **bit darajasida bir xil** — yagona farq: natijaga yangi maydon `mcm` qo'shildi (`node scripts/cases-snapshot.js --compare oldin.json keyin.json --ignore '(^|\.)mcm(\.|$)'`: 91 / 91, farq 0). Versiya minor oshirildi, chunki natija tuzilmasi kengaydi (yangi imkoniyat). 9 ta etalon Excel nuqtasi va 10-test (MC intervali) o'zgarmagan.
+
+P20_ENTRY_BODY
+
 ## P16 — Interfeys 2.0: yangi dizayn tizimi, moslashuvchan qobiq, Vizual laboratoriya (2026-11-20)
 
 **ENGINE_VERSION o'zgarmadi (2.10.0): HISOB O'ZGARMAGAN, faqat ko'rinish.** `src/engine/` ga tegilmagan (bitta bayt ham). `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi P13 holati (`f09e418`; P14 — `88e271e` — ham dvigatelga tegmagan) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0) — har bir bosqichdan keyin tekshirildi. `tests/security/engine.sha256.json` yangilandi: sabab — faqat `src/report/` dagi markup (pastga qarang).

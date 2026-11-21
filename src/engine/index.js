@@ -5,6 +5,8 @@
 ═══════════════════════════════════════════════════════════════ */
 export { ENGINE_VERSION } from './version.js';
 export { evaluate, prepareModel } from './evaluate.js';
+// P20: LPU → MCM avtomatik qaror qoidasi (result.mcm); chegaralar — loyiha qarori
+export { mcmDecision, mcmState, mcmMissing, MCM_THRESHOLDS, MCM_NON_NORMAL, MCM_ASYMMETRIC, MCM_REFS, MCM_STATES } from './mcm-decision.js';
 // P06: Monte-Karlo 2.0 (JCGM 101:2008) — adaptiv protsedura, generator va taqsimotlar src/engine/mc/ da
 export {
   monteCarlo, createMonteCarlo, mcOptions, numericalTolerance, coverageIntervals,
@@ -55,7 +57,7 @@ export { evaluateMicro, logDuplicateSd, MICRO_FORMAT, MICRO_WARNINGS, MICRO_ERRO
 export { evaluateMedical, MEDICAL_FORMAT, MEDICAL_WARNINGS, MEDICAL_ERRORS, FEW_IQC } from './medical/index.js';
 // P05a: metrologik linter (docs/LINTER_RULES.md) — evaluate() natijasiga result.findings ni yozadi
 export {
-  lint, lintReported, RULES as LINTER_RULES, FINDING_CODES, SEVERITIES, LINTER_MODES, LINTER_THRESHOLDS, linterModeOf,
+  lint, lintReported, lintMcm, RULES as LINTER_RULES, FINDING_CODES, SEVERITIES, LINTER_MODES, LINTER_THRESHOLDS, linterModeOf,
   withAcceptances, reportStatus, validateAcceptance, MIN_ACCEPT_COMMENT,
   grubbsCritical, grubbsStatistic, significantDigits, decimalPlaces,
 } from './linter/index.js';

@@ -236,6 +236,9 @@
       w_mc_legacy_rng: "Monte-Karlo eski generator (xorshift32) bilan takrorlandi — faqat avvalgi natijani tekshirish uchun.",
       why_mc_legacy_rng: "Bu generator JCGM 101 C.3.2 talablariga mos emas (davri qisqa); 2.6.0 dan boshlab yangi hisoblar Wichmann–Hill generatoridan foydalanadi.",
       fix_mc_legacy_rng: "Yangi hisobot uchun hisobni standart generator bilan qayta bajaring.",
+      w_mcm_required: "MCM tekshiruvi talab qilinadi ({v}), lekin Monte-Karlo natijasi yo'q — hisobot «QORALAMA» belgisi bilan chiqadi.",
+      why_mcm_required: "LPU (GUM) shartlari buzilishi mumkin: (a) model nochiziqli yoki c = 0; (b) bitta normal bo'lmagan manba ustun (|c|·u/u_c > 0,50); (c) asimmetrik taqsimot yoki fizik chegara yaqin; (d) ν_eff < 6. Bunday holda y ± U intervalini MCM bilan tekshirish kerak (JCGM 101 §5.7, §5.8, §8.1). Chegaralar — loyiha qarori, me'yoriy talab emas.",
+      fix_mcm_required: "Natijalar sahifasida Monte-Karlo tekshiruvini ishga tushiring (adaptiv, n_dig = 2) va tugashini kuting; bekor qilingan bo'lsa — qayta ishga tushiring.",
       /* ── P07: vektor natija (MV1) ── */
       w_outputs_correlated: "Chiqishlar {p} kuchli korrelyatsiyalangan: r = {v}.",
       why_outputs_correlated: "Har bir chiqishni alohida y ± U intervali bilan talqin qilish birgalikdagi bog'liqlikni yo'qotadi: to'rtburchak qamrov sohasi haqiqiy sohadan ancha katta bo'ladi, keyingi hisoblarda esa kovariatsiya hisobga olinmasa noaniqlik noto'g'ri chiqadi (JCGM 102 §6.5.2.3, §7.8.2.4).",
@@ -471,6 +474,9 @@
       w_mc_legacy_rng: "Расчёт Монте-Карло повторён со старым генератором (xorshift32) — только для проверки прежнего результата.",
       why_mc_legacy_rng: "Этот генератор не отвечает требованиям JCGM 101 C.3.2 (короткий период); начиная с 2.6.0 новые расчёты используют генератор Вихмана–Хилла.",
       fix_mc_legacy_rng: "Для нового отчёта повторите расчёт со стандартным генератором.",
+      w_mcm_required: "Требуется проверка методом Монте-Карло ({v}), но результата MCM нет — отчёт выводится с отметкой «ЧЕРНОВИК».",
+      why_mcm_required: "Условия применимости LPU (GUM) могут нарушаться: (a) модель нелинейна или c = 0; (b) доминирует один источник с ненормальным распределением (|c|·u/u_c > 0,50); (c) асимметричное распределение или близость физической границы; (d) ν_eff < 6. В таком случае интервал y ± U следует проверить методом Монте-Карло (JCGM 101 §5.7, §5.8, §8.1). Пороговые значения — решение проекта, а не нормативное требование.",
+      fix_mcm_required: "Запустите проверку Монте-Карло на странице результатов (адаптивно, n_dig = 2) и дождитесь завершения; если расчёт был отменён — запустите его снова.",
       /* ── P07: vektor natija (MV1) ── */
       w_outputs_correlated: "Выходные величины {p} сильно коррелированы: r = {v}.",
       why_outputs_correlated: "Толкование каждой выходной величины отдельным интервалом y ± U теряет совместную зависимость: прямоугольная область охвата гораздо больше действительной, а в последующих расчётах без учёта ковариации неопределённость будет неверной (JCGM 102 §6.5.2.3, §7.8.2.4).",
@@ -706,6 +712,9 @@
       w_mc_legacy_rng: "The Monte Carlo run was repeated with the legacy generator (xorshift32) — only to check an earlier result.",
       why_mc_legacy_rng: "This generator does not meet JCGM 101 C.3.2 (short period); from 2.6.0 on, new runs use the Wichmann–Hill generator.",
       fix_mc_legacy_rng: "For a new report, repeat the run with the default generator.",
+      w_mcm_required: "A Monte Carlo check is required ({v}) but there is no MCM result — the report is issued with a “DRAFT” watermark.",
+      why_mcm_required: "The conditions for valid use of the LPU (GUM) may not hold: (a) the model is non-linear or c = 0; (b) a single non-normal source dominates (|c|·u/u_c > 0.50); (c) an asymmetric distribution or a nearby physical bound; (d) ν_eff < 6. In such cases the interval y ± U should be checked with the Monte Carlo method (JCGM 101 §5.7, §5.8, §8.1). The thresholds are a project decision, not a normative requirement.",
+      fix_mcm_required: "Run the Monte Carlo check on the results page (adaptive, n_dig = 2) and wait for it to finish; if it was cancelled, run it again.",
       /* ── P07: vektor natija (MV1) ── */
       w_outputs_correlated: "Output quantities {p} are strongly correlated: r = {v}.",
       why_outputs_correlated: "Interpreting each output by its own interval y ± U loses their mutual dependence: the rectangular coverage region is much larger than the actual one, and later calculations that ignore the covariance give a wrong uncertainty (JCGM 102 §6.5.2.3, §7.8.2.4).",

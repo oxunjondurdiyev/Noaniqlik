@@ -26,6 +26,8 @@ import m01 from './rules/m01-model-kind.js';
 import m02 from './rules/m02-mc-correlation.js';
 import m03 from './rules/m03-mc-validation.js';
 import m04 from './rules/m04-mc-convergence.js';
+import m05 from './rules/m05-mcm-required.js';
+import { mcmMissing } from '../mcm-decision.js';
 import mv01 from './rules/mv01-output-correlation.js';
 import mv02 from './rules/mv02-implicit-covariance.js';
 import d01 from './rules/d01-decision-rule.js';
@@ -36,7 +38,7 @@ import w01 from './rules/w01-gum-warnings.js';
 import w02 from './rules/w02-module-warnings.js';
 
 /** Barcha qoidalar (tartib — hisobotdagi tartibga ta'sir qilmaydi: topilmalar darajasi bo'yicha saralanadi). */
-export const RULES = Object.freeze([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, a01, a02, a03, a04, m01, m02, m03, m04, mv01, mv02, d01, l01, l02, l03, w01, w02]);
+export const RULES = Object.freeze([x01, x02, x03, x04, x05, x06, x07, x08, x09, x10, x11, x12, a01, a02, a03, a04, m01, m02, m03, m04, m05, mv01, mv02, d01, l01, l02, l03, w01, w02]);
 
 /** Kod → { rule, severity, ref, modes, unverified } — hujjat (docs/LINTER_RULES.md), i18n testi va UI uchun. */
 export const FINDING_CODES = Object.freeze(Object.fromEntries(RULES.flatMap(r =>
@@ -73,6 +75,11 @@ export function lint(spec, result, ctx) {
 /** Hisobot qatlami uchun X9: chop etiladigan satrlarni tekshirish (natijaga bog'liq emas). */
 export function lintReported(reported, mode) {
   return x09.check({}, {}, { reported }).map(f => ({ ...f, mode: mode || 'GUM' }));
+}
+
+/** Hisobot / UI qatlami uchun M5: MCM talab qilingan (result.mcm.required), lekin natijasi yo'q (mc — monteCarlo() natijasi yoki null). */
+export function lintMcm(result, mc) {
+  return m05.check({}, result || {}, { mcm: { missing: mcmMissing(result, mc || null) } }).map(f => ({ ...f, mode: 'GUM' }));
 }
 
 /* ── "Asoslangan holda qabul qilish" ─────────────────────────────
