@@ -18,7 +18,7 @@ const { reportBridge } = require('../ui/lib.js');
 const ROOT = path.join(__dirname, '..', '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const strip = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
-const I18N = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-special.js', 'i18n-linter.js', 'i18n-io.js', 'i18n-report.js', 'i18n-lab.js', 'i18n-pt.js', 'i18n-shell.js'].map(f => 'src/js/' + f);
+const I18N = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-special.js', 'i18n-linter.js', 'i18n-io.js', 'i18n-report.js', 'i18n-p20.js', 'i18n-lab.js', 'i18n-pt.js', 'i18n-shell.js'].map(f => 'src/js/' + f);
 const caseSpec = id => require(`../cases/excel/${id}.json`).modelSpec;
 const frag = html => new JSDOM('<!doctype html><body><div id="r">' + html + '</div></body>').window.document.getElementById('r');
 

@@ -38,6 +38,10 @@ const Points = (() => {
       meta: clone(st.calcMeta || null),            // P05b: nuqta hisobining id / vaqti
       acceptances: clone(st.acceptances || {}),   // P05a: shu nuqtadagi qabul qilingan topilmalar (bosma hisobotda izohi bilan)
     };
+    // P20: shu natija uchun bajarilgan Monte-Karlo tekshiruvi (bo'lsa) nuqta bilan birga saqlanadi (MCM talab qilingan nuqtalar)
+    const mc = window.Results && window.Results.currentMC ? window.Results.currentMC() : null;
+    const same = (a, b) => !!a && !!b && ['y', 'uc', 'U', 'nuEff', 'k'].every(q => Object.is(a[q], b[q]));
+    if (mc && same(st.combined, r)) entry.mc = clone(mc);
     if (idx >= 0) pts[idx] = entry; else pts.push(entry);
     appState.set({ points: pts, currentPoint: id, combined: r });
     return entry;

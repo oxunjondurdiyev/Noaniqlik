@@ -473,6 +473,7 @@ function labHTML(l) {
     <label class="model-check"><input type="checkbox" id="lab-aiEnabled" ${l.aiEnabled === true ? 'checked' : ''} ${Store.canToggleAi(sessionRole()) ? '' : 'disabled'} /> <span>${esc(t('ai_set_enable'))}</span></label>
     <div class="tpl-ed-row"><label>${esc(t('ai_set_model'))}<select id="lab-aiModel" ${Store.canToggleAi(sessionRole()) ? '' : 'disabled'}>${AI_MODELS.map(m => opt(m, l.aiModel, m)).join('')}</select></label></div>
     <p class="text-xs text-muted">${esc(t('ai_set_hint'))}</p>
+    <label class="model-check"><input type="checkbox" id="lab-autoMcm" ${l.autoMcm !== false ? 'checked' : ''} /> <span>${esc(t('lab_auto_mcm'))}</span></label>
     <label class="model-check"><input type="checkbox" id="lab-secondOrder" ${l.secondOrder ? 'checked' : ''} /> <span>${esc(t('set_second_order'))}</span></label>
     <label class="model-check"><input type="checkbox" id="lab-westgardGate" ${l.westgardGate !== false ? 'checked' : ''} /> <span>${esc(t('lab_westgard_gate'))}</span></label>
     <p class="text-xs text-muted">${esc(t('lab_westgard_gate_hint'))}</p>
@@ -495,6 +496,7 @@ async function onLabAction(e) {
     decisionRule: $('lab-decisionRule').value, cmcMode: $('lab-cmcMode').value, criticalMode: $('lab-criticalMode').value, ciMethod: $('lab-ciMethod').value, secondOrder: $('lab-secondOrder').checked,
     mcMode: $('lab-mcMode').value, mcNDig: Number($('lab-mcNDig').value), mcTolerance: $('lab-mcTolerance').value,
     expiryWarnDays: Math.max(0, Math.round(Number($('lab-expiryWarnDays').value)) || 0),   // P11: etalon muddati ogohlantirishi (linter L1)
+    autoMcm: $('lab-autoMcm').checked,             // P20: MCM talab qilinganda avtomatik ishga tushirish
     westgardGate: $('lab-westgardGate').checked,   // W-4: Westgard 1₂s darvozasi (Westgard 1981, 1-rasm)
   };
   if (!db) { toast(t('st_no_idb'), 'error'); return; }

@@ -31,6 +31,7 @@ const I18N_FILES = [
   'src/js/i18n-ai.js',
   'src/js/i18n-shell.js',
   'src/js/i18n-vizlab.js',
+  'src/js/i18n-p20.js',
 ];
 
 // Berilgan fayllar bitta skript sifatida yuklanadi (top-level const TRANSLATIONS umumiy bo'lishi uchun)

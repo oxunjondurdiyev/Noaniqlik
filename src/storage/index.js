@@ -38,6 +38,9 @@ export const LAB_DEFAULTS = Object.freeze({
   // P06 (egasi qarorlari 2026-11-18): Monte-Karlo — adaptiv M (standart) yoki qat'iy; n_dig; §8 tekshiruvi toleransi
   // 'delta5' (JCGM 101 §8.2, standart) yoki 'delta' (tushirilgan — hisobotda belgi bilan)
   mcMode: 'adaptive', mcNDig: 2, mcTolerance: 'delta5',
+  // P20 (egasi qarori 2026-11-21): LPU → MCM qaror qoidasi MCM ni talab qilganda avtomatik ishga tushirish; false — faqat
+  // avtomatik ishga tushirish o'chadi (ogohlantirish M5 va "QORALAMA" belgisi qoladi)
+  autoMcm: true,
   expiryWarnDays: 30,
   westgardGate: true,
   // P14 (egasi qarorlari 2026-11-20): AI yordamchi standart holatda O'CHIQ; standart model — hujjat tavsiyasi (S-2 a)
