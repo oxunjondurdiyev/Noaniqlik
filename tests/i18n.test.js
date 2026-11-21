@@ -32,6 +32,7 @@ const I18N_FILES = [
   'src/js/i18n-shell.js',
   'src/js/i18n-vizlab.js',
   'src/js/i18n-p20.js',
+  'src/js/i18n-flow.js',    // P22-1: yagona "Yangi hisob" oqimi
   'src/js/i18n-legal.js',   // faqat privacy.html / terms.html da yuklanadi (P20)
 ];
 
@@ -103,20 +104,20 @@ test('hech bir HTML atributida "null" / "undefined" matni yo\'q (statik sahifala
   assert.deepEqual(bad, []);
 });
 
-test('o\'lchash jadvali (src/js/table.js): preset tanlanmagan bo\'lsa ham .meas-input placeholder "null" emas — bo\'sh', () => {
+test('o\'lchash jadvali (src/js/table.js): hech bir atributda "null" / "undefined" yo\'q; namuna qiymati matn sifatida ko\'rinadi (P20), preset ro\'yxati yo\'q (P22-1)', () => {
   const E = require('../src/engine/index.js');
   const dom = new JSDOM(`<!doctype html><body>
-    <select id="sidebar-preset"><option value=""></option><option value="density"></option></select><select id="inp-preset"><option value=""></option></select>
-    <button id="btn-fill-sample"></button><button id="btn-clear-data"></button><button id="btn-calc-typea"></button>
-    <div id="model-box"></div><div id="table-hint-box"></div>
+    <button id="btn-clear-data"></button>
+    <div id="model-box"></div><div id="typea-options"></div>
     <table><thead id="table-head"></thead><tbody id="table-body"></tbody><tfoot id="table-foot"></tfoot></table>
     <div id="type-a-summary"></div></body>`, { url: 'https://example.test/', runScripts: 'outside-only' });
   const w = dom.window;
   w.eval(fs.readFileSync(path.join(ROOT, 'src/ui/escape.js'), 'utf8'));
   w.eval(I18N_FILES.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n'));
   w.eval(fs.readFileSync(path.join(ROOT, 'src/js/state.js'), 'utf8'));
-  w.eval(fs.readFileSync(path.join(ROOT, 'src/data/presets.js'), 'utf8') + '\n;window.PRESETS = PRESETS;');
   w.Calc = { ...E, fmt: v => String(v), fmtSci: v => String(v) };
+  w.UCFlow = { ...require('../src/ui/flow/model.js'), tokenize: E.tokenize };
+  w.CSS = { escape: x => x };
   w.showToast = () => {}; w.switchTab = () => {};
   w.eval(fs.readFileSync(path.join(ROOT, 'src/js/table.js'), 'utf8'));
   const check = label => {
@@ -125,17 +126,17 @@ test('o\'lchash jadvali (src/js/table.js): preset tanlanmagan bo\'lsa ham .meas-
     for (const el of w.document.querySelectorAll('*')) for (const a of el.attributes) assert.ok(a.value !== 'null' && a.value !== 'undefined', `${label}: <${el.tagName.toLowerCase()} ${a.name}="${a.value}">`);
     return inputs;
   };
-  // preset yo'q (qo'lda kiritilgan model)
+  // qo'lda kiritilgan model: bo'sh jadval — bitta bo'sh qator (N jadvaldan)
   w.appState.set({ n: 3, params: ['a', 'b'], measurements: { a: ['', '', ''], b: ['', '', ''] }, model: { formula: 'a + b', unit: '' }, settings: { paired: true, P: 0.9545 } });
   w.Table.init();
   w.Table.render();
-  for (const el of check('preset yo\'q')) assert.equal(el.getAttribute('placeholder'), '');
-  // preset bor: namuna qiymati matn sifatida ('100.00' — oxirgi nollar bilan)
-  w.document.getElementById('sidebar-preset').value = 'density';
-  w.appState.set({ n: 5, params: ['m', 'V'], measurements: { m: Array(5).fill(''), V: Array(5).fill('') }, model: { formula: 'ρ = m / V', unit: 'g/cm³' } });
-  w.Table.render();
-  const ph = check('density').filter(el => el.dataset.param === 'V').map(el => el.getAttribute('placeholder'));
-  if (ph.some(Boolean)) assert.deepEqual(ph, ['100.02', '100.06', '99.98', '100.04', '100.00']);
+  const empty = check('bo\'sh model');
+  assert.equal(empty.length, 2);
+  for (const el of empty) { assert.equal(el.getAttribute('placeholder'), null); assert.ok(el.getAttribute('aria-label')); }
+  // namuna qiymatlari matn sifatida ('100.00' — oxirgi nollar bilan) va oxirida bitta bo'sh qator
+  w.appState.set({ n: 5, params: ['m', 'V'], measurements: { m: ['1.0', '1.1', '1.2', '1.1', '1.0'], V: ['100.02', '100.06', '99.98', '100.04', '100.00'] }, model: { formula: 'ρ = m / V', unit: 'g/cm³' } });
+  const shown = check('density').filter(el => el.dataset.param === 'V').map(el => el.value);
+  assert.deepEqual(shown, ['100.02', '100.06', '99.98', '100.04', '100.00', '']);
 });
 
 test('JS dagi i18n.t(\'…\') literal kalitlari lug\'atda bor', () => {

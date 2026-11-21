@@ -100,10 +100,10 @@ test('Bosh sahifa: ikkita asosiy karta, so\'nggi sessiyalar, tezkor havolalar, p
 
 test('model: so\'nggi sessiyalar — yangilari oldinda, chegaralangan, buzuq yozuvlar tashlanadi; natija raqamlari ro\'yxatga kirmaydi', async () => {
   const M = await import('../../src/ui/home/model.js');
-  const rec = (id, at, extra = {}) => ({ id, createdAt: at, engineVersion: '2.10.0', state: { n: 5, params: ['m', 'V'], model: { formula: 'ρ = m / V', unit: 'g/cm³' }, measurements: { m: [1], V: [2] }, typeB: [] }, result: { y: 0.5, U: 0.1, engineVersion: '2.10.0' }, ...extra });
+  const rec = (id, at, extra = {}) => ({ id, createdAt: at, engineVersion: '2.10.0', state: { n: 6, params: ['m', 'V'], model: { formula: 'ρ = m / V', unit: 'g/cm³' }, measurements: { m: [1, 2, 3, 4, 5, ''], V: [2, 2, 2, '', '', ''] }, typeB: [] }, result: { y: 0.5, U: 0.1, engineVersion: '2.10.0' }, ...extra });
   const rows = M.recentSessions([rec('a', '2026-11-01T10:00:00.000Z'), null, { id: 'x' }, rec('b', '2026-11-03T08:30:00.000Z', { templateRef: { id: 'legacy-density', version: '1.0.0' }, copyOf: 'a' }), rec('c', '2026-11-02T00:00:00.000Z')]);
   assert.deepEqual(rows.map(r => r.id), ['b', 'c', 'a']);
-  assert.deepEqual(rows[0], { id: 'b', formula: 'ρ = m / V', params: ['m', 'V'], n: 5, template: 'legacy-density v1.0.0', engineVersion: '2.10.0', createdAt: '2026-11-03T08:30:00.000Z', copy: true });
+  assert.deepEqual(rows[0], { id: 'b', formula: 'ρ = m / V', params: ['m', 'V'], n: 5 /* to'ldirilgan qatorlar — bo'sh oxirgi qator sanalmaydi (P22-1) */, template: 'legacy-density v1.0.0', engineVersion: '2.10.0', createdAt: '2026-11-03T08:30:00.000Z', copy: true });
   assert.ok(!JSON.stringify(rows).includes('0.5'), 'y / U ro\'yxatda yo\'q (yaxlitlash faqat hisobot qatlamida)');
   assert.equal(M.recentSessions(Array.from({ length: 20 }, (_, i) => rec('r' + i, `2026-11-${String(i + 1).padStart(2, '0')}T00:00:00.000Z`))).length, M.RECENT_LIMIT);
   assert.deepEqual(M.recentSessions(undefined), []);
