@@ -4496,5 +4496,68 @@
   ],
   "status": "manual",
   "note": "matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi"
+ },
+ "REQ-UXF-001": {
+  "code": [
+   "src/js/app.js",
+   "src/ui/home/app.js",
+   "src/ui/flow/model.js::blankCalc",
+   "index.html"
+  ],
+  "tests": [
+   "tests/ui/flow.test.js",
+   "tests/ui/home.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UXF-002": {
+  "code": [
+   "src/ui/flow/model.js::syncParams",
+   "src/ui/flow/model.js::formulaParams",
+   "src/js/table.js"
+  ],
+  "tests": [
+   "tests/ui/flow.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UXF-003": {
+  "code": [
+   "src/ui/flow/model.js::fitRows",
+   "src/ui/flow/model.js::usedRows",
+   "src/js/table.js"
+  ],
+  "tests": [
+   "tests/ui/flow.test.js",
+   "tests/i18n.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UXF-004": {
+  "code": [
+   "templates/builtin/legacy-density.json",
+   "schemas/methodology.schema.json",
+   "src/ui/tpl/view.js::isExampleQuery",
+   "src/ui/flow/model.js::hasSession"
+  ],
+  "tests": [
+   "tests/ui/flow.test.js",
+   "tests/templates/builtin.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-UXF-005": {
+  "code": [
+   "src/ui/shell/model.js::stepStates",
+   "src/ui/flow/model.js::stepBlocker",
+   "src/ui/shell/app.js",
+   "index.html"
+  ],
+  "tests": [
+   "tests/ui/flow.test.js",
+   "tests/ui/shell.test.js"
+  ],
+  "status": "verified",
+  "note": "bosishlar soni va tugmaning ko'rinishi haqiqiy brauzerda — npm run test:screens (CI validation job; npm test tarkibida emas)"
  }
 }

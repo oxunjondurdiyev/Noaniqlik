@@ -42,14 +42,13 @@ It follows that calculations are lost if the browser data is cleared or you move
 ## 2. Quick start
 
 1. **Choose the language.** The **UZ / RU / EN** buttons are at the top of the home page. The choice is saved in the browser.
-2. **Open the calculator.** Press **Open Calculator**. Without registering you can run 7 free calculations; the number left is shown on the set-up page. After that you need to **Register** or **Sign in**.
-3. **Set up the calculation.** On the **Set Up Your Calculation** page enter the **Number of measurements (n)** and the **Number of parameters (p)**. To start from a ready-made sample, choose one in the **Load a preset** list or open the **Template catalogue**. Then press **Start Calculation →**.
-4. **Enter the observations.** On the **Data Entry** tab type the measured values into the table. You can paste from Excel (Ctrl+V) or use **Import from file (.xlsx, .csv)**. Input quantities are added with **Add Parameter** in the left panel.
-5. **Write the model formula.** In the **Measurement model** box, type a formula such as `ρ = m / V` into the **Formula y = f(x₁…xₙ)** field and give the **Result unit**. For a direct measurement with one parameter the formula may be left empty (y = x).
-6. **Calculate Type A.** **Calculate Type A Uncertainty →**.
-7. **Enter the Type B sources.** On the **Type B** tab add each source with **Add Component** (or **Select from registry**): parameter, distribution, half-width or the U and k from a certificate. The calculation settings are on the same tab: **Coverage probability P**, **Coverage factor k**, **Model type**, **Maximum permissible error MPE (±)**, CMC, **Decision rule**.
-8. **Get the result.** **Calculate Combined Uncertainty →**. The **Results** tab shows the uncertainty budget, the result and the **Check results** (linter findings).
-9. **Report.** Choose the **Report form**, fill in the **Report details** and press **Print Report**.
+2. **Open the calculator.** Press **Open Calculator** — the **Home** page opens. Without registering you can run 7 free calculations; the number left is shown on the Home page. After that you need to **Register** or **Sign in**.
+3. **Start a new calculation.** On the Home page press **New calculation** — step 1 (**Model**) opens directly; there is no need to set the number of observations or parameters in advance. To start from a ready-made sample press **Examples**; for a methodology template press **Start from a template**.
+4. **Write the model formula.** Type a formula such as `ρ = m / V` into the **Formula y = f(x₁…xₙ)** field — the parameters (`m`, `V`) are taken from the formula automatically. Give the **Result unit**. For a direct measurement leave the formula empty (y = x). A parameter removed from the formula that still has data is not deleted: the program shows it and asks whether to move the data to a new name or remove it. Then press **Next: Data →**.
+5. **Enter the observations.** Type the measured values into the table: it always ends with one empty row, and a new row is added as soon as you enter a value. You can paste from Excel (Ctrl+V) or use **Import from file (.xlsx, .csv)**. Type A uncertainty is evaluated automatically whenever the data change, without a separate button (below the table). Then press **Next: Type B →**.
+6. **Enter the Type B sources.** Add each source with **Add Component** (or **Select from registry**): parameter, distribution, half-width or the U and k from a certificate. The calculation settings are on the same step: **Coverage probability P**, **Coverage factor k**, **Model type**, **Maximum permissible error MPE (±)**, CMC, **Decision rule**.
+7. **Get the result.** **Calculate: Result →**. The **Result** step shows the uncertainty budget, the result and the **Check results** (linter findings).
+8. **Report.** **Next: Report →**. Choose the **Report form**, fill in the **Report details** and press **Print**.
 
 To start a new calculation, press **New Session**.
 
@@ -526,8 +525,8 @@ The interface adapts to phones, tablets and desktops. The calculation methods an
 - **Top bar:** breadcrumb (section / calculation ID), command search, language (UZ / RU / EN), theme (dark / light), profile menu, "Report".
 - **Command search:** Ctrl+K finds a section, template or action by name; choose with the arrow keys, Enter opens, Esc closes.
 - **Left menu** (wide screens): "Calculation" (GUM, Monte Carlo, multi-output model), "Methods" (regression, top-down, special modes), "Laboratory" (QC charts, standards registry, proficiency tests, validation). On tablets it becomes a narrow icon rail; on phones — a bottom navigation bar and a primary action button.
-- **Steps:** Model → Type A → Type B → Result → Report. A completed step has a green mark, the current one is highlighted.
-- **Session settings** (number of measurements, parameters, presets) are under the "Session" button on the input page.
+- **Steps:** Model → Data → Type B → Result → Report. A completed step has a green mark, the current one is highlighted. Each step has one primary button at the bottom (a floating button on phones).
+- **The number of parameters and rows** is not entered separately: parameters come from the formula, rows from the table. Training examples are in the template catalogue, marked "Example".
 
 ### 14.2. Results screen
 

@@ -238,6 +238,7 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 | **P19** | M8 — mikrobiologiya, ISO 19036 (loyiha hujjatidagi "P17" prompti); hozirgi holat — BETA, KL-079 | rejalashtirilgan |
 | **P20** | Audit (21.11.2026) bo'yicha P0 tuzatishlar — pastda | **bajarildi (2026-11-21)** |
 | **P21** | Kragten usuli (QUAM:2012 Appendix E.2) — avvalgi "P17" | rejalashtirilgan |
+| **P22** | Interfeys qulayligi (audit P1) — 7 bosqich, pastda | P22-1 bajarildi (2026-11-21) |
 
 Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16) endi **P21** deb o'qiladi. P16b (MCM gistogrammasi) va `'unsafe-inline'` xavfsizlik PR'i — raqamsiz, avvalgidek.
 
@@ -252,6 +253,24 @@ Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16
 - **SEC-02:** majburiy rozilik (`consentVersion`, `consentAt` — boshqa yangi maydon yo'q), `privacy.html`, `terms.html` (loyiha — yurist tasdig'ini kutadi), `firestore.rules`.
 - **Qanday tekshirildi:** `npm test`; `cases-snapshot --compare … --ignore '(^|\.)mcm(\.|$)'` (91 / 91); `npm run test:rules` (32 / 32); `npm run test:screens` (Chromium, 54 skrinshot); bosma PDF (suv belgisi va holat har sahifada).
 - **Qoldiq:** `docs/RISKS.md` R-30.
+
+## P22 — Interfeys qulayligi (audit 21.11.2026: P1 ishlari 7–16 va AI-01, AI-02, AI-04)
+
+> Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)", A va F bo'limlari (egasining topshirig'i, 2026-11-21). Har bosqich — alohida PR; egasi saytda sinab ko'rgach keyingisi. **Hisob o'zgarmaydi:** `src/engine/` ga tegilmaydi (2-bosqichdagi `suggestMethod` bundan mustasno — faqat tavsiya); ENGINE_VERSION faqat 2-bosqichda minor +1.
+
+| Bosqich | Mazmun | Holat |
+|---|---|---|
+| **P22-1** | Yagona "Yangi hisob" oqimi (UX-01, UX-02, UX-04): sozlash oynasi yo'q, P — formuladan, N — jadvaldan, namunalar katalogda, 5 qadam, har qadamda bitta asosiy tugma | **bajarildi (2026-11-21)** — egasi sinovini kutadi |
+| P22-2 | Menyu (3 guruh, ≤ 9 band) va usul maslahatchisi `src/engine/method-advisor.js` (UX-03); "Hisobot" bitta joyda | rejalashtirilgan |
+| P22-3 | Natija ekrani (UX-06, UX-07): karta birinchi ekranda, topilmalar, byudjet, "Ko'proq" menyusi | rejalashtirilgan |
+| P22-4 | B tur ixcham jadval (UX-13), birliklar | rejalashtirilgan |
+| P22-5 | Shablonlar katalogi (UX-12): qobiq ichida, filtrlar, o'qiladigan formulalar | rejalashtirilgan |
+| P22-6 | Atamalar (`docs/GLOSSARY.md`), yordam, hisobot sozlamalari (UX-10, 11, 14, 15, 16; VAL-03) | rejalashtirilgan |
+| P22-7 | AI yordamchiga tez tuzatishlar (AI-01, AI-02, AI-04): tushuntirish va manba taklifi AI'siz | rejalashtirilgan |
+
+**O'lchanadigan maqsad (1-bosqichga tegishlisi — `npm run test:screens` da avtomatik):** Bosh sahifa → Model (sozlash ekranisiz); shablondan natijagacha bosishlar ≤ 3; 5 qadam; har qadamda bitta asosiy tugma. Qolgan ko'rsatkichlar (natija kartasi birinchi ekranda, menyu ≤ 9 band, "Hisobot" bitta joyda) — 2- va 3-bosqichlarda.
+
+**P22-1 — nima qilindi:** `CHANGELOG.md` "[2.11.0 — ilova] P22-1"; sof model `src/ui/flow/model.js`; talablar REQ-UXF-001…005. **Qanday tekshirildi:** `npm test`; `npm run test:screens` (Chromium, 66 skrinshot); `src/engine/`, `src/report/` — `git diff` bo'sh. **Qoldiq va qarorlar:** `docs/RISKS.md` R-31.
 
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 

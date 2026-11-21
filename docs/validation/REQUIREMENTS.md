@@ -466,3 +466,15 @@
 | REQ-AUD-008 | Kirish sahifasi: "bepul va ochiq kodli" / "MIT" da'vosi yo'q (litsenziya yopiq); "to'liq mos" o'rniga "talablari asosida ishlab chiqilgan" (uz / ru / en); sonlar (shablonlar, hisoblash rejimlari, taqsimotlar, tillar) dinamik — katalog va dvigateldan | Audit SEC-01, UX-14 (qisman); egasi qarori 2 |
 | REQ-AUD-009 | Ro'yxatdan o'tishda majburiy rozilik belgisi (belgisiz tugma faol emas); Firestore `organizations/{uid}` ga faqat `consentVersion` va `consentAt` (server vaqti) qo'shiladi — boshqa yangi maydon yo'q; qoidalar ularni talab qiladi va keyin o'zgartirishga yo'l qo'ymaydi | Audit SEC-02; egasi qarori 3; `CLAUDE.md` (shaxsiy ma'lumotlar) |
 | REQ-AUD-010 | Statik huquqiy sahifalar `privacy.html`, `terms.html` (uz / ru / en; "Loyiha — yurist tasdig'ini kutmoqda" belgisi): qaysi ma'lumot, nima uchun, qayerda, qancha muddat, o'chirish so'rovi tartibi, aloqa; sayt oq ro'yxatida; inline skript va tashqi so'rov yo'q | Audit SEC-02; `docs/DATA_RESIDENCY.md` §2, §113–114 |
+
+## UXF — Yagona "Yangi hisob" oqimi (P22-1)
+
+> Manba: audit (21.11.2026) — UX-01, UX-02, UX-04 (egasining hujjati; repoda yo'q) va P22 topshirig'i. Hisobga ta'sir qilmaydi.
+
+| ID | Talab | Manba |
+|---|---|---|
+| REQ-UXF-001 | Bosh sahifadagi "Yangi hisob" to'g'ridan-to'g'ri Model qadamini ochadi; "Hisoblashni sozlash" oynasi (N, P, "Sozlamani yuklash") yo'q | Audit UX-01 |
+| REQ-UXF-002 | Parametrlar ro'yxati formuladan (mavjud parser orqali) olinadi; formula bo'sh — bitta parametr `x`; formuladan chiqib ketgan, lekin ma'lumoti bor parametr jimgina o'chirilmaydi (ko'chirish / olib tashlash — foydalanuvchi qarori); shablon va oshkor bo'lmagan modelda ro'yxatga tegilmaydi | Audit UX-02 |
+| REQ-UXF-003 | Kuzatuvlar jadvali doim bitta bo'sh qator bilan tugaydi, qiymat kiritilsa qator qo'shiladi (bo'sh qator 100 gacha; mavjud qatorlar kesilmaydi); A tur alohida tugmasiz, ma'lumot o'zgarganda dvigatel funksiyasi bilan qayta hisoblanadi | Audit UX-02 |
+| REQ-UXF-004 | Avvalgi 11 sozlama katalogda `origin: 'example'` shabloni sifatida ("Namuna" belgisi); preset ro'yxatlari yo'q; eski saqlangan hisoblar ochiladi — parametrlar, kiritilgan qiymatlar va natija bit darajasida o'zgarmaydi | Audit UX-02; CLAUDE.md (migratsiya) |
+| REQ-UXF-005 | Qadamlar: Model → Ma'lumotlar → B tur → Natija → Hisobot; har qadamda bitta asosiy tugma, u kontentni yopmaydi; shablondan natijagacha bosishlar (ma'lumot kiritishdan tashqari) ≤ 3 | Audit UX-04 |

@@ -42,14 +42,13 @@ Bundan kelib chiqadi: brauzer ma'lumotlari tozalansa yoki boshqa kompyuterga o't
 ## 2. Tezkor boshlash
 
 1. **Tilni tanlang.** Bosh sahifaning yuqori qismida **UZ / RU / EN** tugmalari bor. Tanlov brauzerda saqlanadi.
-2. **Kalkulyatorni oching.** **Kalkulyatorni ochish** tugmasini bosing. Ro'yxatdan o'tmasdan 7 ta bepul hisoblash bajarish mumkin; qolgan soni sozlash sahifasida ko'rsatiladi. Undan keyin **Ro'yxatdan o'tish** yoki **Kirish** kerak.
-3. **Hisobni sozlang.** **Hisoblashni sozlash** sahifasida **O'lchashlar soni (n)** va **Parametrlar soni (p)** ni kiriting. Tayyor namunadan boshlash uchun **Sozlamani yuklash** ro'yxatidan tanlang yoki **Shablonlar katalogi** ni oching. Keyin **Hisoblashni boshlash →**.
-4. **Kuzatuvlarni kiriting.** **Ma'lumot kiritish** yorlig'idagi jadvalga o'lchash qiymatlarini yozing. Excel dan nusxalab qo'yish (Ctrl+V) yoki **Fayldan import (.xlsx, .csv)** ham mumkin. Chap paneldagi **Parametr qo'shish** bilan kirish kattaliklari qo'shiladi.
-5. **Model formulasini yozing.** **O'lchash modeli** bo'limida **Formula y = f(x₁…xₙ)** maydoniga, masalan, `ρ = m / V` deb yozing va **Natija birligi** ni ko'rsating. Bitta parametrli to'g'ridan-to'g'ri o'lchashda formulani bo'sh qoldirish mumkin (y = x).
-6. **A turni hisoblang.** **A-tip noaniqlikni hisoblash →**.
-7. **B tur manbalarini kiriting.** **B-tip** yorlig'ida **Komponent qo'shish** (yoki **Reestrdan tanlash**) bilan har bir manbani qo'shing: parametr, taqsimot, yarim kenglik yoki sertifikatdagi U va k. Shu yorliqda hisob sozlamalari ham bor: **Ishonch ehtimoli P**, **Qamrov koeffitsiyenti k**, **Model turi**, **Ruxsat etilgan xato MPE (±)**, CMC, **Qaror qoidasi**.
-8. **Natijani oling.** **Umumiy noaniqlikni hisoblash →**. **Natijalar** yorlig'ida noaniqlik byudjeti, natija va **Tekshiruv natijalari** (linter topilmalari) chiqadi.
-9. **Hisobot.** **Hisobot shakli** ni tanlang, **Rekvizitlar** ni to'ldiring va **Hisobot chop etish** ni bosing.
+2. **Kalkulyatorni oching.** **Kalkulyatorni ochish** tugmasini bosing — **Bosh sahifa** ochiladi. Ro'yxatdan o'tmasdan 7 ta bepul hisoblash bajarish mumkin; qolgan soni Bosh sahifada ko'rsatiladi. Undan keyin **Ro'yxatdan o'tish** yoki **Kirish** kerak.
+3. **Yangi hisobni boshlang.** Bosh sahifada **Yangi hisob** ni bosing — to'g'ridan-to'g'ri 1-qadam (**Model**) ochiladi; kuzatuvlar va parametrlar sonini oldindan kiritish kerak emas. Tayyor namunadan boshlash uchun **Namunalar** ni, metodika shabloni uchun **Shablondan boshlash** ni bosing.
+4. **Model formulasini yozing.** **Formula y = f(x₁…xₙ)** maydoniga, masalan, `ρ = m / V` deb yozing — parametrlar (`m`, `V`) formuladan avtomatik olinadi. **Natija birligi** ni ko'rsating. To'g'ridan-to'g'ri o'lchashda formulani bo'sh qoldiring (y = x). Formuladan olib tashlangan, lekin ma'lumoti bor parametr o'chirilmaydi: dastur uni ko'rsatadi va ma'lumotni yangi nomga ko'chirish yoki olib tashlashni so'raydi. Keyin **Keyingi: Ma'lumotlar →**.
+5. **Kuzatuvlarni kiriting.** Jadvalga o'lchash qiymatlarini yozing: jadval doim bitta bo'sh qator bilan tugaydi, qiymat kiritilsa yangi qator o'zi qo'shiladi. Excel dan nusxalab qo'yish (Ctrl+V) yoki **Fayldan import (.xlsx, .csv)** ham mumkin. A tur noaniqligi alohida tugmasiz, ma'lumot o'zgarganda avtomatik hisoblanadi (jadval ostida). Keyin **Keyingi: B tur →**.
+6. **B tur manbalarini kiriting.** **Komponent qo'shish** (yoki **Reestrdan tanlash**) bilan har bir manbani qo'shing: parametr, taqsimot, yarim kenglik yoki sertifikatdagi U va k. Shu qadamda hisob sozlamalari ham bor: **Ishonch ehtimoli P**, **Qamrov koeffitsiyenti k**, **Model turi**, **Ruxsat etilgan xato MPE (±)**, CMC, **Qaror qoidasi**.
+7. **Natijani oling.** **Hisoblash: Natija →**. **Natija** qadamida noaniqlik byudjeti, natija va **Tekshiruv natijalari** (linter topilmalari) chiqadi.
+8. **Hisobot.** **Keyingi: Hisobot →**. **Hisobot shakli** ni tanlang, **Rekvizitlar** ni to'ldiring va **Chop etish** ni bosing.
 
 Yangi hisobni boshlash uchun — **Yangi sessiya**.
 
@@ -526,8 +525,8 @@ Interfeys telefon, planshet va kompyuterga moslashadi. Hisoblash usullari va nat
 - **Yuqori panel:** joylashuv yo'li (bo'lim / hisob ID), buyruq qidiruvi, til (UZ / RU / EN), mavzu (qorong'i / yorug'), profil menyusi, "Hisobot".
 - **Buyruq qidiruvi:** Ctrl+K — bo'lim, shablon yoki amalni nomi bo'yicha topadi; strelkalar bilan tanlanadi, Enter — ochadi, Esc — yopadi.
 - **Chap menyu** (keng ekran): "Hisob" (GUM, Monte-Karlo, ko'p chiqishli model), "Usullar" (regressiya, top-down, maxsus rejimlar), "Laboratoriya" (QC kartalari, etalonlar reestri, malaka sinovlari, validatsiya). Planshetda — ikonkali tor ustun; telefonda — pastki navigatsiya va asosiy amal tugmasi.
-- **Qadamlar:** Model → A tur → B tur → Natija → Hisobot. Bajarilgan qadam yashil belgi bilan, joriysi ajratib ko'rsatiladi.
-- **Sessiya sozlamalari** (o'lchashlar soni, parametrlar, presetlar) — "Kiritish" sahifasidagi "Sessiya" tugmasi ostida.
+- **Qadamlar:** Model → Ma'lumotlar → B tur → Natija → Hisobot. Bajarilgan qadam yashil belgi bilan, joriysi ajratib ko'rsatiladi. Har qadamda pastda bitta asosiy tugma bor (telefonda — suzuvchi tugma).
+- **Parametrlar va qatorlar soni** alohida kiritilmaydi: parametrlar formuladan, qatorlar jadvaldan olinadi. O'quv namunalari — shablonlar katalogida "Namuna" belgisi bilan.
 
 ### 14.2. Natijalar ekrani
 

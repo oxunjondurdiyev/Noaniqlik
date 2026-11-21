@@ -12,6 +12,7 @@
 > | `src/css/theme.css` | eski o'zgaruvchi nomlari — tokenlarning taxalluslari (`:root, [data-theme]` — ichki mavzuli bo'lakda qayta hisoblanadi) |
 > | `src/css/shell.css`, `results.css`, `sheet.css`, `lab2.css`, `vizlab.css`, `print.css`, `motion.css` | qobiq va umumiy komponentlar; Natijalar; B tur varag'i; Laboratoriya; Vizual laboratoriya; A4 ko'rinishi va bosma; harakat (eng oxirida yuklanadi) |
 > | `src/ui/shell/model.js` (sof), `app.js` | chap menyu, stepper, joylashuv yo'li, buyruq qidiruvi, pastki navigatsiya; `window.UCShell` (`go`, `goStep`, `openSearch`) |
+> | `src/ui/flow/model.js` (sof), `app.js` | P22-1: yagona "Yangi hisob" oqimi — parametrlar formuladan (`syncParams`), qatorlar jadvaldan (`fitRows`), bo'sh hisob (`blankCalc`), qadam to'siqlari (`stepBlocker`); `window.UCFlow`. Qadamlar: `model` → `data` → `typeb` → `results` → `report` (har biri alohida yorliq) |
 > | `src/report/ribbon.js` | noaniqlik tasmasi (skriptsiz SVG; sof) |
 > | `src/report/sections.js` | + `heroCard`, `kpiTiles`, `budgetPareto` (sof) |
 > | `src/js/report.js` | Natijalar tartibi (asosiy ustun + o'ng panel), "Hisobot" yorlig'i (`renderReportTab`, `preview`) |

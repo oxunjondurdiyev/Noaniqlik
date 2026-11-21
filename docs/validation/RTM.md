@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 355 |
-| Kamida bitta testga bog'langan | 342 |
-| ✅ verified | 290 |
+| Talablar | 360 |
+| Kamida bitta testga bog'langan | 347 |
+| ✅ verified | 295 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -471,4 +471,14 @@
 | REQ-AUD-008 | Kirish sahifasi: "bepul va ochiq kodli" / "MIT" da'vosi yo'q (litsenziya yopiq); "to'liq mos" o'rniga "talablari asosida ishlab chiqilgan" (uz / ru / en); sonlar (shablonlar, hisoblash rejimlari, taqsimotlar, tillar) dinamik — katalog va dvigateldan | `src/ui/home/model.js::landingStats`; `src/ui/home/app.js`; `index.html` | `tests/ui/p20-pages.test.js` | ✅ verified | "usullar" soni — dvigatelning hisoblash rejimlari (LINTER_MODES); M1–M13 ro'yxati repoda yo'q — egasi bergach moslanadi |
 | REQ-AUD-009 | Ro'yxatdan o'tishda majburiy rozilik belgisi (belgisiz tugma faol emas); Firestore `organizations/{uid}` ga faqat `consentVersion` va `consentAt` (server vaqti) qo'shiladi — boshqa yangi maydon yo'q; qoidalar ularni talab qiladi va keyin o'zgartirishga yo'l qo'ymaydi | `src/ui/index-auth.js`; `src/js/auth.js`; `src/js/auth-core.js`; `firestore.rules` | `tests/ui/home.test.js`; `tests/ui/p20-pages.test.js`; `tests/security/firestore-rules.test.js` | ✅ verified | Firestore qoidalari — npm run test:rules (Emulator; 32 / 32); konsolga joylashni egasi bajaradi |
 | REQ-AUD-010 | Statik huquqiy sahifalar `privacy.html`, `terms.html` (uz / ru / en; "Loyiha — yurist tasdig'ini kutmoqda" belgisi): qaysi ma'lumot, nima uchun, qayerda, qancha muddat, o'chirish so'rovi tartibi, aloqa; sayt oq ro'yxatida; inline skript va tashqi so'rov yo'q | `privacy.html`; `terms.html`; `src/js/i18n-legal.js`; `scripts/build-site.js` | `tests/ui/p20-pages.test.js`; `tests/i18n.test.js` | ✋ manual | matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi |
+
+## UXF — Yagona "Yangi hisob" oqimi (P22-1)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-UXF-001 | Bosh sahifadagi "Yangi hisob" to'g'ridan-to'g'ri Model qadamini ochadi; "Hisoblashni sozlash" oynasi (N, P, "Sozlamani yuklash") yo'q | `src/js/app.js`; `src/ui/home/app.js`; `src/ui/flow/model.js::blankCalc`; `index.html` | `tests/ui/flow.test.js`; `tests/ui/home.test.js` | ✅ verified | — |
+| REQ-UXF-002 | Parametrlar ro'yxati formuladan (mavjud parser orqali) olinadi; formula bo'sh — bitta parametr `x`; formuladan chiqib ketgan, lekin ma'lumoti bor parametr jimgina o'chirilmaydi (ko'chirish / olib tashlash — foydalanuvchi qarori); shablon va oshkor bo'lmagan modelda ro'yxatga tegilmaydi | `src/ui/flow/model.js::syncParams`; `src/ui/flow/model.js::formulaParams`; `src/js/table.js` | `tests/ui/flow.test.js` | ✅ verified | — |
+| REQ-UXF-003 | Kuzatuvlar jadvali doim bitta bo'sh qator bilan tugaydi, qiymat kiritilsa qator qo'shiladi (bo'sh qator 100 gacha; mavjud qatorlar kesilmaydi); A tur alohida tugmasiz, ma'lumot o'zgarganda dvigatel funksiyasi bilan qayta hisoblanadi | `src/ui/flow/model.js::fitRows`; `src/ui/flow/model.js::usedRows`; `src/js/table.js` | `tests/ui/flow.test.js`; `tests/i18n.test.js` | ✅ verified | — |
+| REQ-UXF-004 | Avvalgi 11 sozlama katalogda `origin: 'example'` shabloni sifatida ("Namuna" belgisi); preset ro'yxatlari yo'q; eski saqlangan hisoblar ochiladi — parametrlar, kiritilgan qiymatlar va natija bit darajasida o'zgarmaydi | `templates/builtin/legacy-density.json`; `schemas/methodology.schema.json`; `src/ui/tpl/view.js::isExampleQuery`; `src/ui/flow/model.js::hasSession` | `tests/ui/flow.test.js`; `tests/templates/builtin.test.js` | ✅ verified | — |
+| REQ-UXF-005 | Qadamlar: Model → Ma'lumotlar → B tur → Natija → Hisobot; har qadamda bitta asosiy tugma, u kontentni yopmaydi; shablondan natijagacha bosishlar (ma'lumot kiritishdan tashqari) ≤ 3 | `src/ui/shell/model.js::stepStates`; `src/ui/flow/model.js::stepBlocker`; `src/ui/shell/app.js`; `index.html` | `tests/ui/flow.test.js`; `tests/ui/shell.test.js` | ✅ verified | bosishlar soni va tugmaning ko'rinishi haqiqiy brauzerda — npm run test:screens (CI validation job; npm test tarkibida emas) |
 
