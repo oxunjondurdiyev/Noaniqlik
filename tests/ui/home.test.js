@@ -23,10 +23,29 @@ test('kirish ekrani: maydonlar o\'zgarmagan (yangi shaxsiy maydon yo\'q); til va
   assert.equal((auth.outerHTML.match(/\sstyle="/g) || []).length, 0, 'inline uslub yo\'q');
   // QOTIRILGAN ro'yxat — P02 dagi maydonlar; yangi maydon (ayniqsa shaxsiy) faqat egasi qarori bilan
   assert.deepEqual([...auth.querySelectorAll('input, select, textarea')].map(i => i.id),
-    ['login-user', 'login-pwd', 'reg-inn', 'reg-phone', 'reg-firstname', 'reg-lastname', 'reg-login', 'reg-pwd', 'reg-pwd2', 'reg-empcount']);
+    // P20 (egasi qarori 2026-11-21, SEC-02): + 'reg-consent' — majburiy rozilik belgisi (shaxsiy maydon EMAS)
+    ['login-user', 'login-pwd', 'reg-inn', 'reg-phone', 'reg-firstname', 'reg-lastname', 'reg-login', 'reg-pwd', 'reg-pwd2', 'reg-empcount', 'reg-consent']);
   const reg = read('src/ui/index-auth.js').match(/AuthManager\.register\(\{([\s\S]*?)\}\)/)[1].replace(/\s+/g, ' ').trim();
-  assert.equal(reg, 'inn, phone, firstName, lastName, login, password: pwd, employeeCount: empCount,', 'Firebase\'ga yuboriladigan maydonlar o\'zgarmagan');
+  // P20: + consentVersion (hujjat versiyasi). consentAt — server vaqti, src/js/auth.js da qo'shiladi. Boshqa yangi maydon yo'q.
+  assert.equal(reg, 'inn, phone, firstName, lastName, login, password: pwd, employeeCount: empCount, consentVersion: window.AuthCore.CONSENT_VERSION,', 'Firebase\'ga yuboriladigan maydonlar: faqat rozilik versiyasi qo\'shilgan');
   for (const i of auth.querySelectorAll('input')) assert.ok(auth.querySelector(`label[for="${i.id}"]`), i.id + ': label');
+  // rozilik: belgi qo'yilmaguncha tugma faol emas; havolalar — privacy.html va terms.html; matnlar uch tilda
+  assert.equal(doc.getElementById('reg-consent').type, 'checkbox');
+  assert.equal(doc.getElementById('reg-consent').checked, false);
+  assert.equal(doc.getElementById('btn-do-register').disabled, true);
+  assert.deepEqual([...auth.querySelectorAll('.auth2-consent a')].map(a => a.getAttribute('href')), ['privacy.html', 'terms.html']);
+  const authJs = read('src/ui/index-auth.js');
+  assert.match(authJs, /function syncConsent\(\) \{ \$\('btn-do-register'\)\.disabled = !\$\('reg-consent'\)\.checked; \}/);
+  assert.match(authJs, /if \(!\$\('reg-consent'\)\.checked\) \{ showErr\('reg-error', t\('auth_err_consent'\)\); return; \}/);
+  const core = require('../../src/js/auth-core.js');
+  assert.match(core.CONSENT_VERSION, /^\d{4}-\d{2}-\d{2}$/);
+  // Firestore'ga yoziladigan hujjat: avvalgi maydonlar + FAQAT consentVersion va consentAt (server vaqti)
+  const authSrc = read('src/js/auth.js');
+  assert.match(authSrc, /DB\.set\('organizations', cred\.user\.uid, \{ \.\.\.org, consentVersion: Core\.CONSENT_VERSION, consentAt: DB\.serverTimestamp\(\) \}\)/);
+  assert.match(authSrc, /const org = \{\s*inn, phone, firstName, lastName, login,\s*employeeCount: [^\n]+\n\s*plan:\s+'basic',\s*registeredAt:[^\n]+\n\s*active:[^\n]+\n\s*paymentStatus: 'pending',\s*\};/);
+  const rules = read('firestore.rules');
+  assert.match(rules, /'employeeCount', 'plan', 'active', 'paymentStatus', 'registeredAt',\s*'consentVersion', 'consentAt'\]\)/);
+  assert.match(rules, /request\.resource\.data\.consentAt == request\.time/);
   assert.deepEqual([...auth.querySelectorAll('.lang-btn')].map(b => b.dataset.lang), ['uz', 'ru', 'en']);
   assert.ok(auth.querySelector('.theme-toggle'));
   const aside = auth.querySelector('.auth2-aside');

@@ -52,7 +52,7 @@ const TRANSLATIONS = {
 
     /* Home page — hero */
     home_hero_title:   'Professional Measurement Uncertainty Calculator',
-    home_hero_sub:     'Fully compliant with ISO/IEC\u00a017025:2017 and GUM:2008 — the global gold standards for calibration laboratories.',
+    home_hero_sub:     'Developed on the basis of the requirements of ISO/IEC\u00a017025:2017 and JCGM\u00a0100:2008 (GUM).',
     home_hero_cta:     'Open Calculator',
     home_hero_github:  '',
     home_formula_label:'Core formula (GUM\u00a05.1):',
@@ -92,7 +92,7 @@ const TRANSLATIONS = {
     home_about_name:   'Oxunjon Durdiyev',
     home_about_role:   'Metrologist & Software Developer · Uzbekistan',
     home_about_desc:   'This tool was created to make rigorous measurement uncertainty analysis accessible to every laboratory — from research institutes to small calibration workshops. Built with a deep respect for the GUM methodology and the practitioners who use it every day.',
-    home_about_open:   'Open source · Free to use · MIT License',
+    home_about_open:   'Proprietary licence · All rights reserved',
 
     /* Home page — collaboration */
     home_collab_heading:'Contact Us',
@@ -109,11 +109,11 @@ const TRANSLATIONS = {
     /* Home page — footer */
     home_footer_by:    'Developed by Oxunjon Durdiyev',
     home_footer_std:   'ISO/IEC\u00a017025:2017 · GUM:2008',
-    home_footer_open:  'Open Source',
+    home_footer_open:  'All rights reserved',
 
     /* Welcome screen */
     welcome_title:     'Set Up Your Calculation',
-    welcome_subtitle:  'ISO/IEC\u00a017025:2017 · GUM:2008 Compliant',
+    welcome_subtitle:  'Based on the requirements of ISO/IEC\u00a017025:2017 · JCGM\u00a0100:2008 (GUM)',
     label_n:           'Number of measurements (n)',
     label_p:           'Number of parameters (p)',
     label_preset:      'Load a preset',
@@ -266,7 +266,7 @@ const TRANSLATIONS = {
     app_name:          'UncertaintyCalc',
 
     home_hero_title:   'Профессиональный калькулятор неопределённости измерений',
-    home_hero_sub:     'Полностью соответствует ISO/IEC\u00a017025:2017 и GUM:2008 — международным стандартам для калибровочных лабораторий.',
+    home_hero_sub:     'Разработано на основе требований ISO/IEC\u00a017025:2017 и JCGM\u00a0100:2008 (GUM).',
     home_hero_cta:     'Открыть калькулятор',
     home_hero_github:  '',
     home_formula_label:'Основная формула (GUM\u00a05.1):',
@@ -302,7 +302,7 @@ const TRANSLATIONS = {
     home_about_name:   'Охунжон Дурдиев',
     home_about_role:   'Метролог и разработчик ПО · Узбекистан',
     home_about_desc:   'Этот инструмент создан для того, чтобы сделать строгий анализ неопределённости измерений доступным каждой лаборатории — от научно-исследовательских институтов до небольших калибровочных мастерских.',
-    home_about_open:   'Открытый исходный код · Бесплатно · Лицензия MIT',
+    home_about_open:   'Закрытая лицензия · Все права защищены',
 
     home_collab_heading:'Связаться с нами',
     home_collab_desc:  'Есть вопросы, предложения или нужна поддержка? Свяжитесь с нами напрямую.',
@@ -316,10 +316,10 @@ const TRANSLATIONS = {
 
     home_footer_by:    'Разработано Охунжоном Дурдиевым',
     home_footer_std:   'ISO/IEC\u00a017025:2017 · GUM:2008',
-    home_footer_open:  'Открытый исходный код',
+    home_footer_open:  'Все права защищены',
 
     welcome_title:     'Настройка расчёта',
-    welcome_subtitle:  'Соответствует ISO/IEC\u00a017025:2017 · GUM:2008',
+    welcome_subtitle:  'На основе требований ISO/IEC\u00a017025:2017 · JCGM\u00a0100:2008 (GUM)',
     label_n:           'Число измерений (n)',
     label_p:           'Число параметров (p)',
     label_preset:      'Загрузить пресет',
@@ -470,7 +470,7 @@ const TRANSLATIONS = {
     app_name:          'UncertaintyCalc',
 
     home_hero_title:   'Professional o\'lchov noaniqligini hisoblash',
-    home_hero_sub:     'ISO/IEC\u00a017025:2017 va GUM:2008 ga to\'liq mos — butun dunyo kalibrlash laboratoriyalarining oltin standarti.',
+    home_hero_sub:     'ISO/IEC\u00a017025:2017 va JCGM\u00a0100:2008 (GUM) talablari asosida ishlab chiqilgan.',
     home_hero_cta:     'Kalkulyatorni ochish',
     home_hero_github:  '',
     home_formula_label:'Asosiy formula (GUM\u00a05.1):',
@@ -506,7 +506,7 @@ const TRANSLATIONS = {
     home_about_name:   'Oxunjon Durdiyev',
     home_about_role:   'Metrologiya mutaxassisi va dasturchi · O\'zbekiston',
     home_about_desc:   'Bu vosita har bir laboratoriyada — ilmiy-tadqiqot institutlaridan tortib kichik kalibrlash ustaxonalarigacha — o\'lchov noaniqligini professional darajada tahlil qilishni ta\'minlash maqsadida yaratilgan.',
-    home_about_open:   'Ochiq manba · Bepul · MIT litsenziyasi',
+    home_about_open:   'Yopiq litsenziya · Barcha huquqlar himoyalangan',
 
     home_collab_heading:'Aloqa uchun',
     home_collab_desc:  'Savollaringiz, takliflaringiz yoki yordam kerakmi? Biz bilan to\'g\'ridan-to\'g\'ri bog\'laning.',
@@ -520,10 +520,10 @@ const TRANSLATIONS = {
 
     home_footer_by:    'Oxunjon Durdiyev tomonidan ishlab chiqilgan',
     home_footer_std:   'ISO/IEC\u00a017025:2017 · GUM:2008',
-    home_footer_open:  'Ochiq manba',
+    home_footer_open:  'Barcha huquqlar himoyalangan',
 
     welcome_title:     'Hisoblashni sozlash',
-    welcome_subtitle:  'ISO/IEC\u00a017025:2017 · GUM:2008 ga mos',
+    welcome_subtitle:  'ISO/IEC\u00a017025:2017 · JCGM\u00a0100:2008 (GUM) talablari asosida',
     label_n:           'O\'lchashlar soni (n)',
     label_p:           'Parametrlar soni (p)',
     label_preset:      'Sozlamani yuklash',

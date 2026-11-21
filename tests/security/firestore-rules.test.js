@@ -24,6 +24,9 @@ const ORG_DOC = (over = {}) => ({
 
 describe('firestore.rules', { skip }, () => {
   let rut, env;
+  // P20 (SEC-02): mijoz ro'yxatdan o'tishda yuboradigan hujjat — ORG_DOC + rozilik (versiya va SERVER vaqti)
+  const serverTime = () => { const fb = require('firebase/compat/app'); require('firebase/compat/firestore'); return (fb.default || fb).firestore.FieldValue.serverTimestamp(); };
+  const ORG_NEW = (over = {}) => ({ ...ORG_DOC(), consentVersion: '2026-11-21', consentAt: serverTime(), ...over });
 
   before(async () => {
     rut = require('@firebase/rules-unit-testing');
@@ -119,17 +122,45 @@ describe('firestore.rules', { skip }, () => {
     await rut.assertFails(as(ORG_B).doc(`organizations/${ORG_B}`).update({ requestedPlan: 'free-forever' }));
   });
   test('ro\'yxatdan o\'tishda active:true bilan yaratish rad etiladi', async () => {
-    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_DOC({ active: true })));
-    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_DOC({ paymentStatus: 'paid' })));
-    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_DOC({ planExpiry: '2099-01-01' })));
-    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_DOC({ plan: 'pro' })));
+    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_NEW({ active: true })));
+    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_NEW({ paymentStatus: 'paid' })));
+    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_NEW({ planExpiry: '2099-01-01' })));
+    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_NEW({ plan: 'pro' })));
   });
   test('ro\'yxatdan o\'tish: faqat o\'z UID\'i bilan, nofaol holatda', async () => {
-    await rut.assertSucceeds(as('uidNew').doc('organizations/uidNew').set(ORG_DOC()));
-    await rut.assertFails(as('uidNew').doc('organizations/someoneElse').set(ORG_DOC()));
+    await rut.assertSucceeds(as('uidNew').doc('organizations/uidNew').set(ORG_NEW()));
+    await rut.assertFails(as('uidNew').doc('organizations/someoneElse').set(ORG_NEW()));
+  });
+  /* ── P20 (SEC-02): rozilik — faqat consentVersion va consentAt (server vaqti); boshqa yangi maydon yo'q ── */
+  test('rozilik: consentVersion + consentAt (server vaqti) bilan ro\'yxatdan o\'tiladi; ularsiz — rad etiladi', async () => {
+    await rut.assertSucceeds(as('uidC1').doc('organizations/uidC1').set(ORG_NEW()));
+    await rut.assertFails(as('uidC2').doc('organizations/uidC2').set(ORG_DOC()));                                  // rozilik yo'q
+    const { consentAt, ...noAt } = ORG_NEW();
+    await rut.assertFails(as('uidC3').doc('organizations/uidC3').set(noAt));                                       // vaqt yo'q
+    const { consentVersion, ...noVersion } = ORG_NEW();
+    await rut.assertFails(as('uidC4').doc('organizations/uidC4').set(noVersion));                                  // versiya yo'q
+  });
+  test('rozilik: vaqt faqat server vaqti (mijoz sanasi / satri rad etiladi); versiya — YYYY-MM-DD satri', async () => {
+    await rut.assertFails(as('uidC5').doc('organizations/uidC5').set(ORG_NEW({ consentAt: new Date('2020-01-01T00:00:00Z') })));
+    await rut.assertFails(as('uidC5').doc('organizations/uidC5').set(ORG_NEW({ consentAt: '2026-11-21T10:00:00Z' })));
+    await rut.assertFails(as('uidC5').doc('organizations/uidC5').set(ORG_NEW({ consentVersion: 'yes' })));
+    await rut.assertFails(as('uidC5').doc('organizations/uidC5').set(ORG_NEW({ consentVersion: 20261121 })));
+    await rut.assertFails(as('uidC5').doc('organizations/uidC5').set(ORG_NEW({ consentVersion: true })));
+  });
+  test('rozilik bilan birga boshqa yangi maydon (IP, qurilma, email) yozib bo\'lmaydi', async () => {
+    for (const extra of [{ consentIp: '10.0.0.1' }, { userAgent: 'x' }, { email: 'a@b.c' }, { consent: true }]) {
+      await rut.assertFails(as('uidC6').doc('organizations/uidC6').set(ORG_NEW(extra)));
+    }
+  });
+  test('rozilik maydonlarini tashkilot admini keyin o\'zgartira olmaydi; o\'zi o\'qiy oladi', async () => {
+    await rut.assertSucceeds(as('uidC7').doc('organizations/uidC7').set(ORG_NEW()));
+    await rut.assertFails(as('uidC7').doc('organizations/uidC7').update({ consentVersion: '2030-01-01' }));
+    await rut.assertFails(as('uidC7').doc('organizations/uidC7').update({ consentAt: serverTime() }));
+    await rut.assertSucceeds(as('uidC7').doc('organizations/uidC7').get());
+    await rut.assertFails(as(ORG_A).doc('organizations/uidC7').get());                                             // boshqa tashkilot ko'rmaydi
   });
   test('parol / xesh maydonlari yozilmaydi', async () => {
-    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_DOC({ passwordHash: 'x' })));
+    await rut.assertFails(as('uidNew').doc('organizations/uidNew').set(ORG_NEW({ passwordHash: 'x' })));
     await rut.assertFails(as(ORG_A).doc('employees/uidX').set({ orgId: ORG_A, name: 'X', login: 'x.x', active: true, rawPwd: 'secret' }));
     await rut.assertFails(superDb().doc(`organizations/${ORG_A}`).update({ rawPwd: 'x' }));
   });

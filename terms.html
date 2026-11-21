@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title data-i18n="lg_tm_page_title">Terms of use — UncertaintyCalc</title>
+  <link rel="stylesheet" href="src/css/tokens.css" />
+  <link rel="stylesheet" href="src/css/theme.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="stylesheet" href="src/css/auth.css" />
+  <link rel="stylesheet" href="src/css/legal.css" />
+</head>
+<body>
+<!-- P20 (audit 21.11.2026, SEC-02): statik huquqiy sahifa. Matn — src/js/i18n-legal.js (uz / ru / en); mazmun manbasi —
+     docs/DATA_RESIDENCY.md §2. Tarmoq so'rovi, Firebase va inline skript yo'q. -->
+<div class="admin-page">
+  <header class="admin-topbar">
+    <a class="admin-brand" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="lg_brand">UncertaintyCalc · Legal</span>
+    </a>
+    <div class="val-topbar-actions">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn" data-lang="uz">UZ</button>
+        <button type="button" class="lang-btn" data-lang="ru">RU</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="btn btn-sm btn-ghost" data-i18n="c_to_calc">← Calculator</a>
+    </div>
+  </header>
+
+  <main class="val-page legal-page" data-legal="tm">
+    <p class="legal-draft" role="note" data-legal-draft="1" data-i18n="lg_draft">Draft — awaiting review by a lawyer. The text is not final and may change.</p>
+    <h1 data-i18n="lg_tm_title">Terms of use</h1>
+    <p class="text-xs text-muted"><span data-i18n="lg_version">Document version</span>: <span class="mono" translate="no" data-legal-version="1">2026-11-21</span> · <a href="privacy.html" data-i18n="lg_to_privacy">Privacy policy</a></p>
+    <p class="legal-intro" data-i18n="lg_tm_intro">These terms set out how the UncertaintyCalc platform may be used. By registering, an organisation accepts these terms.</p>
+
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_service">1. The service</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_service_1">The platform is a calculation tool for evaluating measurement uncertainty: the uncertainty budget, a Monte Carlo check, a decision rule and report forms. Calculations run in the user's browser.</li>
+        <li data-i18n="lg_tm_service_2">The platform was developed on the basis of the requirements of ISO/IEC 17025:2017 and JCGM 100:2008 (GUM), but it does not by itself ensure a laboratory's accreditation or the conformity of results.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_account">2. Account and access</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_account_1">At registration the organisation provides accurate information and keeps the login and password confidential.</li>
+        <li data-i18n="lg_tm_account_2">Employees are added by the organisation administrator, who is responsible for their access.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_payment">3. Plan and payment</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_payment_1">The account is activated after payment is confirmed. Plan conditions and the payment procedure are shown at registration and in the organisation panel.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_resp">4. Responsibility for results</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_resp_1">The laboratory is responsible for the measurement model, the input data, the uncertainty sources, the choice of method and the use of the result. The software does not replace the competence of a specialist.</li>
+        <li data-i18n="lg_tm_resp_2">The laboratory should check its own method against an independent calculation. The verified parts of the software and its known limitations are listed on the Validation page; results of modules marked BETA or unverified are to be taken with that caveat.</li>
+        <li data-i18n="lg_tm_resp_3">A report marked DRAFT or NOT OFFICIAL is not to be used as an official document.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_ip">5. Intellectual property</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_ip_1">The software is provided under a closed licence: the source code, the calculation engine, the templates and the documentation may not be copied, modified or distributed without the written permission of the copyright holder. The full text is in the licence file.</li>
+        <li data-i18n="lg_tm_ip_2">Normative documents (JCGM, ISO/IEC, ILAC, EURACHEM and others) belong to the organisations that publish them.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_changes">6. Changes to the service and the terms</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_changes_1">The platform is under development: features and these terms may change. Every change that affects a calculation result is recorded in the engine version and in the change history.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_tm_h_privacy">7. Personal data</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_tm_privacy_1">How personal data is processed is described in the Privacy policy.</li>
+      </ul>
+    </section>
+
+    <section class="card legal-card">
+      <h2 data-i18n="lg_contact_title">Contact</h2>
+      <p data-i18n="lg_contact_text">For questions and for requests to access, correct or delete data:</p>
+      <ul class="legal-list">
+        <li><a href="https://t.me/oxunjon_durdiyev" rel="noopener" data-i18n="lg_contact_telegram">Telegram</a></li>
+        <li><span data-i18n="lg_contact_phone">Phone</span>: <a href="tel:+998941251501" translate="no">+998 94 125 15 01</a></li>
+      </ul>
+    </section>
+    <p class="legal-links"><a href="LICENSE" data-i18n="lg_tm_license_link">Licence file</a> · <a href="validation.html" data-i18n="lg_tm_validation_link">Validation page</a></p>
+  </main>
+</div>
+
+<script src="src/ui/theme-boot.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-admin.js"></script>
+<script src="src/js/i18n-legal.js"></script>
+<script src="src/ui/lang-switch.js"></script>
+</body>
+</html>

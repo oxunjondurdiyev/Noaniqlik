@@ -109,7 +109,14 @@
     return new Date(t).toISOString().slice(0, 10);
   }
 
+  /* ─── ROZILIK (P20, SEC-02; egasi qarori 2026-11-21) ─── */
+  // Maxfiylik siyosati (privacy.html) va Foydalanish shartlari (terms.html) versiyasi — hujjat matni o'zgarsa yangilanadi.
+  // Ro'yxatdan o'tishda organizations/{uid} ga faqat shu versiya va server vaqti yoziladi (consentVersion, consentAt).
+  // firestore.rules: consentVersion — 'YYYY-MM-DD' ko'rinishidagi satr, consentAt == request.time.
+  const CONSENT_VERSION = '2026-11-21';
+
   const api = {
+    CONSENT_VERSION,
     PLANS, LOGIN_RE, normalizeLogin, isValidLogin, loginToEmail,
     translit, suggestLogin, loginCandidate, genPassword, orgDisplayName, isoDatePlusDays,
   };

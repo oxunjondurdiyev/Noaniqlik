@@ -36,6 +36,9 @@
       rf_status: "Hujjat holati",
       rf_draft_reason_requisites: "majburiy rekvizitlar to'liq emas",
       rf_draft_reason_mcm: "talab qilingan MCM tekshiruvi bajarilmagan",
+      /* ── kirish sahifasi (SEC-01): sonlar dinamik ── */
+      home_stat_templates: "Shablon",
+      home_stat_methods: "Hisoblash rejimi",
     },
 
     ru: {
@@ -66,6 +69,8 @@
       rf_status: "Статус документа",
       rf_draft_reason_requisites: "обязательные реквизиты заполнены не полностью",
       rf_draft_reason_mcm: "требуемая проверка MCM не выполнена",
+      home_stat_templates: "Шаблонов",
+      home_stat_methods: "Режимов расчёта",
     },
 
     en: {
@@ -96,6 +101,8 @@
       rf_status: "Document status",
       rf_draft_reason_requisites: "mandatory report details are incomplete",
       rf_draft_reason_mcm: "the required MCM check has not been performed",
+      home_stat_templates: "Templates",
+      home_stat_methods: "Evaluation modes",
     },
   };
   Object.keys(EXT).forEach(lang => {

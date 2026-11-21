@@ -182,7 +182,20 @@
             <input type="number" id="reg-empcount" min="1" max="999" value="1" placeholder="Masalan: 5" data-i18n-ph="auth_emp_count_ph" translate="no" />
           </div>
 
-          <button type="submit" class="btn btn-primary w-full btn-lg" id="btn-do-register" data-i18n="auth_register_btn">Ro'yxatdan o'tish →</button>
+          <!-- P20 (SEC-02, egasi qarori 2026-11-21): majburiy rozilik. Firebase'ga faqat consentVersion va consentAt yoziladi
+               (shaxsga doir ma'lumot emas); belgisiz "Ro'yxatdan o'tish" tugmasi faol emas (src/ui/index-auth.js). -->
+          <div class="auth-group auth2-consent">
+            <label class="auth2-consent-label" for="reg-consent">
+              <input type="checkbox" id="reg-consent" aria-describedby="reg-consent-links" />
+              <span data-i18n="auth_consent_text">I agree to the processing of my personal data under the Privacy policy and the Terms of use</span>
+            </label>
+            <p class="auth2-consent-links text-xs" id="reg-consent-links">
+              <a class="auth2-link" href="privacy.html" target="_blank" rel="noopener" data-i18n="auth_consent_privacy">Privacy policy</a>
+              <a class="auth2-link" href="terms.html" target="_blank" rel="noopener" data-i18n="auth_consent_terms">Terms of use</a>
+            </p>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full btn-lg" id="btn-do-register" data-i18n="auth_register_btn" disabled aria-describedby="reg-consent-links">Ro'yxatdan o'tish →</button>
           <div class="auth-divider" data-i18n="auth_or">yoki</div>
           <p class="text-muted text-sm auth2-center">
             <span data-i18n="auth_already">Allaqachon ro'yxatdan o'tganmisiz?</span>
@@ -228,10 +241,11 @@
   <!-- Stats strip -->
   <div class="landing-stats">
     <div class="landing-stats-inner">
-      <div class="lstat"><span class="lstat-num">12</span><span class="lstat-label" data-i18n="home_stat_formulas">GUM Formulas</span></div>
-      <div class="lstat"><span class="lstat-num">9</span><span class="lstat-label" data-i18n="home_stat_presets">Lab Presets</span></div>
-      <div class="lstat"><span class="lstat-num">3</span><span class="lstat-label" data-i18n="home_stat_langs">Languages</span></div>
-      <div class="lstat"><span class="lstat-num">4</span><span class="lstat-label" data-i18n="home_stat_dist">Distributions</span></div>
+      <!-- P20 (SEC-01): sonlar qattiq yozilmaydi — src/ui/home/app.js katalogdan (shablonlar) va dvigateldan (rejimlar, taqsimotlar) to'ldiradi -->
+      <div class="lstat"><span class="lstat-num" data-landing-stat="templates">—</span><span class="lstat-label" data-i18n="home_stat_templates">Templates</span></div>
+      <div class="lstat"><span class="lstat-num" data-landing-stat="methods">—</span><span class="lstat-label" data-i18n="home_stat_methods">Evaluation methods</span></div>
+      <div class="lstat"><span class="lstat-num" data-landing-stat="distributions">—</span><span class="lstat-label" data-i18n="home_stat_dist">Distributions</span></div>
+      <div class="lstat"><span class="lstat-num" data-landing-stat="languages">—</span><span class="lstat-label" data-i18n="home_stat_langs">Languages</span></div>
     </div>
   </div>
 
@@ -241,11 +255,10 @@
       <div class="landing-hero-text">
         <div class="landing-badge-row">
           <span class="lbadge">ISO/IEC 17025:2017</span>
-          <span class="lbadge">GUM:2008</span>
-          <span class="lbadge lbadge-green" data-i18n="idx_badge_free">Free and open source</span>
+          <span class="lbadge">JCGM 100:2008 (GUM)</span>
         </div>
         <h1 class="landing-h1" data-i18n="home_hero_title">Professional Measurement Uncertainty Calculator</h1>
-        <p class="landing-sub" data-i18n="home_hero_sub">Fully compliant with ISO/IEC 17025:2017 and GUM:2008 — the global gold standards for calibration laboratories.</p>
+        <p class="landing-sub" data-i18n="home_hero_sub">Developed on the basis of the requirements of ISO/IEC 17025:2017 and JCGM 100:2008 (GUM).</p>
         <div class="landing-cta-row">
           <button class="btn btn-primary btn-xl" id="btn-home-start" data-i18n="home_hero_cta">Open Calculator</button>
         </div>
@@ -379,7 +392,7 @@
           <div class="about-name" data-i18n="home_about_name">Oxunjon Durdiyev</div>
           <div class="about-role" data-i18n="home_about_role">Metrologist &amp; Software Developer · Uzbekistan</div>
           <p class="about-desc" data-i18n="home_about_desc">This tool was created to make rigorous measurement uncertainty analysis accessible to every laboratory — from research institutes to small calibration workshops.</p>
-          <div class="about-open" data-i18n="home_about_open">Open source · Free to use · MIT License</div>
+          <div class="about-open" data-i18n="home_about_open">Proprietary licence · All rights reserved</div>
         </div>
       </div>
     </div>
@@ -417,7 +430,10 @@
     <div class="landing-container landing-footer-inner">
       <span data-i18n="home_footer_by">Developed by Oxunjon Durdiyev</span>
       <span data-i18n="home_footer_std">ISO/IEC 17025:2017 · GUM:2008</span>
-      <span data-i18n="home_footer_open">Open Source</span>
+      <span data-i18n="home_footer_open">All rights reserved</span>
+      <!-- P20 (SEC-02): huquqiy sahifalar -->
+      <a class="landing-footer-link" href="privacy.html" data-i18n="auth_consent_privacy">Privacy policy</a>
+      <a class="landing-footer-link" href="terms.html" data-i18n="auth_consent_terms">Terms of use</a>
     </div>
   </footer>
 

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title data-i18n="lg_pv_page_title">Privacy policy — UncertaintyCalc</title>
+  <link rel="stylesheet" href="src/css/tokens.css" />
+  <link rel="stylesheet" href="src/css/theme.css" />
+  <link rel="stylesheet" href="src/css/components.css" />
+  <link rel="stylesheet" href="src/css/auth.css" />
+  <link rel="stylesheet" href="src/css/legal.css" />
+</head>
+<body>
+<!-- P20 (audit 21.11.2026, SEC-02): statik huquqiy sahifa. Matn — src/js/i18n-legal.js (uz / ru / en); mazmun manbasi —
+     docs/DATA_RESIDENCY.md §2. Tarmoq so'rovi, Firebase va inline skript yo'q. -->
+<div class="admin-page">
+  <header class="admin-topbar">
+    <a class="admin-brand" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+        <rect width="56" height="56" rx="14" fill="var(--accent)"/>
+        <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="lg_brand">UncertaintyCalc · Legal</span>
+    </a>
+    <div class="val-topbar-actions">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn" data-lang="uz">UZ</button>
+        <button type="button" class="lang-btn" data-lang="ru">RU</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="btn btn-sm btn-ghost" data-i18n="c_to_calc">← Calculator</a>
+    </div>
+  </header>
+
+  <main class="val-page legal-page" data-legal="pv">
+    <p class="legal-draft" role="note" data-legal-draft="1" data-i18n="lg_draft">Draft — awaiting review by a lawyer. The text is not final and may change.</p>
+    <h1 data-i18n="lg_pv_title">Privacy policy</h1>
+    <p class="text-xs text-muted"><span data-i18n="lg_version">Document version</span>: <span class="mono" translate="no" data-legal-version="1">2026-11-21</span> · <a href="terms.html" data-i18n="lg_to_terms">Terms of use</a></p>
+    <p class="legal-intro" data-i18n="lg_pv_intro">This document explains which personal data the UncertaintyCalc platform processes, for what purpose, where and for how long. The owner of the platform and the data operator is Oxunjon Durdiyev.</p>
+
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_what">1. What data is collected</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_what_org">When an organisation registers: taxpayer number (INN), phone number, first and last name, login, number of employees using the platform.</li>
+        <li data-i18n="lg_pv_what_emp">When the organisation administrator adds an employee: the employee's name, phone number, position and login.</li>
+        <li data-i18n="lg_pv_what_auth">For sign-in: a technical address derived from the login and a password hash. The password is not stored in clear text and the platform owner cannot see it.</li>
+        <li data-i18n="lg_pv_what_service">Service data: plan, payment and activation status, registration date, the version of the consent document and the time consent was given.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_local">2. Data that is not sent to the server</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_local_1">Measurement data — observations, the uncertainty budget, results, report details, the register of standards and quality control charts — is stored only in your browser and is not sent to the server.</li>
+        <li data-i18n="lg_pv_local_2">The site does not use cookies, advertising or external analytics services. Only settings (language, theme) and the sign-in session are kept in browser storage.</li>
+        <li data-i18n="lg_pv_local_3">The AI assistant is off by default. If an organisation turns it on and uses its own key, the request is sent to the AI service chosen by the user; the content of a request is limited to a predefined allow-list, and document text is sent only with the user's separate consent.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_why">3. Why it is needed</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_why_1">Creating an account and signing in.</li>
+        <li data-i18n="lg_pv_why_2">Contacting the organisation about payment and activation, preparing an invoice.</li>
+        <li data-i18n="lg_pv_why_3">Letting the organisation administrator manage access for its employees.</li>
+        <li data-i18n="lg_pv_why_4">The data is not used for advertising and is not sold to third parties.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_where">4. Where it is stored</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_where_1">Registration and organisation data is stored in Google Firebase services (Firestore and Firebase Authentication) — on Google Cloud servers, outside the territory of the Republic of Uzbekistan.</li>
+        <li data-i18n="lg_pv_where_2">The data can be seen by the organisation administrator, active employees of that organisation and the platform owner (super-admin). An employee's data is visible to the employee, the administrator of their organisation and the platform owner.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_howlong">5. How long it is kept</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_howlong_1">The data is kept for as long as the organisation's account exists. When the account is deleted, the organisation's and employees' data is deleted as well.</li>
+        <li data-i18n="lg_pv_howlong_2">An exact retention period for inactive or unpaid accounts has not been set yet; once set, it will be published on this page.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_rights">6. Your rights and deletion requests</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_rights_1">You may ask to see, correct or delete the information about you, and you may withdraw your consent.</li>
+        <li data-i18n="lg_pv_rights_2">The request is sent through the contact channels below and should state the organisation's taxpayer number and the login. Once the requester is verified, the data is corrected or deleted.</li>
+        <li data-i18n="lg_pv_rights_3">Withdrawing consent means deleting the account: the account cannot be used without the registration data.</li>
+      </ul>
+    </section>
+    <section class="card legal-card">
+      <h2 data-i18n="lg_pv_h_changes">7. Changes to this document</h2>
+      <ul class="legal-list">
+        <li data-i18n="lg_pv_changes_1">The document version is shown at the top of the page. The version you agreed to at registration and the time of consent are stored with your account.</li>
+      </ul>
+    </section>
+
+    <section class="card legal-card">
+      <h2 data-i18n="lg_contact_title">Contact</h2>
+      <p data-i18n="lg_contact_text">For questions and for requests to access, correct or delete data:</p>
+      <ul class="legal-list">
+        <li><a href="https://t.me/oxunjon_durdiyev" rel="noopener" data-i18n="lg_contact_telegram">Telegram</a></li>
+        <li><span data-i18n="lg_contact_phone">Phone</span>: <a href="tel:+998941251501" translate="no">+998 94 125 15 01</a></li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script src="src/ui/theme-boot.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/i18n-admin.js"></script>
+<script src="src/js/i18n-legal.js"></script>
+<script src="src/ui/lang-switch.js"></script>
+</body>
+</html>

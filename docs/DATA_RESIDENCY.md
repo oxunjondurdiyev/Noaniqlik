@@ -47,6 +47,7 @@ Belgilar: **ShM** — shaxsga doir ma'lumot (jismoniy shaxsni aniqlashga imkon b
 | `fullName` | ha (takror) | — | — | — | **o'chirildi** (takror); eski hujjatlardan `migrate-legacy-users.mjs --strip-legacy` |
 | `passwordHash` | ha (autentifikator) | — | — | — | **o'chirildi**; qoidalar yozishni taqiqlaydi |
 | `login` | qisman (ism-familiyadan hosil bo'lishi mumkin) | kirish | admin, faol xodimlar, super-admin | admin (yaratishda) | saqlandi |
+| `consentVersion`, `consentAt` (P20, 2026-11-21) | **yo'q** (hujjat versiyasi `YYYY-MM-DD` va server vaqti) | shaxsga doir ma'lumotlarni qayta ishlashga rozilik berilganini tasdiqlash (`privacy.html`, `terms.html`) | admin, faol xodimlar, super-admin | admin (faqat yaratishda; `consentAt` == server vaqti; keyin o'zgartirib bo'lmaydi) | **yangi** — egasi qarori 2026-11-21; IP, qurilma va boshqa maydon yozilmaydi |
 | `employeeCount`, `plan`, `requestedPlan`, `planExpiry`, `active`, `paymentStatus`, `registeredAt`, `paidAt`, `activatedAt` | yo'q | obuna va to'lov holati | admin, faol xodimlar, super-admin | `active`, `paymentStatus`, `plan`, `planExpiry` — **faqat super-admin**; `requestedPlan`, `employeeCount` — admin | saqlandi |
 
 ### 2.2. Firestore `employees/{uid}` — xodim
@@ -111,7 +112,7 @@ Firebase SDK endi `vendor/` dan yuklanadi — `www.gstatic.com` ga so'rov yo'q.
 2. `organizations.firstName/lastName` — tashkilot nomi (yuridik nom) bilan almashtirish (yuridik shaxs nomi shaxsiy ma'lumot emas).
 3. Google Fonts → `vendor/` (IP manzil Google'ga yuborilmaydi).
 4. Saqlash muddati siyosati: bloklangan/to'lamagan tashkilotlar qancha vaqtdan keyin o'chiriladi.
-5. Maxfiylik siyosati sahifasi (3 tilda): qaysi ma'lumot, nima uchun, qayerda, qancha muddat, sub'ekt huquqlari.
+5. Maxfiylik siyosati sahifasi (3 tilda): qaysi ma'lumot, nima uchun, qayerda, qancha muddat, sub'ekt huquqlari. — **P20 da loyiha qilindi** (`privacy.html`, `terms.html`; "yurist tasdig'ini kutmoqda" belgisi bilan; saqlash muddati hali belgilanmagan — 4-band).
 
 ## 5. P15 dagi ko'chirish rejasi (yuridik qayta baholashdan keyin)
 
