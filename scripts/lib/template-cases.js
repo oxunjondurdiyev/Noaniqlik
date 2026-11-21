@@ -8,4 +8,9 @@ module.exports = Object.freeze({
     ['legacy-gas_analyzer', ['excel-gas-p1', 'excel-gas-p2', 'excel-gas-p3']],
     ['legacy-thermometer', ['excel-term-p1', 'excel-term-p2', 'excel-term-p3', 'excel-term-p4', 'excel-term-p5']],
   ],
+  // P18: maxsus rejim shabloni ↔ ISO/TS 20914:2019 etalon misoli (tests/fixtures/iso20914/<ID>.json; faqat oddiy darajali misollar).
+  // Hisob shablon → "Maxsus rejimlar" oynasi holati → src/ui/special/build.js::buildSpec → evaluate() yo'li bilan bajariladi.
+  ISO20914: [
+    ['SP-04', ['G1']],
+  ],
 });

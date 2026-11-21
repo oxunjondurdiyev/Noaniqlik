@@ -207,12 +207,19 @@
 | REQ-SPM-010 | Clopper–Pearson (aniq binomial; loyiha qo'shimchasi — laboratoriya sozlamasi): 7/20, 97/100, 100/100, 0/50, 3/100, 45/60 (P = 0,95), 7/20 (P = 0,99) | Matritsa §9 |
 | REQ-SPM-011 | Interval usuli tanlovi (egasi qarori 2026-11-18): standart Wilson; `ciMethod: 'clopper_pearson'`; bosma hisobotda faqat tanlangani, usul nomi va P | Matritsa §9 |
 | REQ-SPM-012 | Mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; interval [10^(y−U); 10^(y+U)] (ISO 19036 — pullik) | Matritsa §9 |
-| REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914 — pullik) | Matritsa §9 |
-| REQ-SPM-014 | BETA modullar: har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | Matritsa §9 |
+| REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_Rw² + u_cal² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914:2019 A.2.2, A.2.4; PDF repoda yo'q — pullik) | Matritsa §9 |
+| REQ-SPM-014 | BETA modul (mikrobiologiya; tibbiy laboratoriya P18 dan BETA emas): har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | Matritsa §9 |
 | REQ-SPM-015 | Hisobotda qo'llanilgan yondashuv va cheklovlar yozilgan (uch tilda) | Matritsa §9 |
 | REQ-SPM-016 | "Maxsus rejimlar" oynasi: Excel'dan qo'yish, o'nlik vergul, bo'sh maydon ≠ 0, escape (XSS), CSP | Matritsa §9 |
 | REQ-SPM-017 | Mavjud natijalar o'zgarmagan | Matritsa §9 |
 | REQ-SPM-018 | Mutatsiyaga sezgirlik (P10) | Matritsa §9 |
+| REQ-SPM-019 | Tibbiy laboratoriya: ISO/TS 20914:2019 etalon misollari G1…G11 (`tests/fixtures/iso20914/`) — tolerans oxirgi ko'rsatilgan xonaning ½ birligi; ma'lum farq D-23 (G9) | P18 §2 |
+| REQ-SPM-020 | Tibbiy laboratoriya: daraja qo'llanish oralig'i (A.2.3, A.3.2); oraliqsiz — eng yaqin o'rtacha + `medical_level_by_nearest`; `medical_interval_gap` / `medical_interval_overlap` | P18 §1.1 |
+| REQ-SPM-021 | Tibbiy laboratoriya: aniqlik turi `long_term` / `repeatability` (§6.3, A.2.3) — `medical_repeatability_only`, takrorlanuvchanlikda `medical_no_calibrator` yo'q | P18 §1.2 |
+| REQ-SPM-022 | Tibbiy laboratoriya: pooling — lotlar (A.3.1 Formula (A.8); `poolWeighting: 'df'`), bir xil tizimlar (A.4), davrlar (A.7, A.14) | P18 §1.3–1.5 |
+| REQ-SPM-023 | Tibbiy laboratoriya: u_bias CRM dan (C.5, Formula (C.1)–(C.4)), ahamiyatlilik testi, `apply`, proporsional tuzatish, `medical_bias_significant_not_applied`, `medical_bias_incomplete` | P18 §1.6 |
+| REQ-SPM-024 | Tibbiy laboratoriya: log₁₀ shkala (A.10), ruxsat etilgan maksimal noaniqlik (§5.2 — yaroqlilik, muvofiqlik bayonoti emas), sanoq u = √count (§6.10) | P18 §1.7–1.9 |
+| REQ-SPM-025 | Tibbiy laboratoriya: oyna (aniqlik turi, shkala, oraliq, lot / tizim / davr, CRM, ruxsat etilgan noaniqlik) va hisobot (A.1 shaklidagi jadval, bias bo'limi, §5.6 bayonoti, yaxlitlash usuli bayonoti) — uch tilda; `SP-04` G1 orqali verified | P18 §4–5 |
 
 ## LNT — Metrologik linter, asoslangan qabul (P05a)
 

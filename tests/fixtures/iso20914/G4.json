@@ -1,0 +1,147 @@
+{
+ "id": "G4",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.3.1 Formula (A.8); A.3.2, Table A.3",
+ "title": "reagent lotlari bo'yicha pooled u_Rw (vaznsiz); %U = √(%U_cal² + %U_Rw²)",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Birlik belgisi hisobga ta'sir qilmaydi (faqat yorliq). %U_cal (k = 2) = 2,1 → u_cal = 1,05 % (nisbiy).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "unit",
+  "uCal": {
+   "value": 1.05,
+   "relative": true
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 2.13,
+      "sd": 0.094
+     },
+     {
+      "id": "lot2",
+      "mean": 2.11,
+      "sd": 0.088
+     },
+     {
+      "id": "lot3",
+      "mean": 2.17,
+      "sd": 0.092
+     }
+    ]
+   },
+   {
+    "id": "L2",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 16.85,
+      "sd": 0.504
+     },
+     {
+      "id": "lot2",
+      "mean": 18.08,
+      "sd": 0.558
+     },
+     {
+      "id": "lot3",
+      "mean": 18.69,
+      "sd": 0.643
+     }
+    ]
+   },
+   {
+    "id": "L3",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 58.45,
+      "sd": 1.726
+     },
+     {
+      "id": "lot2",
+      "mean": 62,
+      "sd": 2.033
+     },
+     {
+      "id": "lot3",
+      "mean": 64.26,
+      "sd": 2.157
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.uRw.abs",
+   "value": 0.09137,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.1.uRw.abs",
+   "value": 0.5712,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.2.uRw.abs",
+   "value": 1.9803,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.0.uRw.rel",
+   "value": 8.552,
+   "tol": 0.0005,
+   "factor": 2
+  },
+  {
+   "path": "levels.1.uRw.rel",
+   "value": 6.392,
+   "tol": 0.0005,
+   "factor": 2
+  },
+  {
+   "path": "levels.2.uRw.rel",
+   "value": 6.433,
+   "tol": 0.0005,
+   "factor": 2
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 8.806,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 6.728,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 6.767,
+   "tol": 0.0005
+  }
+ ],
+ "expectedStd": [
+  {
+   "path": "levels.0.U.rel",
+   "value": 8.8,
+   "tol": 0.05
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 6.7,
+   "tol": 0.05
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 6.8,
+   "tol": 0.05
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

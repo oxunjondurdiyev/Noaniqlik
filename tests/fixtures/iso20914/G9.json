@@ -1,0 +1,82 @@
+{
+ "id": "G9",
+ "source": "ISO/TS 20914:2019",
+ "clause": "C.6.1, Table C.1",
+ "title": "natriy: CRM dan u_bias, tuzatish qo'llangan; u(Na) = √(u_bias² + u_cal² + u_Rw²)",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Nisbiy qiymat x = 141,8 ga nisbatan (jadvaldagi kabi).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "uCal": {
+   "value": 0.63,
+   "unit": "mmol/l"
+  },
+  "bias": {
+   "xRef": 141.8,
+   "URef": 0.9,
+   "kRef": 2,
+   "xLab": 143.4,
+   "sd": 0.65,
+   "n": 10,
+   "apply": true
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 141.8,
+    "sd": 0.85
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "bias.uRef",
+   "value": 0.45,
+   "tol": 0.0005
+  },
+  {
+   "path": "bias.sdMean",
+   "value": 0.20555,
+   "tol": 0.000005
+  },
+  {
+   "path": "bias.uBias",
+   "value": 0.49472,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 1.16797,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 1.6473,
+   "tol": 0.00005
+  }
+ ],
+ "equals": {
+  "bias.significant": true
+ },
+ "knownDiscrepancies": [
+  {
+   "path": "bias.UBias",
+   "value": 0.98945,
+   "tol": 0.000005,
+   "id": "D-23",
+   "got": "0,989 444 3",
+   "reason": "Manba oraliq qiymatni yaxlitlagan (SD_mean = 0,205 55 → u_bias = 0,494 723 → U_bias = 0,989 446 → 0,989 45); dvigatel oraliq hisobni yaxlitlamaydi: 0,989 444 3. Farq 5,7·10⁻⁶ (oxirgi xonaning 0,57 birligi)."
+  },
+  {
+   "path": "levels.0.U.abs",
+   "value": 2.33593,
+   "tol": 0.000005,
+   "id": "D-23",
+   "got": "2,335 936 6",
+   "reason": "Manbadagi 2,335 93 — oraliq yaxlitlash / kesish natijasi; yaxlitlanmagan hisob: 2,335 936 6 (→ 2,335 94). Farq 6,6·10⁻⁶ (oxirgi xonaning 0,66 birligi)."
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

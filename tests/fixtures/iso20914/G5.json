@@ -1,0 +1,57 @@
+{
+ "id": "G5",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.3.3",
+ "title": "lotlar bo'yicha pooled u_Rw; daraja o'rtachasi — lot o'rtachalarining o'rtachasi",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Birlik belgisi hisobga ta'sir qilmaydi (faqat yorliq).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "unit",
+  "levels": [
+   {
+    "id": "L1",
+    "lots": [
+     {
+      "mean": 4.32,
+      "sd": 0.23
+     },
+     {
+      "mean": 4.43,
+      "sd": 0.27
+     },
+     {
+      "mean": 3.96,
+      "sd": 0.21
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.uRw.abs",
+   "value": 0.237978,
+   "tol": 5e-7
+  },
+  {
+   "path": "levels.0.mean",
+   "value": 4.2367,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.0.uRw.abs",
+   "value": 0.47596,
+   "tol": 0.000005,
+   "factor": 2
+  },
+  {
+   "path": "levels.0.uRw.rel",
+   "value": 11.234,
+   "tol": 0.0005,
+   "factor": 2
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

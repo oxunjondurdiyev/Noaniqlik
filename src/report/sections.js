@@ -996,20 +996,63 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
           <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">100.0</td></tr></tbody></table>`);
   }
 
+  /* Tibbiy laboratoriya (ISO/TS 20914:2019; P18). Darajalar jadvali — A.1 jadvali shaklida: daraja | N | o'rtacha | u_Rw | … | U | %U_rel |
+     "bemor natijalariga ±". §5.6: noaniqlik laboratoriya foydalanuvchisi so'rovi bo'yicha beriladi — bo'lim shunday belgilanadi.
+     Yaxlitlash faqat shu yerda (U — 2 qiymatli raqam); qo'llanilgan usul bayonoti bo'lim oxirida (§5.4). */
+  function meInterval(iv) {
+    if (!iv) return '—';
+    const lo = iv.low === null ? '' : `${iv.lowInclusive ? '≥' : '>'} ${escHtml(String(iv.low))}`;
+    const hi = iv.high === null ? '' : `${iv.highInclusive ? '≤' : '<'} ${escHtml(String(iv.high))}`;
+    return lo && hi ? `${lo}; ${hi}` : lo || hi;
+  }
   function medicalSection(r, opt) {
     const cls = opt.print ? 'print-table' : 'data-table math-head';
-    const unit = rgUnit(r.unit);
+    const log = r.scale === 'log10';
+    const unit = log ? ' log₁₀' : rgUnit(r.unit);
+    const rep = r.precisionType === 'repeatability';
+    const uP = rep ? 'u<sub>r</sub>' : 'u<sub>Rw</sub>';
+    const k = escHtml(String(r.k));
     const rr = r.y !== null ? Calc.roundResult(r.y, r.absU, r.roundUp) : null;
-    const q = v => (v ? `${tdNum(v.abs)} (${tdNum(v.rel, 3)} %)` : '—');
+    const q = v => (v ? (v.rel === null ? tdNum(v.abs) : `${tdNum(v.abs)} (${tdNum(v.rel, 3)} %)`) : '—');
+    const yes = v => i18n.t(v ? 'sp_me_yes' : 'sp_me_no');
+    const anyIv = r.levels.some(L => L.interval), b = r.bias, al = r.allowable;
+    const wrap = html => (opt.print ? html : `<div class="table-scroll">${html}</div>`);   // ekranda keng jadval — gorizontal surish (sahifa surilmaydi)
+    const bp = b && b.UBias > 0 ? rgPair(b.bias, b.UBias) : null;
+    const pooledLine = L => {
+      const p = L.pooled;
+      if (!p) return '';
+      const items = p.items.map(it => `${escHtml(it.id)}: ${tdNum(p.kind === 'periods' ? it.uRw : it.sd)}`).join('; ');
+      const extra = p.kind === 'systems' ? `; u(${p.items.map(it => escHtml(it.id)).join(', ')}) = ${tdNum(p.uBetween, 6)}; ${uP}(pooled) = ${tdNum(p.uRwPooled, 6)}`
+        : p.kind === 'lots' ? `; ${i18n.t('sp_me_pool')}: ${i18n.t('sp_me_pool_' + p.weighting)}` : '';
+      return `<p class="rg-line" data-sp-pooled="${escHtml(L.id)}"><strong>${escHtml(L.id)}</strong> — ${i18n.t('sp_me_pooled_' + p.kind)} (m = ${p.m}): ${items}${extra} → ${uP} = ${tdNum(L.uRw.abs, 6)}</p>`;
+    };
     return spHead(r, opt, `
-      ${rr ? `<table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>${i18n.t('sp_me_level')}</th></tr></thead>
+      <p class="rg-line text-muted" data-sp-userinfo="1"><strong>${i18n.t('sp_me_user_info_title')}.</strong> ${i18n.t('sp_me_user_info')}</p>
+      ${rr ? `${wrap(`<table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>${i18n.t('sp_me_level')}</th></tr></thead>
         <tbody><tr><td class="num" data-sp-y="1">${rr.yround.toFixed(rr.digits)}${unit}</td><td class="num" data-sp-u="1"><strong>${rr.Uround.toFixed(rr.digits)}${unit}</strong></td>
-          <td class="num" data-sp-urel="1"><strong>${tdU2(r.relU, r.roundUp)} %</strong></td><td class="num">${escHtml(String(r.k))}</td><td>${escHtml(r.appliedLevel)}</td></tr></tbody></table>` : ''}
-      <h4 class="rg-h">${i18n.t('sp_me_levels_title')}</h4>
-      <table class="${cls}" data-sp-levels="1"><thead><tr><th>${i18n.t('sp_me_level')}</th><th>x̄${unit}</th><th>n</th><th>u<sub>Rw</sub></th><th>u<sub>cal</sub></th><th>u<sub>bias</sub></th><th>u</th><th>U (k = ${escHtml(String(r.k))})</th></tr></thead>
-        <tbody>${r.levels.map(L => `<tr data-sp-level="${escHtml(L.id)}"><td>${escHtml(L.id)}</td><td class="num">${tdNum(L.mean, 6)}</td><td class="num">${L.n === null ? '—' : escHtml(String(L.n))}</td>
-          <td class="num">${q(L.uRw)}</td><td class="num">${q(L.uCal)}</td><td class="num">${q(L.uBias)}</td><td class="num">${q(L.u)}</td><td class="num"><strong>${tdU2(L.U.abs)}${unit} (${tdU2(L.U.rel)} %)</strong></td></tr>`).join('')}</tbody></table>
-      <p class="rg-line"><span class="mono">u = √(u<sub>cal</sub>² + u<sub>Rw</sub>² + u<sub>bias</sub>²)</span></p>`);
+          <td class="num" data-sp-urel="1"><strong>${r.relU === null ? '—' : tdU2(r.relU, r.roundUp) + ' %'}</strong></td><td class="num">${k}</td>
+          <td data-sp-applied="${escHtml(r.levelSelection)}">${escHtml(r.appliedLevel)} <span class="text-xs text-muted">(${i18n.t('sp_me_select_' + r.levelSelection)})</span></td></tr></tbody></table>`)}
+        ${r.coverage ? `<p class="rg-line" data-sp-coverage="1"><strong>${i18n.t('sp_me_coverage')}:</strong> [${tdNum(r.coverage.low, 4)}; ${tdNum(r.coverage.high, 4)}] log₁₀ → [${tdNum(r.coverage.backLow, 3)}; ${tdNum(r.coverage.backHigh, 3)}]${rgUnit(r.unit)} <span class="text-xs text-muted">(${i18n.t('sp_me_log_note')})</span></p>` : ''}` : ''}
+      ${r.levels.length ? `<h4 class="rg-h">${i18n.t('sp_me_levels_title')}</h4>
+      ${wrap(`<table class="${cls}" data-sp-levels="1"><thead><tr><th>${i18n.t('sp_me_level')}</th><th>N</th><th>x̄${unit}</th><th>${uP}</th><th>u<sub>cal</sub></th><th>u<sub>bias</sub></th><th>u</th><th>U (k = ${k})</th>
+        <th>${log ? i18n.t('sp_mi_interval') : '%U<sub>rel</sub>'}</th><th>${i18n.t('sp_me_col_patient')}</th>${anyIv ? `<th>${i18n.t('sp_me_col_interval')}</th>` : ''}${al ? `<th>${i18n.t('sp_me_col_fit')}</th>` : ''}</tr></thead>
+        <tbody>${r.levels.map(L => `<tr data-sp-level="${escHtml(L.id)}"><td>${escHtml(L.id)}</td><td class="num">${L.n === null ? '—' : escHtml(String(L.n))}</td><td class="num">${tdNum(L.mean, 6)}</td>
+          <td class="num">${q(L.uRw)}</td><td class="num">${q(L.uCal)}</td><td class="num">${q(L.uBias)}</td><td class="num">${tdNum(L.u.abs)}</td><td class="num"><strong>${tdU2(L.U.abs, r.roundUp)}${unit}</strong></td>
+          <td class="num" data-sp-urel-level="1">${log ? (L.coverage ? `[${tdNum(L.coverage.backLow, 3)}; ${tdNum(L.coverage.backHigh, 3)}]${rgUnit(r.unit)}` : '—') : (L.U.rel === null ? '—' : `<strong>${tdU2(L.U.rel, r.roundUp)}</strong>`)}</td>
+          <td class="num" data-sp-patient="1">${L.U.rel === null ? `± ${tdU2(L.U.abs, r.roundUp)}${unit}` : `± ${tdU2(L.U.rel, r.roundUp)} %`}</td>
+          ${anyIv ? `<td class="num" data-sp-interval="1">${meInterval(L.interval)}</td>` : ''}
+          ${al ? `<td data-sp-fit="${L.fitForPurpose === null ? '' : L.fitForPurpose ? 'yes' : 'no'}">${L.fitForPurpose === null ? '—' : i18n.t(L.fitForPurpose ? 'sp_me_fit_yes' : 'sp_me_fit_no')}</td>` : ''}</tr>`).join('')}</tbody></table>`)}
+      <p class="rg-line"><span class="mono">u = √(${uP}² + u<sub>cal</sub>² + u<sub>bias</sub>²)</span>; ${i18n.t('sp_me_precision')}: ${i18n.t('sp_me_precision_' + r.precisionType)}${log ? `; ${i18n.t('sp_me_scale')}: ${i18n.t('sp_me_scale_log10')}` : ''}</p>
+      ${r.levels.map(pooledLine).join('')}` : ''}
+      ${al ? `<p class="rg-line" data-sp-allowable="${escHtml(al.kind)}"><strong>${i18n.t('sp_me_allow_title')}:</strong> ${i18n.t('sp_me_allow_' + al.kind)} ≤ ${escHtml(String(al.value))}${/_rel$/.test(al.kind) ? ' %' : unit} — ${i18n.t('sp_me_allow_note')}</p>` : ''}
+      ${b ? `<h4 class="rg-h">${i18n.t('sp_me_bias_title')}</h4>
+      ${wrap(`<table class="${cls}" data-sp-bias="1"><thead><tr><th>x<sub>ref</sub></th><th>u<sub>ref</sub></th><th>x̄<sub>lab</sub></th><th>s</th><th>n</th><th>s/√n</th><th>u<sub>bias</sub></th><th>bias ± U<sub>bias</sub> (k = ${k})</th><th>bias, %</th></tr></thead>
+        <tbody><tr><td class="num">${tdNum(b.xRef, 6)}</td><td class="num">${tdNum(b.uRef)}</td><td class="num">${tdNum(b.xLab, 6)}</td><td class="num">${tdNum(b.sd)}</td><td class="num">${escHtml(String(b.n))}</td>
+          <td class="num">${tdNum(b.sdMean)}</td><td class="num" data-sp-ubias="1">${tdNum(b.uBias)}</td><td class="num" data-sp-bias-value="1">${bp ? `${bp.v} ± ${bp.u}` : tdNum(b.bias)}${unit}</td><td class="num">${tdNum(b.biasPct, 3)}</td></tr></tbody></table>`)}
+      <p class="rg-line" data-sp-bias-state="${b.significant ? 'significant' : 'not_significant'}"><span class="mono">|bias| ${b.significant ? '>' : '≤'} 2·u<sub>bias</sub></span> — ${i18n.t('sp_me_bias_significant')}: <strong>${yes(b.significant)}</strong>;
+        ${i18n.t('sp_me_bias_apply')}: <strong data-sp-bias-applied="${b.apply ? '1' : '0'}">${yes(b.apply)}</strong>${b.apply ? ` (${i18n.t('sp_me_bias_mode')}: ${i18n.t('sp_me_bias_mode_' + b.mode)}; ${i18n.t('sp_me_bias_added')})` : ''}</p>` : ''}
+      ${r.counting ? `<p class="rg-line" data-sp-counting="1"><strong>${i18n.t('sp_me_counting')}:</strong> N = ${escHtml(String(r.counting.count))}; u = √N = ${tdNum(r.counting.u)} (${tdNum(r.counting.rel, 3)} %)${r.counting.apply ? `; ${i18n.t('sp_me_counting_added')}` : ''}</p>` : ''}
+      <p class="rg-line" data-sp-rounding="${r.roundUp ? 'up' : 'half_up'}"><strong>${i18n.t('sp_me_rounding')}:</strong> ${i18n.t(r.roundUp ? 'sp_me_rounding_up' : 'sp_me_rounding_half_up')}</p>`);
   }
 
   /** Maxsus rejim natijasi → hisobot bo'limi (rejim natijadagi `mode` bo'yicha tanlanadi). */

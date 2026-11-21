@@ -15,7 +15,7 @@
 | R-S5 | XSS: `showToast` va `index.html` `pending-org-info` da escape'siz `innerHTML` | Y | P02 |
 | R-19 | Regressiya: WTLS/GLS/polinom va "U — diapazon" unverified; loyiha qarorlari egasi tasdig'ini kutadi | Y | P08 → egasi |
 | R-20 | Top-down: barcha loyiha qarorlarini egasi tasdiqladi (2026-11-17, 2026-11-18); usta jonli saytda ko'rib chiqildi; ochiq — faqat ISO 21748 manbasi (unverified qism) | O | P09 (ochiq: ISO 21748 manbasi — egasi) |
-| R-21 | Maxsus rejimlar: mikrobiologiya (ISO 19036) va tibbiy laboratoriya (ISO/TS 20914) — BETA, unverified; robust ANOVA — qayta tiklangan algoritm; sifatli testlarda interval usuli — egasi qaror qildi (2026-11-18): Wilson standart, Clopper–Pearson sozlama | Y | P10 → egasi (BETA manbalari) |
+| R-21 | Maxsus rejimlar: mikrobiologiya (ISO 19036) — BETA, unverified (tibbiy laboratoriya — P18 da ISO/TS 20914:2019 misollari bilan tasdiqlandi, R-30); robust ANOVA — qayta tiklangan algoritm; sifatli testlarda interval usuli — egasi qaror qildi (2026-11-18): Wilson standart, Clopper–Pearson sozlama | Y | P10 → egasi (BETA manbalari) |
 | R-01 | Etalon Excel fayllar repoda yo'q; testlar faqat yaxlitlangan satrni tekshiradi | K | P01 |
 | R-02 | Sonli hosila qadami h; nochiziqli modelda c=0 → u_c=0 | Y | P03 |
 | R-03 | t-kvantil: ν `floor` qilinadi, ν=5000 da sakrash, `erf` approksimatsiyasi | O | P03 |
@@ -42,6 +42,7 @@
 | R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
 | R-28 | AI yordamchi (P14): **amalga oshirildi, egasi qarorlari kiritildi (2026-11-20)**; AI hisoblamaydi, standart holatda o'chiq, tashqariga faqat tuzilma; tasdiq kutadi — MPE filtri, sana ko'rinishlari, almashinuv muddati; qoldiq — hujjatdagi shaxs ismlari, chet el xizmati (yuridik baho egasida), brauzerdagi kalit | O | P14 |
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
+| R-30 | Tibbiy laboratoriya (P18, ISO/TS 20914:2019): standart PDF'i repoda yo'q (pullik) — G1…G11 qiymatlari egasidan, mustaqil qayta hisoblangan. **Egasi qarori kutiladi:** (1) yaxlitlash §5.4 Option B (`half_up` standart, `up` sozlama) — amalga oshirilmagan; (2) D-23 / Q-9 — G9 dagi ikki qiymat (manbaning oraliq yaxlitlashi); (3) `bias.apply` standart qiymati `false` (tuzatish qo'llanmagan deb olinadi); (4) sanoq hissasini byudjetga qo'shish usuli (`counting.apply`, nisbiy hissa); (5) `medical_level_by_nearest` darajasi — warning; (6) `UNBALANCED_RATIO` = 2. Qoldiq: oyna real brauzerda qo'lda ko'rilmagan; ENGINE 2.11.0 raqami P16b / P17 rejasidagi raqam bilan to'qnashadi — keyingisi 2.12.0 oladi | O' | P18 → egasi |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 

@@ -23,6 +23,11 @@ export function defaults() {
     miValue: '', miSum: '', miUnit: 'CFU/g', miPairs: '', miTechS: '', miMatrix: '', miK: '',
     // tibbiy laboratoriya
     meUnit: '', meLevels: '', meCal: '', meBias: '', meY: '', meK: '',
+    // P18 (ISO/TS 20914:2019): aniqlik turi, shkala, tarqoqlik ko'rinishi, guruhlar (lot / tizim / davr), CRM dan bias, ruxsat etilgan noaniqlik
+    mePrecision: 'long_term', meScale: 'linear', meDisp: 'cv', meCalKind: 'rel',
+    meGroupKind: 'lots', meGroups: '', mePool: 'none',
+    meCrm: '', meCrmU: '', meCrmK: '', meLabMean: '', meLabSd: '', meLabN: '', meBiasApply: false, meBiasMode: 'absolute',
+    meAllow: '', meAllowKind: 'U_rel',
     template: null,
   };
 }
@@ -45,10 +50,53 @@ export function samplingRows(text) {
   return { targets, skipped };
 }
 
-/** IQC darajalari: har bir qator "o'rtacha  CV %  [n]". */
-export function levelRows(text) {
-  const g = numericRows(text);
-  return { levels: g.rows.map((r, i) => ({ id: `L${i + 1}`, mean: r[0], cv: r[1], ...(r[2] !== undefined && r[2] !== null ? { n: r[2] } : {}) })), skipped: g.skipped, short: g.rows.some(r => r.length < 2 || r[0] === null || r[1] === null) };
+const DASH = /^[-–—]$/;
+/** Sonli qatorlar; "-" / "—" katagi — bo'sh (qo'lda terilganda ustunni tashlab o'tish uchun). */
+function gridRows(text) {
+  const rows = [];
+  let skipped = 0;
+  for (const cells of parseGrid(text)) {
+    const nums = cells.map(c => (DASH.test(String(c).trim()) ? null : parseNumber(c)));
+    if (nums.some(n => Number.isNaN(n))) { skipped++; continue; }
+    if (nums.some(n => n !== null)) rows.push(nums);
+  }
+  return { rows, skipped };
+}
+const has = v => v !== undefined && v !== null;
+
+/**
+ * IQC darajalari: har bir qator "o'rtacha  CV % | SD  [n]  [oraliq quyi]  [oraliq yuqori]".
+ * Oraliq — daraja qo'llanish oralig'i [quyi; yuqori) (ISO/TS 20914:2019 A.2.3, A.3.2); bo'sh katak yoki "-" — chegarasiz.
+ * @param {string} text  @param {'cv'|'sd'} [disp='cv']
+ */
+export function levelRows(text, disp = 'cv') {
+  const g = gridRows(text);
+  const levels = g.rows.map((r, i) => {
+    const iv = { ...(has(r[3]) ? { low: r[3] } : {}), ...(has(r[4]) ? { high: r[4] } : {}) };
+    return { id: `L${i + 1}`, ...(has(r[0]) ? { mean: r[0] } : {}), ...(has(r[1]) ? { [disp === 'sd' ? 'sd' : 'cv']: r[1] } : {}), ...(has(r[2]) ? { n: r[2] } : {}),
+      ...(Object.keys(iv).length ? { interval: iv } : {}) };
+  });
+  return { levels, skipped: g.skipped, short: g.rows.some(r => !has(r[0]) || !has(r[1])) };
+}
+
+/**
+ * Guruhlar (lotlar / tizimlar / davrlar): har bir qator daraja raqamidan boshlanadi.
+ *   lots, systems: "daraja  o'rtacha  SD  [n]";  periods: "daraja  u_Rw".
+ * @returns {{byLevel:Map<number, object[]>, skipped:number, short:boolean}}
+ */
+export function groupRows(text, kind) {
+  const g = gridRows(text);
+  const byLevel = new Map();
+  let short = false;
+  for (const r of g.rows) {
+    const lv = r[0];
+    if (!Number.isInteger(lv) || lv < 1) { short = true; continue; }
+    const item = kind === 'periods' ? { uRw: r[1] } : { mean: r[1], sd: r[2], ...(has(r[3]) ? { n: r[3] } : {}) };
+    if (kind === 'periods' ? !has(r[1]) : !has(r[1]) || !has(r[2])) short = true;
+    if (!byLevel.has(lv)) byLevel.set(lv, []);
+    byLevel.get(lv).push({ id: String(byLevel.get(lv).length + 1), ...item });
+  }
+  return { byLevel, skipped: g.skipped, short, n: g.rows.length };
 }
 
 /** @returns {{spec:object, bad:string[]}}  bad — o'qib bo'lmagan maydonlar (i18n: 'sp_f_<nom>') */
@@ -73,12 +121,33 @@ export function buildSpec(st) {
       ...(g.rows.length ? { technical: { pairs: g.rows.map(r => [r[0], r[1]]) } } : s !== undefined ? { technical: { s } } : {}),
       ...(m !== undefined ? { matrix: { u: m } } : {}), ...k('miK') };
   } else {
-    const lv = levelRows(st.meLevels);
-    if (lv.short) bad.push('levels');
-    const cal = one(st.meCal, 'uCal'), bias = one(st.meBias, 'uBias'), y = one(st.meY, 'y');
-    spec = { format: 'uc-medical/1', unit: st.meUnit || '', levels: lv.levels,
-      ...(cal !== undefined ? { uCal: { value: cal, relative: true } } : {}), ...(bias !== undefined ? { uBias: { value: bias, relative: true } } : {}),
-      ...(y !== undefined ? { measurement: { value: y } } : {}), ...k('meK') };
+    const kind = ['lots', 'systems', 'periods'].includes(st.meGroupKind) ? st.meGroupKind : 'lots';
+    const lv = levelRows(st.meLevels, st.meDisp);
+    const gr = groupRows(st.meGroups, kind);
+    if (gr.short) bad.push('groups');
+    // Guruhli daraja: lot / tizimda o'rtacha va SD guruhlardan; davrda o'rtacha — darajalar jadvalidan. Darajaning o'z SD / CV si ishlatilmaydi.
+    const levels = lv.levels.map(L => ({ ...L }));
+    for (const [no, items] of gr.byLevel) {
+      while (levels.length < no) levels.push({ id: `L${levels.length + 1}` });
+      const { id, mean, n, interval } = levels[no - 1];
+      levels[no - 1] = { id, ...(kind === 'periods' && has(mean) ? { mean } : {}), ...(kind === 'periods' && has(n) ? { n } : {}), ...(interval ? { interval } : {}), [kind]: items };
+    }
+    if (levels.some(L => !L.lots && !L.systems && !L.periods && (!has(L.mean) || (!has(L.cv) && !has(L.sd))))) bad.push('levels');
+    const abs = st.meCalKind === 'abs';
+    const q = v => (abs ? { value: v, unit: st.meUnit || '' } : { value: v, relative: true });
+    const cal = one(st.meCal, 'uCal'), bias = one(st.meBias, 'uBias'), y = one(st.meY, 'y'), kv = one(st.meK, 'k');
+    // u_bias CRM dan (C.5): biror maydon to'ldirilgan bo'lsa — bo'lim ishlatiladi; bo'sh maydon 0 deb olinmaydi (dvigatel xato beradi)
+    const crm = { xRef: one(st.meCrm, 'crm'), URef: one(st.meCrmU, 'crmU'), kRef: one(st.meCrmK, 'crmK'), xLab: one(st.meLabMean, 'labMean'), sd: one(st.meLabSd, 'labSd'), n: one(st.meLabN, 'labN') };
+    const useCrm = Object.values(crm).some(has);
+    Object.keys(crm).forEach(key => { if (!has(crm[key])) delete crm[key]; });
+    const allow = one(st.meAllow, 'allowable');
+    const settings = { ...(kv !== undefined ? { k: kv } : {}), ...(st.mePool === 'df' ? { poolWeighting: 'df' } : {}) };
+    spec = { format: 'uc-medical/1', unit: st.meUnit || '', levels,
+      ...(st.meScale === 'log10' ? { scale: 'log10' } : {}), ...(st.mePrecision === 'repeatability' ? { precisionType: 'repeatability' } : {}),
+      ...(cal !== undefined ? { uCal: q(cal) } : {}), ...(bias !== undefined ? { uBias: q(bias) } : {}),
+      ...(useCrm ? { bias: { ...crm, apply: !!st.meBiasApply, mode: st.meBiasMode === 'proportional' ? 'proportional' : 'absolute' } } : {}),
+      ...(allow !== undefined ? { allowable: { [['u_rel', 'U_rel', 'u_abs', 'U_abs'].includes(st.meAllowKind) ? st.meAllowKind : 'U_rel']: allow } } : {}),
+      ...(y !== undefined ? { measurement: { value: y } } : {}), ...(Object.keys(settings).length ? { settings } : {}) };
   }
   return { spec, bad: [...new Set(bad)] };
 }

@@ -2,6 +2,7 @@
 /* SCRIPTS/TEMPLATE-VALIDATION.JS — shablon kartasidagi "Manba bilan mos" belgisi uchun dalil (P16; egasi qarori 2026-11-20, R-29 #8).
    Belgi qo'lda yoziladigan bayroq EMAS: har bir builtin shablon uchun hisob ishga tushiriladi va natija etalon misol
    (tests/cases/excel/*.json — kutilgan qiymatlar tests/fixtures/ dagi Excel kataklaridan, havolasi bilan) bilan solishtiriladi.
+   P18: maxsus rejim shablonlari (SP-04) — tests/fixtures/iso20914/ dagi ISO/TS 20914:2019 misollari bilan (scripts/lib/template-cases.js::ISO20914).
    Natija: templates/validation/builtin.json (format uc-template-validation/2, `_generated` belgisi bilan) — har bir (shablon, test) uchun yozuv:
      templateId, templateHash (RFC 8785 → SHA-256), ENGINE_VERSION, testId, source, clause, relDiff, date (+ status, checked, known).
      status 'verified'   — misolning y, u_c, ν_eff, k, U qiymatlari misolning O'Z toleransi ichida (toleranslar bu yerda o'zgartirilmaydi;
@@ -16,7 +17,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { EXCEL } = require('./lib/template-cases.js');
+const { EXCEL, ISO20914 } = require('./lib/template-cases.js');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'templates/validation/builtin.json');
@@ -36,6 +37,17 @@ function dataFromCase(tpl, st) {
   return { observations: st.measurements, sources, settings: st.settings, directions: st.directions };
 }
 
+/** P18: ISO/TS 20914:2019 misoli (oddiy darajalar: o'rtacha, SD, n; mutlaq u_cal) → "Maxsus rejimlar" oynasi maydonlari (matn ko'rinishida, foydalanuvchi kiritgandek) */
+function medicalStateFromFixture(input) {
+  if (input.bias || input.scale || input.levels.some(L => L.lots || L.systems || L.periods || L.interval)) throw new Error('faqat oddiy darajali misol qo\'llab-quvvatlanadi');
+  return {
+    meDisp: 'sd', meLevels: input.levels.map(L => [L.mean, L.sd, L.n].join('\t')).join('\n'),
+    ...(input.uCal ? { meCalKind: input.uCal.relative ? 'rel' : 'abs', meCal: String(input.uCal.value) } : {}),
+    ...(input.precisionType ? { mePrecision: input.precisionType } : {}),
+  };
+}
+const at = (o, p) => p.split('.').reduce((a, k) => (a === null || a === undefined ? undefined : a[k]), o);
+
 const today = () => new Date().toISOString().slice(0, 10);
 const same = (a, b) => JSON.stringify({ ...a, date: 0 }) === JSON.stringify({ ...b, date: 0 });
 
@@ -48,16 +60,42 @@ function build(prev) {
   const { ENGINE_VERSION } = require('../src/engine/version.js');
   const index = readJSON('templates/builtin/index.json');
   const tpls = index.templates.map(f => readJSON('templates/builtin/' + f));
-  const map = new Map(EXCEL);
+  const map = new Map(EXCEL), iso = new Map(ISO20914);
+  const Special = require('../src/ui/special/build.js');
+  const { evaluate } = require('../src/engine/index.js');
   const old = new Map(((prev && prev.records) || []).map(r => [r.templateId + '|' + r.testId, r]));
   const records = [];
   for (const tpl of tpls) {
-    const ids = map.get(tpl.id);
-    if (!ids) continue;                                          // yozuv yo'q → runtime'da "unverified" (no_record)
+    const ids = map.get(tpl.id), isoIds = iso.get(tpl.id);
+    if (!ids && !isoIds) continue;                               // yozuv yo'q → runtime'da "unverified" (no_record)
     // Ref: RFC 8785 (JCS) — brauzerdagi src/storage/canonical.js::jcsHash bilan AYNAN bir xil kanonik matn
     const templateHash = crypto.createHash('sha256').update(canonicalizeJcs(tpl), 'utf8').digest('hex');
-    for (const id of ids) {
-      const c = readJSON(`tests/cases/excel/${id}.json`);
+    for (const id of isoIds || []) {
+      // P18: tests/fixtures/iso20914/<id>.json — qatorlar o'z toleransi bilan (oxirgi ko'rsatilgan xonaning ½ birligi; bu yerda o'zgartirilmaydi)
+      const fx = readJSON(`tests/fixtures/iso20914/${id}.json`);
+      const b = T.buildSpecialState(tpl);
+      let ok = fx.status === 'verified' && !b.error, relDiff = 0, checked = 0;
+      if (ok) {
+        const { spec, bad } = Special.buildSpec({ ...Special.defaults(), ...b.state, ...medicalStateFromFixture(fx.input) });
+        const r = bad.length ? { error: 'bad' } : evaluate(spec);
+        if (r.error) ok = false;
+        else for (const [rows, rel] of [[fx.expected, true], [fx.expectedStd || [], false]]) for (const row of rows) {
+          const got = at(r, row.path) * (row.factor || 1);
+          if (!(Math.abs(got - row.value) <= row.tol)) ok = false;
+          checked++;
+          if (rel && row.value !== 0) relDiff = Math.max(relDiff, Math.abs(got - row.value) / Math.abs(row.value));
+        }
+      }
+      const rec = {
+        templateId: tpl.id, templateVersion: tpl.version, templateHash, ENGINE_VERSION, testId: 'iso20914-' + id,
+        source: fx.source, clause: fx.clause, relDiff: Number(relDiff.toPrecision(2)),
+        status: ok && checked > 0 ? 'verified' : 'unverified', checked, known: [], date: null,
+      };
+      const was = old.get(tpl.id + '|' + rec.testId);
+      rec.date = was && same(was, rec) && /^\d{4}-\d{2}-\d{2}$/.test(was.date || '') ? was.date : today();
+      records.push(rec);
+    }
+    for (const id of ids || []) {      const c = readJSON(`tests/cases/excel/${id}.json`);
       let ok = c.status === 'verified', relDiff = 0, checked = 0;
       const known = new Set();
       const run = T.evaluateTemplate(tpl, dataFromCase(tpl, c.modelSpec.state));

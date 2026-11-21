@@ -372,9 +372,9 @@ Example. Source: EURACHEM/CITAC AQA:2021, Example E3 (Table E3.1, Eq. E3.1), §4
 
 BETA, unverified: the text of ISO 19036 is not in the repository and the calculation has not been confirmed against a source example. The result always carries a warning; a template in this mode cannot become `APPROVED`. No example numbers are given. Compare the result with the standard before using it in an official report.
 
-### 8.4. Medical laboratory — BETA
+### 8.4. Medical laboratory (ISO/TS 20914:2019)
 
-BETA, unverified: the text of ISO/TS 20914 is not in the repository. The same conditions apply as for microbiology; no example numbers are given.
+The calculation has been confirmed against the worked examples of ISO/TS 20914:2019 (the text of the standard is not in the repository — it is a paid document). For each IQC level u = √(u_Rw² + u_cal²), with u_bias if needed. Enter the monitored interval for each level: the uncertainty of the level whose interval contains the value is applied to the measured result; without intervals the nearest mean is used and a warning is shown. Pooling over lots, identical measuring systems and periods, the bias uncertainty from a certified reference material, the log₁₀ scale and a comparison with the allowable uncertainty are available. Calculated quantities (anion gap, osmolality, eGFR) are evaluated in the GUM mode. The equivalence of IQC and patient samples and the decision to split data at a lot change are the laboratory's responsibility.
 
 ## 9. Laboratory
 
@@ -504,7 +504,7 @@ Before the program is put into routine use, and after every new engine version, 
 The most important limitations (the full list is in the [known limitations](../validation/KNOWN_LIMITATIONS.md)):
 
 - **ISO/IEC 17025:2017** — the text is not in the repository; references to it and the list of report details are unverified.
-- **BETA modes:** microbiology (ISO 19036) and medical laboratory (ISO/TS 20914) — not confirmed against a source example.
+- **BETA mode:** microbiology (ISO 19036) — not confirmed against a source example.
 - **Unverified methods:** WLS, GLS, WTLS and polynomial in regression; the parts of top-down that rely on ISO 21748; the log-normal distribution; PT score formulas and limits (ISO 13528); the Cochran test; LOD / LOQ; the calibration interval formula.
 - **Implicit model:** no Monte Carlo method; no entry form on the main screen.
 - **Smallest coverage region** — for two outputs only.

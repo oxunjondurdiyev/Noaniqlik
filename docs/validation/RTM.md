@@ -8,11 +8,11 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 345 |
-| Kamida bitta testga bog'langan | 332 |
-| ✅ verified | 281 |
-| ⚠️ verified (farq bilan) | 5 |
-| ❔ unverified | 26 |
+| Talablar | 352 |
+| Kamida bitta testga bog'langan | 339 |
+| ✅ verified | 288 |
+| ⚠️ verified (farq bilan) | 6 |
+| ❔ unverified | 25 |
 | ⏳ pending | 29 |
 | ✋ manual | 4 |
 | Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 13 |
@@ -216,12 +216,19 @@
 | REQ-SPM-010 | Clopper–Pearson (aniq binomial; loyiha qo'shimchasi — laboratoriya sozlamasi): 7/20, 97/100, 100/100, 0/50, 3/100, 45/60 (P = 0,95), 7/20 (P = 0,99) | `src/engine/qualitative/index.js::clopperPearsonInterval` | `tests/engine/special-modes.test.js` | ✅ verified | mustaqil ochiq dastur (qiymatlar sessiyada hisoblangan — RISKS R-21) |
 | REQ-SPM-011 | Interval usuli tanlovi (egasi qarori 2026-11-18): standart Wilson; `ciMethod: 'clopper_pearson'`; bosma hisobotda faqat tanlangani, usul nomi va P | `src/engine/qualitative/index.js::evaluateQualitative`; `src/js/report.js` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
 | REQ-SPM-012 | Mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; interval [10^(y−U); 10^(y+U)] (ISO 19036 — pullik) | `src/engine/micro/index.js::evaluateMicro` | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified |
-| REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914 — pullik) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified |
-| REQ-SPM-014 | BETA modullar: har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | `src/engine/micro/index.js::evaluateMicro`; `src/engine/medical/index.js::evaluateMedical`; `src/templates/interpreter.js::checkSpecialTemplate` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
+| REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_Rw² + u_cal² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914:2019 A.2.2, A.2.4; PDF repoda yo'q — pullik) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js`; `tests/engine/special-modes.test.js` | ✅ verified | — |
+| REQ-SPM-014 | BETA modul (mikrobiologiya; tibbiy laboratoriya P18 dan BETA emas): har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | `src/engine/micro/index.js::evaluateMicro`; `src/engine/medical/index.js::evaluateMedical`; `src/templates/interpreter.js::checkSpecialTemplate` | `tests/engine/special-modes.test.js`; `tests/ui/special.test.js` | ✅ verified | — |
 | REQ-SPM-015 | Hisobotda qo'llanilgan yondashuv va cheklovlar yozilgan (uch tilda) | `src/js/report.js::specialSection` | `tests/ui/special.test.js` | ✅ verified | — |
 | REQ-SPM-016 | "Maxsus rejimlar" oynasi: Excel'dan qo'yish, o'nlik vergul, bo'sh maydon ≠ 0, escape (XSS), CSP | `src/ui/special/` | `tests/ui/special.test.js` | ✅ verified | — |
 | REQ-SPM-017 | Mavjud natijalar o'zgarmagan | `src/engine/evaluate.js::evaluate` | `tests/excel.test.js`; `tests/run-cases.test.js` | ✅ verified | Bosqich yakunida bir martalik bit darajasidagi solishtiruv (nazorat skripti); doimiy himoya — 9 etalon nuqta va manba misollari. P13 dan: scripts/cases-snapshot.js (REQ-VAL-001). |
 | REQ-SPM-018 | Mutatsiyaga sezgirlik (P10) | — | — | ✋ manual | Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda: σ_s² dagi /2 olib tashlandi (22 test yiqildi); robust τ² bo'luvchisi n → n − 1 (21); Wilson dagi z²/(4n²) hadi (7); Clopper–Pearson parametri (2); Puasson 1/√C → 1/C (2); kvadratlar yig'indisi → oddiy yig'indi (3) |
+| REQ-SPM-019 | Tibbiy laboratoriya: ISO/TS 20914:2019 etalon misollari G1…G11 (`tests/fixtures/iso20914/`) — tolerans oxirgi ko'rsatilgan xonaning ½ birligi; ma'lum farq D-23 (G9) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js` | ⚠️ verified (farq bilan) | D-23: G9 da U_bias va U — manbaning oraliq yaxlitlashi (½ birlikdan 0,07 va 0,16 birlikka oshadi); qolgan barcha qatorlar toleransda |
+| REQ-SPM-020 | Tibbiy laboratoriya: daraja qo'llanish oralig'i (A.2.3, A.3.2); oraliqsiz — eng yaqin o'rtacha + `medical_level_by_nearest`; `medical_interval_gap` / `medical_interval_overlap` | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js` | ✅ verified | — |
+| REQ-SPM-021 | Tibbiy laboratoriya: aniqlik turi `long_term` / `repeatability` (§6.3, A.2.3) — `medical_repeatability_only`, takrorlanuvchanlikda `medical_no_calibrator` yo'q | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js` | ✅ verified | — |
+| REQ-SPM-022 | Tibbiy laboratoriya: pooling — lotlar (A.3.1 Formula (A.8); `poolWeighting: 'df'`), bir xil tizimlar (A.4), davrlar (A.7, A.14) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js` | ✅ verified | — |
+| REQ-SPM-023 | Tibbiy laboratoriya: u_bias CRM dan (C.5, Formula (C.1)–(C.4)), ahamiyatlilik testi, `apply`, proporsional tuzatish, `medical_bias_significant_not_applied`, `medical_bias_incomplete` | `src/engine/medical/index.js::biasFromCrm`; `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js` | ✅ verified | — |
+| REQ-SPM-024 | Tibbiy laboratoriya: log₁₀ shkala (A.10), ruxsat etilgan maksimal noaniqlik (§5.2 — yaroqlilik, muvofiqlik bayonoti emas), sanoq u = √count (§6.10) | `src/engine/medical/index.js::evaluateMedical` | `tests/engine/medical.iso20914.test.js` | ✅ verified | sanoqni byudjetga qo'shish (`counting.apply`) — loyiha qarori, egasi tasdig'ini kutadi (RISKS R-30) |
+| REQ-SPM-025 | Tibbiy laboratoriya: oyna (aniqlik turi, shkala, oraliq, lot / tizim / davr, CRM, ruxsat etilgan noaniqlik) va hisobot (A.1 shaklidagi jadval, bias bo'limi, §5.6 bayonoti, yaxlitlash usuli bayonoti) — uch tilda; `SP-04` G1 orqali verified | `src/ui/special/build.js::buildSpec`; `src/ui/special/view.js::formHTML`; `src/report/sections.js::medicalSection`; `scripts/template-validation.js::build` | `tests/ui/special.test.js`; `tests/templates/validation-badge.test.js` | ✅ verified | real brauzerda qo'lda ko'rilmagan (jsdom) |
 
 ## LNT — Metrologik linter, asoslangan qabul (P05a)
 
@@ -408,7 +415,7 @@
 | REQ-SRC-010 | ISO 21748 (pullik) — laboratoriya s_r tekshiruvi, u(δ̂) | — | `tests/engine/topdown.test.js` | ❔ unverified | unverified — ochiq manba misoli yoki laboratoriya Excel'i kerak (egasi qo'shadi) |
 | REQ-SRC-011 | EURACHEM/CITAC UfS:2019 A1, A2 (dublikat usuli, ANOVA, ᶠU) | — | misollar: `ufs-a1-nitrate-classical`, `ufs-a1-nitrate-robust`, `ufs-a2-lead-classical`, `ufs-a2-lead-robust` | ✅ verified | D-16 — (P10, §9; robust — D-16) |
 | REQ-SRC-012 | EURACHEM/CITAC AQA:2021 E3, 7.6 (posterior ehtimol, Wilson CI) | — | misollar: `aqa-e3-emit-opiates`, `aqa-e3-emit-methadone`, `aqa-e3-emit-cocaine`, `aqa-e6-sarscov2` | ✅ verified | D-15, D-17 — (P10, §9; D-15, D-17) |
-| REQ-SRC-013 | ISO 19036 (mikrobiologiya), ISO/TS 20914 (tibbiy laboratoriya) — pullik | — | `tests/engine/special-modes.test.js` | ❔ unverified | BETA / unverified — manba kerak (egasi qo'shadi) |
+| REQ-SRC-013 | ISO 19036 (mikrobiologiya), ISO/TS 20914 (tibbiy laboratoriya) — pullik | — | `tests/engine/special-modes.test.js`; `tests/engine/medical.iso20914.test.js` | ❔ unverified | ISO 19036 — BETA / unverified, manba kerak; ISO/TS 20914:2019 — P18 da misollar bilan tasdiqlangan (PDF repoda yo'q — pullik) |
 | REQ-SRC-014 | NIST Uncertainty Machine qo'llanmasi | — | misollar: `nist-um-ratio` | ❔ unverified | PDF yo'q |
 | REQ-SRC-015 | ISO/TS 28037/28038 (pullik) | — | misollar: `york-pearson-wtls` | ❔ unverified | WTLS/GLS/polinom uchun ochiq manba misoli kerak (egasi qo'shadi) |
 | REQ-SRC-016 | JCGM GUM-6:2020, COOMET R/GM/32:2017 | — | — | ❔ unverified | PDF `docs/references/` da yo'q (egasi qo'shadi). JCGM 102, JCGM 106, ILAC P14, ILAC G8 — qo'shilgan (P05b, P07). |
