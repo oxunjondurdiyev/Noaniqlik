@@ -135,6 +135,7 @@ REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `ev
  * @property {SecondOrder|null} secondOrder
  * @property {{checked:boolean, output:string|null}} units   // o'lchamlik tahlili (output — masalan 'L^-3·M')
  * @property {Finding[]} findings         // P05a: linter topilmalari (§10)
+ * @property {{required:boolean, reasons:McmReason[]}} mcm   // P20 (2.11.0): LPU → MCM qaror qoidasi (pastda); sonli natijaga ta'sir qilmaydi
  * @property {'error'|'value'|'unknown'} modelKind, {number|null} nominal, {number|null} deviation   // og'ish: E yoki Y − Y_nom; ko'rsatilmagan — null
  * @property {{code:string, param?:string, value?:any}[]} warnings   // DEPRECATED (2.4.0): findings dan foydalaning; bir versiya davomida qoladi
  * @property {{code:string}[]} notes      // ma'lumot (masalan units_unchecked)
@@ -162,6 +163,31 @@ REGRESSION rejimi alohida format bilan beriladi — `uc-regression/1` (§7); `ev
  * @property {{a:string, b:string, value:number}[]} terms
  */
 ```
+
+### 3.1. `result.mcm` — LPU → MCM avtomatik qaror qoidasi (P20, ENGINE 2.11.0)
+
+`src/engine/mcm-decision.js` (sof modul). **Chegaralar — loyiha qarori (egasi, 2026-11-21), me'yoriy talab emas** (JCGM 101:2008 §5.7, §5.8 da LPU shartlari bor, son yo'q). Sonli natija (y, u_c, ν_eff, k, U) o'zgarmaydi; linter A1 (dispersiya ulushi > 90 %) bu qoidadan mustaqil.
+
+```js
+/** mcmDecision(result, settings) → { required, reasons }
+ * @typedef {Object} McmReason
+ * @property {'a'|'b'|'c'|'d'} code
+ *   a — nochiziqlilik: secondOrder.index > nonlinThreshold (0,01), yoki biror c_i = 0 (value: 'c = 0', param)
+ *   b — bitta normal bo'lmagan manba (rect, ushape, trap, ctrap, triang, resol): |c_i|·u(x_i) / u_c > 0,50 (nisbat — ulush emas)
+ *   c — asimmetrik kirish taqsimoti (exp, lognorm; value — taqsimot kodi) yoki settings.physicalBounds: { lower?, upper? }
+ *       berilgan va |y − chegara| < U (value — masofa, threshold — U, source — 'lower' | 'upper')
+ *   d — ν_eff < 6
+ * @property {number|string} value, threshold
+ * @property {string} ref                  // manba bandi + "loyiha qarori"
+ * @property {string} [source], [param]    // manba nomi va kirish kattaligi (b, c)
+ */
+MCM_THRESHOLDS = { ratio: 0.5, nuEff: 6 }
+mcmState(result, mc)    // 'not_required' | 'pending' | 'failed' | 'not_converged' | 'validated' | 'rejected' | 'performed'
+mcmMissing(result, mc)  // true — talab qilingan MCM bajarilmagan / xato (hisobot "QORALAMA")
+lintMcm(result, mc)     // linter M5 (mcm_required, warning) — faqat hisobot / UI qatlamidan; evaluate() chiqarmaydi
+```
+
+Vektor natijada (`mode: 'MULTIVARIATE'`) har bir chiqishning o'z `mcm` maydoni bor (`results[j].mcm`); avtomatik ishga tushirish va "QORALAMA" sharti hozircha faqat bitta chiqishli GUM hisobida (KL-187).
 
 Xato: `{ error, detail? }`. Kodlar: `need_formula`, `bad_formula`, `need_data`, `formula_eval`, `bad_halfwidth`, `bad_mpe`, **`negative_variance`** (P03), **`bad_correlation`** (|r| > 1 yoki u = 0 kirishga kovariatsiya; P03), **`unit_mismatch`**, **`unit_fn_arg`** (P03), **`multi_output`** (P07 gacha), `bad_spec`.
 

@@ -16,7 +16,7 @@ const rule = {
   check(spec, result, ctx) {
     const m = result && result.mcm;
     if (!ctx || !ctx.mcm || ctx.mcm.missing !== true || !m || !m.required) return [];
-    const codes = [...new Set((m.reasons || []).map(x => `(${x.code})`))].join(', ');
+    const codes = [...new Set((m.reasons || []).map(x => x.code))].join(', ');   // matnda: "… talab qilinadi ({v})" → "(b, d)"
     return [finding(rule, 'mcm_required', { key: '', value: codes })];
   },
 };

@@ -1,7 +1,7 @@
 # Ma'lum cheklovlar — yagona ro'yxat
 
 > Ruscha nusxa: [KNOWN_LIMITATIONS.ru.md](KNOWN_LIMITATIONS.ru.md) (asosiy matn — o'zbekcha; farq bo'lsa shu hujjat amal qiladi).
-> **Holat:** `ENGINE_VERSION` 2.10.0, P14 (2026-11-20).
+> **Holat:** `ENGINE_VERSION` 2.11.0, P20 (2026-11-21).
 > Bu ro'yxat yangi cheklov kiritmaydi — faqat yig'adi. Manbalar: `CLAUDE.md` ("Joriy holat bo'yicha eslatmalar"), `docs/RISKS.md`, `tests/cases/DISCREPANCIES.md`, `docs/VALIDATION_MATRIX.md`, `docs/LINTER_RULES.md` §4, `docs/PLAN.md`. Zid kelsa `CLAUDE.md` va `docs/RISKS.md` ustun.
 > ID lar barqaror: band yopilsa o'chirilmaydi — "yopildi" deb belgilanadi (sana va versiya bilan); yangi band oxiridan qo'shiladi.
 
@@ -215,6 +215,16 @@
 | KL-182 | Haqiqiy AI xizmati bilan avtomatik test yo'q (CI da kalit yo'q) — faqat mock; Chromium da mock bilan tutun-testi o'tkazilgan; Firefox / Safari da AI oynasi qo'lda ko'rilmagan | ko'rilmagan | `docs/AI_DESIGN.md` §13 | — |
 | KL-183 | Prompt matni (a, b da hujjat bilan) "o'z kaliti" rejimida brauzer IndexedDB sidagi vaqtinchalik omborda 1 soatgacha turadi (eksportga va auditga kirmaydi; javob olingach o'chiriladi) | qoldiq xavf | `docs/AI_DESIGN.md` §13 (5) | — |
 | KL-184 | ISO/IEC 42001 repoda yo'q (pullik) — AI boshqaruviga oid bandlar tamoyil darajasida, iqtibossiz | unverified | `docs/AI_DESIGN.md` §10 | — |
+
+## 16. LPU → MCM qaror qoidasi, hujjat holati va huquqiy sahifalar (P20)
+
+| ID | Cheklov | Turi | Manba | Foydalanuvchiga ta'siri |
+|---|---|---|---|---|
+| KL-185 | LPU → MCM avtomatik qaror qoidasi chegaralari (\|c_i\|u(x_i)/u_c > 0,50; ν_eff < 6; fizik chegara \|y − chegara\| < U; asimmetrik taqsimot) — **loyiha qarori**, me'yoriy talab emas: JCGM 100 / 101 da bunday sonlar yo'q, faqat LPU shartlari (JCGM 101:2008 §5.7, §5.8) bor | loyiha qarori (egasi, 2026-11-21) | `src/engine/mcm-decision.js`; `docs/LINTER_RULES.md` §4 #23a; `docs/RISKS.md` R-30 | Qoida ehtiyotkor: 9 ta etalon Excel nuqtasining hammasida MCM talab qilinadi ((b) sharti); MCM bajarilmasa hisobot "QORALAMA" belgisi bilan chiqadi |
+| KL-186 | Talab qilingan MCM chegaraga (M = 10⁷) yetib "yaqinlashmadi" holatida tugashi mumkin (masalan, zichlik namunasi); bu holat "bajarilgan" hisoblanadi — hisobot QORALAMA bo'lmaydi, lekin §8 xulosasi sonli tolerans bilan birga ko'rsatiladi | qoldiq (egasi qarorini kutadi) | `docs/RISKS.md` R-29, R-30 | "Yaqinlashmadi" holatida LPU natijasi tasdiqlangan deb hisoblanmaydi; M chegarasi egasi qarorisiz oshirilmaydi |
+| KL-187 | Fizik chegara (`settings.physicalBounds`) uchun interfeysda kiritish maydoni yo'q — hozircha faqat hisob fayli / API orqali; vektor (ko'p chiqishli) va oshkormas modellarda avtomatik MCM ishga tushmaydi (har bir chiqishda `mcm` maydoni bor, lekin holat bloki va QORALAMA sharti faqat bitta chiqishli GUM hisobida) | qilinmagan | `docs/RISKS.md` R-30 | — |
+| KL-188 | "QORALAMA" sharti uchun majburiy rekvizitlar ro'yxati (ISO/IEC 17025:2017 §7.8.2.1 asosida) — unverified (standart repoda yo'q); regressiya, top-down va maxsus rejimlar hisobotida MCM sharti qo'llanmaydi, faqat rekvizitlar sharti | unverified | `src/report/requisites.js`; `src/report/forms.js::draftReasons` | Laboratoriya o'z sifat tizimi shakli bilan solishtiradi |
+| KL-189 | `privacy.html` va `terms.html` matni — loyiha, yurist tasdig'ini kutadi; nofaol hisoblar uchun saqlash muddati belgilanmagan; hujjat versiyasi o'zgarganda qayta rozilik so'rash oqimi yo'q (rozilik faqat ro'yxatdan o'tishda olinadi); mavjud tashkilotlar hujjatida rozilik maydonlari yo'q | tasdiq kutadi | `docs/DATA_RESIDENCY.md`; `docs/RISKS.md` R-30 | Sahifa boshida "Loyiha — yurist tasdig'ini kutmoqda" belgisi |
 
 ---
 

@@ -156,7 +156,7 @@ test('linter M5 mcm_required: evaluate() chiqarmaydi; lintMcm — natija yo\'q b
   assert.ok(!r.findings.some(f => f.code === 'mcm_required'));              // dvigatel natijasidagi topilmalar o'zgarmagan
   const miss = E.lintMcm(r, null);
   assert.equal(miss.length, 1);
-  assert.deepEqual([miss[0].rule, miss[0].code, miss[0].severity, miss[0].mode, miss[0].value], ['M5', 'mcm_required', 'warning', 'GUM', '(b)']);
+  assert.deepEqual([miss[0].rule, miss[0].code, miss[0].severity, miss[0].mode, miss[0].value], ['M5', 'mcm_required', 'warning', 'GUM', 'b']);
   assert.match(miss[0].ref, /JCGM 101:2008 §5\.7/);
   assert.equal(E.lintMcm(r, { error: 'mc_cancelled' }).length, 1);
   assert.deepEqual(E.lintMcm(r, { validated: true, adaptive: { enabled: true, converged: true } }), []);   // salbiy: MCM bajarilgan

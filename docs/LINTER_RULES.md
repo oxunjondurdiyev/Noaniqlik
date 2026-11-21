@@ -194,7 +194,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 - `tests/storage/acceptance.test.js` — qabul qilish va audit zanjiri.
 - `tests/ui/findings.test.js` — blok, uch til, escape, bosma hisobot, suv belgisi, belgilar, model turi.
 
-9 ta etalon nuqtadagi topilmalar (hammasi info): gaz 1 — `zero_s`, `n_small`, `x10_no_drift`; gaz 2, 3 — `n_small`, `x10_no_drift`; termometr 1 — `zero_s`; termometr 4 — `zero_s`, `x5_resolution_rect`; zichlik, termometr 2, 3, 5 — topilma yo'q.
+9 ta etalon nuqtadagi topilmalar (dvigatel natijasida; hammasi info — P20 dan keyin ham o'zgarmagan. Hisobot qatlamida bundan tashqari **M5** chiqadi, agar MCM bajarilmagan bo'lsa: 9 nuqtaning hammasida `result.mcm.required = true`, sabab (b)): gaz 1 — `zero_s`, `n_small`, `x10_no_drift`; gaz 2, 3 — `n_small`, `x10_no_drift`; termometr 1 — `zero_s`; termometr 4 — `zero_s`, `x5_resolution_rect`; zichlik, termometr 2, 3, 5 — topilma yo'q.
 - `tests/engine/montecarlo.test.js`, `tests/engine/mc-legacy.test.js` — M2, M3, M4: har biri uchun ijobiy va salbiy holat (P06).
 - `tests/engine/mcm-decision.test.js` — M5 va qaror qoidasi (a)–(d): ijobiy va salbiy holat (P20).
 - `tests/engine/multivariate.test.js` — MV1: ijobiy va salbiy holat (P07).

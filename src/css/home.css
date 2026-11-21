@@ -145,8 +145,9 @@
 }
 
 /* ─── P20 (SEC-02): ro'yxatdan o'tishda majburiy rozilik ─────────────── */
-.auth2-consent-label { display: flex; align-items: flex-start; gap: var(--s-3); min-height: var(--tap); padding: var(--s-2) 0; cursor: pointer; font-size: .86rem; color: var(--c-text-2); line-height: 1.4; }
-.auth2-consent-label input { flex: 0 0 auto; width: 20px; height: 20px; min-height: 0; margin: 2px 0 0; accent-color: var(--c-blue); }
+.auth2 .auth-group .auth2-consent-label { display: flex; align-items: flex-start; gap: var(--s-3); min-height: var(--tap); padding: var(--s-2) 0; margin: 0; cursor: pointer; font-size: .86rem; color: var(--c-text-2); line-height: 1.4; }
+.auth2 .auth-group .auth2-consent-label input { flex: 0 0 auto; width: 22px; height: 22px; min-height: 0; margin: 0; padding: 0; accent-color: var(--c-blue); }
+.auth2 .auth-group .auth2-consent-label input:focus-visible { outline: 2px solid var(--c-blue); outline-offset: 2px; }
 .auth2-consent-links { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin: 0; }
 .auth2-consent-links .auth2-link { min-height: var(--tap); display: inline-flex; align-items: center; }
 .landing-footer-link { color: var(--c-text-2); min-height: var(--tap); display: inline-flex; align-items: center; text-decoration: underline; }

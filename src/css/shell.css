@@ -429,3 +429,5 @@ html { scroll-padding-top: calc(var(--topbar-h) + var(--s-4)); scroll-padding-bo
 @media (max-width: 719px) {
   #toast-container { left: var(--s-3); right: var(--s-3); bottom: calc(var(--bottom-nav-h) + 80px + env(safe-area-inset-bottom, 0px)); }
 }
+/* Topilma manbasi (masalan "[JCGM 101:2008 §5.7 …]") ogohlantirish foni ustida ham ≥ 4,5:1 (P20: M5 topilmasi natijalar panelida) */
+.finding .finding-ref { color: var(--c-text-2); }
