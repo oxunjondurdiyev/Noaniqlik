@@ -6,25 +6,46 @@ const Table = (() => {
 
   let _currentParam = null;
 
+  /* P22-1: yagona "Yangi hisob" oqimi — sof model src/ui/flow/model.js (window.UCFlow; src/ui/flow/app.js ulaydi) */
+  const Flow = () => window.UCFlow;
+  const RELEVANT = ['params', 'measurements', 'n', 'model', 'settings', 'directions', 'units', 'outputs', 'typeB', 'template'];
+
   function init() {
-    document.getElementById('btn-fill-sample').addEventListener('click', fillSample);
-    document.getElementById('btn-clear-data').addEventListener('click', clearData);
-    document.getElementById('btn-calc-typea').addEventListener('click', calcTypeA);
-
-    // Re-render hint + placeholders when preset changes
-    ['sidebar-preset', 'inp-preset'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('change', () => render());
+    const clear = document.getElementById('btn-clear-data');
+    if (clear) clear.addEventListener('click', clearData);
+    document.addEventListener('click', e => {
+      const next = e.target.closest && e.target.closest('[data-flow-next]');
+      if (next) proceed(next.dataset.flowNext);
     });
 
-    appState.subscribe((changes, state) => {
-      if (!changes || changes.params !== undefined || changes.measurements !== undefined || changes.n !== undefined ||
-          changes.model !== undefined || changes.settings !== undefined || changes.directions !== undefined) {
-        render();
-      }
+    appState.subscribe((changes) => {
+      if (changes && !RELEVANT.some(k => changes[k] !== undefined)) return;
+      if (fitTable()) return;          // resizeN qayta xabar beradi — chizish o'sha chaqiruvda
+      render();
+      autoTypeA();
     });
 
-    render();
+    if (!fitTable()) { render(); autoTypeA(); }
+  }
+
+  /* N — jadvaldan: to'ldirilgan qatorlar + bitta bo'sh qator (ko'pi bilan 100). true — holat o'zgartirildi. */
+  function fitTable() {
+    if (!Flow()) return false;
+    const state = appState.get();
+    if (!state.params || !state.params.length) return false;
+    const want = Flow().fitRows(state);
+    if (state.n === want && state.params.every(p => (state.measurements[p] || []).length === want)) return false;
+    appState.resizeN(want);
+    return true;
+  }
+
+  /* A tur — alohida tugmasiz: ma'lumot, usul yoki yo'nalish o'zgarganda qayta hisoblanadi (Calc.typeAx — dvigatel;
+     bu yerda formula yo'q). state.typeA faqat ko'rsatish / qadam holati uchun — yakuniy hisob uni o'zi qayta oladi. */
+  function autoTypeA() {
+    const state = appState.get();
+    const typeA = {};
+    (state.params || []).forEach(p => { const r = taFor(state, p); if (r) typeA[p] = r; });
+    if (JSON.stringify(typeA) !== JSON.stringify(state.typeA || {})) appState.set({ typeA });
   }
 
   function render() {
@@ -34,6 +55,7 @@ const Table = (() => {
     }
     renderParamTabs();
     renderModelBox();
+    renderDataOptions();
     renderTable();
     renderTypeASummary();
   }
@@ -53,19 +75,6 @@ const Table = (() => {
     return state.params.some(p => m[p] && m[p].directional);
   }
 
-  /* Preset whose parameters match the current session (for hints/placeholders) */
-  function activePresetKey() {
-    const params = appState.get('params');
-    const ids = ['sidebar-preset', 'inp-preset'];
-    for (const id of ids) {
-      const el = document.getElementById(id);
-      const key = el ? el.value : '';
-      const pd = key && window.PRESETS ? window.PRESETS[key] : null;
-      if (pd && pd.params.join('|') === params.join('|')) return key;
-    }
-    return '';
-  }
-
   /* ── Measurement model: y = f(x1…xN) ── */
   /* P07: state.outputs — to'liq ro'yxat (≥ 2 element) yoki yo'q. Birinchi element har doim state.model bilan bir xil. */
   function extraOutputs(state) {
@@ -76,15 +85,16 @@ const Table = (() => {
     return { outputs: extras.length ? [{ formula: model.formula || '', unit: model.unit || '' }].concat(extras) : undefined };
   }
 
-  function renderModelBox() {
+  function renderModelBox(force) {
     const box = document.getElementById('model-box');
     if (!box) return;
-    if (box.contains(document.activeElement) && document.activeElement.tagName === 'INPUT' &&
-        document.activeElement.type === 'text') { updateModelStatus(); return; }
+    const active = document.activeElement;
+    const typing = box.contains(active) && active.tagName === 'INPUT' && active.type === 'text';
+    if (typing && !force) { updateModelStatus(); return; }
+    const keep = typing && active.id === 'model-formula' ? { start: active.selectionStart, end: active.selectionEnd } : null;
 
     const state = appState.get();
     const model = state.model || {};
-    const paired = !state.settings || state.settings.paired !== false;
     const chips = state.params.map(p => `<button type="button" class="model-chip" data-ins="${escHtml(p)}">${escHtml(p)}</button>`).join('');
 
     box.innerHTML = `
@@ -128,12 +138,7 @@ const Table = (() => {
             <input type="text" data-unit-param="${escHtml(p)}" value="${escHtml(((state.units || {})[p]) || '')}" placeholder="${escHtml(i18n.t('unit_ph'))}" autocomplete="off" /></label>`).join('')}
         </div>
         <div id="model-units-status" class="model-status"></div>
-        ${state.params.length > 1 ? `
-        <label class="model-check">
-          <input type="checkbox" id="model-paired" ${paired ? 'checked' : ''} />
-          <span>${i18n.t('model_paired')}</span>
-        </label>` : ''}
-        ${renderMethodTable(state)}
+        <div id="model-unused" class="model-unused"></div>
       </div>`;
 
     const fEl = box.querySelector('#model-formula');
@@ -142,10 +147,10 @@ const Table = (() => {
       const formula = fEl.value.trim();
       const unit = box.querySelector('#model-unit').value.trim();
       if (cur.formula !== formula || cur.unit !== unit) appState.set({ model: { formula, unit }, ...outputsPatch({ formula, unit }, extraOutputs(appState.get())), combined: null });
-      updateModelStatus();
+      if (commitParams()) renderModelBox(true); else { renderUnused(); updateModelStatus(); }
     };
     // P07: qo'shimcha chiqishlar (vektor model, JCGM 102:2011 §6.2) — state.outputs = [asosiy formula, …qo'shimchalar]
-    const setExtras = extras => appState.set({ ...outputsPatch(appState.get('model') || {}, extras), combined: null });
+    const setExtras = extras => { appState.set({ ...outputsPatch(appState.get('model') || {}, extras), combined: null }); if (commitParams()) renderModelBox(true); else renderUnused(); };
     box.querySelectorAll('[data-out-formula], [data-out-unit]').forEach(inp => inp.addEventListener('change', () => {
       const extras = extraOutputs(appState.get()).map(o => ({ ...o }));
       const j = Number(inp.dataset.outFormula !== undefined ? inp.dataset.outFormula : inp.dataset.outUnit);
@@ -174,6 +179,90 @@ const Table = (() => {
         fEl.setSelectionRange(np, np);
       });
     });
+    box.querySelectorAll('[data-unit-param]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const units = { ...(appState.get('units') || {}) };
+        const v = inp.value.trim();
+        if (v) units[inp.dataset.unitParam] = v; else delete units[inp.dataset.unitParam];
+        appState.set({ units, combined: null });
+        updateUnitsStatus();
+      });
+    });
+    renderUnused();
+    if (keep) { const f2 = box.querySelector('#model-formula'); f2.focus(); try { f2.setSelectionRange(keep.start, keep.end); } catch (_) { /* */ } }
+    updateModelStatus();
+  }
+
+  /* ── P — formuladan (P22-1): parametrlar ro'yxati parser tokenlaridan (Flow.syncParams). true — ro'yxat o'zgardi.
+     Shablon (inputs shablonda belgilangan) va oshkor bo'lmagan modelda (state.implicit) ro'yxatga tegilmaydi. ── */
+  function autoParams(state) { return !!Flow() && !state.template && !state.implicit; }
+  function commitParams() {
+    const state = appState.get();
+    if (!autoParams(state)) return false;
+    const r = Flow().syncParams(state, Flow().tokenize);
+    if (r.error || !r.changed) return false;
+    const gone = state.params.filter(p => !r.params.includes(p));
+    const measurements = {}, typeA = {}, units = {};
+    r.params.forEach(p => {
+      measurements[p] = state.measurements[p] || Array(state.n).fill('');
+      if ((state.typeA || {})[p]) typeA[p] = state.typeA[p];
+      if ((state.units || {})[p]) units[p] = state.units[p];
+    });
+    const covB = {};
+    Object.entries(state.covB || {}).forEach(([k, v]) => { if (!k.split('|').some(x => gone.includes(x))) covB[k] = v; });
+    const ta = { ...((state.settings || {}).typeA || {}) };
+    gone.forEach(p => { delete ta[p]; });
+    appState.set({ params: r.params, measurements, typeA, units, covB, settings: { ...(state.settings || {}), typeA: ta }, combined: null });
+    return true;
+  }
+
+  /* Formulada qatnashmaydigan, lekin ma'lumoti bor parametrlar: jimgina o'chirilmaydi — foydalanuvchi tanlaydi
+     (ma'lumotni yangi nomga ko'chirish yoki olib tashlash). */
+  function renderUnused() {
+    const el = document.getElementById('model-unused');
+    if (!el) return;
+    const state = appState.get();
+    const r = autoParams(state) ? Flow().syncParams(state, Flow().tokenize) : null;
+    const unused = r && !r.error ? r.unused : [];
+    if (!unused.length) { el.innerHTML = ''; return; }
+    const empty = state.params.filter(p => !unused.includes(p) && !Flow().hasData(state, p));
+    el.innerHTML = unused.map(u => `
+      <div class="model-unused-row" role="status">
+        <span>${escHtml(i18n.tf('flow_unused', { p: u }))}</span>
+        ${empty.map(t => `<button type="button" class="btn btn-sm btn-outline" data-move-param="${escHtml(u)}" data-move-to="${escHtml(t)}">${escHtml(i18n.tf('flow_unused_move', { p: t }))}</button>`).join('')}
+        <button type="button" class="btn btn-sm btn-ghost" data-drop-param="${escHtml(u)}">${escHtml(i18n.t('flow_unused_drop'))}</button>
+      </div>`).join('');
+    el.querySelectorAll('[data-move-param]').forEach(btn => btn.addEventListener('click', () => {
+      const from = btn.dataset.moveParam, to = btn.dataset.moveTo;
+      appState.removeParam(to);                 // bo'sh (ma'lumotsiz) parametr — nomi bo'shatiladi
+      appState.renameParam(from, to);           // kuzatuvlar, A tur usuli, B tur manbalari, kovariatsiyalar yangi nomga o'tadi
+      commitParams();
+      renderModelBox(true);
+    }));
+    el.querySelectorAll('[data-drop-param]').forEach(btn => btn.addEventListener('click', () => {
+      const p = btn.dataset.dropParam;
+      if (!confirm(i18n.tf('flow_unused_confirm', { p }))) return;
+      appState.set({ typeB: (appState.get('typeB') || []).filter(c => c.param !== p), combined: null });
+      appState.removeParam(p);
+      commitParams();
+      renderModelBox(true);
+    }));
+  }
+
+  /* ── 2-qadam sozlamalari: juftlangan kuzatuvlar va A tur usuli (avval model kartasida edi) ── */
+  function renderDataOptions() {
+    const box = document.getElementById('typea-options');
+    if (!box) return;
+    if (box.contains(document.activeElement) && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') return;
+    const state = appState.get();
+    const paired = !state.settings || state.settings.paired !== false;
+    box.innerHTML = `
+        ${state.params.length > 1 ? `
+        <label class="model-check">
+          <input type="checkbox" id="model-paired" ${paired ? 'checked' : ''} />
+          <span>${i18n.t('model_paired')}</span>
+        </label>` : ''}
+        ${renderMethodTable(state)}`;
     box.querySelectorAll('[data-am]').forEach(el => {
       el.addEventListener('change', () => {
         const p = el.dataset.param, field = el.dataset.am;
@@ -187,20 +276,10 @@ const Table = (() => {
         appState.set({ settings: { ...settings, typeA: all }, combined: null });
       });
     });
-    box.querySelectorAll('[data-unit-param]').forEach(inp => {
-      inp.addEventListener('change', () => {
-        const units = { ...(appState.get('units') || {}) };
-        const v = inp.value.trim();
-        if (v) units[inp.dataset.unitParam] = v; else delete units[inp.dataset.unitParam];
-        appState.set({ units, combined: null });
-        updateUnitsStatus();
-      });
-    });
     const pEl = box.querySelector('#model-paired');
     if (pEl) pEl.addEventListener('change', () => {
       appState.set({ settings: { ...(appState.get('settings') || {}), paired: pEl.checked }, combined: null });
     });
-    updateModelStatus();
   }
 
   function renderMethodTable(state) {
@@ -277,54 +356,28 @@ const Table = (() => {
       el.textContent = state.params.length > 1 ? i18n.t('err_need_formula') : i18n.t('model_single');
       return;
     }
+    // P22-1: formulada yangi nom — xato emas, yangi parametr (formula tasdiqlanganda ro'yxatga qo'shiladi)
+    const pv = autoParams(state) ? Flow().syncParams({ ...state, model: { ...(state.model || {}), formula: fEl.value } }, Flow().tokenize) : null;
+    const names = pv && !pv.error ? pv.params : state.params;
     try {
-      const f = Calc.compile(expr, state.params);
+      const f = Calc.compile(expr, names);
       const env = {};
       let complete = true;
-      state.params.forEach(p => {
-        const ta = taFor(state, p);
+      names.forEach(p => {
+        const ta = state.params.includes(p) ? taFor(state, p) : null;
         if (ta) env[p] = ta.mean; else complete = false;
       });
       const y = complete ? f(env) : NaN;
+      const fresh = pv && !pv.error ? pv.added : [];
       el.className = 'model-status ok';
       el.textContent = '✓ ' + (symbol || 'y') + ' = ' + expr +
-        (isFinite(y) ? '  →  ' + Calc.fmtSci(y, 8) : '');
+        (isFinite(y) ? '  →  ' + Calc.fmtSci(y, 8) : '') +
+        (fresh.length ? '  ·  ' + i18n.t('flow_new_params') + ': ' + fresh.join(', ') : '');
     } catch (err) {
       const d = String(err.message || '');
       el.className = 'model-status err';
       el.textContent = '✗ ' + i18n.t('err_bad_formula') + (d.startsWith('unknown:') ? ': «' + d.slice(8) + '»' : '');
     }
-  }
-
-  /* ── Hint banner: shown above table based on active preset ── */
-  function renderHintBox() {
-    const box = document.getElementById('table-hint-box');
-    if (!box) return;
-
-    // Find active preset key from sidebar or welcome select
-    const key = activePresetKey();
-    const preset = (window.PRESETS && key) ? window.PRESETS[key] : null;
-
-    if (!preset) { box.innerHTML = ''; return; }
-
-    const state = appState.get();
-    const paramHints = state.params.map(p => {
-      const sample = preset.sampleData && preset.sampleData[p];
-      if (!sample) return '';
-      const min = Math.min(...sample).toFixed(4);
-      const max = Math.max(...sample).toFixed(4);
-      const ex  = sample[0];
-      return `<span class="hint-param"><b>${escHtml(p)}</b>: ${escHtml(String(ex))} ${escHtml(preset.unit || '')} &nbsp;<span class="hint-range">(${escHtml(i18n.tf('hint_range', { min, max }))})</span></span>`;
-    }).filter(Boolean).join('');
-
-    box.innerHTML = `
-      <div class="table-hint">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.7"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-        <div>
-          <strong>${escHtml(window.PresetText.title(key))}</strong> ${escHtml(i18n.t('hint_enter_values'))}
-          <div class="hint-params">${paramHints || escHtml(i18n.t('hint_fill_sample'))}</div>
-        </div>
-      </div>`;
   }
 
   function renderTable() {
@@ -333,8 +386,6 @@ const Table = (() => {
     const head  = document.getElementById('table-head');
     const body  = document.getElementById('table-body');
     const foot  = document.getElementById('table-foot');
-
-    renderHintBox();
 
     const paramCols = state.params.map(p => `<th style="text-transform:none">${escHtml(p)}</th>`).join('');
     const dirOn = anyDirectional(state);
@@ -354,21 +405,19 @@ const Table = (() => {
     const stats = {};
     state.params.forEach(p => { stats[p] = taFor(state, p); });
 
-    // Get sample placeholders from active preset
-    const presetKey = activePresetKey();
-    const preset = (window.PRESETS && presetKey) ? window.PRESETS[presetKey] : null;
+    // fokus va kursor qayta chizishdan keyin tiklanadi (jadval har o'zgarishda qayta quriladi)
+    const act = document.activeElement;
+    const keep = act && act.classList && act.classList.contains('meas-input') && body.contains(act)
+      ? { param: act.dataset.param, idx: act.dataset.idx, start: act.selectionStart, end: act.selectionEnd } : null;
 
     let rows = '';
     for (let i = 0; i < n; i++) {
       const paramInputs = state.params.map(p => {
         const vals = state.measurements[p] || Array(n).fill('');
         const v = vals[i] !== undefined ? vals[i] : '';
-        const sampleVal = preset && preset.sampleData && preset.sampleData[p] && preset.sampleData[p][i];
-        // P20 (UX-05): preset yo'q bo'lsa sampleVal — null edi va placeholder="null" chiqardi; endi bo'sh
-        const ph = sampleVal !== undefined && sampleVal !== null ? String(sampleVal) : (preset ? String(preset.sampleData?.[p]?.[0] ?? '') : '');
         return `<td><input type="text" inputmode="decimal" class="meas-input"
           data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}"
-          placeholder="${escHtml(ph)}"
+          aria-label="${escHtml(p + ' ' + (i + 1))}"
           autocomplete="off" autocorrect="off" spellcheck="false" /></td>`;
       }).join('');
 
@@ -448,6 +497,10 @@ const Table = (() => {
       inp.addEventListener('input',   onCellInput);
       inp.addEventListener('change',  onCellChange);
     });
+    if (keep) {
+      const again = body.querySelector(`.meas-input[data-param="${CSS.escape(keep.param)}"][data-idx="${keep.idx}"]`);
+      if (again) { again.focus(); try { again.setSelectionRange(keep.start, keep.end); } catch (_) { /* */ } }
+    }
   }
 
   /* Replace comma → period in real-time without saving to state (no re-render) */
@@ -491,17 +544,13 @@ const Table = (() => {
       return;
     }
 
-    if (targetRow < 0 || targetRow >= state.n) return;
+    if (targetRow < 0) return;
+    saveCell(inp);                                   // oxirgi qatorga qiymat kiritilsa jadval bitta qatorga uzayadi
+    if (targetRow >= appState.get('n')) return;
 
-    saveCell(inp);
-
-    const targetParam = params[targetCol];
-    setTimeout(() => {
-      const next = document.querySelector(
-        `.meas-input[data-param="${CSS.escape(targetParam)}"][data-idx="${targetRow}"]`
-      );
-      if (next) { next.focus(); next.select(); }
-    }, 0);
+    // jadval sinxron qayta chizilgan — fokus darhol keyingi katakka (kechiktirilsa tez terilgan belgilar eski katakka tushadi)
+    const next = document.querySelector(`.meas-input[data-param="${CSS.escape(params[targetCol])}"][data-idx="${targetRow}"]`);
+    if (next) { next.focus(); next.select(); }
   }
 
   /* Save a single cell to state; skip if value unchanged (avoids needless re-render) */
@@ -550,66 +599,39 @@ const Table = (() => {
     el.innerHTML = `<div class="stats-row">${items}</div>`;
   }
 
-  function fillSample() {
-    const state = appState.get();
-    const n     = state.n;
-    state.params.forEach(p => {
-      const mean   = 10 + Math.random() * 90;
-      const spread = mean * 0.005;
-      const vals   = Array.from({ length: n }, () =>
-        parseFloat((mean + (Math.random() - 0.5) * 2 * spread).toFixed(6))
-      );
-      appState.setMeasurements(p, vals);
-    });
-    showToast(i18n.t('toast_sample_done'), 'info');
-  }
-
   function clearData() {
     const state = appState.get();
     state.params.forEach(p => appState.setMeasurements(p, Array(state.n).fill('')));
     appState.set({ typeA: {}, combined: null });
   }
 
-  function calcTypeA() {
+  /* Qadamning yagona asosiy tugmasi ("Keyingi: … →"): kiritish to'liqligini tekshiradi va keyingi qadamni ochadi.
+     Bu yerda hisob yo'q — yakuniy hisob B tur qadamidagi tugmada (TypeB.calculate). */
+  function proceed(step) {
     const state = appState.get();
-    const typeA = {};
-    let allOk   = true;
-
-    state.params.forEach(p => {
-      const result = taFor(state, p);
-      if (!result) { allOk = false; return; }
-      typeA[p] = result;
-    });
-
-    if (!allOk) {
-      showToast(i18n.t('toast_need_data'), 'error');
-      return;
-    }
-
-    // The model must be valid before moving on
+    const go = key => (window.UCShell ? window.UCShell.goStep(key) : switchTab(key));
+    if (step !== 'model' && step !== 'data') { go(step); return; }
     const { expr } = Calc.splitFormula((state.model || {}).formula);
-    if (!expr && state.params.length > 1) {
-      showToast(i18n.t('err_need_formula'), 'error');
+    let formulaOk = true;
+    if (expr) { try { Calc.compile(expr, state.params); } catch (_) { formulaOk = false; } }
+    const typeA = {};
+    state.params.forEach(p => { const r = taFor(state, p); if (r) typeA[p] = r; });
+    const blocker = Flow() ? Flow().stepBlocker(step, state, { hasFormula: !!expr, formulaOk, typeA }) : null;
+    if (blocker === 'need_formula' || blocker === 'bad_formula') {
+      showToast(i18n.t(blocker === 'need_formula' ? 'err_need_formula' : 'err_bad_formula'), 'error');
+      go('model');
       const fEl = document.getElementById('model-formula');
       if (fEl) fEl.focus();
       return;
     }
-    if (expr) {
-      try { Calc.compile(expr, state.params); }
-      catch (_) { showToast(i18n.t('err_bad_formula'), 'error'); return; }
-    }
-
-    appState.set({ typeA });
-    showToast(i18n.t('toast_typea_done'), 'success');
-
-    // Switch to Type B tab
-    switchTab('typeb');
+    if (blocker === 'need_data') { showToast(i18n.t('toast_need_data'), 'error'); return; }
+    go(step === 'model' ? 'data' : 'typeb');
   }
 
   // Yagona escape: src/ui/escape.js (P02)
   const escHtml = window.escHtml;
 
-  return { init, render, escHtml };
+  return { init, render, escHtml, proceed };
 
 })();
 

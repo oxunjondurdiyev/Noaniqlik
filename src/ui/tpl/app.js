@@ -16,7 +16,8 @@ import { ENGINE_VERSION } from '../../engine/version.js';
 import { outputsHTML, addOutput, removeOutput, setOutputField } from './outputs.js';
 
 const $ = id => document.getElementById(id);
-const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang, validationOf });
+const ctx = () => ({ t: k => window.i18n.t(k), esc: window.escHtml, lang: window.i18n.lang, validationOf,
+  exampleWords: Object.values(window.i18n.all('tpl_example_badge')) });          // P22-1: "Namuna" bo'yicha qidiruv
 const t = k => window.i18n.t(k);
 const esc = v => window.escHtml(v);
 const toast = (m, type = 'info', ms) => window.showToast && window.showToast(m, type, ms);
@@ -167,7 +168,8 @@ async function useTemplate(key, variant) {
   window.App.renderSidebar();
   window.Table.render();
   window.TypeB.render();
-  window.switchTab('data');
+  // P22-1: model shablonda berilgan — to'g'ridan-to'g'ri "Ma'lumotlar" qadami (katalogdan natijagacha ≤ 3 bosish)
+  if (window.UCShell) window.UCShell.goStep('data'); else window.switchTab('data');
   renderBanner();
   toast(`${t('tpl_loaded')}: ${Interp.tr(tpl.title, window.i18n.lang)}`, 'success');
 }
@@ -590,6 +592,10 @@ function saveCalculation(state, result) {
 /* ─── Ulash ─── */
 function bind() {
   document.addEventListener('click', e => {
+    if (e.target.closest('[data-open-examples]')) {          // P22-1: "Namunalar" — katalog o'quv namunalari bo'yicha saralangan holda
+      const s = $('tpl-search'); if (s) s.value = t('tpl_example_badge');
+      openCatalog(); return;
+    }
     if (e.target.closest('[data-open-templates]')) { openCatalog(); return; }
     const use = e.target.closest('[data-tpl-use]');
     if (use) {
@@ -600,7 +606,7 @@ function bind() {
     }
     const ed = e.target.closest('[data-tpl-edit]');
     if (ed) { ready.then(() => { const tpl = findByKey(ed.dataset.tplEdit); if (tpl) openEditor(tpl); }); return; }
-    if (e.target.closest('#tpl-btn-back')) { window.App.showScreen(window.appState.get('params').length && Object.keys(window.appState.get('measurements')).length ? 'app' : 'dash'); return; }
+    if (e.target.closest('#tpl-btn-back')) { window.App.showScreen(window.UCFlow && window.UCFlow.hasSession(window.appState.get()) ? 'app' : 'dash'); return; }
     if (e.target.closest('#tpl-btn-new')) { ready.then(() => openEditor(skeleton(), true)); return; }
     if (e.target.closest('#tpl-btn-import')) { importTemplate(); return; }
     if (e.target.closest('[data-open-lab]')) { openLab(); return; }

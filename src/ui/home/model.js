@@ -4,6 +4,8 @@
    Bu yerda HISOB YO'Q va natija raqamlari ko'rsatilmaydi (yaxlitlash — faqat hisobot qatlamida): faqat tavsif.
 ═══════════════════════════════════════════════════════════════ */
 
+import { usedRows } from '../flow/model.js';
+
 /** Ro'yxatda ko'rsatiladigan eng ko'p yozuv */
 export const RECENT_LIMIT = 8;
 
@@ -23,7 +25,7 @@ export function recentSessions(records, limit = RECENT_LIMIT) {
         id: r.id,
         formula: String((st.model && st.model.formula) || '').trim(),
         params: Array.isArray(st.params) ? st.params.map(String) : [],
-        n: Number.isFinite(st.n) ? st.n : null,
+        n: usedRows(st) || null,          // P22-1: kiritilgan kuzatuv qatorlari (jadvaldagi bo'sh oxirgi qator sanalmaydi)
         template: tr,
         engineVersion: String(r.engineVersion || (r.result && r.result.engineVersion) || ''),
         createdAt: typeof r.createdAt === 'string' ? r.createdAt : '',

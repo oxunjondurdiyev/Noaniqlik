@@ -482,6 +482,8 @@
         </button>
       </div>
 
+      <div id="trial-banner" class="trial-banner trial-info" hidden></div>
+
       <section class="home-section" aria-labelledby="home-recent-title">
         <h2 class="home-h2" id="home-recent-title" data-i18n="hm_recent">Recent sessions</h2>
         <p class="text-xs text-muted" data-i18n="hm_recent_note"></p>
@@ -500,110 +502,6 @@
     </main>
 
     <footer class="home-foot mono text-xs" id="home-foot"></footer>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════════
-     WELCOME SCREEN
-══════════════════════════════════════════════════ -->
-<div id="welcome-screen" class="overlay-screen hidden">
-  <div class="welcome-card">
-
-    <!-- Welcome screen top controls -->
-    <div class="welcome-controls">
-      <button class="btn btn-ghost btn-sm" id="btn-back-home" data-i18n="btn_back_home">← Back</button>
-      <div style="display:flex;align-items:center;gap:.5rem">
-        <div class="lang-switcher">
-          <button class="lang-btn" data-lang="uz">UZ</button>
-          <button class="lang-btn" data-lang="ru">RU</button>
-          <button class="lang-btn active" data-lang="en">EN</button>
-        </div>
-        <button class="icon-btn theme-toggle" title="Toggle theme" data-i18n-title="c_theme_toggle">
-          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="welcome-head">
-      <div class="welcome-icon">
-        <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
-          <rect width="56" height="56" rx="14" fill="var(--accent)"/>
-          <path d="M14 28h8l4-12 8 24 4-12h4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div>
-        <h1 class="welcome-title" data-i18n="welcome_title">Set Up Your Calculation</h1>
-        <p class="welcome-sub" data-i18n="welcome_subtitle">ISO/IEC 17025:2017 · GUM:2008</p>
-      </div>
-    </div>
-
-    <div class="welcome-form">
-
-      <!-- n and p steppers -->
-      <div class="wf-steppers">
-        <div class="wf-stepper-card">
-          <div class="wf-stepper-label" data-i18n="label_n">Measurements (n)</div>
-          <div class="wf-stepper">
-            <button class="wf-step-btn" data-target="inp-n" data-delta="-1" tabindex="-1">−</button>
-            <input type="number" id="inp-n" min="2" max="100" placeholder="10" autocomplete="off" />
-            <button class="wf-step-btn" data-target="inp-n" data-delta="1"  tabindex="-1">+</button>
-          </div>
-          <div class="wf-stepper-hint">min 2 · max 100</div>
-        </div>
-        <div class="wf-stepper-card">
-          <div class="wf-stepper-label" data-i18n="label_p">Parameters (p)</div>
-          <div class="wf-stepper">
-            <button class="wf-step-btn" data-target="inp-p" data-delta="-1" tabindex="-1">−</button>
-            <input type="number" id="inp-p" min="1" max="20" placeholder="1" autocomplete="off" />
-            <button class="wf-step-btn" data-target="inp-p" data-delta="1"  tabindex="-1">+</button>
-          </div>
-          <div class="wf-stepper-hint">min 1 · max 20</div>
-        </div>
-      </div>
-
-      <!-- Preset -->
-      <div class="wf-preset">
-        <label class="wf-preset-label" data-i18n="label_preset">Load a preset</label>
-        <div class="wf-preset-select-wrap">
-          <svg class="wf-preset-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18"/>
-          </svg>
-          <select id="inp-preset">
-            <option value="" data-i18n="opt_none">— None —</option>
-            <optgroup data-i18n-label="preset_group_mass_vol" label="Mass &amp; Volume">
-              <option value="mass"        data-i18n="preset_mass">Mass measurement</option>
-              <option value="volume"      data-i18n="preset_volume">Volume measurement</option>
-              <option value="density"     data-i18n="preset_density">Density (ρ = m/V)</option>
-            </optgroup>
-            <optgroup data-i18n-label="preset_group_elec" label="Electrical">
-              <option value="voltage"     data-i18n="preset_voltage">DC Voltage</option>
-              <option value="resistance"  data-i18n="preset_resistance">Resistance</option>
-              <option value="power"       data-i18n="preset_power">Electrical Power (P = U·I)</option>
-            </optgroup>
-            <optgroup data-i18n-label="preset_group_dim" label="Dimensional">
-              <option value="length"      data-i18n="preset_length">Length</option>
-              <option value="area"        data-i18n="preset_area">Area (A = L×W)</option>
-              <option value="temperature" data-i18n="preset_temperature">Temperature</option>
-            </optgroup>
-          <optgroup data-i18n-label="preset_group_calib" label="Calibration (multi-point)">
-            <option value="gas_analyzer" data-i18n="preset_gas">Gas analyzer (3 points)</option>
-            <option value="thermometer"  data-i18n="preset_thermo">Dial thermometer (5 points)</option>
-          </optgroup>
-          </select>
-        </div>
-      </div>
-
-      <!-- P04: shablonlar katalogi -->
-      <button type="button" class="btn btn-outline w-full wf-templates-btn" data-open-templates="1" data-i18n="tpl_open_catalog">Template catalogue</button>
-
-      <!-- Trial banner -->
-      <div id="trial-banner" class="trial-banner trial-info" style="display:none"></div>
-
-      <button class="btn btn-primary wf-start-btn" id="btn-start" data-i18n="btn_start">
-        Start Calculation →
-      </button>
-    </div>
   </div>
 </div>
 
@@ -770,7 +668,7 @@
       <!-- ISH OQIMI QADAMLARI — o'tish mavjud yorliqlar (switchTab) orqali -->
       <ol class="stepper" id="stepper" aria-label="Workflow" data-i18n-aria="sh_steps">
         <li><button type="button" class="step" data-step="model"><span class="step-mark" aria-hidden="true">1</span><span data-i18n="sh_st_model">Model</span></button></li>
-        <li><button type="button" class="step" data-step="typea"><span class="step-mark" aria-hidden="true">2</span><span data-i18n="sh_st_typea">Type A</span></button></li>
+        <li><button type="button" class="step" data-step="data"><span class="step-mark" aria-hidden="true">2</span><span data-i18n="sh_st_data">Data</span></button></li>
         <li><button type="button" class="step" data-step="typeb"><span class="step-mark" aria-hidden="true">3</span><span data-i18n="sh_st_typeb">Type B</span></button></li>
         <li><button type="button" class="step" data-step="results"><span class="step-mark" aria-hidden="true">4</span><span data-i18n="sh_st_results">Result</span></button></li>
         <li><button type="button" class="step" data-step="report"><span class="step-mark" aria-hidden="true">5</span><span data-i18n="sh_st_report">Report</span></button></li>
@@ -778,7 +676,8 @@
 
       <!-- TAB BAR (mantiq saqlangan: switchTab; ko'rinishda chap menyu va stepper ishlatiladi) -->
       <div class="tab-bar" hidden>
-        <button class="tab-btn active" data-tab="data" data-i18n="tab_data">Data Entry</button>
+        <button class="tab-btn active" data-tab="model" data-i18n="sh_st_model">Model</button>
+        <button class="tab-btn" data-tab="data" data-i18n="tab_data">Data Entry</button>
         <button class="tab-btn" data-tab="typeb" data-i18n="tab_typeb">Type B</button>
         <button class="tab-btn" data-tab="results" data-i18n="tab_results">Results</button>
         <button class="tab-btn" data-tab="regression" data-i18n="tab_regression">Regression</button>
@@ -789,87 +688,40 @@
         <button class="tab-btn" data-tab="vizlab" data-i18n="sh_n_vizlab">Visual lab</button>
       </div>
 
-      <!-- TAB: DATA ENTRY -->
-      <div class="tab-panel active" id="tab-data">
+      <!-- QADAM 1: MODEL (P22-1) — formula, birliklar; parametrlar formuladan (src/ui/flow/model.js) -->
+      <div class="tab-panel active" id="tab-model">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title" data-i18n="flow_model_title">Measurement model</h2>
+            <p class="panel-sub text-muted" data-i18n="flow_model_sub"></p>
+          </div>
+          <div class="panel-actions">
+            <button type="button" class="btn btn-sm btn-outline" data-open-templates="1" data-model-template="1"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span data-i18n="sh_tpl_start">Start from a template</span></button>
+            <button type="button" class="btn btn-sm btn-ghost" data-open-examples="1" data-i18n="flow_examples">Examples</button>
+          </div>
+        </div>
+        <div class="data-scroll">
+          <div id="model-box"></div>
+        </div>
+        <div class="panel-footer">
+          <button type="button" class="btn btn-primary" data-flow-next="model" data-primary="1" data-i18n="flow_next_data">Next: Data →</button>
+        </div>
+      </div>
+
+      <!-- QADAM 2: MA'LUMOTLAR — kuzatuvlar jadvali + A tur (avtomatik; alohida tugma yo'q) -->
+      <div class="tab-panel" id="tab-data">
         <div class="panel-header">
           <div>
             <h2 class="panel-title" data-i18n="data_title">Measurement Data</h2>
-            <p class="panel-sub text-muted" data-i18n="data_sub">Enter your observed values for each measurement</p>
+            <p class="panel-sub text-muted" data-i18n="flow_data_sub"></p>
           </div>
           <div class="panel-actions">
-            <button type="button" class="btn btn-sm btn-outline" id="btn-sidebar-toggle" aria-controls="sidebar" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#ic-sliders"/></svg><span data-i18n="sidebar_session">Session</span></button>
             <button type="button" class="btn btn-sm btn-ghost" id="btn-import-table" data-io-act="import-table" data-io-target="gum" data-i18n="io_import_file">Import from file</button>
-            <button class="btn btn-sm btn-ghost" id="btn-fill-sample" data-i18n="btn_sample">Fill Sample Data</button>
-            <button class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
+            <button type="button" class="btn btn-sm btn-ghost" id="btn-clear-data" data-i18n="btn_clear">Clear All</button>
           </div>
         </div>
-        <!-- Sessiya sozlamalari (avvalgi chap panel): n, parametrlar, hosila kattaliklar, shablonlar, presetlar -->
-        <section class="sidebar session-panel collapsed" id="sidebar" aria-label="Session" data-i18n-aria="sidebar_session">
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading" data-i18n="sidebar_session">Session</h3>
-        <div class="form-group">
-          <label data-i18n="label_n">Measurements (n)</label>
-          <div class="input-with-btn">
-            <input type="number" id="sidebar-n" min="2" max="100" value="10" />
-            <button class="btn btn-sm btn-outline" id="btn-apply-n" data-i18n="btn_apply">Apply</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading" data-i18n="sidebar_params">Parameters</h3>
-        <div id="param-list" class="param-list"></div>
-        <button class="btn btn-sm btn-ghost w-full" id="btn-add-param">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span data-i18n="btn_add_param">Add Parameter</span>
-        </button>
-      </div>
-
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading" data-i18n="sidebar_derived">Derived Quantities</h3>
-        <div id="derived-list" class="derived-list">
-          <p class="text-muted text-sm" data-i18n="derived_hint">Detected from parameters</p>
-        </div>
-      </div>
-
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading" data-i18n="tpl_nav">Templates</h3>
-        <button type="button" class="btn btn-sm btn-outline w-full" data-open-templates="1" data-i18n="tpl_open_catalog">Template catalogue</button>
-        <button type="button" class="btn btn-sm btn-ghost w-full" data-open-lab="1" data-i18n="tpl_btn_lab">Laboratory settings</button>
-        <button type="button" class="btn btn-sm btn-ghost w-full" data-open-data="1" data-i18n="tpl_btn_data">Data: export / import / audit</button>
-      </div>
-
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading" data-i18n="sidebar_presets">Presets</h3>
-        <select id="sidebar-preset" class="w-full">
-          <option value="" data-i18n="opt_load_preset">— Load Preset —</option>
-          <optgroup data-i18n-label="preset_group_mass_vol" label="Mass &amp; Volume">
-            <option value="mass"        data-i18n="preset_mass">Mass measurement</option>
-            <option value="volume"      data-i18n="preset_volume">Volume measurement</option>
-            <option value="density"     data-i18n="preset_density">Density (ρ = m/V)</option>
-          </optgroup>
-          <optgroup data-i18n-label="preset_group_elec" label="Electrical">
-            <option value="voltage"     data-i18n="preset_voltage">DC Voltage</option>
-            <option value="resistance"  data-i18n="preset_resistance">Resistance</option>
-            <option value="power"       data-i18n="preset_power">Electrical Power (P = U·I)</option>
-          </optgroup>
-          <optgroup data-i18n-label="preset_group_dim" label="Dimensional">
-            <option value="length"      data-i18n="preset_length">Length</option>
-            <option value="area"        data-i18n="preset_area">Area (A = L×W)</option>
-            <option value="temperature" data-i18n="preset_temperature">Temperature</option>
-          </optgroup>
-          <optgroup data-i18n-label="preset_group_calib" label="Calibration (multi-point)">
-            <option value="gas_analyzer" data-i18n="preset_gas">Gas analyzer (3 points)</option>
-            <option value="thermometer"  data-i18n="preset_thermo">Dial thermometer (5 points)</option>
-          </optgroup>
-        </select>
-      </div>
-    </section>
         <div class="data-scroll">
-          <div class="model-start"><button type="button" class="btn btn-outline" data-open-templates="1" data-model-template="1"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span data-i18n="sh_tpl_start">Start from a template</span></button></div>
           <div id="template-box"></div>
-          <div id="model-box"></div>
-          <div id="table-hint-box"></div>
           <div class="table-scroll">
             <table class="data-table" id="measurement-table">
               <thead id="table-head"></thead>
@@ -877,12 +729,11 @@
               <tfoot id="table-foot"></tfoot>
             </table>
           </div>
+          <div id="typea-options" class="typea-options"></div>
         </div>
         <div class="type-a-summary" id="type-a-summary"></div>
         <div class="panel-footer">
-          <button class="btn btn-primary" id="btn-calc-typea" data-i18n="btn_calc_a">
-            Calculate Type A Uncertainty →
-          </button>
+          <button type="button" class="btn btn-primary" data-flow-next="data" data-primary="1" data-i18n="flow_next_typeb">Next: Type B →</button>
         </div>
       </div>
 
@@ -906,9 +757,7 @@
         </div>
         <div class="typeb-summary" id="typeb-summary"></div>
         <div class="panel-footer">
-          <button class="btn btn-primary" id="btn-calc-combined" data-i18n="btn_calc_combined">
-            Calculate Combined Uncertainty →
-          </button>
+          <button type="button" class="btn btn-primary" id="btn-calc-combined" data-primary="1" data-i18n="flow_next_results">Calculate: Result →</button>
         </div>
       </div>
 
@@ -935,6 +784,9 @@
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             <p data-i18n="results_empty">Complete Type A and Type B calculations first</p>
           </div>
+        </div>
+        <div class="panel-footer">
+          <button type="button" class="btn btn-primary" data-flow-next="report" data-primary="1" data-i18n="flow_next_report">Next: Report →</button>
         </div>
       </div>
 
@@ -983,6 +835,9 @@
       <!-- TAB: HISOBOT (P16) — A4 ko'rinishi, shakl almashtirgich, chop etish; mazmunni src/js/report.js chizadi -->
       <div class="tab-panel" id="tab-report">
         <div id="report-root"></div>
+        <div class="panel-footer">
+          <button type="button" class="btn btn-primary" data-flow-next="print" data-primary="1" data-i18n="rp2_print">Print</button>
+        </div>
       </div>
 
       <!-- TAB: VIZUAL LABORATORIYA (P16) — o'quv vositasi; modul birinchi ochilganda yuklanadi (src/ui/vizlab/app.js) -->
@@ -1116,7 +971,6 @@
 <script src="src/js/db.js"></script>
 <script src="src/js/auth.js"></script>
 <script src="src/ui/templates.js"></script>
-<script src="src/data/presets.js"></script>
 <script src="src/js/i18n.js"></script>
 <script src="src/js/i18n-ext.js"></script>
 <script src="src/js/i18n-engine.js"></script>
@@ -1135,8 +989,10 @@
 <script src="src/js/i18n-shell.js"></script>
 <script src="src/js/i18n-vizlab.js"></script>
 <script src="src/js/i18n-p20.js"></script>
+<script src="src/js/i18n-flow.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
+<script type="module" src="src/ui/flow/app.js"></script>
 <script src="src/js/table.js"></script>
 <script src="src/js/typeB.js"></script>
 <script src="src/js/points.js"></script>

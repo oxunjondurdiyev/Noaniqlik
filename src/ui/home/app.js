@@ -75,7 +75,7 @@ async function openSession(id) {
   window.App.showScreen('app');
   window.App.renderSidebar();
   window.Table.render(); window.TypeB.render(); window.Results.render();
-  if (window.UCShell) window.UCShell.goStep(p.stale ? 'typea' : 'results');
+  if (window.UCShell) window.UCShell.goStep(p.stale ? 'data' : 'results');
   if (p.stale) toast(t('hm_open_stale'), 'info', 6000);
 }
 
@@ -86,7 +86,7 @@ function bind() {
     const q = sel => e.target.closest(sel);
     if (q('[data-go-home]')) { window.App.showScreen('dash'); return; }
     if (!q('#dash-screen')) return;
-    if (q('[data-home-new]')) { window.App.showScreen('welcome'); return; }
+    if (q('[data-home-new]')) { window.App.newCalculation(); return; }          // P22-1: to'g'ridan-to'g'ri Model qadami
     if (q('[data-home-landing]')) { window.App.showScreen('home'); return; }
     const link = q('[data-home-lab]');
     if (link) { window.App.showScreen('app'); if (window.UCShell) window.UCShell.go(link.dataset.homeLab); return; }
