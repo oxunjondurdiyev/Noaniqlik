@@ -230,6 +230,13 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 - **Xavfsizlik PR'i — `style-src 'unsafe-inline'` ni to'liq olib tashlash**: index / admin / superadmin / ai dagi inline uslublar sinflarga; `npm run test:rules` + sayt tutun-testi shart; `tests/security/inline-style.test.js` dagi son — 0.
 - **P17 — Kragten usuli** (QUAM:2012 Appendix E.2): solishtirish ko'rinishi (LPU o'rnini bosmaydi; farq hisobotda); kutilgan qiymatlar faqat QUAM ishlangan misolidan, sahifa havolasi bilan; minor versiya.
 
+## P18 — M9 (ISO/TS 20914:2019) to'liq standart bo'yicha validatsiya va kengaytirish
+
+> **Holat: bajarildi (2026-11-21, `claude/modest-pasteur-mkcdu2`; ENGINE_VERSION 2.11.0).** `src/engine/medical/`: daraja qo'llanish oralig'i, aniqlik turi, lotlar / tizimlar / davrlar bo'yicha pooling, CRM dan u_bias, log₁₀ shkala, ruxsat etilgan noaniqlik, sanoq. Etalon misollar G1…G11 (`tests/fixtures/iso20914/`, `tests/engine/medical.iso20914.test.js`) — verified; `medical_unverified` va BETA belgisi olib tashlandi; `SP-04` G1 orqali verified. Boshqa rejimlar bit darajasida o'zgarmagan (91 / 91). **Standart PDF'i repoga qo'shilmaydi** (pullik). Ochiq qarorlar — `docs/RISKS.md` R-30 (yaxlitlash §5.4 — egasi tasdig'isiz amalga oshirilmagan; D-23 / Q-9).
+
+- **Qilinmagan:** hisoblangan o'lchanuvchilar (GUM rejimida — KL-185); sanoq maydoni oynada; real brauzerda qo'lda ko'rish.
+- P16b va P17 (rejada 2.11.0) — navbatdagi minor versiyani oladi.
+
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 
 - **Mazmun:** Node.js servis `src/engine/` ni **aynan o'zi** import qiladi; `POST /api/v1/evaluate` (mustaqil qayta hisob va solishtirish), `POST /api/v1/certificates` (tasdiqlash, xesh, QR, saqlash), `GET /verify/{id}` ochiq tekshirish sahifasi; PostgreSQL (append-only jadvallar), TLS, zaxira nusxa, autentifikatsiya va rollar; `RemoteAdapter` ulanadi; shaxsiy ma'lumotlarni Firebase'dan ko'chirish (`docs/DATA_RESIDENCY.md` rejasi bo'yicha) — Firebase'da faqat anonim ID qoladi; pd.gov.uz reestri bo'yicha yo'riqnoma.

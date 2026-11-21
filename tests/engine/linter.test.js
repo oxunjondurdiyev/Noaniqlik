@@ -379,7 +379,9 @@ test('P08–P10 ogohlantirishlari result.findings da: regression_chi2_fail, topd
   const mi = E.evaluate({ format: 'uc-micro/1', result: { value: 120, sumCounts: 12 }, technical: { s: 0.1 } });
   assert.deepEqual([find(mi, 'micro_unverified').severity, find(mi, 'micro_unverified').unverified, find(mi, 'micro_unverified').mode], ['warning', true, 'MICRO']);
   const me = E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 2, n: 30 }], uCal: { value: 1, relative: true } });
-  assert.equal(find(me, 'medical_unverified').mode, 'MEDICAL');
+  assert.deepEqual([find(me, 'medical_few_iqc'), find(me, 'medical_unverified')], [undefined, undefined]);   // P18: tibbiy laboratoriya tasdiqlangan (ISO/TS 20914:2019)
+  const me2 = E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 2, n: 30 }] });
+  assert.deepEqual([find(me2, 'medical_no_calibrator').mode, !!find(me2, 'medical_no_calibrator').unverified], ['MEDICAL', false]);
 
   const sa = E.evaluate(require('../cases/ufs/ufs-a1-nitrate-classical.json').modelSpec);
   assert.equal(find(sa, 'sampling_bias_not_included').mode, 'SAMPLING');

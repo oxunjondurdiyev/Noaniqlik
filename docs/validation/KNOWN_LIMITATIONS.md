@@ -94,7 +94,7 @@
 | ID | Cheklov | Turi | Manba | Foydalanuvchiga ta'siri |
 |---|---|---|---|---|
 | KL-070 | Mikrobiologiya (`src/engine/micro/`): ISO 19036 repoda yo'q; faqat analitik testlar; past sanoq (ΣC < 10) va "kam juftlik" (< 10) — loyiha parametrlari | BETA | `CLAUDE.md` (P10); RISKS R-21 | natijada har doim ogohlantirish va "BETA" belgisi (bosmada ham); shablon `SP-03` APPROVED bo'la olmaydi |
-| KL-071 | Tibbiy laboratoriya (`src/engine/medical/`): ISO/TS 20914 repoda yo'q; eng yaqin IQC darajasi va "kam IQC" (n < 20) — loyiha qoidalari | BETA | `CLAUDE.md` (P10); RISKS R-21 | natijada har doim ogohlantirish va "BETA" belgisi; shablon `SP-04` APPROVED bo'la olmaydi |
+| KL-071 | Tibbiy laboratoriya (`src/engine/medical/`): ISO/TS 20914:2019 PDF'i repoda yo'q (pullik) — etalon qiymatlar egasidan, band havolasi bilan (`tests/fixtures/iso20914/` G1…G11; P18 da tasdiqlangan); oraliq berilmaganda eng yaqin IQC darajasi va "kam IQC" (n < 20) — loyiha qoidalari | qoldiq xavf | `CLAUDE.md` (P18); RISKS R-30 | oraliqsiz tanlashda `medical_level_by_nearest` ogohlantirishi; ma'lum farq D-23 (G9) hujjatlashtirilgan |
 | KL-072 | Robust ANOVA — qayta tiklangan algoritm (RANOVA kodi repoda yo'q); UfS A1, A2 bilan 4 qiymatli raqamgacha mos | qoldiq xavf | `CLAUDE.md` (P10); RISKS R-21; DISCREPANCIES D-16 | boshqa ma'lumotlarda asl dastur bilan farq istisno qilinmaydi; natijada `sampling_robust_reconstructed` |
 | KL-073 | Clopper–Pearson — loyiha qo'shimchasi (AQA:2021 da yo'q); SciPy 1.18.1 qiymatlari bilan tekshirilgan, qiymatlar sessiyada hisoblangan (repoda hujjat sifatida yo'q) | qoldiq xavf | `CLAUDE.md` (P10); RISKS R-21 | tanlansa natijada `qualitative_cp_project_addition`; egasi qayta tekshirishi mumkin |
 | KL-074 | Qilinmagan: LOD₉₅ (probit / logistik); muvozanatsiz va 3 darajali dizaynlar; namuna olish bias'i; ISO 29201; mikrobiologiyada MPN | qilinmagan | RISKS R-21 | — |
@@ -215,6 +215,11 @@
 | KL-182 | Haqiqiy AI xizmati bilan avtomatik test yo'q (CI da kalit yo'q) — faqat mock; Chromium da mock bilan tutun-testi o'tkazilgan; Firefox / Safari da AI oynasi qo'lda ko'rilmagan | ko'rilmagan | `docs/AI_DESIGN.md` §13 | — |
 | KL-183 | Prompt matni (a, b da hujjat bilan) "o'z kaliti" rejimida brauzer IndexedDB sidagi vaqtinchalik omborda 1 soatgacha turadi (eksportga va auditga kirmaydi; javob olingach o'chiriladi) | qoldiq xavf | `docs/AI_DESIGN.md` §13 (5) | — |
 | KL-184 | ISO/IEC 42001 repoda yo'q (pullik) — AI boshqaruviga oid bandlar tamoyil darajasida, iqtibossiz | unverified | `docs/AI_DESIGN.md` §10 | — |
+| KL-185 | Tibbiy laboratoriya (M9): hisoblangan o'lchanuvchilar (anion gap, osmolallik, kreatinin klirensi, eGFR — ISO/TS 20914:2019 A.2.4 Rule 1 / 2, A.6) M9 da hisoblanmaydi — GUM rejimida (model formulasi bilan) bajariladi | qo'llab-quvvatlanmaydi | P18; `docs/ENGINE_API.md` §9.4 | hisobot cheklovlarida yozilgan |
+| KL-186 | Tibbiy laboratoriya: IQC materiali va bemor namunalarining ekvivalentligi (ISO/TS 20914:2019 §6.2, F-test) tekshirilmaydi — foydalanuvchi mas'uliyatida | qoldiq xavf | P18 | hisobot cheklovlarida yozilgan |
+| KL-187 | Tibbiy laboratoriya: reagent / IQC loti almashganda ma'lumotni ajratish yoki birlashtirish qarori (ISO/TS 20914:2019 §6.3, A.3.1) laboratoriyaniki — platforma faqat hisoblaydi; ahamiyatli biasni tuzatish qarori (§6.6) ham laboratoriyaniki | qoldiq xavf | P18 | `medical_unbalanced_lots`, `medical_bias_significant_not_applied` ogohlantirishlari |
+| KL-188 | Tibbiy laboratoriya: yaxlitlash usuli (ISO/TS 20914:2019 §5.4, Option B / C) — egasi qarori kutilmoqda; hozir umumiy qoida (U — 2 qiymatli raqam, yarim — noldan uzoqqa) qo'llanadi va hisobotda yoziladi | ochiq qaror | P18 §3; RISKS R-30 | hisobotda "Ma'lumotlarni yaxlitlash" bayonoti |
+| KL-189 | Tibbiy laboratoriya: sanoq (Puasson, §6.10) hissasini byudjetga nisbiy hissa sifatida qo'shish (`counting.apply`) — loyiha qarori, manba misoli bilan tasdiqlanmagan; oynada maydoni yo'q (faqat API). Tibbiy laboratoriya oynasining yangi maydonlari real brauzerda qo'lda ko'rilmagan (jsdom testlari) | qoldiq xavf | P18; RISKS R-30 | standart holatda qo'shilmaydi (`apply: false`) |
 
 ---
 

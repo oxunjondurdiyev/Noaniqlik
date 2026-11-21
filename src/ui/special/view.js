@@ -3,7 +3,7 @@
    Sof modul: DOM'ga tegmaydi. Har qanday qiymat ctx.esc (escHtml) orqali. ctx = { t(key), esc(value) }.
    Hodisalar — app.js da (data-sp-* atributlari; inline handler yo'q).
 ═══════════════════════════════════════════════════════════════ */
-import { MODES, samplingRows, levelRows } from './build.js';
+import { MODES, samplingRows, levelRows, groupRows } from './build.js';
 import { numericRows } from '../topdown/build.js';
 
 const opt = (ctx, value, label, cur) => `<option value="${ctx.esc(value)}"${String(cur) === String(value) ? ' selected' : ''}>${ctx.esc(label)}</option>`;
@@ -17,7 +17,8 @@ const check = (ctx, st, key, labelKey, hintKey) =>
 /** Qo'yilgan matndan o'qilgan qatorlar soni */
 export function countHTML(st, key, ctx) {
   const r = key === 'saTargets' ? (() => { const g = samplingRows(st[key]); return { n: g.targets.length, skipped: g.skipped }; })()
-    : key === 'meLevels' ? (() => { const g = levelRows(st[key]); return { n: g.levels.length, skipped: g.skipped }; })()
+    : key === 'meLevels' ? (() => { const g = levelRows(st[key], st.meDisp); return { n: g.levels.length, skipped: g.skipped }; })()
+      : key === 'meGroups' ? (() => { const g = groupRows(st[key], st.meGroupKind); return { n: g.n, skipped: g.skipped }; })()
       : (() => { const g = numericRows(st[key]); return { n: g.rows.length, skipped: g.skipped }; })();
   return `<small class="text-muted td-count" data-sp-count="${ctx.esc(key)}">${ctx.esc(ctx.t('td_parsed').replace('{n}', r.n))}${r.skipped ? ' · ' + ctx.esc(ctx.t('td_skipped').replace('{n}', r.skipped)) : ''}</small>`;
 }
@@ -26,16 +27,21 @@ const area = (ctx, st, key, labelKey, hintKey, rows) =>
     <textarea id="sp-${key}" data-sp-field="${key}" rows="${rows || 7}" spellcheck="false" class="td-area">${ctx.esc(st[key] ?? '')}</textarea>
     <small class="text-muted">${ctx.esc(ctx.t(hintKey))}</small><span data-sp-count-wrap="${ctx.esc(key)}">${countHTML(st, key, ctx)}</span></label>`;
 
+/** Manba misoli bilan tasdiqlanmagan rejimlar (tibbiy laboratoriya P18 da ISO/TS 20914:2019 misollari bilan tasdiqlandi) */
+export const BETA = ['micro'];
+const select = (ctx, st, key, labelKey, values, prefix, hintKey) =>
+  field(ctx, key, labelKey, `<select id="sp-${key}" data-sp-field="${key}">${values.map(v => opt(ctx, v, ctx.t(prefix + v), st[key])).join('')}</select>`, hintKey);
+
 /** Rejim tanlagichi (4 ta rejim; BETA belgisi tekshirilmagan modullarda) */
 export function modesHTML(st, ctx) {
   return `<div class="sp-modes" role="tablist" data-sp-modes="1">${MODES.map(m =>
     `<button type="button" role="tab" class="sp-mode${st.mode === m ? ' active' : ''}" data-sp-mode="${m}" aria-selected="${st.mode === m}">${ctx.esc(ctx.t('sp_mode_' + m))}${
-      m === 'micro' || m === 'medical' ? ' <span class="badge badge-orange">BETA</span>' : ''}</button>`).join('')}</div>`;
+      BETA.includes(m) ? ' <span class="badge badge-orange">BETA</span>' : ''}</button>`).join('')}</div>`;
 }
 
 export function formHTML(st, ctx) {
   const intro = `<p class="text-muted text-sm" data-sp-intro="${st.mode}">${ctx.esc(ctx.t('sp_intro_' + st.mode))}</p>`;
-  const beta = st.mode === 'micro' || st.mode === 'medical' ? `<div class="warn-box" data-sp-beta="1">⚠ ${ctx.esc(ctx.t('sp_beta_' + st.mode))}</div>` : '';
+  const beta = BETA.includes(st.mode) ? `<div class="warn-box" data-sp-beta="1">⚠ ${ctx.esc(ctx.t('sp_beta_' + st.mode))}</div>` : '';
   let body;
   if (st.mode === 'sampling') {
     body = `${area(ctx, st, 'saTargets', 'sp_sa_targets', 'sp_sa_targets_hint', 10)}
@@ -55,9 +61,28 @@ export function formHTML(st, ctx) {
       ${area(ctx, st, 'miPairs', 'sp_mi_pairs', 'sp_mi_pairs_hint', 6)}
       <div class="settings-grid">${text(ctx, st, 'miTechS', 'sp_mi_tech_s', 'sp_mi_tech_s_hint')}${text(ctx, st, 'miMatrix', 'sp_mi_matrix', 'sp_mi_matrix_hint')}${text(ctx, st, 'miK', 'td_k', 'td_k_hint', '2')}</div>`;
   } else {
-    body = `<div class="settings-grid">${text(ctx, st, 'meUnit', 'sp_me_unit', null, 'mmol/L')}</div>
+    const groupsOpen = String(st.meGroups || '').trim() !== '';
+    const crmOpen = ['meCrm', 'meCrmU', 'meLabMean', 'meLabSd', 'meLabN'].some(k => String(st[k] || '').trim() !== '');
+    body = `<div class="settings-grid">${text(ctx, st, 'meUnit', 'sp_me_unit', null, 'mmol/L')}
+        ${select(ctx, st, 'mePrecision', 'sp_me_precision', ['long_term', 'repeatability'], 'sp_me_precision_', 'sp_me_precision_hint')}
+        ${select(ctx, st, 'meScale', 'sp_me_scale', ['linear', 'log10'], 'sp_me_scale_', 'sp_me_scale_hint')}
+        ${select(ctx, st, 'meDisp', 'sp_me_disp', ['cv', 'sd'], 'sp_me_disp_')}</div>
       ${area(ctx, st, 'meLevels', 'sp_me_levels', 'sp_me_levels_hint', 4)}
-      <div class="settings-grid">${text(ctx, st, 'meCal', 'sp_me_cal', 'sp_me_cal_hint')}${text(ctx, st, 'meBias', 'sp_me_bias', 'sp_me_bias_hint')}${text(ctx, st, 'meY', 'sp_y', 'sp_me_y_hint')}${text(ctx, st, 'meK', 'td_k', 'td_k_hint', '2')}</div>`;
+      <details class="card rg-card" data-sp-groups="1"${groupsOpen ? ' open' : ''}><summary>${ctx.esc(ctx.t('sp_me_groups_title'))}</summary>
+        <div class="settings-grid">${select(ctx, st, 'meGroupKind', 'sp_me_group_kind', ['lots', 'systems', 'periods'], 'sp_me_group_', 'sp_me_group_kind_hint')}
+          ${select(ctx, st, 'mePool', 'sp_me_pool', ['none', 'df'], 'sp_me_pool_', 'sp_me_pool_hint')}</div>
+        ${area(ctx, st, 'meGroups', 'sp_me_groups', 'sp_me_groups_hint', 6)}</details>
+      <div class="settings-grid">${select(ctx, st, 'meCalKind', 'sp_me_cal_kind', ['rel', 'abs'], 'sp_me_cal_kind_')}
+        ${text(ctx, st, 'meCal', 'sp_me_cal', 'sp_me_cal_hint')}${text(ctx, st, 'meBias', 'sp_me_bias', 'sp_me_bias_hint')}</div>
+      <details class="card rg-card" data-sp-crm="1"${crmOpen ? ' open' : ''}><summary>${ctx.esc(ctx.t('sp_me_crm_title'))}</summary>
+        <p class="text-muted text-sm">${ctx.esc(ctx.t('sp_me_crm_intro'))}</p>
+        <div class="settings-grid">${text(ctx, st, 'meCrm', 'sp_me_crm')}${text(ctx, st, 'meCrmU', 'sp_me_crm_u')}${text(ctx, st, 'meCrmK', 'sp_me_crm_k', null, '2')}
+          ${text(ctx, st, 'meLabMean', 'sp_me_lab_mean')}${text(ctx, st, 'meLabSd', 'sp_me_lab_sd')}${text(ctx, st, 'meLabN', 'sp_me_lab_n')}
+          ${select(ctx, st, 'meBiasMode', 'sp_me_bias_mode', ['absolute', 'proportional'], 'sp_me_bias_mode_')}</div>
+        <div class="td-choices">${check(ctx, st, 'meBiasApply', 'sp_me_bias_apply', 'sp_me_bias_apply_hint')}</div></details>
+      <div class="settings-grid">${text(ctx, st, 'meAllow', 'sp_me_allow', 'sp_me_allow_hint')}
+        ${select(ctx, st, 'meAllowKind', 'sp_me_allow_kind', ['U_rel', 'u_rel', 'U_abs', 'u_abs'], 'sp_me_allow_')}
+        ${text(ctx, st, 'meY', 'sp_y', 'sp_me_y_hint')}${text(ctx, st, 'meK', 'td_k', 'td_k_hint', '2')}</div>`;
   }
   return `<div class="card rg-card" data-sp-form="${st.mode}">${intro}${beta}${body}</div>`;
 }

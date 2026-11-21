@@ -29,5 +29,10 @@
            Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)).
    2.10.0 — P12 (pt/ — z, z′, ζ, E_n, PT tarixi → top-down bias; validation/ — Grubbs, Cochran (unverified), bir omilli ANOVA,
            t / F testlari, LOD/LOQ (unverified), top-down shablon qoralamasi; stats/ — F-taqsimot, ANOVA yordamchilari.
-           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi). */
-export const ENGINE_VERSION = '2.10.0';
+           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi).
+   2.11.0 — P18 (medical/ — ISO/TS 20914:2019 misollari G1…G11 bilan tasdiqlandi: `medical_unverified` va `unverified` olib tashlandi;
+           daraja qo'llanish oralig'i (oraliq berilmasa eng yaqin o'rtacha + `medical_level_by_nearest`), aniqlik turi (u_Rw / u_r),
+           lotlar / tizimlar / davrlar bo'yicha pooling, CRM dan u_bias va ahamiyatlilik testi, log₁₀ shkala, ruxsat etilgan noaniqlik, sanoq.
+           uc-medical/1 ning avvalgi kirishlarida SONLI natija 2.10.0 bilan bit darajasida bir xil; ogohlantirishlar ro'yxati o'zgargan.
+           Boshqa rejimlar o'zgarmagan). */
+export const ENGINE_VERSION = '2.11.0';

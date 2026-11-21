@@ -441,7 +441,8 @@ function checkSpecialTemplate(tpl, errors, warnings) {
   if (tpl.evaluationMode !== 'SAMPLING' && (sp.method !== undefined || sp.logTransform !== undefined)) errors.push('special: method / logTransform apply to SAMPLING only');
   if (tpl.evaluationMode === 'MEDICAL' && isBlank(tpl.measurand && tpl.measurand.unit)) errors.push('special: MEDICAL requires measurand.unit');
   // BETA rejimlar manba misoli bilan tasdiqlanmagan — APPROVED holatiga o'tkazib bo'lmaydi
-  if (['MICROBIOLOGY', 'MEDICAL'].includes(tpl.evaluationMode)) {
+  // (MEDICAL — P18 da ISO/TS 20914:2019 misollari bilan tasdiqlandi: tests/fixtures/iso20914/, endi BETA emas)
+  if (['MICROBIOLOGY'].includes(tpl.evaluationMode)) {
     if (tpl.status === 'APPROVED') errors.push(`special: ${tpl.evaluationMode} is BETA (unverified) — the template cannot be APPROVED`);
     else warnings.push(`special: ${tpl.evaluationMode} is BETA (unverified: the standard is not in docs/references/)`);
   }

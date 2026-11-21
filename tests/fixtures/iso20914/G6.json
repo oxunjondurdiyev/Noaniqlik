@@ -1,0 +1,71 @@
+{
+ "id": "G6",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.4, Table A.5",
+ "title": "bir nechta bir xil o'lchash tizimi (A, B, C)",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Birlik belgisi hisobga ta'sir qilmaydi (faqat yorliq).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "unit",
+  "levels": [
+   {
+    "id": "L1",
+    "systems": [
+     {
+      "id": "A",
+      "n": 280,
+      "mean": 5.15,
+      "sd": 0.16
+     },
+     {
+      "id": "B",
+      "n": 190,
+      "mean": 4.93,
+      "sd": 0.19
+     },
+     {
+      "id": "C",
+      "n": 400,
+      "mean": 5.28,
+      "sd": 0.2
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.pooled.uBetween",
+   "value": 0.176918,
+   "tol": 5e-7
+  },
+  {
+   "path": "levels.0.pooled.uRwPooled",
+   "value": 0.18412,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.255343,
+   "tol": 5e-7
+  },
+  {
+   "path": "levels.0.mean",
+   "value": 5.12,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.0.u.rel",
+   "value": 4.987,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 9.974,
+   "tol": 0.0005
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

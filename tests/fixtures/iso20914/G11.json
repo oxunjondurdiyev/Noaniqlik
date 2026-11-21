@@ -1,0 +1,77 @@
+{
+ "id": "G11",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.10, Table A.15",
+ "title": "log₁₀ birlikdagi o'lchanuvchi (virus yuki); ruxsat etilgan U = 0,5 log₁₀",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "copies/ml",
+  "scale": "log10",
+  "allowable": {
+   "U_abs": 0.5
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 2.66,
+    "sd": 0.12
+   },
+   {
+    "id": "L2",
+    "mean": 3.18,
+    "sd": 0.16
+   },
+   {
+    "id": "L3",
+    "mean": 4.21,
+    "sd": 0.23
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.U.abs",
+   "value": 0.24,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.1.U.abs",
+   "value": 0.32,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.2.U.abs",
+   "value": 0.46,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.0.coverage.low",
+   "value": 2.42,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.0.coverage.high",
+   "value": 2.9,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.0.coverage.backLow",
+   "value": 263,
+   "tol": 0.5
+  },
+  {
+   "path": "levels.0.coverage.backHigh",
+   "value": 794,
+   "tol": 0.5
+  }
+ ],
+ "equals": {
+  "levels.0.fitForPurpose": true,
+  "levels.1.fitForPurpose": true,
+  "levels.2.fitForPurpose": true,
+  "levels.0.U.rel": null
+ },
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

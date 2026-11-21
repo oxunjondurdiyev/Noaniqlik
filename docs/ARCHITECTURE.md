@@ -172,7 +172,7 @@
 > | `src/engine/sampling/index.js` | `evaluateSampling` (format `uc-sampling/1`): dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU |
 > | `src/engine/qualitative/index.js` | `evaluateQualitative` (`uc-qualitative/1`): 2×2 jadval, SS, SP, LR, posterior; interval — Wilson (standart) yoki Clopper–Pearson (laboratoriya sozlamasi `ciMethod`) |
 > | `src/engine/micro/index.js` | `evaluateMicro` (`uc-micro/1`): log₁₀ sanoq — **BETA, unverified** |
-> | `src/engine/medical/index.js` | `evaluateMedical` (`uc-medical/1`): IQC darajalari — **BETA, unverified** |
+> | `src/engine/medical/index.js` | `evaluateMedical`, `biasFromCrm` (`uc-medical/1`): IQC darajalari, pooling, CRM dan bias, log₁₀ — ISO/TS 20914:2019 misollari bilan **verified** (P18) |
 > | `src/ui/special/build.js`, `view.js` | oyna holati → modelSpec; qo'yilgan jadvalni o'qish; shakllar HTML'i (sof, Node'da test qilinadi) |
 > | `src/ui/special/app.js` | "Maxsus rejimlar" yorlig'i kontrolleri (ES modul, `window.UCSpecial`); holat — `localStorage` `uc_special_v1` |
 > | `src/js/report.js` | `Results.specialSection`, `printSpecial` — to'rt rejimning hisobot bo'limlari (P05 gacha shu yerda) |

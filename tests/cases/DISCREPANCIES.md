@@ -12,6 +12,8 @@ Bu faylda uch turdagi farqlar qayd etilgan:
 
 P01 dagi dvigatel: `src/js/calc.js`, `ENGINE_VERSION` 1.0.0. Hech bir farq **hisobotda ko'rinadigan (yaxlitlangan) natijani o'zgartirmaydi**: 9 ta Excel nuqtasining `expectedDisplay` qiymatlari (U va y) hammasi mos keladi.
 
+> **P18 holati (2026-11-21, ENGINE_VERSION 2.11.0):** yangi D-23 (ISO/TS 20914:2019 C.6.1: manbaning oraliq yaxlitlashi — ikki hosila qiymat ½ birlikdan 0,07 va 0,16 birlikka oshadi); G1…G8, G10, G11 — farqsiz. Savol Q-9.
+>
 > **P12 holati (2026-11-19, ENGINE_VERSION 2.10.0):** yangi D-22 (NIST Grubbs misolida G kesilgan, yaxlitlanmagan). NIST ANOVA, t-test, F-test, 2.4.4 misollari — farqsiz (yig'ma kirish statistikasi yaxlitlanishi toleransda hisobga olingan).
 >
 > **P07b holati (2026-11-18, ENGINE_VERSION 2.9.0):** yangi D-21 (JCGM 102 §9.5.2.6 — C_x elementidagi bosma xato). §9.3 MCM, §9.5, §7.7.4 misollari — farqsiz.
@@ -83,6 +85,7 @@ Eng qisqa interval (ma'lumot uchun): M = 2·10⁷ da [−0,011 21; 0,046 70]; M 
 | **D-20** (P07) | JCGM 102:2011 §9.4, Table 11 (MCM qatori); `jcgm102-9-4-mcm` | u(R) = 0,130 (mos); u(X): manba 0,536, bizda 0,544 ± 0,015; u(Z): manba 0,429, bizda 0,436 ± 0,015 (± — 8 urug' bo'yicha 2√2·s). ν = n − N = 3 da t-taqsimot dumlari og'ir: dispersiya bahosi sekin yaqinlashadi (ν = 3 da 4-moment mavjud emas), shuning uchun u(X), u(Z) urug'dan-urug'ga sezilarli o'zgaradi. | Tolerans: ½ oxirgi xona + 2√2·s (o'lchangan), sababi `tolerance.*.reason` da. Manba qiymati tolerans ichida. Usul xususiyati. |
 | **D-21** (P07b) | JCGM 102:2011 §9.5.2.6 (p. 56), sezgirlik matritsasi C_x; `tests/engine/implicit.test.js` | Manbada C_x ning uchinchi elementi (∂h/∂B = R₀θ²) **"4.01 Ω°C²"** deb bosilgan; formula bo'yicha R₀θ² = 99,996 1 · 20,023 2² = **4,01·10⁴** Ω°C² (qo'shni elementlar "2.00 × 10³", "−1.00 × 10²" ko'paytuvchi bilan berilgan). | Manbadagi bosma xato (ko'paytuvchi × 10⁴ tushib qolgan): yakuniy natija u(θ̂) = 0,004 5 °C faqat 4,01·10⁴ bilan chiqadi va manba bilan mos. Test mantissani (4,01) va formulani tekshiradi. Dvigatel o'zgartirilmagan. |
 | **D-22** (P12) | NIST/SEMATECH e-Handbook §1.3.5.17.1 (`docs/references/nist-ehandbook-p12/eda/section3/eda35h1.htm`), Grubbs misoli; `tests/engine/validation.test.js` | Manbada "Test statistic: G = 2.4687". Berilgan 8 ta qiymatdan aniq (ratsional arifmetika) hisob: G = 2,468 764 6… — 4 xonagacha **yaxlitlansa 2,4688**. | Manba qiymatni yaxlitlamasdan **kesgan** (Dataplot chiqishi). Test: 2,4687 ≤ G < 2,4688 va mustaqil aniq hisob (10⁻¹⁰). Kritik qiymat 2,032 va xulosa ("reject H₀") mos. Dvigatel o'zgartirilmagan. |
+| **D-23** (P18) | ISO/TS 20914:2019 C.6.1, Table C.1 (natriy; standart PDF'i repoda yo'q — qiymatlar egasidan); `tests/fixtures/iso20914/G9.json`, `tests/engine/medical.iso20914.test.js` | Manbada U_bias = 0,989 45 va U(Na) = 2,335 93. Yaxlitlanmagan hisob: U_bias = 2·√(0,45² + (0,65/√10)²) = **0,989 444 3**; U = 2·√(u_bias² + 0,63² + 0,85²) = **2,335 936 6** (→ 2,335 94). Farq: 5,7·10⁻⁶ va 6,6·10⁻⁶ — oxirgi xonaning 0,57 va 0,66 birligi (nisbiy 5,8·10⁻⁶ va 2,8·10⁻⁶). | Manba oraliq qiymatlarni yaxlitlagan (SD_mean = 0,205 55 bilan u_bias = 0,494 723 → U_bias = 0,989 446 → 0,989 45). Shu misolning u_bias (0,494 72), u(Na) (1,167 97) va %U (1,647 3) qiymatlari ½ birlik ichida mos. Tolerans **kengaytirilmagan**: ikki qator `knownDiscrepancies` da (majburiy tenglik emas; farq 1 birlikdan oshmasligi qayd etiladi). Dvigatel o'zgartirilmagan. Egasi qarori — Q-9. |
 | **D-10** | `tests/fixtures/README.md`, `tests/verify-excel.js` | `verify-excel.js` sarlavhasidagi fayl nomi `…gazoanalizator.xlsx` haqiqiy fixture nomiga (`…_KEDR-07.xlsx`) mos emas edi (PLAN P01). | Tuzatildi (izoh). |
 
 ## C. Gemini hisoboti (`docs/audit/gemini-audit-2026-11.md` §8.1, T1–T18) ↔ asl manba
@@ -143,3 +146,7 @@ Eng qisqa interval (ma'lumot uchun): M = 2·10⁷ da [−0,011 21; 0,046 70]; M 
   - (a) n_dig = 1, δ = 5·10⁻⁴ — hozir o'tadi;
   - (b) n_dig = 2, δ = 5·10⁻⁵ — P06 dagi adaptiv M dan keyin. Hozircha todo.
 - **Q-4.** Manba natijani yaxlitlangan oraliq qiymatdan hisoblagan hollarda (U = k × yaxlitlangan u_c; masalan H.1, S2, A1) toleransga oraliq yaxlitlash tarqalishini qo'shish qoidasini tasdiqlaysizmi? Har bir holat `tolerance.*.reason` da yozilgan.
+- **Q-9 (D-23, P18).** ISO/TS 20914:2019 C.6.1 dagi U_bias = 0,989 45 va U = 2,335 93 — manbaning oraliq yaxlitlashi natijasi (yaxlitlanmagan: 0,989 444 3; 2,335 936 6). Variantlar:
+  - (a) hozirgidek — `knownDiscrepancies` (majburiy tenglik emas, farq hujjatlashtirilgan);
+  - (b) Q-4 qoidasi bo'yicha (manba yaxlitlangan oraliq qiymatdan hisoblagan) shu ikki qatorga toleransni oxirgi xonaning 1 birligi qilib, majburiy testga aylantirish;
+  - (c) kutilgan qiymatni yaxlitlanmagan hisob bilan almashtirish (manba qiymati izohda qoladi).

@@ -4,6 +4,41 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.11.0] — P18: tibbiy laboratoriya (M9) — ISO/TS 20914:2019 bo'yicha validatsiya va kengaytirish (2026-11-21)
+
+**Natijaga ta'siri:** `uc-medical/1` ning avvalgi kirishlarida **sonli natija (u, U, nisbiy %) 2.10.0 bilan bit darajasida bir xil**; o'zgargani — ogohlantirishlar ro'yxati va holat belgilari (quyida). Boshqa rejimlar o'zgarmagan: `tests/cases/` dagi 91 misol 2.10.0 bilan bit darajasida bir xil (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0). 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmagan.
+
+**Manba:** ISO/TS 20914:2019 (E), 1-nashr. Standart pullik — **PDF repoga qo'shilmagan**; etalon qiymatlar egasidagi nusxadan olingan (egasi bergan, P18) va mustaqil qayta hisoblangan: `tests/fixtures/iso20914/G1…G11.json` (band havolasi bilan; tolerans — oxirgi ko'rsatilgan xonaning ½ birligi).
+
+### Tasdiqlandi (verified)
+
+- G1 (A.2.2, Table A.1), G2 (A.2.3, Table A.2), G3 (A.2.4 Rule 1), G4 (A.3.1 Formula (A.8), A.3.2 Table A.3), G5 (A.3.3), G6 (A.4, Table A.5), G7 (A.7, Table A.11), G8 (C.5.2), G9 (C.6.1, Table C.1), G10 (C.6.2, Table C.2), G11 (A.10, Table A.15) — `tests/engine/medical.iso20914.test.js`.
+- **Ma'lum farq D-23 (G9, ikki hosila qiymat):** manbada U_bias = 0,989 45 va U = 2,335 93; yaxlitlanmagan hisob — 0,989 444 3 va 2,335 936 6 (farq oxirgi xonaning 0,57 va 0,66 birligi — manbaning oraliq yaxlitlashi). Tolerans kengaytirilmagan: bu ikki qator `knownDiscrepancies` da, majburiy tenglik emas; u_bias, u(Na), %U — ½ birlik ichida. Egasi qarori kutiladi (`tests/cases/DISCREPANCIES.md` Q-9).
+- Natijadan `unverified: true` va `medical_unverified` ogohlantirishi **olib tashlandi**; `approachRef: 'ISO/TS 20914:2019'`; oynada va hisobotda "BETA" belgisi yo'q; `MEDICAL` shabloni endi APPROVED bo'la oladi (mikrobiologiya — BETA bo'lib qoladi).
+- Shablon `SP-04` v0.2.0 (DRAFT, raqamsiz): `templates/validation/builtin.json` da G1 orqali **verified** (shablon → oyna holati → `buildSpec` → `evaluate`).
+
+### Qo'shilganlar (dvigatel, `src/engine/medical/`)
+
+- **Daraja qo'llanish oralig'i** (`levels[].interval`, standart [quyi; yuqori) — A.2.3, A.3.2 "IQC monitors interval"): o'lchangan natijaga qiymati oraliqqa tushgan daraja qo'llanadi. **Xulq o'zgarishi:** oraliq berilmagan bo'lsa avvalgidek eng yaqin o'rtacha, lekin endi `medical_level_by_nearest` ogohlantirishi bilan (loyiha qoidasi, me'yoriy emas). Oraliqlar kesishsa — `medical_interval_overlap`, natija hech biriga tushmasa — `medical_interval_gap` (xato).
+- **Aniqlik turi** `precisionType: 'long_term' | 'repeatability'` (§6.3, A.2.3): takrorlanuvchanlikda `medical_no_calibrator` chiqmaydi, `medical_repeatability_only` (info) chiqadi.
+- **Pooled u_Rw** — lotlar bo'yicha `levels[].lots` (A.3.1, Formula (A.8), vaznsiz; `settings.poolWeighting: 'df'` — A.3.1 muqobil yondashuvi); n nisbati > 2 da `medical_unbalanced_lots` (info). **Bir nechta bir xil tizim** — `levels[].systems` (A.4). **Davrlar** — `levels[].periods` (A.7, A.14).
+- **u_bias CRM dan** — `bias: { xRef, URef, kRef | uRef, xLab, sd, n, apply, mode }` (C.5, Formula (C.1)–(C.4)): SD_mean, u_bias, bias, %bias, ahamiyatlilik |bias| > 2·u_bias; `apply: true` da u_bias yig'indiga qo'shiladi; ahamiyatli, lekin qo'llanmagan — `medical_bias_significant_not_applied`; u_ref yo'q — `medical_bias_incomplete`; `mode: 'proportional'` — nisbiy birliklarda (C.5.4). `biasFromCrm()` alohida eksport qilingan.
+- **log₁₀ shkala** (`scale: 'log10'`, A.10): u va U log₁₀ birlikda, [y − U; y + U] va [10^(y−U); 10^(y+U)]; nisbiy % chiqarilmaydi (`logRel` — faqat ma'lumot).
+- **Ruxsat etilgan maksimal noaniqlik** (`allowable`, §5.2): har bir darajada `fitForPurpose` va zaxira — yaroqlilik bahosi, muvofiqlik bayonoti emas.
+- **Sanoq** (`counting: { count }`, §6.10): u = √count; byudjetga faqat `apply: true` bo'lsa (nisbiy hissa sifatida) kiradi — **loyiha qarori, egasi tasdig'ini kutadi**.
+- Daraja o'rtachasi ixtiyoriy bo'ldi (faqat mutlaq birliklarda hisob — G3); faqat bias (darajasiz) hisobi mumkin (G8).
+
+### Interfeys va hisobot
+
+- "Maxsus rejimlar → Tibbiy laboratoriya": aniqlik turi, shkala, CV / SD, daraja qo'llanish oralig'i ustunlari, "Lotlar / tizimlar / davrlar" va "Bias (CRM)" bo'limlari, mutlaq / nisbiy u_cal, ruxsat etilgan noaniqlik. Matnlar uz / ru / en.
+- Hisobot (`src/report/sections.js::medicalSection`): A.1 jadvali shaklida (daraja | N | x̄ | u_Rw | u_cal | u_bias | u | U | %U_rel | "Bemor natijalariga ±"), qo'llanish oralig'i va yaroqlilik ustunlari, pooling tafsiloti, bias bo'limi (bias ± U_bias, ahamiyatlilik, tuzatish turi), "Laboratoriya foydalanuvchisi uchun ma'lumot" (§5.6), yaxlitlash usuli bayonoti (§5.4). `src/report/` markup'i o'zgargan — dvigatel xeshi yangilandi.
+
+### Qilinmagan / egasi qarori kutiladi
+
+- **Yaxlitlash (§5.4, Option B)** — egasi qarori kutilmoqda: yaxlitlash qoidalari **o'zgartirilmagan** (`src/report/rounding.js` ga tegilmagan); hisobotda hozir qo'llanayotgan usul yoziladi.
+- Hisoblangan o'lchanuvchilar (anion gap, osmolallik, eGFR — A.2.4 Rule 1 / 2, A.6) — M9 da emas, GUM rejimida (`KNOWN_LIMITATIONS` KL-185).
+- Sanoq maydoni oynada yo'q (faqat API); real brauzerda qo'lda ko'rilmagan (jsdom testlari).
+
 ## P16 — Interfeys 2.0: yangi dizayn tizimi, moslashuvchan qobiq, Vizual laboratoriya (2026-11-20)
 
 **ENGINE_VERSION o'zgarmadi (2.10.0): HISOB O'ZGARMAGAN, faqat ko'rinish.** `src/engine/` ga tegilmagan (bitta bayt ham). `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi P13 holati (`f09e418`; P14 — `88e271e` — ham dvigatelga tegmagan) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0) — har bir bosqichdan keyin tekshirildi. `tests/security/engine.sha256.json` yangilandi: sabab — faqat `src/report/` dagi markup (pastga qarang).

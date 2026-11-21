@@ -1,0 +1,42 @@
+{
+ "id": "G3",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.2.4, Rule 1, Example 1",
+ "title": "u(y) = √(u_cal² + u_bias² + u_Rw²) — mutlaq birliklarda",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Birlik belgisi hisobga ta'sir qilmaydi (faqat yorliq). Manbada daraja o'rtachasi berilmagan — hisob faqat mutlaq birliklarda.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "unit",
+  "uCal": {
+   "value": 0.11,
+   "unit": "unit"
+  },
+  "uBias": {
+   "value": 0.09,
+   "unit": "unit"
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "sd": 0.43
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.4529,
+   "tol": 0.00005
+  }
+ ],
+ "expectedStd": [
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.45,
+   "tol": 0.005
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

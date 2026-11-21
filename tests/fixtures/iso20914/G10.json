@@ -1,0 +1,114 @@
+{
+ "id": "G10",
+ "source": "ISO/TS 20914:2019",
+ "clause": "C.6.2, Table C.2",
+ "title": "kreatinin: ikki IQC loti alohida (pooling yo'q), u_bias qo'shilgan; oraliqlar < 250; ≥ 250",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Birlik belgisi hisobga ta'sir qilmaydi (faqat yorliq). u_cal = 3,24 / 2 = 1,62. Lot 2 — `extra` da (alohida hisob).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "unit",
+  "uCal": {
+   "value": 1.62,
+   "unit": "unit"
+  },
+  "bias": {
+   "xRef": 72.9,
+   "URef": 1.61,
+   "kRef": 2,
+   "xLab": 80.1,
+   "sd": 1.1,
+   "n": 10,
+   "apply": true
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 70.2,
+    "sd": 1.44,
+    "interval": {
+     "high": 250
+    }
+   },
+   {
+    "id": "L2",
+    "mean": 517.1,
+    "sd": 5.87,
+    "interval": {
+     "low": 250
+    }
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "bias.uBias",
+   "value": 0.87694,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 2.33817,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.u.rel",
+   "value": 3.3307,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.1.u.abs",
+   "value": 6.15226,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.1.u.rel",
+   "value": 1.1898,
+   "tol": 0.00005
+  }
+ ],
+ "equals": {
+  "bias.significant": true
+ },
+ "extra": [
+  {
+   "name": "lot 2",
+   "input": {
+    "format": "uc-medical/1",
+    "unit": "unit",
+    "uCal": {
+     "value": 1.62,
+     "unit": "unit"
+    },
+    "bias": {
+     "xRef": 72.9,
+     "URef": 1.61,
+     "kRef": 2,
+     "xLab": 80.1,
+     "sd": 1.1,
+     "n": 10,
+     "apply": true
+    },
+    "levels": [
+     {
+      "id": "L1",
+      "mean": 79.7,
+      "sd": 1.39,
+      "interval": {
+       "high": 250
+      }
+     }
+    ]
+   },
+   "expected": [
+    {
+     "path": "levels.0.u.abs",
+     "value": 2.30771,
+     "tol": 0.000005
+    }
+   ]
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

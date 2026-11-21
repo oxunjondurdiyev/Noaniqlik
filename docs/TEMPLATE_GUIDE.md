@@ -258,7 +258,7 @@ To'rt rejim "Maxsus rejimlar" yorlig'ida ochiladi: shablon → `buildSpecialStat
 | `SAMPLING` | namuna olish noaniqligi: dublikat usuli, ichma-ich ANOVA | EURACHEM/CITAC UfS:2019 | verified |
 | `QUALITATIVE` | sifatli (binar) test: 2×2 jadval, SS, SP, ishonch intervallari | EURACHEM/CITAC AQA:2021 | verified |
 | `MICROBIOLOGY` | mikrobiologik sanoq, log₁₀ shkala | ISO 19036 (repoda yo'q) | **BETA** |
-| `MEDICAL` | tibbiy laboratoriya, IQC darajalari | ISO/TS 20914 (repoda yo'q) | **BETA** |
+| `MEDICAL` | tibbiy laboratoriya, IQC darajalari | ISO/TS 20914:2019 (PDF repoda yo'q — pullik; misollar `tests/fixtures/iso20914/`) | verified (P18) |
 
 ```json
 "evaluationMode": "SAMPLING",
@@ -274,7 +274,7 @@ Qoidalar:
 1. `special` bo'limi majburiy. Maydonlari: `hint` (uch tilda); faqat `SAMPLING` uchun — `method` (`classical` / `robust`) va `logTransform`. **Raqamli maydon yo'q** — o'lchashlar, sanoqlar va IQC ma'lumotini laboratoriya oynada kiritadi.
 2. `typeBSources` va `variants` ishlatilmaydi; `model.formula` tavsifiy.
 3. `MEDICAL` uchun `measurand.unit` majburiy (nisbiy ↔ mutlaq o'tkazish birlik bilan bajariladi).
-4. **BETA rejimlar** (`MICROBIOLOGY`, `MEDICAL`) manba misoli bilan tasdiqlanmagan: shablon tekshiruvi ogohlantirish beradi, **APPROVED holatiga o'tkazish — xato**. Natija va bosma hisobotda "BETA" belgisi va `*_unverified` ogohlantirishi chiqadi.
+4. **BETA rejim** (`MICROBIOLOGY`; `MEDICAL` — P18 dan BETA emas) manba misoli bilan tasdiqlanmagan: shablon tekshiruvi ogohlantirish beradi, **APPROVED holatiga o'tkazish — xato**. Natija va bosma hisobotda "BETA" belgisi va `*_unverified` ogohlantirishi chiqadi.
 
 Ichki shablonlar (hammasi **DRAFT**, raqamsiz): [`SP-01`](../templates/builtin/SP-01.json) (namuna olish), [`SP-02`](../templates/builtin/SP-02.json) (sifatli test), [`SP-03`](../templates/builtin/SP-03.json) (mikrobiologiya, BETA), [`SP-04`](../templates/builtin/SP-04.json) (tibbiy laboratoriya, BETA). Test: `tests/ui/special.test.js`.
 

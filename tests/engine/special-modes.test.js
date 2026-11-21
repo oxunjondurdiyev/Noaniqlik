@@ -1,5 +1,6 @@
 /* P10: maxsus rejimlar — namuna olish (src/engine/sampling/), sifatli testlar (qualitative/),
-   mikrobiologiya (micro/, BETA) va tibbiy laboratoriya (medical/, BETA) — birlik va analitik testlar.
+   mikrobiologiya (micro/, BETA) va tibbiy laboratoriya (medical/ — P18 dan: ISO/TS 20914:2019 misollari
+   tests/engine/medical.iso20914.test.js da) — birlik va analitik testlar.
    Manba misollari (UfS A1, A2; AQA E3, 7.6) — tests/cases/ufs/, tests/cases/aqa/ (tests/run-cases.test.js). */
 'use strict';
 const { test } = require('node:test');
@@ -197,18 +198,18 @@ test('mikrobiologiya: har doim "tekshirilmagan" belgisi; past sanoq; texnik hiss
   assert.equal(E.evaluate({ format: 'uc-micro/1', result: { value: 10, sumCounts: 5 }, technical: { pairs: [[0, 5]] } }).error, 'micro_bad_data');
 });
 
-/* ── Tibbiy laboratoriya (BETA, tekshirilmagan) ── */
+/* ── Tibbiy laboratoriya (ISO/TS 20914:2019 misollari — medical.iso20914.test.js) ── */
 
 test('tibbiy laboratoriya: u = √(u_cal² + u_Rw²) [+ u_bias²] har bir IQC darajasi uchun; nisbiy va mutlaq', () => {
   const r = E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 3, n: 60 }, { id: 'L2', mean: 20, sd: 0.4, n: 60 }],
     uCal: { value: 4, relative: true }, measurement: { value: 6 } });
-  assert.equal(r.mode, 'MEDICAL'); assert.equal(r.unverified, true);
+  assert.equal(r.mode, 'MEDICAL'); assert.equal(r.unverified, undefined); assert.equal(r.approachRef, 'ISO/TS 20914:2019');
   const [l1, l2] = r.levels;
   near(l1.u.rel, 5, 1e-12); near(l1.u.abs, 0.25, 1e-12);     // √(3² + 4²) = 5 %
   near(l2.uRw.rel, 2, 1e-12); near(l2.u.rel, Math.sqrt(4 + 16), 1e-12);
   near(l1.U.rel, 10, 1e-12);
   assert.equal(r.appliedLevel, 'L1'); near(r.relU, 10, 1e-12); near(r.absU, 0.6, 1e-12);
-  assert.deepEqual(codes(r), ['medical_unverified']);
+  assert.deepEqual(codes(r), ['medical_level_by_nearest']);   // P18: oraliq berilmagan — eng yaqin o'rtacha (loyiha qoidasi), ogohlantirish bilan
   const b = E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ mean: 5, cv: 3, uCal: { value: 0.2, unit: 'mmol/L' }, uBias: { value: 0.15, unit: 'mmol/L' } }] });
   near(b.levels[0].u.abs, Math.sqrt(0.15 ** 2 + 0.2 ** 2 + 0.15 ** 2), 1e-12);
 });

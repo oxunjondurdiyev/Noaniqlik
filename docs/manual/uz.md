@@ -372,9 +372,9 @@ Misol. Manba: EURACHEM/CITAC AQA:2021, Example E3 (Table E3.1, Eq. E3.1), §4.3 
 
 BETA, tekshirilmagan: ISO 19036 matni repozitoriyda yo'q, hisob manba misoli bilan tasdiqlanmagan. Natijada har doim ogohlantirish chiqadi; bu rejimdagi shablon `APPROVED` bo'la olmaydi. Misol raqamlari berilmaydi. Natijani rasmiy hisobotda ishlatishdan oldin standart bilan solishtiring.
 
-### 8.4. Tibbiy laboratoriya — BETA
+### 8.4. Tibbiy laboratoriya (ISO/TS 20914:2019)
 
-BETA, tekshirilmagan: ISO/TS 20914 matni repozitoriyda yo'q. Shartlar mikrobiologiya bilan bir xil; misol raqamlari berilmaydi.
+Hisob ISO/TS 20914:2019 ishlangan misollari bilan tasdiqlangan (standart matni repozitoriyda yo'q — pullik). Har bir IQC darajasi uchun u = √(u_Rw² + u_cal²), kerak bo'lsa u_bias bilan. Har bir daraja uchun qo'llanish oralig'ini kiriting: o'lchangan natijaga qiymati shu oraliqqa tushgan darajaning noaniqligi qo'llanadi; oraliq berilmasa eng yaqin o'rtacha olinadi va ogohlantirish chiqadi. Lotlar, bir xil o'lchash tizimlari va davrlar bo'yicha birlashtirish, sertifikatlangan tayanch materialdan bias noaniqligi, log₁₀ shkala va ruxsat etilgan noaniqlik bilan solishtirish mavjud. Hisoblangan kattaliklar (anion gap, osmolallik, eGFR) GUM rejimida hisoblanadi. IQC va bemor namunalarining ekvivalentligi hamda lot almashganda ma'lumotni ajratish qarori — laboratoriya mas'uliyatida.
 
 ## 9. Laboratoriya
 
@@ -504,7 +504,7 @@ Dasturni ish jarayoniga kiritishdan oldin va har bir yangi dvigatel versiyasidan
 Eng muhim cheklovlar (to'liq ro'yxat — [ma'lum cheklovlar](../validation/KNOWN_LIMITATIONS.md)):
 
 - **ISO/IEC 17025:2017** matni repozitoriyda yo'q — unga havolalar va hisobot rekvizitlari ro'yxati tekshirilmagan.
-- **BETA rejimlar:** mikrobiologiya (ISO 19036) va tibbiy laboratoriya (ISO/TS 20914) — manba misoli bilan tasdiqlanmagan.
+- **BETA rejim:** mikrobiologiya (ISO 19036) — manba misoli bilan tasdiqlanmagan.
 - **Unverified usullar:** regressiyada WLS, GLS, WTLS va polinom; top-down da ISO 21748 ga tayanadigan qismlar; log-normal taqsimot; PT ball formulalari va chegaralari (ISO 13528); Cochran testi; LOD / LOQ; kalibrlash intervali formulasi.
 - **Oshkor bo'lmagan model:** Monte-Karlo yo'q; asosiy ekranda kiritish shakli yo'q.
 - **Eng kichik qamrov sohasi** — faqat ikki chiqish uchun.

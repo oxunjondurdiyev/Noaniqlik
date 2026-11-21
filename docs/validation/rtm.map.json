@@ -2122,11 +2122,11 @@
    "src/engine/medical/index.js::evaluateMedical"
   ],
   "tests": [
+   "tests/engine/medical.iso20914.test.js",
    "tests/engine/special-modes.test.js"
   ],
-  "status": "unverified",
-  "evidence": "analitik testlar — `special-modes.test.js`",
-  "note": "BETA / unverified",
+  "status": "verified",
+  "evidence": "G1, G3 — `medical.iso20914.test.js`; analitik testlar — `special-modes.test.js`",
   "codeNote": "`medical/index.js::evaluateMedical`"
  },
  "REQ-SPM-014": {
@@ -2183,6 +2183,84 @@
   "tests": [],
   "status": "manual",
   "note": "Bir martalik qo'lda tekshiruv (mutatsiya testi), avtomatik test yo'q. qo'lda: σ_s² dagi /2 olib tashlandi (22 test yiqildi); robust τ² bo'luvchisi n → n − 1 (21); Wilson dagi z²/(4n²) hadi (7); Clopper–Pearson parametri (2); Puasson 1/√C → 1/C (2); kvadratlar yig'indisi → oddiy yig'indi (3)"
+ },
+ "REQ-SPM-019": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js"
+  ],
+  "status": "verified-discrepancy",
+  "evidence": "G1…G11 — `medical.iso20914.test.js`",
+  "note": "D-23: G9 da U_bias va U — manbaning oraliq yaxlitlashi (½ birlikdan 0,07 va 0,16 birlikka oshadi); qolgan barcha qatorlar toleransda"
+ },
+ "REQ-SPM-020": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js"
+  ],
+  "status": "verified",
+  "evidence": "G2, `medical.iso20914.test.js` (daraja tanlash, oraliq xatolari)"
+ },
+ "REQ-SPM-021": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js"
+  ],
+  "status": "verified",
+  "evidence": "G2, `medical.iso20914.test.js`"
+ },
+ "REQ-SPM-022": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js"
+  ],
+  "status": "verified",
+  "evidence": "G4, G5, G6, G7; `df` vazni — analitik test"
+ },
+ "REQ-SPM-023": {
+  "code": [
+   "src/engine/medical/index.js::biasFromCrm",
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js"
+  ],
+  "status": "verified",
+  "evidence": "G8, G9, G10; proporsional rejim — analitik test"
+ },
+ "REQ-SPM-024": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js"
+  ],
+  "status": "verified",
+  "evidence": "G11; allowable va sanoq — analitik testlar",
+  "note": "sanoqni byudjetga qo'shish (`counting.apply`) — loyiha qarori, egasi tasdig'ini kutadi (RISKS R-30)"
+ },
+ "REQ-SPM-025": {
+  "code": [
+   "src/ui/special/build.js::buildSpec",
+   "src/ui/special/view.js::formHTML",
+   "src/report/sections.js::medicalSection",
+   "scripts/template-validation.js::build"
+  ],
+  "tests": [
+   "tests/ui/special.test.js",
+   "tests/templates/validation-badge.test.js"
+  ],
+  "status": "verified",
+  "evidence": "`tests/ui/special.test.js` (P18 testlari), `validation-badge.test.js`",
+  "note": "real brauzerda qo'lda ko'rilmagan (jsdom)"
  },
  "REQ-LNT-001": {
   "code": [
@@ -3831,11 +3909,12 @@
  "REQ-SRC-013": {
   "code": [],
   "tests": [
-   "tests/engine/special-modes.test.js"
+   "tests/engine/special-modes.test.js",
+   "tests/engine/medical.iso20914.test.js"
   ],
   "status": "unverified",
-  "evidence": "`tests/engine/special-modes.test.js` (analitik)",
-  "note": "BETA / unverified — manba kerak (egasi qo'shadi)"
+  "evidence": "ISO 19036 — `tests/engine/special-modes.test.js` (analitik); ISO/TS 20914:2019 — `medical.iso20914.test.js` (G1…G11, qiymatlar egasidan)",
+  "note": "ISO 19036 — BETA / unverified, manba kerak; ISO/TS 20914:2019 — P18 da misollar bilan tasdiqlangan (PDF repoda yo'q — pullik)"
  },
  "REQ-SRC-014": {
   "code": [],

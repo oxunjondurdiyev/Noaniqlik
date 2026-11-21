@@ -51,7 +51,7 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `sampling/index.js` | `evaluateSampling` — dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU (P10), §9.1 | EURACHEM/CITAC UfS:2019 §9.4–9.5, A1, A2 |
 | `qualitative/index.js` | `evaluateQualitative` — 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson (P10), §9.2 | EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 |
 | `micro/index.js` | `evaluateMicro` — log₁₀ sanoq: texnik, matritsa, Puasson (P10, **BETA**), §9.3 | ISO 19036 (repoda yo'q — unverified) |
-| `medical/index.js` | `evaluateMedical` — IQC darajalari: u = √(u_cal² + u_Rw²) (P10, **BETA**), §9.4 | ISO/TS 20914 (repoda yo'q — unverified) |
+| `medical/index.js` | `evaluateMedical`, `biasFromCrm` — IQC darajalari: u = √(u_Rw² + u_cal² [+ u_bias²]), pooling, CRM dan bias, log₁₀ (P10; P18 da kengaytirildi), §9.4 | ISO/TS 20914:2019 (verified — `tests/fixtures/iso20914/` G1…G11; PDF repoda yo'q, pullik) |
 | `linter/index.js`, `linter/rules/*.js` | `lint(spec, result, ctx)` — metrologik linter: X1–X12, A1–A4, M1, D1, W1, W2 (P05a, P05b); M2–M4 — Monte-Karlo natijasi uchun (P06), §10, §12 | [LINTER_RULES.md](LINTER_RULES.md) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
@@ -414,11 +414,41 @@ Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi
 
 `{ result:{value, sumCounts}, technical?:{pairs:[[x1,x2]…]} | {s}, matrix?:{u}, unit?, settings?:{k=2, lowCountThreshold=10} }` → `{ mode:'MICROBIOLOGY', unverified:true, y (= log₁₀ N), uTech, uMatrix, uPoisson (= 0,4343/√ΣC), uc, k, U, interval:{low: 10^(y−U), high: 10^(y+U)}, intervalLog, budget[] }`. Har doim `micro_unverified` (warning); `micro_low_count`, `micro_no_technical`, `micro_few_pairs`. Xatolar: `micro_bad_spec`, `micro_bad_data`, `micro_zero_count`, `micro_need_result`.
 
-### 9.4. Tibbiy laboratoriya: `uc-medical/1` — BETA, unverified
+### 9.4. Tibbiy laboratoriya: `uc-medical/1` — ISO/TS 20914:2019 (verified, P18)
 
-`{ unit, levels:[{id?, values[] | (mean, cv | sd, n?), uCal?, uBias?}], uCal?:{value, relative:true | unit}, uBias?, measurement?:{value}, settings?:{k=2} }` → `{ mode:'MEDICAL', unverified:true, levels:[{id, mean, n, sd, cv, uRw, uCal, uBias, u:{abs, rel}, U:{abs, rel}, budget[]}], y, appliedLevel, absU, relU }`. Nisbiy ↔ mutlaq o'tkazish har bir darajaning o'z o'rtachasi orqali; kattalikda `unit` yoki `relative: true` bo'lmasa — `medical_need_scale`, aralash — `medical_mixed_scale`. Har doim `medical_unverified` (warning); `medical_no_calibrator`, `medical_few_iqc`, `zero_u`.
+Manba: ISO/TS 20914:2019 (E). Etalon misollar — `tests/fixtures/iso20914/G1…G11.json` (band havolasi bilan; PDF repoda yo'q — pullik).
 
-Testlar: `tests/cases/ufs/*.json` (4), `tests/cases/aqa/*.json` (4) — verified; `tests/engine/special-modes.test.js`, `tests/ui/special.test.js`.
+```js
+{ format: 'uc-medical/1', unit,                       // majburiy
+  scale?: 'linear' | 'log10',                         // A.10: log10 da qiymatlar log₁₀ birlikda, nisbiy kirish — xato
+  precisionType?: 'long_term' | 'repeatability',      // §6.3, A.2.3
+  levels: [{ id?,
+    values[] | (mean?, sd | cv, n?)                   // oddiy daraja; mean yo'q bo'lsa faqat mutlaq hisob (rel = null)
+    | lots:    [{ id?, n?, mean?, sd | cv | values[] }]   // A.3.1 (A.8): u_Rw = √(Σu²/m); o'rtacha = lot o'rtachalarining o'rtachasi
+    | systems: [{ id?, n?, mean,  sd | cv | values[] }]   // A.4: u = √(s(x̄)² + Σsd²/m)
+    | periods: [{ id?, uRw }] (+ mean?, n?),              // A.7: u_i = √(u_cal² + u_Rw,i²); u = √(Σu_i²/m)
+    interval?: { low?, high?, lowInclusive = true, highInclusive = false },   // A.2.3, A.3.2 — daraja qo'llanish oralig'i
+    uCal?, uBias? }],
+  uCal?: { value, relative: true | unit }, uBias?,    // tayyor qiymatlar (nisbiy — foizda)
+  bias?: { xRef, URef + kRef = 2 | uRef, xLab, sd, n, apply = false, mode: 'absolute' | 'proportional' },   // C.5; `uBias` bilan birga berilmaydi
+  counting?: { count, apply = false },                // §6.10: u = √count
+  allowable?: { u_rel | U_rel | u_abs | U_abs },      // §5.2 — aynan bitta mezon
+  measurement?: { value },
+  settings?: { k = 2, poolWeighting: 'none' | 'df', rounding?: 'up' } }
+```
+
+Natija: `{ mode: 'MEDICAL', approachRef: 'ISO/TS 20914:2019', unit, k, scale, precisionType, poolWeighting, levels: [{ id, mean, n, sd, cv, uRw, uCal, uBias, uCount, u: {abs, rel}, U: {abs, rel}, budget[], interval, pooled, coverage?, logRel?, fitForPurpose?, allowableMargin? }], bias: { xRef, uRef, xLab, sd, n, sdMean, uBias, UBias, bias, biasPct, uBiasRel, significant, incomplete, apply, mode } | null, counting, allowable, y, appliedLevel, levelSelection: 'interval' | 'nearest', absU, relU, coverage, warnings }`. `unverified` maydoni yo'q.
+
+- **Daraja tanlash:** kamida bitta darajada `interval` bo'lsa — natija tushgan daraja (hech biriga tushmasa `medical_interval_gap`; oraliqlar kesishsa `medical_interval_overlap`); oraliq umuman berilmagan bo'lsa — eng yaqin o'rtacha + `medical_level_by_nearest` (warning; loyiha qoidasi). Chiziqli shkalada darajaning nisbiy U si, log₁₀ da (yoki o'rtacha berilmaganda) mutlaq U si qo'llanadi.
+- **Pooling:** `lots` — vaznsiz (A.8) yoki `poolWeighting: 'df'` (√(Σ(nᵢ−1)uᵢ²/Σ(nᵢ−1)), barcha nᵢ ≥ 2 kerak); n nisbati > `UNBALANCED_RATIO` (2) va vaznsiz — `medical_unbalanced_lots` (info). `pooled`: `{ kind, m, items[], weighting | uBetween, uRwPooled }`.
+- **Bias (C.5):** SD_mean = sd/√n (C.1); u_bias = √(u_ref² + SD_mean²) (C.2, C.4); bias = x_ref − x_lab; `significant` = |bias| > 2·u_bias (C.3). `apply: true` — u_bias yig'indiga qo'shiladi (`proportional` da 100·u_bias/x_ref % sifatida); ahamiyatli + `apply: false` — `medical_bias_significant_not_applied`; u_ref yo'q — `medical_bias_incomplete`. `levels` bo'sh, `bias` bor — faqat bias natijasi qaytadi. `biasFromCrm(bias, k = 2)` — shu hisobning o'zi (xato holatida istisno).
+- **log₁₀:** `levels[].coverage` va (natija berilsa) `coverage`: `{ low, high, backLow, backHigh }`; `rel` maydonlari `null`; `logRel` = 100·u/x̄ — faqat ma'lumot.
+- **allowable:** `fitForPurpose` (haqiqiy ≤ ruxsat etilgan), `allowableMargin`; muvofiqlik bayonoti emas (`decision` yo'q).
+- **counting:** `{ count, u: √count, rel: 100/√count, apply }`; `apply: true` — har bir daraja byudjetiga nisbiy hissa `uCount` (loyiha qarori — egasi tasdig'ini kutadi).
+- Ogohlantirishlar (`MEDICAL_WARNINGS`): `medical_no_calibrator` (faqat `long_term`), `medical_few_iqc` (n < 20, loyiha parametri), `medical_level_by_nearest`, `medical_repeatability_only`, `medical_unbalanced_lots`, `medical_bias_significant_not_applied`, `medical_bias_incomplete`, `zero_u`. Xatolar (`MEDICAL_ERRORS`): `medical_need_scale`, `medical_mixed_scale`, `medical_bad_data`, `medical_need_levels`, `medical_zero_mean`, `medical_too_few`, `medical_interval_gap`, `medical_interval_overlap`, `medical_bad_spec`.
+- Doiradan tashqarida: hisoblangan o'lchanuvchilar (anion gap, osmolallik, eGFR — A.2.4, A.6) — GUM rejimida (`uc-model/1`).
+
+Testlar: `tests/cases/ufs/*.json` (4), `tests/cases/aqa/*.json` (4) — verified; `tests/engine/medical.iso20914.test.js` (G1…G11 — verified); `tests/engine/special-modes.test.js`, `tests/ui/special.test.js`.
 
 ## 10. Linter: `result.findings` va model turi (P05a)
 

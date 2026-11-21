@@ -1,0 +1,96 @@
+{
+ "id": "G2",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.2.3, Table A.2",
+ "title": "takrorlanuvchanlik (u_r); daraja qo'llanish oraliqlari",
+ "status": "verified",
+ "provenance": "Qiymatlar ISO/TS 20914:2019 (E), 1-nashrdan (egasidagi litsenziyali nusxa; PDF repoda yo'q) — egasi bergan (P18, 2026-11-21) va mustaqil qayta hisoblangan.",
+ "note": "Birlik belgisi hisobga ta'sir qilmaydi (faqat yorliq).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "unit",
+  "precisionType": "repeatability",
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 2.1,
+    "sd": 0.044,
+    "n": 20,
+    "interval": {
+     "high": 10
+    }
+   },
+   {
+    "id": "L2",
+    "mean": 21.4,
+    "sd": 0.4,
+    "n": 20,
+    "interval": {
+     "low": 10,
+     "high": 50
+    }
+   },
+   {
+    "id": "L3",
+    "mean": 122,
+    "sd": 3.15,
+    "n": 20,
+    "interval": {
+     "low": 50
+    }
+   }
+  ],
+  "measurement": {
+   "value": 60
+  }
+ },
+ "expected": [
+  {
+   "path": "levels.0.U.rel",
+   "value": 4.19,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 3.74,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 5.16,
+   "tol": 0.005
+  }
+ ],
+ "expectedStd": [
+  {
+   "path": "levels.0.U.rel",
+   "value": 4.2,
+   "tol": 0.05
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 3.7,
+   "tol": 0.05
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 5.2,
+   "tol": 0.05
+  }
+ ],
+ "equals": {
+  "appliedLevel": "L3",
+  "levelSelection": "interval",
+  "precisionType": "repeatability"
+ },
+ "warnings": {
+  "include": [
+   "medical_repeatability_only"
+  ],
+  "exclude": [
+   "medical_no_calibrator",
+   "medical_level_by_nearest"
+  ]
+ },
+ "tolerance": "Har bir qatorda `tol` — oxirgi ko'rsatilgan xonaning ½ birligi. `expectedStd` — standartda bosilgan (yaxlitlangan) qiymatlar."
+}

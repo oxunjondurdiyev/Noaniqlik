@@ -52,7 +52,7 @@ export {
   evaluateQualitative, wilsonInterval, clopperPearsonInterval, posterior, QUALITATIVE_FORMAT, QUALITATIVE_WARNINGS, QUALITATIVE_ERRORS, SMALL_N, CI_METHODS, DEFAULT_CI_METHOD,
 } from './qualitative/index.js';
 export { evaluateMicro, logDuplicateSd, MICRO_FORMAT, MICRO_WARNINGS, MICRO_ERRORS, LOG10_E, LOW_COUNT_DEFAULT } from './micro/index.js';
-export { evaluateMedical, MEDICAL_FORMAT, MEDICAL_WARNINGS, MEDICAL_ERRORS, FEW_IQC } from './medical/index.js';
+export { evaluateMedical, biasFromCrm, MEDICAL_FORMAT, MEDICAL_SOURCE, MEDICAL_WARNINGS, MEDICAL_ERRORS, FEW_IQC, UNBALANCED_RATIO, BIAS_FACTOR } from './medical/index.js';
 // P05a: metrologik linter (docs/LINTER_RULES.md) — evaluate() natijasiga result.findings ni yozadi
 export {
   lint, lintReported, RULES as LINTER_RULES, FINDING_CODES, SEVERITIES, LINTER_MODES, LINTER_THRESHOLDS, linterModeOf,
