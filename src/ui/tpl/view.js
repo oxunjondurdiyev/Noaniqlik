@@ -75,7 +75,7 @@ export function cardHTML(entry, ctx) {
     <article class="tpl-card" data-tpl-card="${ctx.esc(key)}">
       <header class="tpl-card-head">
         <span class="tpl-id mono">${ctx.esc(tpl.id)} <span class="text-muted">v${ctx.esc(tpl.version)}</span></span>
-        ${statusBadge(tpl.status, ctx)}
+        <span class="tpl-card-badges">${tpl.origin === 'example' ? `<span class="badge badge-blue" data-tpl-example="1" title="${ctx.esc(ctx.t('tpl_example_hint'))}">${ctx.esc(ctx.t('tpl_example_badge'))}</span>` : ''}${statusBadge(tpl.status, ctx)}</span>
       </header>
       <h3 class="tpl-card-title">${ctx.esc(tr(tpl.title, ctx.lang))}</h3>
       <div class="tpl-card-formula mono">${ctx.esc(tpl.model.formula || tpl.measurand.symbol)}</div>
@@ -95,9 +95,16 @@ export function cardHTML(entry, ctx) {
     </article>`;
 }
 
+/** P22-1: "Namuna" belgisi matni bo'yicha so'rov (istalgan tilda, kamida 3 harf) — o'quv namunalarini (`origin: 'example'`) topadi.
+    @param {string[]} words belgi matni uch tilda (ctx.exampleWords — i18n dan) */
+export function isExampleQuery(query, words) {
+  const q = String(query || '').trim().toLowerCase();
+  return q.length >= 3 && (words || []).some(w => { const x = String(w).toLowerCase(); return x.startsWith(q) || q.startsWith(x); });
+}
+
 /** Bo'limlarga ajratilgan katalog (qidiruv standart shifri, ID yoki nomi bo'yicha) */
 export function catalogHTML(entries, query, ctx) {
-  const shown = entries.filter(e => matchTemplate(e.tpl, query));
+  const shown = entries.filter(e => matchTemplate(e.tpl, query) || (e.tpl.origin === 'example' && isExampleQuery(query, ctx.exampleWords)));
   if (!shown.length) return `<p class="text-muted tpl-empty">${ctx.esc(ctx.t('tpl_empty'))}</p>`;
   const groups = SECTION_ORDER.map(sec => [sec, shown.filter(e => (e.tpl.section || 'general') === sec)]).filter(([, l]) => l.length);
   return groups.map(([sec, list]) => `

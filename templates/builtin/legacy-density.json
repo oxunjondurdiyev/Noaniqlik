@@ -20,6 +20,7 @@
   },
   "ref": "src/data/presets.js (P03) — density",
   "legacyPresetKey": "density",
+  "origin": "example",
   "measurand": {
     "symbol": "ρ",
     "name": {
@@ -157,18 +158,18 @@
     "source": "tests/fixtures/Zichlik_noaniqligi_hisobi.xlsx (2_Kirish!B6:C10)",
     "data": {
       "m": [
-        99.8312,
-        99.8741,
-        99.8103,
-        99.8655,
-        99.8236
+        "99.8312",
+        "99.8741",
+        "99.8103",
+        "99.8655",
+        "99.8236"
       ],
       "V": [
-        100.02,
-        100.06,
-        99.98,
-        100.04,
-        100
+        "100.02",
+        "100.06",
+        "99.98",
+        "100.04",
+        "100.00"
       ]
     }
   },

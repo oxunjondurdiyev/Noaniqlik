@@ -20,6 +20,7 @@
   },
   "ref": "src/data/presets.js (P03) — thermometer",
   "legacyPresetKey": "thermometer",
+  "origin": "example",
   "measurand": {
     "symbol": "Cv",
     "name": {
