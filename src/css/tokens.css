@@ -70,6 +70,7 @@
   --nav-w: 248px;
   --nav-w-rail: 76px;
   --bottom-nav-h: 64px;
+  --panel-footer-h: 72px;    /* pastki yopishqoq amal paneli (≥ 720 px) — scroll-padding uchun (P20) */
   --grid-size: 32px;         /* fon to'ri (o'lchov qog'ozi) */
 
   /* Harakat */

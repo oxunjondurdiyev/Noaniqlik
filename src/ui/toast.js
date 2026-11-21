@@ -34,9 +34,15 @@
     setTimeout(() => toast.remove(), 300);
   }
 
+  /* P20 (UX-07): bir vaqtda ko'pi bilan BITTA bildirishnoma — yangisi eskisini almashtiradi; 3 s da yopiladi
+     (xato xabari uchun chaqiruvchi uzoqroq vaqt bergan bo'lsa — o'sha: uzun xato matnini 3 s da o'qib bo'lmaydi);
+     konteyner aria-live="polite" (ekran o'quvchisi joriy ishni bo'lmasdan o'qiydi). Joylashuvi — CSS (components.css,
+     shell.css): desktopda o'ng pastki burchak, telefonda pastki navigatsiyadan yuqorida. */
+  const TOAST_MS = 3000;
+
   function createToast(doc, msg, type, duration) {
     type = ICONS[type] ? type : 'info';
-    duration = duration === undefined ? 3000 : duration;
+    duration = type === 'error' && duration > TOAST_MS ? duration : (duration !== undefined && duration < TOAST_MS ? duration : TOAST_MS);
 
     let container = doc.getElementById('toast-container');
     if (!container) {
@@ -44,10 +50,17 @@
       container.id = 'toast-container';
       doc.body.appendChild(container);
     }
+    if (!container.hasAttribute('aria-live')) {
+      container.setAttribute('aria-live', 'polite');
+      container.setAttribute('role', 'status');
+      container.setAttribute('aria-atomic', 'true');
+    }
     const label = msg === null || msg === undefined ? '' : String(msg);
     // Bir xil xabar hali ekranda bo'lsa ikkinchi nusxa qo'shilmaydi — mavjudining vaqti yangilanadi
     const same = [...container.children].find(el => el.dataset.toastKey === type + '|' + label && !el.dataset.toastLeaving);
     if (same) { clearTimeout(same._timer); same._timer = setTimeout(() => leave(same), duration); return same; }
+    // Yangi xabar eskisini ALMASHTIRADI (ustma-ust yig'ilmaydi)
+    [...container.children].forEach(el => { clearTimeout(el._timer); el.remove(); });
     const toast = doc.createElement('div');
     toast.className = 'toast ' + type;
     toast.dataset.toastKey = type + '|' + label;
@@ -61,7 +74,7 @@
     return toast;
   }
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = { createToast };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { createToast, TOAST_MS };
   if (root && root.document) {
     root.showToast = (msg, type, duration) => createToast(root.document, msg, type, duration);
   }

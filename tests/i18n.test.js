@@ -91,6 +91,52 @@ test('HTML dagi data-i18n* kalitlari lug\'atda bor', () => {
   assert.deepEqual(missing, []);
 });
 
+// P20 (audit 21.11.2026, UX-05): yo'qolgan kalit / qiymat atributga "null" yoki "undefined" bo'lib chiqmasligi kerak
+test('hech bir HTML atributida "null" / "undefined" matni yo\'q (statik sahifalar); tarjimalarda ham', () => {
+  const bad = [];
+  for (const f of fs.readdirSync(ROOT).filter(f => f.endsWith('.html'))) {
+    const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    for (const m of html.matchAll(/\s([a-zA-Z:-]+)="(null|undefined)"/g)) bad.push(`${f}: ${m[1]}="${m[2]}"`);
+  }
+  for (const l of LANGS) for (const [k, v] of Object.entries(T[l])) if (v === 'null' || v === 'undefined') bad.push(`${l}.${k}`);
+  assert.deepEqual(bad, []);
+});
+
+test('o\'lchash jadvali (src/js/table.js): preset tanlanmagan bo\'lsa ham .meas-input placeholder "null" emas — bo\'sh', () => {
+  const E = require('../src/engine/index.js');
+  const dom = new JSDOM(`<!doctype html><body>
+    <select id="sidebar-preset"><option value=""></option><option value="density"></option></select><select id="inp-preset"><option value=""></option></select>
+    <button id="btn-fill-sample"></button><button id="btn-clear-data"></button><button id="btn-calc-typea"></button>
+    <div id="model-box"></div><div id="table-hint-box"></div>
+    <table><thead id="table-head"></thead><tbody id="table-body"></tbody><tfoot id="table-foot"></tfoot></table>
+    <div id="type-a-summary"></div></body>`, { url: 'https://example.test/', runScripts: 'outside-only' });
+  const w = dom.window;
+  w.eval(fs.readFileSync(path.join(ROOT, 'src/ui/escape.js'), 'utf8'));
+  w.eval(I18N_FILES.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n'));
+  w.eval(fs.readFileSync(path.join(ROOT, 'src/js/state.js'), 'utf8'));
+  w.eval(fs.readFileSync(path.join(ROOT, 'src/data/presets.js'), 'utf8') + '\n;window.PRESETS = PRESETS;');
+  w.Calc = { ...E, fmt: v => String(v), fmtSci: v => String(v) };
+  w.showToast = () => {}; w.switchTab = () => {};
+  w.eval(fs.readFileSync(path.join(ROOT, 'src/js/table.js'), 'utf8'));
+  const check = label => {
+    const inputs = [...w.document.querySelectorAll('.meas-input')];
+    assert.ok(inputs.length > 0, label);
+    for (const el of w.document.querySelectorAll('*')) for (const a of el.attributes) assert.ok(a.value !== 'null' && a.value !== 'undefined', `${label}: <${el.tagName.toLowerCase()} ${a.name}="${a.value}">`);
+    return inputs;
+  };
+  // preset yo'q (qo'lda kiritilgan model)
+  w.appState.set({ n: 3, params: ['a', 'b'], measurements: { a: ['', '', ''], b: ['', '', ''] }, model: { formula: 'a + b', unit: '' }, settings: { paired: true, P: 0.9545 } });
+  w.Table.init();
+  w.Table.render();
+  for (const el of check('preset yo\'q')) assert.equal(el.getAttribute('placeholder'), '');
+  // preset bor: namuna qiymati matn sifatida ('100.00' — oxirgi nollar bilan)
+  w.document.getElementById('sidebar-preset').value = 'density';
+  w.appState.set({ n: 5, params: ['m', 'V'], measurements: { m: Array(5).fill(''), V: Array(5).fill('') }, model: { formula: 'ρ = m / V', unit: 'g/cm³' } });
+  w.Table.render();
+  const ph = check('density').filter(el => el.dataset.param === 'V').map(el => el.getAttribute('placeholder'));
+  if (ph.some(Boolean)) assert.deepEqual(ph, ['100.02', '100.06', '99.98', '100.04', '100.00']);
+});
+
 test('JS dagi i18n.t(\'…\') literal kalitlari lug\'atda bor', () => {
   const missing = [];
   const dir = path.join(ROOT, 'src/js');

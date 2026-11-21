@@ -344,7 +344,7 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
     const verdict = `<span class="badge ${cls}" data-mcm-verdict="${state}">${escHtml(i18n.t('mcm_state_' + state))}</span>`;
     const live = opt.print ? '' : ' role="status" aria-live="polite"';
     return `<div class="mcm-status" data-mcm-status="${state}"${live}>
-        <div class="mcm-status-head"><strong>${escHtml(i18n.t('mcm_title'))}</strong> ${verdict}${opt.running && opt.progress ? ` <span class="text-xs mono" data-mcm-progress="1">${escHtml(opt.progress)}</span>` : ''}</div>
+        <div class="mcm-status-head"><strong>${escHtml(i18n.t('mcm_title'))}</strong> ${verdict}${opt.running ? ` <span class="text-xs mono" data-mcm-progress="1">${escHtml(opt.progress || '')}</span>` : ''}</div>
         <ul class="mcm-reasons" data-mcm-reasons="${reasons.length}">${reasons.map(x => `<li>${x}</li>`).join('')}</ul>
         ${mc && !mc.error && mc.validated !== null && mc.validated !== undefined ? `<div class="mcm-status-line" data-mcm-s8="1">JCGM 101 §8: δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ${mcVerdict(mc)}</div>` : ''}
         ${draft ? `<div class="mcm-status-line mcm-status-warn" data-mcm-draft="1">${escHtml(i18n.t(state === 'failed' ? 'mcm_warn_failed' : 'mcm_warn_pending'))}</div>` : ''}

@@ -71,6 +71,29 @@ function auditInPage({ minTap, minContrast, minLarge }) {
     const size = parseFloat(cs.fontSize), large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
     if (r < (large ? minLarge : minContrast) - 0.01) out.contrast.push(name(el) + ' ' + r.toFixed(2));
   }
+  // 3) P20 (UX-09): chap menyu bandlari — to'liq ko'rinadi YOKI suriladigan (scrollbar'i ko'rinadigan) quti ichida
+  out.nav = [];
+  const side = document.querySelector('.side-nav');
+  if (side && getComputedStyle(side).display !== 'none' && document.getElementById('app') && !document.getElementById('app').classList.contains('hidden')) {
+    for (const el of side.querySelectorAll('.nav-item')) {
+      const r = el.getBoundingClientRect();
+      if (r.height < 1) continue;
+      if (r.top >= -0.5 && r.bottom <= innerHeight + 0.5 && !el.closest('.nav-scroll')) continue;       // qutidan tashqarida va to'liq ko'rinadi
+      const box = el.closest('.nav-scroll');
+      if (!box) { out.nav.push(name(el) + ' qirqilgan (scroll qutisida emas)'); continue; }
+      const b = box.getBoundingClientRect(), cs = getComputedStyle(box);
+      const inside = r.top >= b.top - 0.5 && r.bottom <= b.bottom + 0.5;
+      const scrollable = box.scrollHeight > box.clientHeight + 1 && /auto|scroll/.test(cs.overflowY) && cs.scrollbarWidth !== 'none';
+      if (!inside && !scrollable) out.nav.push(name(el) + ' qirqilgan');
+    }
+    const sb = side.getBoundingClientRect();
+    if (sb.bottom > innerHeight + 0.5) out.nav.push('menyu ekrandan chiqib ketgan: ' + Math.round(sb.bottom - innerHeight) + 'px');
+  }
+  // 4) P20 (UX-05): hech bir atributda "null" / "undefined" matni yo'q
+  out.nullAttr = [];
+  for (const el of scope.querySelectorAll('[placeholder], [title], [aria-label], [value], [alt]')) {
+    for (const a of ['placeholder', 'title', 'aria-label', 'alt']) { const v = el.getAttribute(a); if (v === 'null' || v === 'undefined') out.nullAttr.push(name(el) + ' ' + a + '="' + v + '"'); }
+  }
   out.overflow = Math.max(0, document.documentElement.scrollWidth - innerWidth);
   out.animations = document.getAnimations ? document.getAnimations().filter(x => x.playState === 'running').length : 0;
   return out;
@@ -133,6 +156,32 @@ async function run(name, playwright, server) {
       await page.goto(server.url + '/index.html', { waitUntil: 'load' });
       await seed(page);
       const tag = `${w}x${h}-${theme}`;
+      // P20 (UX-07, UX-08): bildirishnoma — bir vaqtda bitta, aria-live; pastki amal paneli jadvalning oxirgi qatorini yopmaydi
+      for (const msg of await page.evaluate(async () => {
+        const bad = [];
+        window.showToast('birinchi', 'info'); window.showToast('ikkinchi', 'success');
+        const box = document.getElementById('toast-container'), list = box.querySelectorAll('.toast');
+        if (list.length !== 1 || !/ikkinchi/.test(list[0].textContent)) bad.push('bildirishnoma: ' + list.length + ' ta (bitta bo\'lishi kerak)');
+        if (box.getAttribute('aria-live') !== 'polite') bad.push('bildirishnoma: aria-live="polite" yo\'q');
+        const tr = list[0].getBoundingClientRect(), nav = document.querySelector('.bottom-nav');
+        if (nav && getComputedStyle(nav).display !== 'none' && tr.bottom > nav.getBoundingClientRect().top) bad.push('bildirishnoma pastki navigatsiyani yopadi');
+        if (tr.right > innerWidth || tr.left < 0) bad.push('bildirishnoma ekrandan chiqadi');
+        list[0].remove();
+        window.UCShell.goStep('data');
+        await new Promise(r => setTimeout(r, 50));
+        const foot = document.querySelector('#tab-data .panel-footer'), cells = document.querySelectorAll('#table-body .meas-input');
+        const last = cells[cells.length - 1];
+        last.focus();                                             // klaviatura bilan oxirgi katakka o'tish
+        await new Promise(r => setTimeout(r, 50));
+        const fr = foot.getBoundingClientRect(), lr = last.getBoundingClientRect();
+        if (getComputedStyle(foot).position === 'sticky' && lr.bottom > fr.top + 0.5 && lr.top < fr.bottom) bad.push('amal paneli fokuslangan oxirgi katakni yopadi');
+        window.scrollTo(0, document.documentElement.scrollHeight);
+        await new Promise(r => setTimeout(r, 50));
+        const rows = document.querySelectorAll('#table-body tr, #table-foot tr'), row = rows[rows.length - 1].getBoundingClientRect(), f2 = foot.getBoundingClientRect();
+        if (row.bottom > f2.top + 0.5) bad.push('amal paneli jadvalning oxirgi qatorini yopadi (' + Math.round(row.bottom - f2.top) + 'px)');
+        window.scrollTo(0, 0);
+        return bad;
+      })) problems.push(`${name} ${tag}: ${msg}`);
       for (const s of SCREENS) {
         const id = `${name} ${s.key} ${tag}`;
         try {
@@ -143,6 +192,8 @@ async function run(name, playwright, server) {
           if (au.tap.length) problems.push(`${id}: < ${MIN_TAP}px: ${au.tap.slice(0, 6).join('; ')}${au.tap.length > 6 ? ` (+${au.tap.length - 6})` : ''}`);
           if (au.contrast.length) problems.push(`${id}: kontrast: ${au.contrast.slice(0, 6).join('; ')}${au.contrast.length > 6 ? ` (+${au.contrast.length - 6})` : ''}`);
           if (au.overflow > 1) problems.push(`${id}: gorizontal surilish ${au.overflow}px`);
+          if (au.nav && au.nav.length) problems.push(`${id}: chap menyu: ${au.nav.slice(0, 4).join('; ')}`);
+          if (au.nullAttr && au.nullAttr.length) problems.push(`${id}: ${au.nullAttr.slice(0, 4).join('; ')}`);
           if (au.animations) problems.push(`${id}: prefers-reduced-motion da ${au.animations} ta animatsiya ishlayapti`);
           rows.push({ screen: s.key, size: `${w}x${h}`, theme, tap: au.tap.length, contrast: au.contrast.length, overflow: au.overflow });
           if (s.after) await s.after(page);
