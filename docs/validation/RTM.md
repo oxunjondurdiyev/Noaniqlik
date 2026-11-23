@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 355 |
-| Kamida bitta testga bog'langan | 342 |
-| ✅ verified | 290 |
+| Talablar | 356 |
+| Kamida bitta testga bog'langan | 343 |
+| ✅ verified | 291 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -391,6 +391,7 @@
 | REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat | `src/ui/shell/app.js`; `src/js/report.js`; `src/css/tokens.css`; `src/report/sections.js::createSections` | `tests/report/print.test.js`; `tests/report/ribbon.test.js`; `tests/security/vendor.test.js` | ✅ verified | `#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas |
 | REQ-UIX-015 | Kirish / ro'yxatdan o'tish ekrani yangi tokenlarda: til va mavzu tugmalari, chap tomonda tavsif + me'yoriy asos + "o'lchash ma'lumotlari faqat brauzerda" bayonoti; maydonlar ro'yxati qotirilgan (yangi shaxsiy maydon yo'q); xato inline (`role="alert"`, textContent); parolni ko'rsatish / yashirish; Enter bilan yuborish; `<html lang>` joriy tilda; formulalar va raqamlarda `translate="no"` | `src/ui/index-auth.js`; `src/css/home.css`; `src/js/i18n-shell.js` | `tests/ui/home.test.js` | ✅ verified | Enter bilan yuborish, parol tugmasi, til / mavzu va `<html lang>` Chromium da qo'lda tekshirildi; haqiqiy Firebase bilan kirish sinalmagan (jsdom / lokal) |
 | REQ-UIX-016 | "Bosh sahifa": "Yangi hisob" va "Shablondan boshlash" kartalari; so'nggi sessiyalar (IndexedDB `calculations`: ochish / nusxalash / o'chirish — audit izi bilan; natija faqat aynan shu `ENGINE_VERSION` da hisoblangan bo'lsa tiklanadi); tezkor havolalar; pastda `ENGINE_VERSION` va validatsiya xulosasi (builtin.json bo'yicha); chap menyuda "Bosh sahifa", "Shablonlar katalogi", "Laboratoriya sozlamalari", "Ma'lumotlar"; bir xil toast takrorlanmaydi | `src/ui/home/model.js::recentSessions`; `src/ui/home/model.js::sessionPatch`; `src/ui/home/app.js`; `src/ui/toast.js` | `tests/ui/home.test.js`; `tests/ui/shell.test.js` | ✅ verified | ochish / nusxalash / o'chirish IndexedDB bilan Chromium da tekshirildi (jsdom testida faqat sof model) |
+| REQ-UIX-017 | Sayt doim Bosh sahifadan (dash) ochiladi — saqlangan holat bo'lsa ham; saqlangan (tugallanmagan) hisob birinchi kartada "Davom ettirish: <model>, <sana>" va "O'chirish" (tasdiq bilan) sifatida ko'rsatiladi; URL hash berilgan bo'lsa — o'sha joy (`#home`, `#app`, `#lab`); qobiqdagi logotip Bosh sahifaga olib boradi | `src/js/app.js`; `src/ui/home/model.js::resumeInfo`; `src/ui/home/app.js` | `tests/ui/home.test.js` | ✅ verified | to'liq oqim (qayta ochish, davom ettirish, o'chirish, hash, logotip) Chromium da qo'lda tekshirildi; npm run test:screens yangi ochilish oqimi bilan o'tadi |
 
 ## SRC — Manba misollari qamrovi
 

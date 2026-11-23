@@ -120,7 +120,7 @@ const SCREENS = [
 ];
 
 async function seed(page) {
-  await page.click('#btn-home-start');                       // Bosh sahifa
+  await page.waitForSelector('#dash-screen:not(.hidden) [data-home-new]');   // sayt Bosh sahifadan ochiladi (kirish sahifasi — #home)
   await page.click('#dash-screen [data-home-new]');          // "Yangi hisob" → sozlash oynasi
   await page.selectOption('#inp-preset', 'density');
   await page.click('#btn-start');

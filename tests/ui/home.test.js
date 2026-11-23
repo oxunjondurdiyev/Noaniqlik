@@ -149,3 +149,54 @@ test('KNOWN_LIMITATIONS (uz / ru): ISO 19036 bo\'yicha qo\'llab-quvvatlanmaydiga
   }
   assert.ok(!fs.readdirSync(path.join(ROOT, 'docs/references')).some(n => /19036/.test(n)));
 });
+
+/* ── fix/startup-screen: sayt doim Bosh sahifadan ochiladi; saqlangan hisob — "Davom ettirish" kartasi; logotip → Bosh sahifa ── */
+test('ochilish: bootstrap saqlangan holatda ham ish maydoniga o\'tmaydi — Bosh sahifa (dash); URL hash berilgan bo\'lsa — o\'sha joy', () => {
+  const app = read('src/js/app.js');
+  const boot = app.slice(app.indexOf('function bootstrap()'), app.indexOf('function startScreen('));
+  assert.ok(!/showScreen\('app'\)/.test(boot), 'bootstrap to\'g\'ridan-to\'g\'ri showScreen(\'app\') qilmaydi');
+  assert.match(boot, /showScreen\(startScreen\(window\.location\.hash, saved\)\);/);
+  // startScreen — sof funksiya: manbadan ajratib olib bajariladi
+  const src = /function startScreen\(hash, saved\) \{[\s\S]*?\n  \}/.exec(app)[0];
+  const startScreen = new Function(src + '; return startScreen;')();
+  assert.equal(startScreen('', false), 'dash');
+  assert.equal(startScreen('', true), 'dash', 'saqlangan hisob bo\'lsa ham — Bosh sahifa');
+  assert.equal(startScreen('#home', true), 'home');
+  assert.equal(startScreen('#app', true), 'app');
+  assert.equal(startScreen('#app', false), 'dash', 'saqlangan hisob yo\'q — ish maydoni bo\'sh ochilmaydi');
+  assert.equal(startScreen('#lab', false), 'app');
+  assert.equal(startScreen('#nimadir', true), 'dash');
+  assert.equal(startScreen(undefined, false), 'dash');
+});
+
+test('"Davom ettirish" kartasi: model (formula yoki kirishlar) va sana; holat bo\'sh bo\'lsa — karta yo\'q', async () => {
+  const M = await import(path.join(ROOT, 'src/ui/home/model.js'));
+  const st = { params: ['m', 'V'], measurements: { m: ['1'], V: ['2'] }, model: { formula: 'ρ = m / V' }, calcMeta: { id: 'c', createdAt: '2026-11-23T08:30:00.000Z' } };
+  assert.deepEqual(M.resumeInfo(st), { model: 'ρ = m / V', date: '2026-11-23' });
+  assert.deepEqual(M.resumeInfo({ ...st, model: { formula: '  ' }, calcMeta: null }), { model: 'm, V', date: '' });
+  for (const empty of [null, undefined, {}, { params: [], measurements: {} }, { params: ['x'], measurements: {} }, { params: ['x'] }]) assert.equal(M.resumeInfo(empty), null);
+  // karta — birinchi element; ikki asosiy karta soni o'zgarmagan; matnlar uch tilda
+  const start = doc.querySelector('#dash-screen .home-start');
+  assert.equal(start.firstElementChild.id, 'home-resume');
+  assert.ok(start.firstElementChild.hidden, 'standart holatda yashirin');
+  assert.equal(start.querySelectorAll('.home-card').length, 2);
+  for (const lang of ['uz', 'ru', 'en']) for (const k of ['hm_resume', 'hm_resume_text', 'hm_resume_deleted', 'hm_delete', 'hm_del_yes', 'hm_del_no']) assert.ok(DICT[lang][k], `${lang}: ${k}`);
+  assert.deepEqual(['uz', 'ru', 'en'].map(l => DICT[l].hm_resume), ['Davom ettirish', 'Продолжить', 'Continue']);
+  const js = read('src/ui/home/app.js');
+  assert.match(js, /esc\(t\('hm_resume'\)\)\}: <span class="mono" translate="no">\$\{esc\(info\.model\)\}<\/span>/, 'model matni escape qilinadi');
+  assert.match(js, /if \(q\('\[data-home-resume\]'\)\) \{ resumeCurrent\(\); return; \}/);
+  assert.match(js, /if \(q\('\[data-home-resume-del-yes\]'\)\) \{ deleteCurrent\(\); return; \}/);
+  assert.match(js, /function deleteCurrent\(\) \{\s*window\.appState\.reset\(\);/, 'o\'chirish — ikki bosqichli tasdiqdan keyin');
+});
+
+test('qobiqdagi logotip — Bosh sahifaga olib boradigan haqiqiy tugma (klaviaturadan ochiq, nomi tarjima qilinadi)', () => {
+  const b = doc.getElementById('btn-brand-home');
+  assert.equal(b.tagName, 'BUTTON');
+  assert.equal(b.type, 'button');
+  assert.ok(b.classList.contains('topbar-brand') && b.closest('.topbar'));
+  assert.equal(b.dataset.goHome, '1');
+  assert.equal(b.dataset.i18nAria, 'sh_n_home');
+  for (const lang of ['uz', 'ru', 'en']) assert.ok(DICT[lang].sh_n_home, lang);
+  assert.match(read('src/ui/home/app.js'), /if \(q\('\[data-go-home\]'\)\) \{ window\.App\.showScreen\('dash'\); return; \}/);
+  assert.match(read('src/css/shell.css'), /button\.topbar-brand \{ min-height: var\(--tap\);/);
+});

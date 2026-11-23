@@ -495,17 +495,26 @@
       if (changes && changes.params !== undefined) detectDerived();
     });
 
-    // If there's existing state, resume session
+    // Saqlangan holat bo'lsa — ish maydoni tayyorlanadi, lekin ekran ALMASHTIRILMAYDI: sayt doim Bosh sahifadan (dash)
+    // ochiladi; saqlangan hisob u yerda "Davom ettirish" kartasi bilan ko'rsatiladi (src/ui/home/app.js).
     const state = appState.get();
-    if (state.params.length && Object.keys(state.measurements).length) {
-      showScreen('app');
-      renderSidebar();
-      detectDerived();
-    }
+    const saved = state.params.length > 0 && Object.keys(state.measurements).length > 0;
+    if (saved) { renderSidebar(); detectDerived(); }
+    showScreen(startScreen(window.location.hash, saved));
+  }
+
+  /* Boshlang'ich ekran. URL hash berilgan bo'lsa — o'sha joy: #home — kirish (tanishtiruv) sahifasi, #app — ish maydoni
+     (saqlangan hisob bo'lsa), #lab — Vizual laboratoriya (qobiq o'zi ochadi — src/ui/shell/app.js). Aks holda — Bosh sahifa. */
+  function startScreen(hash, saved) {
+    const h = String(hash || '').replace(/^#/, '');
+    if (h === 'home') return 'home';
+    if (h === 'lab') return 'app';
+    if (h === 'app' && saved) return 'app';
+    return 'dash';
   }
 
   // Shablonlar moduli (src/ui/tpl/app.js) uchun
-  window.App = { showScreen, renderSidebar: () => renderSidebar(), beginSession };
+  window.App = { showScreen, renderSidebar: () => renderSidebar(), beginSession, startScreen };
 
   document.addEventListener('DOMContentLoaded', bootstrap);
 
