@@ -379,7 +379,8 @@ test('P08–P10 ogohlantirishlari result.findings da: regression_chi2_fail, topd
   const mi = E.evaluate({ format: 'uc-micro/1', result: { value: 120, sumCounts: 12 }, technical: { s: 0.1 } });
   assert.deepEqual([find(mi, 'micro_unverified').severity, find(mi, 'micro_unverified').unverified, find(mi, 'micro_unverified').mode], ['warning', true, 'MICRO']);
   const me = E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 2, n: 30 }], uCal: { value: 1, relative: true } });
-  assert.equal(find(me, 'medical_unverified').mode, 'MEDICAL');
+  assert.equal(find(E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 2, n: 30 }] }), 'medical_no_calibrator').mode, 'MEDICAL');
+  assert.equal(me.findings.some(f => /unverified/.test(f.code)), false);   // P18: M9 BETA emas (ISO/TS 20914:2019, G1–G11)
 
   const sa = E.evaluate(require('../cases/ufs/ufs-a1-nitrate-classical.json').modelSpec);
   assert.equal(find(sa, 'sampling_bias_not_included').mode, 'SAMPLING');

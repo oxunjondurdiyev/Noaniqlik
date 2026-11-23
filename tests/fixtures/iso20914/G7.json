@@ -1,0 +1,123 @@
+{
+ "id": "G7",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.7, Table A.11",
+ "title": "davrlar bo'yicha u(y) larni pooling",
+ "status": "verified",
+ "note": "Birlik — fixture belgisi.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "uCal": {
+   "value": 0.038,
+   "unit": "mmol/l"
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 9.1,
+    "periods": [
+     {
+      "id": "P1",
+      "uRw": 0.105
+     },
+     {
+      "id": "P2",
+      "uRw": 0.125
+     },
+     {
+      "id": "P3",
+      "uRw": 0.13
+     }
+    ]
+   },
+   {
+    "id": "L2",
+    "mean": 20.4,
+    "periods": [
+     {
+      "id": "P1",
+      "uRw": 0.28
+     },
+     {
+      "id": "P2",
+      "uRw": 0.275
+     },
+     {
+      "id": "P3",
+      "uRw": 0.255
+     }
+    ]
+   },
+   {
+    "id": "L3",
+    "mean": 3.6,
+    "periods": [
+     {
+      "id": "P1",
+      "uRw": 0.115
+     },
+     {
+      "id": "P2",
+      "uRw": 0.13
+     },
+     {
+      "id": "P3",
+      "uRw": 0.115
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.12634,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.1.u.abs",
+   "value": 0.27287,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.2.u.abs",
+   "value": 0.12607,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 2.777,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 2.675,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 7.004,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 2.8,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 2.7,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 7,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

@@ -1,0 +1,107 @@
+{
+ "id": "G11",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.10, Table A.15",
+ "title": "log₁₀ o'lchanuvchi (virus yuki); ruxsat etilgan U",
+ "status": "verified",
+ "note": "Jadvalda faqat SD berilgan (u_cal yo'q) — precisionType faqat medical_no_calibrator ni chiqarmaslik uchun. Oraliqlar (3; 3,7) — fixture belgisi (qo'shni o'rtachalar orasida), manba qiymati emas; L1 intervali y = 2,66 uchun.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "log10 copies/ml",
+  "scale": "log10",
+  "precisionType": "repeatability",
+  "allowable": {
+   "U_abs": 0.5
+  },
+  "measurement": {
+   "value": 2.66
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 2.66,
+    "sd": 0.12,
+    "interval": {
+     "high": 3
+    }
+   },
+   {
+    "id": "L2",
+    "mean": 3.18,
+    "sd": 0.16,
+    "interval": {
+     "low": 3,
+     "high": 3.7
+    }
+   },
+   {
+    "id": "L3",
+    "mean": 4.21,
+    "sd": 0.23,
+    "interval": {
+     "low": 3.7
+    }
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.U.abs",
+   "value": 0.24,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.1.U.abs",
+   "value": 0.32,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.2.U.abs",
+   "value": 0.46,
+   "tol": 0.0005
+  },
+  {
+   "path": "coverage.low",
+   "value": 2.42,
+   "tol": 0.005
+  },
+  {
+   "path": "coverage.high",
+   "value": 2.9,
+   "tol": 0.005
+  },
+  {
+   "path": "coverage.backLow",
+   "value": 263,
+   "tol": 0.5
+  },
+  {
+   "path": "coverage.backHigh",
+   "value": 794,
+   "tol": 0.5
+  }
+ ],
+ "equals": [
+  {
+   "path": "levels.0.fitForPurpose",
+   "value": true
+  },
+  {
+   "path": "levels.1.fitForPurpose",
+   "value": true
+  },
+  {
+   "path": "levels.2.fitForPurpose",
+   "value": true
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": null
+  },
+  {
+   "path": "relU",
+   "value": null
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}
