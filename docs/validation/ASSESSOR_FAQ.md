@@ -166,7 +166,7 @@ Framework yo'q. Tashqi kutubxonalar faqat `vendor/` da, aniq versiya, litsenziya
 
 ### 33. Qaysi qismlar tekshirilmagan yoki BETA?
 
-Yagona ro'yxat — [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md). Asosiylari: mikrobiologiya va tibbiy laboratoriya rejimlari — BETA (natijada har doim ogohlantirish va belgi; KL-070, KL-071); regressiyada WTLS / GLS / polinom / "U — diapazon" (KL-050, KL-051); top-down ning ISO 21748 qismi (KL-060); PT ball formulalari va chegaralari, Cochran, LOD / LOQ (KL-090…KL-095); hisobot rekvizitlari ro'yxati (KL-116). Unverified funksiya natijasida va bosma hisobotda belgi chiqadi (masalan `topdown_unverified`, `cochran_unverified`). Egasi tasdig'ini kutayotgan loyiha qarorlari ham shu ro'yxatda ("tasdiq kutadi").
+Yagona ro'yxat — [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md). Asosiylari: mikrobiologiya rejimi — BETA (natijada har doim ogohlantirish va belgi; KL-070); tibbiy laboratoriya (M9) — ISO/TS 20914:2019 misollari bilan tekshirilgan, standart PDF repoda yo'q (KL-071, KL-190…KL-195); regressiyada WTLS / GLS / polinom / "U — diapazon" (KL-050, KL-051); top-down ning ISO 21748 qismi (KL-060); PT ball formulalari va chegaralari, Cochran, LOD / LOQ (KL-090…KL-095); hisobot rekvizitlari ro'yxati (KL-116). Unverified funksiya natijasida va bosma hisobotda belgi chiqadi (masalan `topdown_unverified`, `cochran_unverified`). Egasi tasdig'ini kutayotgan loyiha qarorlari ham shu ro'yxatda ("tasdiq kutadi").
 
 ### 34. Pullik ISO standartlariga tayangan funksiyalar qanday tekshirilgan?
 

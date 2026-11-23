@@ -2122,17 +2122,16 @@
    "src/engine/medical/index.js::evaluateMedical"
   ],
   "tests": [
+   "tests/engine/medical.iso20914.test.js",
    "tests/engine/special-modes.test.js"
   ],
-  "status": "unverified",
-  "evidence": "analitik testlar — `special-modes.test.js`",
-  "note": "BETA / unverified",
+  "status": "verified",
+  "evidence": "ISO/TS 20914:2019 A.2.2 (G1), A.2.4 (G3) — `tests/fixtures/iso20914/`; `medical.iso20914.test.js`",
   "codeNote": "`medical/index.js::evaluateMedical`"
  },
  "REQ-SPM-014": {
   "code": [
    "src/engine/micro/index.js::evaluateMicro",
-   "src/engine/medical/index.js::evaluateMedical",
    "src/templates/interpreter.js::checkSpecialTemplate"
   ],
   "tests": [
@@ -2141,7 +2140,7 @@
   ],
   "status": "verified",
   "evidence": "`special-modes.test.js`, `tests/ui/special.test.js`",
-  "codeNote": "`evaluateMicro`, `evaluateMedical`; `interpreter.js::checkSpecialTemplate`"
+  "codeNote": "`evaluateMicro`; `interpreter.js::checkSpecialTemplate`"
  },
  "REQ-SPM-015": {
   "code": [
@@ -4496,5 +4495,94 @@
   ],
   "status": "manual",
   "note": "matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi"
+ },
+ "REQ-SPM-019": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js",
+   "tests/engine/medical.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-SPM-020": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js",
+   "tests/engine/medical.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-SPM-021": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js",
+   "tests/engine/medical.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-SPM-022": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js",
+   "tests/engine/medical.test.js"
+  ],
+  "status": "verified-discrepancy",
+  "note": "G9 ning ikki qatori (U_bias, U) — manba oraliq qiymatlarni yaxlitlagan, oxirgi xonada 1 birlik (D-23, egasi javobini kutadi)",
+  "discrepancies": [
+   "D-23"
+  ]
+ },
+ "REQ-SPM-023": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.iso20914.test.js",
+   "tests/engine/medical.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-SPM-024": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical"
+  ],
+  "tests": [
+   "tests/engine/medical.test.js"
+  ],
+  "status": "unverified",
+  "note": "manbadan ishlangan misol berilmagan — faqat analitik testlar; natijada har doim belgi (R-31)"
+ },
+ "REQ-SPM-025": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical",
+   "src/report/sections.js::medicalSection"
+  ],
+  "tests": [
+   "tests/engine/medical.test.js",
+   "tests/ui/special.test.js",
+   "tests/engine/rounding.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-SPM-026": {
+  "code": [
+   "src/engine/medical/index.js::evaluateMedical",
+   "src/report/sections.js::medicalSection",
+   "src/ui/special/build.js::buildSpec",
+   "scripts/template-validation.js::isoRecord"
+  ],
+  "tests": [
+   "tests/ui/special.test.js",
+   "tests/templates/validation-badge.test.js"
+  ],
+  "status": "verified"
  }
 }
