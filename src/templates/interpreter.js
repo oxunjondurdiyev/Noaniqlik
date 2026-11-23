@@ -440,8 +440,9 @@ function checkSpecialTemplate(tpl, errors, warnings) {
   if (tpl.variants && tpl.variants.length) errors.push('special: variants are not supported in this evaluation mode');
   if (tpl.evaluationMode !== 'SAMPLING' && (sp.method !== undefined || sp.logTransform !== undefined)) errors.push('special: method / logTransform apply to SAMPLING only');
   if (tpl.evaluationMode === 'MEDICAL' && isBlank(tpl.measurand && tpl.measurand.unit)) errors.push('special: MEDICAL requires measurand.unit');
-  // BETA rejimlar manba misoli bilan tasdiqlanmagan — APPROVED holatiga o'tkazib bo'lmaydi
-  if (['MICROBIOLOGY', 'MEDICAL'].includes(tpl.evaluationMode)) {
+  // BETA rejimlar manba misoli bilan tasdiqlanmagan — APPROVED holatiga o'tkazib bo'lmaydi.
+  // MEDICAL (M9) — P18 dan BETA emas: ISO/TS 20914:2019 Annex A / C misollari (tests/fixtures/iso20914, G1–G11)
+  if (['MICROBIOLOGY'].includes(tpl.evaluationMode)) {
     if (tpl.status === 'APPROVED') errors.push(`special: ${tpl.evaluationMode} is BETA (unverified) — the template cannot be APPROVED`);
     else warnings.push(`special: ${tpl.evaluationMode} is BETA (unverified: the standard is not in docs/references/)`);
   }

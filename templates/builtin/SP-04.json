@@ -1,27 +1,27 @@
 {
   "schemaVersion": "uc-template/1",
   "id": "SP-04",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "DRAFT",
   "domain": "TESTING",
   "section": "general",
   "evaluationMode": "MEDICAL",
   "title": {
-    "uz": "Tibbiy laboratoriya: IQC darajalari bo'yicha noaniqlik — BETA",
-    "ru": "Медицинская лаборатория: неопределённость по уровням IQC — BETA",
-    "en": "Medical laboratory: uncertainty by IQC level — BETA"
+    "uz": "Tibbiy laboratoriya: IQC darajalari bo'yicha noaniqlik (ISO/TS 20914:2019)",
+    "ru": "Медицинская лаборатория: неопределённость по уровням IQC (ISO/TS 20914:2019)",
+    "en": "Medical laboratory: uncertainty by IQC level (ISO/TS 20914:2019)"
   },
   "description": {
-    "uz": "Har bir IQC darajasi (L1/L2/L3) uchun u = √(u_cal² + u_Rw²), kerak bo'lsa bias noaniqligi bilan; natija nisbiy (%) va mutlaq ko'rinishda.",
-    "ru": "Для каждого уровня IQC (L1/L2/L3): u = √(u_cal² + u_Rw²), при необходимости с неопределённостью смещения; результат в относительном (%) и абсолютном виде.",
-    "en": "For each IQC level (L1/L2/L3): u = √(u_cal² + u_Rw²), with the bias uncertainty if needed; the result is given in relative (%) and absolute form."
+    "uz": "Har bir IQC darajasi uchun u = √(u_cal² + u_Rw²), kerak bo'lsa u_bias bilan (CRM dan hisoblanadi); lotlar, bir xil tizimlar va davrlar bo'yicha birlashtirish; daraja qo'llanish oralig'i; log₁₀ shkala; ruxsat etilgan noaniqlik bilan solishtirish.",
+    "ru": "Для каждого уровня IQC: u = √(u_cal² + u_Rw²), при необходимости с u_bias (расчёт по CRM); объединение по лотам, одинаковым системам и периодам; интервал применения уровня; шкала log₁₀; сравнение с допустимой неопределённостью.",
+    "en": "For each IQC level: u = √(u_cal² + u_Rw²), with u_bias if needed (computed from a CRM); pooling across lots, identical systems and periods; the interval each level monitors; log₁₀ scale; comparison with the allowable uncertainty."
   },
   "standards": [],
   "labCount": null,
   "sourceNote": {
-    "uz": "P10 shabloni (DRAFT, BETA). Yondashuv ISO/TS 20914 ga tayanadi; standart matni repozitoriyda yo'q — tekshirilmagan. Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
-    "ru": "Шаблон P10 (DRAFT, BETA). Подход основан на ISO/TS 20914; текста стандарта в репозитории нет — не проверено. Все числовые поля пусты — лаборатория вводит собственные данные.",
-    "en": "P10 template (DRAFT, BETA). The approach follows ISO/TS 20914; the text of the standard is not in the repository — unverified. All numeric fields are empty — the laboratory enters its own data."
+    "uz": "P10 shabloni; P18 da ISO/TS 20914:2019 (E) Annex A va Annex C ishlangan misollari bilan tekshirilgan (tests/fixtures/iso20914, G1–G11). Standart matni repozitoriyda yo'q (pullik). Barcha raqamli maydonlar bo'sh — laboratoriya o'z ma'lumotlarini kiritadi.",
+    "ru": "Шаблон P10; в P18 проверен по разобранным примерам ISO/TS 20914:2019 (E), приложения A и C (tests/fixtures/iso20914, G1–G11). Текста стандарта в репозитории нет (платный). Все числовые поля пусты — лаборатория вводит собственные данные.",
+    "en": "P10 template; in P18 checked against the worked examples of ISO/TS 20914:2019 (E), Annexes A and C (tests/fixtures/iso20914, G1–G11). The text of the standard is not in the repository (paid). All numeric fields are empty — the laboratory enters its own data."
   },
   "ref": "docs/TEMPLATE_GUIDE.md#11-maxsus-rejimlar-p10",
   "measurand": {
@@ -56,9 +56,9 @@
   "typeBSources": [],
   "special": {
     "hint": {
-      "uz": "CV_Rw uzoq muddatli IQC ma'lumotidan olinadi (reagent va kalibrator partiyalari almashishini qamrashi kerak). u_cal — kalibrator ishlab chiqaruvchisi ma'lumotidan.",
-      "ru": "CV_Rw берётся из долговременных данных IQC (должны охватывать смену партий реагентов и калибраторов). u_cal — по данным изготовителя калибратора.",
-      "en": "CV_Rw comes from long-term IQC data (covering changes of reagent and calibrator lots). u_cal comes from the calibrator manufacturer."
+      "uz": "u_Rw uzoq muddatli IQC ma'lumotidan olinadi (reagent va kalibrator lotlari almashishini qamrashi kerak; ISO/TS 20914:2019 §6.3). u_cal — kalibrator ishlab chiqaruvchisi ma'lumotidan (§6.4). Har bir daraja uchun qo'llanish oralig'ini kiriting.",
+      "ru": "u_Rw берётся из долговременных данных IQC (должны охватывать смену лотов реагентов и калибраторов; ISO/TS 20914:2019 §6.3). u_cal — по данным изготовителя калибратора (§6.4). Для каждого уровня задайте интервал применения.",
+      "en": "u_Rw comes from long-term IQC data (covering changes of reagent and calibrator lots; ISO/TS 20914:2019 §6.3). u_cal comes from the calibrator manufacturer (§6.4). Enter the interval each level monitors."
     }
   },
   "openQuestions": [
@@ -73,12 +73,11 @@
     },
     {
       "id": "Q2",
-      "owner": "lab+owner",
-      "blocking": true,
+      "owner": "lab",
       "text": {
-        "uz": "⚠ BETA: ISO/TS 20914 matni repozitoriyda yo'q — hisob manba misoli bilan tasdiqlanmagan. Shablon tasdiqlanishidan (APPROVED) oldin standart yoki laboratoriya Excel'i bilan solishtirilishi shart.",
-        "ru": "⚠ BETA: текста ISO/TS 20914 в репозитории нет — расчёт не подтверждён примером из источника. До утверждения шаблона (APPROVED) обязательна сверка со стандартом или лабораторным Excel.",
-        "en": "⚠ BETA: the text of ISO/TS 20914 is not in the repository — the calculation is not confirmed by a source example. Before the template is APPROVED it must be checked against the standard or a laboratory spreadsheet."
+        "uz": "⚠ IQC materiali va bemor namunalarining ekvivalentligi (ISO/TS 20914:2019 §6.2) hamda reagent / IQC loti almashganda ma'lumotni ajratish qarori (§6.3, A.3.1) — laboratoriya mas'uliyatida; platforma faqat hisoblaydi.",
+        "ru": "⚠ Эквивалентность материала IQC и проб пациентов (ISO/TS 20914:2019 §6.2) и решение о разделении данных при смене лота реагента / IQC (§6.3, A.3.1) — ответственность лаборатории; платформа только считает.",
+        "en": "⚠ The equivalence of the IQC material and patient samples (ISO/TS 20914:2019 §6.2) and the decision to split data at a reagent / IQC lot change (§6.3, A.3.1) are the laboratory's responsibility; the platform only calculates."
       }
     }
   ],

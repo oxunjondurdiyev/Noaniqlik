@@ -260,7 +260,7 @@ test('P10: i18n-special.js oldingi fayllardagi kalitlarni bosib ketmaydi; maxsus
   ['DUPLICATE_CLASSICAL_ANOVA', 'DUPLICATE_ROBUST_ANOVA', 'CONTINGENCY_2X2', 'LOG10_COUNT', 'IQC_LEVELS'].forEach(a => need('sp_approach_' + a));
   ['ss', 'sp', 'fp', 'fn', 'ppv', 'npv'].forEach(k => need('sp_ql_' + k));
   ['technical', 'matrix', 'poisson'].forEach(k => need('sp_mi_u_' + k));
-  ['micro', 'medical'].forEach(k => need('sp_beta_' + k));
+  ['micro'].forEach(k => need('sp_beta_' + k));                 // P18: tibbiy laboratoriya BETA emas
   E.SAMPLING_METHODS.forEach(m => need('sp_sa_' + m));
   const src = fs.readFileSync(path.join(ROOT, 'src/ui/special/build.js'), 'utf8');
   for (const m of src.matchAll(/one\(st\.\w+, '(\w+)'\)|bad\.push\('(\w+)'\)/g)) need('sp_f_' + (m[1] || m[2]));

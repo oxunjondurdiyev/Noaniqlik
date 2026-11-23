@@ -9,6 +9,9 @@
      relDiff — y, u_c, U bo'yicha eng katta nisbiy farq |olingan − kutilgan| / |kutilgan| (kutilgan = 0 bo'lsa hisobga kirmaydi).
      date    — yozuv mazmuni (xesh, versiya, natija) OXIRGI MARTA o'zgargan kun; mazmun o'zgarmasa sana saqlanadi (fayl deterministik).
    Runtime (src/templates/validation-status.js): templateHash yoki ENGINE_VERSION mos kelmasa, shablon builtin bo'lmasa — "unverified".
+   P18: maxsus rejim shablonlari (MEDICAL — SP-04) tests/fixtures/iso20914/*.json bilan (ISO/TS 20914:2019 Annex A / C; kutilgan qiymat va
+   toleranslar fixture'dan, o'zgartirilmaydi): shablon → "Maxsus rejimlar" oynasi holati (buildSpecialState) + fixture kirishi foydalanuvchi
+   ma'lumoti sifatida (shakl maydonlari matni) → buildSpec → evaluate. `discrepancy` belgili qatorlar `known` da ko'rsatiladi.
    Fayl qo'lda tahrirlanmaydi: `npm test` (tests/templates/validation-badge.test.js) va CI (`--check`) qayta yaratib solishtiradi.
    ISO/IEC 17025 §7.11.2 (unverified — standart repoda yo'q): dasturiy ta'minot funksiyalari qo'llashdan oldin tekshirilgani dalili.
      node scripts/template-validation.js [--write] [--check] */
@@ -16,7 +19,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { EXCEL } = require('./lib/template-cases.js');
+const { EXCEL, ISO20914 } = require('./lib/template-cases.js');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'templates/validation/builtin.json');
@@ -36,6 +39,37 @@ function dataFromCase(tpl, st) {
   return { observations: st.measurements, sources, settings: st.settings, directions: st.directions };
 }
 
+/** ISO/TS 20914 fixture'i (uc-medical/1 kirishi) → "Maxsus rejimlar" oynasi maydonlari (foydalanuvchi kiritadigan matn); birlik — shablondan */
+function medicalFormFromFixture(input) {
+  const plain = input.levels.every(L => L.mean !== undefined && L.sd !== undefined && !L.lots && !L.systems && !L.periods && !L.interval);
+  if (!plain || input.bias || input.scale || input.precisionType || input.allowable || input.uBias || !input.uCal || input.uCal.relative) throw new Error('fixture shakli qo\'llab-quvvatlanmaydi (faqat oddiy darajalar + mutlaq u_cal)');
+  return { meSpread: 'sd', meUKind: 'abs', meCal: String(input.uCal.value), meLevels: input.levels.map(L => [L.mean, L.sd, L.n].filter(v => v !== undefined).join('\t')).join('\n') };
+}
+const pick = (o, p) => p.split('.').reduce((a, k) => (a === null || a === undefined ? undefined : a[k]), o);
+
+/** Maxsus rejim shabloni ↔ ISO/TS 20914:2019 fixture'i → yozuv (date siz) */
+function isoRecord(tpl, id, templateHash, ENGINE_VERSION) {
+  const T = require('../src/templates/interpreter.js');
+  const B = require('../src/ui/special/build.js');
+  const { evaluate } = require('../src/engine/index.js');
+  const f = readJSON(`tests/fixtures/iso20914/${id}.json`);
+  let ok = f.status === 'verified', relDiff = 0, checked = 0;
+  const known = new Set();
+  const st = T.buildSpecialState(tpl, { lang: 'en' });
+  const built = st.error ? null : B.buildSpec({ ...B.defaults(), ...st.state, ...medicalFormFromFixture(f.input) });
+  const r = built && !built.bad.length ? evaluate(built.spec) : { error: 'bad_form' };
+  if (r.error) ok = false;
+  else for (const x of f.expected) {
+    if (x.discrepancy) { known.add(x.discrepancy); continue; }
+    const got = pick(r, x.path) * (x.factor || 1);
+    if (!(Number.isFinite(got) && Math.abs(got - x.value) <= x.tol)) ok = false;
+    checked++;
+    if (x.kind !== 'standard-rounded' && x.value !== 0) relDiff = Math.max(relDiff, Math.abs(got - x.value) / Math.abs(x.value));
+  }
+  return { templateId: tpl.id, templateVersion: tpl.version, templateHash, ENGINE_VERSION, testId: id, source: f.source, clause: f.clause,
+    relDiff: Number(relDiff.toPrecision(2)), status: ok && checked > 0 ? 'verified' : 'unverified', checked, known: [...known].sort(), date: null };
+}
+
 const today = () => new Date().toISOString().slice(0, 10);
 const same = (a, b) => JSON.stringify({ ...a, date: 0 }) === JSON.stringify({ ...b, date: 0 });
 
@@ -48,14 +82,21 @@ function build(prev) {
   const { ENGINE_VERSION } = require('../src/engine/version.js');
   const index = readJSON('templates/builtin/index.json');
   const tpls = index.templates.map(f => readJSON('templates/builtin/' + f));
-  const map = new Map(EXCEL);
+  const map = new Map(EXCEL), iso = new Map(ISO20914);
   const old = new Map(((prev && prev.records) || []).map(r => [r.templateId + '|' + r.testId, r]));
   const records = [];
   for (const tpl of tpls) {
-    const ids = map.get(tpl.id);
-    if (!ids) continue;                                          // yozuv yo'q → runtime'da "unverified" (no_record)
+    const ids = map.get(tpl.id), isoIds = iso.get(tpl.id);
+    if (!ids && !isoIds) continue;                               // yozuv yo'q → runtime'da "unverified" (no_record)
     // Ref: RFC 8785 (JCS) — brauzerdagi src/storage/canonical.js::jcsHash bilan AYNAN bir xil kanonik matn
     const templateHash = crypto.createHash('sha256').update(canonicalizeJcs(tpl), 'utf8').digest('hex');
+    for (const id of isoIds || []) {
+      const rec = isoRecord(tpl, id, templateHash, ENGINE_VERSION);
+      const was = old.get(tpl.id + '|' + id);
+      rec.date = was && same(was, rec) && /^\d{4}-\d{2}-\d{2}$/.test(was.date || '') ? was.date : today();
+      records.push(rec);
+    }
+    if (!ids) continue;
     for (const id of ids) {
       const c = readJSON(`tests/cases/excel/${id}.json`);
       let ok = c.status === 'verified', relDiff = 0, checked = 0;
