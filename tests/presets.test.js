@@ -72,3 +72,35 @@ test('thermometer shabloni etalon misol (excel-cases.js) bilan bir xil', () => {
     assert.equal(pt.patch['Immersion / heat conduction'].halfWidth, K.term.points[i].imm);
   });
 });
+
+// P20 (audit 21.11.2026, MET-04): namunaviy ma'lumot MATN sifatida — hisobotda aynan kiritilgandek ('100.00') chiqadi
+test('sampleData qiymatlari matn (son ko\'rinishidagi satr); son sifatidagi qiymati o\'zgarmagan', () => {
+  for (const [key, pd] of Object.entries(PRESETS)) {
+    // ko'p nuqtali presetlar (gazoanalizator, termometr): ma'lumot `points[].data` da — etalon Excel kataklaridagi SONLAR
+    // (tests/excel-cases.js bilan deepEqual); ularda sampleData = points[0].data, o'zgartirilmagan
+    if (pd.points) continue;
+    for (const p of pd.params) {
+      for (const v of pd.sampleData[p]) {
+        assert.equal(typeof v, 'string', `${key}.${p}: ${v}`);
+        assert.match(v, /^-?\d+(\.\d+)?$/, `${key}.${p}: ${v}`);
+      }
+    }
+  }
+  assert.deepEqual(PRESETS.density.sampleData.V, ['100.02', '100.06', '99.98', '100.04', '100.00']);
+  // dvigatel matnni songa aylantiradi: natija son kiritilgandagi bilan bit darajasida bir xil
+  const pd = PRESETS.density;
+  const asNumbers = Object.fromEntries(pd.params.map(p => [p, pd.sampleData[p].map(Number)]));
+  const a = Calc.evaluate(stateFor(pd, pd.sampleData)), b = Calc.evaluate(stateFor(pd, asNumbers));
+  for (const q of ['y', 'uc', 'nuEff', 'k', 'U']) assert.ok(Object.is(a[q], b[q]), q);
+});
+
+test('density hisobotida kuzatuv "100.00" ko\'rinishida chiqadi (oxirgi nollar yo\'qolmaydi)', () => {
+  const { createSections } = require('../src/report/sections.js');
+  const { escHtml } = require('../src/ui/escape.js');
+  const pd = PRESETS.density;
+  const st = { ...stateFor(pd, pd.sampleData), n: 5 };
+  const S = createSections({ t: k => k, esc: escHtml });
+  const html = S.dataTable(st);
+  assert.match(html, /<td class="num">100\.00<\/td>/);
+  assert.match(S.pointDetail(Calc.evaluate(st), st, '', null, undefined, {}), /<td class="num">100\.00<\/td>/);
+});

@@ -15,7 +15,7 @@ const { escHtml } = require('../../src/ui/escape.js');
 const ROOT = path.join(__dirname, '..', '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const DICT = (() => {
-  const files = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-special.js', 'i18n-linter.js', 'i18n-io.js', 'i18n-report.js', 'i18n-admin.js', 'i18n-lab.js', 'i18n-pt.js', 'i18n-build.js', 'i18n-shell.js'];
+  const files = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-special.js', 'i18n-linter.js', 'i18n-io.js', 'i18n-report.js', 'i18n-p20.js', 'i18n-admin.js', 'i18n-lab.js', 'i18n-pt.js', 'i18n-build.js', 'i18n-shell.js'];
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   return dom.window.eval(files.map(f => read('src/js/' + f)).join('\n;\n') + '\n;TRANSLATIONS');
 })();

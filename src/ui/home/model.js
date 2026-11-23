@@ -64,3 +64,18 @@ export function sessionPatch(rec, engineVersion) {
     },
   };
 }
+
+/* ─── P20 (audit 21.11.2026, SEC-01): kirish sahifasidagi sonlar — qattiq yozilmaydi ───
+   templates     — o'rnatilgan shablonlar katalogi (templates/builtin/index.json) uzunligi;
+   methods       — dvigatelning hisoblash rejimlari (LINTER_MODES: GUM, MCM, vektor, regressiya, top-down, namuna olish,
+                   sifatli test, mikrobiologiya, tibbiy laboratoriya);
+   distributions — B tur taqsimotlari (dvigatel: DIVISORS kalitlari);
+   languages     — interfeys tillari.
+   Qiymat ma'lum bo'lmasa (katalog yuklanmagan) — '—' (son o'ylab topilmaydi). */
+export function landingStats(o) {
+  const src = o || {};
+  const count = v => (Array.isArray(v) ? v.length : (v && typeof v === 'object' ? Object.keys(v).length : (Number.isInteger(v) && v >= 0 ? v : null)));
+  const out = {};
+  for (const k of ['templates', 'methods', 'distributions', 'languages']) { const n = count(src[k]); out[k] = n === null ? '—' : String(n); }
+  return out;
+}

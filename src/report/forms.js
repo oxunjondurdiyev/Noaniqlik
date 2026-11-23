@@ -15,6 +15,7 @@
 import { REPORT_FORMS, REPORT_FIELDS, missingRequisites, cleanRequisites, REQUISITES_REF } from './requisites.js';
 import { normativeRefs } from './normative.js';
 import { footerHTML } from './footer.js';
+import { mcmMissing } from '../engine/index.js';
 
 export { REPORT_FORMS };
 export const DEFAULT_FORM = 'calibration_certificate';
@@ -62,8 +63,9 @@ function signatureHTML(o) {
 /* ── GUM bo'limlari ── */
 function itemsOf(o) {
   if (o.rows && o.rows.length) {
+    // P20: nuqta bilan birga saqlangan Monte-Karlo natijasi (bo'lsa) — MCM talab qilingan nuqtalar uchun (M5, "QORALAMA")
     return o.rows.map(x => ({ r: x.r, snap: x.point.snapshot, title: x.label, rr: x.rr, k: x.k,
-      extra: { acceptances: x.point.acceptances || {}, conf: x.conf, decision: x.decision } }));
+      extra: { acceptances: x.point.acceptances || {}, conf: x.conf, decision: x.decision, mc: x.point.mc || null } }));
   }
   return [{ r: o.result, snap: o.snapshot, title: '', rr: null, k: undefined, extra: { mc: o.mc || null, acceptances: o.acceptances } }];
 }
@@ -75,7 +77,8 @@ function compactItem(S, env, it, withBudget) {
   const conf = S.confLines(it.r, it.extra.conf, it.extra.decision);
   return `
     ${it.title ? `<div class="print-point-title">${esc(it.title)}</div>` : ''}
-    ${S.findingsHtml(it.r, { scope: 'gum', print: true, spec: it.snap, acceptances: it.extra.acceptances, showEmpty: true })}
+    ${S.findingsHtml(it.r, { scope: 'gum', print: true, spec: it.snap, acceptances: it.extra.acceptances, showEmpty: true, mc: it.extra.mc })}
+    ${S.mcmSection(it.r, { print: true, mc: it.extra.mc })}
     <div class="print-section">${t('res_statement')}</div>
     <p class="report-result" data-report-result="1"><strong>${S.statement(it.r, it.rr, it.k)}</strong></p>
     ${p9(S.ilacNote(it.r))}
@@ -94,7 +97,8 @@ function conformityItem(S, env, it) {
   const issued = !!(d && !d.pending && !d.error && d.verdict);
   return `
     ${it.title ? `<div class="print-point-title">${esc(it.title)}</div>` : ''}
-    ${S.findingsHtml(it.r, { scope: 'gum', print: true, spec: it.snap, acceptances: it.extra.acceptances, showEmpty: true })}
+    ${S.findingsHtml(it.r, { scope: 'gum', print: true, spec: it.snap, acceptances: it.extra.acceptances, showEmpty: true, mc: it.extra.mc })}
+    ${S.mcmSection(it.r, { print: true, mc: it.extra.mc })}
     <p class="report-result"><strong>${S.statement(it.r, it.rr, it.k)}</strong></p>
     <div class="print-section" data-report-conformity="${issued ? 'issued' : 'not_issued'}">${t('conf_title')}</div>
     ${conf.length ? conf.map(p9).join('') : p9(`<span data-decision-pending="limit">⚠ ${esc(t('dr_pending_limit'))}</span>`)}
@@ -125,6 +129,40 @@ function gumBody(o, form) {
   return summary + each(it => S.pointDetail(it.r, it.snap, it.title, it.rr, it.k, it.extra));
 }
 
+/* ── P20 (VAL-02): "QORALAMA" holati ─────────────────────────────────
+   Hisobot QORALAMA bo'ladi (bloklanmaydi — egasi qarori 2026-11-21), agar:
+     • requisites — tanlangan shaklning majburiy rekvizitlaridan biri bo'sh (kalibrlash sertifikati ilovasida — 13 ta;
+       ro'yxat requisites.js::REQUIRED, ISO/IEC 17025:2017 §7.8.2.1 — unverified);
+     • mcm        — LPU → MCM qaror qoidasi MCM ni talab qilgan (result.mcm.required), lekin u bajarilmagan / bekor qilingan
+       / xato bilan tugagan (src/engine/mcm-decision.js::mcmMissing). Faqat GUM rejimi.
+   Hamma shart bajarilsa — suv belgisi yo'q, pastki qismda "Yakuniy". */
+export const DRAFT_REASONS = Object.freeze(['requisites', 'mcm']);
+const DRAFT_MARK_PAGES = 24;   // ekrandagi A4 ko'rinishi uchun (eng uzun etalon hisobot — 16 sahifa)
+
+/** @returns {string[]} QORALAMA sabablari (bo'sh — yakuniy hujjat) */
+export function draftReasons(o) {
+  const form = REPORT_FORMS.includes(o.form) ? o.form : DEFAULT_FORM;
+  const out = [];
+  if (missingRequisites(o.requisites, form).length) out.push('requisites');
+  if ((o.mode || 'GUM') === 'GUM' && (o.result || (o.rows && o.rows.length))) {
+    const S = o.sections;
+    const mcOf = (r, mc) => (mc !== undefined && mc !== null ? mc : (S && S.mcOf ? S.mcOf(r) : null));
+    if (itemsOf(o).some(it => it.r && mcmMissing(it.r, mcOf(it.r, it.extra.mc)))) out.push('mcm');
+  }
+  return out;
+}
+
+/** Diagonal suv belgisi (bosmada har sahifada; A4 ko'rinishida ham) + sababi yozilgan satr. */
+export function draftHTML(reasons, env) {
+  if (!reasons || !reasons.length) return '';
+  const { t, esc } = env;
+  // Suv belgisi: har bir <span> bitta A4 sahifa balandligida (297 mm) — ekrandagi uzun "qog'oz"da har sahifa joyida bittadan;
+  // bosmada konteyner position: fixed (har sahifada takrorlanadi) va faqat birinchi <span> ko'rinadi (print.css).
+  const mark = `<span>${esc(t('rf_draft'))}</span>`.repeat(DRAFT_MARK_PAGES);
+  return `<div class="report-draft-mark" data-report-draft="1" aria-hidden="true">${mark}</div>
+    <div class="report-draft-banner" data-report-draft-reasons="${esc(reasons.join(','))}"><strong>${esc(t('rf_draft'))}</strong> — ${reasons.map(k => esc(t('rf_draft_reason_' + k))).join('; ')}</div>`;
+}
+
 /**
  * To'liq hisobot HTML'i.
  * @param {object} o
@@ -148,8 +186,11 @@ export function buildReport(o) {
   const body = mode === 'GUM' ? gumBody(o, form) : (o.bodyHTML || '');
   // P16: hujjat "ramka jadvali" ichida — pastki qism (ENGINE, build, xesh, QR) .report-frame-foot da, shuning uchun bosmada
   // HAR BIR SAHIFADA takrorlanadi (display: table-footer-group sahifa bo'linishida takrorlanadi). Mazmun o'zgarmagan.
+  const draft = draftReasons(o);
+  const status = { draft: draft.length > 0, reasons: draft };
   const content = `
     ${headerHTML(o, form)}
+    ${draftHTML(draft, o.env)}
     ${missingHTML(o, form)}
     ${o.marksHTML || ''}
     ${o.noticeHTML || ''}
@@ -162,8 +203,8 @@ export function buildReport(o) {
   // Oqibat: hujjat ichida "tbody tr" kabi avlod selektorlari ramka <tbody> siga ham ilashadi — aniq selektor ishlating
   // (masalan ".print-table > tbody > tr").
   return `
-    <table class="report-frame" role="presentation" data-report-frame="${esc(form)}">
-      ${o.footer ? `<tfoot class="report-frame-foot"><tr><td>${footerHTML(o.footer.model, o.env, o.footer.qr)}</td></tr></tfoot>` : ''}
+    <table class="report-frame" role="presentation" data-report-frame="${esc(form)}" data-report-status="${status.draft ? 'draft' : 'final'}">
+      ${o.footer ? `<tfoot class="report-frame-foot"><tr><td>${footerHTML(o.footer.model, o.env, o.footer.qr, status)}</td></tr></tfoot>` : ''}
       <tbody class="report-frame-body"><tr><td>${content}</td></tr></tbody>
     </table>`;
 }

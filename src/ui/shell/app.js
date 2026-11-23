@@ -49,6 +49,13 @@ function renderNav() {
     const on = b.dataset.nav === cur;
     b.classList.toggle('active', on);
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    // P20 (UX-09): faol band menyuning ichki scroll qutisida ko'rinmay qolmasin (faqat quti suriladi, sahifa emas)
+    const box = on && b.closest ? b.closest('.nav-scroll') : null;
+    if (box && box.scrollHeight > box.clientHeight) {
+      const br = b.getBoundingClientRect(), cr = box.getBoundingClientRect();
+      if (br.top < cr.top) box.scrollTop -= cr.top - br.top + 8;
+      else if (br.bottom > cr.bottom) box.scrollTop += br.bottom - cr.bottom + 8;
+    }
   });
   document.querySelectorAll('[data-bnav]').forEach(b => {
     const on = b.dataset.bnav === tab || (b.dataset.bnav === 'data' && tab === 'typeb') || (b.dataset.bnav === 'results' && tab === 'report');

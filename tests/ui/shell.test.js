@@ -168,10 +168,26 @@ test('toast: bir xil xabar ekranda turganida ikkinchi nusxa qo\'shilmaydi; A tur
   const b = createToast(doc, 'Hisoblash yakunlandi!', 'success', 50);
   assert.equal(a, b);
   assert.equal(doc.querySelectorAll('.toast').length, 1);
-  createToast(doc, 'Hisoblash yakunlandi!', 'error', 50);          // boshqa tur — alohida
-  createToast(doc, 'boshqa xabar', 'success', 50);
-  assert.equal(doc.querySelectorAll('.toast').length, 3);
-  assert.equal(doc.querySelector('.toast span').textContent, 'Hisoblash yakunlandi!');
+  // P20 (UX-07): bir vaqtda ko'pi bilan BITTA bildirishnoma — yangisi eskisini almashtiradi
+  createToast(doc, 'Hisoblash yakunlandi!', 'error', 50);
+  assert.equal(doc.querySelectorAll('.toast').length, 1);
+  assert.ok(doc.querySelector('.toast').classList.contains('error'));
+  createToast(doc, 'A tur hisoblandi', 'success', 50);
+  const last = createToast(doc, 'boshqa xabar', 'success', 50);
+  assert.equal(doc.querySelectorAll('.toast').length, 1);
+  assert.equal(doc.querySelector('.toast span').textContent, 'boshqa xabar');
+  const box = doc.getElementById('toast-container');
+  assert.equal(box.getAttribute('aria-live'), 'polite');
+  assert.equal(box.getAttribute('role'), 'status');
+  // 3 s da yopiladi: standart — 3000 ms; xato uchun chaqiruvchi bergan uzoqroq vaqt saqlanadi, boshqalarida — 3000 ms dan oshmaydi
+  assert.equal(require('../../src/ui/toast.js').TOAST_MS, 3000);
+  const src = fs.readFileSync(path.join(root, 'src/ui/toast.js'), 'utf8');
+  assert.match(src, /duration = type === 'error' && duration > TOAST_MS \? duration : \(duration !== undefined && duration < TOAST_MS \? duration : TOAST_MS\);/);
+  clearTimeout(last._timer);
+  // joylashuv: telefonda pastki navigatsiyadan yuqorida; desktopda o'ng pastki burchak
+  const shellCss = fs.readFileSync(path.join(root, 'src/css/shell.css'), 'utf8');
+  assert.match(shellCss, /#toast-container \{ bottom: var\(--s-6\); right: var\(--s-6\);/);
+  assert.match(shellCss, /@media \(max-width: 719px\) \{\s*#toast-container \{ left: var\(--s-3\); right: var\(--s-3\); bottom: calc\(var\(--bottom-nav-h\) \+ 80px/);
   clearTimeout(a._timer); [...doc.querySelectorAll('.toast')].forEach(t => clearTimeout(t._timer));
   const table = fs.readFileSync(path.join(root, 'src/js/table.js'), 'utf8');
   assert.ok(!table.includes("'toast_calc_done'"), 'A tur / namuna to\'ldirish "Hisoblash yakunlandi!" demaydi');

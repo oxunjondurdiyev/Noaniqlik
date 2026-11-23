@@ -406,3 +406,28 @@ a.topbar-brand { text-decoration: none; color: var(--c-text); }
 /* 1-qadam (Model): "Shablondan boshlash" — shablonlar katalogiga kirish (chap menyu telefonda yashirin) */
 .model-start { display: flex; justify-content: flex-end; margin-bottom: var(--s-3); }
 .model-start .btn { display: inline-flex; align-items: center; gap: var(--s-2); }
+
+/* ─── P20 (audit 21.11.2026): tez UX tuzatishlar ─────────────────────── */
+/* UX-09 — chap menyu: bandlar sig'masa ichki scroll qutisi ANIQ ko'rinadi (ko'rinadigan ingichka scrollbar, joyi doimiy);
+   guruh sarlavhalari zichroq — 1440×900 da kamroq surish kerak bo'ladi. */
+.nav-scroll { scrollbar-width: thin; scrollbar-color: var(--c-text-3) transparent; scrollbar-gutter: stable; overscroll-behavior: contain; }
+.nav-group { margin: var(--s-3) var(--s-3) var(--s-1); }
+.nav-group:first-child { margin-top: var(--s-1); }
+/* UX-08 — pastki yopishqoq amal paneli kontentni yopmasin: fokus / langar bilan surilganda element panel ostida qolmaydi
+   (jadvalning oxirgi qatori va oxirgi katagi ko'rinadi): hujjat scroll-padding-bottom = panel balandligi + bo'shliq. */
+html { scroll-padding-top: calc(var(--topbar-h) + var(--s-4)); scroll-padding-bottom: calc(var(--panel-footer-h) + var(--s-6)); }
+.panel-footer { min-height: var(--panel-footer-h); box-sizing: border-box; align-items: center; }
+@media (max-width: 719px) {
+  html { scroll-padding-bottom: calc(var(--bottom-nav-h) + 96px + env(safe-area-inset-bottom, 0px)); }
+}
+/* UX-07 — bildirishnoma: bir vaqtda bitta; desktopda o'ng pastki burchak (amal panelidan yuqorida), telefonda pastki navigatsiyadan yuqorida */
+#toast-container { bottom: var(--s-6); right: var(--s-6); pointer-events: none; }
+#toast-container .toast { pointer-events: auto; }
+@media (min-width: 720px) {
+  body:has(.tab-panel.active > .panel-footer) #toast-container { bottom: calc(var(--panel-footer-h) + var(--s-8)); }
+}
+@media (max-width: 719px) {
+  #toast-container { left: var(--s-3); right: var(--s-3); bottom: calc(var(--bottom-nav-h) + 80px + env(safe-area-inset-bottom, 0px)); }
+}
+/* Topilma manbasi (masalan "[JCGM 101:2008 §5.7 …]") ogohlantirish foni ustida ham ≥ 4,5:1 (P20: M5 topilmasi natijalar panelida) */
+.finding .finding-ref { color: var(--c-text-2); }

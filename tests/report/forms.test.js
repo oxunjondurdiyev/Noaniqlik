@@ -22,7 +22,7 @@ const { readRef } = require('../tools/excel-read.js');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-special.js', 'i18n-linter.js', 'i18n-report.js'];
+const I18N = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-special.js', 'i18n-linter.js', 'i18n-report.js', 'i18n-p20.js'];
 const DICT = (() => {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
   return dom.window.eval(I18N.map(f => read('src/js/' + f)).join('\n;\n') + '\n;TRANSLATIONS');

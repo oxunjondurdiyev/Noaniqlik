@@ -4369,5 +4369,132 @@
   ],
   "status": "verified",
   "note": "ochish / nusxalash / o'chirish IndexedDB bilan Chromium da tekshirildi (jsdom testida faqat sof model)"
+ },
+ "REQ-AUD-001": {
+  "code": [
+   "src/engine/mcm-decision.js::mcmDecision",
+   "src/engine/evaluate.js::evaluate"
+  ],
+  "tests": [
+   "tests/engine/mcm-decision.test.js",
+   "tests/validation/snapshot.test.js"
+  ],
+  "status": "verified",
+  "note": "chegaralar (0,50; 6) — loyiha qarori (egasi, 2026-11-21), me'yoriy manbada son yo'q; 91 snapshot bit darajasida bir xil (mcm maydonidan tashqari)"
+ },
+ "REQ-AUD-002": {
+  "code": [
+   "src/js/report.js",
+   "src/report/sections.js::createSections",
+   "src/engine/mcm-decision.js::mcmState"
+  ],
+  "tests": [
+   "tests/ui/mcm.test.js",
+   "tests/engine/mcm-decision.test.js"
+  ],
+  "status": "verified",
+  "note": "jsdom da soxta bajaruvchi bilan; haqiqiy Web Worker — Chromium da qo'lda ko'rilgan (zichlik: 10⁷ sinov, ≈ 19 s, yaqinlashmadi)"
+ },
+ "REQ-AUD-003": {
+  "code": [
+   "src/engine/linter/rules/m05-mcm-required.js",
+   "src/engine/linter/index.js::lintMcm"
+  ],
+  "tests": [
+   "tests/engine/mcm-decision.test.js",
+   "tests/engine/linter.test.js",
+   "tests/i18n.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-AUD-004": {
+  "code": [
+   "src/report/forms.js::draftReasons",
+   "src/report/forms.js::draftHTML",
+   "src/report/footer.js::footerHTML",
+   "src/css/print.css"
+  ],
+  "tests": [
+   "tests/report/draft.test.js"
+  ],
+  "status": "verified",
+  "note": "bosma PDF (Chromium): suv belgisi va holat satri har sahifada — qo'lda ko'rilgan"
+ },
+ "REQ-AUD-005": {
+  "code": [
+   "src/report/sections.js::createSections",
+   "src/report/forms.js::buildReport",
+   "src/js/points.js"
+  ],
+  "tests": [
+   "tests/report/draft.test.js",
+   "tests/ui/mcm.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-AUD-006": {
+  "code": [
+   "src/js/table.js",
+   "src/ui/toast.js",
+   "src/css/shell.css",
+   "src/ui/shell/app.js"
+  ],
+  "tests": [
+   "tests/i18n.test.js",
+   "tests/ui/shell.test.js"
+  ],
+  "status": "verified",
+  "note": "menyu, amal paneli va bildirishnoma joylashuvi — npm run test:screens (Playwright; npm test tarkibida emas)"
+ },
+ "REQ-AUD-007": {
+  "code": [
+   "src/data/presets.js",
+   "src/report/sections.js::createSections"
+  ],
+  "tests": [
+   "tests/presets.test.js"
+  ],
+  "status": "verified"
+ },
+ "REQ-AUD-008": {
+  "code": [
+   "src/ui/home/model.js::landingStats",
+   "src/ui/home/app.js",
+   "index.html"
+  ],
+  "tests": [
+   "tests/ui/p20-pages.test.js"
+  ],
+  "status": "verified",
+  "note": "\"usullar\" soni — dvigatelning hisoblash rejimlari (LINTER_MODES); M1–M13 ro'yxati repoda yo'q — egasi bergach moslanadi"
+ },
+ "REQ-AUD-009": {
+  "code": [
+   "src/ui/index-auth.js",
+   "src/js/auth.js",
+   "src/js/auth-core.js",
+   "firestore.rules"
+  ],
+  "tests": [
+   "tests/ui/home.test.js",
+   "tests/ui/p20-pages.test.js",
+   "tests/security/firestore-rules.test.js"
+  ],
+  "status": "verified",
+  "note": "Firestore qoidalari — npm run test:rules (Emulator; 32 / 32); konsolga joylashni egasi bajaradi"
+ },
+ "REQ-AUD-010": {
+  "code": [
+   "privacy.html",
+   "terms.html",
+   "src/js/i18n-legal.js",
+   "scripts/build-site.js"
+  ],
+  "tests": [
+   "tests/ui/p20-pages.test.js",
+   "tests/i18n.test.js"
+  ],
+  "status": "manual",
+  "note": "matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi"
  }
 }

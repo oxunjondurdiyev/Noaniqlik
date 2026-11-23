@@ -4,6 +4,36 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
+
+**SONLI NATIJALAR O'ZGARMAGAN.** `tests/cases/` dagi 91 ta misolning to'liq natijasi 2.10.0 (`e460e89`) bilan **bit darajasida bir xil** — yagona farq: natijaga yangi maydon `mcm` qo'shildi (`node scripts/cases-snapshot.js --compare oldin.json keyin.json --ignore '(^|\.)mcm(\.|$)'`: 91 / 91, farq 0). Versiya minor oshirildi, chunki natija tuzilmasi kengaydi (yangi imkoniyat). 9 ta etalon Excel nuqtasi va 10-test (MC intervali) o'zgarmagan.
+
+### Dvigatel (`src/engine/`)
+
+- **LPU → MCM avtomatik qaror qoidasi** — `mcm-decision.js` (sof modul): `result.mcm = { required, reasons[] }`. Shartlar: **(a)** 2-tartibli hadlar indeksi > `nonlinThreshold` (0,01) yoki biror c_i = 0 (JCGM 100:2008 §5.1.2 NOTE; JCGM 101:2008 §5.7, §5.8); **(b)** bitta normal bo'lmagan manba (to'g'ri burchakli, U-simon, trapetsiya, uchburchak, diskretlik) uchun \|c_i\|u(x_i)/u_c > **0,50** — nisbat, dispersiya ulushi emas; **(c)** asimmetrik kirish taqsimoti (`exp`, `lognorm`) yoki `settings.physicalBounds: { lower?, upper? }` va \|y − chegara\| < U; **(d)** ν_eff < **6**. **Chegaralar — loyiha qarori (egasi, 2026-11-21), me'yoriy talab emas.** Linter A1 (dispersiya ulushi > 90 %) o'zgarmagan.
+- `mcmState(result, mc)`, `mcmMissing(result, mc)`, `MCM_THRESHOLDS`; **linter M5 `mcm_required`** (warning) — faqat hisobot / UI qatlamidan (`lintMcm`); `evaluate()` natijasidagi `findings` o'zgarmagan.
+- `scripts/cases-snapshot.js --compare … --ignore <regex>` — yangi qo'shilgan maydonni solishtiruvdan chiqarish.
+
+### Interfeys va hisobot (hisob o'zgarmagan, faqat ko'rinish)
+
+- **Avtomatik MCM:** `mcm.required` bo'lsa hisobdan keyin Monte-Karlo Web Worker'da o'zi boshlanadi (adaptiv, n_dig = 2, §8 tekshiruvi); natija kartasi ostida holat: "MCM tekshiruvi talab qilinadi: (b) V — … 0.92 > 0.50 — bajarilmoqda / tasdiqlandi / rad etildi / yaqinlashmadi / bajarilmagan"; bir natija uchun bir marta, kirish o'zgarsa eski ish to'xtatiladi; nuqta saqlanganda MCM natijasi nuqta bilan birga saqlanadi. `autoMcm = false` (laboratoriya sozlamasi yoki `settings.autoMcm`) — faqat avtomatik ishga tushirish o'chadi.
+- **"QORALAMA" suv belgisi** (`src/report/forms.js::draftReasons`): tanlangan shaklning majburiy rekvizitlaridan biri bo'sh (kalibrlash sertifikati ilovasi — 13 ta) yoki talab qilingan MCM bajarilmagan → A4 ko'rinishida va bosmada **har sahifada** diagonal belgi (QORALAMA / ЧЕРНОВИК / DRAFT), sababi satrda va pastki qismda; aks holda pastki qismda "Yakuniy". Hisobot bloklanmaydi. Hisobotda sabablar ro'yxati va JCGM 101 §8 natijasi.
+- **Tez UX tuzatishlar:** o'lchash katagida `placeholder="null"` (preset tanlanmaganda) — endi bo'sh; bildirishnoma — bir vaqtda bitta, yangisi eskisini almashtiradi, 3 s, `aria-live="polite"` (xato xabarida chaqiruvchi bergan uzoqroq vaqt saqlanadi); pastki amal paneli fokuslangan katakni / oxirgi qatorni yopmaydi (`scroll-padding`); chap menyu — ko'rinadigan ichki scroll, faol band ko'rinishga suriladi; preset namunaviy qiymatlari **matn** (`'100.00'`) — jadvalda va hisobotda kiritilgandek.
+- **Kirish sahifasi:** "Bepul va ochiq kodli" nishoni va "Ochiq manba · Bepul · MIT litsenziyasi" yozuvi olib tashlandi (litsenziya yopiq — `LICENSE`); "ga to'liq mos" → "talablari asosida ishlab chiqilgan" (uz / ru / en); "12 formula · 9 sozlama · 4 taqsimot" o'rniga dinamik sonlar (shablonlar — katalogdan; hisoblash rejimlari va taqsimotlar — dvigateldan; tillar).
+- **Rozilik va huquqiy sahifalar:** ro'yxatdan o'tishda majburiy belgi (belgisiz tugma faol emas); `privacy.html`, `terms.html` (uz / ru / en, "Loyiha — yurist tasdig'ini kutmoqda"); sayt oq ro'yxatiga qo'shildi. Firestore `organizations/{uid}` ga **faqat** `consentVersion` va `consentAt` (server vaqti) qo'shiladi; `firestore.rules` ularni talab qiladi (**egasi konsolga qayta joylaydi** — `docs/SECURITY_SETUP.md` §5).
+
+### `src/report/` dagi o'zgarishlar (hisobga ta'sir qilmaydi)
+
+- `sections.js`: `mcmSection`, `mcmReasons`, `findingsOf(r, spec, mc)` (M5), `env.mc`; `forms.js`: `draftReasons`, `draftHTML`, ramkada `data-report-status`; `footer.js`: holat satri. `tests/security/engine.sha256.json` yangilandi.
+
+### Etalon nuqtalar
+
+- 9 ta etalon Excel nuqtasi va 10-test (MC intervali): kutilgan qiymat va toleranslar **o'zgarmagan**. Yangi: 9 nuqtaning hammasida `mcm.required = true` (sabab (b)) — MCM bajarilmasa hisobotda M5 va "QORALAMA".
+
+### Raqamlash (egasi qarori 2026-11-21)
+
+- P18 = M9, P19 = M8 (ISO 19036), P20 = shu ish, Kragten → **P21** (avval P17). P20 P18 dan oldin, `e460e89` ustida bajarildi (`docs/RISKS.md` R-30).
+
 ## P16 — Interfeys 2.0: yangi dizayn tizimi, moslashuvchan qobiq, Vizual laboratoriya (2026-11-20)
 
 **ENGINE_VERSION o'zgarmadi (2.10.0): HISOB O'ZGARMAGAN, faqat ko'rinish.** `src/engine/` ga tegilmagan (bitta bayt ham). `tests/cases/` dagi 91 ta ishga tushiriladigan misolning to'liq natijasi P13 holati (`f09e418`; P14 — `88e271e` — ham dvigatelga tegmagan) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0) — har bir bosqichdan keyin tekshirildi. `tests/security/engine.sha256.json` yangilandi: sabab — faqat `src/report/` dagi markup (pastga qarang).

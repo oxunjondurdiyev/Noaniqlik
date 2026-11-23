@@ -364,7 +364,8 @@ const Table = (() => {
         const vals = state.measurements[p] || Array(n).fill('');
         const v = vals[i] !== undefined ? vals[i] : '';
         const sampleVal = preset && preset.sampleData && preset.sampleData[p] && preset.sampleData[p][i];
-        const ph = sampleVal !== undefined ? String(sampleVal) : (preset ? String(preset.sampleData?.[p]?.[0] ?? '') : '');
+        // P20 (UX-05): preset yo'q bo'lsa sampleVal — null edi va placeholder="null" chiqardi; endi bo'sh
+        const ph = sampleVal !== undefined && sampleVal !== null ? String(sampleVal) : (preset ? String(preset.sampleData?.[p]?.[0] ?? '') : '');
         return `<td><input type="text" inputmode="decimal" class="meas-input"
           data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}"
           placeholder="${escHtml(ph)}"

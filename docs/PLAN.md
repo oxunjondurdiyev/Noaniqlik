@@ -226,9 +226,32 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 ### P16 dan keyingi ishlar (egasi qarorlari 2026-11-20, `docs/RISKS.md` R-29)
 
-- **P16b — MCM gistogrammasi** (alohida PR): dvigatelda `opts.histogram` (opt-in) → natijada gistogramma; sonli natija bit darajasida o'zgarmaydi (snapshot 91 / 91); ENGINE 2.11.0 (minor); Ref: JCGM 101:2008 §7.5; shundan keyin tasmada va Vizual laboratoriyada haqiqiy gistogramma.
+- **P16b — MCM gistogrammasi** (alohida PR): dvigatelda `opts.histogram` (opt-in) → natijada gistogramma; sonli natija bit darajasida o'zgarmaydi (snapshot 91 / 91); keyingi minor versiya (2.11.0 ni P20 oldi); Ref: JCGM 101:2008 §7.5; shundan keyin tasmada va Vizual laboratoriyada haqiqiy gistogramma.
 - **Xavfsizlik PR'i — `style-src 'unsafe-inline'` ni to'liq olib tashlash**: index / admin / superadmin / ai dagi inline uslublar sinflarga; `npm run test:rules` + sayt tutun-testi shart; `tests/security/inline-style.test.js` dagi son — 0.
-- **P17 — Kragten usuli** (QUAM:2012 Appendix E.2): solishtirish ko'rinishi (LPU o'rnini bosmaydi; farq hisobotda); kutilgan qiymatlar faqat QUAM ishlangan misolidan, sahifa havolasi bilan; minor versiya.
+- **P21 — Kragten usuli** (avval "P17" deb rejalashtirilgan; egasi qarori 2026-11-21 — raqam o'zgardi) (QUAM:2012 Appendix E.2): solishtirish ko'rinishi (LPU o'rnini bosmaydi; farq hisobotda); kutilgan qiymatlar faqat QUAM ishlangan misolidan, sahifa havolasi bilan; minor versiya.
+
+### Raqamlash (egasi qarori 2026-11-21) — P18 … P21
+
+| Bosqich | Mazmun | Holat |
+|---|---|---|
+| **P18** | M9 (loyiha yo'riqnomasidagi usul raqami) | rejalashtirilgan — bu repoda hali yo'q (P20 `e460e89` ustida bajarildi) |
+| **P19** | M8 — mikrobiologiya, ISO 19036 (loyiha hujjatidagi "P17" prompti); hozirgi holat — BETA, KL-079 | rejalashtirilgan |
+| **P20** | Audit (21.11.2026) bo'yicha P0 tuzatishlar — pastda | **bajarildi (2026-11-21)** |
+| **P21** | Kragten usuli (QUAM:2012 Appendix E.2) — avvalgi "P17" | rejalashtirilgan |
+
+Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16) endi **P21** deb o'qiladi. P16b (MCM gistogrammasi) va `'unsafe-inline'` xavfsizlik PR'i — raqamsiz, avvalgidek.
+
+## P20 — Audit (21.11.2026) bo'yicha P0 tuzatishlar
+
+> **Holat: bajarildi (2026-11-21, ENGINE_VERSION 2.11.0 — sonli natijalar o'zgarmagan; 91 snapshot bit darajasida bir xil, yangi `mcm` maydonidan tashqari).** Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)" (egasining hujjati) va egasi qarorlari (2026-11-21). Topshiriqda "P18 (M9) tugagandan keyin" deyilgan — P18 repoda yo'qligi sababli P20 P16 (`e460e89`) ustida bajarildi; P18 birlashtirilganda `src/engine/evaluate.js`, `CHANGELOG.md` va `ENGINE_VERSION` da ziddiyat bo'lishi mumkin (R-30).
+
+- **MET-01 — LPU → MCM avtomatik qaror qoidasi:** `src/engine/mcm-decision.js` → `result.mcm = { required, reasons }` ((a) nochiziqlilik / c_i = 0; (b) normal bo'lmagan manba \|c_i\|u(x_i)/u_c > 0,50; (c) asimmetrik taqsimot / fizik chegara; (d) ν_eff < 6 — chegaralar loyiha qarori); avtomatik MCM (Web Worker, adaptiv, n_dig = 2), holat satri, hisobotda sabablar va §8 natijasi; linter M5 `mcm_required`; `autoMcm` sozlamasi.
+- **VAL-02 — "QORALAMA" suv belgisi:** majburiy rekvizit bo'sh yoki talab qilingan MCM bajarilmagan → har sahifada suv belgisi va sababi; aks holda "Yakuniy".
+- **UX-05, 07, 08, 09; MET-04:** `placeholder="null"`, bitta bildirishnoma (3 s, `aria-live`), amal paneli, chap menyu, namuna qiymatlari matn sifatida.
+- **SEC-01, UX-14 (qisman):** "bepul va ochiq kodli" / "MIT" olib tashlandi (litsenziya yopiq); "talablari asosida ishlab chiqilgan"; sonlar dinamik.
+- **SEC-02:** majburiy rozilik (`consentVersion`, `consentAt` — boshqa yangi maydon yo'q), `privacy.html`, `terms.html` (loyiha — yurist tasdig'ini kutadi), `firestore.rules`.
+- **Qanday tekshirildi:** `npm test`; `cases-snapshot --compare … --ignore '(^|\.)mcm(\.|$)'` (91 / 91); `npm run test:rules` (32 / 32); `npm run test:screens` (Chromium, 54 skrinshot); bosma PDF (suv belgisi va holat har sahifada).
+- **Qoldiq:** `docs/RISKS.md` R-30.
 
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 

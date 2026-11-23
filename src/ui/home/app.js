@@ -3,7 +3,8 @@
    tezkor havolalar, pastda ENGINE_VERSION va shablonlar validatsiyasi xulosasi (templates/validation/builtin.json).
    Hech narsa hisoblamaydi. Foydalanuvchi ma'lumoti DOM ga faqat textContent / escHtml orqali.
 ═══════════════════════════════════════════════════════════════ */
-import { recentSessions, sessionTitle, shortTime, sessionPatch } from './model.js';
+import { recentSessions, sessionTitle, shortTime, sessionPatch, landingStats } from './model.js';
+import { DIVISORS, LINTER_MODES } from '../../engine/index.js';
 
 const $ = id => document.getElementById(id);
 const t = k => window.i18n.t(k);
@@ -48,6 +49,23 @@ function renderFoot() {
 }
 
 function render() { renderSessions(); renderFoot(); }
+
+/* P20 (SEC-01): kirish sahifasidagi sonlar — katalogdan (UCTemplates — templates/builtin/index.json) va dvigateldan
+   (qattiq yozilgan "12 formula · 9 sozlama · 4 taqsimot" o'rniga). Katalog yuklanguncha shablonlar soni '—'. */
+async function renderLandingStats() {
+  const nodes = document.querySelectorAll('[data-landing-stat]');
+  if (!nodes.length) return;
+  const put = templates => {
+    const st = landingStats({ templates, methods: LINTER_MODES, distributions: DIVISORS, languages: window.i18n && window.i18n.all ? window.i18n.all('idx_title') : null });
+    nodes.forEach(el => { el.textContent = st[el.dataset.landingStat] || '—'; });
+  };
+  put(null);
+  if (!T()) return;
+  try { await T().ready; } catch (_) { return; }
+  const total = T().validationSummary().total;
+  put(total > 0 ? total : null);
+}
+renderLandingStats();
 
 async function openSession(id) {
   const rec = await T().getCalculation(id);

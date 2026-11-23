@@ -75,3 +75,26 @@
   * { box-shadow: none !important; text-shadow: none !important; }
   .report-doc, .report-doc * { animation: none !important; transition: none !important; }
 }
+
+/* ─── P20 (VAL-02): "QORALAMA" suv belgisi va hujjat holati ─────────────
+   Ekranda (A4 ko'rinishi): konteyner butun qog'ozni qoplaydi, har 297 mm da bittadan diagonal yozuv.
+   Bosmada: position: fixed — brauzer uni HAR SAHIFADA takrorlaydi; faqat birinchi yozuv qoladi. */
+.paper { position: relative; }
+.report-doc .report-draft-mark { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.report-doc .report-draft-mark > span {
+  display: flex; align-items: center; justify-content: center; height: 297mm; padding-top: 90mm; box-sizing: border-box;
+  font-family: var(--font-display); font-size: 64pt; font-weight: 800; letter-spacing: .08em; white-space: nowrap;
+  color: var(--paper-ink); opacity: .1; transform: rotate(-28deg);
+}
+.report-doc .report-draft-banner { border: 2px solid var(--paper-ink); border-radius: 2px; padding: .35em .6em; margin: .5em 0; }
+.report-doc .report-foot-status { font-size: 9pt; }
+.report-doc .mcm-status { border: 1px solid var(--paper-rule); border-radius: 2px; padding: .4em .6em; margin: .5em 0; break-inside: avoid; }
+.report-doc .mcm-status .badge { border: 1px solid var(--paper-ink); background: transparent; color: var(--paper-ink); }
+.report-doc .mcm-reasons { margin: .3em 0 .3em 1.2em; padding: 0; }
+.report-doc .mcm-status-note { color: var(--paper-muted); }
+@media print {
+  .report-doc .report-draft-mark { position: fixed; display: block !important; }
+  .report-doc .report-draft-mark > span { display: flex !important; }
+  .report-doc .report-draft-mark > span + span { display: none !important; }
+  .report-doc .report-draft-banner, .report-doc .mcm-status, .report-doc .report-foot-status { display: block !important; visibility: visible !important; color: var(--paper-ink); }
+}

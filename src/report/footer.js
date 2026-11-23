@@ -56,13 +56,15 @@ export function qrSvg(qrcode, text) {
  * @param {object} m    footerModel()
  * @param {{t:Function, esc:Function}} env
  * @param {string} [qr] qrSvg() natijasi (bo'lmasa QR joyi bo'sh)
+ * @param {{draft:boolean, reasons:string[]}} [status]  P20: hujjat holati — "QORALAMA" (sababi bilan) yoki "Yakuniy"
  */
-export function footerHTML(m, env, qr) {
+export function footerHTML(m, env, qr, status) {
   const { t, esc } = env;
   const date = String(m.calcDate || '').slice(0, 10);
   const row = (k, label, value) => `<div class="report-foot-row" data-report-foot="${k}"><span class="report-foot-label">${esc(label)}:</span> <span class="report-foot-value">${esc(value)}</span></div>`;
   return `<div class="report-foot" data-report-footer="1">
     <div class="report-foot-text">
+      ${status ? `<div class="report-foot-row report-foot-status" data-report-foot="status" data-report-foot-status="${status.draft ? 'draft' : 'final'}"><span class="report-foot-label">${esc(t('rf_status'))}:</span> <strong>${esc(t(status.draft ? 'rf_draft' : 'rf_final'))}</strong>${status.draft ? ' — ' + status.reasons.map(k => esc(t('rf_draft_reason_' + k))).join('; ') : ''}</div>` : ''}
       ${row('app', t('rf_app'), `${m.app}; ${t('rg_engine')} ${m.engineVersion}`)}
       ${row('build', t('rf_build'), m.build ? `${m.build}${m.buildDev ? ' (' + t('rf_build_dev') + ')' : ''}${m.buildMatches === false ? ' (' + t('rf_build_mismatch') + ')' : ''}` : t('rf_build_unknown'))}
       ${m.env ? row('env', t('rf_env'), m.env) : ''}

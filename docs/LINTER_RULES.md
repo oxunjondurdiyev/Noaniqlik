@@ -85,6 +85,14 @@ Bu qoidalar `evaluate()` natijasida chiqmaydi (9 ta etalon nuqtaning GUM topilma
 | | `mc_variance_undefined` | warning | JCGM 101:2008 §7.6 Note 2, §6.4.9.4, C.6 Note | Kirishga ν ≤ 2 bo'lgan t-taqsimot tayinlangan (n ≤ 3) — u(y) aniqlanmagan, faqat qamrov intervali | n ≥ 4 yoki s_p (usul 2); interval ko'rsatish |
 | | `mc_legacy_rng` | info | JCGM 101:2008 C.3.2.1 | Eski generator (xorshift32) bilan takrorlangan natija | Yangi hisobot uchun standart generator |
 
+**M5 — `mcm_required` (P20; rejim `GUM`, faqat hisobot / UI qatlamida — `lintMcm(result, mc)`):**
+
+| Qoida | Kod | Daraja | Manba | Shart | Tuzatish |
+|---|---|---|---|---|---|
+| **M5** | `mcm_required` | warning | JCGM 101:2008 §5.7, §5.8, §8.1.1; JCGM 100:2008 §5.1.2 NOTE; loyiha qarori (2026-11-21) | LPU → MCM qaror qoidasi (`result.mcm.required`, `src/engine/mcm-decision.js`) MCM ni talab qilgan, lekin Monte-Karlo natijasi yo'q (bajarilmagan, bekor qilingan yoki xato). Hisobot "QORALAMA" suv belgisi bilan chiqadi. `evaluate()` bu topilmani chiqarmaydi (u yerda MCM holati ma'lum emas) | Monte-Karlo tekshiruvini bajarish (avtomatik ishga tushadi; `autoMcm: false` bo'lsa — qo'lda) |
+
+Qaror qoidasi shartlari (`result.mcm.reasons[].code`): **(a)** 2-tartibli hadlar indeksi > `nonlinThreshold` (0,01) yoki biror c_i = 0; **(b)** bitta normal bo'lmagan manba (to'g'ri burchakli, U-simon, trapetsiya, uchburchak, diskretlik) uchun \|c_i\|·u(x_i) / u_c > **0,50** (nisbat — dispersiya ulushi emas); **(c)** asimmetrik kirish taqsimoti (`exp`, `lognorm`) yoki `settings.physicalBounds` berilgan va \|y − chegara\| < U; **(d)** ν_eff < **6**. A1 (dispersiya ulushi > 90 %, info) bu qoidadan mustaqil va o'zgarmagan.
+
 ### 2.2b. Vektor natija uchun qoida (P07; rejim `MULTIVARIATE`)
 
 | Qoida | Kod | Daraja | Shart | Manba |
@@ -162,6 +170,7 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 | 21 | M2 (P06) — **egasi tasdiqladi (2026-11-18)** | normal bo'lmagan korrelyatsiyada MCM natijasi **berilmaydi** (error), topilmada "LPU natijasi amal qiladi"; Gauss yaqinlashuvi — faqat sozlama bilan, warning; ko'p o'lchovli t — P07 | JCGM 101 §6.4.8.4 Note: boshqa birgalikdagi taqsimot uchun tanlash usuli "would need to be provided" |
 | 22 | M3 — **egasi qarori (2026-11-18)** | LPU tasdiqlanmasa — warning (error emas); δ — GUM u_c dan, n_dig = 2; GUM tekshiruvida MCM toleransi **δ/5** (§8.2), oddiy MCM da δ; δ ga tushirish — laboratoriya sozlamasi, hisobotda belgi | §8.1.3 — daraja ko'rsatilmagan; §8.2 — δ/5 tavsiya etilgan |
 | 23 | M4 — **egasi qarori (2026-11-18)** | `mc_variance_undefined` chegarasi ν ≤ 2; warning; bunday kirishda mezon avtomatik faqat interval uchlari, u(y) berilmaydi. `mc_not_converged` — adaptiv M chegarasi **yoki** qat'iy M da tekshiruv toleransiga erishilmagani | §7.6 Note 2: "fewer than three degrees of freedom" |
+| 23a | M5 (P20) — **egasi qarori (2026-11-21)** | MCM majburiyligi: (a)–(d); (b) uchun nisbat \|c_i\|u(x_i)/u_c > **0,50**; (d) ν_eff < **6**; talab qilingan MCM bajarilmasa — warning + "QORALAMA"; `autoMcm: false` faqat avtomatik ishga tushirishni o'chiradi | JCGM 101 §5.7, §5.8: LPU shartlari — son yo'q; chegaralar loyihaniki |
 | 24 | MV1 (P07) — **egasi tasdig'ini kutadi** | \|r\| > **0,5** → info (`outputs_correlated`); singular chegarasi λ_min / λ_max < 10⁻⁹ → info (`outputs_singular`) | JCGM 102 da son yo'q; 0,5 — X4 dagi chegara bilan bir xil olindi |
 | 24a | MV2 (P07b) — **egasi qarori (2026-11-19)** | U_x singular → LU yo'li + **info** `implicit_lu_fallback` | JCGM 102 §6.3.1.5: (10) + (9) yo'li "not recommended"; daraja haqida manbada hech narsa yo'q |
 
@@ -185,7 +194,8 @@ Quyidagi chegara va tanlovlar **me'yoriy talab emas** — manbalarda aniq son yo
 - `tests/storage/acceptance.test.js` — qabul qilish va audit zanjiri.
 - `tests/ui/findings.test.js` — blok, uch til, escape, bosma hisobot, suv belgisi, belgilar, model turi.
 
-9 ta etalon nuqtadagi topilmalar (hammasi info): gaz 1 — `zero_s`, `n_small`, `x10_no_drift`; gaz 2, 3 — `n_small`, `x10_no_drift`; termometr 1 — `zero_s`; termometr 4 — `zero_s`, `x5_resolution_rect`; zichlik, termometr 2, 3, 5 — topilma yo'q.
+9 ta etalon nuqtadagi topilmalar (dvigatel natijasida; hammasi info — P20 dan keyin ham o'zgarmagan. Hisobot qatlamida bundan tashqari **M5** chiqadi, agar MCM bajarilmagan bo'lsa: 9 nuqtaning hammasida `result.mcm.required = true`, sabab (b)): gaz 1 — `zero_s`, `n_small`, `x10_no_drift`; gaz 2, 3 — `n_small`, `x10_no_drift`; termometr 1 — `zero_s`; termometr 4 — `zero_s`, `x5_resolution_rect`; zichlik, termometr 2, 3, 5 — topilma yo'q.
 - `tests/engine/montecarlo.test.js`, `tests/engine/mc-legacy.test.js` — M2, M3, M4: har biri uchun ijobiy va salbiy holat (P06).
+- `tests/engine/mcm-decision.test.js` — M5 va qaror qoidasi (a)–(d): ijobiy va salbiy holat (P20).
 - `tests/engine/multivariate.test.js` — MV1: ijobiy va salbiy holat (P07).
 - `tests/engine/lab.test.js` — L1, L2: har bir kod uchun ijobiy va salbiy holat (P11).

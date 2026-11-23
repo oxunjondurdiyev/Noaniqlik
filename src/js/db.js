@@ -79,6 +79,11 @@ const DB = (() => {
     return firebase.firestore.FieldValue.delete();
   }
 
+  /* ─── Server vaqti belgisi (P20: rozilik vaqti — consentAt; mijoz soati emas) ─── */
+  function serverTimestamp() {
+    return firebase.firestore.FieldValue.serverTimestamp();
+  }
+
   /* ─── REAL-TIME ────────────────────────────────────── */
   // Faqat super-admin (qoidalar: organizations list → superadmin).
   function onCollectionSnapshot(store, callback, onError) {
@@ -95,7 +100,7 @@ const DB = (() => {
     }, onError);
   }
 
-  return { get, getAll, set, update, remove, batch, deleteField, onCollectionSnapshot, onOrgsSnapshot };
+  return { get, getAll, set, update, remove, batch, deleteField, serverTimestamp, onCollectionSnapshot, onOrgsSnapshot };
 
 })();
 

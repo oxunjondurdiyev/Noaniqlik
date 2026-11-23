@@ -50,6 +50,8 @@ const Calc = Object.freeze({
   // P05a: linter (natijada result.findings; eski saqlangan natijalar uchun Calc.lint(spec, result))
   lint: engine.lint,
   lintReported: engine.lintReported,
+  // P20: LPU → MCM qaror qoidasi (result.mcm) — holat va M5
+  lintMcm: engine.lintMcm, mcmState: engine.mcmState, mcmMissing: engine.mcmMissing, MCM_THRESHOLDS: engine.MCM_THRESHOLDS,
   FINDING_CODES: engine.FINDING_CODES,
   MIN_ACCEPT_COMMENT: engine.MIN_ACCEPT_COMMENT,
   validateAcceptance: engine.validateAcceptance,

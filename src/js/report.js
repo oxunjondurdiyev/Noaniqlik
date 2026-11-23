@@ -16,6 +16,7 @@ const Results = (() => {
         acceptances: scope => acceptancesOf(scope),
         canAccept: () => !!window.UCFindings,
         lab: () => (window.UCTemplates ? window.UCTemplates.labSettings() : null),
+        mc: r => mcFor(r),
       });
     }
     return _sections;
@@ -80,14 +81,56 @@ const Results = (() => {
     appState.subscribe((changes) => {
       if (!changes || changes.combined !== undefined || changes.points !== undefined ||
           changes.summary !== undefined || changes.currentPoint !== undefined) {
-        lastMC = null;
+        const r = current();
+        // P20: natija o'zgargan bo'lsa eski hisobga tegishli Monte-Karlo ishi to'xtatiladi (natijasi qabul qilinmaydi)
+        if (mcJob && mcJob.key !== resultKey(r)) { const j = mcJob; mcJob = null; j.cancel(); }
+        // Monte-Karlo natijasi faqat AYNAN shu natijaga tegishli bo'lsa saqlanadi (nuqta saqlash — natija o'zgarmaydi)
+        if (!lastMC || lastMCKey !== resultKey(r)) lastMC = savedPointMc(r);
+        if (lastMC) lastMCKey = resultKey(r);
         lastReportHTML = '';
         render();
+        // faqat YANGI hisobdan keyin (combined o'zgarganda) — sahifa ochilganda yoki til almashganda emas
+        if (!changes || changes.combined !== undefined) maybeAutoMcm();
       }
     });
   }
 
   let lastMC = null;   // Monte Carlo result for the displayed calculation
+  let lastMCKey = '';  // lastMC qaysi natijaga tegishli (resultKey)
+
+  /* ─── P20 (MET-01): LPU → MCM qaror qoidasi — avtomatik ishga tushirish ───────────
+     result.mcm.required bo'lsa hisobdan keyin Monte-Karlo o'zi boshlanadi (Web Worker, adaptiv, n_dig = 2 — standart
+     sozlamalar). Bir natija uchun faqat BIR MARTA (bekor qilinsa qayta boshlanmaydi — "MCM tekshiruvini ishga tushirish"
+     tugmasi bilan). O'chirish: laboratoriya sozlamasi autoMcm = false yoki hisob sozlamasi settings.autoMcm = false —
+     ogohlantirish (M5) va "QORALAMA" belgisi qoladi. Worker moduli yuklanmagan (juda eski brauzer) — avtomatik boshlanmaydi. */
+  let autoMcmKey = '';
+  function resultKey(r) { return r ? [r.engineVersion, r.y, r.uc, r.U, r.nuEff, r.k, r.P].join('|') : ''; }
+  function savedPointMc(r) {
+    if (!r) return null;
+    const st = appState.get();
+    const p = (st.points || []).find(x => x.id === st.currentPoint);
+    return p && p.mc && p.result && resultKey(p.result) === resultKey(r) ? p.mc : null;
+  }
+  /** Shu natijaga tegishli Monte-Karlo natijasi (joriy hisob yoki saqlangan nuqta) — sections env.mc */
+  function mcFor(r) {
+    if (!r) return null;
+    if (r === current() || resultKey(r) === resultKey(current())) return lastMC && lastMCKey === resultKey(r) ? lastMC : null;
+    const p = (appState.get('points') || []).find(x => x.result === r);
+    return p && p.mc ? p.mc : null;
+  }
+  function currentMC() { const r = current(); return r && lastMC && !lastMC.error && lastMCKey === resultKey(r) ? lastMC : null; }
+  function autoMcmEnabled() {
+    const lab = window.UCTemplates && window.UCTemplates.labSettings ? (window.UCTemplates.labSettings() || {}) : {};
+    return lab.autoMcm !== false && (appState.get('settings') || {}).autoMcm !== false;
+  }
+  function maybeAutoMcm() {
+    const r = current();
+    if (!r || !r.mcm || !r.mcm.required || mcJob || lastMC) return;
+    const key = resultKey(r);
+    if (key === autoMcmKey || !autoMcmEnabled() || !window.UCMonteCarlo) return;
+    autoMcmKey = key;
+    startMc({ auto: true });
+  }
 
   /* Result of an older app version has no budget — treat as not calculated */
   function current() {
@@ -303,6 +346,7 @@ const Results = (() => {
       <div class="results-layout">
         <div class="results-main">
           ${sec().heroCard(r, { mc })}
+          ${renderMcmStatus(r)}
           ${templateNotice()}
           ${notesHtml(r)}
           ${sec().kpiTiles(r)}
@@ -337,6 +381,8 @@ const Results = (() => {
     bindDecision(el);
     bindMC(el);
     bindBudgetView(el);
+    const mr = el.querySelector('[data-mcm-run]');
+    if (mr) mr.addEventListener('click', () => startMc({ auto: true }));
   }
 
   /* P16: byudjet ko'rinishi (Jadval / Pareto) — faqat ko'rinish almashadi, qayta hisob yo'q */
@@ -390,36 +436,68 @@ const Results = (() => {
     }));
     const runBtn = box.querySelector('#btn-mc'), cancelBtn = box.querySelector('[data-mc-cancel]');
     if (cancelBtn) cancelBtn.addEventListener('click', () => { if (mcJob) mcJob.cancel(); });
-    if (runBtn) runBtn.addEventListener('click', () => {
-      if (mcJob) return;
-      const st = appState.get();
-      // P04b: MC tanlangan chegara (r = 0 yoki r = 1) holatida
-      const spec = st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).state : st;
-      const opts = mcOpts();
-      const done = res => {
-        mcJob = null;
-        lastMC = res && res.error === 'mc_cancelled' ? null : res;
-        if (res && res.error === 'mc_cancelled') showToast(i18n.t('mc_cancelled'), 'warning');
-        render();
-      };
-      if (!window.UCMonteCarlo) {            // modul yuklanmagan (juda eski brauzer): bir chaqiruvda
-        runBtn.disabled = true;
-        runBtn.textContent = i18n.t('mc_running');
-        setTimeout(() => done(Calc.monteCarlo(spec, opts)), 30);
-        return;
-      }
-      const onProgress = info => {
-        if (!mcJob) return;
-        mcJob.info = info;
-        const bar = document.querySelector('[data-mc-progress]'), txt = document.querySelector('[data-mc-progress-text]');
-        if (bar) bar.value = Math.round((info.progress || 0) * 100);
-        if (txt) txt.textContent = mcProgressText(info);
-      };
-      const job = window.UCMonteCarlo.run(spec, opts, onProgress);
-      mcJob = { cancel: job.cancel, info: null };
-      job.promise.then(done);
+    if (runBtn) runBtn.addEventListener('click', () => startMc({ button: runBtn }));
+  }
+  /** Monte-Karloni ishga tushirish. auto: true — P20 qaror qoidasi bo'yicha (standart sozlamalar: adaptiv, n_dig = 2, §8 tekshiruvi bilan). */
+  function startMc(o) {
+    const opt = o || {};
+    if (mcJob) return;
+    const st = appState.get();
+    const key = resultKey(current() || currentMulti());
+    // P04b: MC tanlangan chegara (r = 0 yoki r = 1) holatida
+    const spec = st.template && window.UCTemplates ? window.UCTemplates.evaluateState(st).state : st;
+    const opts = opt.auto ? { ...mcOpts(), mode: 'adaptive', nDig: 2, validation: true } : mcOpts();
+    const done = res => {
+      if (key !== resultKey(current() || currentMulti())) return;      // natija o'zgargan — eski ish natijasi tashlanadi
+      mcJob = null;
+      lastMC = res && res.error === 'mc_cancelled' ? null : res;
+      lastMCKey = lastMC ? key : '';
+      if (res && res.error === 'mc_cancelled') showToast(i18n.t('mc_cancelled'), 'warning');
+      storePointMc(key);
       render();
-    });
+      if (reportTabActive()) renderReportTab();
+    };
+    if (!window.UCMonteCarlo) {            // modul yuklanmagan (juda eski brauzer): bir chaqiruvda
+      if (opt.button) { opt.button.disabled = true; opt.button.textContent = i18n.t('mc_running'); }
+      mcJob = { cancel: () => {}, info: null, key };
+      setTimeout(() => done(Calc.monteCarlo(spec, opts)), 30);
+      return;
+    }
+    const onProgress = info => {
+      if (!mcJob) return;
+      mcJob.info = info;
+      const bar = document.querySelector('[data-mc-progress]'), txt = document.querySelector('[data-mc-progress-text]');
+      if (bar) bar.value = Math.round((info.progress || 0) * 100);
+      if (txt) txt.textContent = mcProgressText(info);
+      const st2 = document.querySelector('[data-mcm-progress]');
+      if (st2) st2.textContent = mcProgressText(info);
+    };
+    const job = window.UCMonteCarlo.run(spec, opts, onProgress);
+    mcJob = { cancel: job.cancel, info: null, key, auto: !!opt.auto };
+    job.promise.then(done);
+    render();
+  }
+  /** Joriy nuqta saqlangan bo'lsa — Monte-Karlo natijasi nuqta bilan birga saqlanadi (ko'p nuqtali hisobotda "QORALAMA" bo'lmasligi uchun) */
+  function storePointMc(key) {
+    const st = appState.get();
+    const pts = st.points || [];
+    const i = pts.findIndex(p => p.id === st.currentPoint);
+    if (i < 0 || !lastMC || lastMC.error || !pts[i].result || resultKey(pts[i].result) !== key) return;
+    const next = pts.slice();
+    next[i] = { ...pts[i], mc: lastMC };
+    appState.set({ points: next });
+  }
+  /** P20: MCM holati bloki (natija kartasi ostida) — sabablar, holat, kerak bo'lsa "ishga tushirish" tugmasi */
+  function renderMcmStatus(r) {
+    if (!r.mcm || !r.mcm.required) return '';
+    const running = !!mcJob;
+    const html = sec().mcmSection(r, { mc: mcFor(r), running, progress: running ? mcProgressText(mcJob.info) : '' });
+    const missing = !running && Calc.mcmMissing(r, mcFor(r));
+    if (!missing) return html;
+    return html.replace(/<\/div>\s*$/, `<div class="mcm-status-actions">
+          <button type="button" class="btn btn-primary btn-sm" data-mcm-run="1">${escHtml(i18n.t('mcm_run_now'))}</button>
+          ${autoMcmEnabled() ? '' : `<span class="text-xs text-muted" data-mcm-auto-off="1">${escHtml(i18n.t('mcm_auto_off'))}</span>`}
+        </div></div>`);
   }
 
   /* Muvofiqlik (RISKS R-07, P05a): |y| xato deb FARAZ QILINMAYDI. Og'ish model turiga ko'ra:
@@ -717,7 +795,7 @@ const Results = (() => {
 
   const escHtml = window.escHtml;
 
-  return { init, render, printReport, preview, renderReportTab, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, printPT, printValidation, findingsOf, findingsHtml, statusOf };
+  return { init, render, printReport, preview, renderReportTab, currentMC, regressionSection, printRegression, topdownSection, printTopdown, specialSection, printSpecial, printPT, printValidation, findingsOf, findingsHtml, statusOf };
 
 
 })();

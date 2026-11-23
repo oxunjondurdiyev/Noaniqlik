@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════════════════════════════
+   LEGAL.CSS — P20 (SEC-02): huquqiy sahifalar (privacy.html, terms.html). Qiymatlar faqat tokens.css dan.
+═══════════════════════════════════════════════════════════════ */
+.legal-page { max-width: 820px; margin: 0 auto; padding: var(--s-6) var(--s-4) var(--s-12); color: var(--c-text); font-family: var(--font-text); line-height: 1.55; }
+.legal-page h1 { font-family: var(--font-display); font-size: 1.7rem; margin: var(--s-4) 0 var(--s-2); }
+.legal-page h2 { font-family: var(--font-display); font-size: 1.1rem; margin: 0 0 var(--s-3); }
+.legal-page a { color: var(--c-blue); min-height: var(--tap); display: inline-flex; align-items: center; }
+.legal-draft { padding: var(--s-3) var(--s-4); border: 1px solid var(--c-amber-line); border-radius: var(--r-control); background: var(--c-amber-soft); color: var(--c-amber); font-weight: 600; }
+.legal-intro { color: var(--c-text-2); margin: var(--s-4) 0; }
+.legal-card { padding: var(--s-5); margin-top: var(--s-4); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card); }
+.legal-list { margin: 0; padding-left: var(--s-5); display: flex; flex-direction: column; gap: var(--s-2); color: var(--c-text-2); }
+.legal-links { margin-top: var(--s-5); }

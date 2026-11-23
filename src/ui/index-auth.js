@@ -202,6 +202,8 @@
     const pwd        = $('reg-pwd').value;
     const pwd2       = $('reg-pwd2').value;
     const empCount   = $('reg-empcount').value;
+    // P20 (SEC-02): rozilik majburiy — belgisiz yuborilmaydi (tugma ham faol emas)
+    if (!$('reg-consent').checked) { showErr('reg-error', t('auth_err_consent')); return; }
 
     if (!inn || !phone || !firstName || !lastName || !login || !pwd) {
       showErr('reg-error', t('auth_err_fill_all')); return;
@@ -216,7 +218,9 @@
       const registeredOrg = await AuthManager.register({
         inn, phone, firstName, lastName,
         login, password: pwd, employeeCount: empCount,
+        consentVersion: window.AuthCore.CONSENT_VERSION,
       });
+      $('reg-consent').checked = false;
       ['reg-inn', 'reg-phone', 'reg-firstname', 'reg-lastname', 'reg-login', 'reg-pwd', 'reg-pwd2', 'reg-empcount'].forEach(fid => {
         const el = $(fid);
         if (el) el.value = '';
@@ -225,9 +229,14 @@
     } catch (e) {
       showErr('reg-error', e.message);
     } finally {
-      btn.disabled = false; btn.textContent = t('auth_register_btn');
+      btn.textContent = t('auth_register_btn');
+      syncConsent();
     }
   });
+  /* P20 (SEC-02): "Ro'yxatdan o'tish" tugmasi faqat rozilik belgilanganda faol */
+  function syncConsent() { $('btn-do-register').disabled = !$('reg-consent').checked; }
+  $('reg-consent').addEventListener('change', syncConsent);
+  syncConsent();
 
   /* ─── CHIQISH ─────────────────────────────────────── */
   $('btn-topbar-logout').addEventListener('click', async () => {

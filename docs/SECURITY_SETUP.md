@@ -96,6 +96,8 @@ npx firebase deploy --only firestore:rules --project noaniqlikbazasi
 
 Qoidalar mazmuni (qisqacha): hamma narsa taqiqlangan (default deny); tashkilot hujjatini faqat uning admini va faol xodimlari o'qiydi; ro'yxatni faqat super-admin ko'radi; `active`, `paymentStatus`, `plan`, `planExpiry` ni faqat super-admin o'zgartiradi; admin faqat `requestedPlan` (tarif so'rovi) va `employeeCount` ni o'zgartiradi; xodimlarni faqat o'z tashkilotining admini boshqaradi; `passwordHash`/`rawPwd`/`password` maydonlari hech kim tomonidan yozilmaydi.
 
+> **P20 (2026-11-21) — qoidalar o'zgardi, qayta joylash kerak.** Ro'yxatdan o'tishda endi **rozilik majburiy**: `organizations/{uid}` hujjatida `consentVersion` (`YYYY-MM-DD`) va `consentAt` (server vaqti) bo'lishi shart; boshqa yangi maydon yo'q. **Tartib:** avval yangi `firestore.rules` ni joylang (yuqoridagi usul bilan), so'ng darhol saytni yangilang (PR'ni birlashtiring). Oraliqda: eski qoidalar + yangi sayt — ro'yxatdan o'tish rad etiladi (noma'lum maydon); yangi qoidalar + keshdagi eski sahifa — ham rad etiladi (rozilik yo'q) — sahifa yangilangach ishlaydi. Mavjud tashkilotlar hujjatiga tegilmaydi (ularda bu maydonlar yo'q; o'qish va kirish o'zgarmagan). Tekshiruv: `npm run test:rules` (32 / 32).
+
 ## 6. Tekshirish
 
 1. **Rules Playground** (Firestore → Rules → *Rules Playground*): *Authenticated* o'chiq, `get` `/organizations/biror-id` → **Denied** bo'lishi kerak. `list` (`/organizations`) — Denied.

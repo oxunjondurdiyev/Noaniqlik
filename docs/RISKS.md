@@ -42,6 +42,7 @@
 | R-27 | Validatsiya paketi (P13): **egasi qarorlari kiritildi (2026-11-20)** — istisnolar ro'yxati (a), oq ro'yxat + ommaviy hisobot (a), NUM toleransi vaqtincha, deploy (a), semver qoidasi (CHANGE_CONTROL §1), "Kim" → rol ro'yxati (b), RTM `manual` (a); ochiq — NUM natijalari va qo'llanmasi, Pages manbasi (egasi), Safari, TraCIM, tashqi ko'rib chiqish | O | P13 → P14 bilan |
 | R-28 | AI yordamchi (P14): **amalga oshirildi, egasi qarorlari kiritildi (2026-11-20)**; AI hisoblamaydi, standart holatda o'chiq, tashqariga faqat tuzilma; tasdiq kutadi — MPE filtri, sana ko'rinishlari, almashinuv muddati; qoldiq — hujjatdagi shaxs ismlari, chet el xizmati (yuridik baho egasida), brauzerdagi kalit | O | P14 |
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
+| R-30 | Audit (21.11.2026) bo'yicha P0 tuzatishlar (P20, 2.11.0): LPU → MCM qaror qoidasi (chegaralar — loyiha qarori; 9 etalon nuqtaning hammasida MCM talab qilinadi), "QORALAMA" belgisi, rozilik va huquqiy sahifalar (yurist tasdig'ini kutadi); P18 (M9) dan oldin bajarildi — birlashtirishda ziddiyat bo'lishi mumkin | O | P20 (bajarildi; qoldiq ochiq) |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -492,10 +493,39 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 
 ### R-15. Biznes mantiq mijoz tomonda (O)
 - Trial (`uc_trial_count`) `localStorage` ni tozalash bilan tiklanadi. `upgradePlan` (`auth.js:392`) to'lovsiz tarifni o'zgartiradi. Click/Payme merchant ID lari to'ldirilmagan (`auth.js:403-409`).
+- **Holat (P20, 2026-11-21): o'zgarmadi — "qisman" (P02 natijasi jadvaliga qarang).** P20 bu xavfga tegmadi: trial hisoblagichi (`uc_trial_count`) va xodimlar limiti hali mijozda; Click / Payme identifikatorlari to'ldirilmagan. Audit (21.11.2026) hujjati repoda yo'q — undagi R-15 ga oid band shu yerga egasi tomonidan qo'shiladi. To'liq yopish server tomonini talab qiladi (P15; Spark tarifida Cloud Functions yo'q). P20 da faqat kirish sahifasidagi litsenziya da'vosi tuzatildi ("bepul va ochiq kodli" / "MIT" → yopiq litsenziya).
 
 ### R-16. Ishlash (P)
 - **MC qismi yopildi (P06):** hisob Web Worker'da (`src/ui/mc/`), progress va bekor qilish bilan; worker'siz — bo'laklab.
 - (P00) MC asosiy oqimda, M=10⁶ da bir necha soniya UI qotadi. Har bir `appState.set` butun holatni `JSON.stringify` qiladi va bir nechta komponent to'liq qayta chiziladi.
+
+### R-30. Audit (21.11.2026) bo'yicha P0 tuzatishlar: qarorlar va qoldiq (O) — P20 (2026-11-21, ENGINE 2.11.0)
+
+Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)" (egasining hujjati; repoda yo'q). Tekshirilgan versiya — `e460e89` (PR #35), ENGINE 2.10.0.
+
+**Egasi qarorlari (2026-11-21):** (1) MCM majburiyligi — loyiha yo'riqnomasi §3.3 (a)–(d); (b) uchun **nisbat** \|c_i\|u(x_i)/u_c > 0,50 (dispersiya ulushi emas); linter A1 (ulush > 90 %) o'zgarmaydi. (2) Litsenziya yopiq — "bepul va ochiq kodli" nishoni olib tashlanadi. (3) Rozilik — Firebase'da faqat `consentVersion` va `consentAt`. (4) Rekvizitlar to'liq bo'lmasa — "QORALAMA" (bloklanmaydi). (5) Raqamlash: P18 = M9, P19 = M8 (ISO 19036), P20 = shu ish, Kragten → P21.
+
+**Bajarildi:** `docs/PLAN.md` P20; `CHANGELOG.md` [2.11.0]. Sonli natijalar o'zgarmagan (91 / 91, `mcm` maydonidan tashqari); 9 ta etalon Excel nuqtasi va 10-test o'zgarmagan.
+
+**Oqibatlar (egasi bilishi kerak):**
+
+1. **Qoida ehtiyotkor.** 0,50 nisbat 25 % dispersiya ulushiga teng: 9 ta etalon Excel nuqtasining **hammasida** `mcm.required = true` (sabab (b): zichlik — 0,917; gaz 1–3 — 0,56 … 0,75; termometr 1–5 — 0,54 … 0,89, shu jumladan avtomatik histerezis manbasi). Amalda deyarli har bir hisobda MCM avtomatik ishga tushadi.
+2. **Vaqt.** Zichlik namunasida avtomatik MCM M = 10⁷ chegarasiga yetadi (Chromium: ≈ 19 s, Web Worker — interfeys qotmaydi) va "yaqinlashmadi" bilan tugaydi (R-29 dagi ma'lum holat; M chegarasi oshirilmagan). Bu holat "bajarilgan" hisoblanadi — hisobot QORALAMA emas (topshiriq: QORALAMA faqat "bajarilmagan yoki bekor qilingan"da).
+3. **Bajarilayotganda** natijalar panelida M5 ogohlantirishi ko'rinadi (MCM tugaguncha hisobot haqiqatan QORALAMA) — tugagach yo'qoladi.
+
+**Tasdiq / qaror kutadi:**
+
+- (a) "Yaqinlashmadi" holati QORALAMA sabab bo'lsinmi? Hozir — yo'q (KL-186).
+- (b) Avtomatik histerezis manbasi ((b) shartida hisobga olinadi) va A tur hissalari (hisobga olinmaydi — t-taqsimot "normal bo'lmagan manba" ro'yxatida yo'q) to'g'ri talqin qilinganmi? Yo'riqnoma §3.3 matni repoda yo'q.
+- (c) (a) sharti uchun JCGM 101 havolasi: topshiriqda §5.7 (chiziqli modellar); nochiziqli modellar sharti — §5.8. Kodda ikkalasi ham ko'rsatilgan (PDF bilan solishtirildi).
+- (d) Bildirishnoma 3 s da yopiladi; **xato** xabarlarida chaqiruvchi bergan uzoqroq vaqt (4,5–7 s) saqlandi — uzun xato matnini 3 s da o'qib bo'lmaydi. Qat'iy 3 s kerak bo'lsa — bitta satr (`src/ui/toast.js`).
+- (e) Kirish sahifasidagi "usullar" soni — dvigatelning hisoblash rejimlari (9 ta). M1–M13 ro'yxati repoda yo'q — egasi bergach "mavjud usullar" shu ro'yxat bo'yicha sanaladi.
+- (f) `privacy.html` / `terms.html` matni — loyiha (yurist tasdig'i); saqlash muddati belgilanmagan; Firebase joylashuvi (`docs/DATA_RESIDENCY.md` §3) hali to'ldirilmagan — sahifada "O'zbekistondan tashqarida" deyilgan; versiya o'zgarganda qayta rozilik oqimi yo'q (KL-189).
+- (g) **Egasi bajaradi:** yangi `firestore.rules` ni konsolga joylash (`docs/SECURITY_SETUP.md` §5 dagi P20 eslatmasi — tartib muhim); yurist tasdiqlagach sahifalardagi "Loyiha" belgisini olib tashlash.
+
+**Qilinmagan:** fizik chegara (`physicalBounds`) uchun kiritish maydoni; vektor va oshkormas modellarda avtomatik MCM (KL-187); regressiya / top-down / maxsus rejim hisobotlarida MCM sharti; Safari / Firefox da qo'lda ko'rish (Chromium da `test:screens` va bosma PDF ko'rilgan); chap menyu 1440×900 da to'liq sig'maydi (16 band × 44 px) — ichki scroll qutisi ko'rinadigan scrollbar bilan (topshiriq ruxsat bergan variant).
+
+**P18 (M9) bilan birlashtirish:** P20 P18 dan oldin, `e460e89` ustida bajarildi. P18 `ENGINE_VERSION` ni oshirsa — ikkalasidan keyingi versiya qayta kelishiladi (hozir 2.11.0 — P20); `evaluate.js` da `mcm` qo'shilgan joy (natija obyekti oxiri) va `CHANGELOG.md` boshi — ehtimoliy ziddiyat nuqtalari.
 
 ### R-29. Interfeys 2.0: dizayn qarorlari va qoldiq (P) — P16 (2026-11-20, ENGINE 2.10.0 o'zgarmagan)
 
@@ -505,7 +535,7 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 
 - **(0) P14 birlashtirildi (`88e271e`)** — `feat/p16-ui2` shu commit ustiga rebase qilindi; `ai.html` va AI oynasi yangi tokenlar / qobiqqa o'tkazildi (`ai.html` CSP si o'zgarmagan — faqat Google Fonts manbalari olib tashlandi); AI sahifasi skrinshot testida.
 - **(#1) MCM gistogrammasi — RUXSAT, lekin P16 da emas:** alohida PR **P16b** (P16 dan keyin): `opts.histogram` (opt-in), sonli natija bit darajasida o'zgarmaydi (snapshot 91 / 91), `ENGINE_VERSION` 2.11.0 (minor), `// Ref: JCGM 101:2008 §7.5`.
-- **(#2) Kragten — HA, alohida bosqich P17:** QUAM:2012 Appendix E.2; kutilgan qiymatlar FAQAT QUAM ishlangan misolidan (sahifa havolasi bilan); LPU o'rnini bosmaydi — solishtirish ko'rinishi, farq hisobotda yoziladi; minor versiya.
+- **(#2) Kragten — HA, alohida bosqich P21 (avval P17; egasi qarori 2026-11-21):** QUAM:2012 Appendix E.2; kutilgan qiymatlar FAQAT QUAM ishlangan misolidan (sahifa havolasi bilan); LPU o'rnini bosmaydi — solishtirish ko'rinishi, farq hisobotda yoziladi; minor versiya.
 - **(#3) `'unsafe-inline'` — HA, TO'LIQ olib tashlanadi:** alohida xavfsizlik PR'ida, P16 dan keyin; `npm run test:rules` va sayt tutun-testi o'tishi shart; `tests/security/inline-style.test.js` dagi qotirilgan son — 0.
 - **(#7) Bosma shrift:** jadvallar 10 pt; asosiy matn ≥ 11 pt; pastki qism ≥ 9 pt; keng byudjet sahifasi landscape bo'lishi mumkin (hozir qo'llanmadi — 10 pt da A4 portretga sig'adi). **Qo'llandi** (`src/css/print.css`, test). Sahifalar soni (Chromium PDF, A4): zichlik (1 nuqta) — 3 bet; gazoanalizator (3 nuqta) — 8 bet; termometr (5 nuqta) — 16 bet (har bir nuqta yangi sahifadan boshlanadi; pastki qism har sahifada).
 

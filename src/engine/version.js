@@ -29,5 +29,9 @@
            Egasi qarorlari 2026-11-19: U_y — Annex B (U_x singular → LU + info MV2), qoldiq tekshiruvi, cond₁(C_y)).
    2.10.0 — P12 (pt/ — z, z′, ζ, E_n, PT tarixi → top-down bias; validation/ — Grubbs, Cochran (unverified), bir omilli ANOVA,
            t / F testlari, LOD/LOQ (unverified), top-down shablon qoralamasi; stats/ — F-taqsimot, ANOVA yordamchilari.
-           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi). */
-export const ENGINE_VERSION = '2.10.0';
+           YANGI IMKONIYAT: mavjud natijalar 2.9.0 bilan bit darajasida bir xil; sampling/ umumiy yordamchiga o'tkazildi).
+   2.11.0 — P20 (audit 21.11.2026, MET-01): mcm-decision.js — LPU → MCM avtomatik qaror qoidasi; natijaga yangi maydon
+           result.mcm = { required, reasons } (chegaralar — loyiha qarori: |c_i|u(x_i)/u_c > 0,50; ν_eff < 6); linter M5
+           (mcm_required — faqat hisobot / UI qatlamidan, lintMcm). SONLI NATIJALAR O'ZGARMAGAN: 91 ta misol 2.10.0 bilan
+           bit darajasida bir xil (yangi `mcm` maydonidan tashqari). */
+export const ENGINE_VERSION = '2.11.0';

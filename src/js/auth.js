@@ -201,7 +201,7 @@ const AuthManager = (() => {
   }
 
   /* ─── RO'YXATDAN O'TISH ───────────────────────────── */
-  async function register({ inn, phone, firstName, lastName, login, password, employeeCount }) {
+  async function register({ inn, phone, firstName, lastName, login, password, employeeCount, consentVersion }) {
     inn = String(inn ?? '').replace(/\s/g, '');
     phone = String(phone ?? '').trim();
     firstName = String(firstName ?? '').trim();
@@ -216,6 +216,9 @@ const AuthManager = (() => {
       throw new Error(t('auth_err_login_format'));
     }
     if (password.length < 8) throw new Error(t('auth_err_pwd_short'));
+    // P20 (SEC-02, egasi qarori 2026-11-21): rozilik majburiy; Firebase'ga faqat hujjat versiyasi va server vaqti yoziladi
+    // (consentVersion, consentAt — shaxsga doir ma'lumot emas). firestore.rules ham shuni talab qiladi.
+    if (consentVersion !== Core.CONSENT_VERSION) throw new Error(t('auth_err_consent'));
 
     const org = {
       inn, phone, firstName, lastName, login,
@@ -235,7 +238,8 @@ const AuthManager = (() => {
         throw new Error(friendlyAuthError(e));
       }
       try {
-        await DB.set('organizations', cred.user.uid, org);
+        await DB.set('organizations', cred.user.uid, { ...org, consentVersion: Core.CONSENT_VERSION, consentAt: DB.serverTimestamp() });
+        org.consentVersion = Core.CONSENT_VERSION;
       } catch (e) {
         // Yarim yaratilgan hisob qolmasin
         try { await cred.user.delete(); } catch { /* egasi authCleanup orqali */ }

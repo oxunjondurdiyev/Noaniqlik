@@ -84,14 +84,22 @@ service cloud.firestore {
 
       // Ro'yxatdan o'tish: faqat o'z UID'i bilan, faqat "nofaol / to'lov
       // kutilmoqda / basic" holatida. planExpiry'ni faqat super-admin qo'yadi.
+      // P20 (SEC-02, egasi qarori 2026-11-21): rozilik MAJBURIY — consentVersion
+      // (hujjat versiyasi, 'YYYY-MM-DD') va consentAt (server vaqti). Bular shaxsga
+      // doir ma'lumot emas; boshqa yangi maydon yo'q. Keyin o'zgartirib bo'lmaydi
+      // (update qoidasi: admin faqat requestedPlan va employeeCount).
       allow create: if isOrgOwner(orgId)
         && !touchesSecrets()
         && request.resource.data.keys().hasOnly([
              'inn', 'phone', 'firstName', 'lastName', 'login',
-             'employeeCount', 'plan', 'active', 'paymentStatus', 'registeredAt'])
+             'employeeCount', 'plan', 'active', 'paymentStatus', 'registeredAt',
+             'consentVersion', 'consentAt'])
         && request.resource.data.keys().hasAll([
              'inn', 'phone', 'firstName', 'lastName', 'login',
-             'plan', 'active', 'paymentStatus'])
+             'plan', 'active', 'paymentStatus', 'consentVersion', 'consentAt'])
+        && request.resource.data.consentVersion is string
+        && request.resource.data.consentVersion.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.consentAt == request.time
         && request.resource.data.active == false
         && request.resource.data.paymentStatus == 'pending'
         && request.resource.data.plan == 'basic'

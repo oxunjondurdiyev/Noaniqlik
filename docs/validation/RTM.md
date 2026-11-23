@@ -8,13 +8,13 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 345 |
-| Kamida bitta testga bog'langan | 332 |
-| ✅ verified | 281 |
+| Talablar | 355 |
+| Kamida bitta testga bog'langan | 342 |
+| ✅ verified | 290 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
-| ✋ manual | 4 |
+| ✋ manual | 5 |
 | Testsiz (faqat aniq belgi bilan: unverified / pending / manual) | 13 |
 
 ## GOV — Loyihaning majburiy qoidalari (CLAUDE.md, egasi qarorlari)
@@ -456,4 +456,19 @@
 | REQ-AIA-013 | Har bir AI amali audit zanjirida: amal, rejim, model (api), prompt id + versiya, yuborilgan matn va javobning SHA-256 xeshi, rol; matnning o'zi, kalit va qiymat yozilmaydi | `src/storage/ai.js::aiAudit` | `tests/storage/ai.test.js` | ✅ verified | — |
 | REQ-AIA-014 | Prompt shablonlari versiyalangan (`id`, semver); javob sxemalari `schemas/ai/` da; barcha AI matnlari uch tilda | `src/ai/prompts/index.js::PROMPTS`; `src/js/i18n-ai.js` | `tests/ai/response.test.js`; `tests/i18n.test.js` | ✅ verified | — |
 | REQ-AIA-015 | Shablon muharriridagi "Kim" maydoni — rol ro'yxati (erkin matn yo'q); auditga faqat rol identifikatori yoziladi | `src/ui/tpl/view.js::roleSelectHTML`; `src/ui/tpl/view.js::editorRole` | `tests/ui/ai.test.js` | ✅ verified | — |
+
+## AUD — Audit (21.11.2026) bo'yicha P0 tuzatishlar (P20)
+
+| ID | Talab | Kod | Test | Holat | Izoh |
+|---|---|---|---|---|---|
+| REQ-AUD-001 | LPU → MCM avtomatik qaror qoidasi: natijada `mcm = { required, reasons[] }`; shartlar (a) nochiziqlilik indeksi > `nonlinThreshold` yoki c_i = 0, (b) bitta normal bo'lmagan manba uchun \|c_i\|u(x_i)/u_c > 0,50 (nisbat, dispersiya ulushi emas), (c) asimmetrik kirish taqsimoti yoki fizik chegara \|y − chegara\| < U, (d) ν_eff < 6; sonli natija (y, u_c, ν_eff, k, U) o'zgarmaydi; A1 (ulush > 90 %) o'zgarmagan | `src/engine/mcm-decision.js::mcmDecision`; `src/engine/evaluate.js::evaluate` | `tests/engine/mcm-decision.test.js`; `tests/validation/snapshot.test.js` | ✅ verified | chegaralar (0,50; 6) — loyiha qarori (egasi, 2026-11-21), me'yoriy manbada son yo'q; 91 snapshot bit darajasida bir xil (mcm maydonidan tashqari) |
+| REQ-AUD-002 | `required = true` bo'lsa hisobdan keyin MCM avtomatik Web Worker'da boshlanadi (adaptiv, n_dig = 2, §8 tekshiruvi); natija ekranida holat: sabablar va "bajarilmoqda / tasdiqlandi / rad etildi / yaqinlashmadi / bajarilmagan"; bir natija uchun bir marta; kirish o'zgarsa eski ish to'xtatiladi; `autoMcm = false` (laboratoriya yoki hisob sozlamasi) faqat avtomatik ishga tushirishni o'chiradi | `src/js/report.js`; `src/report/sections.js::createSections`; `src/engine/mcm-decision.js::mcmState` | `tests/ui/mcm.test.js`; `tests/engine/mcm-decision.test.js` | ✅ verified | jsdom da soxta bajaruvchi bilan; haqiqiy Web Worker — Chromium da qo'lda ko'rilgan (zichlik: 10⁷ sinov, ≈ 19 s, yaqinlashmadi) |
+| REQ-AUD-003 | Linter M5 `mcm_required` (warning): MCM talab qilingan, lekin natijasi yo'q (bajarilmagan / bekor qilingan / xato); faqat hisobot va UI qatlamida (`lintMcm`), `evaluate()` topilmalari o'zgarmagan; matnlar uch tilda | `src/engine/linter/rules/m05-mcm-required.js`; `src/engine/linter/index.js::lintMcm` | `tests/engine/mcm-decision.test.js`; `tests/engine/linter.test.js`; `tests/i18n.test.js` | ✅ verified | — |
+| REQ-AUD-004 | "QORALAMA" holati: tanlangan shaklning majburiy rekvizitlaridan biri bo'sh (kalibrlash sertifikati ilovasida — 13 ta) yoki talab qilingan MCM bajarilmagan bo'lsa — A4 ko'rinishida va bosmada har sahifada diagonal suv belgisi (QORALAMA / ЧЕРНОВИК / DRAFT), sababi satrda va pastki qismda; aks holda belgi yo'q, pastki qismda "Yakuniy"; hisobot bloklanmaydi | `src/report/forms.js::draftReasons`; `src/report/forms.js::draftHTML`; `src/report/footer.js::footerHTML`; `src/css/print.css` | `tests/report/draft.test.js` | ✅ verified | bosma PDF (Chromium): suv belgisi va holat satri har sahifada — qo'lda ko'rilgan |
+| REQ-AUD-005 | Hisobotda MCM qaror qoidasi sabablari ro'yxati va JCGM 101 §8 natijasi; ko'p nuqtali hisobotda nuqta bilan saqlangan MCM natijasi hisobga olinadi | `src/report/sections.js::createSections`; `src/report/forms.js::buildReport`; `src/js/points.js` | `tests/report/draft.test.js`; `tests/ui/mcm.test.js` | ✅ verified | — |
+| REQ-AUD-006 | Tez UX tuzatishlar: hech bir atributda "null" / "undefined" matni yo'q (o'lchash katagi placeholder'i); bildirishnoma — bir vaqtda bitta, 3 s, `aria-live="polite"`, kontentni yopmaydi; pastki amal paneli jadvalning oxirgi qatorini / fokuslangan katakni yopmaydi; chap menyu 1440×900 da qirqilmaydi yoki scroll qutisi ichida | `src/js/table.js`; `src/ui/toast.js`; `src/css/shell.css`; `src/ui/shell/app.js` | `tests/i18n.test.js`; `tests/ui/shell.test.js` | ✅ verified | menyu, amal paneli va bildirishnoma joylashuvi — npm run test:screens (Playwright; npm test tarkibida emas) |
+| REQ-AUD-007 | Preset namunaviy ma'lumoti matn sifatida (`'100.00'`) — jadvalda va hisobotda kiritilgandek chiqadi; hisob natijasi son kiritilgandagi bilan bit darajasida bir xil | `src/data/presets.js`; `src/report/sections.js::createSections` | `tests/presets.test.js` | ✅ verified | — |
+| REQ-AUD-008 | Kirish sahifasi: "bepul va ochiq kodli" / "MIT" da'vosi yo'q (litsenziya yopiq); "to'liq mos" o'rniga "talablari asosida ishlab chiqilgan" (uz / ru / en); sonlar (shablonlar, hisoblash rejimlari, taqsimotlar, tillar) dinamik — katalog va dvigateldan | `src/ui/home/model.js::landingStats`; `src/ui/home/app.js`; `index.html` | `tests/ui/p20-pages.test.js` | ✅ verified | "usullar" soni — dvigatelning hisoblash rejimlari (LINTER_MODES); M1–M13 ro'yxati repoda yo'q — egasi bergach moslanadi |
+| REQ-AUD-009 | Ro'yxatdan o'tishda majburiy rozilik belgisi (belgisiz tugma faol emas); Firestore `organizations/{uid}` ga faqat `consentVersion` va `consentAt` (server vaqti) qo'shiladi — boshqa yangi maydon yo'q; qoidalar ularni talab qiladi va keyin o'zgartirishga yo'l qo'ymaydi | `src/ui/index-auth.js`; `src/js/auth.js`; `src/js/auth-core.js`; `firestore.rules` | `tests/ui/home.test.js`; `tests/ui/p20-pages.test.js`; `tests/security/firestore-rules.test.js` | ✅ verified | Firestore qoidalari — npm run test:rules (Emulator; 32 / 32); konsolga joylashni egasi bajaradi |
+| REQ-AUD-010 | Statik huquqiy sahifalar `privacy.html`, `terms.html` (uz / ru / en; "Loyiha — yurist tasdig'ini kutmoqda" belgisi): qaysi ma'lumot, nima uchun, qayerda, qancha muddat, o'chirish so'rovi tartibi, aloqa; sayt oq ro'yxatida; inline skript va tashqi so'rov yo'q | `privacy.html`; `terms.html`; `src/js/i18n-legal.js`; `scripts/build-site.js` | `tests/ui/p20-pages.test.js`; `tests/i18n.test.js` | ✋ manual | matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi |
 

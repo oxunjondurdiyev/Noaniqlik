@@ -20,7 +20,7 @@ const { escHtml } = require('../../src/ui/escape.js');
 const ROOT = path.join(__dirname, '..', '..');
 const LANGS = ['uz', 'ru', 'en'];
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js', 'src/js/i18n-lab.js', 'src/js/i18n-pt.js'];
+const I18N_FILES = ['src/js/i18n.js', 'src/js/i18n-ext.js', 'src/js/i18n-engine.js', 'src/js/i18n-templates.js', 'src/js/i18n-regression.js', 'src/js/i18n-topdown.js', 'src/js/i18n-special.js', 'src/js/i18n-linter.js', 'src/js/i18n-report.js', 'src/js/i18n-p20.js', 'src/js/i18n-lab.js', 'src/js/i18n-pt.js'];
 
 /** report.js ni jsdom'da yuklash; state — appState holati (combined, points, settings …) */
 function load(lang, state, opts) {
@@ -172,7 +172,10 @@ test('bosma hisobot: barcha topilmalar chiqadi; qabul qilinmagan error → "RASM
   const p = w.document.getElementById('print-report');
   assert.equal(p.querySelector('[data-report-watermark]'), null);
   assert.match(p.querySelector('[data-finding="x1_mpe_in_budget"] [data-finding-accepted]').textContent, /Etalon vositaning xatosi — nomi tuzatiladi/);
-  assert.equal(p.querySelectorAll('[data-finding-id]').length, r.findings.length);        // hammasi joyida
+  // P20: bu misolda MCM talab qilinadi (to'g'ri burchakli manba ustun) va Monte-Karlo bajarilmagan → hisobot qatlami M5 ni qo'shadi
+  assert.equal(r.mcm.required, true);
+  assert.ok(p.querySelector('[data-finding="mcm_required"]'));
+  assert.equal(p.querySelectorAll('[data-finding-id]').length, r.findings.length + 1);    // hammasi joyida (+ M5)
 });
 
 test('topilmalarni yashiradigan parametr yo\'q; bosma CSS blokni yashirmaydi; suv belgisi har sahifada', () => {
@@ -181,7 +184,7 @@ test('topilmalarni yashiradigan parametr yo\'q; bosma CSS blokni yashirmaydi; su
   const w = load('uz', { ...st, combined: r });
   for (const o of [{ print: true }, { print: false }, { hide: true }, { findings: false }, { warnings: false }, { hideWarnings: true }, { showEmpty: false }, undefined]) {
     const d = frag(w, w.Results.findingsHtml(r, { scope: 'gum', spec: st, ...(o || {}) }));
-    assert.equal(d.querySelectorAll('[data-finding-id]').length, r.findings.length, JSON.stringify(o));
+    assert.equal(d.querySelectorAll('[data-finding-id]').length, r.findings.length + 1, JSON.stringify(o));   // + M5 (P20: MCM talab qilingan, natija yo'q)
   }
   const c = ctx('uz');
   for (const o of [{ hide: true }, { skipInfo: true }, { onlyErrors: true }, { acceptances: null }]) {
@@ -361,9 +364,12 @@ test('ko\'p nuqtali bosma hisobot: har bir nuqtaning topilmalari va o\'z qabul i
 
 test('topilma yo\'q bo\'lsa ham blok ko\'rinadi (tekshiruv bajarilgani ma\'lum); P08–P10 bo\'limlarida eski data-atributlar saqlangan', () => {
   const st = { params: ['X'], n: 10, measurements: { X: [10.02, 10.01, 10.03, 10.02, 10.01, 10.02, 10.03, 10.02, 10.01, 10.02] }, model: { formula: '' }, directions: [], covB: {},
-    settings: { modelKind: 'value' }, typeB: [{ name: 'Rezolyutsiya', param: 'X', halfWidth: 0.01, distribution: 'resol' }, { name: 'Harorat ta\'siri', param: 'X', halfWidth: 0.01, distribution: 'rect' }] };
+    settings: { modelKind: 'value' }, typeB: [{ name: 'Rezolyutsiya', param: 'X', halfWidth: 0.004, distribution: 'resol' }, { name: 'Harorat ta\'siri', param: 'X', halfWidth: 0.002, distribution: 'rect' }] };
+  // P20: yarim kengliklar kichraytirildi (0,01 → 0,004 / 0,002) — normal bo'lmagan manba ustun bo'lmasin (|c|u/u_c ≤ 0,50),
+  // aks holda MCM talab qilinadi va hisobot qatlami M5 (mcm_required) topilmasini qo'shadi — bu test "topilma yo'q" holati uchun.
   const r = E.evaluate(st);
   assert.deepEqual(r.findings, []);
+  assert.equal(r.mcm.required, false);
   const w = load('uz', { ...st, combined: r });
   w.Results.render();
   const b = w.document.querySelector('#results-content [data-findings]');

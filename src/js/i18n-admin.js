@@ -44,7 +44,6 @@
       plan_pro: "Pro",
 
       idx_title: "O'lchash noaniqligi kalkulyatori | ISO/IEC 17025:2017",
-      idx_badge_free: "Bepul va ochiq kodli",
       idx_std_2017: "2017-yil nashri",
       idx_std_cg4: "CG4, 3-nashr",
       ph_param_name: "nom",
@@ -108,6 +107,11 @@
       auth_emp_count: "Tashkilotda nechta xodim platforma ishlatadi?",
       auth_emp_count_ph: "Masalan: 5",
       auth_register_btn: "Ro'yxatdan o'tish →",
+      /* P20 (SEC-02): majburiy rozilik — index.html (ro'yxatdan o'tish), src/js/auth.js */
+      auth_consent_text: "Shaxsga doir ma'lumotlarimni Maxfiylik siyosati va Foydalanish shartlari asosida qayta ishlashga roziman",
+      auth_consent_privacy: "Maxfiylik siyosati",
+      auth_consent_terms: "Foydalanish shartlari",
+      auth_err_consent: "Ro'yxatdan o'tish uchun shaxsga doir ma'lumotlarni qayta ishlashga rozilik bering.",
       auth_saving: "Saqlanmoqda…",
       auth_already: "Allaqachon ro'yxatdan o'tganmisiz?",
       auth_login_ok: "✓ Format to'g'ri",
@@ -351,7 +355,6 @@
       plan_pro: "Про",
 
       idx_title: "Калькулятор неопределённости измерений | ISO/IEC 17025:2017",
-      idx_badge_free: "Бесплатно, с открытым кодом",
       idx_std_2017: "редакция 2017 г.",
       idx_std_cg4: "CG4, 3-е издание",
       ph_param_name: "имя",
@@ -415,6 +418,11 @@
       auth_emp_count: "Сколько сотрудников организации будут пользоваться платформой?",
       auth_emp_count_ph: "Например: 5",
       auth_register_btn: "Зарегистрироваться →",
+      /* P20 (SEC-02): majburiy rozilik — index.html (ro'yxatdan o'tish), src/js/auth.js */
+      auth_consent_text: "Я согласен(на) на обработку моих персональных данных в соответствии с Политикой конфиденциальности и Условиями использования",
+      auth_consent_privacy: "Политика конфиденциальности",
+      auth_consent_terms: "Условия использования",
+      auth_err_consent: "Для регистрации дайте согласие на обработку персональных данных.",
       auth_saving: "Сохранение…",
       auth_already: "Уже зарегистрированы?",
       auth_login_ok: "✓ Формат верный",
@@ -658,7 +666,6 @@
       plan_pro: "Pro",
 
       idx_title: "Measurement Uncertainty Calculator | ISO/IEC 17025:2017",
-      idx_badge_free: "Free and open source",
       idx_std_2017: "2017 edition",
       idx_std_cg4: "CG4 3rd edition",
       ph_param_name: "name",
@@ -722,6 +729,11 @@
       auth_emp_count: "How many employees of the organization will use the platform?",
       auth_emp_count_ph: "e.g. 5",
       auth_register_btn: "Register →",
+      /* P20 (SEC-02): majburiy rozilik — index.html (ro'yxatdan o'tish), src/js/auth.js */
+      auth_consent_text: "I agree to the processing of my personal data under the Privacy policy and the Terms of use",
+      auth_consent_privacy: "Privacy policy",
+      auth_consent_terms: "Terms of use",
+      auth_err_consent: "To register, please agree to the processing of personal data.",
       auth_saving: "Saving…",
       auth_already: "Already registered?",
       auth_login_ok: "✓ Valid format",

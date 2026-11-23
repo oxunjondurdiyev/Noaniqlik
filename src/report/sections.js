@@ -7,11 +7,12 @@
      env.esc(text)          — HTML escape (src/ui/escape.js); HAR QANDAY foydalanuvchi qiymati shu orqali;
      env.acceptances(scope) — asoslangan holda qabul qilingan topilmalar { id: {comment, role, at, value} };
      env.canAccept()        — qabul qilish tugmalari ko'rsatilsinmi (ekranda);
-     env.lab()              — laboratoriya sozlamalari (criticalMode, cmcMode …) yoki null.
+     env.lab()              — laboratoriya sozlamalari (criticalMode, cmcMode …) yoki null;
+     env.mc(result)         — shu natija uchun Monte-Karlo natijasi yoki null (P20: MCM talab qilingan hisob — M5, "QORALAMA").
    Yaxlitlash faqat shu qatlamda: roundResult (U ≤ 2 qiymatli raqam — ILAC P14:09/2020 §5.3; JCGM 100:2008 7.2.6).
    Bo'limlar mazmuni P05a dagi bilan AYNAN bir xil (funksiya tanalari o'zgarmagan) — tests/ui/*.test.js.
 ═══════════════════════════════════════════════════════════════ */
-import { lint, lintReported } from '../engine/index.js';
+import { lint, lintReported, lintMcm, mcmState } from '../engine/index.js';
 import { roundResult } from './rounding.js';
 import { fmtSci } from './format.js';
 import { ellipseSvg } from './ellipse.js';
@@ -26,11 +27,11 @@ import { validationSectionHTML } from './validation.js';
  * @param {{t:Function, esc:Function, acceptances?:Function, canAccept?:Function, lab?:Function}} environment
  */
 export function createSections(environment) {
-  const env = { acceptances: () => ({}), canAccept: () => false, lab: () => null, ...environment };
+  const env = { acceptances: () => ({}), canAccept: () => false, lab: () => null, mc: () => null, ...environment };
   // ko'chirilgan kod o'zgarmasligi uchun eski nomlar saqlangan (i18n.t, escHtml, Calc.*)
   const i18n = { t: env.t };
   const escHtml = env.esc;
-  const Calc = { lint, lintReported, roundResult, fmtSci, findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText };
+  const Calc = { lint, lintReported, lintMcm, mcmState, roundResult, fmtSci, findingsBlockHTML, findingsStatus, watermarkHTML, criticalMarkHTML, reportMarks, modelKindText };
 
   /* P16: byudjet jadvalida "kichik ν" belgisi chegarasi — ko'rsatish uchun loyiha qarori (X7 dagi ν_eff < 10 bilan bir xil son;
    docs/RISKS.md R-29). Hisobga, k ga va topilmalarga ta'sir qilmaydi. */
@@ -92,9 +93,16 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
      Blok ekranda ham, bosma hisobotda ham chiqadi; uni yashiradigan parametr yo'q (RISKS R-05).
      Matn va HTML — src/report/findings.js (sof modul, escHtml bilan). */
   const fctx = () => ({ t: k => i18n.t(k), esc: escHtml });
-  function findingsOf(r, spec) {
+  /** @param {object|null} [mc]  Monte-Karlo natijasi (undefined — env.mc(r) dan; null — yo'q) */
+  function mcOf(r, mc) { return mc !== undefined ? mc : env.mc(r); }
+  function findingsOf(r, spec, mc) {
     if (!r || r.error) return [];
     let list = Array.isArray(r.findings) ? r.findings : (spec ? Calc.lint(spec, r) : Calc.lint({}, r));
+    // M5 (P20) — MCM talab qilingan (result.mcm.required), lekin natijasi yo'q: hisobot qatlamidan (dvigatel MCM holatini bilmaydi)
+    if (!r.mode && r.mcm && r.mcm.required) {
+      const order = { error: 0, warning: 1, info: 2 };
+      list = list.concat(Calc.lintMcm(r, mcOf(r, mc))).sort((a, b) => order[a.severity] - order[b.severity]);
+    }
     // X9 — hisobot qatlamining o'z-o'zini tekshiruvi: chop etiladigan yaxlitlangan satrlar
     if (!r.mode && isFinite(r.y) && isFinite(r.U)) {
       const rr = rounded(r);
@@ -105,13 +113,13 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
   function findingsHtml(r, o) {
     const opt = o || {};
     const scope = opt.scope || 'gum';
-    return Calc.findingsBlockHTML(findingsOf(r, opt.spec), { ...fctx(), scope, print: !!opt.print,
+    return Calc.findingsBlockHTML(findingsOf(r, opt.spec, opt.mc), { ...fctx(), scope, print: !!opt.print,
       acceptances: opt.acceptances || env.acceptances(scope), canAccept: !opt.print && env.canAccept() && !opt.readOnly,
       legacy: opt.legacy, legacyOn: opt.legacyOn, showEmpty: !!opt.showEmpty });
   }
   function statusOf(r, o) {
     const opt = o || {};
-    return Calc.findingsStatus(findingsOf(r, opt.spec), opt.acceptances || env.acceptances(opt.scope || 'gum'));
+    return Calc.findingsStatus(findingsOf(r, opt.spec, opt.mc), opt.acceptances || env.acceptances(opt.scope || 'gum'));
   }
   /** Hisobotdagi majburiy belgilar: ν qoidasi, MC seed va M, BETA / unverified, dvigatel versiyasi */
   function marksHtml(r, o) {
@@ -297,6 +305,51 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
     const list = mc && Array.isArray(mc.findings) ? mc.findings : [];
     if (!list.length) return '';
     return Calc.findingsBlockHTML(list, { ...fctx(), scope: 'mc', print: !!(o && o.print), acceptances: {}, canAccept: false });
+  }
+
+  /* ─── P20 (MET-01): LPU → MCM qaror qoidasi — sabablar va tekshiruv holati ───────────
+     result.mcm = { required, reasons } (src/engine/mcm-decision.js; chegaralar — loyiha qarori, egasi 2026-11-21).
+     Holat: running (faqat ekranda) | pending | failed | not_converged | validated | rejected | performed.
+     Ref: JCGM 101:2008 §5.7, §5.8 (LPU shartlari), §8.1 (GUM natijasini MCM bilan tekshirish). */
+  function mcmReasonText(x) {
+    const code = `(${x.code})`;
+    const put = (key, map) => Object.entries(map).reduce((txt, [k, v]) => txt.split('{' + k + '}').join(String(v)), i18n.t(key));
+    if (x.code === 'a') {
+      return typeof x.value === 'number'
+        ? `${code} ${put('mcm_reason_a_index', { v: Calc.fmtSci(x.value, 2), t: String(x.threshold) })}`
+        : `${code} ${put('mcm_reason_a_zero', { p: x.param || '' })}`;
+    }
+    if (x.code === 'b') return `${code} ${put('mcm_reason_b', { p: x.param || '', s: x.source || '', v: Number(x.value).toFixed(2), t: Number(x.threshold).toFixed(2) })}`;
+    if (x.code === 'c') {
+      return typeof x.value === 'number'
+        ? `${code} ${put('mcm_reason_c_bound', { b: i18n.t(x.source === 'lower' ? 'mcm_bound_lower' : 'mcm_bound_upper'), v: Calc.fmtSci(x.value, 2), t: Calc.fmtSci(Number(x.threshold), 2) })}`
+        : `${code} ${put('mcm_reason_c_dist', { s: x.source || '', d: distLabel(x.value) })}`;
+    }
+    return `${code} ${put('mcm_reason_d', { v: Number(x.value).toFixed(1), t: String(x.threshold) })}`;
+  }
+  /** Sabablar ro'yxati (escape qilingan HTML bo'laklari). */
+  function mcmReasons(r) { return ((r && r.mcm && r.mcm.reasons) || []).map(x => escHtml(mcmReasonText(x))); }
+  /**
+   * "MCM tekshiruvi talab qilinadi: (b) V — … 0,92 > 0,50 — bajarilmoqda / tasdiqlandi / rad etildi / yaqinlashmadi".
+   * @param {{mc?:object|null, running?:boolean, print?:boolean, progress?:string}} [o]
+   */
+  function mcmSection(r, o) {
+    const opt = o || {};
+    if (!r || r.error || r.mode || !r.mcm || !r.mcm.required) return '';
+    const mc = mcOf(r, opt.mc);
+    const state = opt.running ? 'running' : Calc.mcmState(r, mc);
+    const cls = state === 'validated' ? 'badge-green' : state === 'running' ? 'badge-blue' : 'badge-orange';
+    const draft = state === 'pending' || state === 'failed';
+    const reasons = mcmReasons(r);
+    const verdict = `<span class="badge ${cls}" data-mcm-verdict="${state}">${escHtml(i18n.t('mcm_state_' + state))}</span>`;
+    const live = opt.print ? '' : ' role="status" aria-live="polite"';
+    return `<div class="mcm-status" data-mcm-status="${state}"${live}>
+        <div class="mcm-status-head"><strong>${escHtml(i18n.t('mcm_title'))}</strong> ${verdict}${opt.running ? ` <span class="text-xs mono" data-mcm-progress="1">${escHtml(opt.progress || '')}</span>` : ''}</div>
+        <ul class="mcm-reasons" data-mcm-reasons="${reasons.length}">${reasons.map(x => `<li>${x}</li>`).join('')}</ul>
+        ${mc && !mc.error && mc.validated !== null && mc.validated !== undefined ? `<div class="mcm-status-line" data-mcm-s8="1">JCGM 101 §8: δ = ${Calc.fmtSci(mc.delta, 2)};  d_low = ${Calc.fmtSci(mc.dLow, 2)},  d_high = ${Calc.fmtSci(mc.dHigh, 2)}  →  ${mcVerdict(mc)}</div>` : ''}
+        ${draft ? `<div class="mcm-status-line mcm-status-warn" data-mcm-draft="1">${escHtml(i18n.t(state === 'failed' ? 'mcm_warn_failed' : 'mcm_warn_pending'))}</div>` : ''}
+        <div class="mcm-status-note text-xs">${escHtml(i18n.t('mcm_note'))}</div>
+      </div>`;
   }
 
   /** P16: asosiy natija kartasi — y (katta), ± U, k, P, ν_eff va uning qoidasi; noaniqlik tasmasi (./ribbon.js).
@@ -613,7 +666,8 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
     const conf = confLines(r, ex.conf, ex.decision);
     return `
       ${title ? `<div class="print-point-title">${escHtml(title)}</div>` : ''}
-      ${findingsHtml(r, { scope: 'gum', print: true, spec: snap, acceptances: ex.acceptances, showEmpty: true })}
+      ${findingsHtml(r, { scope: 'gum', print: true, spec: snap, acceptances: ex.acceptances, showEmpty: true, mc: ex.mc })}
+      ${mcmSection(r, { print: true, mc: ex.mc })}
       <div class="print-section">${i18n.t('model_title')}</div>
       <p class="print-note-lg"><strong>${escHtml(r.symbol)} = ${escHtml(r.formulaText)}</strong></p>
       ${p9(`<span data-model-kind-info="${confKind(r)}">${modelKindLine(r)}</span>`)}
@@ -1165,6 +1219,6 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
 
   return {
     decisionLines, decisionCell, decisionOf, verdictBadge,
-    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, heroCard, kpiTiles, dominantSource, budgetPareto, paretoRows, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, ptSection, validationSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
+    unitOf, pct, nuText, distLabel, rounded, statement, ilacNote, confLabel, notesHtml, implicitLine, fctx, findingsOf, findingsHtml, statusOf, marksHtml, officialMarksHtml, blockedBy, modelKindLine, nuUsedText, nuRuleText, confKind, confPending, confLines, mcLines, mcFindingsHtml, mcmSection, mcmReasons, mcmReasonText, mcOf, multivariateSection, vectorSummaryTable, vectorPointsSection, mvMcLines, mvOutputsTable, mvRegionLines, corrText, renderKPIs, heroCard, kpiTiles, dominantSource, budgetPareto, paretoRows, inputsTable, renderInputs, budgetRows, budgetTable, renderBudget, labSection, ptSection, validationSection, corrTable, corrNote, hasCorrelation, renderCorrelation, stepLines, secondOrderLines, renderSteps, verifyLines, renderVerify, dataTable, pointDetail, summaryTable, rgWarnText, rgErrText, rgUnit, rgNu, rgPair, rgEquation, rgWarnings, rgChi2, rgMatrix, rgInverse, rgPredict, rgURange, rgResiduals, regressionSection, tdNum, tdU2, tdScaleUnit, tdWarnings, tdBudgetName, tdBudget, tdRw, tdBias, tdRecovery, tdRepro, tdLevel, topdownSection, spWarnings, spHead, spPct, samplingSection, qualitativeSection, microSection, medicalSection, specialSection, isBlankCell, CONF_KEYS, DIST_KEYS,
   };
 }
