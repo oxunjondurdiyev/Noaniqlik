@@ -4,15 +4,19 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
-## Tuzatish — sayt doim Bosh sahifadan ochiladi (2026-11-23)
+## Tuzatish — ochilish ekrani: Bosh sahifa, "Davom ettirish" kartasi (2026-11-23)
 
 **ENGINE_VERSION o'zgarmadi (2.11.0): hisob o'zgarmagan, faqat interfeys.** `src/engine/` va `src/report/` ga tegilmagan.
 
-- `src/js/app.js::bootstrap()` saqlangan holat bo'lsa to'g'ridan-to'g'ri ish maydonini ochardi — foydalanuvchi Bosh sahifani ko'rmasdi. Endi sayt **doim Bosh sahifadan** (`#dash-screen`) ochiladi; birinchi ochilishda ham (kirish / tanishtiruv sahifasi — `index.html#home` va Bosh sahifadagi logotip orqali).
+- `src/js/app.js::bootstrap()` saqlangan holat bo'lsa to'g'ridan-to'g'ri ish maydonini ochardi — foydalanuvchi Bosh sahifani ko'rmasdi. Endi ochilish qoidasi (`startScreen`, egasi qarori 2026-11-23):
+  1. URL hash bor bo'lsa — **hash ustun**: `#home` — tanishtiruv (kirish) sahifasi, `#app` — ish maydoni (saqlangan hisob bo'lsa), `#lab` — Vizual laboratoriya;
+  2. kirgan foydalanuvchi (admin / xodim) — doim **Bosh sahifa**;
+  3. kirmagan va bu brauzerda hech qachon hisob boshlamagan (saqlangan holat ham, `uc_seen_dash` belgisi ham yo'q) — **tanishtiruv sahifasi**;
+  4. qolgan hamma holatda — **Bosh sahifa** (`#dash-screen`).
+- `uc_seen_dash` (`localStorage`; shaxsiy ma'lumot emas) — tanishtiruv sahifasidagi "Kalkulyatorni ochish" bosilganda yoziladi.
 - Saqlangan (tugallanmagan) hisob bo'lsa — Bosh sahifada birinchi karta: **"Davom ettirish: <model>, <sana>"** va **"O'chirish"** (ikki bosqichli tasdiq; `appState.reset()` — mavzu va til saqlanadi, IndexedDB dagi sessiyalarga tegilmaydi). Model — formula, bo'lmasa kirish kattaliklari ro'yxati; sana — hisob vaqti (bo'lsa).
-- URL hash berilgan bo'lsa — o'sha joy: `#home` — kirish sahifasi, `#app` — ish maydoni (saqlangan hisob bo'lsa), `#lab` — Vizual laboratoriya (avvalgidek).
 - Qobiqdagi logotip — Bosh sahifaga olib boradigan tugma (`#btn-brand-home`, klaviaturadan ochiq).
-- Matnlar uch tilda (`hm_resume`, `hm_resume_text`, `hm_resume_deleted`); testlar — `tests/ui/home.test.js`; `tests/crossbrowser/screens.js` yangi ochilish oqimiga moslandi.
+- Matnlar uch tilda (`hm_resume`, `hm_resume_text`, `hm_resume_deleted`); testlar — `tests/ui/home.test.js`; `tests/crossbrowser/screens.js` — toza brauzer → tanishtiruv sahifasi, "Kalkulyatorni ochish" dan keyin qayta yuklash → Bosh sahifa.
 
 ## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
 

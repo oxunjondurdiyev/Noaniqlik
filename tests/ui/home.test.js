@@ -89,7 +89,7 @@ test('Bosh sahifa: ikkita asosiy karta, so\'nggi sessiyalar, tezkor havolalar, p
   assert.ok(!/\sstyle=/.test(app) && !/localStorage|fetch\(/.test(app));
   // kirgandan keyin va "Kalkulyatorni ochish" — Bosh sahifa
   assert.match(read('src/ui/index-auth.js'), /window\.App\.showScreen\('dash'\)/);
-  assert.match(read('src/js/app.js'), /getElementById\('btn-home-start'\)\.addEventListener\('click',\s+\(\) => showScreen\('dash'\)\)/);
+  assert.match(read('src/js/app.js'), /getElementById\('btn-home-start'\)\.addEventListener\('click',\s+openDash\)/);
   // chap menyu: "Bosh sahifa"; yuqoridagi tugma — "Hisobot"
   const first = doc.querySelector('#side-nav .nav-list .nav-item');
   assert.ok(first.hasAttribute('data-go-home'));
@@ -151,22 +151,40 @@ test('KNOWN_LIMITATIONS (uz / ru): ISO 19036 bo\'yicha qo\'llab-quvvatlanmaydiga
 });
 
 /* ── fix/startup-screen: sayt doim Bosh sahifadan ochiladi; saqlangan hisob — "Davom ettirish" kartasi; logotip → Bosh sahifa ── */
-test('ochilish: bootstrap saqlangan holatda ham ish maydoniga o\'tmaydi — Bosh sahifa (dash); URL hash berilgan bo\'lsa — o\'sha joy', () => {
+test('ochilish: hash ustun; kirgan foydalanuvchi — Bosh sahifa; toza brauzer — tanishtiruv sahifasi; qolgan hollarda — Bosh sahifa', () => {
   const app = read('src/js/app.js');
-  const boot = app.slice(app.indexOf('function bootstrap()'), app.indexOf('function startScreen('));
+  const boot = app.slice(app.indexOf('function bootstrap()'), app.indexOf('const SEEN_DASH_KEY'));
   assert.ok(!/showScreen\('app'\)/.test(boot), 'bootstrap to\'g\'ridan-to\'g\'ri showScreen(\'app\') qilmaydi');
-  assert.match(boot, /showScreen\(startScreen\(window\.location\.hash, saved\)\);/);
+  assert.match(boot, /showScreen\(startScreen\(hash, \{ saved, seen: hasSeenDash\(\), loggedIn: isMember\(session\) \}\)\);/);
+  // sessiya keyinroq aniqlansa: kirgan foydalanuvchi tanishtiruv sahifasida qolmaydi
+  assert.match(boot, /AuthManager\.ready\(\)\.then\(sess => \{\s*if \(isMember\(sess\) && !homeScreen\.classList\.contains\('hidden'\)/);
   // startScreen — sof funksiya: manbadan ajratib olib bajariladi
-  const src = /function startScreen\(hash, saved\) \{[\s\S]*?\n  \}/.exec(app)[0];
+  const src = /function startScreen\(hash, o\) \{[\s\S]*?\n  \}/.exec(app)[0];
   const startScreen = new Function(src + '; return startScreen;')();
-  assert.equal(startScreen('', false), 'dash');
-  assert.equal(startScreen('', true), 'dash', 'saqlangan hisob bo\'lsa ham — Bosh sahifa');
-  assert.equal(startScreen('#home', true), 'home');
-  assert.equal(startScreen('#app', true), 'app');
-  assert.equal(startScreen('#app', false), 'dash', 'saqlangan hisob yo\'q — ish maydoni bo\'sh ochilmaydi');
-  assert.equal(startScreen('#lab', false), 'app');
-  assert.equal(startScreen('#nimadir', true), 'dash');
-  assert.equal(startScreen(undefined, false), 'dash');
+  // toza brauzer (kirmagan, saqlangan holat ham, belgi ham yo'q) → tanishtiruv sahifasi
+  assert.equal(startScreen('', {}), 'home');
+  assert.equal(startScreen(undefined, undefined), 'home');
+  // "Kalkulyatorni ochish" bosilgan (uc_seen_dash) yoki saqlangan hisob bor → Bosh sahifa
+  assert.equal(startScreen('', { seen: true }), 'dash');
+  assert.equal(startScreen('', { saved: true }), 'dash', 'saqlangan hisob — Bosh sahifa ("Davom ettirish" kartasi), ish maydoni emas');
+  // kirgan foydalanuvchi — doim Bosh sahifa
+  assert.equal(startScreen('', { loggedIn: true }), 'dash');
+  // hash ustun
+  for (const o of [{}, { seen: true }, { saved: true }, { loggedIn: true }]) {
+    assert.equal(startScreen('#home', o), 'home', JSON.stringify(o));
+    assert.equal(startScreen('#lab', o), 'app', JSON.stringify(o));
+  }
+  assert.equal(startScreen('#app', { saved: true }), 'app');
+  assert.equal(startScreen('#app', {}), 'dash', 'saqlangan hisob yo\'q — ish maydoni bo\'sh ochilmaydi');
+  assert.equal(startScreen('#nimadir', {}), 'home');
+  assert.equal(startScreen('#nimadir', { seen: true }), 'dash');
+  // belgi: faqat "Kalkulyatorni ochish" yozadi; kalit — uc_seen_dash; shaxsiy ma'lumot emas
+  assert.match(app, /const SEEN_DASH_KEY = 'uc_seen_dash';/);
+  assert.match(app, /const openDash = \(\) => \{ markSeenDash\(\); showScreen\('dash'\); \};/);
+  assert.match(app, /getElementById\('btn-home-start'\)\.addEventListener\('click',\s+openDash\)/);
+  assert.match(app, /getElementById\('btn-home-start2'\)\.addEventListener\('click', openDash\)/);
+  assert.equal((app.match(/markSeenDash\(\)/g) || []).length, 2, 'ta\'rif + bitta chaqiruv');
+  assert.match(app, /function isMember\(session\) \{ return !!session && \(session\.role === 'admin' \|\| session\.role === 'employee'\); \}/);
 });
 
 test('"Davom ettirish" kartasi: model (formula yoki kirishlar) va sana; holat bo\'sh bo\'lsa — karta yo\'q', async () => {

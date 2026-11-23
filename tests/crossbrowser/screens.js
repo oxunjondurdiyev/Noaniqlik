@@ -120,7 +120,7 @@ const SCREENS = [
 ];
 
 async function seed(page) {
-  await page.waitForSelector('#dash-screen:not(.hidden) [data-home-new]');   // sayt Bosh sahifadan ochiladi (kirish sahifasi — #home)
+  await page.click('#btn-home-start');                       // toza brauzer — tanishtiruv sahifasi → "Kalkulyatorni ochish" → Bosh sahifa
   await page.click('#dash-screen [data-home-new]');          // "Yangi hisob" → sozlash oynasi
   await page.selectOption('#inp-preset', 'density');
   await page.click('#btn-start');
@@ -154,6 +154,15 @@ async function run(name, playwright, server) {
       page.on('pageerror', e => errors.push('pageerror: ' + (e && e.message || e)));
       page.on('console', m => { if (m.type() === 'error' && !/build\.json/.test(m.text() + ' ' + (m.location().url || ''))) errors.push('console: ' + m.text()); });
       await page.goto(server.url + '/index.html', { waitUntil: 'load' });
+      // Ochilish qoidasi (egasi qarori 2026-11-23): toza brauzer → tanishtiruv sahifasi; "Kalkulyatorni ochish" dan keyin
+      // qayta yuklash → Bosh sahifa (uc_seen_dash); keyin yana tanishtiruv sahifasiga #home orqali
+      const shown = () => page.evaluate(() => ['home-screen', 'dash-screen', 'welcome-screen', 'app'].filter(id => !document.getElementById(id).classList.contains('hidden')).join(','));
+      if (await shown() !== 'home-screen') problems.push(`${name} ${w}x${h}-${theme}: toza brauzer tanishtiruv sahifasidan ochilmadi (${await shown()})`);
+      await page.click('#btn-home-start');
+      await page.reload({ waitUntil: 'load' });
+      if (await shown() !== 'dash-screen') problems.push(`${name} ${w}x${h}-${theme}: "Kalkulyatorni ochish" dan keyin qayta yuklashda Bosh sahifa ochilmadi (${await shown()})`);
+      await page.goto(server.url + '/index.html', { waitUntil: 'load' });
+      await page.evaluate(() => window.App.showScreen('home'));
       await seed(page);
       const tag = `${w}x${h}-${theme}`;
       // P20 (UX-07, UX-08): bildirishnoma — bir vaqtda bitta, aria-live; pastki amal paneli jadvalning oxirgi qatorini yopmaydi
