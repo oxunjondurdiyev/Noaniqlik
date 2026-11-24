@@ -13,6 +13,20 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - `src/js/app.js`: `FREE_LIMIT` endi siyosatdan (`ACCESS.trialLimit`), `beginSession` — `UCAccess.canStartSession / countsTrial` orqali. `src/ui/index-auth.js`: rejimga qarab tugmalarni yashiradi / belgini ochadi.
 - Testlar: `tests/ui/access.test.js` (siyosat, index.html, jsdom'da ikkala rejim); `tests/crossbrowser/screens.js` — ochiq test rejimida "Ro'yxatdan o'tish" ekrani o'tkazib yuboriladi. Chromium'da tutun-testi: eski hisoblagich 50 bo'lganda ham 10 / 10 sessiya to'lov oynasisiz ochildi, hisoblagich oshmadi. Talab — `REQ-UIX-018`.
 
+## Tuzatish — ochilish ekrani: Bosh sahifa, "Davom ettirish" kartasi (2026-11-23)
+
+**ENGINE_VERSION o'zgarmadi (2.11.0): hisob o'zgarmagan, faqat interfeys.** `src/engine/` va `src/report/` ga tegilmagan.
+
+- `src/js/app.js::bootstrap()` saqlangan holat bo'lsa to'g'ridan-to'g'ri ish maydonini ochardi — foydalanuvchi Bosh sahifani ko'rmasdi. Endi ochilish qoidasi (`startScreen`, egasi qarori 2026-11-23):
+  1. URL hash bor bo'lsa — **hash ustun**: `#home` — tanishtiruv (kirish) sahifasi, `#app` — ish maydoni (saqlangan hisob bo'lsa), `#lab` — Vizual laboratoriya;
+  2. kirgan foydalanuvchi (admin / xodim) — doim **Bosh sahifa**;
+  3. kirmagan va bu brauzerda hech qachon hisob boshlamagan (saqlangan holat ham, `uc_seen_dash` belgisi ham yo'q) — **tanishtiruv sahifasi**;
+  4. qolgan hamma holatda — **Bosh sahifa** (`#dash-screen`).
+- `uc_seen_dash` (`localStorage`; shaxsiy ma'lumot emas) — tanishtiruv sahifasidagi "Kalkulyatorni ochish" bosilganda yoziladi.
+- Saqlangan (tugallanmagan) hisob bo'lsa — Bosh sahifada birinchi karta: **"Davom ettirish: <model>, <sana>"** va **"O'chirish"** (ikki bosqichli tasdiq; `appState.reset()` — mavzu va til saqlanadi, IndexedDB dagi sessiyalarga tegilmaydi). Model — formula, bo'lmasa kirish kattaliklari ro'yxati; sana — hisob vaqti (bo'lsa).
+- Qobiqdagi logotip — Bosh sahifaga olib boradigan tugma (`#btn-brand-home`, klaviaturadan ochiq).
+- Matnlar uch tilda (`hm_resume`, `hm_resume_text`, `hm_resume_deleted`); testlar — `tests/ui/home.test.js`; `tests/crossbrowser/screens.js` — toza brauzer → tanishtiruv sahifasi, "Kalkulyatorni ochish" dan keyin qayta yuklash → Bosh sahifa.
+
 ## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
 
 **SONLI NATIJALAR O'ZGARMAGAN.** `tests/cases/` dagi 91 ta misolning to'liq natijasi 2.10.0 (`e460e89`) bilan **bit darajasida bir xil** — yagona farq: natijaga yangi maydon `mcm` qo'shildi (`node scripts/cases-snapshot.js --compare oldin.json keyin.json --ignore '(^|\.)mcm(\.|$)'`: 91 / 91, farq 0). Versiya minor oshirildi, chunki natija tuzilmasi kengaydi (yangi imkoniyat). 9 ta etalon Excel nuqtasi va 10-test (MC intervali) o'zgarmagan.

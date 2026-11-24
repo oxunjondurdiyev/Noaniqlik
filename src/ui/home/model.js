@@ -79,3 +79,15 @@ export function landingStats(o) {
   for (const k of ['templates', 'methods', 'distributions', 'languages']) { const n = count(src[k]); out[k] = n === null ? '—' : String(n); }
   return out;
 }
+
+/* ─── "Davom ettirish" kartasi: brauzerda saqlangan (tugallanmagan) joriy hisob ───
+   Sayt doim Bosh sahifadan ochiladi; joriy ish holati (appState, localStorage) bo'lsa — birinchi kartada ko'rsatiladi.
+   Shart app.js dagi avvalgi "sessiyani davom ettirish" sharti bilan bir xil: kirish kattaliklari va o'lchashlar bor.
+   @returns {{model:string, date:string}|null}  model — formula, bo'lmasa kirishlar ro'yxati; date — 'YYYY-MM-DD' yoki '' */
+export function resumeInfo(state) {
+  const st = state && typeof state === 'object' ? state : null;
+  if (!st || !Array.isArray(st.params) || !st.params.length || !st.measurements || !Object.keys(st.measurements).length) return null;
+  const formula = String((st.model && st.model.formula) || '').trim();
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(String((st.calcMeta && st.calcMeta.createdAt) || ''));
+  return { model: formula || st.params.map(String).join(', '), date: m ? m[1] : '' };
+}

@@ -4497,6 +4497,18 @@
   "status": "manual",
   "note": "matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi"
  },
+ "REQ-UIX-017": {
+  "code": [
+   "src/js/app.js",
+   "src/ui/home/model.js::resumeInfo",
+   "src/ui/home/app.js"
+  ],
+  "tests": [
+   "tests/ui/home.test.js"
+  ],
+  "status": "verified",
+  "note": "to'liq oqim (qayta ochish, davom ettirish, o'chirish, hash, logotip) Chromium da qo'lda tekshirildi; npm run test:screens yangi ochilish oqimi bilan o'tadi"
+ },
  "REQ-UIX-018": {
   "code": [
    "src/js/access-mode.js::canStartSession",

@@ -479,6 +479,8 @@
       </p>
 
       <div class="home-start">
+        <!-- Saqlangan (tugallanmagan) hisob bo'lsa — birinchi karta: "Davom ettirish: <model>, <sana>" va "O'chirish" (src/ui/home/app.js) -->
+        <div class="home-resume" id="home-resume" hidden></div>
         <button type="button" class="home-card" data-home-new="1">
           <svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg>
           <span class="home-card-title" data-i18n="hm_new_title">New calculation</span>
@@ -690,13 +692,14 @@
   <!-- YUQORI PANEL (sticky) -->
   <header class="topbar">
     <div class="topbar-left">
-      <span class="topbar-brand">
+      <!-- logotip — Bosh sahifaga (src/ui/home/app.js: [data-go-home]) -->
+      <button type="button" class="topbar-brand" id="btn-brand-home" data-go-home="1" aria-label="Home" data-i18n-aria="sh_n_home" title="Home" data-i18n-title="sh_n_home">
         <svg width="26" height="26" viewBox="0 0 56 56" fill="none" aria-hidden="true">
           <rect width="56" height="56" rx="14" fill="var(--c-blue)"/>
           <path d="M14 28h8l4-12 8 24 4-12h4" stroke="var(--c-on-accent)" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span class="topbar-brand-name" data-i18n="app_name">UncertaintyCalc</span>
-      </span>
+      </button>
       <nav class="crumbs" aria-label="Breadcrumb" data-i18n-aria="sh_crumbs">
         <span class="crumb" id="crumb-section"></span>
         <span class="crumb-sep" aria-hidden="true">/</span>
