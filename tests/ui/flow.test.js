@@ -252,6 +252,57 @@ test('formulada nom almashtirilsa ma\'lumot jimgina o\'chmaydi: ogohlantirish + 
   assert.deepEqual(J(w.appState.get('params')), ['V']);
 });
 
+/* ─── Shablon rejimi: formula qulfi va "Shablondan ajratib tahrirlash" (2026-11-24) ─── */
+test('shablonda formula qulflangan (readonly, izoh); ajratish — natija o\'zgarmaydi, keyin formula erkin va parametrlar formuladan', () => {
+  const T = require('../../src/templates/interpreter.js');
+  const { byId } = require('../templates/lib.js');
+  const w = mount(null);
+  w.UCTemplates = { detachState: st => T.detachState(J(st)) };
+  const tplState = T.buildState(byId['legacy-gas_analyzer'], { useSample: true, point: 1 }).state;
+  w.appState.set(J(tplState));
+  const doc = w.document;
+  const f = doc.getElementById('model-formula');
+  const formula0 = w.appState.get('model').formula;
+  assert.ok(f.hasAttribute('readonly'), 'formula readonly');
+  assert.ok(doc.getElementById('model-unit').hasAttribute('readonly'), 'natija birligi readonly');
+  assert.ok(doc.querySelector('[data-model-locked] [data-tpl-detach]'), 'izoh va ajratish tugmasi');
+  assert.equal(doc.querySelector('[data-out-add]'), null, 'shablonda chiqish qo\'shilmaydi');
+  assert.ok([...doc.querySelectorAll('.model-chip')].every(b => b.disabled));
+  // qulf: o'zgarish qabul qilinmaydi
+  typeFormula(w, 'y = q + 1');
+  assert.equal(w.appState.get('model').formula, formula0);
+  const ref = T.evaluateState(tplState).result;
+  // tasdiqlanmasa — ajratilmaydi
+  w.confirm = () => false;
+  doc.querySelector('[data-tpl-detach]').click();
+  assert.ok(w.appState.get('template'));
+  w.confirm = () => true;
+  doc.querySelector('[data-tpl-detach]').click();
+  const st = w.appState.get();
+  assert.equal(st.template, null);
+  assert.deepEqual(J(st.params), J(tplState.params));
+  const got = E.evaluate(J(st));
+  for (const k of ['y', 'uc', 'U', 'k', 'nuEff']) assert.equal(got[k], ref[k], k + ' — ajratishdan keyin aynan bir xil');
+  assert.ok(w.toasts.includes('success'));
+  const f2 = doc.getElementById('model-formula');
+  assert.ok(!f2.hasAttribute('readonly'));
+  assert.equal(doc.querySelector('[data-model-locked]'), null);
+  typeFormula(w, formula0 + ' + q');
+  assert.ok(J(w.appState.get('params')).includes('q'), 'yangi kattalik — yangi ustun');
+});
+
+test('oxirgi bo\'sh qatorda ko\'rsatma (faqat birinchi ustunda): "Keyingi o\'lchash yoki Ctrl+V"', () => {
+  const w = mount(null);
+  w.appState.set({ ...Flow.blankCalc() });
+  typeFormula(w, 'ρ = m / V');
+  const ph = (p, i) => cell(w, p, i).getAttribute('placeholder');
+  assert.equal(ph('m', 0), w.i18n.t('flow_row_ph'));
+  assert.equal(ph('V', 0), null);
+  enter(w, 'm', 0, '1.0');
+  assert.equal(ph('m', 0), null, 'to\'ldirilgan qatorda yo\'q');
+  assert.equal(ph('m', 1), w.i18n.t('flow_row_ph'));
+});
+
 /* ─── MIGRATSIYA: eski saqlangan hisoblar ─── */
 test('eski saqlangan hisoblar (uc_state_v2): ochiladi, parametrlar va kiritilgan qiymatlar o\'zgarmaydi, natija bit darajasida bir xil', () => {
   const PRESETS = loadPresets();

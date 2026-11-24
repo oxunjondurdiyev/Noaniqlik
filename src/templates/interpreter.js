@@ -859,6 +859,29 @@ export function evaluateState(state) {
 }
 
 /**
+ * Shablondan ajratish (foydalanuvchi tanlovi, tasdiq bilan; UI — src/js/table.js). Hisobning shablon bo'yicha
+ * baholanadigan holati (`evaluateState` → `state`: aux ifodalari songa aylantirilgan, "bitta asbob" kovariatsiyasi
+ * `covB` ga yozilgan, `split: 'unknown'` da tanlangan r chegarasi, e'tiborsiz nuqta qatorlari olib tashlangan)
+ * shablonsiz oddiy holat sifatida qaytariladi. Shuning uchun ajratilgan holatning `evaluate` natijasi ajratishdan
+ * oldingi shablon natijasi bilan son jihatidan aynan bir xil (tests/templates/detach.test.js). Kiritilgan
+ * kuzatuvlar va B tur manbalari saqlanadi; endi formula erkin tahrirlanadi, parametrlar formuladan olinadi.
+ * Sof funksiya: kirish holati o'zgartirilmaydi.
+ */
+export function detachState(state) {
+  if (!state || !state.template) return state;
+  const { state: prepared } = evaluateState(state);
+  const auxNames = Object.keys((prepared.template && prepared.template.aux) || {});
+  const usesAux = expr => auxNames.some(a => new RegExp('(^|[^A-Za-z0-9_])' + a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^A-Za-z0-9_]|$)').test(expr));
+  const typeB = (prepared.typeB || []).map(c => {
+    const x = { ...c };
+    // aux li ifoda shablonsiz baholanmaydi — prepareState hisoblagan son (`halfWidth`) qoladi
+    if (typeof x.halfWidthExpr === 'string' && usesAux(x.halfWidthExpr)) delete x.halfWidthExpr;
+    return x;
+  });
+  return { ...prepared, typeB, template: null };
+}
+
+/**
  * Shablon bo'yicha UI holatida to'ldirilmagan maydonlar (hisobdan oldin tekshiriladi:
  * bo'sh yarim kenglik dvigatelda 0 deb olinadi — U kamayib ketmasligi uchun hisob bloklanadi).
  * @returns {{type:string, symbol?:string, id?:string, name?:string}[]}

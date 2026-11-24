@@ -44,7 +44,7 @@
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
 | R-30 | Audit (21.11.2026) bo'yicha P0 tuzatishlar (P20, 2.11.0): LPU → MCM qaror qoidasi (chegaralar — loyiha qarori; 9 etalon nuqtaning hammasida MCM talab qilinadi), "QORALAMA" belgisi, rozilik va huquqiy sahifalar (yurist tasdig'ini kutadi); P18 (M9) dan oldin bajarildi — birlashtirishda ziddiyat bo'lishi mumkin | O | P20 (bajarildi; qoldiq ochiq) |
 | R-31 | M9 (P18, 2.12.0): ISO/TS 20914:2019 PDF repoda yo'q — etalon qiymatlar egasidan (G1–G11); **D-23** (G9: ikki qatorda oxirgi xona — egasi qabul qildi 24.11.2026, manba nuansi); manba misolisiz qismlar (proporsional bias — loyiha talqini, egasi qabul qildi; vaznli pooling, sanoq — ochiq); loyiha parametrlari (n < 20, lot nisbati 2, eng yaqin o'rtacha) | O | P18 → egasi |
-| R-32 | Yagona "Yangi hisob" oqimi (P22-1, hisob o'zgarmagan): sessiya paneli olib tashlandi, P formuladan, N jadvaldan; ochiq — parametr nomi faqat formulada, shablon / oshkormas modelda sinxronlanmaydi, eski CSS / i18n kalitlari tozalanmagan, Firefox / Safari da ko'rilmagan | P | P22-1 → P22-6 |
+| R-32 | Yagona "Yangi hisob" oqimi (P22-1, hisob o'zgarmagan): sessiya paneli olib tashlandi, P formuladan, N jadvaldan; ochiq — parametr nomi faqat formulada, shablonda formula qulflangan (ajratish — `detachState`, 2026-11-24), oshkormas modelda sinxronlanmaydi, eski CSS / i18n kalitlari tozalanmagan, Firefox / Safari da ko'rilmagan | P | P22-1 → P22-6 |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -540,7 +540,7 @@ Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)
 
 1. **Sessiya paneli butunlay olib tashlandi** (n, parametr qo'shish / nomini o'zgartirish, hosila kattaliklar, preset). Parametr nomi endi formulada o'zgartiriladi; ma'lumoti bor eski nom jimgina o'chmaydi — "ma'lumotni «yangi nom» ga ko'chirish" yoki "olib tashlash" (tasdiq bilan). Avtomatik "nom almashtirildi" deb taxmin qilinmaydi (noto'g'ri kattalikka ma'lumot biriktirilmasin).
 2. **"Namuna ma'lumot to'ldirish" (tasodifiy sonlar) olib tashlandi** — N endi jadvaldan olinadi, tasodifiy sonlar esa metrologik dasturda chalg'ituvchi; o'quv ma'lumoti — katalogdagi "Namuna" shablonlarida.
-3. **Shablon ostida parametrlar formuladan sinxronlanmaydi** (kirishlar shablonda belgilangan); oshkor bo'lmagan modelda ham.
+3. **Shablon ostida parametrlar formuladan sinxronlanmaydi** (kirishlar shablonda belgilangan); oshkor bo'lmagan modelda ham. **2026-11-24:** shablonda formula endi qulflangan (jimgina qabul qilinmaydi); o'zgartirish — "Shablondan ajratib tahrirlash" (`detachState`, natija o'zgarmaydi, REQ-UXF-006).
 4. **Yangi parametr nomi harf yoki `_` bilan boshlanadi** (parser istalgan belgini nom deb qabul qiladi — masalan "#"; bunday holda formula xato deb ko'rsatiladi). Avval saqlangan nomlarga ta'sir qilmaydi.
 5. **Telefonda** qadamning asosiy tugmasi — faqat suzuvchi tugma; statik pastki panel yashiriladi (takror bo'lmasin).
 6. **Shablondan boshlanganda** "Ma'lumotlar" qadami ochiladi (model shablonda); shablon paneli (doimiylar, yordamchi qiymatlar) ham shu qadamda.

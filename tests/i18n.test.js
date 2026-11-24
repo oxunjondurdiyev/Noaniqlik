@@ -133,7 +133,10 @@ test('o\'lchash jadvali (src/js/table.js): hech bir atributda "null" / "undefine
   w.Table.render();
   const empty = check('bo\'sh model');
   assert.equal(empty.length, 2);
-  for (const el of empty) { assert.equal(el.getAttribute('placeholder'), null); assert.ok(el.getAttribute('aria-label')); }
+  // placeholder'da namuna qiymati yoki "null" yo'q (P20); faqat birinchi ustunda ko'rsatma "Keyingi o'lchash yoki Ctrl+V" (2026-11-24, REQ-UXF-006)
+  assert.equal(empty[0].getAttribute('placeholder'), w.i18n.t('flow_row_ph'));
+  assert.equal(empty[1].getAttribute('placeholder'), null);
+  for (const el of empty) assert.ok(el.getAttribute('aria-label'));
   // namuna qiymatlari matn sifatida ('100.00' — oxirgi nollar bilan) va oxirida bitta bo'sh qator
   w.appState.set({ n: 5, params: ['m', 'V'], measurements: { m: ['1.0', '1.1', '1.2', '1.1', '1.0'], V: ['100.02', '100.06', '99.98', '100.04', '100.00'] }, model: { formula: 'ρ = m / V', unit: 'g/cm³' } });
   const shown = check('density').filter(el => el.dataset.param === 'V').map(el => el.value);

@@ -4,6 +4,15 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [ilova] — Shablon rejimida formula qulfi va "Shablondan ajratish"; bo'sh qator ko'rsatmasi (2026-11-24)
+
+**HISOB O'ZGARMAGAN.** `ENGINE_VERSION` 2.12.0; `src/engine/` va `src/report/` ga tegilmagan; 9 ta etalon nuqta va 91 misol o'zgarmagan.
+
+- **Sinovda topilgan kamchilik (egasi, T-04):** shablon rejimida formula maydoni tahrirlanar edi — yangi kattalik (`L = h0 - h1 + c`) formulaga yozilardi, lekin parametrlar ro'yxati shablonda qotirilgani sabab ustun chiqmasdi va ogohlantirish ham yo'q edi.
+- **Endi:** shablonda formula, qo'shimcha chiqish formulalari va natija birligi qulflangan (`readonly`), parametr tugmalari o'chiq; izoh — qo'shimcha ta'sir qiluvchi omil B tur manbasi sifatida qo'shiladi; **"Shablondan ajratib tahrirlash"** (tasdiq bilan): `src/templates/interpreter.js::detachState` — hisob shablon bo'yicha baholanadigan holatning o'zi (aux ifodalari son, "bitta asbob" kovariatsiyasi `covB` da, `split: 'unknown'` da tanlangan r) shablonsiz holat bo'lib qoladi; **natija son jihatidan aynan bir xil** (`tests/templates/detach.test.js`: known / unknown split, T-14 aux, legacy-gas 2-nuqta); saqlangan nuqtalar ham ajratiladi. Keyin formula erkin, parametrlar formuladan (P22-1). Ajratilgan hisob hisobotida shablon va "manba bilan mos" qatori yo'q.
+- **Bo'sh qator ko'rsatmasi:** jadvalning oxirgi bo'sh qatori birinchi ustunida "Keyingi o'lchash yoki Ctrl+V" (qatorlar o'zi qo'shilishi va Excel'dan qo'yish ko'rinib turadi).
+- Talab — `REQ-UXF-006`; matnlar — `src/js/i18n-flow.js` (`flow_tpl_*`, `flow_row_ph`); uslub — `src/css/shell.css` (`.model-locked`, faqat tokenlar). RISKS R-32 (3) yangilandi.
+
 ## [ilova] — P22-1: yagona "Yangi hisob" oqimi (audit 21.11.2026: UX-01, UX-02, UX-04) (2026-11-21)
 
 **HISOB O'ZGARMAGAN, FAQAT INTERFEYS.** `src/engine/` va `src/report/` ga tegilmagan (`git diff` bo'sh; `tests/security/engine.sha256.json` o'zgarmagan); `ENGINE_VERSION` o'zgarmagan (tayyorlanganda 2.11.0; asosiy branch'ga 2.12.0 — P18 dan keyin birlashtirildi). 9 ta etalon Excel nuqtasi va 10-test o'zgarmagan. P20 (`fix/p20-audit-p0`) ustida bajarilgan.
