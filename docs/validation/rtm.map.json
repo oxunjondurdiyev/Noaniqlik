@@ -4508,5 +4508,18 @@
   ],
   "status": "verified",
   "note": "to'liq oqim (qayta ochish, davom ettirish, o'chirish, hash, logotip) Chromium da qo'lda tekshirildi; npm run test:screens yangi ochilish oqimi bilan o'tadi"
+ },
+ "REQ-UIX-018": {
+  "code": [
+   "src/js/access-mode.js::canStartSession",
+   "src/js/access-mode.js::countsTrial",
+   "src/js/app.js",
+   "src/ui/index-auth.js"
+  ],
+  "tests": [
+   "tests/ui/access.test.js"
+  ],
+  "status": "verified",
+  "note": "siyosat — sof test; index-auth.js — jsdom; app.js oqimi (beginSession) — brauzerda tekshirildi"
  }
 }

@@ -164,3 +164,13 @@
   .home-resume { grid-template-columns: auto minmax(0, 1fr); }
   .home-resume-actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
+
+/* ── Ochiq test rejimi belgisi (src/js/access-mode.js; egasi qarori 2026-11-24) ── */
+.access-note {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s-3); margin: var(--s-4) 0; padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--c-blue-line); border-radius: var(--r-card); background: var(--c-blue-soft); color: var(--c-text);
+  font-size: .9rem; line-height: 1.5; max-width: 62ch;
+}
+.access-note-link { color: var(--c-blue); font-weight: 600; display: inline-flex; align-items: center; min-height: var(--tap); }
+.access-note-link:focus-visible { outline: 2px solid var(--c-blue); outline-offset: 2px; }
+.access-note[hidden], [data-reg-only][hidden] { display: none !important; }

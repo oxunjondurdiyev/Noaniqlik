@@ -494,6 +494,7 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 ### R-15. Biznes mantiq mijoz tomonda (O)
 - Trial (`uc_trial_count`) `localStorage` ni tozalash bilan tiklanadi. `upgradePlan` (`auth.js:392`) to'lovsiz tarifni o'zgartiradi. Click/Payme merchant ID lari to'ldirilmagan (`auth.js:403-409`).
 - **Holat (P20, 2026-11-21): o'zgarmadi — "qisman" (P02 natijasi jadvaliga qarang).** P20 bu xavfga tegmadi: trial hisoblagichi (`uc_trial_count`) va xodimlar limiti hali mijozda; Click / Payme identifikatorlari to'ldirilmagan. Audit (21.11.2026) hujjati repoda yo'q — undagi R-15 ga oid band shu yerga egasi tomonidan qo'shiladi. To'liq yopish server tomonini talab qiladi (P15; Spark tarifida Cloud Functions yo'q). P20 da faqat kirish sahifasidagi litsenziya da'vosi tuzatildi ("bepul va ochiq kodli" / "MIT" → yopiq litsenziya).
+- **Holat (2026-11-24, egasi qarori): ochiq test rejimi.** `src/js/access-mode.js` → `ACCESS_MODE = 'open-test'`: sinov hisoblagichi va to'lov oynasi o'chirilgan, ro'yxatdan o'tish yashirin — bu davrda R-15 dagi mijoz tomonidagi cheklov amalda ishlatilmaydi. **Obuna rejimiga qaytishdan oldin** R-15 hal qilinishi kerak: hisoblagich `localStorage` ni tozalash bilan tiklanadi, `upgradePlan` to'lovsiz tarif o'zgartiradi, Click / Payme identifikatorlari bo'sh — server tomoni (P15) yoki hech bo'lmaganda Firestore qoidalari bilan tekshiriladigan obuna muddati kerak.
 
 ### R-16. Ishlash (P)
 - **MC qismi yopildi (P06):** hisob Web Worker'da (`src/ui/mc/`), progress va bekor qilish bilan; worker'siz — bo'laklab.
