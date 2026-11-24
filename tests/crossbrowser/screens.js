@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* TESTS/CROSSBROWSER/SCREENS.JS — P16 (Interfeys 2.0): skrinshot va kirish imkoniyati testi (haqiqiy brauzer, Playwright).
-   Ekranlar: Natijalar, Kiritish (B tur varag'i), QC, Hisobot, Vizual laboratoriya, AI sahifasi (ai.html) — 390×844, 834×1194, 1440×900;
+   Ekranlar: Model, Ma'lumotlar (P22-1), Natijalar, Kiritish (B tur varag'i), QC, Hisobot, Vizual laboratoriya, AI sahifasi (ai.html) — 390×844, 834×1194, 1440×900;
    qorong'i va yorug' mavzu. Skrinshotlar `--out` papkasiga (CI artifact — egasi kontsept bilan solishtiradi).
    Har bir ekranda AVTOMATIK tekshiruv (birortasi buzilsa — chiqish kodi 1):
      • konsolda xato / sahifa xatosi / CSP buzilishi yo'q (build.json 404 — lokal ishlashda kutilgan holat);
@@ -94,12 +94,21 @@ function auditInPage({ minTap, minContrast, minLarge }) {
   for (const el of scope.querySelectorAll('[placeholder], [title], [aria-label], [value], [alt]')) {
     for (const a of ['placeholder', 'title', 'aria-label', 'alt']) { const v = el.getAttribute(a); if (v === 'null' || v === 'undefined') out.nullAttr.push(name(el) + ' ' + a + '="' + v + '"'); }
   }
+  // P22: ko'rinadigan matnda ham "null" / "undefined" so'zi yo'q (hisobot hujjati ichidagi foydalanuvchi matni bundan mustasno)
+  const tw = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+  for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+    const el = n.parentElement;
+    if (!el || !visible(el) || el.closest('.report-doc') || el.closest('script, style')) continue;
+    if (/(^|[\s:=(])(null|undefined|NaN)([\s,.;)]|$)/.test(n.nodeValue)) out.nullAttr.push(name(el) + ' matnda "' + n.nodeValue.trim().slice(0, 30) + '"');
+  }
   out.overflow = Math.max(0, document.documentElement.scrollWidth - innerWidth);
   out.animations = document.getAnimations ? document.getAnimations().filter(x => x.playState === 'running').length : 0;
   return out;
 }
 
 const SCREENS = [
+  { key: 'model', label: 'Model (1-qadam)', go: async p => { await p.evaluate(() => window.UCShell.goStep('model')); } },
+  { key: 'data', label: "Ma'lumotlar (2-qadam)", go: async p => { await p.evaluate(() => window.UCShell.goStep('data')); } },
   { key: 'results', label: 'Natijalar', go: async p => { await p.evaluate(() => window.UCShell.goStep('results')); } },
   { key: 'input', label: 'Kiritish (B tur varag\'i)', go: async p => { await p.evaluate(() => { window.UCShell.goStep('typeb'); document.querySelector('[data-tb-edit]').click(); }); },
     after: async p => { await p.keyboard.press('Escape'); } },
@@ -120,14 +129,59 @@ const SCREENS = [
     after: async p => { await p.evaluate(() => window.UCAuthScreen.hide()); } },
 ];
 
-async function seed(page) {
-  await page.click('#btn-home-start');                       // toza brauzer — tanishtiruv sahifasi → "Kalkulyatorni ochish" → Bosh sahifa
-  await page.click('#dash-screen [data-home-new]');          // "Yangi hisob" → sozlash oynasi
-  await page.selectOption('#inp-preset', 'density');
-  await page.click('#btn-start');
-  await page.waitForFunction(() => !!(window.UCShell && window.UCLab && window.Calc));
-  await page.evaluate(() => document.getElementById('btn-calc-typea').click());
-  await page.evaluate(() => document.getElementById('btn-calc-combined').click());
+/** Joriy qadamning yagona asosiy tugmasi: pastki paneldagi `[data-primary]`; telefonda u yashirin — suzuvchi tugma (.fab) bosiladi. */
+async function primary(page) {
+  const btn = page.locator('.tab-panel.active .panel-footer [data-primary]');
+  if (await btn.isVisible()) await btn.click(); else await page.click('#fab-primary');
+}
+
+/* P22-1 (audit 21.11.2026: UX-01, UX-02, UX-04) — "Maqsad" jadvalidagi 1-bosqich ko'rsatkichlari (avtomatik):
+     • Bosh sahifa → "Yangi hisob" → to'g'ridan-to'g'ri Model qadami (sozlash oynasi yo'q); 5 qadam; jadvalda bitta bo'sh qator;
+     • shablondan natijagacha bosishlar (ma'lumot kiritishdan tashqari) ≤ 3: "Hisoblash" → "Keyingi: B tur" → "Hisoblash: Natija";
+     • har qadamda bitta asosiy tugma (telefonda — suzuvchi tugma), u ko'rinadi. */
+const MAX_TEMPLATE_CLICKS = 3;
+async function seed(page, bad) {
+  await page.click('#btn-home-start');                       // Bosh sahifa
+  await page.click('#dash-screen [data-home-new]');          // "Yangi hisob" → Model qadami
+  await page.waitForFunction(() => !!(window.UCShell && window.UCLab && window.Calc && window.UCFlow));
+  const st = await page.evaluate(() => ({
+    app: !document.getElementById('app').classList.contains('hidden'), tab: (document.querySelector('.tab-panel.active') || {}).id,
+    setup: !!document.getElementById('welcome-screen') || !!document.getElementById('inp-preset'),
+    steps: [...document.querySelectorAll('#stepper [data-step]')].map(b => b.dataset.step).join(' → '),
+    params: window.appState.get('params').join(','), rows: document.querySelectorAll('#table-body tr').length,
+    focus: document.activeElement && document.activeElement.id,
+  }));
+  if (!st.app || st.tab !== 'tab-model' || st.setup) bad.push(`"Yangi hisob" Model qadamini ochmadi (${JSON.stringify(st)})`);
+  if (st.steps !== 'model → data → typeb → results → report') bad.push('qadamlar: ' + st.steps);
+  if (st.params !== 'x' || st.rows !== 1) bad.push(`yangi hisob: parametrlar "${st.params}", qatorlar ${st.rows} (kutilgan: x, 1)`);
+  if (st.focus !== 'model-formula') bad.push('yangi hisob: fokus formula maydonida emas (' + st.focus + ')');
+  // P — formuladan, N — jadvaldan (haqiqiy klaviatura bilan)
+  await page.fill('#model-formula', 'y = a * b');
+  await page.keyboard.press('Enter');
+  await primary(page);                                         // "Keyingi: Ma'lumotlar"
+  await page.click('.meas-input[data-param="a"][data-idx="0"]');
+  await page.keyboard.type('1,5');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('1,7');
+  await page.keyboard.press('Enter');
+  const auto = await page.evaluate(() => ({ params: window.appState.get('params').join(','), n: window.appState.get('n'), a: window.appState.get('measurements').a.join('|'),
+    rows: document.querySelectorAll('#table-body tr').length, focus: document.activeElement.dataset ? document.activeElement.dataset.idx : '', tab: document.querySelector('.tab-panel.active').id,
+    ta: !!window.appState.get('typeA').a }));
+  if (auto.tab !== 'tab-data' || auto.params !== 'a,b' || auto.a !== '1.5|1.7|' || auto.n !== 3 || auto.rows !== 3 || auto.focus !== '2' || !auto.ta) bad.push('P / N avtomatik emas: ' + JSON.stringify(auto));
+  // shablondan natijagacha: katalog → "Hisoblash" (1) → "Keyingi: B tur" (2) → "Hisoblash: Natija" (3)
+  await page.evaluate(() => window.UCTemplates.openCatalog());
+  await page.waitForSelector('[data-tpl-use^="legacy-density@"]');
+  if (!(await page.locator('[data-tpl-card^="legacy-density@"] [data-tpl-example]').count())) bad.push('katalog: namuna shablonida "Namuna" belgisi yo\'q');
+  let clicks = 0;
+  await page.click('[data-tpl-use^="legacy-density@"]'); clicks++;
+  await page.waitForSelector('#tab-data.active');
+  await primary(page); clicks++;
+  await page.waitForSelector('#tab-typeb.active');
+  await primary(page); clicks++;
+  await page.waitForSelector('#tab-results.active');
+  const done = await page.evaluate(() => { const r = window.appState.get('combined'); return !!r && Number.isFinite(r.y) && r.U > 0; });
+  if (!done) bad.push('shablondan natijaga yetilmadi');
+  if (clicks > MAX_TEMPLATE_CLICKS) bad.push(`shablondan natijagacha ${clicks} bosish (≤ ${MAX_TEMPLATE_CLICKS} bo'lishi kerak)`);
   // o'quv QC qatori (faqat skrinshot uchun; brauzer konteksti test tugagach yo'q qilinadi)
   await page.evaluate(async () => {
     await window.UCLab.ready;
@@ -157,15 +211,17 @@ async function run(name, playwright, server) {
       await page.goto(server.url + '/index.html', { waitUntil: 'load' });
       // Ochilish qoidasi (egasi qarori 2026-11-23): toza brauzer → tanishtiruv sahifasi; "Kalkulyatorni ochish" dan keyin
       // qayta yuklash → Bosh sahifa (uc_seen_dash); keyin yana tanishtiruv sahifasiga #home orqali
-      const shown = () => page.evaluate(() => ['home-screen', 'dash-screen', 'welcome-screen', 'app'].filter(id => !document.getElementById(id).classList.contains('hidden')).join(','));
+      const shown = () => page.evaluate(() => ['home-screen', 'dash-screen', 'app'].filter(id => !document.getElementById(id).classList.contains('hidden')).join(','));
       if (await shown() !== 'home-screen') problems.push(`${name} ${w}x${h}-${theme}: toza brauzer tanishtiruv sahifasidan ochilmadi (${await shown()})`);
       await page.click('#btn-home-start');
       await page.reload({ waitUntil: 'load' });
       if (await shown() !== 'dash-screen') problems.push(`${name} ${w}x${h}-${theme}: "Kalkulyatorni ochish" dan keyin qayta yuklashda Bosh sahifa ochilmadi (${await shown()})`);
       await page.goto(server.url + '/index.html', { waitUntil: 'load' });
       await page.evaluate(() => window.App.showScreen('home'));
-      await seed(page);
+      const flow = [];
+      await seed(page, flow);
       const tag = `${w}x${h}-${theme}`;
+      for (const msg of flow) problems.push(`${name} ${tag}: ${msg}`);
       // P20 (UX-07, UX-08): bildirishnoma — bir vaqtda bitta, aria-live; pastki amal paneli jadvalning oxirgi qatorini yopmaydi
       for (const msg of await page.evaluate(async () => {
         const bad = [];
@@ -177,18 +233,37 @@ async function run(name, playwright, server) {
         if (nav && getComputedStyle(nav).display !== 'none' && tr.bottom > nav.getBoundingClientRect().top) bad.push('bildirishnoma pastki navigatsiyani yopadi');
         if (tr.right > innerWidth || tr.left < 0) bad.push('bildirishnoma ekrandan chiqadi');
         list[0].remove();
+        // P22-1: har qadamda BITTA ko'rinadigan asosiy tugma (desktop — pastki panel, telefon — suzuvchi tugma), matni bo'sh emas
+        const shown = el => { if (!el) return false; const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden'; };
+        for (const key of ['model', 'data', 'typeb', 'results', 'report']) {
+          window.UCShell.goStep(key);
+          await new Promise(r => setTimeout(r, 60));
+          const inPanel = [...document.querySelectorAll('#tab-' + key + ' .panel-footer [data-primary]')].filter(shown), fab = document.getElementById('fab-primary');
+          const all = inPanel.concat(shown(fab) ? [fab] : []);
+          if (all.length !== 1) bad.push(key + ': asosiy tugmalar soni ' + all.length + ' (bitta bo\'lishi kerak)');
+          else if (!all[0].textContent.trim()) bad.push(key + ': asosiy tugma matni bo\'sh');
+          else { const r = all[0].getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight + 0.5) bad.push(key + ': asosiy tugma ekranda ko\'rinmaydi'); }
+        }
         window.UCShell.goStep('data');
         await new Promise(r => setTimeout(r, 50));
         const foot = document.querySelector('#tab-data .panel-footer'), cells = document.querySelectorAll('#table-body .meas-input');
         const last = cells[cells.length - 1];
         last.focus();                                             // klaviatura bilan oxirgi katakka o'tish
         await new Promise(r => setTimeout(r, 50));
+        const sticky = getComputedStyle(foot).display !== 'none' && getComputedStyle(foot).position === 'sticky';
         const fr = foot.getBoundingClientRect(), lr = last.getBoundingClientRect();
-        if (getComputedStyle(foot).position === 'sticky' && lr.bottom > fr.top + 0.5 && lr.top < fr.bottom) bad.push('amal paneli fokuslangan oxirgi katakni yopadi');
+        if (sticky && lr.bottom > fr.top + 0.5 && lr.top < fr.bottom) bad.push('amal paneli fokuslangan oxirgi katakni yopadi');
         window.scrollTo(0, document.documentElement.scrollHeight);
         await new Promise(r => setTimeout(r, 50));
         const rows = document.querySelectorAll('#table-body tr, #table-foot tr'), row = rows[rows.length - 1].getBoundingClientRect(), f2 = foot.getBoundingClientRect();
-        if (row.bottom > f2.top + 0.5) bad.push('amal paneli jadvalning oxirgi qatorini yopadi (' + Math.round(row.bottom - f2.top) + 'px)');
+        if (sticky && row.bottom > f2.top + 0.5) bad.push('amal paneli jadvalning oxirgi qatorini yopadi (' + Math.round(row.bottom - f2.top) + 'px)');
+        // telefonda: sahifa oxirigacha surilganda suzuvchi tugma mazmunning oxirgi elementini yopmaydi
+        const fab = document.getElementById('fab-primary');
+        if (!sticky && fab && !fab.hidden && getComputedStyle(fab).display !== 'none') {
+          const panel = document.getElementById('tab-data'), kids = [...panel.children].filter(el => el.getBoundingClientRect().height > 0);
+          const end = kids[kids.length - 1].getBoundingClientRect(), fb = fab.getBoundingClientRect();
+          if (end.bottom > fb.top + 0.5) bad.push('suzuvchi tugma mazmunning oxirini yopadi (' + Math.round(end.bottom - fb.top) + 'px)');
+        }
         window.scrollTo(0, 0);
         return bad;
       })) problems.push(`${name} ${tag}: ${msg}`);

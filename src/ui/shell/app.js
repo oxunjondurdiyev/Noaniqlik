@@ -11,7 +11,7 @@ const $ = id => document.getElementById(id);
 const t = k => (window.i18n ? window.i18n.t(k) : k);
 const state = () => (window.appState ? window.appState.get() : {});
 
-let tab = 'data';        // joriy yorliq
+let tab = 'model';       // joriy yorliq (1-qadam)
 let labTab = 'standards';
 let lastNav = 'gum';
 let lastStep = 'model';
@@ -58,7 +58,7 @@ function renderNav() {
     }
   });
   document.querySelectorAll('[data-bnav]').forEach(b => {
-    const on = b.dataset.bnav === tab || (b.dataset.bnav === 'data' && tab === 'typeb') || (b.dataset.bnav === 'results' && tab === 'report');
+    const on = b.dataset.bnav === tab || (b.dataset.bnav === 'data' && (tab === 'typeb' || tab === 'model')) || (b.dataset.bnav === 'results' && tab === 'report');
     b.classList.toggle('active', on);
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
@@ -91,14 +91,18 @@ function renderStepper() {
     if (s.current && b.scrollIntoView && box.scrollWidth > box.clientWidth) b.scrollIntoView({ block: 'nearest', inline: 'center' });
   });
 }
-/** Bosh barmoq zonasidagi asosiy amal: joriy qadamning mavjud tugmasini bosadi (mantiq takrorlanmaydi). */
-const FAB = { data: ['sh_fab_calc_a', 'btn-calc-typea'], typeb: ['sh_fab_calc_c', 'btn-calc-combined'], results: ['btn_report', null] };
+/** Bosh barmoq zonasidagi asosiy amal: joriy qadamning yagona asosiy tugmasini (`[data-primary]`, pastki panelda) bosadi —
+    mantiq va yozuv takrorlanmaydi (P22-1: har qadamda bitta asosiy tugma). */
+function primary() {
+  const panel = document.querySelector('.tab-panel.active');
+  return panel && WORKFLOW_TABS.includes(tab) ? panel.querySelector('.panel-footer [data-primary]') : null;
+}
 function renderFab() {
   const fab = $('fab-primary');
   if (!fab) return;
-  const cfg = FAB[tab];
-  fab.hidden = !cfg;
-  if (cfg) $('fab-label').textContent = t(cfg[0]);
+  const btn = primary();
+  fab.hidden = !btn;
+  if (btn) $('fab-label').textContent = btn.textContent.replace(/\s*→\s*$/, '').trim();
 }
 function renderBuild() {
   const el = $('nav-build');
@@ -130,13 +134,11 @@ function baseItems() {
   const sec = NAV.map(n => ({ id: 'nav:' + n.key, kind: 'section', label: t(n.labelKey), run: () => go(n.key) }));
   const steps = STEPS.map(s => ({ id: 'step:' + s.key, kind: 'section', label: t('sh_n_gum') + ' — ' + t(s.labelKey), run: () => goStep(s.key) }));
   const act = [
-    ['sh_a_calc_a', () => { goStep('typea'); click('btn-calc-typea'); }],
     ['sh_a_calc_c', () => { goStep('typeb'); click('btn-calc-combined'); }],
     ['btn_report', () => goStep('report')],
     ['sh_a_templates', () => window.UCTemplates && window.UCTemplates.openCatalog()],
     ['sh_a_labsettings', () => { const b = document.querySelector('[data-open-lab]'); if (b) b.click(); }],
     ['sh_a_data', () => { const b = document.querySelector('[data-open-data]'); if (b) b.click(); }],
-    ['sh_a_session', () => { goStep('model'); const sb = $('sidebar'); if (sb && sb.classList.contains('collapsed')) click('btn-sidebar-toggle'); }],
     ['sh_a_theme', () => click('btn-theme')],
     ['btn_new', () => click('btn-reset')],
   ].map(([key, run]) => ({ id: 'act:' + key, kind: 'action', label: t(key), run }));
@@ -216,7 +218,7 @@ function bind() {
   if (!$('app')) return;
   document.addEventListener('tabchange', e => { tab = e.detail.tab; renderAll(); if (tab === 'vizlab') openVizlab(); syncHash(); });
   window.addEventListener('hashchange', fromHash);
-  document.addEventListener('langchange', () => { renderAll(); renderBuild(); });
+  document.addEventListener('langchange', () => { setTimeout(renderAll, 0); renderBuild(); });        // FAB yozuvi tarjima qo'llangach o'qiladi
   if (window.appState) window.appState.subscribe(() => { renderStepper(); renderCrumbId(); });
 
   document.addEventListener('click', e => {
@@ -229,7 +231,7 @@ function bind() {
     const b = e.target.closest('[data-bnav]');
     if (b) {
       if (b.dataset.bnav === 'profile') { setProfile($('profile-menu').hidden); return; }
-      if (b.dataset.bnav === 'lab') go(activeNav('lab', labTab, 'lab-' + labTab)); else goStep(b.dataset.bnav === 'data' ? 'typea' : 'results');
+      if (b.dataset.bnav === 'lab') go(activeNav('lab', labTab, 'lab-' + labTab)); else goStep(b.dataset.bnav === 'data' ? 'data' : 'results');
       return;
     }
     if (e.target.closest('#btn-profile')) { setProfile($('profile-menu').hidden); return; }
@@ -241,7 +243,7 @@ function bind() {
   const trigger = $('btn-cmdk');
   if (trigger) trigger.addEventListener('click', openCmdk);
   const fab = $('fab-primary');
-  if (fab) fab.addEventListener('click', () => { const cfg = FAB[tab]; if (!cfg) return; if (cfg[1]) click(cfg[1]); else goStep('report'); });
+  if (fab) fab.addEventListener('click', () => { const btn = primary(); if (btn) btn.click(); });
 
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'k' || e.key === 'K')) {

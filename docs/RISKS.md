@@ -44,6 +44,7 @@
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
 | R-30 | Audit (21.11.2026) bo'yicha P0 tuzatishlar (P20, 2.11.0): LPU → MCM qaror qoidasi (chegaralar — loyiha qarori; 9 etalon nuqtaning hammasida MCM talab qilinadi), "QORALAMA" belgisi, rozilik va huquqiy sahifalar (yurist tasdig'ini kutadi); P18 (M9) dan oldin bajarildi — birlashtirishda ziddiyat bo'lishi mumkin | O | P20 (bajarildi; qoldiq ochiq) |
 | R-31 | M9 (P18, 2.12.0): ISO/TS 20914:2019 PDF repoda yo'q — etalon qiymatlar egasidan (G1–G11); **D-23** (G9: ikki qatorda oxirgi xona — egasi qabul qildi 24.11.2026, manba nuansi); manba misolisiz qismlar (proporsional bias — loyiha talqini, egasi qabul qildi; vaznli pooling, sanoq — ochiq); loyiha parametrlari (n < 20, lot nisbati 2, eng yaqin o'rtacha) | O | P18 → egasi |
+| R-32 | Yagona "Yangi hisob" oqimi (P22-1, hisob o'zgarmagan): sessiya paneli olib tashlandi, P formuladan, N jadvaldan; ochiq — parametr nomi faqat formulada, shablon / oshkormas modelda sinxronlanmaydi, eski CSS / i18n kalitlari tozalanmagan, Firefox / Safari da ko'rilmagan | P | P22-1 → P22-6 |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -528,6 +529,30 @@ Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)
 **Qilinmagan:** fizik chegara (`physicalBounds`) uchun kiritish maydoni; vektor va oshkormas modellarda avtomatik MCM (KL-187); regressiya / top-down / maxsus rejim hisobotlarida MCM sharti; Safari / Firefox da qo'lda ko'rish (Chromium da `test:screens` va bosma PDF ko'rilgan); chap menyu 1440×900 da to'liq sig'maydi (16 band × 44 px) — ichki scroll qutisi ko'rinadigan scrollbar bilan (topshiriq ruxsat bergan variant).
 
 **P18 (M9) bilan birlashtirish:** P20 P18 dan oldin, `e460e89` ustida bajarildi. P18 `ENGINE_VERSION` ni oshirsa — ikkalasidan keyingi versiya qayta kelishiladi (hozir 2.11.0 — P20); `evaluate.js` da `mcm` qo'shilgan joy (natija obyekti oxiri) va `CHANGELOG.md` boshi — ehtimoliy ziddiyat nuqtalari.
+
+### R-32. Yagona "Yangi hisob" oqimi: qarorlar va qoldiq (O) — P22-1 (2026-11-21, hisob o'zgarmagan)
+
+**Birlashtirish (2026-11-24):** PR #37 asosiy branch'ga #41 (ochiq test rejimi), #39 (ochilish ekrani) va #40 (P18, ENGINE 2.12.0) dan keyin birlashtirildi; raqam R-31 → **R-32** (R-31 ni P18 egallagan). #39 bilan moslash: saqlangan hisob mezoni — `UCFlow.hasSession` (bo'sh yangi hisobda "Davom ettirish" kartasi chiqmaydi), sozlash oynasi yo'q — "Yangi hisob" `App.newCalculation()`.
+
+**Asos:** P22 topshirig'ida "P20 birlashtirilgandan keyin boshlanadi" deyilgan; P20 (`fix/p20-audit-p0`) hali asosiy tarmoqqa birlashtirilmagan (PR ochilmagan). P22-1 shu tarmoq **ustida** bajarildi — P20 o'zgarsa, P22-1 qayta asoslanadi (rebase). PR #36 (P18, ham "ENGINE 2.11.0") bilan versiya ziddiyati — R-30 da yozilgan, hal qilinmagan.
+
+**Bajarish paytida qabul qilingan loyiha qarorlari (egasi tasdig'ini kutadi):**
+
+1. **Sessiya paneli butunlay olib tashlandi** (n, parametr qo'shish / nomini o'zgartirish, hosila kattaliklar, preset). Parametr nomi endi formulada o'zgartiriladi; ma'lumoti bor eski nom jimgina o'chmaydi — "ma'lumotni «yangi nom» ga ko'chirish" yoki "olib tashlash" (tasdiq bilan). Avtomatik "nom almashtirildi" deb taxmin qilinmaydi (noto'g'ri kattalikka ma'lumot biriktirilmasin).
+2. **"Namuna ma'lumot to'ldirish" (tasodifiy sonlar) olib tashlandi** — N endi jadvaldan olinadi, tasodifiy sonlar esa metrologik dasturda chalg'ituvchi; o'quv ma'lumoti — katalogdagi "Namuna" shablonlarida.
+3. **Shablon ostida parametrlar formuladan sinxronlanmaydi** (kirishlar shablonda belgilangan); oshkor bo'lmagan modelda ham.
+4. **Yangi parametr nomi harf yoki `_` bilan boshlanadi** (parser istalgan belgini nom deb qabul qiladi — masalan "#"; bunday holda formula xato deb ko'rsatiladi). Avval saqlangan nomlarga ta'sir qilmaydi.
+5. **Telefonda** qadamning asosiy tugmasi — faqat suzuvchi tugma; statik pastki panel yashiriladi (takror bo'lmasin).
+6. **Shablondan boshlanganda** "Ma'lumotlar" qadami ochiladi (model shablonda); shablon paneli (doimiylar, yordamchi qiymatlar) ham shu qadamda.
+7. **"Hisobot" qadamida** ham pastki panel bor ("Chop etish") — sahifa tepasidagi mavjud tugmalar saqlangan (2-bosqichda "Hisobot" bitta joyga keltiriladi).
+
+**Qoldiq:**
+
+- Excel dan **qo'yilgan** qiymatlar avvalgidek son sifatida saqlanadi (`pasteGum`, P05b) — oxirgi nollar ko'rinishda yo'qoladi (qo'lda kiritilgan va namuna qiymatlari — matn). Hisobga ta'siri yo'q; P20 MET-04 bilan bir xillashtirish — alohida ish.
+- Ishlatilmay qolgan CSS (`.wf-*`, `.session-panel`, `.sidebar*`, `.param-item`, `.derived-*`, `.table-hint`) va i18n kalitlari (`welcome_*`, `label_n`, `label_p`, `btn_calc_a`, `toast_typea_done`, `btn_sample`, `sidebar_*`, …) o'chirilmagan — 6-bosqichda (atamalar) tozalanadi.
+- Namuna shablonlaridagi izoh ("P03 dagi src/data/presets.js … ko'chirilgan") texnik matn — 6-bosqichda.
+- "Eski ma'lumot (uc_state_v2) IndexedDB ga ko'chirildi" bildirishnomasi — texnik matn, 6-bosqichda.
+- **Qo'lda ko'rilmagan:** Firefox, Safari (macOS / iOS), real telefon / planshet (faqat Chromium — `test:screens`); ekran o'quvchisi bilan jadvalga kiritish.
 
 ### R-29. Interfeys 2.0: dizayn qarorlari va qoldiq (P) — P16 (2026-11-20, ENGINE 2.10.0 o'zgarmagan)
 

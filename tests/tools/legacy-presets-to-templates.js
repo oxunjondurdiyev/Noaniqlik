@@ -138,6 +138,7 @@ for (const [key, pd] of Object.entries(PRESETS)) {
     sourceNote: SOURCE_NOTES.default,
     ref: 'src/data/presets.js (P03) — ' + key,
     legacyPresetKey: key,
+    origin: 'example',          // P22-1: katalogda "Namuna" belgisi (src/ui/tpl/view.js)
     measurand: { symbol: MEASURAND[key][0], name: MEASURAND[key][1], unit: pd.unit || '' },
     model: { formula: pd.formula || '' },
     inputs: pd.params.map(p => ({

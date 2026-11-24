@@ -32,7 +32,8 @@ test('NAV: har bir band mavjud yorliqqa ishora qiladi; guruhlar — Hisob / Usul
 
 test('stepStates: "bajarildi" faqat hisob holatidan; joriy qadam bittadan ko\'p emas', async () => {
   const { stepStates, STEPS } = await load();
-  assert.deepEqual(STEPS.map(s => s.key), ['model', 'typea', 'typeb', 'results', 'report']);
+  assert.deepEqual(STEPS.map(s => s.key), ['model', 'data', 'typeb', 'results', 'report']);          // P22-1
+  assert.deepEqual(STEPS.map(s => s.tab), ['model', 'data', 'typeb', 'results', 'report'], 'har qadam — alohida yorliq');
   const empty = stepStates({}, 'model');
   assert.deepEqual(empty.map(s => s.done), [false, false, false, false, false]);
   assert.deepEqual(empty.filter(s => s.current).map(s => s.key), ['model']);
@@ -43,6 +44,9 @@ test('stepStates: "bajarildi" faqat hisob holatidan; joriy qadam bittadan ko\'p 
   const full = stepStates({ params: ['x'], typeA: { x: { mean: 1 } }, typeB: [{ id: 'a' }], combined: { y: 1 } }, 'results');
   assert.deepEqual(full.map(s => s.done), [true, true, true, true, false]);
   assert.equal(stepStates({ params: ['x'], typeA: {}, typeB: [], combined: null }, null).filter(s => s.done).length, 1);
+  // P22-1: "Ma'lumotlar" — HAR BIR parametrda A tur natijasi bo'lsagina bajarilgan (bitta parametr yetarli emas)
+  assert.equal(stepStates({ params: ['m', 'V'], model: { formula: 'm / V' }, typeA: { m: { mean: 1 } } }, null)[1].done, false);
+  assert.equal(stepStates({ params: ['m', 'V'], model: { formula: 'm / V' }, typeA: { m: { mean: 1 }, V: { mean: 2 } } }, null)[1].done, true);
 });
 
 test('activeNav / activeStep: mavjud yorliqdan aniqlanadi (yangi holat mashinasi yo\'q)', async () => {
@@ -55,8 +59,9 @@ test('activeNav / activeStep: mavjud yorliqdan aniqlanadi (yangi holat mashinasi
   assert.equal(activeNav('lab', 'cmc', 'gum'), 'lab-cmc');
   assert.equal(activeNav('topdown', 'qc', 'gum'), 'topdown');
   assert.equal(activeNav('vizlab', 'qc', 'gum'), 'vizlab');
-  assert.equal(activeStep('data', 'typea'), 'typea');
-  assert.equal(activeStep('data', 'results'), 'model');
+  assert.equal(activeNav('model', 'standards', 'gum'), 'gum');
+  assert.equal(activeStep('model', 'data'), 'model');
+  assert.equal(activeStep('data', 'results'), 'data');
   assert.equal(activeStep('typeb', 'model'), 'typeb');
   assert.equal(activeStep('report', 'model'), 'report');
   assert.equal(activeStep('lab', 'model'), null);
@@ -91,7 +96,7 @@ test('index.html qobig\'i: haqiqiy <button>/<a>, aria-label, stepper, pastki nav
   assert.equal(doc.getElementById('main-content').tagName, 'MAIN');
   // menyu bandlari, qadamlar va pastki navigatsiya — haqiqiy tugma / havola
   for (const el of app.querySelectorAll('[data-nav], [data-step], [data-bnav], .menu-item, #btn-cmdk, #fab-primary')) assert.ok(['BUTTON', 'A'].includes(el.tagName), el.outerHTML.slice(0, 80));
-  assert.deepEqual([...app.querySelectorAll('#stepper [data-step]')].map(b => b.dataset.step), ['model', 'typea', 'typeb', 'results', 'report']);
+  assert.deepEqual([...app.querySelectorAll('#stepper [data-step]')].map(b => b.dataset.step), ['model', 'data', 'typeb', 'results', 'report']);
   assert.deepEqual([...app.querySelectorAll('#bottom-nav [data-bnav]')].map(b => b.dataset.bnav), ['results', 'data', 'lab', 'profile']);
   // faqat ikonkali tugmalarda nom bor
   for (const b of app.querySelectorAll('button.icon-btn, #btn-cmdk')) assert.ok(b.getAttribute('data-i18n-aria') && b.getAttribute('aria-label'), b.id);
@@ -102,7 +107,7 @@ test('index.html qobig\'i: haqiqiy <button>/<a>, aria-label, stepper, pastki nav
   assert.equal(doc.getElementById('cmdk-list').getAttribute('role'), 'listbox');
   assert.ok(doc.getElementById('cmdk').hasAttribute('hidden'));
   // avvalgi boshqaruvlar saqlangan (app.js, index-auth.js ular bilan ishlaydi)
-  for (const id of ['btn-print', 'btn-reset', 'btn-theme', 'btn-sidebar-toggle', 'sidebar', 'sidebar-n', 'param-list', 'btn-add-param', 'derived-list', 'sidebar-preset',
+  for (const id of ['btn-print', 'btn-reset', 'btn-theme',
     'topbar-user-badge', 'topbar-user-name', 'topbar-user-role', 'btn-admin-link', 'btn-topbar-logout', 'btn-validation-link']) assert.ok(doc.getElementById(id), id);
   // yangi qobiq qismida inline uslub atributi yo'q
   for (const sel of ['header.topbar', '#side-nav', '#stepper', '#bottom-nav', '#cmdk', '#fab-primary']) assert.equal(app.querySelector(sel).outerHTML.includes(' style='), false, sel);
@@ -149,7 +154,7 @@ test('chap menyu: "Shablonlar katalogi" (HISOB guruhi tepasida), "Laboratoriya s
     assert.ok(!b.hasAttribute('data-nav'));
     assert.ok(b.querySelector('.nav-short[data-i18n]') && doc.getElementById(b.querySelector('use').getAttribute('href').slice(1)));
   }
-  const start = doc.querySelector('#tab-data [data-model-template]');
+  const start = doc.querySelector('#tab-model [data-model-template]');
   assert.ok(start && start.hasAttribute('data-open-templates'));
   assert.equal(start.querySelector('[data-i18n]').dataset.i18n, 'sh_tpl_start');
   assert.ok(start.compareDocumentPosition(doc.getElementById('model-box')) & 4, 'model qutisidan oldin');
@@ -190,7 +195,7 @@ test('toast: bir xil xabar ekranda turganida ikkinchi nusxa qo\'shilmaydi; A tur
   assert.match(shellCss, /@media \(max-width: 719px\) \{\s*#toast-container \{ left: var\(--s-3\); right: var\(--s-3\); bottom: calc\(var\(--bottom-nav-h\) \+ 80px/);
   clearTimeout(a._timer); [...doc.querySelectorAll('.toast')].forEach(t => clearTimeout(t._timer));
   const table = fs.readFileSync(path.join(root, 'src/js/table.js'), 'utf8');
-  assert.ok(!table.includes("'toast_calc_done'"), 'A tur / namuna to\'ldirish "Hisoblash yakunlandi!" demaydi');
-  assert.match(table, /toast_typea_done/); assert.match(table, /toast_sample_done/);
+  assert.ok(!table.includes("'toast_calc_done'"), 'jadval moduli "Hisoblash yakunlandi!" demaydi');
+  assert.ok(!/toast_typea_done|toast_sample_done/.test(table), 'P22-1: A tur avtomatik — alohida xabar yo\'q');
   assert.equal((fs.readFileSync(path.join(root, 'src/js/typeB.js'), 'utf8').match(/'toast_calc_done'/g) || []).length, 1);
 });

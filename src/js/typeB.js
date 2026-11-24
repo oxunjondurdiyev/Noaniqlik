@@ -588,7 +588,7 @@ const TypeB = (() => {
         bad_spec:     i18n.t('err_bad_spec'),
       }[result.error] || i18n.t('toast_need_data');
       showToast(msg, 'error', 4500);
-      if (!['formula_eval', 'bad_halfwidth', 'bad_dist_param', 'bad_mpe', 'bad_cmc_x', 'cmc_bad_row', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab('data');
+      if (!['formula_eval', 'bad_halfwidth', 'bad_dist_param', 'bad_mpe', 'bad_cmc_x', 'cmc_bad_row', 'negative_variance', 'bad_correlation'].includes(result.error)) switchTab(result.error === 'need_data' ? 'data' : 'model');   // P22-1: model xatolari — 1-qadam
       return;
     }
 

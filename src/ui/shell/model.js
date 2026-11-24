@@ -2,15 +2,16 @@
    SHELL/MODEL.JS — P16 (Interfeys 2.0): ilova qobig'ining sof modeli (DOM yo'q — Node'da test qilinadi).
    • NAV — chap menyu bandlari va ularning mavjud yorliqlarga (switchTab) mosligi. Yangi holat mashinasi YO'Q:
      har bir band mavjud yorliqni ochadi (+ laboratoriya ichki yorlig'i yoki sahifadagi joyga o'tish).
-   • STEPS / stepStates — ish oqimi qadamlari (Model → A tur → B tur → Natija → Hisobot) holati.
+   • STEPS / stepStates — ish oqimi qadamlari (P22-1: Model → Ma'lumotlar → B tur → Natija → Hisobot) holati;
+     har qadam — alohida yorliq ('model', 'data', 'typeb', 'results', 'report').
      "Bajarildi" belgisi faqat hisob holatidan (appState) — o'ylab topilmaydi.
    • search — buyruq qidiruvi (bo'lim, shablon, amal): registr va diakritikaga befarq, so'zlar bo'yicha VA.
 ═══════════════════════════════════════════════════════════════ */
 
 export const NAV = Object.freeze([
-  { key: 'gum', group: 'calc', tab: 'data', labelKey: 'sh_n_gum' },
+  { key: 'gum', group: 'calc', tab: 'model', labelKey: 'sh_n_gum' },
   { key: 'mc', group: 'calc', tab: 'results', focus: '[data-mc-panel]', labelKey: 'sh_n_mc' },
-  { key: 'multi', group: 'calc', tab: 'data', focus: '[data-outputs-box], #model-box', labelKey: 'sh_n_multi' },
+  { key: 'multi', group: 'calc', tab: 'model', focus: '[data-model-outputs], #model-box', labelKey: 'sh_n_multi' },
   { key: 'regression', group: 'methods', tab: 'regression', labelKey: 'tab_regression' },
   { key: 'topdown', group: 'methods', tab: 'topdown', labelKey: 'tab_topdown' },
   { key: 'special', group: 'methods', tab: 'special', labelKey: 'sh_n_special' },
@@ -23,27 +24,27 @@ export const NAV = Object.freeze([
 ]);
 
 export const STEPS = Object.freeze([
-  { key: 'model', tab: 'data', focus: '#model-box', labelKey: 'sh_st_model' },
-  { key: 'typea', tab: 'data', focus: '#measurement-table', labelKey: 'sh_st_typea' },
+  { key: 'model', tab: 'model', labelKey: 'sh_st_model' },
+  { key: 'data', tab: 'data', labelKey: 'sh_st_data' },
   { key: 'typeb', tab: 'typeb', labelKey: 'sh_st_typeb' },
   { key: 'results', tab: 'results', labelKey: 'sh_st_results' },
   { key: 'report', tab: 'report', labelKey: 'sh_st_report' },
 ]);
 
 /** Qaysi yorliqlarda stepper ko'rsatiladi (GUM ish oqimi). */
-export const WORKFLOW_TABS = Object.freeze(['data', 'typeb', 'results', 'report']);
+export const WORKFLOW_TABS = Object.freeze(['model', 'data', 'typeb', 'results', 'report']);
 
 /** Joriy yorliq (+ laboratoriya ichki yorlig'i, oxirgi tanlangan menyu bandi) → faol menyu bandi kaliti. */
 export function activeNav(tab, labTab, lastKey) {
   const last = NAV.find(n => n.key === lastKey);
   if (last && last.tab === tab && (!last.lab || last.lab === labTab)) return last.key;
   if (tab === 'lab') { const n = NAV.find(x => x.tab === 'lab' && x.lab === labTab); return n ? n.key : 'lab-standards'; }
-  if (tab === 'typeb' || tab === 'results' || tab === 'report' || tab === 'data') return 'gum';
+  if (WORKFLOW_TABS.includes(tab)) return 'gum';
   const n = NAV.find(x => x.tab === tab);
   return n ? n.key : null;
 }
 
-/** Joriy yorliq → faol qadam ('data' yorlig'ida ikki qadam bor: oxirgi tanlangani saqlanadi). */
+/** Joriy yorliq → faol qadam (P22-1 dan har qadam alohida yorliq; `lastStep` — moslik uchun). */
 export function activeStep(tab, lastStep) {
   if (!WORKFLOW_TABS.includes(tab)) return null;
   const last = STEPS.find(s => s.key === lastStep);
@@ -61,9 +62,10 @@ export function stepStates(state, current) {
   const st = state || {};
   const params = Array.isArray(st.params) ? st.params : [];
   const formula = String((st.model || {}).formula || '').trim();
+  const typeA = st.typeA && typeof st.typeA === 'object' ? st.typeA : {};
   const done = {
     model: params.length > 0 && (params.length === 1 || formula !== ''),
-    typea: !!st.typeA && Object.keys(st.typeA).length > 0,
+    data: params.length > 0 && params.every(p => !!typeA[p]),        // A tur avtomatik: har bir parametrda yetarli kuzatuv bor
     typeb: Array.isArray(st.typeB) && st.typeB.length > 0,
     results: !!st.combined,
     report: false,

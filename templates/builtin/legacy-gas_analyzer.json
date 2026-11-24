@@ -20,6 +20,7 @@
   },
   "ref": "src/data/presets.js (P03) — gas_analyzer",
   "legacyPresetKey": "gas_analyzer",
+  "origin": "example",
   "measurand": {
     "symbol": "E",
     "name": {

@@ -119,6 +119,7 @@
     },
     "locked": { "type": "array", "items": { "enum": ["model", "variants", "constants", "inputs", "typeBSources", "correlations", "settings", "decisionRule", "measurand"] }, "uniqueItems": true },
     "legacyPresetKey": { "type": "string" },
+    "origin": { "enum": ["example"], "description": "P22-1: 'example' — o'quv namunasi (avvalgi src/data/presets.js sozlamalari): katalogda \"Namuna\" belgisi bilan. Rasmiy metodika emas." },
     "author": { "type": "string" },
     "createdAt": { "type": "string" },
     "updatedAt": { "type": "string" },

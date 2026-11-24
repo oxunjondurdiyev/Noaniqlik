@@ -53,7 +53,9 @@ let resumeConfirm = false;
 function renderResume() {
   const box = $('home-resume');
   if (!box || !window.appState) return;
-  const info = resumeInfo(window.appState.get());
+  // P22-1: bo'sh yangi hisob (faqat `x` parametri, kiritilmagan) — davom ettirish kartasi chiqmaydi (src/ui/flow/model.js::hasSession)
+  const st = window.appState.get();
+  const info = window.UCFlow && !window.UCFlow.hasSession(st) ? null : resumeInfo(st);
   box.hidden = !info;
   if (!info) { box.innerHTML = ''; resumeConfirm = false; return; }
   const del = resumeConfirm
@@ -109,7 +111,7 @@ async function openSession(id) {
   window.App.showScreen('app');
   window.App.renderSidebar();
   window.Table.render(); window.TypeB.render(); window.Results.render();
-  if (window.UCShell) window.UCShell.goStep(p.stale ? 'typea' : 'results');
+  if (window.UCShell) window.UCShell.goStep(p.stale ? 'data' : 'results');
   if (p.stale) toast(t('hm_open_stale'), 'info', 6000);
 }
 
@@ -124,7 +126,7 @@ function bind() {
     if (q('[data-home-resume-del]')) { resumeConfirm = true; renderResume(); const y = document.querySelector('[data-home-resume-del-yes]'); if (y) y.focus(); return; }
     if (q('[data-home-resume-del-no]')) { resumeConfirm = false; renderResume(); return; }
     if (q('[data-home-resume-del-yes]')) { deleteCurrent(); return; }
-    if (q('[data-home-new]')) { window.App.showScreen('welcome'); return; }
+    if (q('[data-home-new]')) { window.App.newCalculation(); return; }          // P22-1: to'g'ridan-to'g'ri Model qadami
     if (q('[data-home-landing]')) { window.App.showScreen('home'); return; }
     const link = q('[data-home-lab]');
     if (link) { window.App.showScreen('app'); if (window.UCShell) window.UCShell.go(link.dataset.homeLab); return; }
