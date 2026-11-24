@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 355 |
-| Kamida bitta testga bog'langan | 342 |
-| ✅ verified | 290 |
+| Talablar | 356 |
+| Kamida bitta testga bog'langan | 343 |
+| ✅ verified | 291 |
 | ⚠️ verified (farq bilan) | 5 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -391,6 +391,7 @@
 | REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat | `src/ui/shell/app.js`; `src/js/report.js`; `src/css/tokens.css`; `src/report/sections.js::createSections` | `tests/report/print.test.js`; `tests/report/ribbon.test.js`; `tests/security/vendor.test.js` | ✅ verified | `#lab` havolasi va shriftning haqiqiy yuklanishi brauzerda tekshirildi (Chromium); jsdom testida emas |
 | REQ-UIX-015 | Kirish / ro'yxatdan o'tish ekrani yangi tokenlarda: til va mavzu tugmalari, chap tomonda tavsif + me'yoriy asos + "o'lchash ma'lumotlari faqat brauzerda" bayonoti; maydonlar ro'yxati qotirilgan (yangi shaxsiy maydon yo'q); xato inline (`role="alert"`, textContent); parolni ko'rsatish / yashirish; Enter bilan yuborish; `<html lang>` joriy tilda; formulalar va raqamlarda `translate="no"` | `src/ui/index-auth.js`; `src/css/home.css`; `src/js/i18n-shell.js` | `tests/ui/home.test.js` | ✅ verified | Enter bilan yuborish, parol tugmasi, til / mavzu va `<html lang>` Chromium da qo'lda tekshirildi; haqiqiy Firebase bilan kirish sinalmagan (jsdom / lokal) |
 | REQ-UIX-016 | "Bosh sahifa": "Yangi hisob" va "Shablondan boshlash" kartalari; so'nggi sessiyalar (IndexedDB `calculations`: ochish / nusxalash / o'chirish — audit izi bilan; natija faqat aynan shu `ENGINE_VERSION` da hisoblangan bo'lsa tiklanadi); tezkor havolalar; pastda `ENGINE_VERSION` va validatsiya xulosasi (builtin.json bo'yicha); chap menyuda "Bosh sahifa", "Shablonlar katalogi", "Laboratoriya sozlamalari", "Ma'lumotlar"; bir xil toast takrorlanmaydi | `src/ui/home/model.js::recentSessions`; `src/ui/home/model.js::sessionPatch`; `src/ui/home/app.js`; `src/ui/toast.js` | `tests/ui/home.test.js`; `tests/ui/shell.test.js` | ✅ verified | ochish / nusxalash / o'chirish IndexedDB bilan Chromium da tekshirildi (jsdom testida faqat sof model) |
+| REQ-UIX-018 | Kirish rejimi yagona joyda (`src/js/access-mode.js`, `ACCESS_MODE`): `open-test` — ro'yxatdan o'tish va kirish talab qilinmaydi, sinov hisoblagichi va to'lov oynasi o'chiq, "Ro'yxatdan o'tish" tugmalari yashirin, test belgisi (uch tilda, fikr-mulohaza havolasi bilan) ko'rinadi; mavjud hisoblar "Kirish" orqali kiradi; `subscription` — 7 ta sinov hisobi → ro'yxatdan o'tish → to'lov (avvalgi xatti-harakat); rejim faqat egasi qarori bilan almashtiriladi | `src/js/access-mode.js::canStartSession`; `src/js/access-mode.js::countsTrial`; `src/js/app.js`; `src/ui/index-auth.js` | `tests/ui/access.test.js` | ✅ verified | siyosat — sof test; index-auth.js — jsdom; app.js oqimi (beginSession) — brauzerda tekshirildi |
 
 ## SRC — Manba misollari qamrovi
 

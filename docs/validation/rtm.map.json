@@ -4496,5 +4496,18 @@
   ],
   "status": "manual",
   "note": "matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi"
+ },
+ "REQ-UIX-018": {
+  "code": [
+   "src/js/access-mode.js::canStartSession",
+   "src/js/access-mode.js::countsTrial",
+   "src/js/app.js",
+   "src/ui/index-auth.js"
+  ],
+  "tests": [
+   "tests/ui/access.test.js"
+  ],
+  "status": "verified",
+  "note": "siyosat — sof test; index-auth.js — jsdom; app.js oqimi (beginSession) — brauzerda tekshirildi"
  }
 }

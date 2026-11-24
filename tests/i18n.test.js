@@ -32,6 +32,7 @@ const I18N_FILES = [
   'src/js/i18n-shell.js',
   'src/js/i18n-vizlab.js',
   'src/js/i18n-p20.js',
+  'src/js/i18n-access.js', // kirish rejimi (ochiq test rejimi belgisi; 2026-11-24)
   'src/js/i18n-legal.js',   // faqat privacy.html / terms.html da yuklanadi (P20)
 ];
 

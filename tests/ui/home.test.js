@@ -12,7 +12,7 @@ const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const doc = new JSDOM(read('index.html')).window.document;
 const DICT = (() => {
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' });
-  return dom.window.eval(['i18n.js', 'i18n-ext.js', 'i18n-templates.js', 'i18n-admin.js', 'i18n-shell.js'].map(f => read('src/js/' + f)).join('\n;\n') + '\n;TRANSLATIONS');
+  return dom.window.eval(['i18n.js', 'i18n-ext.js', 'i18n-templates.js', 'i18n-admin.js', 'i18n-shell.js', 'i18n-access.js'].map(f => read('src/js/' + f)).join('\n;\n') + '\n;TRANSLATIONS');
 })();
 const keysIn = root => [...root.querySelectorAll('[data-i18n], [data-i18n-ph], [data-i18n-title], [data-i18n-aria]')]
   .flatMap(el => ['i18n', 'i18nPh', 'i18nTitle', 'i18nAria'].map(k => el.dataset[k]).filter(Boolean));

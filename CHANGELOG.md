@@ -4,6 +4,15 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [ilova] — Ochiq test rejimi: ro'yxatdan o'tishsiz foydalanish (2026-11-24)
+
+**ENGINE_VERSION o'zgarmagan (2.11.0), hisob o'zgarmagan.** `src/engine/` va `src/report/` ga tegilmagan; 9 ta etalon nuqta va 10-test o'zgarmagan.
+
+- **Egasi qarori (2026-11-24):** tizim fikr-mulohaza yig'ish uchun hammaga ochiq — ro'yxatdan o'tish va kirish talab qilinmaydi. Yakuniy versiyadan keyin obuna (to'lovli) rejimga qaytariladi.
+- **Kirish rejimi — yagona joy** `src/js/access-mode.js` (`window.UCAccess`, sof, Node'da ham): `ACCESS_MODE = 'open-test'`. `open-test` — sinov hisoblagichi (`uc_trial_count`) va to'lov oynasi o'chiq, "Ro'yxatdan o'tish" yorlig'i / havolasi va to'lov oynasidagi tugma yashirin (`data-reg-only`), ro'yxatdan o'tish formasi yuborilmaydi; kirish sahifasida va Bosh sahifada test belgisi (uz / ru / en, Telegram orqali fikr-mulohaza havolasi; `src/js/i18n-access.js`). Mavjud hisoblar (admin / xodim / super-admin) "Kirish" orqali avvalgidek kiradi. `subscription` — avvalgi xatti-harakat (7 ta sinov hisobi → ro'yxatdan o'tish → to'lov); **qaytarish — shu bitta qatorni o'zgartirish** (egasi qarori bilan; `tests/ui/access.test.js` yangilanadi).
+- `src/js/app.js`: `FREE_LIMIT` endi siyosatdan (`ACCESS.trialLimit`), `beginSession` — `UCAccess.canStartSession / countsTrial` orqali. `src/ui/index-auth.js`: rejimga qarab tugmalarni yashiradi / belgini ochadi.
+- Testlar: `tests/ui/access.test.js` (siyosat, index.html, jsdom'da ikkala rejim); `tests/crossbrowser/screens.js` — ochiq test rejimida "Ro'yxatdan o'tish" ekrani o'tkazib yuboriladi. Chromium'da tutun-testi: eski hisoblagich 50 bo'lganda ham 10 / 10 sessiya to'lov oynasisiz ochildi, hisoblagich oshmadi. Talab — `REQ-UIX-018`.
+
 ## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
 
 **SONLI NATIJALAR O'ZGARMAGAN.** `tests/cases/` dagi 91 ta misolning to'liq natijasi 2.10.0 (`e460e89`) bilan **bit darajasida bir xil** — yagona farq: natijaga yangi maydon `mcm` qo'shildi (`node scripts/cases-snapshot.js --compare oldin.json keyin.json --ignore '(^|\.)mcm(\.|$)'`: 91 / 91, farq 0). Versiya minor oshirildi, chunki natija tuzilmasi kengaydi (yangi imkoniyat). 9 ta etalon Excel nuqtasi va 10-test (MC intervali) o'zgarmagan.
