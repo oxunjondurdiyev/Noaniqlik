@@ -4497,7 +4497,7 @@
   "status": "manual",
   "note": "matn mazmuni — loyiha: yurist tasdig'ini kutadi (sahifa boshida belgi); tuzilma va uch til avtomatik tekshiriladi"
  },
- "REQ-UIX-017": {
+ "REQ-UIX-018": {
   "code": [
    "src/js/access-mode.js::canStartSession",
    "src/js/access-mode.js::countsTrial",
