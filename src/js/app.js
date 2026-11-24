@@ -7,7 +7,10 @@
   'use strict';
 
   /* ─── TRIAL MANAGER ─────────────────────────────── */
-  const FREE_LIMIT = 7;
+  // Kirish rejimi — src/js/access-mode.js (window.UCAccess; egasi qarori 2026-11-24: ochiq test rejimi).
+  // 'open-test' da hisoblagich va to'lov oynasi o'chiq; 'subscription' da — 7 ta sinov hisobi.
+  const ACCESS     = window.UCAccess.policy();
+  const FREE_LIMIT = ACCESS.trialLimit;
   const TRIAL_KEY  = 'uc_trial_count';
 
   function getTrialCount() {
@@ -16,10 +19,11 @@
   function incrementTrial() {
     localStorage.setItem(TRIAL_KEY, getTrialCount() + 1);
   }
+  function signedIn() {
+    return !!(window.AuthManager && window.AuthManager.getSession());
+  }
   function isTrialActive() {
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (session) return true;
-    return getTrialCount() < FREE_LIMIT;
+    return window.UCAccess.canStartSession({ signedIn: signedIn(), used: getTrialCount() });
   }
 
   function showPaywall() {
@@ -44,8 +48,7 @@
   function updateTrialBanner() {
     const banner  = document.getElementById('trial-banner');
     if (!banner) return;
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (session) { banner.style.display = 'none'; return; }
+    if (signedIn() || FREE_LIMIT === null) { banner.style.display = 'none'; return; }
 
     const used      = getTrialCount();
     const remaining = FREE_LIMIT - used;
@@ -85,12 +88,11 @@
 
   /* Trial tekshiruvi (yangi sessiya boshlanganda). false — paywall ko'rsatildi. */
   function beginSession() {
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (!session) {
-      if (!isTrialActive()) {
-        showPaywall();
-        return false;
-      }
+    if (!isTrialActive()) {
+      showPaywall();
+      return false;
+    }
+    if (window.UCAccess.countsTrial({ signedIn: signedIn() })) {
       incrementTrial();
       updateTrialBanner();
     }
