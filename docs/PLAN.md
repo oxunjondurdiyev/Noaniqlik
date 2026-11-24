@@ -234,7 +234,7 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 
 | Bosqich | Mazmun | Holat |
 |---|---|---|
-| **P18** | M9 (loyiha yo'riqnomasidagi usul raqami) | rejalashtirilgan — bu repoda hali yo'q (P20 `e460e89` ustida bajarildi) |
+| **P18** | M9 — tibbiy laboratoriya: ISO/TS 20914:2019 bo'yicha validatsiya va kengaytirish (pastda) | **bajarildi (2026-11-23, ENGINE 2.12.0)** |
 | **P19** | M8 — mikrobiologiya, ISO 19036 (loyiha hujjatidagi "P17" prompti); hozirgi holat — BETA, KL-079 | rejalashtirilgan |
 | **P20** | Audit (21.11.2026) bo'yicha P0 tuzatishlar — pastda | **bajarildi (2026-11-21)** |
 | **P21** | Kragten usuli (QUAM:2012 Appendix E.2) — avvalgi "P17" | rejalashtirilgan |
@@ -270,7 +270,7 @@ Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16
 
 **O'lchanadigan maqsad (1-bosqichga tegishlisi — `npm run test:screens` da avtomatik):** Bosh sahifa → Model (sozlash ekranisiz); shablondan natijagacha bosishlar ≤ 3; 5 qadam; har qadamda bitta asosiy tugma. Qolgan ko'rsatkichlar (natija kartasi birinchi ekranda, menyu ≤ 9 band, "Hisobot" bitta joyda) — 2- va 3-bosqichlarda.
 
-**P22-1 — nima qilindi:** `CHANGELOG.md` "[2.11.0 — ilova] P22-1"; sof model `src/ui/flow/model.js`; talablar REQ-UXF-001…005. **Qanday tekshirildi:** `npm test`; `npm run test:screens` (Chromium, 66 skrinshot); `src/engine/`, `src/report/` — `git diff` bo'sh. **Qoldiq va qarorlar:** `docs/RISKS.md` R-31.
+**P22-1 — nima qilindi:** `CHANGELOG.md` "[ilova] — P22-1"; sof model `src/ui/flow/model.js`; talablar REQ-UXF-001…005. **Qanday tekshirildi:** `npm test`; `npm run test:screens` (Chromium, 66 skrinshot); `src/engine/`, `src/report/` — `git diff` bo'sh. **Qoldiq va qarorlar:** `docs/RISKS.md` R-32.
 
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 
@@ -322,3 +322,20 @@ P02 ── P01 ── P03 ─┬─ P04 ─┬─ P08 ── P09 ── P10 ─�
    Tavsiya: (a), Cloud Functions'siz — xodim parolini tiklash uchun admin eski hisobni o'chirib yangisini yaratadi (ikkinchi app instansiyasi orqali); Auth'dagi eski hisobni o'chirish `docs/SECURITY_SETUP.md` dagi qo'lda qadam. Qaror egasida.
 2. **Super-admin:** custom claim (Admin SDK bilan bir martalik lokal skript, egasi ishga tushiradi) yoki `admins/{uid}` hujjati (faqat konsoldan yaratiladi, qoidalar uni tekshiradi). Tavsiya: `admins/{uid}` — server/skriptsiz. Qaror egasida.
 3. **Firebase tarifi:** Cloud Functions va Emulator'dan tashqari test uchun Blaze kerak bo'lishi mumkin. Hozirgi tarif (Spark/Blaze)?
+
+## P18 — M9 (ISO/TS 20914:2019): validatsiya va kengaytirish
+
+> **Holat: bajarildi (2026-11-23, ENGINE_VERSION 2.12.0).** Asos — `24ae1c9` (P20). `uc-medical/1` dan boshqa rejimlar natijalari bit darajasida o'zgarmagan (91 / 91 snapshot). PR ochilgan, egasi ko'rib chiqadi (merge qilinmagan).
+
+- **Dvigatel** (`src/engine/medical/index.js`): daraja qo'llanish oralig'i (A.2.3), aniqlik turi (§6.3), lotlar bo'yicha pooled u_Rw (A.8), bir xil tizimlar (A.4), davrlar (A.7), u_bias CRM dan va ahamiyatlilik testi (C.5), log₁₀ shkala (A.10), ruxsat etilgan noaniqlik (§5.2), sanoq (§6.10); `medical_unverified` / `unverified: true` olib tashlandi.
+- **Etalon testlar:** `tests/fixtures/iso20914/G1…G11.json` (egasi bergan qiymatlar; band havolasi bilan) → `tests/engine/medical.iso20914.test.js`; analitik — `tests/engine/medical.test.js`; shakl va hisobot — `tests/ui/special.test.js`.
+- **UI / hisobot:** "Maxsus rejimlar → Tibbiy laboratoriya" kengaytirildi (uz / ru / en); hisobot A.1 jadvali shaklida, §5.6 bo'limi, bias va yaxlitlash bayonotlari; `SP-04` v0.2.0 — G1 orqali "manba bilan mos".
+- **Qanday tekshirildi:** `npm test`; `cases-snapshot --compare` (91 / 91); `template-validation --check`; `rtm --write`; Chromium da shakl va hisobot (G1, G2, G9, G11 ma'lumoti bilan).
+- **Qoldiq / egasiga savollar:** `docs/RISKS.md` R-31 — D-23 (G9, ikki qator), proporsional bias talqini, `apply` standarti, sanoq.
+
+### Egasi qabul qilgan qarorlar (P18)
+
+| Sana | Qaror |
+|---|---|
+| 23.11.2026 | **M9: `half_up`** — U oddiy yaxlitlash bilan 2 ta qiymatli raqamgacha (ISO/TS 20914 §5.4, Option B); `up` (ILAC P14) — sozlama; y — U xonasigacha, round half away from zero (o'zgarmagan); bayonot hisobotda. M8 (P19) uchun ham shu qoida. |
+| 23.11.2026 | M9 test misollarining yagona manbasi — egasi bergan ISO/TS 20914:2019 Annex A / C qiymatlari; PDF repoga joylanmaydi; qiymat / tolerans o'zgartirilmaydi. |

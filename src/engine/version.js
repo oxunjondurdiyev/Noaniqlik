@@ -33,5 +33,9 @@
    2.11.0 — P20 (audit 21.11.2026, MET-01): mcm-decision.js — LPU → MCM avtomatik qaror qoidasi; natijaga yangi maydon
            result.mcm = { required, reasons } (chegaralar — loyiha qarori: |c_i|u(x_i)/u_c > 0,50; ν_eff < 6); linter M5
            (mcm_required — faqat hisobot / UI qatlamidan, lintMcm). SONLI NATIJALAR O'ZGARMAGAN: 91 ta misol 2.10.0 bilan
-           bit darajasida bir xil (yangi `mcm` maydonidan tashqari). */
-export const ENGINE_VERSION = '2.11.0';
+           bit darajasida bir xil (yangi `mcm` maydonidan tashqari).
+   2.12.0 — P18 (M9, ISO/TS 20914:2019): medical/index.js — daraja qo'llanish oralig'i, takrorlanuvchanlik rejimi, lotlar bo'yicha
+           pooled u_Rw (A.8), bir xil tizimlar (A.4), davrlar (A.7), u_bias CRM dan (C.5), log₁₀ shkala (A.10), ruxsat etilgan
+           noaniqlik (§5.2), sanoq (§6.10); `medical_unverified` va `unverified: true` olib tashlandi (G1–G11 fixture'lari).
+           uc-medical/1 dan boshqa rejimlar natijalari 2.11.0 bilan bit darajasida bir xil (91 / 91). */
+export const ENGINE_VERSION = '2.12.0';

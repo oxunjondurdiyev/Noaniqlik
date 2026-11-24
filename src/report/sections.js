@@ -1050,20 +1050,54 @@ const DIST_KEYS = { rect: 'dist_rect', normal: 'dist_normal', triang: 'dist_tria
           <tr class="td-total"><td><strong>u_c</strong></td><td class="num"><strong>${tdNum(r.uc)}</strong></td><td class="num">100.0</td></tr></tbody></table>`);
   }
 
+  /* P18 — M9, ISO/TS 20914:2019. Jadval A.1 shaklida: daraja | N | o'rtacha | u_Rw | u | U | %U_rel | bemor natijalariga ±.
+     Yaxlitlash faqat shu yerda (U — 2 qiymatli raqam; §5.4 Option B — oddiy yaxlitlash, `up` — sozlama). */
   function medicalSection(r, opt) {
     const cls = opt.print ? 'print-table' : 'data-table math-head';
     const unit = rgUnit(r.unit);
+    const log = r.scale === 'log10';
+    const t = k => i18n.t(k);
+    const fill = (k, o) => Object.keys(o).reduce((x, key) => x.replace('{' + key + '}', o[key]), t(k));
     const rr = r.y !== null ? Calc.roundResult(r.y, r.absU, r.roundUp) : null;
-    const q = v => (v ? `${tdNum(v.abs)} (${tdNum(v.rel, 3)} %)` : '—');
+    const q = v => (v ? (v.rel === null ? tdNum(v.abs) : `${tdNum(v.abs)} (${tdNum(v.rel, 3)} %)`) : '—');
+    const ivText = iv => (!iv ? '—' : `${iv.low === null ? '' : escHtml(String(iv.low)) + (iv.lowInclusive ? ' ≤ ' : ' < ')}x${iv.high === null ? '' : (iv.highInclusive ? ' ≤ ' : ' < ') + escHtml(String(iv.high))}`);
+    const any = key => r.levels.some(L => L[key]);
+    const hasIv = any('interval'), hasFit = !!r.allowable, hasBias = any('uBias'), hasCal = any('uCal');
+    const k = escHtml(String(r.k));
+    const patient = L => (log ? `± ${tdU2(L.U.abs, r.roundUp)}${unit}` : `± ${tdU2(L.U.rel, r.roundUp)} %`);
+    const groups = r.levels.map(L => {
+      const id = escHtml(L.id);
+      if (L.lots) return `<p class="rg-line" data-sp-me-group="lots"><strong>${id}</strong> — ${t('sp_me_rep_lots')} (m = ${L.lots.length}; ${t('sp_me_pool_' + L.poolWeighting)}): ${L.lots.map(x => `x̄ = ${tdNum(x.mean, 6)}, u<sub>Rw</sub> = ${tdNum(x.sd)}`).join('; ')} → u<sub>Rw</sub> = ${tdNum(L.uRw.abs, 6)}</p>`;
+      if (L.systems) return `<p class="rg-line" data-sp-me-group="systems"><strong>${id}</strong> — ${t('sp_me_rep_systems')} (m = ${L.systems.length}): u(${L.systems.map(x => escHtml(x.id)).join(', ')}) = ${tdNum(L.uSystems.abs, 6)}; u<sub>Rw</sub>(${t('sp_me_rep_pooled')}) = ${tdNum(L.uRwPooled.abs, 6)}; u(${t('sp_me_rep_pooled')}) = ${tdNum(L.uRw.abs, 6)}</p>`;
+      if (L.periods) return `<p class="rg-line" data-sp-me-group="periods"><strong>${id}</strong> — ${t('sp_me_rep_periods')} (m = ${L.periods.length}): ${L.periods.map(x => `u = ${tdNum(x.u)}`).join('; ')} → u(${t('sp_me_rep_pooled')}) = ${tdNum(L.u.abs, 6)}</p>`;
+      return '';
+    }).join('');
+    const B = r.bias;
+    const biasBlock = B ? `<h4 class="rg-h">${t('sp_me_rep_bias_title')}</h4>
+      <p class="rg-line" data-sp-me-bias="${B.apply ? 'applied' : 'not_applied'}">bias = x<sub>ref</sub> − x<sub>lab</sub> = ${tdNum(B.bias, 5)}${unit}${B.biasRel === null ? '' : ` (${tdNum(B.biasRel, 4)} %)`} ± ${tdU2(B.UBias, r.roundUp)}${unit} (U<sub>bias</sub>, k = ${k});
+        u<sub>bias</sub> = √(u<sub>ref</sub>² + (s/√n)²) = ${tdNum(B.uBias, 5)}${unit}; u<sub>ref</sub> = ${B.uRef === null ? '—' : tdNum(B.uRef, 5)}; s/√n = ${tdNum(B.sdMean, 5)} (n = ${escHtml(String(B.n))})</p>
+      <p class="rg-line">${t(B.significant ? 'sp_me_rep_bias_sig' : 'sp_me_rep_bias_insig')} ${t(B.apply ? 'sp_me_rep_bias_applied_' + B.mode : 'sp_me_rep_bias_not_applied')}</p>` : '';
     return spHead(r, opt, `
-      ${rr ? `<table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${i18n.t('td_col_y')}</th><th>${i18n.t('td_col_U')}</th><th>${i18n.t('td_col_Urel')}</th><th>k</th><th>${i18n.t('sp_me_level')}</th></tr></thead>
+      <p class="rg-line" data-sp-me-userinfo="1"><strong>${t('sp_me_rep_userinfo_title')}.</strong> ${t('sp_me_rep_userinfo')}</p>
+      ${rr ? `<table class="${cls} td-result" data-sp-result="1"><thead><tr><th>${t('td_col_y')}</th><th>${t('td_col_U')}</th>${log ? '' : `<th>${t('td_col_Urel')}</th>`}<th>k</th><th>${t('sp_me_level')}</th></tr></thead>
         <tbody><tr><td class="num" data-sp-y="1">${rr.yround.toFixed(rr.digits)}${unit}</td><td class="num" data-sp-u="1"><strong>${rr.Uround.toFixed(rr.digits)}${unit}</strong></td>
-          <td class="num" data-sp-urel="1"><strong>${tdU2(r.relU, r.roundUp)} %</strong></td><td class="num">${escHtml(String(r.k))}</td><td>${escHtml(r.appliedLevel)}</td></tr></tbody></table>` : ''}
-      <h4 class="rg-h">${i18n.t('sp_me_levels_title')}</h4>
-      <table class="${cls}" data-sp-levels="1"><thead><tr><th>${i18n.t('sp_me_level')}</th><th>x̄${unit}</th><th>n</th><th>u<sub>Rw</sub></th><th>u<sub>cal</sub></th><th>u<sub>bias</sub></th><th>u</th><th>U (k = ${escHtml(String(r.k))})</th></tr></thead>
-        <tbody>${r.levels.map(L => `<tr data-sp-level="${escHtml(L.id)}"><td>${escHtml(L.id)}</td><td class="num">${tdNum(L.mean, 6)}</td><td class="num">${L.n === null ? '—' : escHtml(String(L.n))}</td>
-          <td class="num">${q(L.uRw)}</td><td class="num">${q(L.uCal)}</td><td class="num">${q(L.uBias)}</td><td class="num">${q(L.u)}</td><td class="num"><strong>${tdU2(L.U.abs)}${unit} (${tdU2(L.U.rel)} %)</strong></td></tr>`).join('')}</tbody></table>
-      <p class="rg-line"><span class="mono">u = √(u<sub>cal</sub>² + u<sub>Rw</sub>² + u<sub>bias</sub>²)</span></p>`);
+          ${log ? '' : `<td class="num" data-sp-urel="1"><strong>${tdU2(r.relU, r.roundUp)} %</strong></td>`}<td class="num">${k}</td><td>${escHtml(r.appliedLevel)}</td></tr></tbody></table>
+        ${r.levels.length > 1 ? `<p class="rg-line" data-sp-me-rule="${escHtml(r.levelRule)}">${t('sp_me_rep_rule_' + r.levelRule)}</p>` : ''}
+        ${log ? `<p class="rg-line" data-sp-me-coverage="1">${fill('sp_me_rep_log_interval', { lo: tdNum(r.coverage.low, 4), hi: tdNum(r.coverage.high, 4), blo: tdNum(r.coverage.backLow, 3), bhi: tdNum(r.coverage.backHigh, 3) })}</p>` : ''}` : ''}
+      <h4 class="rg-h">${t('sp_me_levels_title')}</h4>
+      <table class="${cls}" data-sp-levels="1"><thead><tr><th>${t('sp_me_level')}</th><th>N</th><th>x̄${unit}</th><th>${r.precisionType === 'repeatability' ? 'u<sub>r</sub>' : 'u<sub>Rw</sub>'}</th>${hasCal ? '<th>u<sub>cal</sub></th>' : ''}${hasBias ? '<th>u<sub>bias</sub></th>' : ''}
+        <th>u</th><th>U (k = ${k})${unit}</th>${log ? '' : '<th>%U<sub>rel</sub></th>'}${hasIv ? `<th>${t('sp_me_rep_interval')}</th>` : ''}<th>${t('sp_me_rep_patient')}</th>${hasFit ? `<th>${t('sp_me_rep_fit')}</th>` : ''}</tr></thead>
+        <tbody>${r.levels.map(L => `<tr data-sp-level="${escHtml(L.id)}"><td>${escHtml(L.id)}</td><td class="num">${L.n === null ? '—' : escHtml(String(L.n))}</td><td class="num">${tdNum(L.mean, 6)}</td>
+          <td class="num">${q(L.uRw)}</td>${hasCal ? `<td class="num">${q(L.uCal)}</td>` : ''}${hasBias ? `<td class="num">${q(L.uBias)}</td>` : ''}<td class="num">${tdNum(L.u.abs)}</td>
+          <td class="num"><strong>${tdU2(L.U.abs, r.roundUp)}</strong></td>${log ? '' : `<td class="num" data-sp-me-urel="1"><strong>${tdU2(L.U.rel, r.roundUp)}</strong></td>`}
+          ${hasIv ? `<td>${ivText(L.interval)}</td>` : ''}<td data-sp-me-patient="1">${patient(L)}</td>
+          ${hasFit ? `<td data-sp-me-fit="${L.fitForPurpose ? 'yes' : 'no'}"><span class="badge ${L.fitForPurpose ? 'badge-green' : 'badge-red'}">${t(L.fitForPurpose ? 'sp_me_fit_yes' : 'sp_me_fit_no')}</span></td>` : ''}</tr>`).join('')}</tbody></table>
+      <p class="rg-line"><span class="mono">u = √(u<sub>cal</sub>² + u<sub>Rw</sub>² + u<sub>bias</sub>²)</span>; ${t('sp_me_precision')}: ${t('sp_me_precision_' + r.precisionType)}${log ? `; ${t('sp_me_scale')}: ${t('sp_me_scale_log10')}` : ''}</p>
+      ${groups}
+      ${r.counting ? `<p class="rg-line" data-sp-me-count="1">${fill('sp_me_rep_count', { n: tdNum(r.counting.count, 6), u: tdNum(r.counting.u, 5) })}</p>` : ''}
+      ${hasFit ? `<p class="rg-line" data-sp-me-allowable="1">${fill('sp_me_rep_allowable', { q: t('sp_me_allow_' + r.allowable.quantity), v: escHtml(String(r.allowable.limit)) })}</p>` : ''}
+      ${biasBlock}
+      <p class="rg-line" data-sp-me-rounding="${escHtml(r.rounding)}">${t('sp_me_rep_round_' + r.rounding)}</p>`);
   }
 
   /** Maxsus rejim natijasi → hisobot bo'limi (rejim natijadagi `mode` bo'yicha tanlanadi). */

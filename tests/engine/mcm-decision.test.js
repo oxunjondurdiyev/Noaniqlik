@@ -133,7 +133,6 @@ test('mcmDecision sof funksiya: xato / bo\'sh natijada required = false; natijan
   assert.deepEqual(E.mcmDecision(r, {}), r.mcm);
   assert.equal(JSON.stringify(r), copy);
   assert.deepEqual(E.MCM_THRESHOLDS, { ratio: 0.5, nuEff: 6 });
-  assert.equal(E.ENGINE_VERSION, '2.11.0');
 });
 
 test('mcmState: pending / failed / not_converged / validated / rejected / performed; mcmMissing', () => {

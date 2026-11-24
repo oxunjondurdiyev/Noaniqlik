@@ -4,9 +4,9 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
-## [2.11.0 — ilova] — P22-1: yagona "Yangi hisob" oqimi (audit 21.11.2026: UX-01, UX-02, UX-04) (2026-11-21)
+## [ilova] — P22-1: yagona "Yangi hisob" oqimi (audit 21.11.2026: UX-01, UX-02, UX-04) (2026-11-21)
 
-**HISOB O'ZGARMAGAN, FAQAT INTERFEYS.** `src/engine/` va `src/report/` ga tegilmagan (`git diff` bo'sh; `tests/security/engine.sha256.json` o'zgarmagan); `ENGINE_VERSION` o'zgarmagan (2.11.0). 9 ta etalon Excel nuqtasi va 10-test o'zgarmagan. P20 (`fix/p20-audit-p0`) ustida bajarilgan.
+**HISOB O'ZGARMAGAN, FAQAT INTERFEYS.** `src/engine/` va `src/report/` ga tegilmagan (`git diff` bo'sh; `tests/security/engine.sha256.json` o'zgarmagan); `ENGINE_VERSION` o'zgarmagan (tayyorlanganda 2.11.0; asosiy branch'ga 2.12.0 — P18 dan keyin birlashtirildi). 9 ta etalon Excel nuqtasi va 10-test o'zgarmagan. P20 (`fix/p20-audit-p0`) ustida bajarilgan.
 
 - **"Hisoblashni sozlash" oynasi olib tashlandi** (N, P, "Sozlamani yuklash"): Bosh sahifadagi "Yangi hisob" to'g'ridan-to'g'ri **Model** qadamini ochadi (`App.newCalculation`).
 - **P — formuladan:** parametrlar ro'yxati mavjud parser tokenlaridan olinadi (`src/ui/flow/model.js::syncParams`; dvigatel tokenizatori o'zgarmagan). Formula bo'sh — bitta parametr `x` (y = x). Formuladan chiqib ketgan, lekin kuzatuvi yoki B tur manbasi bor parametr **o'chirilmaydi**: ogohlantirish + "ma'lumotni yangi nomga ko'chirish" / "olib tashlash" (tasdiq bilan) — foydalanuvchi qarori. Shablon va oshkor bo'lmagan modelda ro'yxatga tegilmaydi. Yangi nom harf yoki `_` bilan boshlanadi.
@@ -19,6 +19,63 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 - **Eski saqlangan hisoblar:** `uc_state_v2` va IndexedDB `calculations` yozuvlari avvalgidek ochiladi — parametrlar, kiritilgan qiymatlar (joyi bilan) va natija bit darajasida o'zgarmaydi; faqat oxiridagi bo'sh qatorlar bittagacha qisqaradi (`tests/ui/flow.test.js` — 11 sozlamaning barcha nuqtalari + formulasiz holat).
 - **Topilgan va tuzatilgan (brauzer testi):** parametr tugmalari (formulaga qo'yish) 24 px → ≥ 44 px; shablon panelidagi izoh kontrasti 4,06:1 → ≥ 4,5:1.
 - **Testlar:** `tests/ui/flow.test.js` (yangi); `npm run test:screens` — "Yangi hisob" → Model, 5 qadam, P / N avtomatik (haqiqiy klaviatura), shablondan natijagacha bosishlar ≤ 3, har qadamda bitta ko'rinadigan asosiy tugma, ko'rinadigan matnda "null" / "undefined" / "NaN" yo'q; yangi skrinshotlar `model`, `data`.
+
+## [2.12.0] — P18: M9 (tibbiy laboratoriya) — ISO/TS 20914:2019 bo'yicha validatsiya va kengaytirish (2026-11-23)
+
+**`uc-medical/1` dan boshqa rejimlar natijalari O'ZGARMAGAN:** `tests/cases/` dagi 91 ta misol 2.11.0 (`24ae1c9`) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0). 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmagan. Versiya minor oshirildi: M9 natija tuzilmasi kengaydi va M9 da daraja tanlash qoidasi o'zgardi (pastda).
+
+**Manba:** ISO/TS 20914:2019 (E), 1-nashr, Annex A va Annex C ishlangan misollari. Standart pullik — PDF repoda yo'q; kirish va kutilgan qiymatlarni egasi bergan (standart jadvallaridan ko'chirilgan, mustaqil qayta hisoblangan — 20.11.2026): `tests/fixtures/iso20914/G1…G11.json` (`source`, `clause`, har bir qatorda tolerans — oxirgi ko'rsatilgan xonaning ½ birligi). Test: `tests/engine/medical.iso20914.test.js`.
+
+### Dvigatel (`src/engine/medical/index.js`)
+
+- **Daraja qo'llanish oralig'i** (A.2.3, A.3.2, C.6.2): `levels[].interval = { low?, high?, lowInclusive = true, highInclusive = false }`; natija oraliqqa tushgan daraja qo'llanadi (`levelRule: 'interval'`). Kesishgan oraliqlar — `medical_interval_overlap`, natija hech biriga tushmasa — `medical_interval_gap`. **O'zgargan xatti-harakat:** oraliq berilmasa avvalgi "eng yaqin o'rtacha" qoidasi qoladi, lekin endi `medical_level_by_nearest` ogohlantirishi bilan (loyiha qoidasi, me'yoriy emas).
+- **Aniqlik turi** `precisionType: 'long_term' | 'repeatability'` (§6.3, A.2.3): `repeatability` da `medical_no_calibrator` chiqmaydi, `medical_repeatability_only` (info) chiqadi.
+- **Pooled u_Rw** (A.3.1, formula A.8): `levels[].lots[]` → √(Σu_i²/m), o'rtacha — lot o'rtachalarining o'rtachasi; `settings.poolWeighting: 'df'` — muqobil (vaznli) yondashuv, `medical_pool_df` belgisi bilan; n nisbati > 2 → `medical_unbalanced_lots` (info).
+- **Bir xil o'lchash tizimlari** (A.4): `levels[].systems[]` → u(A,B,…) = s(o'rtachalar), u_Rw(pooled), u(pooled).
+- **u(y) larni pooling** (A.7): `levels[].periods[{uRw}]` + u_cal → har davr u_i, pooled u.
+- **u_bias CRM dan** (C.5): `bias: { xRef, URef, kRef = 2 | uRef, xLab, sd, n, apply, mode }` → SD_mean (C.1), u_bias (C.2 / C.4), bias = x_ref − x_lab, %bias, ahamiyatlilik |bias| > 2·u_bias (C.3); `apply: true` — u_bias yig'indiga qo'shiladi; ahamiyatli va qo'llanmagan — `medical_bias_significant_not_applied`; u_ref yo'q — `medical_bias_incomplete` (C.5.3).
+- **log₁₀ shkala** (A.10): `scale: 'log10'` — u va U mutlaq (log₁₀ birlikda), `coverage = { low, high, backLow, backHigh }` (qayta o'tkazilgan interval asimmetrik); nisbiy % berilmaydi (`rel: null`, ma'lumot uchun `logRel`); nisbiy kirish — `medical_log_relative`.
+- **Ruxsat etilgan maksimal noaniqlik** (§5.2): `allowable: { u_rel | U_rel | u_abs | U_abs }` → `levels[].fitForPurpose`, `fit.margin`; yaroqsiz — `medical_not_fit`. Bu yaroqlilik bahosi — muvofiqlik bayonoti emas (`decision` yaratilmaydi).
+- Kattalikda `k` (`{ value: U, k }` → u = U / k); sanoq `counting: { count }` → u = √count (§6.10).
+- **`medical_unverified` va `unverified: true` olib tashlandi**; `approachRef: 'ISO/TS 20914:2019'`. Shablon tekshiruvida MEDICAL endi BETA emas (APPROVED ga o'tkazish mumkin).
+- **Manba misolisiz qismlar** (natijada `medical_no_source_example`, info, "tekshirilmagan"): proporsional bias tuzatishi (C.5.4), `poolWeighting: 'df'`, sanoq (§6.10), `allowable` ning `U_abs` dan boshqa turlari.
+
+### Yaxlitlash (egasi qarori 23.11.2026)
+
+- M9 da U uchun standart — **`half_up`** (oddiy yaxlitlash, ISO/TS 20914 §5.4 Option B), 2 ta qiymatli raqam; `settings.rounding: 'up'` (ILAC P14) — sozlama. Natijada `rounding: 'half_up' | 'up'`. `src/report/rounding.js` **o'zgarmagan** (M9 avval ham `roundHalfAway` bilan yaxlitlangan — endi bu qaror sifatida qayd etildi va hisobotda bayonot chiqadi). Boshqa rejimlarning yaxlitlash testlari o'zgarmasdan o'tadi. **Etalon nuqtalar ko'rinishi o'zgarmagan.**
+
+### Interfeys va hisobot
+
+- "Maxsus rejimlar → Tibbiy laboratoriya": aniqlik turi, shkala, CV / SD tanlovi, daraja jadvalida qo'llanish oralig'i (4–5-ustun), "Lotlar / tizimlar / davrlar" bo'limi, bias (CRM) bo'limi va "Tuzatish qo'llanadi" belgisi, ruxsat etilgan noaniqlik, U ni yaxlitlash usuli. BETA belgisi olib tashlandi. Matnlar uz / ru / en.
+- Hisobot (`src/report/sections.js::medicalSection`): A.1 jadvali shaklida (daraja | N | o'rtacha | u_Rw | u | U | %U_rel | "Bemor natijalariga ±"), "Laboratoriya foydalanuvchisi uchun ma'lumot" (§5.6), bias ± U_bias va tuzatish turi, §6.3 ogohlantirishi, yaxlitlash usuli bayonoti, yaroqlilik nishoni. `tests/security/engine.sha256.json` yangilandi.
+- Shablon `SP-04` v0.2.0 (BETA yozuvlari olib tashlandi); `templates/validation/builtin.json` — `SP-04 ← G1` (ISO/TS 20914:2019, A.2.2, Table A.1): "manba bilan mos".
+
+### Ma'lum farq — D-23 (egasi javobini kutadi)
+
+- G9 (C.6.1, Table C.1): manbada U_bias = 0,989 45 va U(Na) = 2,335 93; dvigatel (oraliq qiymatlarni yaxlitlamasdan) 0,989 444 va 2,335 937 beradi — farq oxirgi xonaning 1 birligi (nisbiy 6·10⁻⁶ va 3·10⁻⁶), ½ birlik toleransidan tashqarida. Manba qiymatlari yaxlitlangan oraliq qiymatlardan (SD_mean = 0,205 55; u_bias = 0,494 72) aynan kelib chiqadi. Fixture qiymati va toleransi **o'zgartirilmagan**; ikki qator todo-test (`tests/cases/DISCREPANCIES.md` D-23). G9 ning qolgan 5 qatori va boshqa barcha fixture'lar (G1–G8, G10, G11) tolerans ichida.
+
+## [ilova] — Ochiq test rejimi: ro'yxatdan o'tishsiz foydalanish (2026-11-24)
+
+**ENGINE_VERSION o'zgarmagan (2.11.0), hisob o'zgarmagan.** `src/engine/` va `src/report/` ga tegilmagan; 9 ta etalon nuqta va 10-test o'zgarmagan.
+
+- **Egasi qarori (2026-11-24):** tizim fikr-mulohaza yig'ish uchun hammaga ochiq — ro'yxatdan o'tish va kirish talab qilinmaydi. Yakuniy versiyadan keyin obuna (to'lovli) rejimga qaytariladi.
+- **Kirish rejimi — yagona joy** `src/js/access-mode.js` (`window.UCAccess`, sof, Node'da ham): `ACCESS_MODE = 'open-test'`. `open-test` — sinov hisoblagichi (`uc_trial_count`) va to'lov oynasi o'chiq, "Ro'yxatdan o'tish" yorlig'i / havolasi va to'lov oynasidagi tugma yashirin (`data-reg-only`), ro'yxatdan o'tish formasi yuborilmaydi; kirish sahifasida va Bosh sahifada test belgisi (uz / ru / en, Telegram orqali fikr-mulohaza havolasi; `src/js/i18n-access.js`). Mavjud hisoblar (admin / xodim / super-admin) "Kirish" orqali avvalgidek kiradi. `subscription` — avvalgi xatti-harakat (7 ta sinov hisobi → ro'yxatdan o'tish → to'lov); **qaytarish — shu bitta qatorni o'zgartirish** (egasi qarori bilan; `tests/ui/access.test.js` yangilanadi).
+- `src/js/app.js`: `FREE_LIMIT` endi siyosatdan (`ACCESS.trialLimit`), `beginSession` — `UCAccess.canStartSession / countsTrial` orqali. `src/ui/index-auth.js`: rejimga qarab tugmalarni yashiradi / belgini ochadi.
+- Testlar: `tests/ui/access.test.js` (siyosat, index.html, jsdom'da ikkala rejim); `tests/crossbrowser/screens.js` — ochiq test rejimida "Ro'yxatdan o'tish" ekrani o'tkazib yuboriladi. Chromium'da tutun-testi: eski hisoblagich 50 bo'lganda ham 10 / 10 sessiya to'lov oynasisiz ochildi, hisoblagich oshmadi. Talab — `REQ-UIX-018`.
+
+## Tuzatish — ochilish ekrani: Bosh sahifa, "Davom ettirish" kartasi (2026-11-23)
+
+**ENGINE_VERSION o'zgarmadi (2.11.0): hisob o'zgarmagan, faqat interfeys.** `src/engine/` va `src/report/` ga tegilmagan.
+
+- `src/js/app.js::bootstrap()` saqlangan holat bo'lsa to'g'ridan-to'g'ri ish maydonini ochardi — foydalanuvchi Bosh sahifani ko'rmasdi. Endi ochilish qoidasi (`startScreen`, egasi qarori 2026-11-23):
+  1. URL hash bor bo'lsa — **hash ustun**: `#home` — tanishtiruv (kirish) sahifasi, `#app` — ish maydoni (saqlangan hisob bo'lsa), `#lab` — Vizual laboratoriya;
+  2. kirgan foydalanuvchi (admin / xodim) — doim **Bosh sahifa**;
+  3. kirmagan va bu brauzerda hech qachon hisob boshlamagan (saqlangan holat ham, `uc_seen_dash` belgisi ham yo'q) — **tanishtiruv sahifasi**;
+  4. qolgan hamma holatda — **Bosh sahifa** (`#dash-screen`).
+- `uc_seen_dash` (`localStorage`; shaxsiy ma'lumot emas) — tanishtiruv sahifasidagi "Kalkulyatorni ochish" bosilganda yoziladi.
+- Saqlangan (tugallanmagan) hisob bo'lsa — Bosh sahifada birinchi karta: **"Davom ettirish: <model>, <sana>"** va **"O'chirish"** (ikki bosqichli tasdiq; `appState.reset()` — mavzu va til saqlanadi, IndexedDB dagi sessiyalarga tegilmaydi). Model — formula, bo'lmasa kirish kattaliklari ro'yxati; sana — hisob vaqti (bo'lsa).
+- Qobiqdagi logotip — Bosh sahifaga olib boradigan tugma (`#btn-brand-home`, klaviaturadan ochiq).
+- Matnlar uch tilda (`hm_resume`, `hm_resume_text`, `hm_resume_deleted`); testlar — `tests/ui/home.test.js`; `tests/crossbrowser/screens.js` — toza brauzer → tanishtiruv sahifasi, "Kalkulyatorni ochish" dan keyin qayta yuklash → Bosh sahifa.
 
 ## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
 

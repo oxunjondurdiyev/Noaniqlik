@@ -207,12 +207,20 @@
 | REQ-SPM-010 | Clopper–Pearson (aniq binomial; loyiha qo'shimchasi — laboratoriya sozlamasi): 7/20, 97/100, 100/100, 0/50, 3/100, 45/60 (P = 0,95), 7/20 (P = 0,99) | Matritsa §9 |
 | REQ-SPM-011 | Interval usuli tanlovi (egasi qarori 2026-11-18): standart Wilson; `ciMethod: 'clopper_pearson'`; bosma hisobotda faqat tanlangani, usul nomi va P | Matritsa §9 |
 | REQ-SPM-012 | Mikrobiologiya: u_Poisson = 0,4343/√ΣC; u_tech dublikatlarning log₁₀ farqlaridan; interval [10^(y−U); 10^(y+U)] (ISO 19036 — pullik) | Matritsa §9 |
-| REQ-SPM-013 | Tibbiy laboratoriya: u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha (ISO/TS 20914 — pullik) | Matritsa §9 |
-| REQ-SPM-014 | BETA modullar: har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi | Matritsa §9 |
+| REQ-SPM-013 | Tibbiy laboratoriya (M9): u = √(u_cal² + u_Rw² [+ u_bias²]) IQC darajalari bo'yicha — ISO/TS 20914:2019 A.2.2 (Table A.1), A.2.4 Rule 1; etalon G1, G3 | Matritsa §9 |
+| REQ-SPM-014 | BETA modul (mikrobiologiya): har doim `*_unverified` ogohlantirishi, hisobotda (bosmada ham) "BETA"; shablon APPROVED bo'la olmaydi. Tibbiy laboratoriya (P18 dan) BETA emas | Matritsa §9 |
 | REQ-SPM-015 | Hisobotda qo'llanilgan yondashuv va cheklovlar yozilgan (uch tilda) | Matritsa §9 |
 | REQ-SPM-016 | "Maxsus rejimlar" oynasi: Excel'dan qo'yish, o'nlik vergul, bo'sh maydon ≠ 0, escape (XSS), CSP | Matritsa §9 |
 | REQ-SPM-017 | Mavjud natijalar o'zgarmagan | Matritsa §9 |
 | REQ-SPM-018 | Mutatsiyaga sezgirlik (P10) | Matritsa §9 |
+| REQ-SPM-019 | M9: daraja qo'llanish oralig'i — natija tushgan oraliqdagi daraja; kesishish / bo'shliq — xato; oraliq yo'q — eng yaqin o'rtacha + ogohlantirish (ISO/TS 20914:2019 A.2.3, A.3.2, C.6.2; G2, G10) | P18 |
+| REQ-SPM-020 | M9: aniqlik turi — takrorlanuvchanlik (u_r) da `medical_no_calibrator` yo'q, §6.3 ogohlantirishi bor (ISO/TS 20914:2019 §6.3, A.2.3; G2) | P18 |
+| REQ-SPM-021 | M9: lotlar bo'yicha pooled u_Rw (A.3.1, formula A.8; G4, G5), bir xil tizimlar (A.4; G6), davrlar bo'yicha u(y) pooling (A.7; G7) | P18 |
+| REQ-SPM-022 | M9: u_bias CRM dan — SD_mean, u_bias, ahamiyatlilik \|bias\| > 2·u_bias, tuzatish qo'llanganda yig'indiga qo'shish (ISO/TS 20914:2019 C.5, C.6; G8, G9, G10) | P18 |
+| REQ-SPM-023 | M9: log₁₀ o'lchanuvchi — U mutlaq, qayta o'tkazilgan interval asimmetrik (A.10; G11); ruxsat etilgan maksimal noaniqlik bilan yaroqlilik bahosi (§5.2; G11) | P18 |
+| REQ-SPM-024 | M9: manba misolisiz qismlar — proporsional bias tuzatishi (C.5.4), erkinlik darajalari bo'yicha vaznli pooling (A.3.1), sanoq u = √count (§6.10), `allowable` ning boshqa turlari: natijada `medical_no_source_example` | P18 |
+| REQ-SPM-025 | M9: U ni yaxlitlash — standart half_up (ISO/TS 20914 §5.4 Option B; egasi qarori 23.11.2026), `up` — sozlama; usul hisobotda yoziladi; boshqa rejimlar yaxlitlashi o'zgarmagan | P18 |
+| REQ-SPM-026 | M9 hisoboti va shakli: A.1 shaklidagi jadval, "Laboratoriya foydalanuvchisi uchun ma'lumot" (§5.6), bias ± U_bias va tuzatish turi, §6.3 ogohlantirishi; shakl maydonlari uch tilda; shablon SP-04 — G1 orqali "manba bilan mos" | P18 |
 
 ## LNT — Metrologik linter, asoslangan qabul (P05a)
 
@@ -382,6 +390,8 @@
 | REQ-UIX-014 | `#lab` havolasi Vizual laboratoriyani ochadi; Ctrl+P GUM yorliqlarida A4 hisobotni chop etadi; yunon harflari Inter dan (vendor); νᵢ belgisi faqat |ulush| ≥ 5 % va chekli ν da | Egasi qarori 2026-11-20 (R-29) |
 | REQ-UIX-015 | Kirish / ro'yxatdan o'tish ekrani yangi tokenlarda: til va mavzu tugmalari, chap tomonda tavsif + me'yoriy asos + "o'lchash ma'lumotlari faqat brauzerda" bayonoti; maydonlar ro'yxati qotirilgan (yangi shaxsiy maydon yo'q); xato inline (`role="alert"`, textContent); parolni ko'rsatish / yashirish; Enter bilan yuborish; `<html lang>` joriy tilda; formulalar va raqamlarda `translate="no"` | Egasi topshirig'i 2026-11-20; CLAUDE.md (shaxsiy ma'lumotlar) |
 | REQ-UIX-016 | "Bosh sahifa": "Yangi hisob" va "Shablondan boshlash" kartalari; so'nggi sessiyalar (IndexedDB `calculations`: ochish / nusxalash / o'chirish — audit izi bilan; natija faqat aynan shu `ENGINE_VERSION` da hisoblangan bo'lsa tiklanadi); tezkor havolalar; pastda `ENGINE_VERSION` va validatsiya xulosasi (builtin.json bo'yicha); chap menyuda "Bosh sahifa", "Shablonlar katalogi", "Laboratoriya sozlamalari", "Ma'lumotlar"; bir xil toast takrorlanmaydi | Egasi topshirig'i 2026-11-20 |
+| REQ-UIX-017 | Ochilish ekrani: URL hash bor bo'lsa — hash ustun (`#home`, `#app`, `#lab`); kirgan foydalanuvchi (admin / xodim) — doim Bosh sahifa; kirmagan va bu brauzerda hech qachon hisob boshlamagan (saqlangan holat ham, `uc_seen_dash` belgisi ham yo'q) — tanishtiruv sahifasi; qolgan hollarda — Bosh sahifa (saqlangan holatda ham ish maydoni emas). "Kalkulyatorni ochish" `uc_seen_dash` ni yozadi. Saqlangan (tugallanmagan) hisob birinchi kartada "Davom ettirish: <model>, <sana>" va "O'chirish" (tasdiq bilan); qobiqdagi logotip Bosh sahifaga olib boradi | Egasi topshirig'i va qarori 2026-11-23 |
+| REQ-UIX-018 | Kirish rejimi yagona joyda (`src/js/access-mode.js`, `ACCESS_MODE`): `open-test` — ro'yxatdan o'tish va kirish talab qilinmaydi, sinov hisoblagichi va to'lov oynasi o'chiq, "Ro'yxatdan o'tish" tugmalari yashirin, test belgisi (uch tilda, fikr-mulohaza havolasi bilan) ko'rinadi; mavjud hisoblar "Kirish" orqali kiradi; `subscription` — 7 ta sinov hisobi → ro'yxatdan o'tish → to'lov (avvalgi xatti-harakat); rejim faqat egasi qarori bilan almashtiriladi | Egasi qarori 2026-11-24 |
 
 ## SRC — Manba misollari qamrovi
 

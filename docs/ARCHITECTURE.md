@@ -173,7 +173,7 @@
 > | `src/engine/sampling/index.js` | `evaluateSampling` (format `uc-sampling/1`): dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU |
 > | `src/engine/qualitative/index.js` | `evaluateQualitative` (`uc-qualitative/1`): 2×2 jadval, SS, SP, LR, posterior; interval — Wilson (standart) yoki Clopper–Pearson (laboratoriya sozlamasi `ciMethod`) |
 > | `src/engine/micro/index.js` | `evaluateMicro` (`uc-micro/1`): log₁₀ sanoq — **BETA, unverified** |
-> | `src/engine/medical/index.js` | `evaluateMedical` (`uc-medical/1`): IQC darajalari — **BETA, unverified** |
+> | `src/engine/medical/index.js` | `evaluateMedical` (`uc-medical/1`): M9 — IQC darajalari, qo'llanish oralig'i, lotlar / tizimlar / davrlar, bias (CRM), log₁₀, §5.2 — ISO/TS 20914:2019 (P18; misollar `tests/fixtures/iso20914/`) |
 > | `src/ui/special/build.js`, `view.js` | oyna holati → modelSpec; qo'yilgan jadvalni o'qish; shakllar HTML'i (sof, Node'da test qilinadi) |
 > | `src/ui/special/app.js` | "Maxsus rejimlar" yorlig'i kontrolleri (ES modul, `window.UCSpecial`); holat — `localStorage` `uc_special_v1` |
 > | `src/js/report.js` | `Results.specialSection`, `printSpecial` — to'rt rejimning hisobot bo'limlari (P05 gacha shu yerda) |
@@ -293,7 +293,7 @@ Asosiy yo'l: **`Calc.evaluate(state)`** (`calc.js:357-554`). U toza funksiya: `s
 | **Monte-Karlo** | `monteCarlo` (565-657), `rng` (557) | JCGM 101: Type A — siljitilgan/masshtablangan t, Type B — o'z taqsimoti. **xorshift32, qat'iy seed 20261110**, M ∈ [10⁴; 2·10⁶] qat'iy (adaptiv emas). Eng qisqa qamrov intervali + simmetrik interval. §8 validatsiya: δ = ½·10^(l) u_c ning 2 qiymatli raqamidan. **Korrelyatsiya hisobga olinmaydi**, faqat `correlated` bayrog'i qaytadi |
 | **Ko'p nuqta / bir xil k** | `Points.summary` (`points.js:305`) | `uniformK` bo'lsa barcha nuqtalarga eng katta k qo'llanadi, U, yaxlitlash va muvofiqlik **dvigateldan tashqarida** qayta hisoblanadi |
 
-Hozir mavjud **emas** (P08 dan keyin regressiya/kalibrlash egri chizig'i **bor** — `src/engine/regression/`; P09 dan keyin top-down (Nordtest/QUAM) **bor** — `src/engine/topdown/`; P10 dan keyin namuna olish, sifatli testlar, mikrobiologiya (BETA) va tibbiy laboratoriya (BETA) **bor** — `src/engine/sampling/`, `qualitative/`, `micro/`, `medical/`): ko'p o'lchamli chiqish (JCGM 102), adaptiv MC, ikkinchi tartibli hadlar, birliklar tahlili, QC/PT/validatsiya modullari.
+Hozir mavjud **emas** (P08 dan keyin regressiya/kalibrlash egri chizig'i **bor** — `src/engine/regression/`; P09 dan keyin top-down (Nordtest/QUAM) **bor** — `src/engine/topdown/`; P10 dan keyin namuna olish, sifatli testlar, mikrobiologiya (BETA) va tibbiy laboratoriya (P18 dan — ISO/TS 20914:2019 misollari bilan tekshirilgan) **bor** — `src/engine/sampling/`, `qualitative/`, `micro/`, `medical/`): ko'p o'lchamli chiqish (JCGM 102), adaptiv MC, ikkinchi tartibli hadlar, birliklar tahlili, QC/PT/validatsiya modullari.
 
 ## 4. DOM bilan aralashib ketgan hisob joylari
 

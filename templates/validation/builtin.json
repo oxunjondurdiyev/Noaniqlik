@@ -1,13 +1,13 @@
 {
  "_generated": "AVTOMATIK YARATILGAN — qo'lda tahrirlanmaydi. Yaratish: npm run validate:templates (node scripts/template-validation.js --write). Qo'lda o'zgartirilgan yoki eskirgan fayl `npm test` va CI da xato beradi.",
  "format": "uc-template-validation/2",
- "ENGINE_VERSION": "2.11.0",
+ "ENGINE_VERSION": "2.12.0",
  "records": [
   {
    "templateId": "legacy-density",
    "templateVersion": "1.0.0",
    "templateHash": "5459261c72858c150fb392d52c74b575c82641b55520e30b4e56153d3c923b7a",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-density",
    "source": "Zichlik_noaniqligi_hisobi.xlsx",
    "clause": "3_Hisob",
@@ -15,13 +15,13 @@
    "status": "verified",
    "checked": 5,
    "known": [],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-gas_analyzer",
    "templateVersion": "1.0.0",
    "templateHash": "302264b3fc19472964bf3474aab0837f22e231485886ca7635af85ff3d730c44",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-gas-p1",
    "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
    "clause": "Nuqta_1",
@@ -29,13 +29,13 @@
    "status": "verified",
    "checked": 5,
    "known": [],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-gas_analyzer",
    "templateVersion": "1.0.0",
    "templateHash": "302264b3fc19472964bf3474aab0837f22e231485886ca7635af85ff3d730c44",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-gas-p2",
    "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
    "clause": "Nuqta_2",
@@ -43,13 +43,13 @@
    "status": "verified",
    "checked": 5,
    "known": [],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-gas_analyzer",
    "templateVersion": "1.0.0",
    "templateHash": "302264b3fc19472964bf3474aab0837f22e231485886ca7635af85ff3d730c44",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-gas-p3",
    "source": "Noaniqlik_hisobi_gazoanalizator_KEDR-07.xlsx",
    "clause": "Nuqta_3",
@@ -57,13 +57,13 @@
    "status": "verified",
    "checked": 5,
    "known": [],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-thermometer",
    "templateVersion": "1.0.0",
    "templateHash": "2c76e489c93c6c5e50d5ec68fe8dec19f2e484d683df74d0c13268ef5e48b5ee",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-term-p1",
    "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
    "clause": "Nuqta_1",
@@ -71,13 +71,13 @@
    "status": "verified",
    "checked": 5,
    "known": [],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-thermometer",
    "templateVersion": "1.0.0",
    "templateHash": "2c76e489c93c6c5e50d5ec68fe8dec19f2e484d683df74d0c13268ef5e48b5ee",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-term-p2",
    "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
    "clause": "Nuqta_2",
@@ -87,13 +87,13 @@
    "known": [
     "D-03"
    ],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-thermometer",
    "templateVersion": "1.0.0",
    "templateHash": "2c76e489c93c6c5e50d5ec68fe8dec19f2e484d683df74d0c13268ef5e48b5ee",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-term-p3",
    "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
    "clause": "Nuqta_3",
@@ -103,13 +103,13 @@
    "known": [
     "D-03"
    ],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-thermometer",
    "templateVersion": "1.0.0",
    "templateHash": "2c76e489c93c6c5e50d5ec68fe8dec19f2e484d683df74d0c13268ef5e48b5ee",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-term-p4",
    "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
    "clause": "Nuqta_4",
@@ -117,13 +117,13 @@
    "status": "verified",
    "checked": 5,
    "known": [],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
   },
   {
    "templateId": "legacy-thermometer",
    "templateVersion": "1.0.0",
    "templateHash": "2c76e489c93c6c5e50d5ec68fe8dec19f2e484d683df74d0c13268ef5e48b5ee",
-   "ENGINE_VERSION": "2.11.0",
+   "ENGINE_VERSION": "2.12.0",
    "testId": "excel-term-p5",
    "source": "Noaniqlik_hisobi_termometr_MS-MK-3.xlsx",
    "clause": "Nuqta_5",
@@ -133,7 +133,21 @@
    "known": [
     "D-03"
    ],
-   "date": "2026-11-21"
+   "date": "2026-11-24"
+  },
+  {
+   "templateId": "SP-04",
+   "templateVersion": "0.2.0",
+   "templateHash": "13a76a08f36ad1274d1401834aadcc995606f3229ac9f5a8d83eb05b57e64c07",
+   "ENGINE_VERSION": "2.12.0",
+   "testId": "G1",
+   "source": "ISO/TS 20914:2019",
+   "clause": "A.2.2, Table A.1",
+   "relDiff": 0.00017,
+   "status": "verified",
+   "checked": 12,
+   "known": [],
+   "date": "2026-11-23"
   }
  ]
 }

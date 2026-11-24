@@ -7,7 +7,10 @@
   'use strict';
 
   /* ─── TRIAL MANAGER ─────────────────────────────── */
-  const FREE_LIMIT = 7;
+  // Kirish rejimi — src/js/access-mode.js (window.UCAccess; egasi qarori 2026-11-24: ochiq test rejimi).
+  // 'open-test' da hisoblagich va to'lov oynasi o'chiq; 'subscription' da — 7 ta sinov hisobi.
+  const ACCESS     = window.UCAccess.policy();
+  const FREE_LIMIT = ACCESS.trialLimit;
   const TRIAL_KEY  = 'uc_trial_count';
 
   function getTrialCount() {
@@ -16,10 +19,11 @@
   function incrementTrial() {
     localStorage.setItem(TRIAL_KEY, getTrialCount() + 1);
   }
+  function signedIn() {
+    return !!(window.AuthManager && window.AuthManager.getSession());
+  }
   function isTrialActive() {
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (session) return true;
-    return getTrialCount() < FREE_LIMIT;
+    return window.UCAccess.canStartSession({ signedIn: signedIn(), used: getTrialCount() });
   }
 
   function showPaywall() {
@@ -44,8 +48,7 @@
   function updateTrialBanner() {
     const banner  = document.getElementById('trial-banner');
     if (!banner) return;
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (session) { banner.hidden = true; return; }
+    if (signedIn() || FREE_LIMIT === null) { banner.hidden = true; return; }
 
     const used      = getTrialCount();
     const remaining = FREE_LIMIT - used;
@@ -80,12 +83,11 @@
 
   /* Trial tekshiruvi (yangi sessiya boshlanganda). false — paywall ko'rsatildi. */
   function beginSession() {
-    const session = window.AuthManager && window.AuthManager.getSession();
-    if (!session) {
-      if (!isTrialActive()) {
-        showPaywall();
-        return false;
-      }
+    if (!isTrialActive()) {
+      showPaywall();
+      return false;
+    }
+    if (window.UCAccess.countsTrial({ signedIn: signedIn() })) {
       incrementTrial();
       updateTrialBanner();
     }
@@ -142,8 +144,10 @@
 
   /* ─── HOME PAGE ─────────────────────────────────── */
   function initHome() {
-    document.getElementById('btn-home-start').addEventListener('click',  () => showScreen('dash'));
-    document.getElementById('btn-home-start2').addEventListener('click', () => showScreen('dash'));
+    // "Kalkulyatorni ochish" — brauzer Bosh sahifani ko'rgani belgilanadi: keyingi ochilishda tanishtiruv sahifasi emas, Bosh sahifa
+    const openDash = () => { markSeenDash(); showScreen('dash'); };
+    document.getElementById('btn-home-start').addEventListener('click',  openDash);
+    document.getElementById('btn-home-start2').addEventListener('click', openDash);
     /* Formula cycling animation */
     const items = document.querySelectorAll('.fc-item');
     const dots  = document.querySelectorAll('.fc-dot');
@@ -217,13 +221,49 @@
     TypeB.init();
     Results.init();
 
-    // Boshlangan hisob bo'lsa — davom ettiriladi (eski saqlangan holatlar ham: src/ui/flow/model.js::hasSession)
-    if (window.UCFlow.hasSession(appState.get())) showScreen('app');
+    // Saqlangan (boshlangan) hisob bo'lsa — ekran to'g'ridan-to'g'ri ish maydoniga ALMASHTIRILMAYDI: Bosh sahifada
+    // "Davom ettirish" kartasi bilan ko'rsatiladi (src/ui/home/app.js; egasi qarori 2026-11-23). Eski saqlangan
+    // holatlar ham hisobga olinadi (src/ui/flow/model.js::hasSession — P22-1).
+    const saved = window.UCFlow.hasSession(appState.get());
+    const hash = window.location.hash;
+    const session = window.AuthManager && window.AuthManager.getSession ? window.AuthManager.getSession() : null;
+    showScreen(startScreen(hash, { saved, seen: hasSeenDash(), loggedIn: isMember(session) }));
+    // Sessiya (Firebase Auth) keyinroq aniqlanadi: kirgan foydalanuvchi (admin / xodim) — doim Bosh sahifa.
+    // Faqat foydalanuvchi hali tanishtiruv sahifasidan chiqmagan va hash berilmagan bo'lsa almashtiriladi.
+    if (window.AuthManager && window.AuthManager.ready) {
+      window.AuthManager.ready().then(sess => {
+        if (isMember(sess) && !homeScreen.classList.contains('hidden') && startScreen(hash, { loggedIn: true }) === 'dash') showScreen('dash');
+      }).catch(() => { /* sessiya aniqlanmadi — tanlangan ekran qoladi */ });
+    }
+  }
+
+  /* Bosh sahifa ko'rilgani belgisi (shaxsiy ma'lumot emas; faqat shu brauzerda) */
+  const SEEN_DASH_KEY = 'uc_seen_dash';
+  function hasSeenDash() { try { return localStorage.getItem(SEEN_DASH_KEY) === '1'; } catch (_) { return false; } }
+  function markSeenDash() { try { localStorage.setItem(SEEN_DASH_KEY, '1'); } catch (_) { /* xotira o'chirilgan */ } }
+  function isMember(session) { return !!session && (session.role === 'admin' || session.role === 'employee'); }
+
+  /* Boshlang'ich ekran (egasi qarori 2026-11-23).
+     1) URL hash bor bo'lsa — hash ustun: #home — tanishtiruv (kirish) sahifasi, #app — ish maydoni (saqlangan hisob
+        bo'lsa; aks holda Bosh sahifa), #lab — Vizual laboratoriya (qobiq o'zi ochadi — src/ui/shell/app.js).
+     2) Kirgan foydalanuvchi (admin / xodim) — doim Bosh sahifa.
+     3) Kirmagan va bu brauzerda hech qachon hisob boshlamagan (saqlangan holat ham, uc_seen_dash belgisi ham yo'q) —
+        tanishtiruv sahifasi (home).
+     4) Qolgan hamma holatda — Bosh sahifa (dash); saqlangan hisob bo'lsa "Davom ettirish" kartasi bilan. */
+  function startScreen(hash, o) {
+    const s = o || {};
+    const h = String(hash || '').replace(/^#/, '');
+    if (h === 'home') return 'home';
+    if (h === 'lab') return 'app';
+    if (h === 'app') return s.saved ? 'app' : 'dash';
+    if (s.loggedIn) return 'dash';
+    if (!s.saved && !s.seen) return 'home';
+    return 'dash';
   }
 
   // Shablonlar moduli (src/ui/tpl/app.js) uchun
   /* renderSidebar — moslik uchun (sessiya paneli P22-1 da olib tashlandi; chaqiruvchilar: tpl, io, home) */
-  window.App = { showScreen, renderSidebar: () => {}, beginSession, newCalculation };
+  window.App = { showScreen, renderSidebar: () => {}, beginSession, newCalculation, startScreen };
 
   document.addEventListener('DOMContentLoaded', bootstrap);
 

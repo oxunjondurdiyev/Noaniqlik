@@ -453,3 +453,8 @@ html { scroll-padding-top: calc(var(--topbar-h) + var(--s-4)); scroll-padding-bo
 .model-chip { min-height: 44px; min-width: 44px; }
 /* Shablon paneli (rangli fon ustida): izoh matni ≥ 4,5:1 */
 .tpl-banner .text-muted { color: var(--c-text-2); }
+
+/* Qobiqdagi logotip — Bosh sahifaga olib boradigan tugma */
+button.topbar-brand { min-height: var(--tap); padding: 0 var(--s-2); margin-left: calc(-1 * var(--s-2)); border: 0; border-radius: var(--r-button); background: transparent; color: var(--c-text); cursor: pointer; }
+button.topbar-brand:hover { background: var(--c-blue-soft); }
+button.topbar-brand:focus-visible { outline: 2px solid var(--c-blue); outline-offset: 2px; }

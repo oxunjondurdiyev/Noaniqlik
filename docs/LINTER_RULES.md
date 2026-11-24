@@ -125,7 +125,7 @@ U < CMC(X) — mavjud **X8 `below_cmc`** (error): CMC endi jadvaldan avtomatik t
 | Qoida | Kodlar | Daraja | Rejim | Ref |
 |---|---|---|---|---|
 | **W1** | `c_nan` (**error**), `c_zero`, `c_mismatch`, `nonlinear`, `nu_lt1`, `dir_missing`, `sp_missing`, `coomet_small` ❔ (warning), `c_numeric` (info) | — | GUM | JCGM 100:2008 5.1.2 Note, 5.1.3, G.4.1, 4.2.4, 4.2.8, F.2.2.2; COOMET R/GM/32:2017 (unverified) |
-| **W2** | `regression_*`, `urange_*` (11); `topdown_*` (7); `sampling_*` (6); `qualitative_*` (4); `micro_*` (4); `medical_*` (3) | modul jadvalidagidek | REGRESSION, TOP_DOWN, SAMPLING, QUALITATIVE, MICRO, MEDICAL | modul jadvalidagi `ref` (o'zgarmagan): `REGRESSION_WARNINGS`, `TOPDOWN_WARNINGS`, … |
+| **W2** | `regression_*`, `urange_*` (11); `topdown_*` (7); `sampling_*` (6); `qualitative_*` (4); `micro_*` (4); `medical_*` (10 — P18) | modul jadvalidagidek | REGRESSION, TOP_DOWN, SAMPLING, QUALITATIVE, MICRO, MEDICAL | modul jadvalidagi `ref` (o'zgarmagan): `REGRESSION_WARNINGS`, `TOPDOWN_WARNINGS`, … |
 
 `c_nan` — error: sezgirlik koeffitsiyenti hisoblanmasa, hissa byudjetdan tushib qoladi. To'liq ro'yxat — `FINDING_CODES` (`src/engine/linter/index.js`).
 

@@ -9,6 +9,11 @@
   const T = window.UiTemplates;
   const PLANS = AuthManager.PLANS;
   const t = key => i18n.t(key);
+  // Kirish rejimi (src/js/access-mode.js; egasi qarori 2026-11-24): ochiq test rejimida ro'yxatdan o'tish va to'lov
+  // tugmalari ko'rsatilmaydi, test belgisi chiqadi. Mavjud hisob egalari "Kirish" orqali avvalgidek kiradi.
+  const ACCESS = window.UCAccess.policy();
+  if (!ACCESS.registration) document.querySelectorAll('[data-reg-only]').forEach(el => { el.hidden = true; });
+  if (ACCESS.testNotice) document.querySelectorAll('[data-access-note]').forEach(el => { el.hidden = false; });
 
   function showErr(id, msg) {
     const el = $(id);
@@ -27,7 +32,7 @@
     $('auth-screen').hidden = true;
     if (_opener && _opener.focus) _opener.focus();
   }
-  window.UCAuthScreen = Object.freeze({ show: tab => { showAuthScreen(); const b = document.querySelector('[data-auth-tab="' + (tab === 'register' ? 'register' : 'login') + '"]'); if (b) b.click(); }, hide: hideAuthScreen });
+  window.UCAuthScreen = Object.freeze({ show: tab => { showAuthScreen(); const b = document.querySelector('[data-auth-tab="' + (tab === 'register' && ACCESS.registration ? 'register' : 'login') + '"]'); if (b) b.click(); }, hide: hideAuthScreen });
   $('auth-btn-back').addEventListener('click', hideAuthScreen);
   $('auth-screen').addEventListener('keydown', e => { if (e.key === 'Escape') hideAuthScreen(); });
 
@@ -133,7 +138,7 @@
     document.querySelector('[data-auth-tab="login"]').click();
   });
   $('link-to-register').addEventListener('click', e => {
-    e.preventDefault(); document.querySelector('[data-auth-tab="register"]').click();
+    e.preventDefault(); if (ACCESS.registration) document.querySelector('[data-auth-tab="register"]').click();
   });
   $('link-to-login').addEventListener('click', e => {
     e.preventDefault(); document.querySelector('[data-auth-tab="login"]').click();
@@ -193,6 +198,7 @@
   /* ─── RO'YXATDAN O'TISH ───────────────────────────── */
   $('auth-panel-register').addEventListener('submit', async e => {
     e.preventDefault();
+    if (!ACCESS.registration) return;          // test rejimi: ro'yxatdan o'tish o'chiq
     showErr('reg-error', '');
     const inn        = $('reg-inn').value.trim();
     const phone      = $('reg-phone').value.trim();

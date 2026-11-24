@@ -1,0 +1,123 @@
+{
+ "id": "G10",
+ "source": "ISO/TS 20914:2019",
+ "clause": "C.6.2, Table C.2",
+ "title": "kreatinin: ikki daraja (oraliq bo'yicha), ikki IQC loti alohida",
+ "status": "verified",
+ "note": "measurement = 300 — faqat oraliq bo'yicha daraja tanlashni tekshirish uchun (≥ 250 → L2); manba qiymati emas.",
+ "runs": {
+  "lot1": {
+   "format": "uc-medical/1",
+   "unit": "µmol/l",
+   "uCal": {
+    "value": 3.24,
+    "k": 2,
+    "unit": "µmol/l"
+   },
+   "bias": {
+    "xRef": 72.9,
+    "URef": 1.61,
+    "kRef": 2,
+    "xLab": 80.1,
+    "sd": 1.1,
+    "n": 10,
+    "apply": true
+   },
+   "measurement": {
+    "value": 300
+   },
+   "levels": [
+    {
+     "id": "L1",
+     "mean": 70.2,
+     "sd": 1.44,
+     "interval": {
+      "high": 250
+     }
+    },
+    {
+     "id": "L2",
+     "mean": 517.1,
+     "sd": 5.87,
+     "interval": {
+      "low": 250
+     }
+    }
+   ]
+  },
+  "lot2": {
+   "format": "uc-medical/1",
+   "unit": "µmol/l",
+   "uCal": {
+    "value": 3.24,
+    "k": 2,
+    "unit": "µmol/l"
+   },
+   "bias": {
+    "xRef": 72.9,
+    "URef": 1.61,
+    "kRef": 2,
+    "xLab": 80.1,
+    "sd": 1.1,
+    "n": 10,
+    "apply": true
+   },
+   "levels": [
+    {
+     "id": "L1",
+     "mean": 79.7,
+     "sd": 1.39,
+     "interval": {
+      "high": 250
+     }
+    }
+   ]
+  }
+ },
+ "expected": [
+  {
+   "path": "bias.uBias",
+   "value": 0.87694,
+   "tol": 0.000005,
+   "run": "lot1"
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 2.33817,
+   "tol": 0.000005,
+   "run": "lot1"
+  },
+  {
+   "path": "levels.0.u.rel",
+   "value": 3.3307,
+   "tol": 0.00005,
+   "run": "lot1"
+  },
+  {
+   "path": "levels.1.u.abs",
+   "value": 6.15226,
+   "tol": 0.000005,
+   "run": "lot1"
+  },
+  {
+   "path": "levels.1.u.rel",
+   "value": 1.1898,
+   "tol": 0.00005,
+   "run": "lot1"
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 2.30771,
+   "tol": 0.000005,
+   "run": "lot2"
+  }
+ ],
+ "equals": [
+  {
+   "path": "appliedLevel",
+   "value": "L2",
+   "run": "lot1"
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

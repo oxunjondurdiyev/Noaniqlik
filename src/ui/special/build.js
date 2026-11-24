@@ -23,6 +23,10 @@ export function defaults() {
     miValue: '', miSum: '', miUnit: 'CFU/g', miPairs: '', miTechS: '', miMatrix: '', miK: '',
     // tibbiy laboratoriya
     meUnit: '', meLevels: '', meCal: '', meBias: '', meY: '', meK: '',
+    // P18 (ISO/TS 20914:2019): aniqlik turi, shkala, lotlar / tizimlar / davrlar, bias (CRM), ruxsat etilgan noaniqlik, yaxlitlash
+    mePrecision: 'long_term', meScale: 'linear', meSpread: 'cv', meUKind: 'rel', meGroupKind: 'none', meGroups: '', mePool: 'none',
+    meBRef: '', meBURef: '', meBKRef: '', meBLab: '', meBSd: '', meBN: '', meBMode: 'absolute', meBApply: false,
+    meAllowKind: 'U_rel', meAllow: '', meRound: 'half_up',
     template: null,
   };
 }
@@ -45,10 +49,49 @@ export function samplingRows(text) {
   return { targets, skipped };
 }
 
-/** IQC darajalari: har bir qator "o'rtacha  CV %  [n]". */
-export function levelRows(text) {
-  const g = numericRows(text);
-  return { levels: g.rows.map((r, i) => ({ id: `L${i + 1}`, mean: r[0], cv: r[1], ...(r[2] !== undefined && r[2] !== null ? { n: r[2] } : {}) })), skipped: g.skipped, short: g.rows.some(r => r.length < 2 || r[0] === null || r[1] === null) };
+/** Katak: son, bo'sh / "-" / "—" (yo'q → null) yoki o'qib bo'lmaydigan (NaN) */
+const cell = c => (c === undefined || /^[-–—]?$/.test(String(c).trim()) ? null : parseNumber(c));
+const has = v => v !== undefined && v !== null;
+
+/**
+ * IQC darajalari: har bir qator "o'rtacha  CV % (yoki SD)  [n]  [quyi chegara]  [yuqori chegara]"; yo'q katak — "-".
+ * Qo'llanish oralig'i [quyi; yuqori): ISO/TS 20914:2019 A.2.3, A.3.2 ("IQC monitors interval").
+ * @param {{spread?:'cv'|'sd'}} [o]
+ */
+export function levelRows(text, o = {}) {
+  const key = o.spread === 'sd' ? 'sd' : 'cv';
+  const levels = [];
+  let skipped = 0, short = false;
+  for (const cells of parseGrid(text)) {
+    const r = cells.map(cell);
+    if (r.some(n => Number.isNaN(n))) { skipped++; continue; }
+    if (!cells.some(c => String(c).trim() !== '')) continue;      // "-" qatori qoladi: darajaning qiymatlari lotlar / tizimlar jadvalidan
+    const iv = { ...(has(r[3]) ? { low: r[3] } : {}), ...(has(r[4]) ? { high: r[4] } : {}) };
+    if (!has(r[0]) || !has(r[1])) short = true;
+    levels.push({ id: `L${levels.length + 1}`, ...(has(r[0]) ? { mean: r[0] } : {}), ...(has(r[1]) ? { [key]: r[1] } : {}), ...(has(r[2]) ? { n: r[2] } : {}),
+      ...(Object.keys(iv).length ? { interval: iv } : {}) });
+  }
+  return { levels, skipped, short };
+}
+
+export const GROUP_KINDS = ['none', 'lots', 'systems', 'periods'];
+/**
+ * Lotlar / tizimlar: "daraja  o'rtacha  SD  [n]"; davrlar: "daraja  u_Rw". Daraja — tartib raqami yoki "L2".
+ * @returns {{byLevel:Object<number, object[]>, n:number, skipped:number}}  byLevel kaliti — darajaning 0 dan boshlangan tartibi
+ */
+export function groupRows(text, kind) {
+  const byLevel = {};
+  let n = 0, skipped = 0;
+  for (const cells of parseGrid(text)) {
+    const m = /^L?(\d+)$/i.exec(String(cells[0]).trim());
+    const r = cells.slice(1).map(cell);
+    const ok = m && Number(m[1]) >= 1 && !r.some(v => Number.isNaN(v)) && (kind === 'periods' ? has(r[0]) : has(r[0]) && has(r[1]));
+    if (!ok) { skipped++; continue; }
+    const list = byLevel[Number(m[1]) - 1] = byLevel[Number(m[1]) - 1] || [];
+    list.push(kind === 'periods' ? { id: String(list.length + 1), uRw: r[0] } : { id: String(list.length + 1), mean: r[0], sd: r[1], ...(has(r[2]) ? { n: r[2] } : {}) });
+    n++;
+  }
+  return { byLevel, n, skipped };
 }
 
 /** @returns {{spec:object, bad:string[]}}  bad — o'qib bo'lmagan maydonlar (i18n: 'sp_f_<nom>') */
@@ -73,12 +116,29 @@ export function buildSpec(st) {
       ...(g.rows.length ? { technical: { pairs: g.rows.map(r => [r[0], r[1]]) } } : s !== undefined ? { technical: { s } } : {}),
       ...(m !== undefined ? { matrix: { u: m } } : {}), ...k('miK') };
   } else {
-    const lv = levelRows(st.meLevels);
-    if (lv.short) bad.push('levels');
-    const cal = one(st.meCal, 'uCal'), bias = one(st.meBias, 'uBias'), y = one(st.meY, 'y');
-    spec = { format: 'uc-medical/1', unit: st.meUnit || '', levels: lv.levels,
-      ...(cal !== undefined ? { uCal: { value: cal, relative: true } } : {}), ...(bias !== undefined ? { uBias: { value: bias, relative: true } } : {}),
-      ...(y !== undefined ? { measurement: { value: y } } : {}), ...k('meK') };
+    const log = st.meScale === 'log10';
+    const lv = levelRows(st.meLevels, { spread: st.meSpread });
+    const kind = GROUP_KINDS.includes(st.meGroupKind) && st.meGroupKind !== 'none' ? st.meGroupKind : null;
+    const gr = kind ? groupRows(st.meGroups, kind) : { byLevel: {}, n: 0, skipped: 0 };
+    if (gr.skipped || Object.keys(gr.byLevel).some(i => Number(i) >= lv.levels.length)) bad.push('groups');
+    const levels = lv.levels.map((L, i) => {
+      const g = gr.byLevel[i];
+      if (!g) { if (!has(L.mean) || !(has(L.cv) || has(L.sd))) bad.push('levels'); return L; }
+      if (kind === 'periods') { if (!has(L.mean)) bad.push('levels'); return { id: L.id, mean: L.mean, ...(has(L.n) ? { n: L.n } : {}), ...(L.interval ? { interval: L.interval } : {}), periods: g }; }
+      return { id: L.id, ...(L.interval ? { interval: L.interval } : {}), [kind]: g };
+    });
+    // log₁₀ shkalada nisbiy (%) qiymat yo'q — u_cal / u_bias mutlaq birlikda (ISO/TS 20914:2019 A.10)
+    const q = v => (st.meUKind === 'abs' || log ? { value: v, unit: st.meUnit || '' } : { value: v, relative: true });
+    const cal = one(st.meCal, 'uCal'), bias = one(st.meBias, 'uBias'), y = one(st.meY, 'y'), kk = one(st.meK, 'k'), allow = one(st.meAllow, 'allowable');
+    const crm = ['meBRef', 'meBURef', 'meBLab', 'meBSd', 'meBN'].some(f => String(st[f] ?? '').trim() !== '');
+    const b = crm ? { xRef: one(st.meBRef, 'xRef'), URef: one(st.meBURef, 'URef'), kRef: one(st.meBKRef, 'kRef'), xLab: one(st.meBLab, 'xLab'), sd: one(st.meBSd, 'biasSd'), n: one(st.meBN, 'biasN') } : null;
+    if (b) Object.keys(b).forEach(f => { if (b[f] === undefined) delete b[f]; });
+    const settings = { ...(kk !== undefined ? { k: kk } : {}), ...(st.meRound === 'up' ? { rounding: 'up' } : {}), ...(st.mePool === 'df' ? { poolWeighting: 'df' } : {}) };
+    spec = { format: 'uc-medical/1', unit: st.meUnit || '', ...(log ? { scale: 'log10' } : {}), ...(st.mePrecision === 'repeatability' ? { precisionType: 'repeatability' } : {}), levels,
+      ...(cal !== undefined ? { uCal: q(cal) } : {}), ...(bias !== undefined ? { uBias: q(bias) } : {}),
+      ...(b ? { bias: { ...b, mode: st.meBMode === 'proportional' ? 'proportional' : 'absolute', apply: !!st.meBApply } } : {}),
+      ...(allow !== undefined ? { allowable: { [['u_rel', 'U_rel', 'u_abs', 'U_abs'].includes(st.meAllowKind) ? st.meAllowKind : 'U_rel']: allow } } : {}),
+      ...(y !== undefined ? { measurement: { value: y } } : {}), ...(Object.keys(settings).length ? { settings } : {}) };
   }
   return { spec, bad: [...new Set(bad)] };
 }

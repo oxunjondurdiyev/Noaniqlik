@@ -124,7 +124,8 @@ const SCREENS = [
     after: async p => { await p.evaluate(() => window.App.showScreen('app')); } },
   { key: 'auth', label: 'Kirish', go: async p => { await p.evaluate(() => window.UCAuthScreen.show('login')); await p.waitForSelector('#auth-screen:not([hidden]) #login-user'); },
     after: async p => { await p.evaluate(() => window.UCAuthScreen.hide()); } },
-  { key: 'auth-register', label: "Ro'yxatdan o'tish", go: async p => { await p.evaluate(() => window.UCAuthScreen.show('register')); await p.waitForSelector('#auth-screen:not([hidden]) #reg-inn'); },
+  // Kirish rejimi (src/js/access-mode.js): ochiq test rejimida ro'yxatdan o'tish ko'rsatilmaydi — ekran o'tkazib yuboriladi
+  { key: 'auth-register', label: "Ro'yxatdan o'tish", skip: p => p.evaluate(() => !window.UCAccess.policy().registration), go: async p => { await p.evaluate(() => window.UCAuthScreen.show('register')); await p.waitForSelector('#auth-screen:not([hidden]) #reg-inn'); },
     after: async p => { await p.evaluate(() => window.UCAuthScreen.hide()); } },
 ];
 
@@ -208,6 +209,15 @@ async function run(name, playwright, server) {
       page.on('pageerror', e => errors.push('pageerror: ' + (e && e.message || e)));
       page.on('console', m => { if (m.type() === 'error' && !/build\.json/.test(m.text() + ' ' + (m.location().url || ''))) errors.push('console: ' + m.text()); });
       await page.goto(server.url + '/index.html', { waitUntil: 'load' });
+      // Ochilish qoidasi (egasi qarori 2026-11-23): toza brauzer → tanishtiruv sahifasi; "Kalkulyatorni ochish" dan keyin
+      // qayta yuklash → Bosh sahifa (uc_seen_dash); keyin yana tanishtiruv sahifasiga #home orqali
+      const shown = () => page.evaluate(() => ['home-screen', 'dash-screen', 'app'].filter(id => !document.getElementById(id).classList.contains('hidden')).join(','));
+      if (await shown() !== 'home-screen') problems.push(`${name} ${w}x${h}-${theme}: toza brauzer tanishtiruv sahifasidan ochilmadi (${await shown()})`);
+      await page.click('#btn-home-start');
+      await page.reload({ waitUntil: 'load' });
+      if (await shown() !== 'dash-screen') problems.push(`${name} ${w}x${h}-${theme}: "Kalkulyatorni ochish" dan keyin qayta yuklashda Bosh sahifa ochilmadi (${await shown()})`);
+      await page.goto(server.url + '/index.html', { waitUntil: 'load' });
+      await page.evaluate(() => window.App.showScreen('home'));
       const flow = [];
       await seed(page, flow);
       const tag = `${w}x${h}-${theme}`;
@@ -259,6 +269,7 @@ async function run(name, playwright, server) {
       })) problems.push(`${name} ${tag}: ${msg}`);
       for (const s of SCREENS) {
         const id = `${name} ${s.key} ${tag}`;
+        if (s.skip && await s.skip(page)) continue;
         try {
           await s.go(page);
           await page.waitForTimeout(350);

@@ -200,7 +200,6 @@
       fix_micro_low_count: "Ko'proq koloniya sanaladigan suyultirishdan foydalaning.",
       fix_micro_no_technical: "Dublikat natijalardan texnik noaniqlikni kiriting.",
       fix_micro_few_pairs: "Kamida 10 ta dublikat juftligini kiriting.",
-      fix_medical_unverified: "Natijani ISO/TS 20914 bilan solishtiring; rasmiy hisobotda asoslab qabul qiling.",
       fix_medical_no_calibrator: "Kalibrator qiymati noaniqligi u_cal ni kiriting.",
       fix_medical_few_iqc: "Uzoqroq davr IQC natijalarini kiriting (kamida 20 ta).",
       w_decision_rule_missing: "Chegara (MPE yoki tolerantlik) berilgan, lekin qaror qoidasi tanlanmagan — muvofiqlik bayonoti berilmadi.",
@@ -253,6 +252,15 @@
       fix_decision_invalid: "Chegaralarni tekshiring (yuqori chegara pastkisidan katta bo'lsin) yoki r ni kamaytiring.",
       fix_decision_low_tur: "Noaniqlikni kamaytiring (aniqroq etalon, ko'proq kuzatuv) yoki mijoz bilan boshqa qaror qoidasini kelishing.",
       fix_decision_normal_assumed: "Kuzatuvlar sonini oshiring yoki bayonotni ehtiyotkorlik bilan talqin qiling.",
+      // P18 — M9, ISO/TS 20914:2019
+      fix_medical_level_by_nearest: "Har bir daraja uchun qo'llanish oralig'ini kiriting (4–5-ustunlar).",
+      fix_medical_repeatability_only: "Uzoq muddatli IQC ma'lumotidan u_Rw ni kiriting va u_cal ni qo'shing.",
+      fix_medical_unbalanced_lots: "Erkinlik darajalari bo'yicha vaznli birlashtirishni ko'rib chiqing (A.3.1).",
+      fix_medical_pool_df: "Usul hisobotda ko'rsatilgan; standart yondashuv — vaznsiz (formula A.8).",
+      fix_medical_bias_significant_not_applied: "Tuzatishni qo'llang yoki qo'llamaslik sababini asoslab qabul qiling (§6.6 — laboratoriyaning tibbiy qarori).",
+      fix_medical_bias_incomplete: "CRM sertifikatidagi U_ref va k ni kiriting.",
+      fix_medical_not_fit: "Noaniqlik manbalarini kamaytiring yoki ruxsat etilgan qiymatni qayta ko'rib chiqing (§5.2).",
+      fix_medical_no_source_example: "Natijani mustaqil hisob bilan solishtiring; rasmiy hisobotda asoslab qabul qiling.",
     },
 
     ru: {
@@ -438,7 +446,6 @@
       fix_micro_low_count: "Используйте разведение с большим числом подсчитываемых колоний.",
       fix_micro_no_technical: "Введите техническую неопределённость по дубликатам.",
       fix_micro_few_pairs: "Введите не менее 10 пар дубликатов.",
-      fix_medical_unverified: "Сверьте результат с ISO/TS 20914; в официальном отчёте примите с обоснованием.",
       fix_medical_no_calibrator: "Введите неопределённость значения калибратора u_cal.",
       fix_medical_few_iqc: "Введите результаты IQC за более длительный период (не менее 20).",
       w_decision_rule_missing: "Предел (MPE или допуск) задан, но правило принятия решения не выбрано — заключение о соответствии не выдано.",
@@ -491,6 +498,15 @@
       fix_decision_invalid: "Проверьте пределы (верхний должен быть больше нижнего) или уменьшите r.",
       fix_decision_low_tur: "Уменьшите неопределённость (более точный эталон, больше наблюдений) или согласуйте с заказчиком другое правило.",
       fix_decision_normal_assumed: "Увеличьте число наблюдений или толкуйте заключение с осторожностью.",
+      // P18 — M9, ISO/TS 20914:2019
+      fix_medical_level_by_nearest: "Задайте интервал применения для каждого уровня (столбцы 4–5).",
+      fix_medical_repeatability_only: "Введите u_Rw по долговременным данным IQC и добавьте u_cal.",
+      fix_medical_unbalanced_lots: "Рассмотрите объединение с весами по степеням свободы (A.3.1).",
+      fix_medical_pool_df: "Способ указан в отчёте; стандартный подход — без весов (формула A.8).",
+      fix_medical_bias_significant_not_applied: "Примените поправку либо обоснуйте отказ от неё (§6.6 — медицинское решение лаборатории).",
+      fix_medical_bias_incomplete: "Введите U_ref и k из сертификата CRM.",
+      fix_medical_not_fit: "Уменьшите вклады в неопределённость либо пересмотрите допустимое значение (§5.2).",
+      fix_medical_no_source_example: "Сверьте результат с независимым расчётом; в официальном отчёте примите с обоснованием.",
     },
 
     en: {
@@ -676,7 +692,6 @@
       fix_micro_low_count: "Use a dilution with more countable colonies.",
       fix_micro_no_technical: "Enter the technical uncertainty from duplicate results.",
       fix_micro_few_pairs: "Enter at least 10 duplicate pairs.",
-      fix_medical_unverified: "Compare the result with ISO/TS 20914; in an official report accept with a justification.",
       fix_medical_no_calibrator: "Enter the uncertainty of the calibrator value u_cal.",
       fix_medical_few_iqc: "Enter IQC results over a longer period (at least 20).",
       w_decision_rule_missing: "A limit (MPE or tolerance) is given but no decision rule is selected — no statement of conformity was issued.",
@@ -729,6 +744,15 @@
       fix_decision_invalid: "Check the limits (the upper limit must exceed the lower one) or reduce r.",
       fix_decision_low_tur: "Reduce the uncertainty (a better standard, more observations) or agree another decision rule with the customer.",
       fix_decision_normal_assumed: "Increase the number of observations or interpret the statement with care.",
+      // P18 — M9, ISO/TS 20914:2019
+      fix_medical_level_by_nearest: "Enter the monitored interval of each level (columns 4–5).",
+      fix_medical_repeatability_only: "Enter u_Rw from long-term IQC data and add u_cal.",
+      fix_medical_unbalanced_lots: "Consider pooling weighted by degrees of freedom (A.3.1).",
+      fix_medical_pool_df: "The method is stated in the report; the standard approach is unweighted (Formula A.8).",
+      fix_medical_bias_significant_not_applied: "Apply the correction or justify not applying it (§6.6 — the laboratory's medical decision).",
+      fix_medical_bias_incomplete: "Enter U_ref and k from the CRM certificate.",
+      fix_medical_not_fit: "Reduce the uncertainty contributions or review the allowable value (§5.2).",
+      fix_medical_no_source_example: "Check the result against an independent calculation; in an official report accept with a justification.",
     },
   };
   Object.keys(EXT).forEach(lang => {

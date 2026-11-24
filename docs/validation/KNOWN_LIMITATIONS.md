@@ -19,7 +19,7 @@
 | KL-002 | JCGM GUM-6:2020 repoda yo'q — birliklar va o'lchamlik tahlili mustaqil qo'lda hisob bilan tekshirilgan | unverified | `CLAUDE.md`; VALIDATION_MATRIX §1; RISKS P03 natijasi (R-12) | — |
 | KL-003 | COOMET R/GM/32:2017 repoda yo'q — unga havola qilingan kod tekshirilmagan (jumladan "yagona k", DISCREPANCIES T4) | unverified | `CLAUDE.md`; DISCREPANCIES C (T4) | — |
 | KL-004 | NIST Uncertainty Machine qo'llanmasi repoda yo'q; `nist-um-ratio` misoli unverified | unverified | `CLAUDE.md`; VALIDATION_MATRIX §4; DISCREPANCIES C (T14) | — |
-| KL-005 | ISO 21748, ISO 19036, ISO/TS 20914, ISO/TS 28037 / 28038, ISO 13528, ISO 5725-2, ISO 11352 — pullik, repoda yo'q (pullik standartlar repoga joylanmaydi); ISO/IEC 17043 ham solishtirilmagan | unverified | `CLAUDE.md`; RISKS R-19, R-20, R-21, R-26; `docs/references/README.md` | tegishli funksiyalar natijasida "unverified" belgisi |
+| KL-005 | ISO 21748, ISO 19036, ISO/TS 28037 / 28038, ISO 13528, ISO 5725-2, ISO 11352 — pullik, repoda yo'q (pullik standartlar repoga joylanmaydi); ISO/IEC 17043 ham solishtirilmagan. ISO/TS 20914:2019 ham pullik va repoda yo'q, lekin M9 uning ishlangan misollari bilan tekshirilgan (KL-071) | unverified | `CLAUDE.md`; RISKS R-19, R-20, R-21, R-26; `docs/references/README.md` | tegishli funksiyalar natijasida "unverified" belgisi |
 | KL-006 | Eurachem PT Guide 2021 va Eurachem Fitness for Purpose 2014 repoda yo'q — egasi qo'shadi | unverified | `CLAUDE.md` (P12); RISKS R-26 | qo'shilgach formulalar / chegaralar solishtiriladi |
 | KL-007 | Westgard 1981 — repoda faqat qaydnoma (`docs/references/westgard-1981-NOTES.md`); PDF © AACC, repoda yo'q | qoldiq xavf | `CLAUDE.md`; RISKS R-25 #3 | qoidalar egasi nusxasi bilan solishtirilgan (2.8.1) |
 | KL-008 | GOST 34100.3-2017 normativ ekvivalentlar ro'yxatiga qo'shilmagan — egasining IDT tasdig'i kutiladi | tasdiq kutadi | `CLAUDE.md` (P05b); RISKS R-22 | ruscha hisobotda ham faqat JCGM 100:2008 havolasi |
@@ -94,14 +94,14 @@
 | ID | Cheklov | Turi | Manba | Foydalanuvchiga ta'siri |
 |---|---|---|---|---|
 | KL-070 | Mikrobiologiya (`src/engine/micro/`): ISO 19036 repoda yo'q; faqat analitik testlar; past sanoq (ΣC < 10) va "kam juftlik" (< 10) — loyiha parametrlari | BETA | `CLAUDE.md` (P10); RISKS R-21 | natijada har doim ogohlantirish va "BETA" belgisi (bosmada ham); shablon `SP-03` APPROVED bo'la olmaydi |
-| KL-071 | Tibbiy laboratoriya (`src/engine/medical/`): ISO/TS 20914 repoda yo'q; eng yaqin IQC darajasi va "kam IQC" (n < 20) — loyiha qoidalari | BETA | `CLAUDE.md` (P10); RISKS R-21 | natijada har doim ogohlantirish va "BETA" belgisi; shablon `SP-04` APPROVED bo'la olmaydi |
+| KL-071 | Tibbiy laboratoriya (M9, `src/engine/medical/`): ISO/TS 20914:2019 PDF repoda yo'q (pullik) — etalon qiymatlarni egasi bergan (`tests/fixtures/iso20914/`, G1–G11: Annex A va C misollari); "kam IQC" (n < 20), lot n nisbati chegarasi (2) va oraliq berilmaganda "eng yaqin o'rtacha" — loyiha qoidalari | qoldiq xavf (manba repoda yo'q; loyiha qoidalari) | `CLAUDE.md` (P18); RISKS R-31 | oraliq berilmasa `medical_level_by_nearest` ogohlantirishi; BETA belgisi yo'q; `SP-04` APPROVED bo'lishi mumkin |
 | KL-072 | Robust ANOVA — qayta tiklangan algoritm (RANOVA kodi repoda yo'q); UfS A1, A2 bilan 4 qiymatli raqamgacha mos | qoldiq xavf | `CLAUDE.md` (P10); RISKS R-21; DISCREPANCIES D-16 | boshqa ma'lumotlarda asl dastur bilan farq istisno qilinmaydi; natijada `sampling_robust_reconstructed` |
 | KL-073 | Clopper–Pearson — loyiha qo'shimchasi (AQA:2021 da yo'q); SciPy 1.18.1 qiymatlari bilan tekshirilgan, qiymatlar sessiyada hisoblangan (repoda hujjat sifatida yo'q) | qoldiq xavf | `CLAUDE.md` (P10); RISKS R-21 | tanlansa natijada `qualitative_cp_project_addition`; egasi qayta tekshirishi mumkin |
 | KL-074 | Qilinmagan: LOD₉₅ (probit / logistik); muvozanatsiz va 3 darajali dizaynlar; namuna olish bias'i; ISO 29201; mikrobiologiyada MPN | qilinmagan | RISKS R-21 | — |
 | KL-075 | "Maxsus rejimlar" oynasi real brauzerda qo'lda ko'rilmagan (faqat jsdom testi) | ko'rilmagan | `CLAUDE.md` (P10); RISKS R-21 | — |
 | KL-076 | Holat `localStorage` (`uc_special_v1`) da — audit izisiz | qoldiq xavf | RISKS R-21 | — |
 | KL-077 | Manba nuanslari D-15, D-17 (AQA:2021) — toleransda hisobga olingan | qoldiq xavf (manba nuansi) | DISCREPANCIES D-15, D-17 | — |
-| KL-078 | `SP-01…SP-04` shablonlari DRAFT, raqamsiz | qoldiq xavf | `CLAUDE.md` (P10) | — |
+| KL-078 | `SP-01…SP-04` shablonlari DRAFT, raqamsiz (`SP-04` — P18 dan BETA emas, G1 orqali "manba bilan mos") | qoldiq xavf | `CLAUDE.md` (P10, P18) | — |
 | KL-079 | Mikrobiologiya (M8, ISO 19036) — qo'llab-quvvatlanMAYDI: tasdiqlash (konfirmatsiya) noaniqligi u_conf (§7.3); MPN noaniqligi u_MPN (§7.4); §8.1.3 varianti; tuzatilgan oraliq takrorlanuvchanlik s_IR,corr (D ilova); LOQ dan past natija (§9.2). Band raqamlari egasi ko'rsatmasidan (standart matni repoda yo'q — unverified) | qilinmagan / BETA | egasi ko'rsatmasi (2026-11-20); `CLAUDE.md` (P10); RISKS R-21 | modul to'liq standart matni bilan tasdiqlanmaguncha BETA bo'lib qoladi; bu holatlarda natija ISO 19036 ga muvofiq deb berilmaydi; ISO matni repoga qo'shilmaydi |
 
 ## 7. Laboratoriya reestri, CMC, QC
@@ -225,6 +225,17 @@
 | KL-187 | Fizik chegara (`settings.physicalBounds`) uchun interfeysda kiritish maydoni yo'q — hozircha faqat hisob fayli / API orqali; vektor (ko'p chiqishli) va oshkormas modellarda avtomatik MCM ishga tushmaydi (har bir chiqishda `mcm` maydoni bor, lekin holat bloki va QORALAMA sharti faqat bitta chiqishli GUM hisobida) | qilinmagan | `docs/RISKS.md` R-30 | — |
 | KL-188 | "QORALAMA" sharti uchun majburiy rekvizitlar ro'yxati (ISO/IEC 17025:2017 §7.8.2.1 asosida) — unverified (standart repoda yo'q); regressiya, top-down va maxsus rejimlar hisobotida MCM sharti qo'llanmaydi, faqat rekvizitlar sharti | unverified | `src/report/requisites.js`; `src/report/forms.js::draftReasons` | Laboratoriya o'z sifat tizimi shakli bilan solishtiradi |
 | KL-189 | `privacy.html` va `terms.html` matni — loyiha, yurist tasdig'ini kutadi; nofaol hisoblar uchun saqlash muddati belgilanmagan; hujjat versiyasi o'zgarganda qayta rozilik so'rash oqimi yo'q (rozilik faqat ro'yxatdan o'tishda olinadi); mavjud tashkilotlar hujjatida rozilik maydonlari yo'q | tasdiq kutadi | `docs/DATA_RESIDENCY.md`; `docs/RISKS.md` R-30 | Sahifa boshida "Loyiha — yurist tasdig'ini kutmoqda" belgisi |
+
+## 17. Tibbiy laboratoriya — M9, ISO/TS 20914:2019 (P18)
+
+| ID | Cheklov | Turi | Manba | Foydalanuvchiga ta'siri |
+|---|---|---|---|---|
+| KL-190 | Hisoblangan o'lchanuvchilar (anion gap, osmolallik, kreatinin klirensi, eGFR — ISO/TS 20914:2019 A.2.4 Rule 1/2, A.6) M9 rejimida **emas** — ular GUM (M1) rejimida model formulasi bilan hisoblanadi; M9 dan olingan u(y) u yerda kirish kattaligining standart noaniqligi sifatida kiritiladi | qilinmagan (doiradan tashqarida) | `CHANGELOG.md` 2.12.0; `docs/ENGINE_API.md` §9.4 | M9 oynasida formula kiritish yo'q |
+| KL-191 | IQC materiali va bemor namunalarining ekvivalentligi (ISO/TS 20914:2019 §6.2, F-test) tekshirilmaydi — foydalanuvchi (laboratoriya) mas'uliyatida | qoldiq xavf (foydalanuvchi mas'uliyati) | RISKS R-31 | platforma kiritilgan IQC statistikasini bemor natijalariga qo'llaydi |
+| KL-192 | Reagent / IQC loti almashganda ma'lumotni ajratish yoki birlashtirish qarori (§6.3, A.3.1) — laboratoriyaniki; platforma faqat hisoblaydi (lotlar jadvali, vaznsiz yoki vaznli birlashtirish) | qoldiq xavf (foydalanuvchi mas'uliyati) | RISKS R-31 | n nisbati > 2 bo'lsa info `medical_unbalanced_lots` |
+| KL-193 | Manbadan ishlangan misoli yo'q qismlar: proporsional bias tuzatishi (C.5.4 — nisbiy u_bias = u_bias/\|x_ref\|, **loyiha talqini**), erkinlik darajalari bo'yicha vaznli birlashtirish (A.3.1), sanoq u = √count (§6.10), ruxsat etilgan noaniqlikning U_abs dan boshqa turlari | unverified | RISKS R-31; `tests/engine/medical.test.js` (faqat analitik) | natijada har doim `medical_no_source_example` (info, "tekshirilmagan") |
+| KL-194 | D-23: ISO/TS 20914:2019 C.6.1 (Table C.1) da U_bias va U(Na) manbada yaxlitlangan oraliq qiymatlardan hisoblangan — dvigatel bilan oxirgi xonada 1 birlik farq (nisbiy ≤ 6·10⁻⁶); egasi javobini kutadi | qoldiq xavf (manba nuansi) | DISCREPANCIES D-23 | yaxlitlangan natija (U = 2,3 mmol/l) bir xil |
+| KL-195 | M9 da ν_eff va t-kvantil hisoblanmaydi (k foydalanuvchi beradi, standart 2); sanoq manbasi (§6.10) va bias faqat API / shakl orqali barcha darajalarga bir xil qo'llanadi; UI da sanoq maydoni yo'q; bias darajaga xos emas; shakl real brauzerda faqat Chromium da ko'rilgan | qilinmagan | RISKS R-31 | — |
 
 ---
 

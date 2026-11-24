@@ -1,0 +1,62 @@
+{
+ "id": "G8",
+ "source": "ISO/TS 20914:2019",
+ "clause": "C.5.2 (misol)",
+ "title": "u_bias CRM dan; ahamiyatlilik testi (C.3)",
+ "status": "verified",
+ "note": "Daraja — CRM o'lchashlarining o'zi (x_lab, sd, n): bias hisobi darajaga bog'liq emas. Birlik — fixture belgisi.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "precisionType": "repeatability",
+  "bias": {
+   "xRef": 4.15,
+   "uRef": 0.04,
+   "xLab": 3.72,
+   "sd": 0.11,
+   "n": 10
+  },
+  "levels": [
+   {
+    "id": "CRM",
+    "mean": 3.72,
+    "sd": 0.11,
+    "n": 10
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "bias.sdMean",
+   "value": 0.034785,
+   "tol": 5e-7
+  },
+  {
+   "path": "bias.uBias",
+   "value": 0.053009,
+   "tol": 5e-7
+  },
+  {
+   "path": "bias.bias",
+   "value": 0.43,
+   "tol": 0.005
+  },
+  {
+   "path": "bias.biasRel",
+   "value": 10.36,
+   "tol": 0.005
+  }
+ ],
+ "equals": [
+  {
+   "path": "bias.significant",
+   "value": true
+  }
+ ],
+ "warnings": {
+  "present": [
+   "medical_bias_significant_not_applied"
+  ]
+ },
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

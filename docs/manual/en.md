@@ -371,9 +371,9 @@ Example. Source: EURACHEM/CITAC AQA:2021, Example E3 (Table E3.1, Eq. E3.1), §4
 
 BETA, unverified: the text of ISO 19036 is not in the repository and the calculation has not been confirmed against a source example. The result always carries a warning; a template in this mode cannot become `APPROVED`. No example numbers are given. Compare the result with the standard before using it in an official report.
 
-### 8.4. Medical laboratory — BETA
+### 8.4. Medical laboratory (ISO/TS 20914:2019)
 
-BETA, unverified: the text of ISO/TS 20914 is not in the repository. The same conditions apply as for microbiology; no example numbers are given.
+The calculation is checked against the worked examples of ISO/TS 20914:2019 (Annexes A and C); the text of the standard is not in the repository (paid). For each IQC level enter the mean, CV or SD and the number of results; in columns 4–5 give the interval the level monitors — the level for a result is chosen by interval (without intervals, by the nearest mean, with a warning). Also available: precision type (long-term or repeatability), pooling across lots / identical systems / periods, u_bias from a CRM with the "The correction is applied" tick, the log₁₀ scale, and comparison with the allowable uncertainty (a fitness-for-purpose check, not a statement of conformity). U is rounded to 2 significant digits by ordinary rounding (§5.4, Option B); the method is stated in the report. Calculated measurands (anion gap, eGFR, etc.) are evaluated in the GUM mode. No example numbers are given.
 
 ## 9. Laboratory
 
@@ -503,7 +503,7 @@ Before the program is put into routine use, and after every new engine version, 
 The most important limitations (the full list is in the [known limitations](../validation/KNOWN_LIMITATIONS.md)):
 
 - **ISO/IEC 17025:2017** — the text is not in the repository; references to it and the list of report details are unverified.
-- **BETA modes:** microbiology (ISO 19036) and medical laboratory (ISO/TS 20914) — not confirmed against a source example.
+- **BETA mode:** microbiology (ISO 19036) — not confirmed against a source example. In the medical laboratory mode the parts without a source example (proportional bias correction, weighted pooling, counting) are flagged in the result.
 - **Unverified methods:** WLS, GLS, WTLS and polynomial in regression; the parts of top-down that rely on ISO 21748; the log-normal distribution; PT score formulas and limits (ISO 13528); the Cochran test; LOD / LOQ; the calibration interval formula.
 - **Implicit model:** no Monte Carlo method; no entry form on the main screen.
 - **Smallest coverage region** — for two outputs only.
