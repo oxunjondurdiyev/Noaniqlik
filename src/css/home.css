@@ -152,3 +152,25 @@
 .auth2-consent-links .auth2-link { min-height: var(--tap); display: inline-flex; align-items: center; }
 .landing-footer-link { color: var(--c-text-2); min-height: var(--tap); display: inline-flex; align-items: center; text-decoration: underline; }
 .landing-footer-link:hover { color: var(--c-text); }
+
+/* ─── "Davom ettirish" kartasi (saqlangan joriy hisob) — Bosh sahifada birinchi ─── */
+.home-resume { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-4); align-items: center; padding: var(--s-5) var(--s-6); background: var(--c-surface-solid); border: 1px solid var(--c-blue-line); border-radius: var(--r-hero); }
+.home-resume[hidden] { display: none; }
+.home-resume .ic { width: 36px; height: 36px; color: var(--c-blue); }
+.home-resume-main { display: flex; flex-direction: column; gap: var(--s-1); min-width: 0; }
+.home-resume-main .home-card-title { overflow-wrap: anywhere; }
+.home-resume-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); justify-content: flex-end; }
+@media (max-width: 719px) {
+  .home-resume { grid-template-columns: auto minmax(0, 1fr); }
+  .home-resume-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+/* ── Ochiq test rejimi belgisi (src/js/access-mode.js; egasi qarori 2026-11-24) ── */
+.access-note {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s-3); margin: var(--s-4) 0; padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--c-blue-line); border-radius: var(--r-card); background: var(--c-blue-soft); color: var(--c-text);
+  font-size: .9rem; line-height: 1.5; max-width: 62ch;
+}
+.access-note-link { color: var(--c-blue); font-weight: 600; display: inline-flex; align-items: center; min-height: var(--tap); }
+.access-note-link:focus-visible { outline: 2px solid var(--c-blue); outline-offset: 2px; }
+.access-note[hidden], [data-reg-only][hidden] { display: none !important; }

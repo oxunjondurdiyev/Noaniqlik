@@ -38,6 +38,29 @@ Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufa
 
 - G9 (C.6.1, Table C.1): manbada U_bias = 0,989 45 va U(Na) = 2,335 93; dvigatel (oraliq qiymatlarni yaxlitlamasdan) 0,989 444 va 2,335 937 beradi — farq oxirgi xonaning 1 birligi (nisbiy 6·10⁻⁶ va 3·10⁻⁶), ½ birlik toleransidan tashqarida. Manba qiymatlari yaxlitlangan oraliq qiymatlardan (SD_mean = 0,205 55; u_bias = 0,494 72) aynan kelib chiqadi. Fixture qiymati va toleransi **o'zgartirilmagan**; ikki qator todo-test (`tests/cases/DISCREPANCIES.md` D-23). G9 ning qolgan 5 qatori va boshqa barcha fixture'lar (G1–G8, G10, G11) tolerans ichida.
 
+## [ilova] — Ochiq test rejimi: ro'yxatdan o'tishsiz foydalanish (2026-11-24)
+
+**ENGINE_VERSION o'zgarmagan (2.11.0), hisob o'zgarmagan.** `src/engine/` va `src/report/` ga tegilmagan; 9 ta etalon nuqta va 10-test o'zgarmagan.
+
+- **Egasi qarori (2026-11-24):** tizim fikr-mulohaza yig'ish uchun hammaga ochiq — ro'yxatdan o'tish va kirish talab qilinmaydi. Yakuniy versiyadan keyin obuna (to'lovli) rejimga qaytariladi.
+- **Kirish rejimi — yagona joy** `src/js/access-mode.js` (`window.UCAccess`, sof, Node'da ham): `ACCESS_MODE = 'open-test'`. `open-test` — sinov hisoblagichi (`uc_trial_count`) va to'lov oynasi o'chiq, "Ro'yxatdan o'tish" yorlig'i / havolasi va to'lov oynasidagi tugma yashirin (`data-reg-only`), ro'yxatdan o'tish formasi yuborilmaydi; kirish sahifasida va Bosh sahifada test belgisi (uz / ru / en, Telegram orqali fikr-mulohaza havolasi; `src/js/i18n-access.js`). Mavjud hisoblar (admin / xodim / super-admin) "Kirish" orqali avvalgidek kiradi. `subscription` — avvalgi xatti-harakat (7 ta sinov hisobi → ro'yxatdan o'tish → to'lov); **qaytarish — shu bitta qatorni o'zgartirish** (egasi qarori bilan; `tests/ui/access.test.js` yangilanadi).
+- `src/js/app.js`: `FREE_LIMIT` endi siyosatdan (`ACCESS.trialLimit`), `beginSession` — `UCAccess.canStartSession / countsTrial` orqali. `src/ui/index-auth.js`: rejimga qarab tugmalarni yashiradi / belgini ochadi.
+- Testlar: `tests/ui/access.test.js` (siyosat, index.html, jsdom'da ikkala rejim); `tests/crossbrowser/screens.js` — ochiq test rejimida "Ro'yxatdan o'tish" ekrani o'tkazib yuboriladi. Chromium'da tutun-testi: eski hisoblagich 50 bo'lganda ham 10 / 10 sessiya to'lov oynasisiz ochildi, hisoblagich oshmadi. Talab — `REQ-UIX-018`.
+
+## Tuzatish — ochilish ekrani: Bosh sahifa, "Davom ettirish" kartasi (2026-11-23)
+
+**ENGINE_VERSION o'zgarmadi (2.11.0): hisob o'zgarmagan, faqat interfeys.** `src/engine/` va `src/report/` ga tegilmagan.
+
+- `src/js/app.js::bootstrap()` saqlangan holat bo'lsa to'g'ridan-to'g'ri ish maydonini ochardi — foydalanuvchi Bosh sahifani ko'rmasdi. Endi ochilish qoidasi (`startScreen`, egasi qarori 2026-11-23):
+  1. URL hash bor bo'lsa — **hash ustun**: `#home` — tanishtiruv (kirish) sahifasi, `#app` — ish maydoni (saqlangan hisob bo'lsa), `#lab` — Vizual laboratoriya;
+  2. kirgan foydalanuvchi (admin / xodim) — doim **Bosh sahifa**;
+  3. kirmagan va bu brauzerda hech qachon hisob boshlamagan (saqlangan holat ham, `uc_seen_dash` belgisi ham yo'q) — **tanishtiruv sahifasi**;
+  4. qolgan hamma holatda — **Bosh sahifa** (`#dash-screen`).
+- `uc_seen_dash` (`localStorage`; shaxsiy ma'lumot emas) — tanishtiruv sahifasidagi "Kalkulyatorni ochish" bosilganda yoziladi.
+- Saqlangan (tugallanmagan) hisob bo'lsa — Bosh sahifada birinchi karta: **"Davom ettirish: <model>, <sana>"** va **"O'chirish"** (ikki bosqichli tasdiq; `appState.reset()` — mavzu va til saqlanadi, IndexedDB dagi sessiyalarga tegilmaydi). Model — formula, bo'lmasa kirish kattaliklari ro'yxati; sana — hisob vaqti (bo'lsa).
+- Qobiqdagi logotip — Bosh sahifaga olib boradigan tugma (`#btn-brand-home`, klaviaturadan ochiq).
+- Matnlar uch tilda (`hm_resume`, `hm_resume_text`, `hm_resume_deleted`); testlar — `tests/ui/home.test.js`; `tests/crossbrowser/screens.js` — toza brauzer → tanishtiruv sahifasi, "Kalkulyatorni ochish" dan keyin qayta yuklash → Bosh sahifa.
+
 ## [2.11.0] — P20: audit (21.11.2026) bo'yicha P0 tuzatishlar — LPU → MCM qaror qoidasi, "QORALAMA" belgisi, rozilik (2026-11-21)
 
 **SONLI NATIJALAR O'ZGARMAGAN.** `tests/cases/` dagi 91 ta misolning to'liq natijasi 2.10.0 (`e460e89`) bilan **bit darajasida bir xil** — yagona farq: natijaga yangi maydon `mcm` qo'shildi (`node scripts/cases-snapshot.js --compare oldin.json keyin.json --ignore '(^|\.)mcm(\.|$)'`: 91 / 91, farq 0). Versiya minor oshirildi, chunki natija tuzilmasi kengaydi (yangi imkoniyat). 9 ta etalon Excel nuqtasi va 10-test (MC intervali) o'zgarmagan.

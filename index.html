@@ -68,7 +68,7 @@
     <div class="auth-card">
       <div class="auth-tabs" id="auth-tabs-row" role="tablist">
         <button type="button" class="auth-tab-btn active" data-auth-tab="login" data-i18n="auth_tab_login" role="tab">Kirish</button>
-        <button type="button" class="auth-tab-btn" data-auth-tab="register" data-i18n="auth_tab_register" role="tab">Ro'yxatdan o'tish</button>
+        <button type="button" class="auth-tab-btn" data-auth-tab="register" data-i18n="auth_tab_register" role="tab" data-reg-only="1">Ro'yxatdan o'tish</button>
       </div>
 
       <div class="auth-body">
@@ -88,8 +88,8 @@
             </div>
           </div>
           <button type="submit" class="btn btn-primary w-full btn-lg" id="btn-do-login" data-i18n="auth_signin_btn">Kirish →</button>
-          <div class="auth-divider" data-i18n="auth_or">yoki</div>
-          <p class="text-muted text-sm auth2-center">
+          <div class="auth-divider" data-i18n="auth_or" data-reg-only="1">yoki</div>
+          <p class="text-muted text-sm auth2-center" data-reg-only="1">
             <span data-i18n="auth_no_org">Tashkilotingiz hali ro'yxatdan o'tmadimi?</span>
             <a href="#" class="auth2-link" id="link-to-register" data-i18n="auth_tab_register">Ro'yxatdan o'tish</a>
           </p>
@@ -262,6 +262,11 @@
         <div class="landing-cta-row">
           <button class="btn btn-primary btn-xl" id="btn-home-start" data-i18n="home_hero_cta">Open Calculator</button>
         </div>
+        <!-- Ochiq test rejimi (src/js/access-mode.js; egasi qarori 2026-11-24) -->
+        <p class="access-note" data-access-note="1" hidden>
+          <span data-i18n="acc_test_note">Test mode: no registration is required. Calculations are stored only in this browser.</span>
+          <a class="access-note-link" href="https://t.me/oxunjon_durdiyev" target="_blank" rel="noopener" data-i18n="acc_test_feedback">Send feedback</a>
+        </p>
       </div>
       <div class="landing-hero-formula">
         <p class="formula-cycling-label" data-i18n="home_formula_label">Core formula (GUM 5.1):</p>
@@ -468,8 +473,14 @@
     <main class="home-main">
       <h1 class="home-title" data-i18n="hm_title">Home</h1>
       <p class="home-lead text-muted" data-i18n="hm_lead"></p>
+      <p class="access-note" data-access-note="1" hidden>
+        <span data-i18n="acc_test_note">Test mode: no registration is required. Calculations are stored only in this browser.</span>
+        <a class="access-note-link" href="https://t.me/oxunjon_durdiyev" target="_blank" rel="noopener" data-i18n="acc_test_feedback">Send feedback</a>
+      </p>
 
       <div class="home-start">
+        <!-- Saqlangan (tugallanmagan) hisob bo'lsa — birinchi karta: "Davom ettirish: <model>, <sana>" va "O'chirish" (src/ui/home/app.js) -->
+        <div class="home-resume" id="home-resume" hidden></div>
         <button type="button" class="home-card" data-home-new="1">
           <svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg>
           <span class="home-card-title" data-i18n="hm_new_title">New calculation</span>
@@ -681,13 +692,14 @@
   <!-- YUQORI PANEL (sticky) -->
   <header class="topbar">
     <div class="topbar-left">
-      <span class="topbar-brand">
+      <!-- logotip — Bosh sahifaga (src/ui/home/app.js: [data-go-home]) -->
+      <button type="button" class="topbar-brand" id="btn-brand-home" data-go-home="1" aria-label="Home" data-i18n-aria="sh_n_home" title="Home" data-i18n-title="sh_n_home">
         <svg width="26" height="26" viewBox="0 0 56 56" fill="none" aria-hidden="true">
           <rect width="56" height="56" rx="14" fill="var(--c-blue)"/>
           <path d="M14 28h8l4-12 8 24 4-12h4" stroke="var(--c-on-accent)" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span class="topbar-brand-name" data-i18n="app_name">UncertaintyCalc</span>
-      </span>
+      </button>
       <nav class="crumbs" aria-label="Breadcrumb" data-i18n-aria="sh_crumbs">
         <span class="crumb" id="crumb-section"></span>
         <span class="crumb-sep" aria-hidden="true">/</span>
@@ -1051,7 +1063,7 @@
       </div>
     </div>
 
-    <button id="paywall-btn-register" class="btn btn-primary w-full" style="margin-bottom:.5rem;font-size:.95rem;padding:.7rem" data-i18n="auth_register_btn">Ro'yxatdan o'tish →</button>
+    <button id="paywall-btn-register" data-reg-only="1" class="btn btn-primary w-full" style="margin-bottom:.5rem;font-size:.95rem;padding:.7rem" data-i18n="auth_register_btn">Ro'yxatdan o'tish →</button>
     <button id="paywall-btn-login" class="btn btn-outline w-full" style="font-size:.88rem" data-i18n="pw_have_account">Hisobim bor — Kirish</button>
   </div>
 </div>
@@ -1113,6 +1125,7 @@
 <script src="src/ui/toast.js"></script>
 <script src="src/js/firebase-config.js"></script>
 <script src="src/js/auth-core.js"></script>
+<script src="src/js/access-mode.js"></script>
 <script src="src/js/db.js"></script>
 <script src="src/js/auth.js"></script>
 <script src="src/ui/templates.js"></script>
@@ -1135,6 +1148,7 @@
 <script src="src/js/i18n-shell.js"></script>
 <script src="src/js/i18n-vizlab.js"></script>
 <script src="src/js/i18n-p20.js"></script>
+<script src="src/js/i18n-access.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
 <script src="src/js/table.js"></script>

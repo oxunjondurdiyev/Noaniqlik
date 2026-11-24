@@ -43,7 +43,7 @@
 | R-28 | AI yordamchi (P14): **amalga oshirildi, egasi qarorlari kiritildi (2026-11-20)**; AI hisoblamaydi, standart holatda o'chiq, tashqariga faqat tuzilma; tasdiq kutadi — MPE filtri, sana ko'rinishlari, almashinuv muddati; qoldiq — hujjatdagi shaxs ismlari, chet el xizmati (yuridik baho egasida), brauzerdagi kalit | O | P14 |
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
 | R-30 | Audit (21.11.2026) bo'yicha P0 tuzatishlar (P20, 2.11.0): LPU → MCM qaror qoidasi (chegaralar — loyiha qarori; 9 etalon nuqtaning hammasida MCM talab qilinadi), "QORALAMA" belgisi, rozilik va huquqiy sahifalar (yurist tasdig'ini kutadi); P18 (M9) dan oldin bajarildi — birlashtirishda ziddiyat bo'lishi mumkin | O | P20 (bajarildi; qoldiq ochiq) |
-| R-31 | M9 (P18, 2.12.0): ISO/TS 20914:2019 PDF repoda yo'q — etalon qiymatlar egasidan (G1–G11); **D-23** (G9: ikki qatorda oxirgi xona — egasi javobini kutadi); manba misolisiz qismlar (proporsional bias — loyiha talqini, vaznli pooling, sanoq); loyiha parametrlari (n < 20, lot nisbati 2, eng yaqin o'rtacha) | O | P18 → egasi |
+| R-31 | M9 (P18, 2.12.0): ISO/TS 20914:2019 PDF repoda yo'q — etalon qiymatlar egasidan (G1–G11); **D-23** (G9: ikki qatorda oxirgi xona — egasi qabul qildi 24.11.2026, manba nuansi); manba misolisiz qismlar (proporsional bias — loyiha talqini, egasi qabul qildi; vaznli pooling, sanoq — ochiq); loyiha parametrlari (n < 20, lot nisbati 2, eng yaqin o'rtacha) | O | P18 → egasi |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -495,6 +495,7 @@ Bajarilgan: etalonlar reestri, drift taklifi, CMC jadvali, Shewhart kartalari, W
 ### R-15. Biznes mantiq mijoz tomonda (O)
 - Trial (`uc_trial_count`) `localStorage` ni tozalash bilan tiklanadi. `upgradePlan` (`auth.js:392`) to'lovsiz tarifni o'zgartiradi. Click/Payme merchant ID lari to'ldirilmagan (`auth.js:403-409`).
 - **Holat (P20, 2026-11-21): o'zgarmadi — "qisman" (P02 natijasi jadvaliga qarang).** P20 bu xavfga tegmadi: trial hisoblagichi (`uc_trial_count`) va xodimlar limiti hali mijozda; Click / Payme identifikatorlari to'ldirilmagan. Audit (21.11.2026) hujjati repoda yo'q — undagi R-15 ga oid band shu yerga egasi tomonidan qo'shiladi. To'liq yopish server tomonini talab qiladi (P15; Spark tarifida Cloud Functions yo'q). P20 da faqat kirish sahifasidagi litsenziya da'vosi tuzatildi ("bepul va ochiq kodli" / "MIT" → yopiq litsenziya).
+- **Holat (2026-11-24, egasi qarori): ochiq test rejimi.** `src/js/access-mode.js` → `ACCESS_MODE = 'open-test'`: sinov hisoblagichi va to'lov oynasi o'chirilgan, ro'yxatdan o'tish yashirin — bu davrda R-15 dagi mijoz tomonidagi cheklov amalda ishlatilmaydi. **Obuna rejimiga qaytishdan oldin** R-15 hal qilinishi kerak: hisoblagich `localStorage` ni tozalash bilan tiklanadi, `upgradePlan` to'lovsiz tarif o'zgartiradi, Click / Payme identifikatorlari bo'sh — server tomoni (P15) yoki hech bo'lmaganda Firestore qoidalari bilan tekshiriladigan obuna muddati kerak.
 
 ### R-16. Ishlash (P)
 - **MC qismi yopildi (P06):** hisob Web Worker'da (`src/ui/mc/`), progress va bekor qilish bilan; worker'siz — bo'laklab.
@@ -590,6 +591,8 @@ Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)
 Manba: ISO/TS 20914:2019 (E), 1-nashr. Litsenziyali nusxa egasida; PDF repoga joylanmaydi (repo ommaviy). Etalon qiymatlar (Annex A, Annex C) — egasi bergan, `tests/fixtures/iso20914/G1…G11.json`.
 
 **Egasi qarorlari (23.11.2026):** (1) M9 da U ni yaxlitlash — `half_up`, 2 ta qiymatli raqam (ISO/TS 20914 §5.4, Option B); `up` — sozlama; usul hisobotda yoziladi. (2) Test misollarining yagona manbasi — yuqoridagi fixture'lar; qiymat / tolerans o'zgartirilmaydi.
+
+**Egasi qarorlari (24.11.2026, PR #40 birlashtirishda):** (1) **D-23 — (a)**: farq manbadagi oraliq yaxlitlash nuansi sifatida qabul qilindi; fixture qiymati va toleransi o'zgarmaydi, ikki qator `discrepancy: "D-23"` todo-testi izoh bilan qoladi; M9 dan BETA / `medical_unverified` belgisi olib tashlanishi tasdiqlandi. (2) Proporsional bias (C.5.4) — joriy talqin (nisbiy u_bias = 100·u_bias/\|x_ref\|) loyiha qarori sifatida qabul; `medical_no_source_example` belgisi qoladi. (3) `bias.apply` standart qiymati `false` — tasdiqlandi. Quyidagi 1–3-savollar shu bilan yopildi; 4–5 ochiq.
 
 **Egasiga savollar (ochiq):**
 
