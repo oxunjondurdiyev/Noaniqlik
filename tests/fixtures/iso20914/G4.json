@@ -1,0 +1,148 @@
+{
+ "id": "G4",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.3.2, Table A.3",
+ "title": "3 reagent loti × 3 daraja: pooled u_Rw (Formula A.8)",
+ "status": "verified",
+ "note": "Birlik — fixture belgisi. %U_Rw = 2·uRw.rel (k = 2).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "pmol/l",
+  "uCal": {
+   "value": 2.1,
+   "k": 2,
+   "relative": true
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 2.13,
+      "sd": 0.094
+     },
+     {
+      "id": "lot2",
+      "mean": 2.11,
+      "sd": 0.088
+     },
+     {
+      "id": "lot3",
+      "mean": 2.17,
+      "sd": 0.092
+     }
+    ]
+   },
+   {
+    "id": "L2",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 16.85,
+      "sd": 0.504
+     },
+     {
+      "id": "lot2",
+      "mean": 18.08,
+      "sd": 0.558
+     },
+     {
+      "id": "lot3",
+      "mean": 18.69,
+      "sd": 0.643
+     }
+    ]
+   },
+   {
+    "id": "L3",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 58.45,
+      "sd": 1.726
+     },
+     {
+      "id": "lot2",
+      "mean": 62,
+      "sd": 2.033
+     },
+     {
+      "id": "lot3",
+      "mean": 64.26,
+      "sd": 2.157
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.uRw.abs",
+   "value": 0.09137,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.1.uRw.abs",
+   "value": 0.5712,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.2.uRw.abs",
+   "value": 1.9803,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.0.uRw.rel",
+   "value": 8.552,
+   "tol": 0.0005,
+   "factor": 2
+  },
+  {
+   "path": "levels.1.uRw.rel",
+   "value": 6.392,
+   "tol": 0.0005,
+   "factor": 2
+  },
+  {
+   "path": "levels.2.uRw.rel",
+   "value": 6.433,
+   "tol": 0.0005,
+   "factor": 2
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 8.806,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 6.728,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 6.767,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 8.8,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 6.7,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 6.8,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

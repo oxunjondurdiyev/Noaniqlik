@@ -1,0 +1,60 @@
+{
+ "id": "G5",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.3.3",
+ "title": "lotlar bo'yicha pooled u_Rw, o'rtacha — lot o'rtachalarining o'rtachasi",
+ "status": "verified",
+ "note": "Birlik — fixture belgisi. Faqat u_Rw tekshiriladi (u_cal bu misolda berilmagan); precisionType bu yerda faqat medical_no_calibrator ni chiqarmaslik uchun.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "precisionType": "repeatability",
+  "levels": [
+   {
+    "id": "L1",
+    "lots": [
+     {
+      "id": "lot1",
+      "mean": 4.32,
+      "sd": 0.23
+     },
+     {
+      "id": "lot2",
+      "mean": 4.43,
+      "sd": 0.27
+     },
+     {
+      "id": "lot3",
+      "mean": 3.96,
+      "sd": 0.21
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.uRw.abs",
+   "value": 0.237978,
+   "tol": 5e-7
+  },
+  {
+   "path": "levels.0.mean",
+   "value": 4.2367,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.0.uRw.abs",
+   "value": 0.47596,
+   "tol": 0.000005,
+   "factor": 2
+  },
+  {
+   "path": "levels.0.uRw.rel",
+   "value": 11.234,
+   "tol": 0.0005,
+   "factor": 2
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

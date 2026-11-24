@@ -1,0 +1,83 @@
+{
+ "id": "G9",
+ "source": "ISO/TS 20914:2019",
+ "clause": "C.6.1, Table C.1",
+ "title": "natriy: CRM bo'yicha bias tuzatilgan, u_bias qo'shilgan",
+ "status": "verified",
+ "note": "Daraja o'rtachasi 141,8 — jadvaldagi \"%U (x = 141,8)\" nisbiy qiymati shu x ga nisbatan berilgan.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "uCal": {
+   "value": 0.63,
+   "unit": "mmol/l"
+  },
+  "bias": {
+   "xRef": 141.8,
+   "URef": 0.9,
+   "kRef": 2,
+   "xLab": 143.4,
+   "sd": 0.65,
+   "n": 10,
+   "apply": true
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 141.8,
+    "sd": 0.85
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "bias.uRef",
+   "value": 0.45,
+   "tol": 0.0005
+  },
+  {
+   "path": "bias.sdMean",
+   "value": 0.20555,
+   "tol": 0.000005
+  },
+  {
+   "path": "bias.uBias",
+   "value": 0.49472,
+   "tol": 0.000005
+  },
+  {
+   "path": "bias.UBias",
+   "value": 0.98945,
+   "tol": 0.000005,
+   "discrepancy": "D-23"
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 1.16797,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.U.abs",
+   "value": 2.33593,
+   "tol": 0.000005,
+   "discrepancy": "D-23"
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 1.6473,
+   "tol": 0.00005
+  }
+ ],
+ "equals": [
+  {
+   "path": "bias.significant",
+   "value": true
+  }
+ ],
+ "warnings": {
+  "absent": [
+   "medical_bias_significant_not_applied"
+  ]
+ },
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

@@ -1,0 +1,41 @@
+{
+ "id": "G3",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.2.4, Rule 1, Example 1",
+ "title": "u(y) = √(u_cal² + u_bias² + u_Rw²)",
+ "status": "verified",
+ "note": "Daraja o'rtachasi (1) — to'ldiruvchi: manbada berilmagan va tekshirilayotgan mutlaq u(y) ga ta'sir qilmaydi. Birlik — fixture belgisi.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "uCal": {
+   "value": 0.11,
+   "unit": "mmol/l"
+  },
+  "uBias": {
+   "value": 0.09,
+   "unit": "mmol/l"
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 1,
+    "sd": 0.43
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.4529,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.45,
+   "tol": 0.005,
+   "kind": "standard-rounded"
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

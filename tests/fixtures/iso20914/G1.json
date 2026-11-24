@@ -1,0 +1,104 @@
+{
+ "id": "G1",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.2.2, Table A.1",
+ "title": "u = √(u_Rw² + u_cal²), 3 daraja (natriy)",
+ "status": "verified",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "uCal": {
+   "value": 0.71,
+   "unit": "mmol/l"
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 134.8,
+    "sd": 0.85,
+    "n": 342
+   },
+   {
+    "id": "L2",
+    "mean": 149.8,
+    "sd": 0.87,
+    "n": 338
+   },
+   {
+    "id": "Urine",
+    "mean": 86.4,
+    "sd": 0.99,
+    "n": 122
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.u.abs",
+   "value": 1.1075,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.1.u.abs",
+   "value": 1.1229,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.2.u.abs",
+   "value": 1.2183,
+   "tol": 0.00005
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 1.11,
+   "tol": 0.005,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.1.u.abs",
+   "value": 1.12,
+   "tol": 0.005,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.2.u.abs",
+   "value": 1.22,
+   "tol": 0.005,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 1.643,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 1.499,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 2.82,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 1.6,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 1.5,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 2.8,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

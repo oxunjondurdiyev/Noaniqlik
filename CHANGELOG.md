@@ -4,6 +4,40 @@ Format: har bir yozuvda dvigatel versiyasi (`ENGINE_VERSION`, semver) va hisobla
 Hisoblash natijasiga ta'sir qiladigan har qanday o'zgarish `ENGINE_VERSION` ni oshiradi (CLAUDE.md).
 Etalon nuqtalar ko'rinishi faqat egasi qabul qilgan ikki yaxlitlash qoidasi tufayli o'zgarishi mumkin. Har bir bunday o'zgarish shu yerda alohida yoziladi.
 
+## [2.12.0] — P18: M9 (tibbiy laboratoriya) — ISO/TS 20914:2019 bo'yicha validatsiya va kengaytirish (2026-11-23)
+
+**`uc-medical/1` dan boshqa rejimlar natijalari O'ZGARMAGAN:** `tests/cases/` dagi 91 ta misol 2.11.0 (`24ae1c9`) bilan **bit darajasida bir xil** (`node scripts/cases-snapshot.js --compare`: 91 / 91, farq 0). 9 ta etalon Excel nuqtasi va 10-test (MC) o'zgarmagan. Versiya minor oshirildi: M9 natija tuzilmasi kengaydi va M9 da daraja tanlash qoidasi o'zgardi (pastda).
+
+**Manba:** ISO/TS 20914:2019 (E), 1-nashr, Annex A va Annex C ishlangan misollari. Standart pullik — PDF repoda yo'q; kirish va kutilgan qiymatlarni egasi bergan (standart jadvallaridan ko'chirilgan, mustaqil qayta hisoblangan — 20.11.2026): `tests/fixtures/iso20914/G1…G11.json` (`source`, `clause`, har bir qatorda tolerans — oxirgi ko'rsatilgan xonaning ½ birligi). Test: `tests/engine/medical.iso20914.test.js`.
+
+### Dvigatel (`src/engine/medical/index.js`)
+
+- **Daraja qo'llanish oralig'i** (A.2.3, A.3.2, C.6.2): `levels[].interval = { low?, high?, lowInclusive = true, highInclusive = false }`; natija oraliqqa tushgan daraja qo'llanadi (`levelRule: 'interval'`). Kesishgan oraliqlar — `medical_interval_overlap`, natija hech biriga tushmasa — `medical_interval_gap`. **O'zgargan xatti-harakat:** oraliq berilmasa avvalgi "eng yaqin o'rtacha" qoidasi qoladi, lekin endi `medical_level_by_nearest` ogohlantirishi bilan (loyiha qoidasi, me'yoriy emas).
+- **Aniqlik turi** `precisionType: 'long_term' | 'repeatability'` (§6.3, A.2.3): `repeatability` da `medical_no_calibrator` chiqmaydi, `medical_repeatability_only` (info) chiqadi.
+- **Pooled u_Rw** (A.3.1, formula A.8): `levels[].lots[]` → √(Σu_i²/m), o'rtacha — lot o'rtachalarining o'rtachasi; `settings.poolWeighting: 'df'` — muqobil (vaznli) yondashuv, `medical_pool_df` belgisi bilan; n nisbati > 2 → `medical_unbalanced_lots` (info).
+- **Bir xil o'lchash tizimlari** (A.4): `levels[].systems[]` → u(A,B,…) = s(o'rtachalar), u_Rw(pooled), u(pooled).
+- **u(y) larni pooling** (A.7): `levels[].periods[{uRw}]` + u_cal → har davr u_i, pooled u.
+- **u_bias CRM dan** (C.5): `bias: { xRef, URef, kRef = 2 | uRef, xLab, sd, n, apply, mode }` → SD_mean (C.1), u_bias (C.2 / C.4), bias = x_ref − x_lab, %bias, ahamiyatlilik |bias| > 2·u_bias (C.3); `apply: true` — u_bias yig'indiga qo'shiladi; ahamiyatli va qo'llanmagan — `medical_bias_significant_not_applied`; u_ref yo'q — `medical_bias_incomplete` (C.5.3).
+- **log₁₀ shkala** (A.10): `scale: 'log10'` — u va U mutlaq (log₁₀ birlikda), `coverage = { low, high, backLow, backHigh }` (qayta o'tkazilgan interval asimmetrik); nisbiy % berilmaydi (`rel: null`, ma'lumot uchun `logRel`); nisbiy kirish — `medical_log_relative`.
+- **Ruxsat etilgan maksimal noaniqlik** (§5.2): `allowable: { u_rel | U_rel | u_abs | U_abs }` → `levels[].fitForPurpose`, `fit.margin`; yaroqsiz — `medical_not_fit`. Bu yaroqlilik bahosi — muvofiqlik bayonoti emas (`decision` yaratilmaydi).
+- Kattalikda `k` (`{ value: U, k }` → u = U / k); sanoq `counting: { count }` → u = √count (§6.10).
+- **`medical_unverified` va `unverified: true` olib tashlandi**; `approachRef: 'ISO/TS 20914:2019'`. Shablon tekshiruvida MEDICAL endi BETA emas (APPROVED ga o'tkazish mumkin).
+- **Manba misolisiz qismlar** (natijada `medical_no_source_example`, info, "tekshirilmagan"): proporsional bias tuzatishi (C.5.4), `poolWeighting: 'df'`, sanoq (§6.10), `allowable` ning `U_abs` dan boshqa turlari.
+
+### Yaxlitlash (egasi qarori 23.11.2026)
+
+- M9 da U uchun standart — **`half_up`** (oddiy yaxlitlash, ISO/TS 20914 §5.4 Option B), 2 ta qiymatli raqam; `settings.rounding: 'up'` (ILAC P14) — sozlama. Natijada `rounding: 'half_up' | 'up'`. `src/report/rounding.js` **o'zgarmagan** (M9 avval ham `roundHalfAway` bilan yaxlitlangan — endi bu qaror sifatida qayd etildi va hisobotda bayonot chiqadi). Boshqa rejimlarning yaxlitlash testlari o'zgarmasdan o'tadi. **Etalon nuqtalar ko'rinishi o'zgarmagan.**
+
+### Interfeys va hisobot
+
+- "Maxsus rejimlar → Tibbiy laboratoriya": aniqlik turi, shkala, CV / SD tanlovi, daraja jadvalida qo'llanish oralig'i (4–5-ustun), "Lotlar / tizimlar / davrlar" bo'limi, bias (CRM) bo'limi va "Tuzatish qo'llanadi" belgisi, ruxsat etilgan noaniqlik, U ni yaxlitlash usuli. BETA belgisi olib tashlandi. Matnlar uz / ru / en.
+- Hisobot (`src/report/sections.js::medicalSection`): A.1 jadvali shaklida (daraja | N | o'rtacha | u_Rw | u | U | %U_rel | "Bemor natijalariga ±"), "Laboratoriya foydalanuvchisi uchun ma'lumot" (§5.6), bias ± U_bias va tuzatish turi, §6.3 ogohlantirishi, yaxlitlash usuli bayonoti, yaroqlilik nishoni. `tests/security/engine.sha256.json` yangilandi.
+- Shablon `SP-04` v0.2.0 (BETA yozuvlari olib tashlandi); `templates/validation/builtin.json` — `SP-04 ← G1` (ISO/TS 20914:2019, A.2.2, Table A.1): "manba bilan mos".
+
+### Ma'lum farq — D-23 (egasi javobini kutadi)
+
+- G9 (C.6.1, Table C.1): manbada U_bias = 0,989 45 va U(Na) = 2,335 93; dvigatel (oraliq qiymatlarni yaxlitlamasdan) 0,989 444 va 2,335 937 beradi — farq oxirgi xonaning 1 birligi (nisbiy 6·10⁻⁶ va 3·10⁻⁶), ½ birlik toleransidan tashqarida. Manba qiymatlari yaxlitlangan oraliq qiymatlardan (SD_mean = 0,205 55; u_bias = 0,494 72) aynan kelib chiqadi. Fixture qiymati va toleransi **o'zgartirilmagan**; ikki qator todo-test (`tests/cases/DISCREPANCIES.md` D-23). G9 ning qolgan 5 qatori va boshqa barcha fixture'lar (G1–G8, G10, G11) tolerans ichida.
+
 ## [ilova] — Ochiq test rejimi: ro'yxatdan o'tishsiz foydalanish (2026-11-24)
 
 **ENGINE_VERSION o'zgarmagan (2.11.0), hisob o'zgarmagan.** `src/engine/` va `src/report/` ga tegilmagan; 9 ta etalon nuqta va 10-test o'zgarmagan.

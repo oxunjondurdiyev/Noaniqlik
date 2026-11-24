@@ -372,9 +372,9 @@ Misol. Manba: EURACHEM/CITAC AQA:2021, Example E3 (Table E3.1, Eq. E3.1), §4.3 
 
 BETA, tekshirilmagan: ISO 19036 matni repozitoriyda yo'q, hisob manba misoli bilan tasdiqlanmagan. Natijada har doim ogohlantirish chiqadi; bu rejimdagi shablon `APPROVED` bo'la olmaydi. Misol raqamlari berilmaydi. Natijani rasmiy hisobotda ishlatishdan oldin standart bilan solishtiring.
 
-### 8.4. Tibbiy laboratoriya — BETA
+### 8.4. Tibbiy laboratoriya (ISO/TS 20914:2019)
 
-BETA, tekshirilmagan: ISO/TS 20914 matni repozitoriyda yo'q. Shartlar mikrobiologiya bilan bir xil; misol raqamlari berilmaydi.
+Hisob ISO/TS 20914:2019 ning ishlangan misollari (Annex A va C) bilan tekshirilgan; standart matni repozitoriyda yo'q (pullik). Har bir IQC darajasi uchun o'rtacha, CV yoki SD va natijalar sonini kiriting; 4–5-ustunlarda darajaning qo'llanish oralig'ini ko'rsating — natijaga oraliq bo'yicha daraja tanlanadi (oraliq berilmasa eng yaqin o'rtacha bo'yicha, ogohlantirish bilan). Qo'shimcha: aniqlik turi (uzoq muddatli yoki takrorlanuvchanlik), lotlar / bir xil tizimlar / davrlar bo'yicha birlashtirish, CRM bo'yicha u_bias va "Tuzatish qo'llanadi" belgisi, log₁₀ shkala, ruxsat etilgan noaniqlik bilan solishtirish (yaroqlilik bahosi — muvofiqlik bayonoti emas). U oddiy yaxlitlash bilan 2 ta qiymatli raqamgacha yaxlitlanadi (§5.4, Option B); usul hisobotda yoziladi. Hisoblangan o'lchanuvchilar (anion gap, eGFR va b.) GUM rejimida hisoblanadi. Misol raqamlari berilmaydi.
 
 ## 9. Laboratoriya
 
@@ -504,7 +504,7 @@ Dasturni ish jarayoniga kiritishdan oldin va har bir yangi dvigatel versiyasidan
 Eng muhim cheklovlar (to'liq ro'yxat — [ma'lum cheklovlar](../validation/KNOWN_LIMITATIONS.md)):
 
 - **ISO/IEC 17025:2017** matni repozitoriyda yo'q — unga havolalar va hisobot rekvizitlari ro'yxati tekshirilmagan.
-- **BETA rejimlar:** mikrobiologiya (ISO 19036) va tibbiy laboratoriya (ISO/TS 20914) — manba misoli bilan tasdiqlanmagan.
+- **BETA rejim:** mikrobiologiya (ISO 19036) — manba misoli bilan tasdiqlanmagan. Tibbiy laboratoriyada manba misoli yo'q qismlar (proporsional bias tuzatishi, vaznli birlashtirish, sanoq) natijada belgilanadi.
 - **Unverified usullar:** regressiyada WLS, GLS, WTLS va polinom; top-down da ISO 21748 ga tayanadigan qismlar; log-normal taqsimot; PT ball formulalari va chegaralari (ISO 13528); Cochran testi; LOD / LOQ; kalibrlash intervali formulasi.
 - **Oshkor bo'lmagan model:** Monte-Karlo yo'q; asosiy ekranda kiritish shakli yo'q.
 - **Eng kichik qamrov sohasi** — faqat ikki chiqish uchun.

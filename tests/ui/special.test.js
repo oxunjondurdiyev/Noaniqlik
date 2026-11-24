@@ -94,17 +94,17 @@ test('mikrobiologiya va tibbiy laboratoriya: maydonlar → spetsifikatsiya; bo\'
 
 /* ── shakllar ── */
 
-test('oyna: 4 rejim, BETA belgisi mikrobiologiya va tibbiy laboratoriyada; har bir rejim shakli uch tilda', () => {
+test('oyna: 4 rejim, BETA belgisi faqat mikrobiologiyada (P18: tibbiy laboratoriya BETA emas); har bir rejim shakli uch tilda', () => {
   for (const lang of LANGS) {
     const w = loadReport(lang), ctx = ctxOf(w);
     const modes = frag(w, V.modesHTML(st({ mode: 'micro' }), ctx));
     assert.deepEqual([...modes.querySelectorAll('[data-sp-mode]')].map(b => b.dataset.spMode), B.MODES);
-    assert.equal(modes.querySelectorAll('.badge').length, 2);
+    assert.equal(modes.querySelectorAll('.badge').length, 1);
     assert.equal(modes.querySelector('.active').dataset.spMode, 'micro');
     for (const mode of B.MODES) {
       const f = frag(w, V.formHTML(st({ mode }), ctx));
       assert.equal(f.querySelector('[data-sp-form]').dataset.spForm, mode);
-      assert.equal(!!f.querySelector('[data-sp-beta]'), mode === 'micro' || mode === 'medical', `${lang} ${mode}`);
+      assert.equal(!!f.querySelector('[data-sp-beta]'), mode === 'micro', `${lang} ${mode}`);
       assert.ok(!/(sp|td)_[a-z_]+/.test(f.textContent), `${lang} ${mode}: tarjima qilinmagan kalit`);
     }
   }
@@ -178,13 +178,13 @@ test('hisobot — sifatli test: jadval, ulushlar, Wilson intervali (standart), u
   }
 });
 
-test('hisobot — mikrobiologiya va tibbiy laboratoriya: BETA belgisi va "tekshirilmagan" ogohlantirishi bosma hisobotda ham', () => {
+test('hisobot — mikrobiologiya: BETA belgisi va "tekshirilmagan" ogohlantirishi bosma hisobotda ham; tibbiy laboratoriya (P18) — BETA emas', () => {
   const micro = E.evaluate({ format: 'uc-micro/1', unit: 'CFU/g', result: { value: 1e4, sumCounts: 100 }, technical: { s: 0.1 }, matrix: { u: 0.05 } });
   const med = E.evaluate({ format: 'uc-medical/1', unit: 'mmol/L', levels: [{ id: 'L1', mean: 5, cv: 3, n: 60 }], uCal: { value: 4, relative: true }, measurement: { value: 6 } });
   for (const lang of LANGS) {
     const w = loadReport(lang);
     w.print = () => {};
-    for (const [r, code] of [[micro, 'micro_unverified'], [med, 'medical_unverified']]) {
+    for (const [r, code] of [[micro, 'micro_unverified']]) {
       w.Results.printSpecial(r, {});
       const d = w.document.getElementById('print-report');
       assert.ok(d.querySelector(`.warn-box [data-sp-warning="${code}"]`), `${lang} ${code}`);
@@ -192,6 +192,13 @@ test('hisobot — mikrobiologiya va tibbiy laboratoriya: BETA belgisi va "tekshi
       assert.match(d.querySelector('[data-sp-limits]').textContent, /BETA/);
       assert.ok(!/(sp|td|w)_[a-z_]+|undefined|NaN/.test(d.textContent), lang);
     }
+    w.Results.printSpecial(med, {});
+    const pm = w.document.getElementById('print-report');
+    assert.equal(pm.querySelector('[data-sp-beta]'), null);
+    assert.equal(pm.querySelector('[data-sp-warning="medical_unverified"]'), null);
+    assert.doesNotMatch(pm.querySelector('[data-sp-limits]').textContent, /BETA/);
+    assert.match(pm.querySelector('[data-sp-approach]').textContent, /ISO\/TS 20914:2019/);
+    assert.ok(!/(sp|td|w)_[a-z_]+|undefined|NaN/.test(pm.textContent), lang);
     const dm = frag(w, w.Results.specialSection(micro));
     assert.equal(dm.querySelector('[data-sp-y]').textContent, '4.00');
     assert.equal(dm.querySelector('[data-sp-u]').textContent.trim(), '0.24');             // 2·√(0,1² + 0,05² + 0,04343²) = 0,240
@@ -234,7 +241,7 @@ test('shablonlar SP-01…SP-04: DRAFT, sxema va semantik tekshiruvdan o\'tadi, r
     assert.equal(b.state.mode, T.SPECIAL_MODES[mode]);
     assert.equal(b.meta.mode, mode); assert.ok(b.meta.hint);
     assert.equal(T.buildState(t).error, 'special_template');
-    const beta = mode === 'MICROBIOLOGY' || mode === 'MEDICAL';
+    const beta = mode === 'MICROBIOLOGY';   // P18: MEDICAL — ISO/TS 20914:2019 misollari bilan tekshirilgan, BETA emas
     assert.equal(chk.warnings.some(x => /BETA/.test(x)), beta, id);
     const approved = JSON.parse(JSON.stringify(t)); approved.status = 'APPROVED';
     assert.equal(T.checkTemplate(approved, schema).errors.some(x => /BETA/.test(x)), beta, id);
@@ -360,4 +367,165 @@ test('kontroller: laboratoriya sozlamasi Clopper–Pearson bo\'lsa hisob va hiso
   assert.equal($('[data-sp-cimethod]').dataset.spCimethod, 'clopper_pearson');
   assert.equal($('[data-sp-rate="ss"] [data-sp-ci="clopper_pearson"]').textContent, '[96.4; 100.0]');
   delete w.UCTemplates;
+});
+
+/* ── P18: M9 — ISO/TS 20914:2019 (shakl → spetsifikatsiya → hisobot) ── */
+
+const G = id => require(`../fixtures/iso20914/${id}.json`);
+const pickPath = (o, p) => p.split('.').reduce((a, k) => (a === null || a === undefined ? undefined : a[k]), o);
+/** Fixture kutilgan qiymatlari shakl orqali kiritilgan ma'lumotda ham bajariladi (ma'lum farqlar — D-23 — bundan mustasno) */
+function meets(r, f) {
+  for (const x of f.expected.filter(x => !x.discrepancy && !x.run)) {
+    const got = pickPath(r, x.path) * (x.factor || 1);
+    assert.ok(Math.abs(got - x.value) <= x.tol, `${f.id} ${x.path}: ${got} ≠ ${x.value} ± ${x.tol}`);
+  }
+}
+
+test('P18 shakl: IQC darajalari — CV yoki SD, n, qo\'llanish oralig\'i ("-" — yo\'q katak); G2 (A.2.3) shakl orqali', () => {
+  assert.deepEqual(B.levelRows('5\t3\t60').levels, [{ id: 'L1', mean: 5, cv: 3, n: 60 }]);
+  const lv = B.levelRows('o\'rtacha\tSD\tn\tquyi\tyuqori\n2,1\t0,044\t20\t-\t10\n21,4\t0,40\t20\t10\t50\n122,0\t3,15\t20\t50\t-', { spread: 'sd' });
+  assert.equal(lv.skipped, 1);
+  assert.deepEqual(lv.levels[0], { id: 'L1', mean: 2.1, sd: 0.044, n: 20, interval: { high: 10 } });
+  assert.deepEqual(lv.levels[2].interval, { low: 50 });
+  const { spec, bad } = B.buildSpec(st({ mode: 'medical', meUnit: 'pmol/l', mePrecision: 'repeatability', meSpread: 'sd', meY: '60',
+    meLevels: '2,1\t0,044\t20\t-\t10\n21,4\t0,40\t20\t10\t50\n122,0\t3,15\t20\t50\t-' }));
+  assert.deepEqual(bad, []);
+  assert.deepEqual(spec, G('G2').input);
+  const r = E.evaluate(spec);
+  meets(r, G('G2')); assert.equal(r.appliedLevel, 'L3');
+});
+
+test('P18 shakl: lotlar (G4), tizimlar (G6), davrlar (G7) — "daraja  o\'rtacha  SD  n" qatorlari; noto\'g\'ri qator → bad', () => {
+  const g4 = G('G4');
+  const rows = g4.input.levels.flatMap((L, i) => L.lots.map(x => [`L${i + 1}`, x.mean, x.sd].join('\t'))).join('\n');
+  const a = B.buildSpec(st({ mode: 'medical', meUnit: 'pmol/l', meLevels: '-\t-\n-\t-\n-\t-', meGroupKind: 'lots', meGroups: rows, meCal: '1,05' }));
+  assert.deepEqual(a.bad, []); assert.equal(a.spec.levels[2].lots.length, 3);
+  meets(E.evaluate(a.spec), g4);
+  const g6 = G('G6');
+  const b = B.buildSpec(st({ mode: 'medical', meUnit: 'mmol/l', mePrecision: 'repeatability', meLevels: '-\t-', meGroupKind: 'systems',
+    meGroups: g6.input.levels[0].systems.map(x => ['1', x.mean, x.sd, x.n].join(';')).join('\n') }));
+  assert.deepEqual(b.bad, []); meets(E.evaluate(b.spec), g6);
+  const g7 = G('G7');
+  const c = B.buildSpec(st({ mode: 'medical', meUnit: 'mmol/l', meUKind: 'abs', meCal: '0,038', meSpread: 'sd', meLevels: g7.input.levels.map(L => `${L.mean}\t-`).join('\n'), meGroupKind: 'periods',
+    meGroups: g7.input.levels.flatMap((L, i) => L.periods.map(x => `${i + 1}\t${x.uRw}`)).join('\n') }));
+  assert.deepEqual(c.bad, []); meets(E.evaluate(c.spec), g7);
+  // mavjud bo'lmagan daraja, o'qib bo'lmaydigan qator, guruhsiz darajada o'rtacha / SD yo'q
+  assert.deepEqual(B.buildSpec(st({ mode: 'medical', meUnit: 'x', meLevels: '5\t3', meGroupKind: 'lots', meGroups: '2\t5\t0,1' })).bad, ['groups']);
+  assert.deepEqual(B.buildSpec(st({ mode: 'medical', meUnit: 'x', meLevels: '5\t3', meGroupKind: 'lots', meGroups: 'abc\t5\t0,1' })).bad, ['groups']);
+  assert.deepEqual(B.buildSpec(st({ mode: 'medical', meUnit: 'x', meLevels: '-\t-', meGroupKind: 'none', meGroups: '1\t5\t0,1' })).bad, ['levels']);
+  assert.equal(B.groupRows('1\t5\t0,1\nL1\t6\t0,2\t30', 'lots').byLevel[0][1].n, 30);
+});
+
+test('P18 shakl: bias (CRM) — G9 (C.6.1) va G10 (C.6.2); log₁₀ va ruxsat etilgan U — G11 (A.10); yaxlitlash va vazn sozlamalari', () => {
+  const g9 = B.buildSpec(st({ mode: 'medical', meUnit: 'mmol/l', meSpread: 'sd', meUKind: 'abs', meCal: '0,63', meLevels: '141,8\t0,85',
+    meBRef: '141,8', meBURef: '0,90', meBKRef: '2', meBLab: '143,4', meBSd: '0,65', meBN: '10', meBApply: true }));
+  assert.deepEqual(g9.bad, []);
+  assert.deepEqual(g9.spec.bias, { ...G('G9').input.bias, mode: 'absolute' });
+  meets(E.evaluate(g9.spec), G('G9'));
+  const g10 = B.buildSpec(st({ mode: 'medical', meUnit: 'µmol/l', meSpread: 'sd', meUKind: 'abs', meCal: '1,62', meLevels: '70,2\t1,44\t-\t-\t250\n517,1\t5,87\t-\t250\t-', meY: '300',
+    meBRef: '72,9', meBURef: '1,61', meBLab: '80,1', meBSd: '1,10', meBN: '10', meBApply: true }));
+  assert.deepEqual(g10.bad, []); assert.equal(g10.spec.bias.kRef, undefined);          // bo'sh k — dvigatel standarti (2); 0 deb olinmaydi
+  const r10 = E.evaluate(g10.spec), f10 = G('G10');
+  for (const x of f10.expected.filter(x => x.run === 'lot1')) assert.ok(Math.abs(pickPath(r10, x.path) - x.value) <= x.tol, x.path);
+  assert.equal(r10.appliedLevel, 'L2');
+  const g11 = B.buildSpec(st({ mode: 'medical', meUnit: 'log10 copies/ml', meScale: 'log10', mePrecision: 'repeatability', meSpread: 'sd', meAllowKind: 'U_abs', meAllow: '0,5', meY: '2,66',
+    meLevels: '2,66\t0,120\t-\t-\t3\n3,18\t0,160\t-\t3\t3,7\n4,21\t0,230\t-\t3,7\t-' }));
+  assert.deepEqual(g11.spec, G('G11').input);
+  meets(E.evaluate(g11.spec), G('G11'));
+  // log₁₀ shkalada u_cal har doim mutlaq (nisbiy tanlangan bo'lsa ham)
+  assert.deepEqual(B.buildSpec(st({ mode: 'medical', meUnit: 'log10', meScale: 'log10', meSpread: 'sd', meLevels: '3\t0,1', meCal: '0,05' })).spec.uCal, { value: 0.05, unit: 'log10' });
+  assert.deepEqual(B.buildSpec(st({ mode: 'medical', meUnit: 'g/L', meLevels: '5\t3', meRound: 'up', mePool: 'df', meK: '3' })).spec.settings, { k: 3, rounding: 'up', poolWeighting: 'df' });
+  assert.equal(B.buildSpec(st({ mode: 'medical', meUnit: 'g/L', meLevels: '5\t3' })).spec.settings, undefined);
+  assert.deepEqual(B.buildSpec(st({ mode: 'medical', meUnit: 'g/L', meLevels: '5\t3', meBRef: 'x', meBLab: '1', meBSd: '1', meBN: '3' })).bad, ['xRef']);
+});
+
+test('P18 shakl: yangi maydonlar uch tilda — aniqlik turi, shkala, oraliq, lotlar / tizimlar / davrlar, bias, ruxsat etilgan noaniqlik', () => {
+  for (const lang of LANGS) {
+    const w = loadReport(lang), ctx = ctxOf(w);
+    const f = frag(w, V.formHTML(st({ mode: 'medical', meGroupKind: 'lots', meBRef: '4,15' }), ctx));
+    for (const id of ['mePrecision', 'meScale', 'meSpread', 'meGroupKind', 'mePool', 'meUKind', 'meRound', 'meBMode', 'meAllowKind'])
+      assert.ok(f.querySelector(`select#sp-${id}[data-sp-field="${id}"]`).options.length >= 2, `${lang} ${id}`);
+    for (const id of ['meLevels', 'meGroups', 'meCal', 'meBias', 'meY', 'meK', 'meBRef', 'meBURef', 'meBKRef', 'meBLab', 'meBSd', 'meBN', 'meAllow'])
+      assert.ok(f.querySelector(`#sp-${id}[data-sp-field="${id}"]`), `${lang} ${id}`);
+    assert.ok(f.querySelector('input[type="checkbox"][data-sp-flag="meBApply"]'));
+    assert.equal(f.querySelectorAll('details[open]').length, 2);          // to'ldirilgan bo'limlar ochiq
+    assert.equal(frag(w, V.formHTML(st({ mode: 'medical' }), ctx)).querySelectorAll('details[open]').length, 0);
+    assert.equal(f.querySelectorAll('[style]').length, 0);
+    for (const o of f.querySelectorAll('option, summary, label > span')) assert.ok(o.textContent.trim() && !/(sp|td)_[a-z_]+/.test(o.textContent), `${lang}: ${o.textContent}`);
+    assert.ok(frag(w, V.countHTML(st({ meGroupKind: 'lots', meGroups: '1\t5\t0,1\nx' }), 'meGroups', ctx)).textContent.includes('1'));
+    // dvigatelning har bir yangi ogohlantirishi va xatosi uchun matn
+    for (const c of Object.keys(E.MEDICAL_WARNINGS)) for (const p of c === 'zero_u' ? ['w_'] : ['w_', 'fix_']) assert.notEqual(w.i18n.t(p + c), p + c, `${lang} ${p}${c}`);
+    for (const c of E.MEDICAL_ERRORS) assert.notEqual(w.i18n.t('err_' + c), 'err_' + c, lang);
+  }
+});
+
+test('P18 hisobot: A.1 shaklidagi jadval, §5.6 bo\'limi, yaxlitlash bayonoti (§5.4 Option B / ILAC P14), oraliq, yaroqlilik — uch tilda', () => {
+  const g1 = E.evaluate(G('G1').input);
+  const up = E.evaluate({ ...G('G1').input, settings: { rounding: 'up' } });
+  const g2 = E.evaluate({ ...G('G2').input, allowable: { U_rel: 5 } });
+  for (const lang of LANGS) {
+    const w = loadReport(lang);
+    const d = frag(w, w.Results.specialSection(g1));
+    // Table A.1 (standart yaxlitlagan qiymatlar): %U_rel 1,6 / 1,5 / 2,8
+    assert.deepEqual([...d.querySelectorAll('[data-sp-me-urel]')].map(x => x.textContent.trim()), ['1.6', '1.5', '2.8']);
+    assert.deepEqual([...d.querySelectorAll('[data-sp-me-patient]')].map(x => x.textContent.trim()), ['± 1.6 %', '± 1.5 %', '± 2.8 %']);
+    assert.deepEqual([...d.querySelectorAll('[data-sp-levels] tbody tr')].map(x => x.children[1].textContent), ['342', '338', '122']);
+    assert.ok(d.querySelector('[data-sp-me-userinfo]').textContent.includes('§5.6'));
+    assert.equal(d.querySelector('[data-sp-me-rounding]').dataset.spMeRounding, 'half_up');
+    assert.match(d.querySelector('[data-sp-me-rounding]').textContent, /ISO\/TS 20914 §5\.4 \(Option B\)/);
+    assert.equal(d.querySelector('[data-sp-beta]'), null);
+    const du = frag(w, w.Results.specialSection(up));
+    assert.equal(du.querySelector('[data-sp-me-rounding]').dataset.spMeRounding, 'up');
+    assert.match(du.querySelector('[data-sp-me-rounding]').textContent, /ILAC P14/);
+    assert.deepEqual([...du.querySelectorAll('[data-sp-me-urel]')].map(x => x.textContent.trim()), ['1.7', '1.5', '2.9']);   // yuqoriga: 1,643 → 1,7; 1,499 → 1,5; 2,820 → 2,9
+    // takrorlanuvchanlik: §6.3 ogohlantirishi bosma hisobotda ham; oraliq bo'yicha tanlash; yaroqlilik nishoni
+    w.print = () => {};
+    w.Results.printSpecial(g2, {});
+    const p = w.document.getElementById('print-report');
+    assert.ok(p.querySelector('[data-sp-warning="medical_repeatability_only"]'), lang);
+    assert.equal(p.querySelector('[data-sp-me-rule]').dataset.spMeRule, 'interval');
+    assert.deepEqual([...p.querySelectorAll('[data-sp-me-fit]')].map(x => x.dataset.spMeFit), ['yes', 'yes', 'no']);     // 4,19; 3,74; 5,16 ≤ 5 ?
+    assert.ok(p.querySelector('[data-sp-me-allowable]'));
+    assert.match(p.querySelectorAll('[data-sp-levels] thead th')[3].textContent, /u\s*r/);
+    assert.ok(!/(sp|td|w)_[a-z_]+|undefined|NaN|\{[a-z]+\}/.test(p.textContent), lang);
+  }
+});
+
+test('P18 hisobot: bias bloki (bias ± U_bias, tuzatish turi), lotlar / tizimlar / davrlar qatorlari, log₁₀ intervali; matn escape qilinadi', () => {
+  const g9 = E.evaluate(G('G9').input), g8 = E.evaluate(G('G8').input), g11 = E.evaluate(G('G11').input);
+  const evil = '<img src=x onerror=alert(1)>';
+  const sys = E.evaluate({ format: 'uc-medical/1', unit: evil, precisionType: 'repeatability', levels: [{ id: evil, systems: [{ id: evil, mean: 5, sd: 0.2 }, { id: 'B', mean: 5.4, sd: 0.2 }] }] });
+  for (const lang of LANGS) {
+    const w = loadReport(lang);
+    const d9 = frag(w, w.Results.specialSection(g9));
+    assert.equal(d9.querySelector('[data-sp-me-bias]').dataset.spMeBias, 'applied');
+    assert.match(d9.querySelector('[data-sp-me-bias]').textContent, /-1\.6/);              // bias = 141,8 − 143,4
+    assert.match(d9.querySelector('[data-sp-me-bias]').textContent, /± 0\.99/);            // U_bias = 0,989 → 0,99
+    const d8 = frag(w, w.Results.specialSection(g8));
+    assert.equal(d8.querySelector('[data-sp-me-bias]').dataset.spMeBias, 'not_applied');
+    assert.ok(d8.querySelector('[data-sp-warning="medical_bias_significant_not_applied"]'));
+    const d11 = frag(w, w.Results.specialSection(g11));
+    assert.match(d11.querySelector('[data-sp-me-coverage]').textContent, /2\.42.*2\.9.*263.*794/);
+    assert.equal(d11.querySelector('[data-sp-urel]'), null);                               // log shkalada nisbiy % yo'q
+    assert.equal(d11.querySelector('[data-sp-u]').textContent.trim(), '0.24 log10 copies/ml');
+    assert.deepEqual([...d11.querySelectorAll('[data-sp-me-fit]')].map(x => x.dataset.spMeFit), ['yes', 'yes', 'yes']);
+    for (const id of ['G4', 'G6', 'G7']) {
+      const dg = frag(w, w.Results.specialSection(E.evaluate(G(id).input)));
+      assert.ok(dg.querySelector('[data-sp-me-group]'), id);
+      assert.ok(!/(sp|td|w)_[a-z_]+|undefined|NaN|\{[a-z]+\}/.test(dg.textContent), `${lang} ${id}`);
+    }
+    const ds = frag(w, w.Results.specialSection(sys));
+    assert.equal(ds.querySelector('img'), null);
+    for (const x of [d9, d8, d11]) assert.ok(!/(sp|td|w)_[a-z_]+|undefined|NaN|\{[a-z]+\}/.test(x.textContent), lang);
+  }
+});
+
+test('P18 shablon SP-04: BETA emas, APPROVED ga o\'tkazish mumkin; "manba bilan mos" yozuvi — G1 (ISO/TS 20914:2019 A.2.2)', () => {
+  const t = byId['SP-04'];
+  assert.doesNotMatch(JSON.stringify(t), /BETA/);
+  const approved = JSON.parse(JSON.stringify(t)); approved.status = 'APPROVED';
+  assert.equal(T.checkTemplate(approved, schema).errors.some(x => /BETA/.test(x)), false);
+  const file = JSON.parse(read('templates/validation/builtin.json'));
+  const rec = file.records.filter(r => r.templateId === 'SP-04');
+  assert.deepEqual(rec.map(r => [r.testId, r.source, r.status]), [['G1', 'ISO/TS 20914:2019', 'verified']]);
 });

@@ -1,0 +1,101 @@
+{
+ "id": "G2",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.2.3, Table A.2",
+ "title": "takrorlanuvchanlik (u_r); daraja qo'llanish oralig'i",
+ "status": "verified",
+ "note": "Birlik (pmol/l) — fixture belgisi: topshiriqda birlik ko'rsatilmagan, tekshirilayotgan qiymatlar nisbiy (%).",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "pmol/l",
+  "precisionType": "repeatability",
+  "measurement": {
+   "value": 60
+  },
+  "levels": [
+   {
+    "id": "L1",
+    "mean": 2.1,
+    "sd": 0.044,
+    "n": 20,
+    "interval": {
+     "high": 10
+    }
+   },
+   {
+    "id": "L2",
+    "mean": 21.4,
+    "sd": 0.4,
+    "n": 20,
+    "interval": {
+     "low": 10,
+     "high": 50
+    }
+   },
+   {
+    "id": "L3",
+    "mean": 122,
+    "sd": 3.15,
+    "n": 20,
+    "interval": {
+     "low": 50
+    }
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.U.rel",
+   "value": 4.19,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 3.74,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 5.16,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 4.2,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.1.U.rel",
+   "value": 3.7,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  },
+  {
+   "path": "levels.2.U.rel",
+   "value": 5.2,
+   "tol": 0.05,
+   "kind": "standard-rounded"
+  }
+ ],
+ "equals": [
+  {
+   "path": "appliedLevel",
+   "value": "L3"
+  },
+  {
+   "path": "levelRule",
+   "value": "interval"
+  }
+ ],
+ "warnings": {
+  "absent": [
+   "medical_no_calibrator",
+   "medical_level_by_nearest"
+  ],
+  "present": [
+   "medical_repeatability_only"
+  ]
+ },
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}

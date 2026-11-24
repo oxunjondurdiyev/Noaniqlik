@@ -51,7 +51,7 @@ Brauzer UI uchun moslik qatlami: `src/js/calc.js` (`<script type="module">`) P00
 | `sampling/index.js` | `evaluateSampling` — dublikat usuli, klassik va robust ichma-ich ANOVA, U′, ᶠU (P10), §9.1 | EURACHEM/CITAC UfS:2019 §9.4–9.5, A1, A2 |
 | `qualitative/index.js` | `evaluateQualitative` — 2×2 jadval, SS, SP, LR, posterior, Wilson va Clopper–Pearson (P10), §9.2 | EURACHEM/CITAC AQA:2021 §3.2, §4.2–4.4 |
 | `micro/index.js` | `evaluateMicro` — log₁₀ sanoq: texnik, matritsa, Puasson (P10, **BETA**), §9.3 | ISO 19036 (repoda yo'q — unverified) |
-| `medical/index.js` | `evaluateMedical` — IQC darajalari: u = √(u_cal² + u_Rw²) (P10, **BETA**), §9.4 | ISO/TS 20914 (repoda yo'q — unverified) |
+| `medical/index.js` | `evaluateMedical` — M9, IQC darajalari: u = √(u_cal² + u_Rw² + u_bias²); oraliq, lotlar / tizimlar / davrlar, bias (CRM), log₁₀, §5.2 (P10; P18 da kengaytirildi), §9.4 | ISO/TS 20914:2019 (PDF repoda yo'q — misollar `tests/fixtures/iso20914/`, G1–G11) |
 | `linter/index.js`, `linter/rules/*.js` | `lint(spec, result, ctx)` — metrologik linter: X1–X12, A1–A4, M1, D1, W1, W2 (P05a, P05b); M2–M4 — Monte-Karlo natijasi uchun (P06), §10, §12 | [LINTER_RULES.md](LINTER_RULES.md) |
 | `util.js` | `toNum`, `isBlank`, `pairKey` | — |
 
@@ -440,11 +440,38 @@ Manfiy dispersiya bahosi 0 ga tenglanadi va `sampling_negative_variance` chiqadi
 
 `{ result:{value, sumCounts}, technical?:{pairs:[[x1,x2]…]} | {s}, matrix?:{u}, unit?, settings?:{k=2, lowCountThreshold=10} }` → `{ mode:'MICROBIOLOGY', unverified:true, y (= log₁₀ N), uTech, uMatrix, uPoisson (= 0,4343/√ΣC), uc, k, U, interval:{low: 10^(y−U), high: 10^(y+U)}, intervalLog, budget[] }`. Har doim `micro_unverified` (warning); `micro_low_count`, `micro_no_technical`, `micro_few_pairs`. Xatolar: `micro_bad_spec`, `micro_bad_data`, `micro_zero_count`, `micro_need_result`.
 
-### 9.4. Tibbiy laboratoriya: `uc-medical/1` — BETA, unverified
+### 9.4. Tibbiy laboratoriya (M9): `uc-medical/1` — ISO/TS 20914:2019
 
-`{ unit, levels:[{id?, values[] | (mean, cv | sd, n?), uCal?, uBias?}], uCal?:{value, relative:true | unit}, uBias?, measurement?:{value}, settings?:{k=2} }` → `{ mode:'MEDICAL', unverified:true, levels:[{id, mean, n, sd, cv, uRw, uCal, uBias, u:{abs, rel}, U:{abs, rel}, budget[]}], y, appliedLevel, absU, relU }`. Nisbiy ↔ mutlaq o'tkazish har bir darajaning o'z o'rtachasi orqali; kattalikda `unit` yoki `relative: true` bo'lmasa — `medical_need_scale`, aralash — `medical_mixed_scale`. Har doim `medical_unverified` (warning); `medical_no_calibrator`, `medical_few_iqc`, `zero_u`.
+Kirish:
 
-Testlar: `tests/cases/ufs/*.json` (4), `tests/cases/aqa/*.json` (4) — verified; `tests/engine/special-modes.test.js`, `tests/ui/special.test.js`.
+```
+{ unit, scale?: 'linear' | 'log10', precisionType?: 'long_term' | 'repeatability',
+  levels: [{ id?, values[] | (mean, cv | sd, n?) | lots:[{id?, mean, sd | cv | values[], n?}] | systems:[{id?, mean, sd, n?}] | (mean, periods:[{uRw}]),
+             interval?: { low?, high?, lowInclusive = true, highInclusive = false }, uCal?, uBias? }],
+  uCal?: { value, relative: true | unit, k? }, uBias?,
+  bias?: { xRef, URef, kRef = 2 | uRef, xLab, sd, n, apply = false, mode = 'absolute' | 'proportional' },
+  counting?: { count }, allowable?: { u_rel | U_rel | u_abs | U_abs }, measurement?: { value },
+  settings?: { k = 2, poolWeighting = 'none' | 'df', rounding = 'half_up' | 'up' } }
+```
+
+Natija: `{ mode: 'MEDICAL', approachRef: 'ISO/TS 20914:2019', unit, scale, precisionType, k, levels: [{ id, mean, n, sd, cv, uRw, uCal, uBias, u: {abs, rel}, U: {abs, rel}, interval, budget[], lots? | systems? + uSystems + uRwPooled | periods?, fitForPurpose?, fit? }], bias, counting, allowable, y, appliedLevel, levelRule: 'interval' | 'nearest', absU, relU, coverage: { low, high, backLow?, backHigh? }, rounding, roundUp, warnings[] }`.
+
+| Imkoniyat | Qoida | Ref (ISO/TS 20914:2019) | Misol |
+|---|---|---|---|
+| Asosiy | u = √(u_cal² + u_Rw² + u_bias²); nisbiy ↔ mutlaq — darajaning o'z o'rtachasi orqali; kattalikda `k` → u = U / k | A.2.2, A.2.4 Rule 1 | G1, G3 |
+| Daraja tanlash | natija tushgan `interval` ([quyi; yuqori)); oraliq yo'q — eng yaqin o'rtacha + `medical_level_by_nearest` (loyiha qoidasi); `medical_interval_overlap` / `medical_interval_gap` | A.2.3, A.3.2, C.6.2 | G2, G10 |
+| Aniqlik turi | `repeatability` — `medical_no_calibrator` o'rniga `medical_repeatability_only` (info) | §6.3, A.2.3 | G2 |
+| Lotlar | u_Rw = √(Σu_i²/m); o'rtacha — lot o'rtachalarining o'rtachasi; `poolWeighting: 'df'` — √(Σ(n_i − 1)u_i²/Σ(n_i − 1)) + `medical_pool_df`; n nisbati > 2 → `medical_unbalanced_lots` | A.3.1 (A.8), A.3.2, A.3.3 | G4, G5 |
+| Tizimlar | u(A,B,…) = s(o'rtachalar); u_Rw(pooled) = √(Σs²/m); u(pooled) = √(u(A,B,…)² + u_Rw(pooled)²) | A.4 | G6 |
+| Davrlar | u_i = √(u_cal² + u_Rw,i²); u = √(Σu_i²/m) | A.7, A.14 | G7 |
+| Bias | SD_mean = s/√n; u_bias = √(u_ref² + SD_mean²); bias = x_ref − x_lab; \|bias\| > 2·u_bias → `significant`; `apply` → u_bias yig'indida; `medical_bias_significant_not_applied`, `medical_bias_incomplete` | C.5 (C.1–C.4), §6.6 | G8, G9, G10 |
+| log₁₀ | U mutlaq; `coverage.backLow / backHigh` = 10^(y ∓ U); `rel: null`, `logRel` — ma'lumot uchun; nisbiy kirish — `medical_log_relative` | A.10 | G11 |
+| Yaroqlilik | `fitForPurpose = qiymat ≤ limit`; `medical_not_fit`; muvofiqlik bayonoti emas | §5.2 | G11 |
+| Sanoq | u = √count (ixtiyoriy manba) | §6.10 | — (manba misoli yo'q) |
+
+Manba misolisiz qismlar (`medical_no_source_example`, info, "tekshirilmagan"): `bias.mode: 'proportional'` (C.5.4 — nisbiy u_bias = 100·u_bias/\|x_ref\|), `poolWeighting: 'df'`, `counting`, `allowable` ning `U_abs` dan boshqa turlari. Yaxlitlash dvigatelda bajarilmaydi: `rounding` — hisobot qatlami uchun belgi (standart `half_up`, ISO/TS 20914 §5.4 Option B — egasi qarori 23.11.2026). Hisoblangan o'lchanuvchilar (anion gap, osmolallik, eGFR — A.2.4 Rule 1/2, A.6) bu rejimda emas — GUM rejimida (`uc-model/1`). Xatolar: `MEDICAL_ERRORS`; ogohlantirishlar: `MEDICAL_WARNINGS`.
+
+Testlar: `tests/cases/ufs/*.json` (4), `tests/cases/aqa/*.json` (4) — verified; `tests/engine/special-modes.test.js`, `tests/ui/special.test.js`. M9: `tests/fixtures/iso20914/G1…G11.json` + `tests/engine/medical.iso20914.test.js` (manba misollari), `tests/engine/medical.test.js` (analitik).
 
 ## 10. Linter: `result.findings` va model turi (P05a)
 

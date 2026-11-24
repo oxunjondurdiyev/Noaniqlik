@@ -1,0 +1,71 @@
+{
+ "id": "G6",
+ "source": "ISO/TS 20914:2019",
+ "clause": "A.4, Table A.5",
+ "title": "bir nechta bir xil o'lchash tizimi (A, B, C)",
+ "status": "verified",
+ "note": "Birlik — fixture belgisi. u_cal bu jadvalda yo'q; precisionType faqat medical_no_calibrator ni chiqarmaslik uchun.",
+ "input": {
+  "format": "uc-medical/1",
+  "unit": "mmol/l",
+  "precisionType": "repeatability",
+  "levels": [
+   {
+    "id": "L1",
+    "systems": [
+     {
+      "id": "A",
+      "n": 280,
+      "mean": 5.15,
+      "sd": 0.16
+     },
+     {
+      "id": "B",
+      "n": 190,
+      "mean": 4.93,
+      "sd": 0.19
+     },
+     {
+      "id": "C",
+      "n": 400,
+      "mean": 5.28,
+      "sd": 0.2
+     }
+    ]
+   }
+  ]
+ },
+ "expected": [
+  {
+   "path": "levels.0.uSystems.abs",
+   "value": 0.176918,
+   "tol": 5e-7
+  },
+  {
+   "path": "levels.0.uRwPooled.abs",
+   "value": 0.18412,
+   "tol": 0.000005
+  },
+  {
+   "path": "levels.0.u.abs",
+   "value": 0.255343,
+   "tol": 5e-7
+  },
+  {
+   "path": "levels.0.mean",
+   "value": 5.12,
+   "tol": 0.005
+  },
+  {
+   "path": "levels.0.u.rel",
+   "value": 4.987,
+   "tol": 0.0005
+  },
+  {
+   "path": "levels.0.U.rel",
+   "value": 9.974,
+   "tol": 0.0005
+  }
+ ],
+ "tolerance": "Har bir qatorda `tol` — manbada oxirgi ko'rsatilgan xonaning 1/2 birligi; `kind: standard-rounded` — standart jadvalidagi yaxlitlangan qiymat. `factor` — solishtirishdan oldin natija ko'paytiriladi (U = 2·u). `discrepancy` — ma'lum farq (tests/cases/DISCREPANCIES.md): qiymat va tolerans O'ZGARTIRILMAGAN, qator todo-test."
+}
