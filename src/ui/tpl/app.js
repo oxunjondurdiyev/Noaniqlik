@@ -630,6 +630,7 @@ window.UCTemplates = Object.freeze({
   ready,
   prepareState: Interp.prepareState,
   evaluateState: Interp.evaluateState,
+  detachState: Interp.detachState,          // shablondan ajratish (src/js/table.js; natija o'zgarmaydi)
   pointRowIgnored: (entry, state) => !!(state && state.template) && Interp.pointRowIgnored(entry, Interp.upgradeState(state).template.correlations || []),
   missingInState: Interp.missingInState,
   reportNoticeHTML: (meta, result) => View.reportNoticeHTML(meta, { ...ctx(), validation: validationOfMeta(meta) }, result),

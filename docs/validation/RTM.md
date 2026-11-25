@@ -8,9 +8,9 @@
 
 | Ko'rsatkich | Soni |
 |---|---|
-| Talablar | 370 |
-| Kamida bitta testga bog'langan | 357 |
-| ✅ verified | 304 |
+| Talablar | 371 |
+| Kamida bitta testga bog'langan | 358 |
+| ✅ verified | 305 |
 | ⚠️ verified (farq bilan) | 6 |
 | ❔ unverified | 26 |
 | ⏳ pending | 29 |
@@ -491,4 +491,5 @@
 | REQ-UXF-003 | Kuzatuvlar jadvali doim bitta bo'sh qator bilan tugaydi, qiymat kiritilsa qator qo'shiladi (bo'sh qator 100 gacha; mavjud qatorlar kesilmaydi); A tur alohida tugmasiz, ma'lumot o'zgarganda dvigatel funksiyasi bilan qayta hisoblanadi | `src/ui/flow/model.js::fitRows`; `src/ui/flow/model.js::usedRows`; `src/js/table.js` | `tests/ui/flow.test.js`; `tests/i18n.test.js` | ✅ verified | — |
 | REQ-UXF-004 | Avvalgi 11 sozlama katalogda `origin: 'example'` shabloni sifatida ("Namuna" belgisi); preset ro'yxatlari yo'q; eski saqlangan hisoblar ochiladi — parametrlar, kiritilgan qiymatlar va natija bit darajasida o'zgarmaydi | `templates/builtin/legacy-density.json`; `schemas/methodology.schema.json`; `src/ui/tpl/view.js::isExampleQuery`; `src/ui/flow/model.js::hasSession` | `tests/ui/flow.test.js`; `tests/templates/builtin.test.js` | ✅ verified | — |
 | REQ-UXF-005 | Qadamlar: Model → Ma'lumotlar → B tur → Natija → Hisobot; har qadamda bitta asosiy tugma, u kontentni yopmaydi; shablondan natijagacha bosishlar (ma'lumot kiritishdan tashqari) ≤ 3 | `src/ui/shell/model.js::stepStates`; `src/ui/flow/model.js::stepBlocker`; `src/ui/shell/app.js`; `index.html` | `tests/ui/flow.test.js`; `tests/ui/shell.test.js` | ✅ verified | bosishlar soni va tugmaning ko'rinishi haqiqiy brauzerda — npm run test:screens (CI validation job; npm test tarkibida emas) |
+| REQ-UXF-006 | Shablon rejimida formula, chiqishlar va natija birligi qulflangan (parametrlar shablonda qotirilgan — formuladagi o'zgarish jimgina qabul qilinmaydi); izoh va "Shablondan ajratib tahrirlash" tugmasi: tasdiq bilan hisob shablon bo'yicha baholanadigan holatga aylantiriladi (aux sonlari, "bitta asbob" kovariatsiyasi saqlanadi), natija son jihatidan o'zgarmaydi, saqlangan nuqtalar ham ajratiladi; oxirgi bo'sh qatorda "Keyingi o'lchash yoki Ctrl+V" ko'rsatmasi | `src/templates/interpreter.js::detachState`; `src/js/table.js` | `tests/templates/detach.test.js`; `tests/ui/flow.test.js` | ✅ verified | tenglik testi: evaluate(detachState(s)) = evaluateState(s) (known / unknown split, aux, namunaviy shablon); UI — jsdom va Chromium tutun-testi |
 

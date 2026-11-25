@@ -4672,5 +4672,17 @@
   ],
   "status": "verified",
   "note": "siyosat — sof test; index-auth.js — jsdom; app.js oqimi (beginSession) — brauzerda tekshirildi"
+ },
+ "REQ-UXF-006": {
+  "code": [
+   "src/templates/interpreter.js::detachState",
+   "src/js/table.js"
+  ],
+  "tests": [
+   "tests/templates/detach.test.js",
+   "tests/ui/flow.test.js"
+  ],
+  "status": "verified",
+  "note": "tenglik testi: evaluate(detachState(s)) = evaluateState(s) (known / unknown split, aux, namunaviy shablon); UI — jsdom va Chromium tutun-testi"
  }
 }

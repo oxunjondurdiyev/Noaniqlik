@@ -95,7 +95,11 @@ const Table = (() => {
 
     const state = appState.get();
     const model = state.model || {};
-    const chips = state.params.map(p => `<button type="button" class="model-chip" data-ins="${escHtml(p)}">${escHtml(p)}</button>`).join('');
+    // Shablon rejimi: formula va chiqishlar shablondan — qulflangan (shablon tekshirilgan metodika; parametrlar ro'yxati
+    // shablonda qotirilgan, formuladan qayta yig'ilmaydi). O'zgartirish — faqat "Shablondan ajratib tahrirlash" orqali.
+    const locked = tplLocked(state);
+    const ro = locked ? ' readonly aria-readonly="true"' : '';
+    const chips = state.params.map(p => `<button type="button" class="model-chip" data-ins="${escHtml(p)}"${locked ? ' disabled' : ''}>${escHtml(p)}</button>`).join('');
 
     box.innerHTML = `
       <div class="model-card">
@@ -104,11 +108,11 @@ const Table = (() => {
           <div class="form-group model-formula-group">
             <label>${i18n.t('model_formula')}</label>
             <input type="text" id="model-formula" class="mono" value="${escHtml(model.formula || '')}"
-              placeholder="${escHtml(i18n.t('model_ph'))}" autocomplete="off" autocorrect="off" spellcheck="false" />
+              placeholder="${escHtml(i18n.t('model_ph'))}" autocomplete="off" autocorrect="off" spellcheck="false"${ro} />
           </div>
           <div class="form-group model-unit-group">
             <label>${i18n.t('model_unit')}</label>
-            <input type="text" id="model-unit" value="${escHtml(model.unit || '')}" placeholder="g/cm³" autocomplete="off" />
+            <input type="text" id="model-unit" value="${escHtml(model.unit || '')}" placeholder="g/cm³" autocomplete="off"${ro} />
           </div>
         </div>
         <div class="model-outputs" data-model-outputs="1">
@@ -117,17 +121,21 @@ const Table = (() => {
             <div class="form-group model-formula-group">
               <label>${i18n.t('model_output_n')} ${j + 2}</label>
               <input type="text" class="mono" data-out-formula="${j}" value="${escHtml(o.formula || '')}"
-                placeholder="${escHtml(i18n.t('model_output_ph'))}" autocomplete="off" autocorrect="off" spellcheck="false" />
+                placeholder="${escHtml(i18n.t('model_output_ph'))}" autocomplete="off" autocorrect="off" spellcheck="false"${ro} />
             </div>
             <div class="form-group model-unit-group">
               <label>${i18n.t('model_unit')}</label>
               <input type="text" data-out-unit="${j}" value="${escHtml(o.unit || '')}" autocomplete="off" />
             </div>
-            <button type="button" class="btn btn-ghost btn-sm" data-out-remove="${j}" title="${escHtml(i18n.t('model_remove_output'))}">✕</button>
+            ${locked ? '' : `<button type="button" class="btn btn-ghost btn-sm" data-out-remove="${j}" title="${escHtml(i18n.t('model_remove_output'))}">✕</button>`}
           </div>`).join('')}
-          <button type="button" class="btn btn-outline btn-sm" data-out-add="1">+ ${i18n.t('model_add_output')}</button>
-          <span class="text-muted text-xs">${i18n.t('model_outputs_hint')}</span>
+          ${locked ? '' : `<button type="button" class="btn btn-outline btn-sm" data-out-add="1">+ ${i18n.t('model_add_output')}</button>
+          <span class="text-muted text-xs">${i18n.t('model_outputs_hint')}</span>`}
         </div>
+        ${locked ? `<div class="model-locked" role="note" data-model-locked="1">
+          <span>${escHtml(i18n.t('flow_tpl_locked'))}</span>
+          <button type="button" class="btn btn-outline btn-sm" data-tpl-detach="1">${escHtml(i18n.t('flow_tpl_detach'))}</button>
+        </div>` : ''}
         <div class="model-chips">${chips}
           <span class="text-muted text-xs">+ − × / ^ ( ) · sqrt ln log exp sin cos tan abs pi</span>
         </div>
@@ -142,16 +150,20 @@ const Table = (() => {
       </div>`;
 
     const fEl = box.querySelector('#model-formula');
+    const detachBtn = box.querySelector('[data-tpl-detach]');
+    if (detachBtn) detachBtn.addEventListener('click', detachTemplate);
     const saveModel = () => {
       const cur = appState.get('model') || {};
-      const formula = fEl.value.trim();
-      const unit = box.querySelector('#model-unit').value.trim();
+      const lock = tplLocked(appState.get());
+      const formula = lock ? (cur.formula || '') : fEl.value.trim();
+      const unit = lock ? (cur.unit || '') : box.querySelector('#model-unit').value.trim();
       if (cur.formula !== formula || cur.unit !== unit) appState.set({ model: { formula, unit }, ...outputsPatch({ formula, unit }, extraOutputs(appState.get())), combined: null });
       if (commitParams()) renderModelBox(true); else { renderUnused(); updateModelStatus(); }
     };
     // P07: qo'shimcha chiqishlar (vektor model, JCGM 102:2011 §6.2) — state.outputs = [asosiy formula, …qo'shimchalar]
     const setExtras = extras => { appState.set({ ...outputsPatch(appState.get('model') || {}, extras), combined: null }); if (commitParams()) renderModelBox(true); else renderUnused(); };
     box.querySelectorAll('[data-out-formula], [data-out-unit]').forEach(inp => inp.addEventListener('change', () => {
+      if (locked && inp.dataset.outFormula !== undefined) return;
       const extras = extraOutputs(appState.get()).map(o => ({ ...o }));
       const j = Number(inp.dataset.outFormula !== undefined ? inp.dataset.outFormula : inp.dataset.outUnit);
       if (!extras[j]) return;
@@ -171,6 +183,7 @@ const Table = (() => {
     box.querySelector('#model-unit').addEventListener('change', saveModel);
     box.querySelectorAll('.model-chip').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (locked) return;
         const pos = fEl.selectionStart ?? fEl.value.length;
         fEl.value = fEl.value.slice(0, pos) + btn.dataset.ins + fEl.value.slice(fEl.selectionEnd ?? pos);
         saveModel();
@@ -196,6 +209,26 @@ const Table = (() => {
   /* ── P — formuladan (P22-1): parametrlar ro'yxati parser tokenlaridan (Flow.syncParams). true — ro'yxat o'zgardi.
      Shablon (inputs shablonda belgilangan) va oshkor bo'lmagan modelda (state.implicit) ro'yxatga tegilmaydi. ── */
   function autoParams(state) { return !!Flow() && !state.template && !state.implicit; }
+  /* Shablon rejimida (oshkormas modeldan tashqari) formula qulflangan */
+  function tplLocked(state) { return !!(state && state.template) && !state.implicit; }
+
+  /* Shablondan ajratish (foydalanuvchi tasdig'i bilan): hisob shablon bo'yicha baholanadigan holatning o'zi bo'lib qoladi
+     (UCTemplates.detachState — aux sonlari, "bitta asbob" kovariatsiyasi covB da) — natija o'zgarmaydi
+     (tests/templates/detach.test.js); saqlangan nuqtalar ham ajratiladi. Keyin formula erkin, parametrlar formuladan. */
+  const CALC_KEYS = ['n', 'params', 'measurements', 'directions', 'typeB', 'model', 'outputs', 'implicit', 'settings', 'covB', 'units'];
+  function detachTemplate() {
+    const T = window.UCTemplates;
+    const state = appState.get();
+    if (!T || !T.detachState || !state.template) return;
+    if (!confirm(i18n.t('flow_tpl_detach_confirm'))) return;
+    const pick = o => Object.fromEntries(CALC_KEYS.filter(k => o[k] !== undefined).map(k => [k, o[k]]));
+    const d = T.detachState(state);
+    const points = (state.points || []).map(pt => (pt && pt.snapshot && pt.snapshot.template
+      ? { ...pt, snapshot: { ...pick(T.detachState(pt.snapshot)), template: null } } : pt));
+    appState.set({ ...pick(d), template: null, points, combined: null });
+    renderModelBox(true);
+    if (window.showToast) window.showToast(i18n.t('flow_tpl_detached'), 'success');
+  }
   function commitParams() {
     const state = appState.get();
     if (!autoParams(state)) return false;
@@ -410,13 +443,16 @@ const Table = (() => {
     const keep = act && act.classList && act.classList.contains('meas-input') && body.contains(act)
       ? { param: act.dataset.param, idx: act.dataset.idx, start: act.selectionStart, end: act.selectionEnd } : null;
 
+    // Oxirgi (bo'sh) qator: birinchi ustunda ko'rsatma — qatorlar o'zi qo'shiladi, Excel'dan qo'yish mumkin (P22-1)
+    const lastBlank = Flow() && n > 0 && state.params.every(p => String(((state.measurements[p] || [])[n - 1]) ?? '').trim() === '');
+    const rowPh = escHtml(i18n.t('flow_row_ph'));
     let rows = '';
     for (let i = 0; i < n; i++) {
-      const paramInputs = state.params.map(p => {
+      const paramInputs = state.params.map((p, j) => {
         const vals = state.measurements[p] || Array(n).fill('');
         const v = vals[i] !== undefined ? vals[i] : '';
         return `<td><input type="text" inputmode="decimal" class="meas-input"
-          data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}"
+          data-param="${escHtml(p)}" data-idx="${i}" value="${escHtml(String(v))}"${lastBlank && i === n - 1 && j === 0 ? ` placeholder="${rowPh}"` : ''}
           aria-label="${escHtml(p + ' ' + (i + 1))}"
           autocomplete="off" autocorrect="off" spellcheck="false" /></td>`;
       }).join('');

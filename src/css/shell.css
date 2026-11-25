@@ -441,6 +441,13 @@ html { scroll-padding-top: calc(var(--topbar-h) + var(--s-4)); scroll-padding-bo
   margin-top: var(--s-3); padding: var(--s-3);
   border: 1px solid var(--c-border-strong); border-radius: var(--r-card); color: var(--c-text);
 }
+/* Shablon rejimi: formula qulflangan — izoh va "Shablondan ajratib tahrirlash" (src/js/table.js::detachTemplate) */
+.model-locked {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
+  margin-top: var(--s-3); padding: var(--s-3);
+  border: 1px solid var(--c-border-strong); border-radius: var(--r-card); color: var(--c-text);
+}
+.model-card input[readonly] { cursor: default; }
 /* 2-qadam: juftlangan kuzatuvlar va A tur usuli — jadval ostida */
 .typea-options { margin-top: var(--s-4); }
 .typea-options:empty { display: none; }
