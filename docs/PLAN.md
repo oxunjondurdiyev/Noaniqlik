@@ -238,7 +238,7 @@ Bog'liqlik yo'nalishi: `ui → report → engine`, `ui → templates → engine`
 | **P19** | M8 — mikrobiologiya, ISO 19036 (loyiha hujjatidagi "P17" prompti); hozirgi holat — BETA, KL-079 | rejalashtirilgan |
 | **P20** | Audit (21.11.2026) bo'yicha P0 tuzatishlar — pastda | **bajarildi (2026-11-21)** |
 | **P21** | Kragten usuli (QUAM:2012 Appendix E.2) — avvalgi "P17" | rejalashtirilgan |
-| **P22** | Interfeys qulayligi (audit P1) — 7 bosqich, pastda | P22-1 bajarildi (2026-11-21) |
+| **P22** | Interfeys qulayligi (audit P1) — 7 bosqich, pastda | P22-1 (2026-11-21), P22-2 (2026-11-27) bajarildi |
 
 Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16) endi **P21** deb o'qiladi. P16b (MCM gistogrammasi) va `'unsafe-inline'` xavfsizlik PR'i — raqamsiz, avvalgidek.
 
@@ -261,7 +261,7 @@ Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16
 | Bosqich | Mazmun | Holat |
 |---|---|---|
 | **P22-1** | Yagona "Yangi hisob" oqimi (UX-01, UX-02, UX-04): sozlash oynasi yo'q, P — formuladan, N — jadvaldan, namunalar katalogda, 5 qadam, har qadamda bitta asosiy tugma | **bajarildi (2026-11-21)** — egasi sinovini kutadi |
-| P22-2 | Menyu (3 guruh, ≤ 9 band) va usul maslahatchisi `src/engine/method-advisor.js` (UX-03); "Hisobot" bitta joyda | rejalashtirilgan |
+| **P22-2** | Menyu (3 guruh, 9 band) va usul maslahatchisi `src/engine/method-advisor.js` (UX-03); usul tanlovi Model qadamida; "Validatsiya hisoboti" — sozlamalar oynasida | **bajarildi (2026-11-27, ENGINE 2.13.0 — hisob o'zgarmagan)** — egasi sinovini va 3 savolga javobini kutadi |
 | P22-3 | Natija ekrani (UX-06, UX-07): karta birinchi ekranda, topilmalar, byudjet, "Ko'proq" menyusi | rejalashtirilgan |
 | P22-4 | B tur ixcham jadval (UX-13), birliklar | rejalashtirilgan |
 | P22-5 | Shablonlar katalogi (UX-12): qobiq ichida, filtrlar, o'qiladigan formulalar | rejalashtirilgan |
@@ -271,6 +271,8 @@ Avvalgi yozuvlardagi "P17 — Kragten" (`docs/RISKS.md` R-29, `CHANGELOG.md` P16
 **O'lchanadigan maqsad (1-bosqichga tegishlisi — `npm run test:screens` da avtomatik):** Bosh sahifa → Model (sozlash ekranisiz); shablondan natijagacha bosishlar ≤ 3; 5 qadam; har qadamda bitta asosiy tugma. Qolgan ko'rsatkichlar (natija kartasi birinchi ekranda, menyu ≤ 9 band, "Hisobot" bitta joyda) — 2- va 3-bosqichlarda.
 
 **P22-1 — nima qilindi:** `CHANGELOG.md` "[ilova] — P22-1"; sof model `src/ui/flow/model.js`; talablar REQ-UXF-001…005. **Qanday tekshirildi:** `npm test`; `npm run test:screens` (Chromium, 66 skrinshot); `src/engine/`, `src/report/` — `git diff` bo'sh. **Qoldiq va qarorlar:** `docs/RISKS.md` R-32.
+
+**P22-2 — nima qilindi:** `CHANGELOG.md` "[2.13.0] — P22-2"; dvigatel — `suggestMethod` (faqat tavsiya, yangi chegara yo'q); menyu modeli `src/ui/shell/model.js` (`MENU` — 9 band; eski kalitlar `menu: false`); usul qatori `src/ui/method/`; talablar REQ-UXF-007…009. **Qanday tekshirildi:** `npm test`; `cases-snapshot --compare` 91 / 91; `npm run test:screens` (1440×900 da menyu aylantirishsiz). **Qoldiq va ochiq savollar:** `docs/RISKS.md` R-32 (P22-2).
 
 ## P15 — O'zbekistondagi server (hosting qaroridan keyin)
 

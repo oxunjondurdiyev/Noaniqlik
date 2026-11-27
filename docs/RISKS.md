@@ -44,7 +44,7 @@
 | R-29 | Interfeys 2.0 (P16): dizayn qarorlari va qoldiq — MCM gistogrammasi (dvigatel namunalarni qaytarmaydi), Kragten ko'rinishi yo'q, `style-src 'unsafe-inline'` uch sahifada qolgan, Space Grotesk da kirill yo'q, o'ng panel chegarasi 1180 px, 12 pt bosma hajmi; Safari va real qurilmalar qo'lda ko'rilmagan | P | P16 → egasi qarorlari |
 | R-30 | Audit (21.11.2026) bo'yicha P0 tuzatishlar (P20, 2.11.0): LPU → MCM qaror qoidasi (chegaralar — loyiha qarori; 9 etalon nuqtaning hammasida MCM talab qilinadi), "QORALAMA" belgisi, rozilik va huquqiy sahifalar (yurist tasdig'ini kutadi); P18 (M9) dan oldin bajarildi — birlashtirishda ziddiyat bo'lishi mumkin | O | P20 (bajarildi; qoldiq ochiq) |
 | R-31 | M9 (P18, 2.12.0): ISO/TS 20914:2019 PDF repoda yo'q — etalon qiymatlar egasidan (G1–G11); **D-23** (G9: ikki qatorda oxirgi xona — egasi qabul qildi 24.11.2026, manba nuansi); manba misolisiz qismlar (proporsional bias — loyiha talqini, egasi qabul qildi; vaznli pooling, sanoq — ochiq); loyiha parametrlari (n < 20, lot nisbati 2, eng yaqin o'rtacha) | O | P18 → egasi |
-| R-32 | Yagona "Yangi hisob" oqimi (P22-1, hisob o'zgarmagan): sessiya paneli olib tashlandi, P formuladan, N jadvaldan; ochiq — parametr nomi faqat formulada, shablonda formula qulflangan (ajratish — `detachState`, 2026-11-24), oshkormas modelda sinxronlanmaydi, eski CSS / i18n kalitlari tozalanmagan, Firefox / Safari da ko'rilmagan | P | P22-1 → P22-6 |
+| R-32 | Yagona "Yangi hisob" oqimi (P22-1, hisob o'zgarmagan): sessiya paneli olib tashlandi, P formuladan, N jadvaldan; ochiq — parametr nomi faqat formulada, shablonda formula qulflangan (ajratish — `detachState`, 2026-11-24), oshkormas modelda sinxronlanmaydi, eski CSS / i18n kalitlari tozalanmagan, Firefox / Safari da ko'rilmagan; **P22-2:** menyu 9 band, usul maslahatchisi (faqat tavsiya) — 3 savol egasida | P | P22-1 → P22-6 |
 
 ### P06 natijasi (2026-11-18, branch `feat/p06-montecarlo`, ENGINE_VERSION 2.6.0)
 
@@ -553,6 +553,28 @@ Manba: "UncertaintyCalc — to'liq audit va yakuniy ishlar ro'yxati (21.11.2026)
 - Namuna shablonlaridagi izoh ("P03 dagi src/data/presets.js … ko'chirilgan") texnik matn — 6-bosqichda.
 - "Eski ma'lumot (uc_state_v2) IndexedDB ga ko'chirildi" bildirishnomasi — texnik matn, 6-bosqichda.
 - **Qo'lda ko'rilmagan:** Firefox, Safari (macOS / iOS), real telefon / planshet (faqat Chromium — `test:screens`); ekran o'quvchisi bilan jadvalga kiritish.
+
+**P22-2 (2026-11-27, ENGINE 2.13.0 — hisob natijalari o'zgarmagan): menyu va usul maslahatchisi — qarorlar va qoldiq**
+
+Bajarish paytida qabul qilingan loyiha qarorlari (egasi tasdig'ini kutadi):
+
+1. **"Yangi hisob" (menyu)** — kiritilgan ma'lumot bor hisobda avvalgi "Yangi seans" tasdig'i so'raladi (jimgina o'chirilmaydi); bo'sh hisobda — to'g'ridan-to'g'ri Model qadami.
+2. **Laboratoriya ichki yorliqlari ikki guruhda** (`src/ui/lab/view.js::TAB_GROUPS`): "QC va etalonlar" — QC, Etalonlar reestri, CMC jadvali; "Malaka sinovlari va validatsiya" — Malaka sinovlari, Validatsiya. Qatorda faqat joriy guruh yorliqlari; boshqa guruhga — menyu yoki Ctrl+K orqali.
+3. **Faol menyu bandi:** GUM ish oqimi va usul yorliqlarida (regressiya, top-down, maxsus) hech qaysi band faol emas; joylashuv yo'lida aniq nom (ichki yorliq / usul) qoladi.
+4. **Usul tanlovi saqlanadigan maydon** — `settings.method` (yo'riqnomada faqat `settings.dataKind` aytilgan): ikkalasi ham faqat interfeys maydoni, `evaluate()` ga ta'sir qilmasligi 9 etalon nuqtada tekshirilgan; hisob hujjati (`uc-calc/1`) xeshiga kiradi (holatning bir qismi), natijaga emas.
+5. **GUM shabloni bir nechta chiqishli bo'lsa (MV-01)** maslahatchi `MULTIVARIATE` qaytaradi (`template_mode` + `multi_output`) — yo'riqnomadagi "birinchi mos kelgan qoida" dan chetlanish: aks holda vektor shablonda "GUM (LPU)" yozilar edi.
+6. **Manbalar:** kalibrlash egri chizig'i — QUAM:2012 **App. E.4** (yo'riqnomada "App. C"; E.4 repodagi `quam-a5-calibration` misolida tasdiqlangan). ISO 11352:2025, ISO 28037:2026, ISO 21748:2017 §10, ISO 19036 — repoda yo'q: `verified: false`, "(unverified)" (P23). **ISO 28037:2026 va ISO 11352:2025 nashr yillari egasi yo'riqnomasidan olingan — manba bilan solishtirilmagan.**
+7. **"Top-down" tanlansa** ustaning joriy asosi o'zgartirilmaydi; "Laboratoriyalararo" — asos `sR` ga o'tkaziladi (kiritilgan ma'lumot saqlanadi; ustada shablon yuklangan bo'lsa — tegilmaydi).
+8. **MC sabablari usul qatorida qisqa** ("… talab qilinadi (b), (d)") — batafsil matn va qiymatlar Natija qadamidagi MCM bo'limida (takrorlanmaydi).
+9. **`#sidebar-nav`** — yo'riqnomadagi test identifikatori; menyu `#side-nav` (P22-1: `#sidebar*` qayta qo'shilmaydi) — test `#side-nav .nav-item` ni sanaydi.
+
+Egasiga savollar (javob kutilmoqda):
+
+- **Q1.** CMC jadvali "QC va etalonlar" ichida uchinchi ichki yorliq (hozir shunday) yoki alohida joyda?
+- **Q2.** "Saqlangan hisoblar" — Bosh sahifadagi ro'yxatga o'tish (hozir shunday) yetarlimi, yoki qidiruv / filtrli alohida ekran kerakmi?
+- **Q3.** Mikrobiologiya (BETA) usullar ro'yxatida ko'rinsinmi (hozir — BETA belgisi bilan ko'rinadi) yoki P19 gacha faqat Ctrl+K orqali?
+
+Qoldiq: "Qo'llanma" bandi sayt build qadamisiz chiqqanda yashirin (Pages manbasi "GitHub Actions" ga o'tkazilgach ko'rinadi — `docs/DEPLOY.md`); "Maxsus rejimlar" umumiy nomi faqat Ctrl+K da; mobil pastki panel (`.bnav`) o'zgarmagan; eski `sh_g_methods`, `sh_s_gum` … i18n kalitlari tozalanmagan; Firefox / Safari da qo'lda ko'rilmagan (Chromium — `test:screens`).
 
 ### R-29. Interfeys 2.0: dizayn qarorlari va qoldiq (P) — P16 (2026-11-20, ENGINE 2.10.0 o'zgarmagan)
 
