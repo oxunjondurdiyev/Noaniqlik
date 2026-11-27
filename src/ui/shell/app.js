@@ -5,7 +5,7 @@
    holat `tabchange` hodisasi (src/js/app.js) va appState dan o'qiladi. Matnlar faqat i18n + textContent.
    CSP: inline skript / uslub atributi yo'q (ko'rinish — sinflar va `hidden`).
 ═══════════════════════════════════════════════════════════════ */
-import { NAV, STEPS, WORKFLOW_TABS, activeNav, activeStep, stepStates, search, moveIndex } from './model.js';
+import { NAV, STEPS, WORKFLOW_TABS, activeNav, activeStep, stepStates, search, moveIndex, sectionLabelKey, labTabFor, commandItems } from './model.js';
 
 const $ = id => document.getElementById(id);
 const t = k => (window.i18n ? window.i18n.t(k) : k);
@@ -25,11 +25,41 @@ function reveal(selector) {
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (el.scrollIntoView) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
 }
+/* P22-2: amal bandlari — yorliq almashtirmaydi, mavjud ishlovchilarni chaqiradi */
+function focusEl(el) {
+  if (!el) return;
+  if (!el.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) el.setAttribute('tabindex', '-1');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (el.scrollIntoView) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  if (el.focus) el.focus({ preventScroll: true });
+}
+function newCalc() {
+  if (!window.App) return;
+  // kiritilgan ma'lumot bor hisob jimgina o'chirilmaydi — avvalgi "Yangi seans" tasdig'i bilan
+  const busy = window.UCFlow && window.UCFlow.hasSession(state());
+  if (busy && !window.confirm(t('confirm_new_session'))) return;
+  window.App.newCalculation();
+}
+function openSettings(then) {
+  const b = document.querySelector('[data-open-lab]');
+  const p = window.UCTemplates && window.UCTemplates.openLab ? window.UCTemplates.openLab() : (b ? (b.click(), null) : null);
+  if (then) Promise.resolve(p).then(() => setTimeout(then, 0));
+}
+function runAction(action) {
+  if (action === 'home') { if (window.App) window.App.showScreen('dash'); }
+  else if (action === 'new') newCalc();
+  else if (action === 'templates') { if (window.UCTemplates) window.UCTemplates.openCatalog(); }
+  else if (action === 'saved') { if (window.App) window.App.showScreen('dash'); setTimeout(() => focusEl($('home-recent-title')), 0); }
+  else if (action === 'settings') openSettings();
+  else if (action === 'valreport') openSettings(() => focusEl(document.querySelector('[data-program-validation]')));
+  else if (action === 'manual') { const a = $('nav-manual'); if (a && !a.hidden) window.location.href = a.getAttribute('href'); }
+}
 function go(navKey) {
   const item = NAV.find(n => n.key === navKey);
   if (!item) return;
+  if (item.action) { runAction(item.action); return; }
   lastNav = item.key;
-  if (item.lab) { labTab = item.lab; if (window.UCLab) window.UCLab.setTab(item.lab); }
+  if (item.lab) { labTab = labTabFor(item, labTab); if (window.UCLab) window.UCLab.setTab(labTab); }
   window.switchTab(item.tab);
   reveal(item.focus);
 }
@@ -62,9 +92,9 @@ function renderNav() {
     b.classList.toggle('active', on);
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
-  const item = NAV.find(n => n.key === cur);
   const sec = $('crumb-section');
-  if (sec) sec.textContent = item ? t(item.labelKey) : '';
+  const key = sectionLabelKey(tab, labTab);
+  if (sec) sec.textContent = key ? t(key) : '';
 }
 function renderCrumbId() {
   const el = $('crumb-calc');
@@ -112,6 +142,23 @@ function renderBuild() {
   el.textContent = fill('sh_build_local');
   if (window.UCBuild) window.UCBuild.info().then(b => { if (b && b.shortSha) el.textContent = fill('sh_build', b.shortSha); }).catch(() => {});
 }
+/* P22-2: "Qo'llanma" — manual/<til>.html faqat yig'ilgan saytda bor (scripts/build-site.js::MANUAL). Fayl bo'lmasa
+   (branch'dan, build qadamisiz chiqqan sayt) band yashirin qoladi. So'rov (HEAD) faqat o'z manzilimizga ('self'), keshsiz. */
+let manualSeq = 0;
+function renderManual() {
+  const a = $('nav-manual');
+  if (!a) return;
+  const lang = window.i18n && ['uz', 'ru', 'en'].includes(window.i18n.lang) ? window.i18n.lang : 'en';
+  const href = 'manual/' + lang + '.html';
+  const seq = ++manualSeq;
+  a.setAttribute('href', href);
+  if (typeof window.fetch !== 'function' || !window.UCBuild) { a.hidden = true; return; }
+  // Avval build.json (window.UCBuild — mavjud so'rov): build'siz saytda qo'llanma yo'q — ortiqcha so'rov (va konsoldagi 404) yo'q.
+  window.UCBuild.info()
+    .then(b => (b && b.shortSha ? window.fetch(href, { method: 'HEAD', cache: 'no-store', credentials: 'same-origin' }) : null))
+    .then(r => { if (seq === manualSeq) a.hidden = !(r && r.ok); })
+    .catch(() => { if (seq === manualSeq) a.hidden = true; });
+}
 function renderAll() { renderNav(); renderCrumbId(); renderStepper(); renderFab(); }
 
 /* ─── Profil menyusi ─── */
@@ -131,7 +178,9 @@ let opener = null;
 
 function click(id) { const el = $(id); if (el) el.click(); }
 function baseItems() {
-  const sec = NAV.map(n => ({ id: 'nav:' + n.key, kind: 'section', label: t(n.labelKey), run: () => go(n.key) }));
+  // P22-2: eski nomlar ham topiladi; usul bandlari usul tanlovi orqali ochiladi (src/ui/method/app.js)
+  const methods = window.UCMethod ? window.UCMethod.METHODS : [];
+  const sec = commandItems(t, methods).map(it => ({ ...it, run: () => runTarget(it.target) }));
   const steps = STEPS.map(s => ({ id: 'step:' + s.key, kind: 'section', label: t('sh_n_gum') + ' — ' + t(s.labelKey), run: () => goStep(s.key) }));
   const act = [
     ['sh_a_calc_c', () => { goStep('typeb'); click('btn-calc-combined'); }],
@@ -143,6 +192,17 @@ function baseItems() {
     ['btn_new', () => click('btn-reset')],
   ].map(([key, run]) => ({ id: 'act:' + key, kind: 'action', label: t(key), run }));
   return [...sec, ...steps, ...act];
+}
+function runTarget(target) {
+  if (target.action) { runAction(target.action); return; }
+  if (target.method) {
+    // shablonda usul qulflangan (choose → false): eski kalit bo'lsa — avvalgidek o'sha yorliq ochiladi
+    const ok = window.UCMethod && window.UCMethod.choose(target.method);
+    if (ok && target.nav === 'mc' && state().combined) go('mc');
+    else if (!ok && target.nav) go(target.nav);
+    return;
+  }
+  go(target.nav);
 }
 function titleOf(title) {
   if (title && typeof title === 'object') { const lang = window.i18n ? window.i18n.lang : 'en'; return title[lang] || title.en || title.uz || Object.values(title)[0] || ''; }
@@ -218,12 +278,14 @@ function bind() {
   if (!$('app')) return;
   document.addEventListener('tabchange', e => { tab = e.detail.tab; renderAll(); if (tab === 'vizlab') openVizlab(); syncHash(); });
   window.addEventListener('hashchange', fromHash);
-  document.addEventListener('langchange', () => { setTimeout(renderAll, 0); renderBuild(); });        // FAB yozuvi tarjima qo'llangach o'qiladi
+  document.addEventListener('langchange', () => { setTimeout(renderAll, 0); renderBuild(); renderManual(); });        // FAB yozuvi tarjima qo'llangach o'qiladi
   if (window.appState) window.appState.subscribe(() => { renderStepper(); renderCrumbId(); });
 
   document.addEventListener('click', e => {
     const nav = e.target.closest('[data-nav]');
     if (nav) { go(nav.dataset.nav); return; }
+    const own = e.target.closest('[data-nav-action="new"], [data-nav-action="saved"]');          // qolgan amallar — o'z ishlovchilarida
+    if (own) { runAction(own.dataset.navAction); return; }
     const step = e.target.closest('[data-step]');
     if (step) { goStep(step.dataset.step); return; }
     const lb = e.target.closest('[data-lb-tab]');
@@ -267,6 +329,7 @@ function bind() {
   }
   renderAll();
   renderBuild();
+  renderManual();
   setTimeout(fromHash, 0);          // app.js (bootstrap) dan keyin
 }
 
@@ -276,7 +339,7 @@ const LAB_HASH = '#lab';
 function fromHash() {
   if (window.location.hash !== LAB_HASH || tab === 'vizlab') return;
   if ($('app').classList.contains('hidden') && window.App) window.App.showScreen('app');
-  go('vizlab');
+  go('learn');
 }
 function syncHash() {
   const on = window.location.hash === LAB_HASH;
@@ -292,6 +355,6 @@ function openVizlab() {
   if (!vizlab) vizlab = import('../vizlab/app.js').then(m => m.mount(root)).catch(() => { vizlab = null; });
 }
 
-window.UCShell = Object.freeze({ go, goStep, openSearch: openCmdk, closeSearch: closeCmdk });
+window.UCShell = Object.freeze({ go, goStep, runAction, openSearch: openCmdk, closeSearch: closeCmdk });
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();

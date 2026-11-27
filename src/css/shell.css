@@ -465,3 +465,18 @@ html { scroll-padding-top: calc(var(--topbar-h) + var(--s-4)); scroll-padding-bo
 button.topbar-brand { min-height: var(--tap); padding: 0 var(--s-2); margin-left: calc(-1 * var(--s-2)); border: 0; border-radius: var(--r-button); background: transparent; color: var(--c-text); cursor: pointer; }
 button.topbar-brand:hover { background: var(--c-blue-soft); }
 button.topbar-brand:focus-visible { outline: 2px solid var(--c-blue); outline-offset: 2px; }
+
+/* ─── P22-2 (audit UX-03): Model qadamidagi "Usul" qatori va "Ma'lumot turi" savoli — faqat tokenlar ─── */
+.method-row { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-4); padding: var(--s-3) var(--s-4); border: 1px solid var(--c-border); border-radius: var(--r-card); background: var(--c-surface); }
+.method-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.method-text { margin: 0; flex: 1 1 18rem; min-width: 0; line-height: 1.5; color: var(--c-text); }
+.method-reason { color: var(--c-text-2); }
+.method-ref { color: var(--c-text-2); white-space: normal; }
+.method-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.method-pick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.method-pick select { min-height: 44px; max-width: 100%; }
+.method-kinds { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.method-kinds .sp-mode { margin: 0; }
+.method-kinds-label { color: var(--c-text-2); flex-basis: 100%; }
+.lab-more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.lab-more p { flex-basis: 100%; margin: 0; }

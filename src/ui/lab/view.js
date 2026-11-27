@@ -17,8 +17,13 @@ const inp = (ctx, attr, value, o = {}) =>
 const field = (ctx, labelKey, inner, hintKey) =>
   `<label class="rg-field"><span>${ctx.esc(ctx.t(labelKey))}</span>${inner}${hintKey ? `<small class="text-muted">${ctx.esc(ctx.t(hintKey))}</small>` : ''}</label>`;
 
+/* P22-2: menyuda laboratoriya ikki band — "QC va etalonlar" va "Malaka sinovlari va validatsiya"; ichki yorliqlar
+   qatorida faqat joriy yorliq guruhi ko'rsatiladi (guruh joriy yorliqdan aniqlanadi — alohida holat yo'q). */
+export const TAB_GROUPS = [['qc', 'standards', 'cmc'], ['pt', 'validation']];
+export const tabGroup = tab => TAB_GROUPS.find(g => g.includes(tab)) || TABS;
+
 export function tabsHTML(tab, ctx) {
-  return `<div class="sp-modes" role="tablist" data-lb-tabs="1">${TABS.map(x =>
+  return `<div class="sp-modes" role="tablist" data-lb-tabs="1">${tabGroup(tab).map(x =>
     `<button type="button" role="tab" class="sp-mode${tab === x ? ' active' : ''}" data-lb-tab="${x}" aria-selected="${tab === x}">${ctx.esc(ctx.t('lb_tab_' + x))}</button>`).join('')}</div>`;
 }
 

@@ -10,24 +10,62 @@ const ROOT = path.join(__dirname, '..', '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const load = () => import('../../src/ui/shell/model.js');
 
-test('NAV: har bir band mavjud yorliqqa ishora qiladi; guruhlar — Hisob / Usullar / Laboratoriya', async () => {
-  const { NAV } = await load();
+test('NAV (P22-2): menyuda AYNAN 9 band, 3 guruh; eski kalitlar `menu: false` bilan saqlangan; har bir yorliq mavjud', async () => {
+  const { NAV, MENU, NAV_GROUPS } = await load();
   const dom = new JSDOM(read('index.html'));
-  const tabs = [...dom.window.document.querySelectorAll('.tab-btn')].map(b => b.dataset.tab);
+  const doc = dom.window.document;
+  const tabs = [...doc.querySelectorAll('.tab-btn')].map(b => b.dataset.tab);
   for (const n of NAV) {
+    assert.ok(!!n.tab !== !!n.action, n.key + ': yorliq YOKI amal');
+    if (!n.tab) continue;
     assert.ok(tabs.includes(n.tab), n.key + ' → ' + n.tab);
-    assert.ok(dom.window.document.getElementById('tab-' + n.tab), 'panel yo\'q: tab-' + n.tab);
+    assert.ok(doc.getElementById('tab-' + n.tab), 'panel yo\'q: tab-' + n.tab);
   }
-  const by = g => NAV.filter(n => n.group === g && n.menu !== false).map(n => n.key);
-  assert.deepEqual(by('calc'), ['gum', 'mc', 'multi']);
-  assert.deepEqual(by('methods'), ['regression', 'topdown', 'special']);
-  assert.deepEqual(by('lab'), ['lab-qc', 'lab-standards', 'lab-pt', 'lab-validation']);
-  // menyudagi tugmalar modeldagi bandlar bilan bir xil
-  const inMenu = [...dom.window.document.querySelectorAll('#side-nav [data-nav]')].map(b => b.dataset.nav);
-  assert.deepEqual(inMenu, NAV.filter(n => n.menu !== false).map(n => n.key));
-  // laboratoriya ichki yorliqlari haqiqatan mavjud (src/ui/lab/view.js TABS)
-  const { TABS } = await import('../../src/ui/lab/view.js');
+  assert.equal(MENU.length, 9);
+  assert.deepEqual([...NAV_GROUPS], ['calc', 'lab', 'help']);
+  const by = g => MENU.filter(n => n.group === g).map(n => n.key);
+  assert.deepEqual(by('calc'), ['home', 'new', 'templates', 'saved']);
+  assert.deepEqual(by('lab'), ['lab-control', 'lab-quality', 'settings']);
+  assert.deepEqual(by('help'), ['manual', 'learn']);
+  assert.deepEqual([...new Set(MENU.map(n => n.group))], ['calc', 'lab', 'help']);
+  // eski kalitlar o'chirilmagan — UCShell.go('regression'), eski havolalar va Ctrl+K ishlashda davom etadi
+  const old = { gum: 'model', mc: 'results', multi: 'model', regression: 'regression', topdown: 'topdown', special: 'special', 'lab-qc': 'lab', 'lab-standards': 'lab', 'lab-cmc': 'lab', 'lab-pt': 'lab', 'lab-validation': 'lab', vizlab: 'vizlab' };
+  for (const [key, tab] of Object.entries(old)) {
+    const n = NAV.find(x => x.key === key);
+    assert.ok(n, key + ' saqlangan');
+    assert.equal(n.menu, false, key);
+    assert.equal(n.tab, tab, key);
+  }
+  assert.equal(NAV.length, 9 + Object.keys(old).length);
+  assert.equal(new Set(NAV.map(n => n.key)).size, NAV.length, 'kalitlar takrorlanmaydi');
+  // index.html: menyu bandlari modeldagi bilan bir xil tartibda, aynan 9 ta; guruh sarlavhalari 3 ta
+  const side = doc.getElementById('side-nav');
+  const items = [...side.querySelectorAll('.nav-item')];
+  assert.equal(items.length, 9);
+  assert.deepEqual(items.map(b => b.dataset.nav || b.dataset.navAction), MENU.map(n => (n.tab ? n.key : n.action)));
+  assert.deepEqual([...side.querySelectorAll('.nav-list')].map(u => u.dataset.navGroup), ['calc', 'lab', 'help']);
+  assert.deepEqual([...side.querySelectorAll('.nav-group')].map(p => p.dataset.i18n), ['sh_g_calc', 'sh_g_lab', 'sh_g_help']);
+  for (const u of side.querySelectorAll('.nav-list')) assert.deepEqual([...u.querySelectorAll('.nav-item')].map(b => b.dataset.nav || b.dataset.navAction), MENU.filter(n => n.group === u.dataset.navGroup).map(n => (n.tab ? n.key : n.action)));
+  items.forEach((b, i) => assert.equal(b.querySelector('.nav-label').dataset.i18n, MENU[i].labelKey));
+  // laboratoriya ichki yorliqlari haqiqatan mavjud; menyu bandlari qamrovi src/ui/lab/view.js guruhlari bilan bir xil
+  const { TABS, TAB_GROUPS } = await import('../../src/ui/lab/view.js');
   for (const n of NAV.filter(x => x.lab)) assert.ok(TABS.includes(n.lab), n.lab);
+  assert.deepEqual(MENU.filter(n => n.covers).map(n => n.covers), TAB_GROUPS);
+  // "Validatsiya hisoboti" menyuda yo'q — sozlamalar oynasida ("Dastur validatsiyasi")
+  assert.equal(side.innerHTML.includes('validation-report.html'), false);
+  assert.equal(doc.getElementById('nav-validation-report'), null);
+  const tplApp = read('src/ui/tpl/app.js');
+  assert.match(tplApp, /href="validation\/validation-report\.html" data-program-validation="1">\$\{esc\(t\('sh_set_program_validation'\)\)\}/);
+  assert.match(tplApp, /data-lab-more="1">\s*<button type="button" class="btn btn-outline btn-sm" data-open-data="1">/);
+  // "Qo'llanma": standart holatda yashirin (build'siz saytda fayl yo'q); tekshiruv — faqat o'z manzilimizga HEAD, keshsiz
+  const manual = doc.getElementById('nav-manual');
+  assert.ok(manual.hidden && manual.tagName === 'A' && /^manual\/(uz|ru|en)\.html$/.test(manual.getAttribute('href')));
+  const shellApp = read('src/ui/shell/app.js');
+  assert.match(shellApp, /b && b\.shortSha \? window\.fetch\(href, \{ method: 'HEAD', cache: 'no-store', credentials: 'same-origin' \}\) : null/);
+  assert.match(shellApp, /a\.hidden = !\(r && r\.ok\)/, 'fayl yo\'q yoki build\'siz sayt — band yashirin');
+  assert.match(shellApp, /const href = 'manual\/' \+ lang \+ '\.html';/);
+  // #sidebar* qayta qo'shilmagan (P22-1)
+  assert.equal(doc.querySelector('[id^="sidebar"]'), null);
 });
 
 test('stepStates: "bajarildi" faqat hisob holatidan; joriy qadam bittadan ko\'p emas', async () => {
@@ -49,22 +87,74 @@ test('stepStates: "bajarildi" faqat hisob holatidan; joriy qadam bittadan ko\'p 
   assert.equal(stepStates({ params: ['m', 'V'], model: { formula: 'm / V' }, typeA: { m: { mean: 1 }, V: { mean: 2 } } }, null)[1].done, true);
 });
 
-test('activeNav / activeStep: mavjud yorliqdan aniqlanadi (yangi holat mashinasi yo\'q)', async () => {
-  const { activeNav, activeStep } = await load();
-  assert.equal(activeNav('data', 'standards', 'gum'), 'gum');
-  assert.equal(activeNav('results', 'standards', 'mc'), 'mc');
-  assert.equal(activeNav('results', 'standards', 'regression'), 'gum');
-  assert.equal(activeNav('typeb', 'standards', 'mc'), 'gum');
-  assert.equal(activeNav('lab', 'qc', 'gum'), 'lab-qc');
-  assert.equal(activeNav('lab', 'cmc', 'gum'), 'lab-cmc');
-  assert.equal(activeNav('topdown', 'qc', 'gum'), 'topdown');
-  assert.equal(activeNav('vizlab', 'qc', 'gum'), 'vizlab');
-  assert.equal(activeNav('model', 'standards', 'gum'), 'gum');
+test('activeNav / activeStep: mavjud yorliqdan aniqlanadi (yangi holat mashinasi yo\'q); P22-2 mosliklari', async () => {
+  const { activeNav, activeStep, sectionLabelKey, labTabFor, NAV, MENU } = await load();
+  // GUM ish oqimi (Model … Hisobot) va usul yorliqlari — hech qaysi menyu bandi faol emas (stepper / usul qatori)
+  for (const tab of ['model', 'data', 'typeb', 'results', 'report', 'regression', 'topdown', 'special']) {
+    for (const last of ['gum', 'mc', 'regression', 'home', undefined]) assert.equal(activeNav(tab, 'standards', last), null, tab);
+  }
+  // laboratoriya ichki yorliqlari → tegishli band
+  assert.equal(activeNav('lab', 'qc', 'gum'), 'lab-control');
+  assert.equal(activeNav('lab', 'standards', 'lab-pt'), 'lab-control');
+  assert.equal(activeNav('lab', 'cmc', 'gum'), 'lab-control');
+  assert.equal(activeNav('lab', 'pt', 'gum'), 'lab-quality');
+  assert.equal(activeNav('lab', 'validation', 'lab-qc'), 'lab-quality');
+  assert.equal(activeNav('vizlab', 'qc', 'gum'), 'learn');
+  // natija har doim menyuda ko'rinadigan band yoki null
+  for (const n of NAV.filter(x => x.tab)) { const k = activeNav(n.tab, n.lab || 'standards', n.key); assert.ok(k === null || MENU.some(m => m.key === k), n.key); }
+  // joylashuv yo'li — aniq nom (ichki yorliq / usul)
+  assert.equal(sectionLabelKey('lab', 'cmc'), 'sh_n_cmc');
+  assert.equal(sectionLabelKey('lab', 'pt'), 'sh_n_pt');
+  assert.equal(sectionLabelKey('data', 'qc'), 'sh_n_gum');
+  assert.equal(sectionLabelKey('regression', 'qc'), 'tab_regression');
+  assert.equal(sectionLabelKey('special', 'qc'), 'sh_n_special');
+  assert.equal(sectionLabelKey('vizlab', 'qc'), 'sh_n_vizlab');
+  // menyu bandi bosilganda: joriy ichki yorliq shu band ichida bo'lsa — qoladi; aks holda bandning birinchi yorlig'i
+  const ctl = MENU.find(n => n.key === 'lab-control'), q = MENU.find(n => n.key === 'lab-quality');
+  assert.equal(labTabFor(ctl, 'cmc'), 'cmc');
+  assert.equal(labTabFor(ctl, 'pt'), 'qc');
+  assert.equal(labTabFor(q, 'validation'), 'validation');
+  assert.equal(labTabFor(q, 'standards'), 'pt');
+  assert.equal(labTabFor(NAV.find(n => n.key === 'lab-cmc'), 'pt'), 'cmc', 'eski kalit — aniq yorliq');
   assert.equal(activeStep('model', 'data'), 'model');
   assert.equal(activeStep('data', 'results'), 'data');
   assert.equal(activeStep('typeb', 'model'), 'typeb');
   assert.equal(activeStep('report', 'model'), 'report');
   assert.equal(activeStep('lab', 'model'), null);
+});
+
+test('Ctrl+K (P22-2): eski nomlar bilan ham topiladi — uch tilda; usul bandlari usul tanlovi orqali', async () => {
+  const { commandItems, search } = await load();
+  const { METHODS } = await import('../../src/ui/method/model.js');
+  const files = ['i18n.js', 'i18n-ext.js', 'i18n-engine.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-shell.js', 'i18n-p20.js', 'i18n-flow.js', 'i18n-advisor.js'];
+  const win = new JSDOM('<!doctype html><body></body>', { url: 'https://example.test/', runScripts: 'outside-only' }).window;
+  const TR = win.eval(files.map(f => read('src/js/' + f)).join('\n;\n') + '\n;TRANSLATIONS');
+  const first = (items, q) => { const r = search(items, q); return r.length ? r[0] : null; };
+  const Q = {
+    uz: { 'Monte-Karlo': { method: 'GUM_MC' }, 'Ko\'p chiqishli': { method: 'MULTIVARIATE' }, Regressiya: { method: 'REGRESSION' }, 'Top-down': { method: 'TOP_DOWN' }, Nordtest: { method: 'TOP_DOWN' },
+      Laboratoriyalararo: { method: 'INTERLAB' }, 'Maxsus rejimlar': { nav: 'special' }, 'QC kartalari': { nav: 'lab-qc' }, 'Etalonlar reestri': { nav: 'lab-standards' }, 'CMC jadvali': { nav: 'lab-cmc' },
+      'Validatsiya hisoboti': { action: 'valreport' }, 'Vizual laboratoriya': { nav: 'vizlab' } },
+    ru: { 'Монте-Карло': { method: 'GUM_MC' }, 'несколькими выходами': { method: 'MULTIVARIATE' }, 'Регрессия': { method: 'REGRESSION' }, 'Top-down': { method: 'TOP_DOWN' }, Nordtest: { method: 'TOP_DOWN' },
+      'Межлабораторные': { method: 'INTERLAB' }, 'Специальные режимы': { nav: 'special' }, 'Контрольные карты': { nav: 'lab-qc' }, 'Реестр эталонов': { nav: 'lab-standards' }, 'Таблица CMC': { nav: 'lab-cmc' },
+      'Отчёт о валидации': { action: 'valreport' }, 'Визуальная лаборатория': { nav: 'vizlab' } },
+    en: { 'Monte Carlo': { method: 'GUM_MC' }, 'Multi-output': { method: 'MULTIVARIATE' }, Regression: { method: 'REGRESSION' }, 'Top-down': { method: 'TOP_DOWN' }, Nordtest: { method: 'TOP_DOWN' },
+      Interlaboratory: { method: 'INTERLAB' }, 'Special modes': { nav: 'special' }, 'QC charts': { nav: 'lab-qc' }, 'Standards registry': { nav: 'lab-standards' }, 'CMC table': { nav: 'lab-cmc' },
+      'Validation report': { action: 'valreport' }, 'Visual lab': { nav: 'vizlab' } },
+  };
+  for (const lang of ['uz', 'ru', 'en']) {
+    const t = k => { assert.ok(typeof TR[lang][k] === 'string' && TR[lang][k], `${lang}: ${k}`); return TR[lang][k]; };
+    const items = commandItems(t, METHODS);
+    assert.equal(new Set(items.map(i => i.id)).size, items.length, 'takror band yo\'q');
+    for (const it of items) assert.ok(it.label && it.target && (it.target.nav || it.target.method || it.target.action), it.id);
+    for (const [q, want] of Object.entries(Q[lang])) {
+      const got = first(items, q);
+      assert.ok(got, `${lang}: "${q}" topilmadi`);
+      for (const [k, v] of Object.entries(want)) assert.equal(got.target[k], v, `${lang}: "${q}" → ${JSON.stringify(got.target)}`);
+    }
+    // har bir usul va menyu bandi qidiruvda bor
+    for (const m of METHODS.filter(x => x.key !== 'AUTO')) assert.ok(items.some(i => i.target.method === m.key), m.key);
+    for (const a of ['home', 'new', 'templates', 'saved', 'settings', 'manual']) assert.ok(items.some(i => i.target.action === a), a);
+  }
 });
 
 test('buyruq qidiruvi: registr / apostrof / diakritikaga befarq, so\'zlar bo\'yicha VA, boshidan mos kelgani oldinda', async () => {
@@ -131,34 +221,34 @@ test('mavzu: tanlov localStorage `uc_theme` da saqlanadi (eski kalit o\'zgarmaga
   assert.match(js, /localStorage\.getItem\('uc_theme'\) \|\| 'dark'/);
 });
 
-test('chap menyu: "Shablonlar katalogi" (HISOB guruhi tepasida), "Laboratoriya sozlamalari" va "Ma\'lumotlar" (LABORATORIYA); 1-qadamda "Shablondan boshlash"', () => {
-  const fs = require('node:fs'), path = require('node:path');
-  const { JSDOM } = require('jsdom');
-  const root = path.join(__dirname, '..', '..');
-  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const doc = new JSDOM(html).window.document;
-  const lists = [...doc.querySelectorAll('#side-nav .nav-scroll .nav-list')];
-  assert.equal(lists[0].querySelector('.nav-item').dataset.navAction, 'home');
-  const first = lists[0].querySelectorAll('.nav-item')[1];
-  assert.equal(first.dataset.navAction, 'templates');
-  assert.ok(first.hasAttribute('data-open-templates'), 'mavjud ishlovchi (openCatalog) orqali ochiladi');
-  assert.equal(first.querySelector('.nav-label').dataset.i18n, 'tpl_open_catalog');
-  assert.ok(doc.getElementById(first.querySelector('use').getAttribute('href').slice(1)), 'ikonka mavjud');
-  const lab = [...lists[2].querySelectorAll('.nav-item')];
-  assert.deepEqual(lab.slice(-2).map(b => b.dataset.navAction), ['lab-settings', 'data']);
-  assert.ok(lab[lab.length - 2].hasAttribute('data-open-lab') && lab[lab.length - 1].hasAttribute('data-open-data'));
-  assert.deepEqual(lab.slice(-2).map(b => b.querySelector('.nav-label').dataset.i18n), ['tpl_btn_lab', 'tpl_btn_data']);
-  // amal bandlari yorliq almashtirmaydi (data-nav yo'q) — NAV modeli va faol band mantig'i o'zgarmagan
-  for (const b of doc.querySelectorAll('[data-nav-action]')) {
-    assert.equal(b.tagName, 'BUTTON');
-    assert.ok(!b.hasAttribute('data-nav'));
-    assert.ok(b.querySelector('.nav-short[data-i18n]') && doc.getElementById(b.querySelector('use').getAttribute('href').slice(1)));
+test('chap menyu (P22-2): amal bandlari mavjud ishlovchilar orqali; 1-qadamda "Shablondan boshlash" va usul qatori', () => {
+  const doc = new JSDOM(read('index.html')).window.document;
+  const act = k => doc.querySelector(`#side-nav [data-nav-action="${k}"]`);
+  assert.ok(act('home').hasAttribute('data-go-home'), 'Bosh sahifa — mavjud ishlovchi (src/ui/home/app.js)');
+  assert.ok(act('templates').hasAttribute('data-open-templates'), 'Shablonlar — openCatalog');
+  assert.ok(act('settings').hasAttribute('data-open-lab'), 'Sozlamalar va ma\'lumotlar — mavjud laboratoriya sozlamalari oynasi');
+  assert.ok(act('new') && act('saved') && act('manual'));
+  // amal bandlari yorliq almashtirmaydi (data-nav yo'q); har birida ikonka va qisqa nom (tor ustun uchun)
+  for (const b of doc.querySelectorAll('#side-nav .nav-item')) {
+    assert.ok(['BUTTON', 'A'].includes(b.tagName));
+    assert.ok(!(b.hasAttribute('data-nav') && b.hasAttribute('data-nav-action')));
+    assert.ok(b.querySelector('.nav-short[data-i18n]') && doc.getElementById(b.querySelector('use').getAttribute('href').slice(1)), b.outerHTML.slice(0, 90));
   }
+  const shellApp = read('src/ui/shell/app.js');
+  // "Yangi hisob": kiritilgan ma'lumot bor hisob jimgina o'chirilmaydi
+  assert.match(shellApp, /const busy = window\.UCFlow && window\.UCFlow\.hasSession\(state\(\)\);\s*if \(busy && !window\.confirm\(t\('confirm_new_session'\)\)\) return;\s*window\.App\.newCalculation\(\);/);
+  // "Saqlangan hisoblar": Bosh sahifa + ro'yxat sarlavhasiga o'tish va fokus
+  assert.match(shellApp, /action === 'saved'\) \{ if \(window\.App\) window\.App\.showScreen\('dash'\); setTimeout\(\(\) => focusEl\(\$\('home-recent-title'\)\), 0\); \}/);
+  assert.ok(doc.getElementById('home-recent-title') && doc.getElementById('home-sessions'));
+  // yangi holat mashinasi yo'q: yorliq faqat window.switchTab orqali almashadi
+  assert.ok(!/classList\.(add|remove|toggle)\('active'\)[^\n]*tab-panel/.test(shellApp + read('src/ui/method/app.js')));
   const start = doc.querySelector('#tab-model [data-model-template]');
   assert.ok(start && start.hasAttribute('data-open-templates'));
   assert.equal(start.querySelector('[data-i18n]').dataset.i18n, 'sh_tpl_start');
   assert.ok(start.compareDocumentPosition(doc.getElementById('model-box')) & 4, 'model qutisidan oldin');
-  const tplApp = fs.readFileSync(path.join(root, 'src/ui/tpl/app.js'), 'utf8');
+  const row = doc.getElementById('method-row');
+  assert.ok(row && (row.compareDocumentPosition(doc.getElementById('model-box')) & 4), 'usul qatori — model kartasining tepasida');
+  const tplApp = read('src/ui/tpl/app.js');
   assert.match(tplApp, /closest\('\[data-open-templates\]'\)\) \{ openCatalog\(\)/);
   assert.equal((tplApp.match(/closest\('\[data-open-templates\]'\)/g) || []).length, 1, 'ishlovchi bir marta ulangan');
 });

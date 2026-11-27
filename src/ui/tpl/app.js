@@ -483,6 +483,12 @@ function labHTML(l) {
     <div class="tpl-ed-actions">
       <button type="button" class="btn btn-primary btn-sm" data-lab="save">${esc(t('ed_save'))}</button>
       <button type="button" class="btn btn-ghost btn-sm" data-lab="close">${esc(t('ed_close'))}</button>
+    </div>
+    <div class="tpl-ed-sub">${esc(t('sh_set_more'))}</div>
+    <div class="lab-more" data-lab-more="1">
+      <button type="button" class="btn btn-outline btn-sm" data-open-data="1">${esc(t('sh_set_data'))}</button>
+      <a class="btn btn-outline btn-sm" href="validation/validation-report.html" data-program-validation="1">${esc(t('sh_set_program_validation'))}</a>
+      <p class="text-xs text-muted">${esc(t('sh_set_program_validation_hint'))}</p>
     </div>`;
 }
 async function openLab() {
@@ -652,6 +658,8 @@ window.UCTemplates = Object.freeze({
   labSettings: () => ({ ...labCache }),
   saveCalculation,
   openCatalog,
+  openLab,          // P22-2: "Sozlamalar va ma'lumotlar" (menyu, Ctrl+K)
+  openData,
   /** P16: buyruq qidiruvi uchun katalog ro'yxati (faqat ko'rsatish maydonlari) va shablonni yuklash */
   list: async () => { await ready; return entries().map(e => ({ key: keyOf(e.tpl), id: e.tpl.id, title: e.tpl.title || e.tpl.id, standard: e.tpl.standard || '', status: e.tpl.status || '' })); },
   use: (key, variant) => useTemplate(key, variant),

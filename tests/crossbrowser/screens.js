@@ -155,6 +155,37 @@ async function seed(page, bad) {
   if (st.steps !== 'model → data → typeb → results → report') bad.push('qadamlar: ' + st.steps);
   if (st.params !== 'x' || st.rows !== 1) bad.push(`yangi hisob: parametrlar "${st.params}", qatorlar ${st.rows} (kutilgan: x, 1)`);
   if (st.focus !== 'model-formula') bad.push('yangi hisob: fokus formula maydonida emas (' + st.focus + ')');
+  // P22-2: yangi (shablonsiz) hisobda "Usul" qatori — standart Avtomatik, "Ma'lumot turi" savoli; Avtomatik rejim o'zi yorliq
+  // almashtirmaydi; "O'zgartirish" → ro'yxat → "Regressiya" mavjud yorliqni ochadi
+  for (const msg of await page.evaluate(async () => {
+    const out = [];
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const tabNow = () => (document.querySelector('.tab-panel.active') || {}).id;
+    const shown = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+    const row = document.getElementById('method-row');
+    if (!shown(row)) return ['usul qatori ko\'rinmaydi'];
+    const name = row.querySelector('[data-method-name]');
+    if (!name || name.dataset.methodName !== 'AUTO') out.push('usul qatori standart holatda Avtomatik emas');
+    if (document.getElementById('model-box').getBoundingClientRect().top < row.getBoundingClientRect().bottom - 0.5) out.push('usul qatori model kartasining tepasida emas');
+    if (row.querySelectorAll('[data-method-kind]').length !== 8) out.push('"Ma\'lumot turi" tugmalari 8 ta emas');
+    row.querySelector('[data-method-kind="calibration_curve"]').click();
+    await wait(60);
+    if (tabNow() !== 'tab-model') out.push('Avtomatik rejim o\'zi yorliq almashtirdi: ' + tabNow());
+    const sug = document.querySelector('[data-method-suggested]');
+    if (!sug || sug.dataset.methodSuggested !== 'REGRESSION' || !shown(document.querySelector('[data-method-go]'))) out.push('tavsiya (Regressiya) yoki "O\'tish" tugmasi ko\'rinmadi');
+    document.querySelector('[data-method-kind="calibration_curve"]').click();
+    document.querySelector('[data-method-change]').click();
+    await wait(60);
+    const sel = document.getElementById('method-select');
+    if (!shown(sel)) out.push('"O\'zgartirish" ro\'yxatni ochmadi');
+    else { sel.value = 'REGRESSION'; sel.dispatchEvent(new Event('change', { bubbles: true })); await wait(80); if (tabNow() !== 'tab-regression') out.push('"Regressiya" tanlovi yorliqni ochmadi: ' + tabNow()); }
+    window.UCShell.goStep('model');
+    window.UCMethod.choose('AUTO');
+    await wait(60);
+    if (window.appState.get('settings').method !== undefined || window.appState.get('settings').dataKind !== undefined) out.push('Avtomatikka qaytganda interfeys maydonlari tozalanmadi');
+    document.getElementById('model-formula').focus();
+    return out;
+  })) bad.push('P22-2: ' + msg);
   // P — formuladan, N — jadvaldan (haqiqiy klaviatura bilan)
   await page.fill('#model-formula', 'y = a * b');
   await page.keyboard.press('Enter');
@@ -267,6 +298,49 @@ async function run(name, playwright, server) {
         window.scrollTo(0, 0);
         return bad;
       })) problems.push(`${name} ${tag}: ${msg}`);
+      // P22-2 (audit UX-03): menyu — ko'pi bilan 9 band, 3 guruh; keng ekranda AYLANTIRISHSIZ to'liq sig'adi; Model qadamida
+      // "Usul" qatori (standart — Avtomatik; Avtomatik rejim o'zi yorliq almashtirmaydi; tanlov mavjud yorliqni ochadi)
+      for (const msg of await page.evaluate(async () => {
+        const bad = [];
+        const wait = ms => new Promise(r => setTimeout(r, ms));
+        const tabNow = () => (document.querySelector('.tab-panel.active') || {}).id;
+        const side = document.querySelector('.side-nav'), box = side && side.querySelector('.nav-scroll');
+        const all = side ? [...side.querySelectorAll('.nav-item')] : [];
+        if (all.length !== 9) bad.push('menyu bandlari soni ' + all.length + ' (9 bo\'lishi kerak)');
+        if (side && side.querySelectorAll('.nav-group').length !== 3) bad.push('menyu guruhlari soni 3 emas');
+        if (side && getComputedStyle(side).display !== 'none') {
+          const vis = all.filter(el => el.getBoundingClientRect().height > 0);
+          if (vis.length > 9 || vis.length < 8) bad.push('ko\'rinadigan menyu bandlari: ' + vis.length);
+          if (innerWidth >= 980 && innerHeight >= 900) {
+            if (box.scrollHeight > box.clientHeight) bad.push('menyu aylantirishsiz sig\'madi: scrollHeight ' + box.scrollHeight + ' > clientHeight ' + box.clientHeight);
+            for (const el of vis) { const r = el.getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight + 0.5) bad.push('menyu bandi ekrandan tashqarida: ' + el.textContent.trim().slice(0, 24)); }
+          }
+          if (side.querySelector('a[href*="validation-report"]')) bad.push('"Validatsiya hisoboti" menyuda qolgan');
+        }
+        window.UCShell.goStep('model');
+        await wait(60);
+        const row = document.getElementById('method-row');
+        const shown = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+        if (!shown(row)) { bad.push('usul qatori ko\'rinmaydi'); return bad; }
+        // bu yerda hisob shablondan (legacy-density): usul shablondan olingan va QULFLANGAN
+        if (row.dataset.methodMode !== 'template' || row.querySelector('[data-method-change]') || document.getElementById('method-select')) bad.push('shablonda usul qulflanmagan');
+        if (window.UCMethod.choose('REGRESSION') !== false || tabNow() !== 'tab-model') bad.push('shablonda usul o\'zgartirildi');
+        if (document.getElementById('model-box').getBoundingClientRect().top < row.getBoundingClientRect().bottom - 0.5) bad.push('usul qatori model kartasining tepasida emas');
+        // eski kalit va menyu bandlari ishlaydi
+        window.UCShell.go('topdown'); await wait(60);
+        if (tabNow() !== 'tab-topdown') bad.push('UCShell.go(\'topdown\') ishlamadi');
+        window.UCShell.go('lab-quality'); await wait(80);
+        const lb = [...document.querySelectorAll('#tab-lab [data-lb-tab]')].map(b => b.dataset.lbTab).join(',');
+        if (tabNow() !== 'tab-lab' || lb !== 'pt,validation') bad.push('"Malaka sinovlari va validatsiya" ichki yorliqlari: ' + lb);
+        window.UCShell.go('lab-control'); await wait(80);
+        const lc = [...document.querySelectorAll('#tab-lab [data-lb-tab]')].map(b => b.dataset.lbTab).join(',');
+        if (lc !== 'qc,standards,cmc') bad.push('"QC va etalonlar" ichki yorliqlari: ' + lc);
+        const act = document.querySelector('.side-nav .nav-item.active');
+        if (getComputedStyle(side).display !== 'none' && (!act || act.dataset.nav !== 'lab-control')) bad.push('laboratoriya bandi faol emas');
+        window.UCShell.goStep('model'); await wait(60);
+        if (document.querySelector('.side-nav .nav-item.active')) bad.push('GUM ish oqimida menyu bandi faol (faqat stepper bo\'lishi kerak)');
+        return bad;
+      })) problems.push(`${name} ${tag}: P22-2: ${msg}`);
       for (const s of SCREENS) {
         const id = `${name} ${s.key} ${tag}`;
         if (s.skip && await s.skip(page)) continue;
