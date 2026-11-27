@@ -860,6 +860,8 @@ Qoidalar — tartib bilan, birinchi mos kelgani:
 | 4 | aks holda; `result.mcm.required === true` | `MC` | `result.mcm.reasons` ning **aynan nusxasi** (`a`–`d`, `value`, `threshold`, `ref`, …) | mcm-decision.js (P20) |
 | 4 | aks holda | `GUM` | `measurement_model` | JCGM 100:2008 §5.1 (verified) |
 
+- **1a — qoidalar tartibidan chetlanish (egasi tasdiqladi, 2026-11-27):** "birinchi mos kelgan qoida" bo'yicha ko'p chiqishli GUM shabloni (MV-01) `GUM` bo'lar edi; vektor modelda natija kovariatsiya matritsasi va qamrov sohasi bilan beriladi (JCGM 102:2011 §6.2, §6.3), shuning uchun `MULTIVARIATE` qaytadi. Shablon qulfi saqlanadi: `alternatives` bo'sh, `settings.dataKind` va `result.mcm` e'tiborga olinmaydi (test: `1a-qoida`).
+- **ISO 11352:2025 va ISO 28037:2026** — nashr yillarini egasi rasmiy nusxalar bilan solishtirgan (2026-11-26: ISO 11352:2025 — 2-nashr, 2012 o'rniga; ISO 28037:2026 — 1-nashr, ISO/TS 28037:2010 o'rniga); fixture'lar bilan tasdiqlash P23 da — ungacha "(unverified)".
 - `verified: false` — manba `docs/references/` da yo'q yoki solishtirilmagan; bunday `ref` "(unverified)" bilan tugaydi (P23 da tasdiqlanadi).
 - `DATA_KINDS` — `settings.dataKind` qiymatlari (`'model'` va noma'lum qiymat — 4-qoida); `ADVISOR_REASONS` — sabab kodlari (i18n: `adv_r_<kod>`).
 - **`settings.dataKind` (va interfeysdagi `settings.method`) — faqat interfeys maydonlari:** `evaluate()` ularni o'qimaydi; 9 ta etalon nuqtada natija bit darajasida o'zgarmasligi `tests/engine/method-advisor.test.js` da tekshiriladi.

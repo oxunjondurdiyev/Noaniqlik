@@ -37,8 +37,28 @@ function newCalc() {
   if (!window.App) return;
   // kiritilgan ma'lumot bor hisob jimgina o'chirilmaydi — avvalgi "Yangi seans" tasdig'i bilan
   const busy = window.UCFlow && window.UCFlow.hasSession(state());
-  if (busy && !window.confirm(t('confirm_new_session'))) return;
+  if (busy && $('confirm-new')) { openConfirm(); return; }
   window.App.newCalculation();
+}
+/* Tasdiq dialogi (egasi qarori 2026-11-27): brauzer confirm() emas; fokus standart holatda "Bekor qilish" da (xavfsiz tanlov),
+   Esc va fon bosilishi — bekor qilish; Tab ikki tugma orasida aylanadi; yopilgach fokus ochgan elementga qaytadi. */
+let confirmOpener = null;
+function openConfirm() {
+  const box = $('confirm-new');
+  if (!box.hidden) return;
+  confirmOpener = document.activeElement;
+  setProfile(false);
+  box.hidden = false;
+  $('confirm-new-cancel').focus();
+}
+function closeConfirm(accept) {
+  const box = $('confirm-new');
+  if (!box || box.hidden) return;
+  box.hidden = true;
+  const back = confirmOpener;
+  confirmOpener = null;
+  if (accept) { window.App.newCalculation(); return; }
+  if (back && back !== document.body && back.focus && back.isConnected) back.focus();
 }
 function openSettings(then) {
   const b = document.querySelector('[data-open-lab]');
@@ -298,6 +318,8 @@ function bind() {
     }
     if (e.target.closest('#btn-profile')) { setProfile($('profile-menu').hidden); return; }
     if (!e.target.closest('#profile-menu')) setProfile(false); else if (e.target.closest('.menu-item')) setProfile(false);
+    if (e.target.closest('[data-confirm-cancel]')) { closeConfirm(false); return; }
+    if (e.target.closest('#confirm-new-ok')) { closeConfirm(true); return; }
     if (e.target.closest('[data-cmdk-close]')) closeCmdk();
     const opt = e.target.closest('.cmdk-item');
     if (opt) runItem(Number(opt.dataset.index));
@@ -308,6 +330,13 @@ function bind() {
   if (fab) fab.addEventListener('click', () => { const btn = primary(); if (btn) btn.click(); });
 
   document.addEventListener('keydown', e => {
+    const cn = $('confirm-new');
+    if (cn && !cn.hidden) {          // modal: Esc — bekor qilish; Tab — ikki tugma orasida; boshqa tezkor tugmalar ishlamaydi
+      if (e.key === 'Escape') { e.preventDefault(); closeConfirm(false); }
+      else if (e.key === 'Tab') { e.preventDefault(); (document.activeElement === $('confirm-new-cancel') ? $('confirm-new-ok') : $('confirm-new-cancel')).focus(); }
+      else if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) e.preventDefault();
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'k' || e.key === 'K')) {
       if ($('app').classList.contains('hidden')) return;
       e.preventDefault();

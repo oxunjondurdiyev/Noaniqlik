@@ -162,6 +162,14 @@ test('AVTOMATIK REJIM O\'ZI YORLIQ ALMASHTIRMAYDI: ma\'lumot turi → faqat tavs
   // manbasi repoda yo'q usullarda "(unverified)" havolasi ko'rinadi; mikrobiologiya — BETA belgisi bilan
   assert.match($('#method-row').textContent, /ISO 19036 \(unverified\)/);
   assert.ok($('[data-method-beta]'));
+  // BETA izohi (egasi qarori 2026-11-27): ko'rinadigan matn + belgining title atributi, uch tilda
+  const TRn = { uz: /ISO 19036 bo'yicha tekshiruv yakunlanmagan \(P19\); rasmiy hisobotda ishlatmang/, ru: /проверка по ISO 19036 не завершена \(P19\); не используйте в официальном отчёте/, en: /verification against ISO 19036 is not complete \(P19\); do not use in an official report/ };
+  for (const lang of LANGS) {
+    w.i18n.lang = lang; doc.dispatchEvent(new w.Event('langchange'));
+    assert.match($('[data-method-beta-note]').textContent, TRn[lang], lang);
+    assert.match($('[data-method-beta]').getAttribute('title'), TRn[lang], lang);
+  }
+  w.i18n.lang = 'uz'; doc.dispatchEvent(new w.Event('langchange'));
   // ichki rejimlar oldindan tanlandi (mavjud API orqali)
   assert.equal(special.mode, 'micro');
   assert.equal(topdown.basis, 'sR');

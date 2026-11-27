@@ -879,6 +879,19 @@
       <p class="cmdk-empty" id="cmdk-empty" hidden data-i18n="sh_search_empty">Nothing found</p>
     </div>
   </div>
+
+  <!-- P22-2: "Yangi hisob" tasdig'i — ilova ichidagi dialog (brauzer confirm() emas); fokus standart holatda "Bekor qilish" da, Esc yopadi -->
+  <div class="cmdk confirm" id="confirm-new" hidden>
+    <div class="cmdk-backdrop" data-confirm-cancel="1"></div>
+    <div class="cmdk-panel confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="confirm-new-title" aria-describedby="confirm-new-text">
+      <h2 class="confirm-title" id="confirm-new-title" data-i18n="sh_cn_title">Start a new calculation?</h2>
+      <p class="confirm-text" id="confirm-new-text" data-i18n="sh_cn_text"></p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" id="confirm-new-cancel" data-confirm-cancel="1" data-i18n="sh_cn_cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-new-ok" data-i18n="sh_cn_ok">Start new</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════

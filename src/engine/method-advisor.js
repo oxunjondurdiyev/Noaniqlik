@@ -81,7 +81,11 @@ export function suggestMethod(state, result) {
   const multiReason = st.implicit ? 'implicit_model' : 'multi_output';
 
   // 1) Shablon: usul shablonning evaluationMode idan (shablon — tekshirilgan metodika, usul qulflangan).
-  //    GUM_BOTTOM_UP shabloni bir nechta chiqishli / oshkormas bo'lsa (masalan MV-01) — MULTIVARIATE (JCGM 102:2011 §6.2, §6.3).
+  // 1a) QOIDALAR TARTIBIDAN CHETLANISH (egasi tasdiqladi 2026-11-27): GUM_BOTTOM_UP shabloni bir nechta chiqishli yoki
+  //     oshkormas bo'lsa (masalan MV-01), 1-qoida "GUM" bermaydi — MULTIVARIATE qaytadi (sabablar: template_mode +
+  //     multi_output / implicit_model). Vektor modelda natija kovariatsiya matritsasi va qamrov sohasi bilan beriladi —
+  //     uni "GUM (LPU)" deb atash metrologik jihatdan noto'g'ri. Shablon qulfi saqlanadi (alternatives bo'sh).
+  //     Ref: JCGM 102:2011 §6.2 (oshkor), §6.3 (oshkor bo'lmagan)
   const tplMode = tpl ? TEMPLATE_MODE[tpl.evaluationMode] : undefined;
   if (tplMode) {
     if (tplMode === 'GUM' && isMulti(st)) return out('MULTIVARIATE', pick(['template_mode', multiReason]), []);

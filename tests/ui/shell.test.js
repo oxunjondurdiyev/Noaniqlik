@@ -236,7 +236,8 @@ test('chap menyu (P22-2): amal bandlari mavjud ishlovchilar orqali; 1-qadamda "S
   }
   const shellApp = read('src/ui/shell/app.js');
   // "Yangi hisob": kiritilgan ma'lumot bor hisob jimgina o'chirilmaydi
-  assert.match(shellApp, /const busy = window\.UCFlow && window\.UCFlow\.hasSession\(state\(\)\);\s*if \(busy && !window\.confirm\(t\('confirm_new_session'\)\)\) return;\s*window\.App\.newCalculation\(\);/);
+  assert.match(shellApp, /const busy = window\.UCFlow && window\.UCFlow\.hasSession\(state\(\)\);\s*if \(busy && \$\('confirm-new'\)\) \{ openConfirm\(\); return; \}\s*window\.App\.newCalculation\(\);/);
+  assert.ok(!/window\.confirm\(/.test(shellApp), 'brauzer confirm() ishlatilmaydi — ilova ichidagi dialog');
   // "Saqlangan hisoblar": Bosh sahifa + ro'yxat sarlavhasiga o'tish va fokus
   assert.match(shellApp, /action === 'saved'\) \{ if \(window\.App\) window\.App\.showScreen\('dash'\); setTimeout\(\(\) => focusEl\(\$\('home-recent-title'\)\), 0\); \}/);
   assert.ok(doc.getElementById('home-recent-title') && doc.getElementById('home-sessions'));
@@ -251,6 +252,59 @@ test('chap menyu (P22-2): amal bandlari mavjud ishlovchilar orqali; 1-qadamda "S
   const tplApp = read('src/ui/tpl/app.js');
   assert.match(tplApp, /closest\('\[data-open-templates\]'\)\) \{ openCatalog\(\)/);
   assert.equal((tplApp.match(/closest\('\[data-open-templates\]'\)/g) || []).length, 1, 'ishlovchi bir marta ulangan');
+});
+
+test('"Yangi hisob" tasdig\'i (egasi qarori 2026-11-27): ilova ichidagi dialog — fokus "Bekor qilish" da, Esc yopadi, uch tilda', async () => {
+  const { pathToFileURL } = require('node:url');
+  const dom = new JSDOM(read('index.html').replace(/<script[\s\S]*?<\/script>/g, ''), { url: 'https://example.test/', runScripts: 'outside-only' });
+  const w = dom.window, doc = w.document;
+  w.eval(read('src/ui/escape.js'));
+  const TR = w.eval(['i18n.js', 'i18n-ext.js', 'i18n-templates.js', 'i18n-regression.js', 'i18n-topdown.js', 'i18n-shell.js', 'i18n-p20.js', 'i18n-flow.js', 'i18n-advisor.js'].map(f => read('src/js/' + f)).join('\n;\n') + '\n;TRANSLATIONS');
+  for (const lang of ['uz', 'ru', 'en']) for (const k of ['sh_cn_title', 'sh_cn_text', 'sh_cn_cancel', 'sh_cn_ok']) assert.ok(TR[lang][k] && TR[lang][k].trim(), `${lang}: ${k}`);
+  assert.equal(TR.uz.sh_cn_cancel, 'Bekor qilish');
+  let busy = true, started = 0, native = 0;
+  w.appState = { get: () => ({}), subscribe() {} };
+  w.UCFlow = { hasSession: () => busy };
+  w.App = { newCalculation: () => { started++; }, showScreen() {} };
+  w.switchTab = () => {};
+  w.confirm = () => { native++; return true; };
+  doc.getElementById('app').classList.remove('hidden');
+  global.window = w; global.document = doc;
+  await import(pathToFileURL(path.join(ROOT, 'src/ui/shell/app.js')).href + '?confirm');
+  const box = doc.getElementById('confirm-new'), cancel = doc.getElementById('confirm-new-cancel'), ok = doc.getElementById('confirm-new-ok');
+  const panel = box.querySelector('[role="alertdialog"]');
+  assert.equal(panel.getAttribute('aria-modal'), 'true');
+  assert.ok(doc.getElementById(panel.getAttribute('aria-labelledby')) && doc.getElementById(panel.getAttribute('aria-describedby')));
+  assert.ok(box.hidden);
+  assert.equal(ok.classList.contains('btn-primary') || cancel.classList.contains('btn-primary'), false, 'ikkinchi asosiy tugma qo\'shilmagan');
+  const key = k => doc.dispatchEvent(new w.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+  const opener = doc.querySelector('#side-nav [data-nav-action="new"]');
+  // 1) ma'lumot bor: dialog ochiladi, fokus "Bekor qilish" da; Esc — yopiladi, hisob o'chirilmaydi, fokus qaytadi
+  opener.focus();
+  opener.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  assert.equal(box.hidden, false);
+  assert.equal(doc.activeElement, cancel, 'standart fokus — xavfsiz tanlov');
+  key('Tab'); assert.equal(doc.activeElement, ok);
+  key('Tab'); assert.equal(doc.activeElement, cancel, 'Tab dialog ichida aylanadi');
+  key('Escape');
+  assert.ok(box.hidden);
+  assert.equal(started, 0);
+  assert.equal(doc.activeElement, opener);
+  // 2) "Bekor qilish" tugmasi va fon — bekor qilish
+  w.UCShell.runAction('new'); cancel.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  assert.ok(box.hidden); assert.equal(started, 0);
+  w.UCShell.runAction('new'); box.querySelector('.cmdk-backdrop').dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  assert.ok(box.hidden); assert.equal(started, 0);
+  // 3) tasdiq — yangi hisob boshlanadi (bir marta)
+  w.UCShell.runAction('new'); ok.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  assert.ok(box.hidden); assert.equal(started, 1);
+  // 4) bo'sh hisob — dialogsiz, to'g'ridan-to'g'ri
+  busy = false;
+  w.UCShell.runAction('new');
+  assert.ok(box.hidden); assert.equal(started, 2);
+  assert.equal(native, 0, 'brauzer confirm() chaqirilmadi');
+  // profil menyusidagi "Yangi seans" ham shu dialog orqali (src/js/app.js)
+  assert.match(read('src/js/app.js'), /if \(window\.UCShell && window\.UCShell\.runAction\) window\.UCShell\.runAction\('new'\);/);
 });
 
 test('toast: bir xil xabar ekranda turganida ikkinchi nusxa qo\'shilmaydi; A tur va yakuniy hisob xabarlari alohida', () => {

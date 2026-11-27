@@ -42,7 +42,9 @@ function render() {
   const r = methodRow(st, suggestion(st));
   if (r.locked) picking = false;
   const name = esc(t(r.method.labelKey));
-  const beta = r.method.beta ? ` <span class="badge badge-orange" data-method-beta="1">${esc(t('mt_beta'))}</span>` : '';
+  // BETA (mikrobiologiya): belgi + ko'rinadigan izoh (egasi qarori 2026-11-27) — rasmiy hisobotda ishlatilmasin
+  const beta = r.method.beta ? ` <span class="badge badge-orange" data-method-beta="1" title="${esc(t('mt_beta_note'))}">${esc(t('mt_beta'))}</span>` : '';
+  const betaNote = r.method.beta ? `<p class="method-beta-note text-sm" data-method-beta-note="1">${esc(t('mt_beta'))}: ${esc(t('mt_beta_note'))}</p>` : '';
   const tplId = r.locked && st.template && st.template.id ? ` <span class="mono text-xs" translate="no">${esc(st.template.id)}</span>` : '';
   const head = r.mode === 'template' ? `${esc(t('mt_by_template'))}: <strong data-method-name="${esc(r.method.key)}">${name}</strong>${tplId}`
     : r.mode === 'auto' ? `${esc(t('mt_label'))}: <strong data-method-name="AUTO">${esc(t('mt_auto'))}</strong> <span aria-hidden="true">→</span> <span data-method-suggested="${esc(r.method.key)}">${name}</span>`
@@ -65,6 +67,7 @@ function render() {
       <label class="method-pick-label" for="method-select">${esc(t('mt_pick'))}</label>
       <select id="method-select" data-method-select="1">${opts}</select>
     </div>`}
+    ${betaNote}
     ${kinds}`;
   if (html === lastHtml && box.firstChild) return;
   lastHtml = html;

@@ -47,6 +47,30 @@ test('1-qoida: shablon evaluationMode → usul (GUM_BOTTOM_UP → GUM); noma\'lu
   assert.deepEqual(codes(mv), ['template_mode', 'multi_output']);
 });
 
+test('1a-qoida (egasi tasdiqladi 2026-11-27): ko\'p chiqishli GUM shabloni MV-01 → MULTIVARIATE, shablon qulfi saqlanadi', () => {
+  // haqiqiy shablon: evaluationMode GUM_BOTTOM_UP, lekin bir nechta chiqish (JCGM 102:2011 §6.2)
+  const tpl = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'templates/builtin/MV-01.json'), 'utf8'));
+  assert.equal(tpl.evaluationMode, 'GUM_BOTTOM_UP');
+  assert.ok(Array.isArray(tpl.outputs) && tpl.outputs.length >= 2, 'MV-01 — ko\'p chiqishli shablon');
+  const state = { template: { id: tpl.id, evaluationMode: tpl.evaluationMode }, outputs: tpl.outputs.map(o => ({ formula: o.formula })) };
+  const s = E.suggestMethod(state);
+  wellFormed(s);
+  assert.equal(s.method, 'MULTIVARIATE');
+  assert.deepEqual(s.reasons, [
+    { code: 'template_mode', ref: 'docs/TEMPLATE_GUIDE.md — evaluationMode', verified: true },
+    { code: 'multi_output', ref: 'JCGM 102:2011 §6.2', verified: true },
+  ]);
+  assert.deepEqual(s.alternatives, [], 'shablon qulfi: muqobil taklif qilinmaydi');
+  // shablon ustun: dataKind va MCM talabi tavsiyani o'zgartirmaydi
+  const same = E.suggestMethod({ ...state, settings: { dataKind: 'qc_crm_pt', method: 'REGRESSION' } }, { mcm: { required: true, reasons: [{ code: 'd', value: 3, threshold: 6, ref: 'r' }] } });
+  assert.deepEqual(same, s);
+  // oshkormas GUM shabloni — implicit_model
+  assert.deepEqual(codes(E.suggestMethod({ template: { evaluationMode: 'GUM_BOTTOM_UP' }, implicit: { unknowns: [{ name: 'y', start: 1 }], equations: ['y - x'] } })), ['template_mode', 'implicit_model']);
+  // salbiy: bitta chiqishli GUM shabloni — GUM; GUM bo'lmagan shablon (masalan TOP_DOWN) chiqishlar soniga qaramaydi
+  assert.equal(E.suggestMethod({ template: { evaluationMode: 'GUM_BOTTOM_UP' }, outputs: [{ formula: 'a' }] }).method, 'GUM');
+  assert.equal(E.suggestMethod({ template: { evaluationMode: 'TOP_DOWN' }, outputs: [{ formula: 'a' }, { formula: 'b' }] }).method, 'TOP_DOWN');
+});
+
 test('2-qoida: oshkormas model yoki ≥ 2 chiqish → MULTIVARIATE (JCGM 102:2011 §6.2, §6.3); bitta chiqish — yo\'q', () => {
   const two = E.suggestMethod({ outputs: [{ formula: 'R = V / I' }, { formula: 'X = V * I' }], settings: { dataKind: 'qc_crm_pt' } });
   wellFormed(two);
@@ -121,14 +145,25 @@ test('9 ta etalon nuqta: GUM yoki MC; MC da sabablar result.mcm.reasons bilan de
   }
 });
 
-test('settings.dataKind (va interfeysdagi settings.method) evaluate() natijasiga ta\'sir qilmaydi — 9 nuqtada bit darajasida', () => {
+test('settings.dataKind va settings.method — faqat interfeys maydonlari: evaluate() natijasi 9 nuqtada bit darajasida o\'zgarmaydi', () => {
+  // usul tanlovi kalitlari — interfeys ro'yxatidan (src/ui/method/model.js), shu jumladan noma'lum qiymat
+  const { METHODS } = require('../../src/ui/method/model.js');
+  const methods = [...METHODS.map(m => m.key), 'NOPE'];
+  assert.ok(methods.includes('REGRESSION') && methods.includes('AUTO'));
   for (const id of NINE) {
     const spec = load(id).modelSpec;
     const base = JSON.stringify(E.evaluate(clone(spec)));
     for (const kind of E.DATA_KINDS) {
       const s2 = clone(spec);
-      s2.settings = { ...(s2.settings || {}), dataKind: kind, method: 'REGRESSION' };
-      assert.equal(JSON.stringify(E.evaluate(s2)), base, `${id} / ${kind}`);
+      s2.settings = { ...(s2.settings || {}), dataKind: kind };
+      assert.equal(JSON.stringify(E.evaluate(s2)), base, `${id} / dataKind ${kind}`);
+    }
+    for (const method of methods) {
+      const s3 = clone(spec);
+      s3.settings = { ...(s3.settings || {}), method };
+      assert.equal(JSON.stringify(E.evaluate(s3)), base, `${id} / method ${method}`);
+      s3.settings.dataKind = 'calibration_curve';
+      assert.equal(JSON.stringify(E.evaluate(s3)), base, `${id} / method ${method} + dataKind`);
     }
   }
 });

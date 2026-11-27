@@ -339,6 +339,20 @@ async function run(name, playwright, server) {
         if (getComputedStyle(side).display !== 'none' && (!act || act.dataset.nav !== 'lab-control')) bad.push('laboratoriya bandi faol emas');
         window.UCShell.goStep('model'); await wait(60);
         if (document.querySelector('.side-nav .nav-item.active')) bad.push('GUM ish oqimida menyu bandi faol (faqat stepper bo\'lishi kerak)');
+        // "Yangi hisob" tasdig'i — ilova ichidagi dialog: fokus "Bekor qilish" da, Esc yopadi, hisob saqlanadi
+        const before = JSON.stringify(window.appState.get('measurements'));
+        window.UCShell.runAction('new'); await wait(80);
+        const dlg = document.getElementById('confirm-new'), cancel = document.getElementById('confirm-new-cancel');
+        if (dlg.hidden) bad.push('"Yangi hisob" tasdiq dialogi ochilmadi');
+        else {
+          if (document.activeElement !== cancel) bad.push('tasdiq dialogida fokus "Bekor qilish" da emas');
+          const r = dlg.querySelector('.confirm-panel').getBoundingClientRect();
+          if (r.left < 0 || r.right > innerWidth + 0.5 || r.top < 0 || r.bottom > innerHeight + 0.5) bad.push('tasdiq dialogi ekranga sig\'madi');
+          for (const b of dlg.querySelectorAll('button')) if (b.getBoundingClientRect().height < 44) bad.push('tasdiq dialogi tugmasi < 44 px');
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await wait(60);
+          if (!dlg.hidden) bad.push('Esc tasdiq dialogini yopmadi');
+          if (JSON.stringify(window.appState.get('measurements')) !== before) bad.push('bekor qilinganda hisob o\'zgardi');
+        }
         return bad;
       })) problems.push(`${name} ${tag}: P22-2: ${msg}`);
       for (const s of SCREENS) {
