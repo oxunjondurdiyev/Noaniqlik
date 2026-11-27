@@ -75,3 +75,5 @@ export {
 } from './validation/index.js';
 export { fCdf, fUpperTail, fCritical, tCriticalUpper, tUpperTail } from './stats/fdist.js';
 export { varianceComponent, nonNegative, pooledSd } from './stats/anova.js';
+// P22-2: usul maslahatchisi — faqat tavsiya (hisobga ta'sir qilmaydi)
+export { suggestMethod, DATA_KINDS, ADVISOR_REASONS } from './method-advisor.js';

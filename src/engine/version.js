@@ -37,5 +37,9 @@
    2.12.0 — P18 (M9, ISO/TS 20914:2019): medical/index.js — daraja qo'llanish oralig'i, takrorlanuvchanlik rejimi, lotlar bo'yicha
            pooled u_Rw (A.8), bir xil tizimlar (A.4), davrlar (A.7), u_bias CRM dan (C.5), log₁₀ shkala (A.10), ruxsat etilgan
            noaniqlik (§5.2), sanoq (§6.10); `medical_unverified` va `unverified: true` olib tashlandi (G1–G11 fixture'lari).
-           uc-medical/1 dan boshqa rejimlar natijalari 2.11.0 bilan bit darajasida bir xil (91 / 91). */
-export const ENGINE_VERSION = '2.12.0';
+           uc-medical/1 dan boshqa rejimlar natijalari 2.11.0 bilan bit darajasida bir xil (91 / 91). 
+   2.13.0 — P22-2 (audit 21.11.2026, UX-03): method-advisor.js — usul maslahatchisi suggestMethod(state, result)
+           (yangi ommaviy API: FAQAT TAVSIYA — evaluate() ni chaqirmaydi, natijaga tegmaydi; yangi son chegara yo'q,
+           MC tavsiyasi result.mcm dan). HISOB NATIJALARI O'ZGARMAGAN: 91 ta misol 2.12.0 bilan bit darajasida bir xil.
+*/
+export const ENGINE_VERSION = '2.13.0';
