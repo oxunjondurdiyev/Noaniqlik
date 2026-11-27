@@ -179,7 +179,9 @@
 
   function initReset() {
     document.getElementById('btn-reset').addEventListener('click', () => {
-      if (confirm(i18n.t('confirm_new_session'))) newCalculation();
+      // P22-2: ilova ichidagi tasdiq dialogi (src/ui/shell/app.js); qobiq yuklanmagan bo'lsa — avvalgi brauzer tasdig'i
+      if (window.UCShell && window.UCShell.runAction) window.UCShell.runAction('new');
+      else if (confirm(i18n.t('confirm_new_session'))) newCalculation();
     });
   }
 

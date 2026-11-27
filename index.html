@@ -642,34 +642,29 @@
 
     <!-- CHAP MENYU (≥ 980 px to'liq; 720–979 px — ikonkali tor ustun; < 720 px — pastki navigatsiya) -->
     <nav class="side-nav" id="side-nav" aria-label="Sections" data-i18n-aria="sh_nav">
-      <div class="nav-scroll">
+      <div class="nav-scroll" id="nav-menu">
+      <!-- P22-2: AYNAN 9 band, 3 guruh (src/ui/shell/model.js::MENU). Avvalgi bandlar (GUM, Monte-Karlo, regressiya, top-down …)
+           Model qadamidagi "Usul" qatorida va Ctrl+K qidiruvida. -->
       <p class="nav-group" data-i18n="sh_g_calc">Calculation</p>
-      <ul class="nav-list">
+      <ul class="nav-list" data-nav-group="calc">
         <li><button type="button" class="nav-item" data-go-home="1" data-nav-action="home"><svg class="ic" aria-hidden="true"><use href="#ic-home"/></svg><span class="nav-label" data-i18n="sh_n_home"></span><span class="nav-short" data-i18n="sh_s_home" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-open-templates="1" data-nav-action="templates"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span class="nav-label" data-i18n="tpl_open_catalog"></span><span class="nav-short" data-i18n="sh_s_templates" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="gum"><svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg><span class="nav-label" data-i18n="sh_n_gum"></span><span class="nav-short" data-i18n="sh_s_gum" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="mc"><svg class="ic" aria-hidden="true"><use href="#ic-mc"/></svg><span class="nav-label" data-i18n="sh_n_mc"></span><span class="nav-short" data-i18n="sh_s_mc" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="multi"><svg class="ic" aria-hidden="true"><use href="#ic-multi"/></svg><span class="nav-label" data-i18n="sh_n_multi"></span><span class="nav-short" data-i18n="sh_s_multi" aria-hidden="true"></span></button></li>
-      </ul>
-      <p class="nav-group" data-i18n="sh_g_methods">Methods</p>
-      <ul class="nav-list">
-        <li><button type="button" class="nav-item" data-nav="regression"><svg class="ic" aria-hidden="true"><use href="#ic-regression"/></svg><span class="nav-label" data-i18n="tab_regression"></span><span class="nav-short" data-i18n="sh_s_regression" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="topdown"><svg class="ic" aria-hidden="true"><use href="#ic-topdown"/></svg><span class="nav-label" data-i18n="tab_topdown"></span><span class="nav-short" data-i18n="sh_s_topdown" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="special"><svg class="ic" aria-hidden="true"><use href="#ic-special"/></svg><span class="nav-label" data-i18n="sh_n_special"></span><span class="nav-short" data-i18n="sh_s_special" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav-action="new"><svg class="ic" aria-hidden="true"><use href="#ic-gum"/></svg><span class="nav-label" data-i18n="sh_n_new"></span><span class="nav-short" data-i18n="sh_s_new" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-open-templates="1" data-nav-action="templates"><svg class="ic" aria-hidden="true"><use href="#ic-templates"/></svg><span class="nav-label" data-i18n="sh_n_templates"></span><span class="nav-short" data-i18n="sh_s_templates" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav-action="saved"><svg class="ic" aria-hidden="true"><use href="#ic-data"/></svg><span class="nav-label" data-i18n="sh_n_saved"></span><span class="nav-short" data-i18n="sh_s_saved" aria-hidden="true"></span></button></li>
       </ul>
       <p class="nav-group" data-i18n="sh_g_lab">Laboratory</p>
-      <ul class="nav-list">
-        <li><button type="button" class="nav-item" data-nav="lab-qc"><svg class="ic" aria-hidden="true"><use href="#ic-qc"/></svg><span class="nav-label" data-i18n="sh_n_qc"></span><span class="nav-short" data-i18n="sh_s_qc" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="lab-standards"><svg class="ic" aria-hidden="true"><use href="#ic-registry"/></svg><span class="nav-label" data-i18n="sh_n_registry"></span><span class="nav-short" data-i18n="sh_s_registry" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="lab-pt"><svg class="ic" aria-hidden="true"><use href="#ic-pt"/></svg><span class="nav-label" data-i18n="sh_n_pt"></span><span class="nav-short" data-i18n="sh_s_pt" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-nav="lab-validation"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span class="nav-label" data-i18n="sh_n_validation"></span><span class="nav-short" data-i18n="sh_s_validation" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-open-lab="1" data-nav-action="lab-settings"><svg class="ic" aria-hidden="true"><use href="#ic-sliders"/></svg><span class="nav-label" data-i18n="tpl_btn_lab"></span><span class="nav-short" data-i18n="sh_s_labset" aria-hidden="true"></span></button></li>
-        <li><button type="button" class="nav-item" data-open-data="1" data-nav-action="data"><svg class="ic" aria-hidden="true"><use href="#ic-data"/></svg><span class="nav-label" data-i18n="tpl_btn_data"></span><span class="nav-short" data-i18n="sh_s_data" aria-hidden="true"></span></button></li>
+      <ul class="nav-list" data-nav-group="lab">
+        <li><button type="button" class="nav-item" data-nav="lab-control"><svg class="ic" aria-hidden="true"><use href="#ic-qc"/></svg><span class="nav-label" data-i18n="sh_n_labcontrol"></span><span class="nav-short" data-i18n="sh_s_labcontrol" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-nav="lab-quality"><svg class="ic" aria-hidden="true"><use href="#ic-pt"/></svg><span class="nav-label" data-i18n="sh_n_labquality"></span><span class="nav-short" data-i18n="sh_s_labquality" aria-hidden="true"></span></button></li>
+        <li><button type="button" class="nav-item" data-open-lab="1" data-nav-action="settings"><svg class="ic" aria-hidden="true"><use href="#ic-sliders"/></svg><span class="nav-label" data-i18n="sh_n_settings"></span><span class="nav-short" data-i18n="sh_s_labset" aria-hidden="true"></span></button></li>
+      </ul>
+      <p class="nav-group" data-i18n="sh_g_help">Help</p>
+      <ul class="nav-list" data-nav-group="help">
+        <li><a class="nav-item" id="nav-manual" href="manual/en.html" data-nav-action="manual" hidden><svg class="ic" aria-hidden="true"><use href="#ic-report"/></svg><span class="nav-label" data-i18n="sh_n_manual"></span><span class="nav-short" data-i18n="sh_s_manual" aria-hidden="true"></span></a></li>
+        <li><button type="button" class="nav-item" data-nav="learn"><svg class="ic" aria-hidden="true"><use href="#ic-vizlab"/></svg><span class="nav-label" data-i18n="sh_n_learn"></span><span class="nav-short" data-i18n="sh_s_learn" aria-hidden="true"></span></button></li>
       </ul>
       </div>
       <div class="nav-foot">
-        <button type="button" class="nav-item" data-nav="vizlab"><svg class="ic" aria-hidden="true"><use href="#ic-vizlab"/></svg><span class="nav-label" data-i18n="sh_n_vizlab"></span><span class="nav-short" data-i18n="sh_s_vizlab" aria-hidden="true"></span></button>
-        <a class="nav-item" href="validation/validation-report.html" id="nav-validation-report"><svg class="ic" aria-hidden="true"><use href="#ic-validation"/></svg><span class="nav-label" data-i18n="sh_n_valreport"></span><span class="nav-short" data-i18n="sh_s_valreport" aria-hidden="true"></span></a>
         <p class="nav-build mono" id="nav-build" aria-live="off"></p>
       </div>
     </nav>
@@ -713,6 +708,8 @@
           </div>
         </div>
         <div class="data-scroll">
+          <!-- P22-2: usul qatori — "Usul: <nom> — <sabab>. [O'zgartirish]" (src/ui/method/app.js) -->
+          <div id="method-row" class="method-row" aria-live="polite"></div>
           <div id="model-box"></div>
         </div>
         <div class="panel-footer">
@@ -882,6 +879,19 @@
       <p class="cmdk-empty" id="cmdk-empty" hidden data-i18n="sh_search_empty">Nothing found</p>
     </div>
   </div>
+
+  <!-- P22-2: "Yangi hisob" tasdig'i — ilova ichidagi dialog (brauzer confirm() emas); fokus standart holatda "Bekor qilish" da, Esc yopadi -->
+  <div class="cmdk confirm" id="confirm-new" hidden>
+    <div class="cmdk-backdrop" data-confirm-cancel="1"></div>
+    <div class="cmdk-panel confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="confirm-new-title" aria-describedby="confirm-new-text">
+      <h2 class="confirm-title" id="confirm-new-title" data-i18n="sh_cn_title">Start a new calculation?</h2>
+      <p class="confirm-text" id="confirm-new-text" data-i18n="sh_cn_text"></p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" id="confirm-new-cancel" data-confirm-cancel="1" data-i18n="sh_cn_cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-new-ok" data-i18n="sh_cn_ok">Start new</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════
@@ -1003,10 +1013,12 @@
 <script src="src/js/i18n-vizlab.js"></script>
 <script src="src/js/i18n-p20.js"></script>
 <script src="src/js/i18n-flow.js"></script>
+<script src="src/js/i18n-advisor.js"></script>
 <script src="src/js/i18n-access.js"></script>
 <script src="src/js/state.js"></script>
 <script type="module" src="src/js/calc.js"></script>
 <script type="module" src="src/ui/flow/app.js"></script>
+<script type="module" src="src/ui/method/app.js"></script>
 <script src="src/js/table.js"></script>
 <script src="src/js/typeB.js"></script>
 <script src="src/js/points.js"></script>

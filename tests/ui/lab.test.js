@@ -105,7 +105,10 @@ test('ko\'rinish uch tilda: etalonlar ro\'yxati (muddati o\'tgan / yaqin, akkred
     const f = frag(V.tabsHTML('standards', ctx) + V.roleNoticeHTML({ readOnly: false }, ctx) + V.standardsListHTML({ standards: list, readOnly: false, selected: 'std:b' }, ctx)
       + V.standardFormHTML({ draft: M.draftOf(STD()), readOnly: false, isNew: false, history: [{ at: '2026-11-18T10:00:00.000Z', actor: 'admin', action: 'create', after: { version: 1 }, reason: 'standard_create' }],
         analysis: { x: 100, method: 'last_two', distribution: 'rect', limit: 0.15, includeU: true, drift: E.driftProposal(E.correctionHistory(STD(), 100)), interval: E.intervalRecommendation(E.correctionHistory(STD(), 100), { limit: 0.15 }) } }, ctx));
-    assert.equal(f.querySelectorAll('[data-lb-tab]').length, 5);   // P12: + malaka sinovlari, validatsiya
+    // P22-2: qatorda faqat joriy yorliq guruhi; ikki guruh birga — barcha 5 yorliq (P12), takrorsiz
+    assert.deepEqual([...f.querySelectorAll('[data-lb-tab]')].map(b => b.dataset.lbTab), ['qc', 'standards', 'cmc']);
+    assert.deepEqual([...frag(V.tabsHTML('validation', ctx)).querySelectorAll('[data-lb-tab]')].map(b => b.dataset.lbTab), ['pt', 'validation']);
+    assert.deepEqual(V.TAB_GROUPS.flat().sort(), [...V.TABS].sort());
     assert.deepEqual([...f.querySelectorAll('[data-lb-status]')].map(e => e.dataset.lbStatus), ['expired', 'expiring']);
     assert.equal(f.querySelectorAll('[data-lb-noaccr]').length, 1);
     assert.equal(f.querySelectorAll('[data-lb-cal-box]').length, 3);
@@ -281,9 +284,15 @@ before(async () => {
   await tick();
 });
 
-test('kontroller: oyna chiziladi (5 yorliq — P12), hodisalar addEventListener orqali', () => {
+test('kontroller: oyna chiziladi (5 yorliq — P12; P22-2: ikki guruhda), hodisalar addEventListener orqali', () => {
   assert.ok(w.UCLab);
-  assert.equal(doc.querySelectorAll('[data-lb-tab]').length, 5);
+  // P22-2: ichki yorliqlar qatorida faqat joriy yorliq guruhi — "QC va etalonlar" (3) yoki "Malaka sinovlari va validatsiya" (2)
+  const shown = () => [...doc.querySelectorAll('[data-lb-tab]')].map(b => b.dataset.lbTab);
+  assert.deepEqual(shown(), ['qc', 'standards', 'cmc']);
+  w.UCLab.setTab('pt');
+  assert.deepEqual(shown(), ['pt', 'validation']);
+  w.UCLab.setTab('standards');
+  assert.deepEqual(shown(), ['qc', 'standards', 'cmc']);
   assert.ok($('[data-lb-list="standards"]'));
   assert.equal(doc.querySelectorAll('#lab-root [onclick], #lab-root [oninput], #lab-root [onchange]').length, 0);
 });

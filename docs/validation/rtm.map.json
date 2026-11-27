@@ -4684,5 +4684,44 @@
   ],
   "status": "verified",
   "note": "tenglik testi: evaluate(detachState(s)) = evaluateState(s) (known / unknown split, aux, namunaviy shablon); UI — jsdom va Chromium tutun-testi"
+ },
+ "REQ-UXF-007": {
+  "code": [
+   "src/ui/shell/model.js::NAV",
+   "src/ui/shell/model.js::activeNav",
+   "src/ui/shell/model.js::commandItems",
+   "src/ui/shell/app.js",
+   "src/ui/lab/view.js::tabsHTML",
+   "index.html"
+  ],
+  "tests": [
+   "tests/ui/shell.test.js",
+   "tests/ui/lab.test.js"
+  ],
+  "status": "verified",
+  "note": "1440×900 da menyu aylantirishsiz sig'ishi va bandlar soni haqiqiy brauzerda — npm run test:screens (CI validation job; npm test tarkibida emas)"
+ },
+ "REQ-UXF-008": {
+  "code": [
+   "src/ui/method/model.js::methodRow",
+   "src/ui/method/app.js",
+   "index.html"
+  ],
+  "tests": [
+   "tests/ui/method.test.js",
+   "tests/engine/method-advisor.test.js"
+  ],
+  "status": "verified",
+  "note": "jsdom; settings.dataKind / settings.method ning evaluate() ga ta'sir qilmasligi — 9 etalon nuqtada bit darajasida (tests/engine/method-advisor.test.js)"
+ },
+ "REQ-UXF-009": {
+  "code": [
+   "src/engine/method-advisor.js::suggestMethod"
+  ],
+  "tests": [
+   "tests/engine/method-advisor.test.js"
+  ],
+  "status": "verified",
+  "note": "qoida jadvali (har qoidaga ijobiy va salbiy misol); 9 etalon nuqtada GUM / MC, MC da sabablar result.mcm.reasons bilan deepEqual"
  }
 }

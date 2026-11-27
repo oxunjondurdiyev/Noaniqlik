@@ -829,3 +829,39 @@ Bitta test xatosi qolganlarini to'xtatmaydi. Test turlari (`VALIDATION_TESTS`):
 ### 15.4. Saqlash (`src/storage/quality.js`, IndexedDB v2)
 
 Omborlar `pt`, `validation` (`DB_VERSION` 1 → 2; faqat yo'q omborlar yaratiladi). `saveQuality(store, 'pt' | 'validation', rec, { role })` (versiya + 1, `savedBy`, audit), `removeQuality` (xodim — yo'q), `excludeValue(store, setId, testId, index, comment, { role, include })` (faqat admin / guest; audit amali `outlier_exclude` / `outlier_include`, sabab — izoh), `qualityHistory`, `canQuality(action, role)`. `cleanPtSeries` / `cleanValidationSet` noma'lum maydonlarni tashlaydi (ijrochi ismi va h.k. saqlanmaydi). Eksport (`uc-export/1`) P12 omborlari bo'sh bo'lsa ularni yozmaydi. Import / eksport: `src/io/quality.js` — `ptRoundsFromGrid` (.xlsx / .csv, LIMITS), `ptSeriesToRows` (CSV), `uc-quality/1` JSON (RFC 8785 xesh).
+
+## 16. Usul maslahatchisi (P22-2, ENGINE 2.13.0)
+
+`src/engine/method-advisor.js` — sof modul; **faqat tavsiya**: `evaluate()` ni chaqirmaydi, kirish holatini va natijani o'zgartirmaydi, hisobga ta'sir qilmaydi. Yangi son chegara yo'q.
+
+```js
+suggestMethod(state, result?)
+→ { method, reasons: [{ code, ref, verified }], alternatives: [method, …] }
+```
+
+- `state` — hisob holati: `params`, `model`, `outputs`, `implicit`, `template` (`evaluationMode`), `settings.dataKind`, `units`. `result` — oxirgi `evaluate()` natijasi (ixtiyoriy); undan **faqat `result.mcm`** o'qiladi.
+- `method` — linter `MODES` dan: `GUM`, `MC`, `MULTIVARIATE`, `REGRESSION`, `TOP_DOWN`, `SAMPLING`, `QUALITATIVE`, `MICRO`, `MEDICAL`. Yangi kalit yo'q: laboratoriyalararo ma'lumot → `TOP_DOWN`, sabab kodi `interlab_precision`.
+- `alternatives` — boshqa mos usullar (`method` ning o'zi kirmaydi); shablonda va vektor modelda bo'sh.
+
+Qoidalar — tartib bilan, birinchi mos kelgani:
+
+| # | Shart | `method` | Sabab kodlari | Manba |
+|---|---|---|---|---|
+| 1 | `state.template.evaluationMode` (sxemadagi 7 qiymat; `GUM_BOTTOM_UP` → `GUM`, `MICROBIOLOGY` → `MICRO`) | mos usul | `template_mode` | shablon |
+| 1a | 1-qoida `GUM` bergan, lekin holat oshkormas yoki ≥ 2 chiqishli (masalan MV-01) | `MULTIVARIATE` | `template_mode` + `multi_output` / `implicit_model` | JCGM 102:2011 §6.2, §6.3 |
+| 2 | `state.implicit` yoki `outputs.length ≥ 2` | `MULTIVARIATE` | `implicit_model` / `multi_output` | JCGM 102:2011 §6.3 / §6.2 (verified) |
+| 3 | `settings.dataKind = 'calibration_curve'` | `REGRESSION` | `calibration_curve`, `calibration_curve_iso` | JCGM 100:2008 H.3; QUAM:2012 App. E.4 (verified); ISO 28037:2026 (unverified) |
+| 3 | `'qc_crm_pt'` | `TOP_DOWN` | `qc_crm_pt`, `qc_crm_pt_iso` | Nordtest TR 537 ed. 4 §3.2 (verified); ISO 11352:2025 (unverified) |
+| 3 | `'interlab_sr_sR'` | `TOP_DOWN` | `interlab_precision` | ISO 21748:2017 §10 (unverified) |
+| 3 | `'sampling_duplicates'` | `SAMPLING` | `sampling_duplicates` | EURACHEM/CITAC UfS:2019 §9.4, App. A (verified) |
+| 3 | `'binary'` | `QUALITATIVE` | `binary` | EURACHEM/CITAC AQA:2021 (verified) |
+| 3 | `'micro_count'` | `MICRO` | `micro_count` | ISO 19036 (unverified; BETA) |
+| 3 | `'iqc_medical'` | `MEDICAL` | `iqc_medical` | ISO/TS 20914:2019 (P18 fixture'lari) |
+| 4 | aks holda; `result.mcm.required === true` | `MC` | `result.mcm.reasons` ning **aynan nusxasi** (`a`–`d`, `value`, `threshold`, `ref`, …) | mcm-decision.js (P20) |
+| 4 | aks holda | `GUM` | `measurement_model` | JCGM 100:2008 §5.1 (verified) |
+
+- **1a — qoidalar tartibidan chetlanish (egasi tasdiqladi, 2026-11-27):** "birinchi mos kelgan qoida" bo'yicha ko'p chiqishli GUM shabloni (MV-01) `GUM` bo'lar edi; vektor modelda natija kovariatsiya matritsasi va qamrov sohasi bilan beriladi (JCGM 102:2011 §6.2, §6.3), shuning uchun `MULTIVARIATE` qaytadi. Shablon qulfi saqlanadi: `alternatives` bo'sh, `settings.dataKind` va `result.mcm` e'tiborga olinmaydi (test: `1a-qoida`).
+- **ISO 11352:2025 va ISO 28037:2026** — nashr yillarini egasi rasmiy nusxalar bilan solishtirgan (2026-11-26: ISO 11352:2025 — 2-nashr, 2012 o'rniga; ISO 28037:2026 — 1-nashr, ISO/TS 28037:2010 o'rniga); fixture'lar bilan tasdiqlash P23 da — ungacha "(unverified)".
+- `verified: false` — manba `docs/references/` da yo'q yoki solishtirilmagan; bunday `ref` "(unverified)" bilan tugaydi (P23 da tasdiqlanadi).
+- `DATA_KINDS` — `settings.dataKind` qiymatlari (`'model'` va noma'lum qiymat — 4-qoida); `ADVISOR_REASONS` — sabab kodlari (i18n: `adv_r_<kod>`).
+- **`settings.dataKind` (va interfeysdagi `settings.method`) — faqat interfeys maydonlari:** `evaluate()` ularni o'qimaydi; 9 ta etalon nuqtada natija bit darajasida o'zgarmasligi `tests/engine/method-advisor.test.js` da tekshiriladi.
